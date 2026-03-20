@@ -61,7 +61,7 @@ describe('Admin Search DTOs', () => {
       row.closest_community = 'Hope';
       row.activities = ['Hiking', 'Fishing'];
       row.access_types = ['Road', '4WD'];
-      row.fee_types = ['Camping'];
+      row.fee_indicators = ['Reservable', 'Has fees'];
       row.established_date = '2021-05-12';
       row.campsite_count = 24;
 

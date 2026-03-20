@@ -12,7 +12,7 @@ const baseRow: AdminSearchResultRowDto & { status?: string } = {
   closest_community: 'HOPE',
   activities: [],
   access_types: ['Walk in'],
-  fee_types: ['Has fees'],
+  fee_indicators: ['Has fees'],
   established_date: '2024-06-10',
   campsite_count: 3,
   status: 'Open',

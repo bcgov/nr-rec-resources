@@ -87,6 +87,8 @@ function getSortValue(value: unknown): AdminSearchSort | undefined {
     'project_established_date:desc': 'established_date:desc',
     'access_types:asc': 'access:asc',
     'access_types:desc': 'access:desc',
+    'fee_indicators:asc': 'fee:asc',
+    'fee_indicators:desc': 'fee:desc',
     'fee_types:asc': 'fee:asc',
     'fee_types:desc': 'fee:desc',
     'campsite_count:asc': 'campsites:asc',

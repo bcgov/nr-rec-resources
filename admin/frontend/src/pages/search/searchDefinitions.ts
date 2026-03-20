@@ -75,8 +75,8 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
     sortKey: 'access',
   },
   {
-    id: 'fee_types',
-    label: 'Fee type',
+    id: 'fee_indicators',
+    label: 'Fee indicators',
     resultKey: 'feeType',
     sortKey: 'fee',
   },

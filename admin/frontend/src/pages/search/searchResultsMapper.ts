@@ -16,7 +16,7 @@ export function mapAdminSearchResultRow(
     district: row.district_description ?? '-',
     establishmentDate: row.established_date ?? '-',
     accessType: formatList(row.access_types),
-    feeType: formatList(row.fee_types),
+    feeType: formatList(row.fee_indicators),
     definedCampsites: row.campsite_count > 0 ? String(row.campsite_count) : '',
     closestCommunity: row.closest_community
       ? capitalizeWords(row.closest_community)

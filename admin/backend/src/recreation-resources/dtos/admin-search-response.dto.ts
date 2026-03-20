@@ -70,11 +70,11 @@ export class AdminSearchResultRowDto {
   activities: string[];
 
   @ApiProperty({
-    description: 'Fee types associated with the resource',
+    description: 'Derived fee indicators associated with the resource',
     type: [String],
-    example: ['Camping'],
+    example: ['Reservable', 'Has fees'],
   })
-  fee_types: string[];
+  fee_indicators: string[];
 
   @ApiProperty({
     description: 'Project established date',

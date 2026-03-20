@@ -96,7 +96,7 @@ export class RecreationResourceService {
             (access) => access.recreation_access_code?.description ?? '',
           ) ?? [],
         ),
-        fee_types: this.getFeeTypes(resource),
+        fee_indicators: this.getFeeTypes(resource),
         established_date: resource.project_established_date
           ? resource.project_established_date.toISOString().slice(0, 10)
           : null,
