@@ -24,7 +24,7 @@ services:
     ports: ['5432:5432']
 
   migrations:
-    image: ${FLYWAY_IMAGE:-flyway/flyway:11-alpine}
+    image: ${FLYWAY_IMAGE:-flyway/flyway:12-alpine}
     container_name: migrations
     command: info migrate info
     volumes: ['./migrations/rst/sql:/flyway/sql:ro']
@@ -39,7 +39,7 @@ services:
         condition: service_healthy
 
   fixtures:
-    image: ${FLYWAY_FIXTURES_IMAGE:-flyway/flyway:11-alpine}
+    image: ${FLYWAY_FIXTURES_IMAGE:-flyway/flyway:12-alpine}
     container_name: fixtures
     command: info migrate info
     volumes: ['./migrations/fixtures/sql:/flyway/sql:ro']
