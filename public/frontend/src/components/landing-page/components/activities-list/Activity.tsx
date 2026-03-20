@@ -37,7 +37,7 @@ export const Activity: FC<LandingPageActivity> = ({
       </Col>
       <Container className="activity-container d-block d-md-none">
         <Row className="d-flex align-items-center">
-          <Col xs={3} className="p-0">
+          <Col xs={4} className="p-0">
             <a
               href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}&view=map`}
               data-testid="mobile-link"
@@ -45,18 +45,18 @@ export const Activity: FC<LandingPageActivity> = ({
               <img
                 src={imageUrl}
                 alt={description}
-                width={100}
+                width={136}
                 height={78}
                 className="activity-image"
                 data-testid="mobile-image"
               />
             </a>
           </Col>
-          <Col xs={9} className="align-items-center justify-content-left">
+          <Col xs={6} className="align-items-center justify-content-left">
             <a
               href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}&view=map`}
             >
-              <div className="activity-title">{title}</div>
+              <div className="activity-title text-break">{title}</div>
             </a>
           </Col>
         </Row>
