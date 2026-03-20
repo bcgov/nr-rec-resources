@@ -77,14 +77,6 @@ export const serializeAdminSearchRouteState = (
     search.access = serializeListFilter(state.access);
   }
 
-  if (state.defined_campsites) {
-    search.defined_campsites = state.defined_campsites;
-  }
-
-  if (state.closest_community?.trim()) {
-    search.closest_community = state.closest_community.trim();
-  }
-
   return search;
 };
 

@@ -138,23 +138,6 @@ export class AdminSearchQueryDto {
   status?: string[];
 
   @ApiPropertyOptional({
-    description: 'Defined campsite presence filter',
-    enum: ['yes', 'no'],
-    example: 'yes',
-  })
-  @IsOptional()
-  @IsIn(['yes', 'no'])
-  defined_campsites?: 'yes' | 'no';
-
-  @ApiPropertyOptional({
-    description: 'Closest community text filter',
-    example: 'Hope',
-  })
-  @IsOptional()
-  @IsString()
-  closest_community?: string;
-
-  @ApiPropertyOptional({
     description: 'Project established date range start',
     example: '2020-01-01',
   })

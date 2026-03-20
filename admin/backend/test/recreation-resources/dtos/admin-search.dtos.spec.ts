@@ -23,8 +23,6 @@ describe('Admin Search DTOs', () => {
         district: ['CHWK_RDCK'],
         activities: ['1_22'],
         access: ['R_B'],
-        defined_campsites: 'yes',
-        closest_community: 'Hope',
         establishment_date_from: '2020-01-01',
         establishment_date_to: '2025-12-31',
       });

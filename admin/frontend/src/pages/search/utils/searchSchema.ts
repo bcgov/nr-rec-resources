@@ -15,8 +15,6 @@ import {
 
 const sortSchema = z.enum(ADMIN_SEARCH_SORT_VALUES);
 
-const definedCampsitesSchema = z.enum(['yes', 'no']);
-
 function normalizeStringToken(value: string): string {
   return value.trim().replace(/^"(.*)"$/, '$1');
 }
@@ -91,8 +89,6 @@ function getSortValue(value: unknown): AdminSearchSort | undefined {
     'access_types:desc': 'access:desc',
     'fee_types:asc': 'fee:asc',
     'fee_types:desc': 'fee:desc',
-    'closest_community:asc': 'community:asc',
-    'closest_community:desc': 'community:desc',
     'campsite_count:asc': 'campsites:asc',
     'campsite_count:desc': 'campsites:desc',
     'district_description:asc': 'district:asc',
@@ -108,10 +104,6 @@ function getSortValue(value: unknown): AdminSearchSort | undefined {
 export function validateAdminSearch(
   search: Record<string, unknown>,
 ): SerializedAdminSearchRouteState {
-  const definedCampsites = definedCampsitesSchema.safeParse(
-    getOptionalToken(search.defined_campsites),
-  );
-
   return serializeAdminSearchRouteState({
     q: getStringValue(search.q) ?? DEFAULT_ADMIN_SEARCH_STATE.q,
     sort: getSortValue(search.sort) ?? DEFAULT_ADMIN_SEARCH_STATE.sort,
@@ -128,10 +120,6 @@ export function validateAdminSearch(
     establishment_date_from: getOptionalToken(search.establishment_date_from),
     establishment_date_to: getOptionalToken(search.establishment_date_to),
     access: getSearchFilterTokenList(search.access),
-    defined_campsites: definedCampsites.success
-      ? definedCampsites.data
-      : undefined,
-    closest_community: getOptionalToken(search.closest_community),
   });
 }
 
@@ -156,10 +144,6 @@ export function resolveAdminSearchRouteState(
     activities: searchFilterTokenList(search.activities),
     status: searchFilterTokenList(search.status),
     access: searchFilterTokenList(search.access),
-    defined_campsites:
-      search.defined_campsites ?? DEFAULT_ADMIN_SEARCH_STATE.defined_campsites,
-    closest_community:
-      search.closest_community ?? DEFAULT_ADMIN_SEARCH_STATE.closest_community,
   };
 }
 

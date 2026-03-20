@@ -63,122 +63,106 @@ export const RAW_SQL_SORTS = new Set<AdminSearchSort>([
   'fee:desc',
 ]);
 
+type DerivedSortField = 'status' | 'type' | 'activities' | 'access' | 'fee';
+
+type DerivedSortQueryParts = {
+  joinsSql: Prisma.Sql;
+  orderBySql: Prisma.Sql;
+};
+
+function parseIntegerCodes(values?: string[]): number[] {
+  return (
+    values
+      ?.map((value) => Number.parseInt(value, 10))
+      .filter((value): value is number => Number.isInteger(value)) ?? []
+  );
+}
+
+function buildSearchTextCondition(searchTerm?: string): Prisma.Sql | null {
+  const trimmedQuery = searchTerm?.trim();
+  if (!trimmedQuery) {
+    return null;
+  }
+
+  const wildcard = `%${trimmedQuery}%`;
+  return Prisma.sql`
+    (
+      rr.name ILIKE ${wildcard}
+      OR rr.rec_resource_id ILIKE ${wildcard}
+      OR rr.closest_community ILIKE ${wildcard}
+    )
+  `;
+}
+
+function buildDateCondition(
+  value: string | undefined,
+  operator: '>=' | '<=',
+): Prisma.Sql | null {
+  if (!value) {
+    return null;
+  }
+
+  return Prisma.sql`rr.project_established_date ${Prisma.raw(operator)} ${new Date(value)}`;
+}
+
+function buildMultiValueExistsCondition({
+  values,
+  table,
+  alias,
+  column,
+}: {
+  values?: Array<string | number>;
+  table: string;
+  alias: string;
+  column: string;
+}): Prisma.Sql | null {
+  if (!values?.length) {
+    return null;
+  }
+
+  return Prisma.sql`
+    EXISTS (
+      SELECT 1
+      FROM ${Prisma.raw(table)} ${Prisma.raw(alias)}
+      WHERE ${Prisma.raw(alias)}.rec_resource_id = rr.rec_resource_id
+        AND ${Prisma.raw(alias)}.${Prisma.raw(column)} IN (${Prisma.join(values)})
+    )
+  `;
+}
+
 export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
-  const conditions: Prisma.Sql[] = [];
-  const trimmedQuery = query.q?.trim();
-  const trimmedCommunity = query.closest_community?.trim();
-
-  if (trimmedQuery) {
-    const wildcard = `%${trimmedQuery}%`;
-    conditions.push(Prisma.sql`
-      (
-        rr.name ILIKE ${wildcard}
-        OR rr.rec_resource_id ILIKE ${wildcard}
-        OR rr.closest_community ILIKE ${wildcard}
-      )
-    `);
-  }
-
-  if (query.type?.length) {
-    conditions.push(Prisma.sql`
-      EXISTS (
-        SELECT 1
-        FROM rst.recreation_resource_type_view_admin rrtva
-        WHERE rrtva.rec_resource_id = rr.rec_resource_id
-          AND rrtva.rec_resource_type_code IN (${Prisma.join(query.type)})
-      )
-    `);
-  }
-
-  if (query.district?.length) {
-    conditions.push(
-      Prisma.sql`rr.district_code IN (${Prisma.join(query.district)})`,
-    );
-  }
-
-  if (query.activities?.length) {
-    const activityCodes = query.activities
-      .map((activity) => Number.parseInt(activity, 10))
-      .filter((activity): activity is number => Number.isInteger(activity));
-
-    if (activityCodes.length) {
-      conditions.push(Prisma.sql`
-        EXISTS (
-          SELECT 1
-          FROM rst.recreation_activity ra
-          WHERE ra.rec_resource_id = rr.rec_resource_id
-            AND ra.recreation_activity_code IN (${Prisma.join(activityCodes)})
-        )
-      `);
-    }
-  }
-
-  if (query.access?.length) {
-    conditions.push(Prisma.sql`
-      EXISTS (
-        SELECT 1
-        FROM rst.recreation_access ra
-        WHERE ra.rec_resource_id = rr.rec_resource_id
-          AND ra.access_code IN (${Prisma.join(query.access)})
-      )
-    `);
-  }
-
-  if (query.status?.length) {
-    const statusCodes = query.status
-      .map((status) => Number.parseInt(status, 10))
-      .filter((status): status is number => Number.isInteger(status));
-
-    if (statusCodes.length) {
-      conditions.push(Prisma.sql`
-        EXISTS (
-          SELECT 1
-          FROM rst.recreation_status rs
-          WHERE rs.rec_resource_id = rr.rec_resource_id
-            AND rs.status_code IN (${Prisma.join(statusCodes)})
-        )
-      `);
-    }
-  }
-
-  if (query.defined_campsites === 'yes') {
-    conditions.push(Prisma.sql`
-      EXISTS (
-        SELECT 1
-        FROM rst.recreation_defined_campsite rdc
-        WHERE rdc.rec_resource_id = rr.rec_resource_id
-      )
-    `);
-  }
-
-  if (query.defined_campsites === 'no') {
-    conditions.push(Prisma.sql`
-      NOT EXISTS (
-        SELECT 1
-        FROM rst.recreation_defined_campsite rdc
-        WHERE rdc.rec_resource_id = rr.rec_resource_id
-      )
-    `);
-  }
-
-  if (trimmedCommunity) {
-    const communityWildcard = `%${trimmedCommunity}%`;
-    conditions.push(
-      Prisma.sql`rr.closest_community ILIKE ${communityWildcard}`,
-    );
-  }
-
-  if (query.establishment_date_from) {
-    conditions.push(
-      Prisma.sql`rr.project_established_date >= ${new Date(query.establishment_date_from)}`,
-    );
-  }
-
-  if (query.establishment_date_to) {
-    conditions.push(
-      Prisma.sql`rr.project_established_date <= ${new Date(query.establishment_date_to)}`,
-    );
-  }
+  const conditions = [
+    buildSearchTextCondition(query.q),
+    buildMultiValueExistsCondition({
+      values: query.type,
+      table: 'rst.recreation_resource_type_view_admin',
+      alias: 'rrtva',
+      column: 'rec_resource_type_code',
+    }),
+    query.district?.length
+      ? Prisma.sql`rr.district_code IN (${Prisma.join(query.district)})`
+      : null,
+    buildMultiValueExistsCondition({
+      values: parseIntegerCodes(query.activities),
+      table: 'rst.recreation_activity',
+      alias: 'ra',
+      column: 'recreation_activity_code',
+    }),
+    buildMultiValueExistsCondition({
+      values: query.access,
+      table: 'rst.recreation_access',
+      alias: 'ra',
+      column: 'access_code',
+    }),
+    buildMultiValueExistsCondition({
+      values: parseIntegerCodes(query.status),
+      table: 'rst.recreation_status',
+      alias: 'rs',
+      column: 'status_code',
+    }),
+    buildDateCondition(query.establishment_date_from, '>='),
+    buildDateCondition(query.establishment_date_to, '<='),
+  ].filter((condition): condition is Prisma.Sql => condition !== null);
 
   if (conditions.length === 0) {
     return Prisma.empty;
@@ -187,24 +171,102 @@ export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
   return Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`;
 }
 
-export function buildDerivedSortOrderSql(sort: AdminSearchSort): Prisma.Sql {
+export function buildDerivedSortQueryParts(
+  sort: AdminSearchSort,
+): DerivedSortQueryParts {
   const [field, direction] = sort.split(':') as [
-    'status' | 'type' | 'activities' | 'access' | 'fee',
+    DerivedSortField,
     'asc' | 'desc',
   ];
   const directionSql = direction === 'asc' ? Prisma.sql`ASC` : Prisma.sql`DESC`;
 
   switch (field) {
     case 'status':
-      return Prisma.sql`COALESCE(status_agg.status_value, '') ${directionSql}`;
+      return {
+        joinsSql: Prisma.sql`
+          LEFT JOIN rst.recreation_status rs
+            ON rs.rec_resource_id = rr.rec_resource_id
+          LEFT JOIN rst.recreation_status_code rsc
+            ON rsc.status_code = rs.status_code
+        `,
+        orderBySql: Prisma.sql`COALESCE(rsc.description, '') ${directionSql}`,
+      };
     case 'type':
-      return Prisma.sql`COALESCE(rrtva.description, '') ${directionSql}`;
+      return {
+        joinsSql: Prisma.sql`
+          LEFT JOIN rst.recreation_resource_type_view_admin rrtva
+            ON rrtva.rec_resource_id = rr.rec_resource_id
+        `,
+        orderBySql: Prisma.sql`COALESCE(rrtva.description, '') ${directionSql}`,
+      };
     case 'activities':
-      return Prisma.sql`COALESCE(activity_agg.activity_values, '') ${directionSql}`;
+      return {
+        joinsSql: Prisma.sql`
+          LEFT JOIN LATERAL (
+            SELECT string_agg(
+              DISTINCT COALESCE(rac.description, ''),
+              ', ' ORDER BY COALESCE(rac.description, '')
+            ) AS activity_values
+            FROM rst.recreation_activity ra
+            LEFT JOIN rst.recreation_activity_code rac
+              ON rac.recreation_activity_code = ra.recreation_activity_code
+            WHERE ra.rec_resource_id = rr.rec_resource_id
+          ) activity_agg ON TRUE
+        `,
+        orderBySql: Prisma.sql`COALESCE(activity_agg.activity_values, '') ${directionSql}`,
+      };
     case 'access':
-      return Prisma.sql`COALESCE(access_agg.access_values, '') ${directionSql}`;
+      return {
+        joinsSql: Prisma.sql`
+          LEFT JOIN LATERAL (
+            SELECT string_agg(
+              DISTINCT COALESCE(rac.description, ''),
+              ', ' ORDER BY COALESCE(rac.description, '')
+            ) AS access_values
+            FROM rst.recreation_access ra
+            LEFT JOIN rst.recreation_access_code rac
+              ON rac.access_code = ra.access_code
+            WHERE ra.rec_resource_id = rr.rec_resource_id
+          ) access_agg ON TRUE
+        `,
+        orderBySql: Prisma.sql`COALESCE(access_agg.access_values, '') ${directionSql}`,
+      };
     case 'fee':
-      return Prisma.sql`COALESCE(fee_agg.fee_values, '') ${directionSql}`;
+      return {
+        joinsSql: Prisma.sql`
+          LEFT JOIN LATERAL (
+            SELECT string_agg(
+              fee_value,
+              ', ' ORDER BY fee_value
+            ) AS fee_values
+            FROM (
+              SELECT DISTINCT fee_value
+              FROM (
+                SELECT
+                  CASE
+                    WHEN EXISTS (
+                      SELECT 1
+                      FROM rst.recreation_resource_reservation_info rrri
+                      WHERE rrri.rec_resource_id = rr.rec_resource_id
+                    ) THEN 'Reservable'
+                  END AS fee_value
+                UNION ALL
+                SELECT
+                  CASE
+                    WHEN EXISTS (
+                      SELECT 1
+                      FROM rst.recreation_fee rf
+                      WHERE rf.rec_resource_id = rr.rec_resource_id
+                    ) THEN 'Has fees'
+                    ELSE 'No fees'
+                  END AS fee_value
+              ) fee_values
+              WHERE fee_value IS NOT NULL
+            ) distinct_fee_values
+          ) fee_agg ON TRUE
+        `,
+        orderBySql: Prisma.sql`COALESCE(fee_agg.fee_values, '') ${directionSql}`,
+      };
   }
 }
 
@@ -218,11 +280,13 @@ export function buildDerivedSortCountQuery(whereSql: Prisma.Sql): Prisma.Sql {
 
 export function buildDerivedSortIdsQuery({
   whereSql,
+  joinsSql,
   orderBySql,
   pageSize,
   offset,
 }: {
   whereSql: Prisma.Sql;
+  joinsSql: Prisma.Sql;
   orderBySql: Prisma.Sql;
   pageSize: number;
   offset: number;
@@ -230,66 +294,7 @@ export function buildDerivedSortIdsQuery({
   return Prisma.sql`
     SELECT rr.rec_resource_id
     FROM rst.recreation_resource rr
-    LEFT JOIN rst.recreation_resource_type_view_admin rrtva
-      ON rrtva.rec_resource_id = rr.rec_resource_id
-    LEFT JOIN LATERAL (
-      SELECT COALESCE(rsc.description, '') AS status_value
-      FROM rst.recreation_status rs
-      LEFT JOIN rst.recreation_status_code rsc
-        ON rsc.status_code = rs.status_code
-      WHERE rs.rec_resource_id = rr.rec_resource_id
-      LIMIT 1
-    ) status_agg ON TRUE
-    LEFT JOIN LATERAL (
-      SELECT string_agg(
-        DISTINCT COALESCE(rac.description, ''),
-        ', ' ORDER BY COALESCE(rac.description, '')
-      ) AS access_values
-      FROM rst.recreation_access ra
-      LEFT JOIN rst.recreation_access_code rac
-        ON rac.access_code = ra.access_code
-      WHERE ra.rec_resource_id = rr.rec_resource_id
-    ) access_agg ON TRUE
-    LEFT JOIN LATERAL (
-      SELECT string_agg(
-        DISTINCT COALESCE(rac.description, ''),
-        ', ' ORDER BY COALESCE(rac.description, '')
-      ) AS activity_values
-      FROM rst.recreation_activity ra
-      LEFT JOIN rst.recreation_activity_code rac
-        ON rac.recreation_activity_code = ra.recreation_activity_code
-      WHERE ra.rec_resource_id = rr.rec_resource_id
-    ) activity_agg ON TRUE
-    LEFT JOIN LATERAL (
-      SELECT string_agg(
-        fee_value,
-        ', ' ORDER BY fee_value
-      ) AS fee_values
-      FROM (
-        SELECT DISTINCT fee_value
-        FROM (
-          SELECT
-            CASE
-              WHEN EXISTS (
-                SELECT 1
-                FROM rst.recreation_resource_reservation_info rrri
-                WHERE rrri.rec_resource_id = rr.rec_resource_id
-              ) THEN 'Reservable'
-            END AS fee_value
-          UNION ALL
-          SELECT
-            CASE
-              WHEN EXISTS (
-                SELECT 1
-                FROM rst.recreation_fee rf
-                WHERE rf.rec_resource_id = rr.rec_resource_id
-              ) THEN 'Has fees'
-              ELSE 'No fees'
-            END AS fee_value
-        ) fee_values
-        WHERE fee_value IS NOT NULL
-      ) distinct_fee_values
-    ) fee_agg ON TRUE
+    ${joinsSql}
     ${whereSql}
     ORDER BY ${orderBySql}, rr.rec_resource_id ASC
     LIMIT ${pageSize}

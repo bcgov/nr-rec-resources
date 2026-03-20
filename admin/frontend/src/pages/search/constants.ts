@@ -31,8 +31,6 @@ export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
   establishment_date_from: undefined,
   establishment_date_to: undefined,
   access: [],
-  defined_campsites: undefined,
-  closest_community: undefined,
 };
 
 export const ADMIN_SEARCH_PAGE_SIZE_OPTIONS = [25, 50, 100] as const;

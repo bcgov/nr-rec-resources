@@ -242,8 +242,6 @@ export interface SearchRecreationResourcesRequest {
   activities?: Array<string>;
   access?: Array<string>;
   status?: Array<string>;
-  definedCampsites?: SearchRecreationResourcesDefinedCampsitesEnum;
-  closestCommunity?: string;
   establishmentDateFrom?: string;
   establishmentDateTo?: string;
 }
@@ -2166,16 +2164,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       queryParameters['status'] = requestParameters['status'];
     }
 
-    if (requestParameters['definedCampsites'] != null) {
-      queryParameters['defined_campsites'] =
-        requestParameters['definedCampsites'];
-    }
-
-    if (requestParameters['closestCommunity'] != null) {
-      queryParameters['closest_community'] =
-        requestParameters['closestCommunity'];
-    }
-
     if (requestParameters['establishmentDateFrom'] != null) {
       queryParameters['establishment_date_from'] =
         requestParameters['establishmentDateFrom'];
@@ -2869,12 +2857,3 @@ export const SearchRecreationResourcesPageSizeEnum = {
 } as const;
 export type SearchRecreationResourcesPageSizeEnum =
   (typeof SearchRecreationResourcesPageSizeEnum)[keyof typeof SearchRecreationResourcesPageSizeEnum];
-/**
- * @export
- */
-export const SearchRecreationResourcesDefinedCampsitesEnum = {
-  Yes: 'yes',
-  No: 'no',
-} as const;
-export type SearchRecreationResourcesDefinedCampsitesEnum =
-  (typeof SearchRecreationResourcesDefinedCampsitesEnum)[keyof typeof SearchRecreationResourcesDefinedCampsitesEnum];

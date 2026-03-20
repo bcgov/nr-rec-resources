@@ -49,8 +49,6 @@ describe('useGetRecreationResourceSearch', () => {
       activities: ['1', '2'],
       status: ['1'],
       access: ['W'],
-      defined_campsites: 'yes',
-      closest_community: 'Hope',
       establishment_date_from: '2020-01-01',
       establishment_date_to: '2021-01-01',
     };
@@ -74,8 +72,6 @@ describe('useGetRecreationResourceSearch', () => {
       activities: ['1', '2'],
       status: ['1'],
       access: ['W'],
-      definedCampsites: 'yes',
-      closestCommunity: 'Hope',
       establishmentDateFrom: '2020-01-01',
       establishmentDateTo: '2021-01-01',
     });
@@ -108,8 +104,6 @@ describe('useGetRecreationResourceSearch', () => {
       activities: undefined,
       status: undefined,
       access: undefined,
-      definedCampsites: undefined,
-      closestCommunity: undefined,
       establishmentDateFrom: undefined,
       establishmentDateTo: undefined,
     });

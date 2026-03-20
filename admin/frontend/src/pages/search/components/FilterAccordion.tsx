@@ -101,7 +101,7 @@ export function FilterAccordion({
         <div className="filters__panel mb-3">
           <Row className="g-3">
             {ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS.map((field) => {
-              const options = filterOptionsByKey[field.optionsKey];
+              const options = filterOptionsByKey[field.optionsKey] ?? [];
 
               return (
                 <Col key={field.key} md={6} xl={3}>

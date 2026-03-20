@@ -13,7 +13,6 @@ describe('validateAdminSearch', () => {
         sort: 'broken',
         page: '0',
         q: '   ',
-        defined_campsites: 'maybe',
       }),
     ).toEqual({});
   });
@@ -29,8 +28,6 @@ describe('validateAdminSearch', () => {
         district: 'DCK_DRM',
         activities: '1_2',
         access: 'W',
-        defined_campsites: 'yes',
-        closest_community: '  Hope ',
         establishment_date_from: '2020-01-01',
         establishment_date_to: '2021-01-01',
       }),
@@ -43,8 +40,6 @@ describe('validateAdminSearch', () => {
       district: 'DCK_DRM',
       activities: '1_2',
       access: 'W',
-      defined_campsites: 'yes',
-      closest_community: 'Hope',
       establishment_date_from: '2020-01-01',
       establishment_date_to: '2021-01-01',
     });
@@ -54,14 +49,13 @@ describe('validateAdminSearch', () => {
     expect(
       resolveAdminSearchRouteState({
         q: 'tamihi',
-        sort: 'closest_community_desc',
+        sort: 'community_desc',
         page: 3,
         page_size: 100,
         type: 'RR_RTR',
         district: 'DCK_DRM',
         activities: '1_2',
         access: 'W',
-        defined_campsites: 'no',
       }),
     ).toEqual({
       ...DEFAULT_ADMIN_SEARCH_STATE,
@@ -73,7 +67,6 @@ describe('validateAdminSearch', () => {
       district: ['DCK', 'DRM'],
       activities: ['1', '2'],
       access: ['W'],
-      defined_campsites: 'no',
     });
   });
 

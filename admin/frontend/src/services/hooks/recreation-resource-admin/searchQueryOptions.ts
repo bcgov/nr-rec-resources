@@ -3,7 +3,6 @@ import type {
   AdminSearchResponseDto,
   RecreationResourcesApi,
   ResponseError,
-  SearchRecreationResourcesDefinedCampsitesEnum,
   SearchRecreationResourcesRequest,
   SearchRecreationResourcesSortEnum,
 } from '@/services/recreation-resource-admin';
@@ -12,9 +11,13 @@ import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-reso
 
 const ADMIN_SEARCH_QUERY_STALE_TIME_MS = 30 * 1000;
 
+type AdminSearchRequest = Omit<SearchRecreationResourcesRequest, 'pageSize'> & {
+  pageSize?: number;
+};
+
 export function buildAdminSearchRequest(
   search: AdminSearchRouteState,
-): SearchRecreationResourcesRequest & { pageSize?: number } {
+): AdminSearchRequest {
   return {
     q: search.q || undefined,
     sort: search.sort as SearchRecreationResourcesSortEnum,
@@ -25,10 +28,6 @@ export function buildAdminSearchRequest(
     activities: search.activities.length ? search.activities : undefined,
     status: search.status.length ? search.status : undefined,
     access: search.access.length ? search.access : undefined,
-    definedCampsites: search.defined_campsites as
-      | SearchRecreationResourcesDefinedCampsitesEnum
-      | undefined,
-    closestCommunity: search.closest_community || undefined,
     establishmentDateFrom: search.establishment_date_from,
     establishmentDateTo: search.establishment_date_to,
   };
@@ -41,7 +40,9 @@ export function getAdminSearchQueryOptions(
   const request = buildAdminSearchRequest(search);
 
   return {
-    queryKey: RECREATION_RESOURCE_QUERY_KEYS.search(request),
+    queryKey: RECREATION_RESOURCE_QUERY_KEYS.search(
+      request as SearchRecreationResourcesRequest,
+    ),
     queryFn: async (): Promise<AdminSearchResponseDto> =>
       await apiClient.searchRecreationResources(
         request as SearchRecreationResourcesRequest,
