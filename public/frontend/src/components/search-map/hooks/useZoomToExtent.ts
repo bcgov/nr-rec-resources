@@ -45,7 +45,11 @@ export const useZoomToExtent = (
           const zoom = Number(lastZoom);
           const center = JSON.parse(lastCenter);
 
-          if (!isNaN(zoom) && Array.isArray(center) && center.length === 2) {
+          if (
+            !Number.isNaN(zoom) &&
+            Array.isArray(center) &&
+            center.length === 2
+          ) {
             view.setCenter(center);
             view.setZoom(zoom);
           }
