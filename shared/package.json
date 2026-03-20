@@ -30,7 +30,7 @@
     "@vitejs/plugin-react": "^5.0.0",
     "@vitest/coverage-v8": "^4.0.16",
     "happo-playwright": "^2.3.0",
-    "jsdom": "^27.0.0",
+    "jsdom": "^28.0.0",
     "sass-embedded": "^1.89.2",
     "vite-tsconfig-paths": "^6.0.0",
     "vitest": "^4.0.16"
