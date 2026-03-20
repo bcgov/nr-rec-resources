@@ -3,6 +3,7 @@ import {
   AdminSearchQueryDto,
   AdminSearchSort,
 } from '../dtos/admin-search-query.dto';
+import { OPEN_STATUS } from '../recreation-resource.constants';
 
 export const SORT_FIELD_MAP: Record<
   AdminSearchSort,
@@ -189,7 +190,7 @@ export function buildDerivedSortQueryParts(
           LEFT JOIN rst.recreation_status_code rsc
             ON rsc.status_code = rs.status_code
         `,
-        orderBySql: Prisma.sql`COALESCE(rsc.description, '') ${directionSql}`,
+        orderBySql: Prisma.sql`COALESCE(rsc.description, ${OPEN_STATUS.DESCRIPTION}) ${directionSql}`,
       };
     case 'type':
       return {

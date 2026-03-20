@@ -78,7 +78,10 @@ describe('recreation-resource-search.queries', () => {
     });
     expect(
       normalizeSql(buildDerivedSortQueryParts('status:desc').orderBySql),
-    ).toContain("COALESCE(rsc.description, '') DESC");
+    ).toContain('COALESCE(rsc.description, ?) DESC');
+    expect(buildDerivedSortQueryParts('status:desc').orderBySql.values).toEqual(
+      ['Open'],
+    );
     expect(
       normalizeSql(buildDerivedSortQueryParts('type:asc').orderBySql),
     ).toContain("COALESCE(rrtva.description, '') ASC");
