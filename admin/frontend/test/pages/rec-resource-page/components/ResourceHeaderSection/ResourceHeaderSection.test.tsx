@@ -4,6 +4,9 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/components', () => ({
+  AdminStatusBadge: ({ label }: any) => (
+    <span data-testid="custom-badge">{label}</span>
+  ),
   CustomBadge: ({ label }: any) => (
     <span data-testid="custom-badge">{label}</span>
   ),

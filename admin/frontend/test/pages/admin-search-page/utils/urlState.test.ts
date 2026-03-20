@@ -19,8 +19,6 @@ const baseState = {
   type: ['RTR'],
   access: ['W'],
   page_size: 50,
-  defined_campsites: 'yes' as const,
-  closest_community: 'Hope',
   establishment_date_from: '2020-01-01',
   establishment_date_to: '2021-01-01',
 };
@@ -67,19 +65,6 @@ describe('admin search urlState helpers', () => {
     });
   });
 
-  it('serializes hidden compatibility filters when present', () => {
-    expect(
-      serializeAdminSearchRouteState({
-        ...DEFAULT_ADMIN_SEARCH_STATE,
-        defined_campsites: 'yes',
-        closest_community: '  Hope  ',
-      }),
-    ).toEqual({
-      defined_campsites: 'yes',
-      closest_community: 'Hope',
-    });
-  });
-
   it('clears search state back to defaults', () => {
     expect(clearAdminSearchState(baseState)).toEqual({
       ...baseState,
@@ -103,7 +88,6 @@ describe('admin search urlState helpers', () => {
         page_size: 50,
         district: ['RDCS'],
         access: ['W'],
-        closest_community: '  Hope  ',
       }),
     ).toEqual({
       q: 'tamihi',
@@ -111,7 +95,6 @@ describe('admin search urlState helpers', () => {
       page_size: 50,
       district: 'RDCS',
       access: 'W',
-      closest_community: 'Hope',
     });
   });
 
@@ -164,7 +147,7 @@ describe('admin search urlState helpers', () => {
 
     expect(
       validateAdminSearch({
-        sort: 'closest_community:desc',
+        sort: 'community:desc',
       }),
     ).toEqual({
       sort: 'community_desc',

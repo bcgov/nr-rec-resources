@@ -23,8 +23,6 @@ describe('Admin Search DTOs', () => {
         district: ['CHWK_RDCK'],
         activities: ['1_22'],
         access: ['R_B'],
-        defined_campsites: 'yes',
-        closest_community: 'Hope',
         establishment_date_from: '2020-01-01',
         establishment_date_to: '2025-12-31',
       });
@@ -63,7 +61,7 @@ describe('Admin Search DTOs', () => {
       row.closest_community = 'Hope';
       row.activities = ['Hiking', 'Fishing'];
       row.access_types = ['Road', '4WD'];
-      row.fee_types = ['Camping'];
+      row.fee_indicators = ['Reservable', 'Has fees'];
       row.established_date = '2021-05-12';
       row.campsite_count = 24;
 

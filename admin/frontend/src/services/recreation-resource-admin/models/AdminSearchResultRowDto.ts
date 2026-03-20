@@ -62,6 +62,18 @@ export interface AdminSearchResultRowDto {
    */
   closest_community: string;
   /**
+   * Recreation status description
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
+   */
+  status: string;
+  /**
+   * Recreation status code
+   * @type {number}
+   * @memberof AdminSearchResultRowDto
+   */
+  status_code: number;
+  /**
    * Access types associated with the resource
    * @type {Array<string>}
    * @memberof AdminSearchResultRowDto
@@ -74,11 +86,11 @@ export interface AdminSearchResultRowDto {
    */
   activities: Array<string>;
   /**
-   * Fee types associated with the resource
+   * Derived fee indicators associated with the resource
    * @type {Array<string>}
    * @memberof AdminSearchResultRowDto
    */
-  fee_types: Array<string>;
+  fee_indicators: Array<string>;
   /**
    * Project established date
    * @type {string}
@@ -127,11 +139,15 @@ export function instanceOfAdminSearchResultRowDto(
     value['closest_community'] === undefined
   )
     return false;
+  if (!('status' in value) || value['status'] === undefined) return false;
+  if (!('status_code' in value) || value['status_code'] === undefined)
+    return false;
   if (!('access_types' in value) || value['access_types'] === undefined)
     return false;
   if (!('activities' in value) || value['activities'] === undefined)
     return false;
-  if (!('fee_types' in value) || value['fee_types'] === undefined) return false;
+  if (!('fee_indicators' in value) || value['fee_indicators'] === undefined)
+    return false;
   if (!('campsite_count' in value) || value['campsite_count'] === undefined)
     return false;
   return true;
@@ -158,9 +174,11 @@ export function AdminSearchResultRowDtoFromJSONTyped(
     district_description: json['district_description'],
     display_on_public_site: json['display_on_public_site'],
     closest_community: json['closest_community'],
+    status: json['status'],
+    status_code: json['status_code'],
     access_types: json['access_types'],
     activities: json['activities'],
-    fee_types: json['fee_types'],
+    fee_indicators: json['fee_indicators'],
     established_date:
       json['established_date'] == null ? undefined : json['established_date'],
     campsite_count: json['campsite_count'],
@@ -189,9 +207,11 @@ export function AdminSearchResultRowDtoToJSONTyped(
     district_description: value['district_description'],
     display_on_public_site: value['display_on_public_site'],
     closest_community: value['closest_community'],
+    status: value['status'],
+    status_code: value['status_code'],
     access_types: value['access_types'],
     activities: value['activities'],
-    fee_types: value['fee_types'],
+    fee_indicators: value['fee_indicators'],
     established_date: value['established_date'],
     campsite_count: value['campsite_count'],
   };

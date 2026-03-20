@@ -44,6 +44,18 @@ export class AdminSearchResultRowDto {
   closest_community: string;
 
   @ApiProperty({
+    description: 'Recreation status description',
+    example: 'Open',
+  })
+  status: string;
+
+  @ApiProperty({
+    description: 'Recreation status code',
+    example: 1,
+  })
+  status_code: number;
+
+  @ApiProperty({
     description: 'Access types associated with the resource',
     type: [String],
     example: ['Road', '4WD'],
@@ -58,11 +70,11 @@ export class AdminSearchResultRowDto {
   activities: string[];
 
   @ApiProperty({
-    description: 'Fee types associated with the resource',
+    description: 'Derived fee indicators associated with the resource',
     type: [String],
-    example: ['Camping'],
+    example: ['Reservable', 'Has fees'],
   })
-  fee_types: string[];
+  fee_indicators: string[];
 
   @ApiProperty({
     description: 'Project established date',

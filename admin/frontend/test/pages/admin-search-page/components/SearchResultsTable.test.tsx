@@ -35,6 +35,8 @@ describe('SearchResultsTable', () => {
       feeType: 'Reservable, Has fees',
       definedCampsites: '3',
       closestCommunity: 'Hope',
+      status: 'Open',
+      statusCode: 1,
     },
   ];
 
@@ -51,6 +53,7 @@ describe('SearchResultsTable', () => {
           'name',
           'defined_campsites',
           'closest_community',
+          'status',
         ]}
         sort="name:asc"
         pagination={createPagination()}
@@ -72,11 +75,32 @@ describe('SearchResultsTable', () => {
       screen.getByRole('button', { name: /sort by closest community/i }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole('button', { name: /sort by status/i }),
+    ).toBeInTheDocument();
+    expect(
       screen.queryByRole('columnheader', { name: 'Type' }),
     ).not.toBeInTheDocument();
     expect(screen.getByText('Blue Lake')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
     expect(screen.getByText('Hope')).toBeInTheDocument();
+    expect(screen.getByText('Open')).toBeInTheDocument();
+  });
+
+  it('renders status as a badge in the status column', () => {
+    render(
+      <SearchResultsTable
+        rows={rows}
+        visibleColumns={['rec_resource_id', 'status']}
+        sort="name:asc"
+        pagination={createPagination()}
+        isLoading={false}
+        onSortChange={vi.fn()}
+      />,
+    );
+
+    const statusCell = screen.getByText('Open');
+    expect(statusCell.tagName).toBe('SPAN');
+    expect(statusCell).toHaveClass('custom-badge');
   });
 
   it('emits the next sort when a sortable header is clicked', async () => {
@@ -139,6 +163,26 @@ describe('SearchResultsTable', () => {
     await user.click(screen.getByRole('button', { name: /sort by type/i }));
 
     expect(onSortChange).toHaveBeenCalledWith('type:asc');
+  });
+
+  it('emits the next sort for status', async () => {
+    const user = userEvent.setup();
+    const onSortChange = vi.fn();
+
+    render(
+      <SearchResultsTable
+        rows={rows}
+        visibleColumns={['rec_resource_id', 'status']}
+        sort="name:asc"
+        pagination={createPagination()}
+        isLoading={false}
+        onSortChange={onSortChange}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /sort by status/i }));
+
+    expect(onSortChange).toHaveBeenCalledWith('status:asc');
   });
 
   it('renders a blank defined campsites cell when the count is zero', () => {

@@ -16,6 +16,7 @@ import {
   SuggestionsResponseDto,
 } from './dtos/suggestions-response.dto';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
+import { OPEN_STATUS } from './recreation-resource.constants';
 import { RecreationResourceRepository } from './recreation-resource.repository';
 import { formatRecreationResourceDetailResults } from './utils';
 
@@ -79,6 +80,12 @@ export class RecreationResourceService {
           resource.recreation_district_code?.description ?? '',
         display_on_public_site: resource.display_on_public_site ?? false,
         closest_community: resource.closest_community ?? '',
+        // If no status exists a rec resource is considered open
+        status:
+          resource.recreation_status?.recreation_status_code?.description ??
+          OPEN_STATUS.DESCRIPTION,
+        status_code:
+          resource.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
         activities: this.getUniqueValues(
           resource.recreation_activity?.map(
             (activity) => activity.recreation_activity?.description ?? '',
@@ -89,7 +96,7 @@ export class RecreationResourceService {
             (access) => access.recreation_access_code?.description ?? '',
           ) ?? [],
         ),
-        fee_types: this.getFeeTypes(resource),
+        fee_indicators: this.getFeeTypes(resource),
         established_date: resource.project_established_date
           ? resource.project_established_date.toISOString().slice(0, 10)
           : null,

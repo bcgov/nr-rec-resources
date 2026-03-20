@@ -1,13 +1,7 @@
-import { CustomBadge } from '@/components';
+import { AdminStatusBadge, CustomBadge } from '@/components';
 import { ClampLines } from '@/components/clamp-lines';
 import { RecreationResourceDetailUIModel } from '@/services';
-import {
-  COLOR_BLUE,
-  COLOR_BLUE_LIGHT,
-  COLOR_GREEN,
-  COLOR_RED,
-  COLOR_WHITE,
-} from '@/styles/colors';
+import { COLOR_BLUE, COLOR_BLUE_LIGHT } from '@/styles/colors';
 import { FC } from 'react';
 import { Stack } from 'react-bootstrap';
 import './ResourceHeaderSection.scss';
@@ -42,14 +36,9 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
             textColor={COLOR_BLUE}
           />
           {recResource.recreation_status_description && (
-            <CustomBadge
+            <AdminStatusBadge
               label={recResource.recreation_status_description!}
-              bgColor={
-                recResource.recreation_status_code === 1
-                  ? COLOR_GREEN
-                  : COLOR_RED
-              }
-              textColor={COLOR_WHITE}
+              statusCode={recResource.recreation_status_code ?? 1}
             />
           )}
         </Stack>

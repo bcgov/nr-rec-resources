@@ -11,6 +11,7 @@ describe('Landing Route', () => {
   it('should export a Route with correct path', () => {
     expect(Route).toBeDefined();
     expect(Route.options.component).toBeDefined();
+    expect(Route.options.loader).toBeDefined();
   });
 
   it('should have beforeLoad function', () => {

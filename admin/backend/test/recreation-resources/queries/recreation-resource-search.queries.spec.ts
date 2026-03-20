@@ -3,7 +3,7 @@ import {
   SORT_FIELD_MAP,
   buildDerivedSortCountQuery,
   buildDerivedSortIdsQuery,
-  buildDerivedSortOrderSql,
+  buildDerivedSortQueryParts,
   buildSearchWhereSql,
 } from '@/recreation-resources/queries/recreation-resource-search.queries';
 import { Prisma } from '@generated/prisma';
@@ -25,8 +25,7 @@ describe('recreation-resource-search.queries', () => {
       district: ['RDKA'],
       activities: ['1', 'x', '2'],
       access: ['R'],
-      defined_campsites: 'no',
-      closest_community: '  Hope ',
+      status: ['3', 'bad', '4'],
       establishment_date_from: '2020-01-01',
       establishment_date_to: '2024-12-31',
     });
@@ -35,12 +34,11 @@ describe('recreation-resource-search.queries', () => {
 
     expect(normalizedSql).toContain('rr.name ILIKE');
     expect(normalizedSql).toContain('rr.rec_resource_id ILIKE');
-    expect(normalizedSql).toContain('rr.closest_community ILIKE');
     expect(normalizedSql).toContain('rrtva.rec_resource_type_code IN (?,?)');
     expect(normalizedSql).toContain('rr.district_code IN (?)');
     expect(normalizedSql).toContain('ra.recreation_activity_code IN (?,?)');
     expect(normalizedSql).toContain('ra.access_code IN (?)');
-    expect(normalizedSql).toContain('NOT EXISTS');
+    expect(normalizedSql).toContain('rs.status_code IN (?,?)');
     expect(normalizedSql).toContain('rr.project_established_date >= ?');
     expect(normalizedSql).toContain('rr.project_established_date <= ?');
     expect(whereSql.values).toEqual([
@@ -53,21 +51,20 @@ describe('recreation-resource-search.queries', () => {
       1,
       2,
       'R',
-      '%Hope%',
+      3,
+      4,
       new Date('2020-01-01'),
       new Date('2024-12-31'),
     ]);
   });
 
-  it('ignores invalid activity filters and supports defined campsite yes filters', () => {
+  it('ignores invalid activity filters', () => {
     const whereSql = buildSearchWhereSql({
       activities: ['invalid'],
-      defined_campsites: 'yes',
     });
 
     const normalizedSql = normalizeSql(whereSql);
 
-    expect(normalizedSql).toContain('EXISTS');
     expect(normalizedSql).not.toContain('recreation_activity_code IN');
   });
 
@@ -79,28 +76,36 @@ describe('recreation-resource-search.queries', () => {
         description: 'desc',
       },
     });
-    expect(normalizeSql(buildDerivedSortOrderSql('type:asc'))).toContain(
-      "COALESCE(rrtva.description, '') ASC",
+    expect(
+      normalizeSql(buildDerivedSortQueryParts('status:desc').orderBySql),
+    ).toContain('COALESCE(rsc.description, ?) DESC');
+    expect(buildDerivedSortQueryParts('status:desc').orderBySql.values).toEqual(
+      ['Open'],
     );
-    expect(normalizeSql(buildDerivedSortOrderSql('activities:desc'))).toContain(
-      "COALESCE(activity_agg.activity_values, '') DESC",
-    );
-    expect(normalizeSql(buildDerivedSortOrderSql('access:asc'))).toContain(
-      "COALESCE(access_agg.access_values, '') ASC",
-    );
-    expect(normalizeSql(buildDerivedSortOrderSql('fee:desc'))).toContain(
-      "COALESCE(fee_agg.fee_values, '') DESC",
-    );
+    expect(
+      normalizeSql(buildDerivedSortQueryParts('type:asc').orderBySql),
+    ).toContain("COALESCE(rrtva.description, '') ASC");
+    expect(
+      normalizeSql(buildDerivedSortQueryParts('activities:desc').orderBySql),
+    ).toContain("COALESCE(activity_agg.activity_values, '') DESC");
+    expect(
+      normalizeSql(buildDerivedSortQueryParts('access:asc').orderBySql),
+    ).toContain("COALESCE(access_agg.access_values, '') ASC");
+    expect(
+      normalizeSql(buildDerivedSortQueryParts('fee:desc').orderBySql),
+    ).toContain("COALESCE(fee_agg.fee_values, '') DESC");
   });
 
-  it('builds derived count and id queries with ordering and pagination', () => {
+  it('builds derived count and minimal id queries with ordering and pagination', () => {
     const whereSql = buildSearchWhereSql({
       q: 'river',
     });
+    const feeSortQueryParts = buildDerivedSortQueryParts('fee:asc');
     const countQuery = buildDerivedSortCountQuery(whereSql);
     const idsQuery = buildDerivedSortIdsQuery({
       whereSql,
-      orderBySql: buildDerivedSortOrderSql('fee:asc'),
+      joinsSql: feeSortQueryParts.joinsSql,
+      orderBySql: feeSortQueryParts.orderBySql,
       pageSize: 25,
       offset: 50,
     });
@@ -114,6 +119,9 @@ describe('recreation-resource-search.queries', () => {
     expect(normalizedIdsSql).toContain('Reservable');
     expect(normalizedIdsSql).toContain('Has fees');
     expect(normalizedIdsSql).toContain('No fees');
+    expect(normalizedIdsSql).not.toContain('activity_agg');
+    expect(normalizedIdsSql).not.toContain('access_agg');
+    expect(normalizedIdsSql).not.toContain('recreation_status_code');
     expect(normalizedIdsSql).toContain(
       "ORDER BY COALESCE(fee_agg.fee_values, '') ASC, rr.rec_resource_id ASC",
     );

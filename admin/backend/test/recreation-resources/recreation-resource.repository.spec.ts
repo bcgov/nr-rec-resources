@@ -1,4 +1,5 @@
 import { PrismaService } from '@/prisma.service';
+import { ADMIN_SEARCH_PAGE_SIZE_VALUES } from '@/recreation-resources/dtos/admin-search-query.dto';
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { syncManyToManyComposite } from '@/recreation-resources/utils/syncManyToManyUtils';
 import { Prisma } from '@generated/prisma';
@@ -40,6 +41,8 @@ const createBaseTx = () => ({
 
 type MockedPrismaService = Mocked<PrismaService> & {
   recreation_resource: {
+    count: ReturnType<typeof vi.fn>;
+    findMany: ReturnType<typeof vi.fn>;
     findUnique: ReturnType<typeof vi.fn>;
   };
 };
@@ -115,8 +118,6 @@ describe('RecreationResourceRepository', () => {
         sort: 'name:desc',
         type: ['SIT'],
         access: ['R'],
-        defined_campsites: 'yes',
-        closest_community: 'Hope',
       });
 
       expect(prisma.$transaction).toHaveBeenCalledTimes(1);
@@ -129,6 +130,58 @@ describe('RecreationResourceRepository', () => {
       expect(result).toEqual({
         total: 42,
         data: mockData,
+      });
+    });
+
+    it('should build prisma where clauses for status, activities, campsites, community, and dates', async () => {
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([7, []]);
+
+      await repo.searchResources({
+        district: ['RDKA'],
+        activities: ['5', 'bad'],
+        status: ['1', 'oops'],
+        establishment_date_from: '2024-01-01',
+      });
+
+      expect(prisma.recreation_resource.count).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            AND: expect.arrayContaining([
+              { district_code: { in: ['RDKA'] } },
+              {
+                recreation_activity: {
+                  some: {
+                    recreation_activity_code: {
+                      in: [5],
+                    },
+                  },
+                },
+              },
+              {
+                recreation_status: {
+                  status_code: {
+                    in: [1],
+                  },
+                },
+              },
+              {
+                project_established_date: {
+                  gte: new Date('2024-01-01'),
+                  lte: undefined,
+                },
+              },
+            ]),
+          }),
+        }),
+      );
+      expect(prisma.recreation_resource.findMany).toHaveBeenCalledWith({
+        where: expect.anything(),
+        select: expect.anything(),
+        orderBy: { name: 'asc' },
+        skip: 0,
+        take: ADMIN_SEARCH_PAGE_SIZE_VALUES[0],
       });
     });
 

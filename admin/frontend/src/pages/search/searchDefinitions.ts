@@ -15,6 +15,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'fee:desc',
   'community:asc',
   'community:desc',
+  'status:asc',
+  'status:desc',
   'campsites:asc',
   'campsites:desc',
   'district:asc',
@@ -23,6 +25,7 @@ export const ADMIN_SEARCH_SORT_VALUES = [
 
 export type AdminSearchSort = (typeof ADMIN_SEARCH_SORT_VALUES)[number];
 
+// Added this file to sonarcloud code duplication ignore as this was getting flagged
 export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
   {
     id: 'rec_resource_id',
@@ -55,6 +58,12 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
     sortKey: 'community',
   },
   {
+    id: 'status',
+    label: 'Status',
+    resultKey: 'status',
+    sortKey: 'status',
+  },
+  {
     id: 'project_established_date',
     label: 'Est Date',
     resultKey: 'establishmentDate',
@@ -67,8 +76,8 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
     sortKey: 'access',
   },
   {
-    id: 'fee_types',
-    label: 'Fee type',
+    id: 'fee_indicators',
+    label: 'Fee indicators',
     resultKey: 'feeType',
     sortKey: 'fee',
   },
@@ -101,6 +110,14 @@ export function isAdminSearchColumnId(
   return ADMIN_SEARCH_COLUMN_IDS.includes(value as AdminSearchColumnId);
 }
 
+export function ensureRequiredSearchColumns(
+  columns: AdminSearchColumnId[],
+): AdminSearchColumnId[] {
+  return columns.includes('rec_resource_id')
+    ? columns
+    : ['rec_resource_id', ...columns];
+}
+
 export function normalizeVisibleAdminSearchColumns(
   value: unknown,
 ): AdminSearchColumnId[] {
@@ -120,7 +137,5 @@ export function normalizeVisibleAdminSearchColumns(
     .map((entry) => entry.trim())
     .filter(isAdminSearchColumnId);
 
-  return parsed.includes('rec_resource_id')
-    ? parsed
-    : ['rec_resource_id', ...parsed];
+  return ensureRequiredSearchColumns(parsed);
 }

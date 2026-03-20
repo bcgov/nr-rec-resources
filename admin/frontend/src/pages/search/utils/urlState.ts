@@ -5,7 +5,12 @@ import {
 import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
 import type { AdminSearchSort } from '@/pages/search/searchDefinitions';
 
-type SerializedListFilterFields = 'type' | 'district' | 'activities' | 'access';
+type SerializedListFilterFields =
+  | 'type'
+  | 'district'
+  | 'activities'
+  | 'status'
+  | 'access';
 
 export type SerializedAdminSearchRouteState = Partial<
   Omit<AdminSearchRouteState, SerializedListFilterFields | 'sort'> & {
@@ -56,6 +61,10 @@ export const serializeAdminSearchRouteState = (
     search.activities = serializeListFilter(state.activities);
   }
 
+  if (state.status.length > 0) {
+    search.status = serializeListFilter(state.status);
+  }
+
   if (state.establishment_date_from) {
     search.establishment_date_from = state.establishment_date_from;
   }
@@ -66,14 +75,6 @@ export const serializeAdminSearchRouteState = (
 
   if (state.access.length > 0) {
     search.access = serializeListFilter(state.access);
-  }
-
-  if (state.defined_campsites) {
-    search.defined_campsites = state.defined_campsites;
-  }
-
-  if (state.closest_community?.trim()) {
-    search.closest_community = state.closest_community.trim();
   }
 
   return search;
@@ -141,6 +142,11 @@ export const setAdminSearchAccessFilter = (
   state: AdminSearchRouteState,
   access: string[],
 ): AdminSearchRouteState => setFilterState(state, { access });
+
+export const setAdminSearchStatusFilter = (
+  state: AdminSearchRouteState,
+  status: string[],
+): AdminSearchRouteState => setFilterState(state, { status });
 
 export const setAdminSearchEstablishmentDateFromFilter = (
   state: AdminSearchRouteState,
