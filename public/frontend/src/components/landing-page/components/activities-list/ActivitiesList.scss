@@ -41,10 +41,7 @@
     margin-top: 0.6em;
     @include media-breakpoint-down(md) {
       margin-top: 0em;
-      margin-left: 0.5em;
-    }
-    @media (max-width: $xlBreakpoint) {
-      width: 260px;
+      margin-left: 0.6em;
     }
   }
 
