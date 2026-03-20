@@ -15,9 +15,15 @@
       "pinDigests": false
     },
     {
-      "description": "Exclude pinDigests from actions and bcgov domains",
-      "pinDigests": false,
-      "matchPackageNames": ["/^@actions//", "/^@bcgov//", "/^@github//"]
+      "description": "Pin digests for third-party GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "pinDigests": true
+    },
+    {
+      "description": "Exclude digest pinning for GitHub-owned and BCGov-owned actions",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["/^actions\\//", "/^bcgov\\//", "/^github\\//"],
+      "pinDigests": false
     }
   ]
 }
