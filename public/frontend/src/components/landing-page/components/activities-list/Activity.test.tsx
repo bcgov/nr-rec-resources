@@ -49,7 +49,7 @@ describe('Activity component', () => {
     expect(desktopImage).toHaveClass('activity-image');
     const mobileImage = screen.getByTestId('mobile-image');
     expect(mobileImage).toHaveAttribute('alt', props.description);
-    expect(mobileImage).toHaveAttribute('width', '100');
+    expect(mobileImage).toHaveAttribute('width', '136');
     expect(mobileImage).toHaveAttribute('height', '78');
     expect(mobileImage).toHaveClass('activity-image');
 

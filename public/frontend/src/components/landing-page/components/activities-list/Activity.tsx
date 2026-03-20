@@ -52,7 +52,7 @@ export const Activity: FC<LandingPageActivity> = ({
               />
             </a>
           </Col>
-          <Col xs={6} className="align-items-center justify-content-left">
+          <Col xs={8} className="align-items-center justify-content-left">
             <a
               href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}&view=map`}
             >
