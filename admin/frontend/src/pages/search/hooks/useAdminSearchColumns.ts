@@ -1,23 +1,20 @@
 import { useState } from 'react';
-import type { AdminSearchColumnId } from '@/pages/search/searchDefinitions';
+import {
+  ensureRequiredSearchColumns,
+  type AdminSearchColumnId,
+} from '@/pages/search/searchDefinitions';
 import {
   readAdminSearchVisibleColumns,
   writeAdminSearchVisibleColumns,
 } from '@/pages/search/utils/storage';
 
-function enforceRequiredColumns(columns: AdminSearchColumnId[]) {
-  return columns.includes('rec_resource_id')
-    ? columns
-    : (['rec_resource_id', ...columns] as AdminSearchColumnId[]);
-}
-
 export function useAdminSearchColumns() {
   const [visibleColumns, setVisibleColumns] = useState<AdminSearchColumnId[]>(
-    () => enforceRequiredColumns(readAdminSearchVisibleColumns()),
+    () => ensureRequiredSearchColumns(readAdminSearchVisibleColumns()),
   );
 
   const updateVisibleColumns = (columns: AdminSearchColumnId[]) => {
-    const nextColumns = enforceRequiredColumns(columns);
+    const nextColumns = ensureRequiredSearchColumns(columns);
     setVisibleColumns(nextColumns);
     writeAdminSearchVisibleColumns(nextColumns);
   };

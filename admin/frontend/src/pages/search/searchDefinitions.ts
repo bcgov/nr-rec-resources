@@ -109,6 +109,14 @@ export function isAdminSearchColumnId(
   return ADMIN_SEARCH_COLUMN_IDS.includes(value as AdminSearchColumnId);
 }
 
+export function ensureRequiredSearchColumns(
+  columns: AdminSearchColumnId[],
+): AdminSearchColumnId[] {
+  return columns.includes('rec_resource_id')
+    ? columns
+    : ['rec_resource_id', ...columns];
+}
+
 export function normalizeVisibleAdminSearchColumns(
   value: unknown,
 ): AdminSearchColumnId[] {
@@ -128,7 +136,5 @@ export function normalizeVisibleAdminSearchColumns(
     .map((entry) => entry.trim())
     .filter(isAdminSearchColumnId);
 
-  return parsed.includes('rec_resource_id')
-    ? parsed
-    : ['rec_resource_id', ...parsed];
+  return ensureRequiredSearchColumns(parsed);
 }
