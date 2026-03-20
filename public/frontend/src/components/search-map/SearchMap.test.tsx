@@ -351,7 +351,7 @@ describe('SearchMap', () => {
     );
     expect(sessionStorage.setItem).toHaveBeenCalledWith(
       'locationCenterState',
-      '0,0',
+      '[0,0]',
     );
 
     popup.focus();

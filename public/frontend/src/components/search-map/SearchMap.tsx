@@ -193,8 +193,8 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     const zoom = view.getZoom();
     const center = view.getCenter();
     if (zoom !== null && center !== null) {
-      sessionStorage.setItem('locationZoomState', `${zoom}`);
       sessionStorage.setItem('locationCenterState', JSON.stringify(center));
+      sessionStorage.setItem('locationZoomState', `${zoom}`);
     }
   };
 
