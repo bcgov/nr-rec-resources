@@ -13,6 +13,7 @@ export type EditableAdminSearchFilters = Pick<
   | 'type'
   | 'district'
   | 'activities'
+  | 'status'
   | 'access'
   | 'establishment_date_from'
   | 'establishment_date_to'
@@ -26,11 +27,10 @@ export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
   type: [],
   district: [],
   activities: [],
+  status: [],
   establishment_date_from: undefined,
   establishment_date_to: undefined,
   access: [],
-  defined_campsites: undefined,
-  closest_community: undefined,
 };
 
 export const ADMIN_SEARCH_PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
@@ -42,6 +42,7 @@ export const EMPTY_ADMIN_SEARCH_FILTERS: EditableAdminSearchFilters = {
   type: [],
   district: [],
   activities: [],
+  status: [],
   access: [],
   establishment_date_from: undefined,
   establishment_date_to: undefined,
@@ -65,6 +66,12 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     label: 'Activities',
     controlId: 'admin-search-filter-activities',
     optionsKey: 'activityOptions',
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    controlId: 'admin-search-filter-status',
+    optionsKey: 'statusOptions',
   },
   {
     key: 'access',

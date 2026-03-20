@@ -28,6 +28,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'fee:desc',
   'community:asc',
   'community:desc',
+  'status:asc',
+  'status:desc',
   'campsites:asc',
   'campsites:desc',
   'district:asc',
@@ -125,21 +127,15 @@ export class AdminSearchQueryDto {
   access?: string[];
 
   @ApiPropertyOptional({
-    description: 'Defined campsite presence filter',
-    enum: ['yes', 'no'],
-    example: 'yes',
+    description: 'Recreation status codes',
+    type: [String],
+    example: ['1', '2'],
   })
+  @Transform(transformStringArrayQueryParam)
   @IsOptional()
-  @IsIn(['yes', 'no'])
-  defined_campsites?: 'yes' | 'no';
-
-  @ApiPropertyOptional({
-    description: 'Closest community text filter',
-    example: 'Hope',
-  })
-  @IsOptional()
-  @IsString()
-  closest_community?: string;
+  @IsArray()
+  @IsString({ each: true })
+  status?: string[];
 
   @ApiPropertyOptional({
     description: 'Project established date range start',

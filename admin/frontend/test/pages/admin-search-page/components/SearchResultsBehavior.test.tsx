@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
@@ -98,6 +98,27 @@ describe('FilterAccordion', () => {
     const user = userEvent.setup();
     const applyFilters = vi.fn();
 
+    const selectFilterOption = async (
+      label: string,
+      optionName: RegExp,
+      selectedToggleLabel: RegExp,
+    ) => {
+      const toggle = screen.getByRole('button', { name: label });
+      await user.click(toggle);
+
+      await waitFor(() => {
+        expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      await user.click(await screen.findByRole('button', { name: optionName }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: selectedToggleLabel }),
+        ).toHaveAttribute('aria-expanded', 'true');
+      });
+    };
+
     render(
       <FilterAccordion
         search={DEFAULT_ADMIN_SEARCH_STATE}
@@ -110,6 +131,7 @@ describe('FilterAccordion', () => {
             { id: 'D1', label: 'District 1', is_archived: false },
           ],
           activityOptions: [{ id: '8', label: 'Camping', is_archived: false }],
+          statusOptions: [],
           accessOptions: [{ id: 'W', label: 'Walk-in', is_archived: false }],
           applyFilters,
           resetFilters: vi.fn(),
@@ -118,14 +140,14 @@ describe('FilterAccordion', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Resource type' }));
-    await user.click(screen.getByRole('button', { name: /rustic/i }));
-    await user.click(screen.getByRole('button', { name: 'District' }));
-    await user.click(screen.getByRole('button', { name: /district 1/i }));
-    await user.click(screen.getByRole('button', { name: 'Activities' }));
-    await user.click(screen.getByRole('button', { name: /camping/i }));
-    await user.click(screen.getByRole('button', { name: 'Access type' }));
-    await user.click(screen.getByRole('button', { name: /walk-in/i }));
+    await selectFilterOption(
+      'Resource type',
+      /rustic/i,
+      /resource type \(1\)/i,
+    );
+    await selectFilterOption('District', /district 1/i, /district \(1\)/i);
+    await selectFilterOption('Activities', /camping/i, /activities \(1\)/i);
+    await selectFilterOption('Access type', /walk-in/i, /access type \(1\)/i);
     await user.type(screen.getByLabelText('Established from'), '2020-01-01');
     await user.type(screen.getByLabelText('Established to'), '2021-01-01');
     await user.click(screen.getByRole('button', { name: 'Apply' }));
@@ -134,6 +156,7 @@ describe('FilterAccordion', () => {
       type: ['RTR'],
       district: ['D1'],
       activities: ['8'],
+      status: [],
       access: ['W'],
       establishment_date_from: '2020-01-01',
       establishment_date_to: '2021-01-01',
@@ -159,6 +182,7 @@ describe('FilterAccordion', () => {
           typeOptions: [{ id: 'RTR', label: 'Rustic', is_archived: false }],
           districtOptions: [],
           activityOptions: [],
+          statusOptions: [],
           accessOptions: [],
           applyFilters: vi.fn(),
           resetFilters,

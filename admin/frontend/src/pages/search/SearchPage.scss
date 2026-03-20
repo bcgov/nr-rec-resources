@@ -2,6 +2,7 @@
 
 .search-page {
   .control-button.btn {
+    color: $colorBlue;
     // override bootstrap focus styles
     &:focus,
     &:focus-visible {

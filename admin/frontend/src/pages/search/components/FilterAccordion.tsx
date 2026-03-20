@@ -20,6 +20,7 @@ type FilterAccordionControllerProps = Pick<
   | 'typeOptions'
   | 'districtOptions'
   | 'activityOptions'
+  | 'statusOptions'
   | 'accessOptions'
   | 'applyFilters'
   | 'resetFilters'
@@ -39,6 +40,7 @@ const getEditableFilters = (
   type: state.type,
   district: state.district,
   activities: state.activities,
+  status: state.status,
   access: state.access,
   establishment_date_from: state.establishment_date_from,
   establishment_date_to: state.establishment_date_to,
@@ -61,6 +63,7 @@ export function FilterAccordion({
     typeOptions,
     districtOptions,
     activityOptions,
+    statusOptions,
     accessOptions,
     applyFilters: onApply,
     resetFilters: onReset,
@@ -69,6 +72,7 @@ export function FilterAccordion({
     typeOptions,
     districtOptions,
     activityOptions,
+    statusOptions,
     accessOptions,
   };
   const searchFilters = getEditableFilters(search);
@@ -97,7 +101,7 @@ export function FilterAccordion({
         <div className="filters__panel mb-3">
           <Row className="g-3">
             {ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS.map((field) => {
-              const options = filterOptionsByKey[field.optionsKey];
+              const options = filterOptionsByKey[field.optionsKey] ?? [];
 
               return (
                 <Col key={field.key} md={6} xl={3}>
@@ -166,7 +170,8 @@ export function FilterAccordion({
             className="justify-content-between flex-wrap mt-4 border-top pt-3"
           >
             <Button
-              variant="outline-secondary"
+              variant="outline-primary"
+              className="control-button"
               onClick={() => {
                 resetDraft();
                 onReset();
@@ -183,6 +188,7 @@ export function FilterAccordion({
                     type: draft.type,
                     district: draft.district,
                     activities: draft.activities,
+                    status: draft.status,
                     access: draft.access,
                     establishment_date_from: draft.establishment_date_from,
                     establishment_date_to: draft.establishment_date_to,
@@ -192,8 +198,8 @@ export function FilterAccordion({
                 Apply
               </Button>
               <Button
-                variant="link"
-                className="text-decoration-none px-0 text-muted"
+                variant="outline-primary"
+                className="control-button"
                 onClick={() => {
                   setDraft(searchFilters);
                   onClose();

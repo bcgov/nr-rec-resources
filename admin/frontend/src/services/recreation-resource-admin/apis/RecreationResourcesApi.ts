@@ -241,8 +241,7 @@ export interface SearchRecreationResourcesRequest {
   district?: Array<string>;
   activities?: Array<string>;
   access?: Array<string>;
-  definedCampsites?: SearchRecreationResourcesDefinedCampsitesEnum;
-  closestCommunity?: string;
+  status?: Array<string>;
   establishmentDateFrom?: string;
   establishmentDateTo?: string;
 }
@@ -2161,14 +2160,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       queryParameters['access'] = requestParameters['access'];
     }
 
-    if (requestParameters['definedCampsites'] != null) {
-      queryParameters['defined_campsites'] =
-        requestParameters['definedCampsites'];
-    }
-
-    if (requestParameters['closestCommunity'] != null) {
-      queryParameters['closest_community'] =
-        requestParameters['closestCommunity'];
+    if (requestParameters['status'] != null) {
+      queryParameters['status'] = requestParameters['status'];
     }
 
     if (requestParameters['establishmentDateFrom'] != null) {
@@ -2845,6 +2838,8 @@ export const SearchRecreationResourcesSortEnum = {
   FeeDesc: 'fee:desc',
   CommunityAsc: 'community:asc',
   CommunityDesc: 'community:desc',
+  StatusAsc: 'status:asc',
+  StatusDesc: 'status:desc',
   CampsitesAsc: 'campsites:asc',
   CampsitesDesc: 'campsites:desc',
   DistrictAsc: 'district:asc',
@@ -2862,12 +2857,3 @@ export const SearchRecreationResourcesPageSizeEnum = {
 } as const;
 export type SearchRecreationResourcesPageSizeEnum =
   (typeof SearchRecreationResourcesPageSizeEnum)[keyof typeof SearchRecreationResourcesPageSizeEnum];
-/**
- * @export
- */
-export const SearchRecreationResourcesDefinedCampsitesEnum = {
-  Yes: 'yes',
-  No: 'no',
-} as const;
-export type SearchRecreationResourcesDefinedCampsitesEnum =
-  (typeof SearchRecreationResourcesDefinedCampsitesEnum)[keyof typeof SearchRecreationResourcesDefinedCampsitesEnum];
