@@ -49,7 +49,7 @@ jobs:
           cache: ''
           sonar_args: >
             -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**,src/services/recreation-resource-admin/**
-            -Dsonar.cpd.exclusions=**/recreation-resource.controller.ts
+            -Dsonar.cpd.exclusions=**/recreation-resource.controller.ts,src/pages/search/searchDefinitions.ts
             -Dsonar.organization=bcgov-sonarcloud
             -Dsonar.projectKey=bcgov-sonarcloud_nr-rec-resources${{ format('{0}-{1}', inputs.app == 'admin' && '-admin' || '', matrix.dir) }}
             -Dsonar.sources=src

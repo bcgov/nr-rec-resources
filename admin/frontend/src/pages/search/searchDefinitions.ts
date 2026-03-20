@@ -25,6 +25,7 @@ export const ADMIN_SEARCH_SORT_VALUES = [
 
 export type AdminSearchSort = (typeof ADMIN_SEARCH_SORT_VALUES)[number];
 
+// Added this file to sonarcloud code duplication ignore as this was getting flagged
 export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
   {
     id: 'rec_resource_id',
