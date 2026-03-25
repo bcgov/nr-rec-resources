@@ -105,8 +105,3 @@ export const MAP_URLS = {
  * Default zoom level for the map
  */
 export const DEFAULT_MAP_ZOOM = 8;
-
-export const MAP_ICONS = {
-  RECREATION_TRAIL_HEAD: `https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca/filestore/6/7/5/3/3_e7d99d5ae52c547/33576_df328d469fcc6f1.png`,
-  LOCATION_PIN: `https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca/filestore/7/7/5/3/3_b5139e0c4037f17/33577_98ddab6962d1ca4.png`,
-};
