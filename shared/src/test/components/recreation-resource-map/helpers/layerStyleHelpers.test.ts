@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Fill, Icon, Stroke, Text } from 'ol/style';
 import {
-  MAP_ICONS,
   MAP_STYLES,
   StyleContext,
   TEXT_STYLE,
@@ -194,27 +193,27 @@ describe('Map Style Functions', () => {
         rec_resource_type: 'Recreation Trail',
       };
       const icon = getRecResourceIcon(trailResource, StyleContext.DOWNLOAD);
-      expect(icon).toBe(MAP_ICONS.RECREATION_TRAIL_HEAD);
+      expect(icon).toBe('/src/assets/icons/trail_head.png');
     });
 
     it('returns LOCATION_PIN icon for recreation site when isForMapDisplay is false', () => {
       const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
-      expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
+      expect(icon).toBe('/src/assets/icons/location_pin.png');
     });
 
     it('returns LOCATION_PIN icon for interpretive forest when isForMapDisplay is false', () => {
       const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
-      expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
+      expect(icon).toBe('/src/assets/icons/location_pin.png');
     });
 
     it('returns LOCATION_PIN icon for unknown type when isForMapDisplay is false', () => {
       const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
-      expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
+      expect(icon).toBe('/src/assets/icons/location_pin.png');
     });
 
     it('returns LOCATION_PIN icon for unknown type when isForMapDisplay is not provided (default false)', () => {
       const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
-      expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
+      expect(icon).toBe('/src/assets/icons/location_pin.png');
     });
   });
 });
