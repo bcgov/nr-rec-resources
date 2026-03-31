@@ -2,14 +2,17 @@ import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import type OLMap from 'ol/Map';
 import GeoJSON from 'ol/format/GeoJSON';
+import { getCenter } from 'ol/extent';
 import searchInputStore from '@/store/searchInputStore';
 import { useStore } from '@tanstack/react-store';
 import { transformExtent } from 'ol/proj';
 import { calculateMapPadding } from '@/components/search-map/utils';
+import { Feature } from 'ol';
 
 export const useZoomToExtent = (
   mapRef: RefObject<{ getMap: () => OLMap } | null>,
   extent?: string,
+  selectedFeature?: Feature | null,
 ) => {
   const { wasCleared } = useStore(searchInputStore);
   const isMapInitialized = useRef(false);
@@ -80,30 +83,40 @@ export const useZoomToExtent = (
     }
 
     try {
-      const geojson = JSON.parse(extent);
-      const format = new GeoJSON();
-      const geometry = format.readGeometry(geojson);
-      const olExtent3005 = geometry.getExtent();
-
-      const olExtent3857 = transformExtent(
-        olExtent3005,
-        'EPSG:3005',
-        'EPSG:3857',
-      );
-
-      map.once('moveend', () => {
-        const zoom = view.getZoom();
-        if (zoom != null) {
-          view.setZoom(zoom + 0.01);
+      if (selectedFeature) {
+        const geometry = selectedFeature?.getGeometry();
+        if (geometry) {
+          const extent = geometry.getExtent();
+          const center = getCenter(extent);
+          map.getView().setCenter(center);
+          map.getView().setZoom(15);
         }
-      });
+      } else {
+        const geojson = JSON.parse(extent);
+        const format = new GeoJSON();
+        const geometry = format.readGeometry(geojson);
+        const olExtent3005 = geometry.getExtent();
 
-      const mapSize = map.getSize(); // [width, height]
-      if (mapSize) {
-        if (!checkRestore()) {
-          const [width] = mapSize;
-          const padding = calculateMapPadding(width);
-          view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
+        const olExtent3857 = transformExtent(
+          olExtent3005,
+          'EPSG:3005',
+          'EPSG:3857',
+        );
+
+        map.once('moveend', () => {
+          const zoom = view.getZoom();
+          if (zoom != null) {
+            view.setZoom(zoom + 0.01);
+          }
+        });
+
+        const mapSize = map.getSize(); // [width, height]
+        if (mapSize) {
+          if (!checkRestore()) {
+            const [width] = mapSize;
+            const padding = calculateMapPadding(width);
+            view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
+          }
         }
       }
       clearLocation();
@@ -111,5 +124,5 @@ export const useZoomToExtent = (
       console.error('Failed to parse or fit extent:', err);
     }
     // eslint-disable-next-line
-  }, [extent, mapRef]);
+  }, [extent, mapRef, selectedFeature]);
 };
