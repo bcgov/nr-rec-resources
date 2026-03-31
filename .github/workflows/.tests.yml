@@ -38,6 +38,13 @@ jobs:
 
 
     steps:
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Clear Sonar cache
+        run: rm -rf ~/.sonar/cache
       - uses: bcgov/action-test-and-analyse@v1.6.0
         with:
           commands: |
