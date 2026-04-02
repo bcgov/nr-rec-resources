@@ -10,6 +10,7 @@ import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/us
 import { useCurrentLocation } from '@/components/recreation-suggestion-form/hooks/useCurrentLocation';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import { useSearch } from '@tanstack/react-router';
+import { OPTION_TYPE } from './constants';
 
 vi.mock('@/components/recreation-suggestion-form/hooks/useSearchInput');
 vi.mock('@/components/recreation-suggestion-form/hooks/useCurrentLocation');
@@ -78,7 +79,16 @@ vi.mock('@shared/components/suggestion-typeahead/SuggestionTypeahead', () => ({
     (window as any).testOnChangeHandler = onChange;
     (window as any).testSelectedValue = selected;
     return (
-      <div data-testid="suggestion-typeahead">
+      <div
+        data-testid="suggestion-typeahead"
+        onClick={() =>
+          onChange({
+            name: 'Test Resource',
+            option_type: OPTION_TYPE.RECREATION_RESOURCE,
+            rec_resource_id: 123,
+          })
+        }
+      >
         <input {...props} />
       </div>
     );
@@ -114,11 +124,27 @@ describe('RecreationSuggestionForm', () => {
     });
   });
 
+  it('calls onSelectSuggestion when selecting a recreation resource and disableNavigation is true', async () => {
+    const onSelectSuggestion = vi.fn();
+
+    renderWithQueryClient(
+      <RecreationSuggestionForm
+        disableNavigation={true}
+        trackingContext="Search_list"
+        onSelectSuggestion={onSelectSuggestion}
+      />,
+    );
+
+    await userEvent.click(screen.getByTestId('suggestion-typeahead'));
+
+    expect(onSelectSuggestion).toHaveBeenCalledTimes(1);
+  });
+
   it('does not call handleSearch if input is empty and allowEmptySearch is false', () => {
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch={false}
-        trackingSource="Test"
+        trackingContext="Search_list"
       />,
     );
 
@@ -131,7 +157,7 @@ describe('RecreationSuggestionForm', () => {
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch={true}
-        trackingSource="Test page"
+        trackingContext="Search_list"
       />,
     );
 
@@ -151,7 +177,9 @@ describe('RecreationSuggestionForm', () => {
       permissionDeniedCount: 2,
     });
 
-    renderWithQueryClient(<RecreationSuggestionForm trackingSource="Test" />);
+    renderWithQueryClient(
+      <RecreationSuggestionForm trackingContext="Search_list" />,
+    );
 
     expect(
       screen.getByText(/Location permission blocked/i),
@@ -171,7 +199,7 @@ describe('RecreationSuggestionForm', () => {
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch={false}
-        trackingSource="Test page"
+        trackingContext="Search_list"
       />,
     );
 
@@ -197,7 +225,7 @@ describe('RecreationSuggestionForm', () => {
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch={false}
-        trackingSource="Test page"
+        trackingContext="Search_list"
       />,
     );
 
@@ -223,7 +251,7 @@ describe('RecreationSuggestionForm', () => {
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch={true}
-        trackingSource="Test page"
+        trackingContext="Search_list"
       />,
     );
 
@@ -250,7 +278,7 @@ describe('RecreationSuggestionForm', () => {
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch={true}
-        trackingSource="Test page"
+        trackingContext="Search_list"
       />,
     );
 
@@ -267,7 +295,10 @@ describe('RecreationSuggestionForm', () => {
     getLocation.mockResolvedValue({ latitude: -37.8136, longitude: 144.9631 });
 
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     const handleSuggestionChange = (window as any).testOnChangeHandler;
@@ -306,7 +337,10 @@ describe('RecreationSuggestionForm', () => {
       .mockImplementation(() => {});
 
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     const handleSuggestionChange = (window as any).testOnChangeHandler;
@@ -339,7 +373,10 @@ describe('RecreationSuggestionForm', () => {
       .mockImplementation(() => {});
 
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     const handleSuggestionChange = (window as any).testOnChangeHandler;
@@ -366,7 +403,10 @@ describe('RecreationSuggestionForm', () => {
 
   it('tracks recreation resource selection and navigates', async () => {
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     const handleSuggestionChange = (window as any).testOnChangeHandler;
@@ -396,8 +436,8 @@ describe('RecreationSuggestionForm', () => {
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch
-        trackingSource="Test page"
         disableNavigation={true}
+        trackingContext="Search_list"
       />,
     );
 
@@ -422,7 +462,10 @@ describe('RecreationSuggestionForm', () => {
 
   it('tracks city selection', async () => {
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     const handleSuggestionChange = (window as any).testOnChangeHandler;
@@ -459,7 +502,10 @@ describe('RecreationSuggestionForm', () => {
       .mockImplementation(() => {});
 
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     const handleSuggestionChange = (window as any).testOnChangeHandler;
@@ -493,7 +539,10 @@ describe('RecreationSuggestionForm', () => {
     });
 
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     const input = screen.getByRole('textbox') as HTMLInputElement;
@@ -512,7 +561,10 @@ describe('RecreationSuggestionForm', () => {
 
   it('sets selectedValue to undefined when no search params are present', () => {
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     expect((window as any).testSelectedValue).toBeUndefined();
@@ -531,7 +583,10 @@ describe('RecreationSuggestionForm', () => {
     });
 
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     const selectedValue = (window as any).testSelectedValue;
@@ -551,7 +606,10 @@ describe('RecreationSuggestionForm', () => {
     });
 
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+      <RecreationSuggestionForm
+        allowEmptySearch
+        trackingContext="Search_list"
+      />,
     );
 
     expect((window as any).testSelectedValue).toBeUndefined();
