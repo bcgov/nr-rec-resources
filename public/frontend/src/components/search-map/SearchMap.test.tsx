@@ -6,6 +6,9 @@ import SearchMap from '@/components/search-map/SearchMap';
 import * as hooks from '@/components/search-map/hooks/useMapFocus';
 import { trackClickEvent, trackEvent } from '@shared/utils';
 
+const zoomToFeatureMock = vi.fn();
+const onSelectSuggestionMock = vi.fn();
+
 vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual('@tanstack/react-router');
   return {
@@ -37,12 +40,17 @@ vi.mock('@/components/search-map/hooks/useBaseMaps', () => ({
 }));
 
 vi.mock('@/components/search-map/hooks', () => ({
-  useClusteredRecreationFeatureLayer: vi.fn(() => ({
+  useClusteredRecreationFeatureLayer: () => ({
     layer: {
-      getSource: () => ({ getFeatures: () => [] }),
-      setVisible: vi.fn(),
+      clusters: [
+        {
+          values_: {
+            features: [{ id_: '123' }],
+          },
+        },
+      ],
     },
-  })),
+  }),
   useWildfireLocationLayer: vi.fn(() => ({
     layer: {
       getSource: () => ({ getFeatures: () => [] }),
@@ -61,7 +69,7 @@ vi.mock('@/components/search-map/hooks', () => ({
     setSelectedFeature: vi.fn(),
   })),
   useZoomToExtent: vi.fn(() => ({
-    zoomToExtent: vi.fn(),
+    zoomToFeature: zoomToFeatureMock,
   })),
 }));
 
@@ -125,6 +133,17 @@ vi.mock('@/components/layout/Header', () => ({
   default: () => <div data-testid="header">Header</div>,
 }));
 
+vi.mock(
+  '@/components/recreation-suggestion-form/RecreationSuggestionForm',
+  () => ({
+    default: (props: any) => {
+      onSelectSuggestionMock.mockImplementation(props.onSelectSuggestion);
+
+      return <div data-testid="recreation-suggestion-form" />;
+    },
+  }),
+);
+
 vi.mock('ol/Overlay', () => {
   return {
     default: class {
@@ -171,8 +190,6 @@ describe('SearchMap', () => {
     );
 
     expect(screen.getByTestId('vector-feature-map')).toBeDefined();
-
-    expect(screen.getByRole('combobox')).toBeDefined(); // RecreationSuggestionForm input
 
     expect(screen.getByText('Show list')).toBeDefined();
 
@@ -368,6 +385,19 @@ describe('SearchMap', () => {
     expect(sessionStorage.setItem).toHaveBeenCalledWith(
       'locationZoomState',
       '10',
+    );
+  });
+
+  it('calls zoomToFeature with the correct feature', async () => {
+    await renderWithRouter(<SearchMap totalCount={0} ids={[]} props={{}} />);
+
+    // simulate selection
+    onSelectSuggestionMock({
+      rec_resource_id: '123',
+    });
+
+    expect(zoomToFeatureMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id_: '123' }),
     );
   });
 });
