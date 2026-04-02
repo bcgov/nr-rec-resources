@@ -74,7 +74,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     });
     mapRef.current.getMap().addOverlay(overlay);
     overlayRef.current = overlay;
-    console.log('popupRef', popupRef);
     return () => {
       // eslint-disable-next-line
       mapRef.current?.getMap().removeOverlay(overlay);
@@ -133,7 +132,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     [
       clusteredRecreationFeatureLayer,
       wildfireLocationsLayer,
-      setSelectedFeature,
       setSelectedWildfireFeature,
     ],
   );
@@ -144,6 +142,8 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     featureLayers: featureSelectionLayers,
   });
 
+  const { zoomToFeature } = useZoomToExtent(mapRef, extent);
+
   const handleSelectedSuggestion = (suggestion: RecreationSuggestion) => {
     const allFeatures = clusteredRecreationFeatureLayer.clusters.flatMap(
       (item: any) => item.values_?.features || [],
@@ -151,14 +151,8 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     const clickedFeature = allFeatures.find(
       (f: any) => f.id_ === suggestion.rec_resource_id,
     );
-    setSelectedFeature(clickedFeature);
+    zoomToFeature(clickedFeature);
   };
-
-  const clearSelectedSuggestion = () => {
-    setSelectedFeature(null);
-  };
-
-  useZoomToExtent(mapRef, extent, selectedFeature);
 
   const { isMapFocusLoading, loadingProgress } = useMapFocus({
     mapRef,
@@ -260,7 +254,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             searchBtnVariant="secondary"
             trackingContext={MATOMO_SEARCH_CONTEXT_MAP}
             onSelectSuggestion={handleSelectedSuggestion}
-            onSubmitSearch={clearSelectedSuggestion}
           />
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}

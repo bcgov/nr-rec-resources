@@ -61,9 +61,10 @@ interface RecreationSuggestionFormProps {
    */
   trackingContext: MatomoSearchContext;
 
+  /**
+   * Triggers when a suggestion is selected, only applicable when disableNavigation is true
+   */
   onSelectSuggestion?(suggestion: RecreationSuggestion): void;
-
-  onSubmitSearch?(): void;
 }
 
 const RecreationSuggestionForm = ({
@@ -72,7 +73,6 @@ const RecreationSuggestionForm = ({
   searchBtnVariant = 'primary',
   trackingContext,
   onSelectSuggestion,
-  onSubmitSearch,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
   const searchParams = useSearch({ strict: false });
@@ -233,7 +233,6 @@ const RecreationSuggestionForm = ({
         } catch (err) {
           console.warn('Failed to get current location:', err);
         }
-        console.log('Search 1');
         return;
       }
 
@@ -243,7 +242,6 @@ const RecreationSuggestionForm = ({
             onSelectSuggestion(suggestion);
           }
           trackSearch('selected', suggestion.name);
-          console.log('rec resource');
           return handleSearch(suggestion.name);
         }
         trackSearch('selected', suggestion.name);
@@ -257,11 +255,9 @@ const RecreationSuggestionForm = ({
         trackSearch('selected', suggestion.name);
         setSearchInputValue(suggestion.name);
         handleCityOptionSearch(suggestion);
-        console.log('Search 2');
         return;
 
       default:
-        console.log('Search default');
         console.warn('Unhandled suggestion type:', suggestionType);
     }
   };

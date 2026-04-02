@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import type { RefObject } from 'react';
 import type OLMap from 'ol/Map';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -12,10 +12,10 @@ import { Feature } from 'ol';
 export const useZoomToExtent = (
   mapRef: RefObject<{ getMap: () => OLMap } | null>,
   extent?: string,
-  selectedFeature?: Feature | null,
 ) => {
   const { wasCleared } = useStore(searchInputStore);
   const isMapInitialized = useRef(false);
+  const suppressNextFit = useRef(false);
 
   const checkRestore = () => {
     const lastZoom = sessionStorage.getItem('locationZoomState');
@@ -27,8 +27,34 @@ export const useZoomToExtent = (
     return false;
   };
 
+  const zoomToFeature = useCallback(
+    (feature: Feature) => {
+      if (!mapRef.current) return;
+
+      const map = mapRef.current.getMap();
+      if (!map) return;
+
+      const view = map.getView();
+      const geometry = feature.getGeometry();
+
+      if (geometry) {
+        const extent = geometry.getExtent();
+        const center = getCenter(extent);
+        suppressNextFit.current = true;
+        view.setCenter(center);
+        view.setZoom(15);
+      }
+    },
+    [mapRef],
+  );
+
   useEffect(() => {
     if (!extent || !mapRef.current) return;
+
+    if (suppressNextFit.current) {
+      suppressNextFit.current = false;
+      return;
+    }
     const map = mapRef.current.getMap();
     if (!map) return;
 
@@ -83,40 +109,30 @@ export const useZoomToExtent = (
     }
 
     try {
-      if (selectedFeature) {
-        const geometry = selectedFeature?.getGeometry();
-        if (geometry) {
-          const extent = geometry.getExtent();
-          const center = getCenter(extent);
-          map.getView().setCenter(center);
-          map.getView().setZoom(15);
+      const geojson = JSON.parse(extent);
+      const format = new GeoJSON();
+      const geometry = format.readGeometry(geojson);
+      const olExtent3005 = geometry.getExtent();
+
+      const olExtent3857 = transformExtent(
+        olExtent3005,
+        'EPSG:3005',
+        'EPSG:3857',
+      );
+
+      map.once('moveend', () => {
+        const zoom = view.getZoom();
+        if (zoom != null) {
+          view.setZoom(zoom + 0.01);
         }
-      } else {
-        const geojson = JSON.parse(extent);
-        const format = new GeoJSON();
-        const geometry = format.readGeometry(geojson);
-        const olExtent3005 = geometry.getExtent();
+      });
 
-        const olExtent3857 = transformExtent(
-          olExtent3005,
-          'EPSG:3005',
-          'EPSG:3857',
-        );
-
-        map.once('moveend', () => {
-          const zoom = view.getZoom();
-          if (zoom != null) {
-            view.setZoom(zoom + 0.01);
-          }
-        });
-
-        const mapSize = map.getSize(); // [width, height]
-        if (mapSize) {
-          if (!checkRestore()) {
-            const [width] = mapSize;
-            const padding = calculateMapPadding(width);
-            view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
-          }
+      const mapSize = map.getSize(); // [width, height]
+      if (mapSize) {
+        if (!checkRestore()) {
+          const [width] = mapSize;
+          const padding = calculateMapPadding(width);
+          view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
         }
       }
       clearLocation();
@@ -124,5 +140,7 @@ export const useZoomToExtent = (
       console.error('Failed to parse or fit extent:', err);
     }
     // eslint-disable-next-line
-  }, [extent, mapRef, selectedFeature]);
+  }, [extent, mapRef]);
+
+  return { zoomToFeature };
 };
