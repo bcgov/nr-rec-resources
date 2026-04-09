@@ -23,5 +23,6 @@ export function mapAdminSearchResultRow(
       : '-',
     status: row.status,
     statusCode: row.status_code,
+    visible: row.display_on_public_site,
   };
 }
