@@ -60,6 +60,11 @@ interface RecreationSuggestionFormProps {
    * Values come from analytics constants (Search_home/Search_list/Search_map).
    */
   trackingContext: MatomoSearchContext;
+
+  /**
+   * Triggers when a suggestion is selected, only applicable when disableNavigation is true
+   */
+  onSelectSuggestion?(suggestion: RecreationSuggestion): void;
 }
 
 const RecreationSuggestionForm = ({
@@ -67,6 +72,7 @@ const RecreationSuggestionForm = ({
   disableNavigation = false,
   searchBtnVariant = 'primary',
   trackingContext,
+  onSelectSuggestion,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
   const searchParams = useSearch({ strict: false });
@@ -232,6 +238,9 @@ const RecreationSuggestionForm = ({
 
       case OPTION_TYPE.RECREATION_RESOURCE:
         if (disableNavigation) {
+          if (onSelectSuggestion) {
+            onSelectSuggestion(suggestion);
+          }
           trackSearch('selected', suggestion.name);
           return handleSearch(suggestion.name);
         }
