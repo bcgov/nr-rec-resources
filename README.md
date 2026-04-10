@@ -173,8 +173,11 @@ Alternatively you can manually download the latest version of Flyway from the
 
 #### Running migrations
 
-Create an `.env` file in the `backend` directory using the example in
-`backend/.env.example` as a template.
+There are two backend services in this project:
+
+- admin/backend
+- public/backend Create an `.env` file in the `backend` directory using the
+  example in `backend/.env.example` as a template.
 
 ```bash
 cd nr-rec-resources
@@ -193,10 +196,10 @@ make reset_db
 ### Backend
 
 Ensure you have the `.env` file in the `backend` directory from the previous
-step.
+step. Run the following steps for both admin/backend and public/backend:
 
 ```bash
-cd backend
+cd <backend-folder>
 npm install
 npx prisma generate
 npm run dev
@@ -204,16 +207,36 @@ npm run dev
 
 ### Frontend
 
+There are two frontend applications in this project:
+
+- admin/frontend → runs on http://localhost:3001
+- public/frontend → runs on http://localhost:3000
+
 Create an `.env` file in the `frontend` directory using the example in
 `frontend/.env.example` as a template.
 
 ```bash
-cd frontend
+cd <frontend-folder>
 npm install
 npm run dev
 ```
 
-Navigate to `http://localhost:3000` in your web browser to view the application.
+Then open in your browser:
+
+- Admin app: http://localhost:3001
+- Public app: http://localhost:3000
+
+### Quick Install for All Projects
+
+**Tip**: You can install dependencies in all backends and frontends at once
+using:
+
+```bash
+npm run install-all
+```
+
+This will install in: .(root directory-nr-rec-resources) , admin/backend,
+admin/frontend, public/backend, and public/frontend.
 
 ### Generate API Client Library
 
