@@ -24,6 +24,7 @@ import {
   IMAGE_PREVIEW_ACTIONS,
   IMAGE_VIEWER_CARD_ACTIONS,
   IMAGE_VIEWER_PREVIEW_ACTIONS,
+  MAX_FILES_REACHED_MESSAGE,
 } from './GalleryFileCard/constants';
 import { ImageLightboxModal } from './ImageLightboxModal';
 import { PhotoDetailsModal } from './PhotoDetailsModal';
@@ -38,7 +39,9 @@ export const RecResourceFileSection = () => {
     getImageGeneralActionHandler,
     galleryDocuments,
     galleryImages,
+    isDocumentMaxFilesReached,
     isDocumentUploadDisabled,
+    isImageMaxFilesReached,
     isImageUploadDisabled,
     isFetching,
     isFetchingImages,
@@ -87,7 +90,11 @@ export const RecResourceFileSection = () => {
       <GalleryAccordion<GalleryImage>
         eventKey="images"
         title="Public images"
-        description={`Upload up to ${FILE_TYPE_CONFIGS.image.maxFiles} JPG, PNG, or WEBP images (max ${MAX_FILE_SIZE_MB.image}MB each).`}
+        description={
+          isImageMaxFilesReached
+            ? MAX_FILES_REACHED_MESSAGE
+            : `Upload up to ${FILE_TYPE_CONFIGS.image.maxFiles} JPG, PNG, or WEBP images (max ${MAX_FILE_SIZE_MB.image}MB each).`
+        }
         items={galleryImages}
         uploadLabel="Upload"
         isLoading={isFetchingImages}
@@ -104,7 +111,11 @@ export const RecResourceFileSection = () => {
       <GalleryAccordion<GalleryDocument>
         eventKey="documents"
         title="Public documents"
-        description={`Documents are only accepted in PDF format with a ${MAX_FILE_SIZE_MB.document}MB file size limit. Maximum ${FILE_TYPE_CONFIGS.document.maxFiles} documents.`}
+        description={
+          isDocumentMaxFilesReached
+            ? MAX_FILES_REACHED_MESSAGE
+            : `Documents are only accepted in PDF format with a ${MAX_FILE_SIZE_MB.document}MB file size limit. Maximum ${FILE_TYPE_CONFIGS.document.maxFiles} documents.`
+        }
         items={galleryDocuments}
         uploadLabel="Upload"
         isLoading={isFetching}

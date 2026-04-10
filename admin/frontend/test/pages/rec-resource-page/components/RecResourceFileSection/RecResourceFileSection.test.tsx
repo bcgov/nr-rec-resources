@@ -31,6 +31,7 @@ vi.mock(
       onFileUploadTileClick,
       uploadDisabled,
       uploadLabel,
+      description,
     }: any) => (
       <div data-testid="gallery-accordion">
         <span
@@ -39,6 +40,7 @@ vi.mock(
         >
           {uploadLabel}
         </span>
+        <span data-testid="accordion-description">{description}</span>
         {items.map(renderItem)}
       </div>
     ),
@@ -126,7 +128,9 @@ describe('RecResourceFileSection', () => {
     },
     galleryDocuments: [],
     galleryImages: [],
+    isDocumentMaxFilesReached: false,
     isDocumentUploadDisabled: false,
+    isImageMaxFilesReached: false,
     isImageUploadDisabled: false,
     isFetching: false,
     isFetchingImages: false,
@@ -320,5 +324,35 @@ describe('RecResourceFileSection', () => {
       fireEvent.click(imageUploadLabel!);
       expect(defaultState.getImageGeneralActionHandler).toHaveBeenCalled();
     }
+  });
+
+  it('replaces image info text and announces when image max is reached', () => {
+    mockUseRecResourceFileTransferState.mockReturnValue({
+      ...defaultState,
+      isImageMaxFilesReached: true,
+      isImageUploadDisabled: true,
+    });
+
+    render(<RecResourceFileSection />);
+
+    const descriptions = screen.getAllByTestId('accordion-description');
+    expect(descriptions[0]).toHaveTextContent(
+      'You’ve reached the maximum number of files. Remove a file to upload a new one.',
+    );
+  });
+
+  it('replaces document info text and announces when document max is reached', () => {
+    mockUseRecResourceFileTransferState.mockReturnValue({
+      ...defaultState,
+      isDocumentMaxFilesReached: true,
+      isDocumentUploadDisabled: true,
+    });
+
+    render(<RecResourceFileSection />);
+
+    const descriptions = screen.getAllByTestId('accordion-description');
+    expect(descriptions[1]).toHaveTextContent(
+      'You’ve reached the maximum number of files. Remove a file to upload a new one.',
+    );
   });
 });
