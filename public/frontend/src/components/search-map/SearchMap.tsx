@@ -41,6 +41,7 @@ import Overlay from 'ol/Overlay';
 import { LoadingOverlay } from '@shared/components/loading-overlay';
 import { useBaseMaps } from '@/components/search-map/hooks/useBaseMaps';
 import filterChipStore from '@/store/filterChips';
+import { RecreationSuggestion } from '@/components/recreation-suggestion-form/types';
 import '@/components/search-map/SearchMap.scss';
 
 interface SearchViewControlsProps {
@@ -73,7 +74,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     });
     mapRef.current.getMap().addOverlay(overlay);
     overlayRef.current = overlay;
-
     return () => {
       // eslint-disable-next-line
       mapRef.current?.getMap().removeOverlay(overlay);
@@ -132,7 +132,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     [
       clusteredRecreationFeatureLayer,
       wildfireLocationsLayer,
-      setSelectedFeature,
       setSelectedWildfireFeature,
     ],
   );
@@ -142,7 +141,18 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     overlayRef,
     featureLayers: featureSelectionLayers,
   });
-  useZoomToExtent(mapRef, extent);
+
+  const { zoomToFeature } = useZoomToExtent(mapRef, extent);
+
+  const handleSelectedSuggestion = (suggestion: RecreationSuggestion) => {
+    const allFeatures = clusteredRecreationFeatureLayer.clusters.flatMap(
+      (item: any) => item.values_?.features || [],
+    );
+    const clickedFeature = allFeatures.find(
+      (f: any) => f.id_ === suggestion.rec_resource_id,
+    );
+    zoomToFeature(clickedFeature);
+  };
 
   const { isMapFocusLoading, loadingProgress } = useMapFocus({
     mapRef,
@@ -243,6 +253,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             disableNavigation={true}
             searchBtnVariant="secondary"
             trackingContext={MATOMO_SEARCH_CONTEXT_MAP}
+            onSelectSuggestion={handleSelectedSuggestion}
           />
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}

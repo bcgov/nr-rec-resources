@@ -3,6 +3,7 @@ import { renderHook } from '@testing-library/react';
 import OLMap from 'ol/Map';
 import { useZoomToExtent } from '@/components/search-map/hooks/useZoomToExtent';
 import { transformExtent } from 'ol/proj';
+import { getCenter } from 'ol/extent';
 
 vi.mock('ol/proj', () => ({
   transformExtent: vi.fn(() => [0, 0, 100, 100]),
@@ -37,6 +38,109 @@ vi.mock('@tanstack/react-store', () => ({
 vi.mock('@/store/searchInputStore', () => ({
   default: { setState: vi.fn() },
 }));
+
+vi.mock('ol/extent', () => ({
+  getCenter: vi.fn(),
+}));
+
+describe('zoomToFeature', () => {
+  it('returns early if mapRef.current is null', () => {
+    const mapRef = { current: null };
+
+    const { result } = renderHook(() =>
+      useZoomToExtent(mapRef as any, undefined),
+    );
+
+    const feature = {} as any;
+
+    expect(() => result.current.zoomToFeature(feature)).not.toThrow();
+  });
+
+  it('returns early if map is null', () => {
+    const mapRef = {
+      current: {
+        getMap: vi.fn(() => null),
+      },
+    };
+
+    const { result } = renderHook(() =>
+      useZoomToExtent(mapRef as any, undefined),
+    );
+
+    const feature = {} as any;
+
+    result.current.zoomToFeature(feature);
+
+    expect(mapRef.current.getMap).toHaveBeenCalled();
+  });
+
+  it('does nothing if geometry is null', () => {
+    const setCenter = vi.fn();
+    const setZoom = vi.fn();
+
+    const mapRef = {
+      current: {
+        getMap: vi.fn(() => ({
+          getView: () => ({
+            setCenter,
+            setZoom,
+          }),
+        })),
+      },
+    };
+
+    const feature = {
+      getGeometry: vi.fn(() => null),
+    } as any;
+
+    const { result } = renderHook(() =>
+      useZoomToExtent(mapRef as any, undefined),
+    );
+
+    result.current.zoomToFeature(feature);
+
+    expect(setCenter).not.toHaveBeenCalled();
+    expect(setZoom).not.toHaveBeenCalled();
+  });
+
+  it('zooms to feature when geometry exists', () => {
+    const setCenter = vi.fn();
+    const setZoom = vi.fn();
+
+    const mockCenter = [100, 200];
+    (getCenter as any).mockReturnValue(mockCenter);
+
+    const geometry = {
+      getExtent: vi.fn(() => [0, 0, 10, 10]),
+    };
+
+    const feature = {
+      getGeometry: vi.fn(() => geometry),
+    } as any;
+
+    const mapRef = {
+      current: {
+        getMap: vi.fn(() => ({
+          getView: () => ({
+            setCenter,
+            setZoom,
+          }),
+        })),
+      },
+    };
+
+    const { result } = renderHook(() =>
+      useZoomToExtent(mapRef as any, undefined),
+    );
+
+    result.current.zoomToFeature(feature);
+
+    expect(geometry.getExtent).toHaveBeenCalled();
+    expect(getCenter).toHaveBeenCalledWith([0, 0, 10, 10]);
+    expect(setCenter).toHaveBeenCalledWith(mockCenter);
+    expect(setZoom).toHaveBeenCalledWith(15);
+  });
+});
 
 describe('useZoomToExtent', () => {
   const extentGeoJSON = JSON.stringify({

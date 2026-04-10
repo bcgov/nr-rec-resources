@@ -1,11 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import type { RefObject } from 'react';
 import type OLMap from 'ol/Map';
 import GeoJSON from 'ol/format/GeoJSON';
+import { getCenter } from 'ol/extent';
 import searchInputStore from '@/store/searchInputStore';
 import { useStore } from '@tanstack/react-store';
 import { transformExtent } from 'ol/proj';
 import { calculateMapPadding } from '@/components/search-map/utils';
+import { Feature } from 'ol';
 
 export const useZoomToExtent = (
   mapRef: RefObject<{ getMap: () => OLMap } | null>,
@@ -13,6 +15,7 @@ export const useZoomToExtent = (
 ) => {
   const { wasCleared } = useStore(searchInputStore);
   const isMapInitialized = useRef(false);
+  const suppressNextFit = useRef(false);
 
   const checkRestore = () => {
     const lastZoom = sessionStorage.getItem('locationZoomState');
@@ -24,8 +27,34 @@ export const useZoomToExtent = (
     return false;
   };
 
+  const zoomToFeature = useCallback(
+    (feature: Feature) => {
+      if (!mapRef.current) return;
+
+      const map = mapRef.current.getMap();
+      if (!map) return;
+
+      const view = map.getView();
+      const geometry = feature.getGeometry();
+
+      if (geometry) {
+        const extent = geometry.getExtent();
+        const center = getCenter(extent);
+        suppressNextFit.current = true;
+        view.setCenter(center);
+        view.setZoom(15);
+      }
+    },
+    [mapRef],
+  );
+
   useEffect(() => {
     if (!extent || !mapRef.current) return;
+
+    if (suppressNextFit.current) {
+      suppressNextFit.current = false;
+      return;
+    }
     const map = mapRef.current.getMap();
     if (!map) return;
 
@@ -112,4 +141,6 @@ export const useZoomToExtent = (
     }
     // eslint-disable-next-line
   }, [extent, mapRef]);
+
+  return { zoomToFeature };
 };
