@@ -34,6 +34,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'campsites:desc',
   'district:asc',
   'district:desc',
+  'display_on_public_site:asc',
+  'display_on_public_site:desc',
 ] as const;
 
 export const ADMIN_SEARCH_PAGE_SIZE_VALUES = [25, 50, 100] as const;

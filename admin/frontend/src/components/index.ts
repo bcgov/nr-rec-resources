@@ -4,6 +4,7 @@ export * from './avatar';
 export * from './buttons';
 export * from './clamp-lines';
 export * from './custom-badge';
+export * from './visible-on-website';
 export * from './custom-button';
 export * from './form';
 export * from './header';
