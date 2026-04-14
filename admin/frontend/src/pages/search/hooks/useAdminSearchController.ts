@@ -363,6 +363,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     clearActivity,
     clearStatus,
     clearAccess,
+    clearClosestCommunity,
     clearEstablishmentDateFrom,
     clearEstablishmentDateTo,
   };
