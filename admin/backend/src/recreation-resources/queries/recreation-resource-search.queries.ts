@@ -161,6 +161,12 @@ export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
       alias: 'rs',
       column: 'status_code',
     }),
+    buildMultiValueExistsCondition({
+      values: parseIntegerCodes(query.closestCommunity),
+      table: 'rst.recreation_resource',
+      alias: 'rr',
+      column: 'closest_community',
+    }),
     buildDateCondition(query.establishment_date_from, '>='),
     buildDateCondition(query.establishment_date_to, '<='),
   ].filter((condition): condition is Prisma.Sql => condition !== null);

@@ -15,6 +15,7 @@ export type EditableAdminSearchFilters = Pick<
   | 'activities'
   | 'status'
   | 'access'
+  | 'closestCommunity'
   | 'establishment_date_from'
   | 'establishment_date_to'
 >;
@@ -31,6 +32,7 @@ export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
   establishment_date_from: undefined,
   establishment_date_to: undefined,
   access: [],
+  closestCommunity: [],
 };
 
 export const ADMIN_SEARCH_PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
@@ -44,6 +46,7 @@ export const EMPTY_ADMIN_SEARCH_FILTERS: EditableAdminSearchFilters = {
   activities: [],
   status: [],
   access: [],
+  closestCommunity: [],
   establishment_date_from: undefined,
   establishment_date_to: undefined,
 };
@@ -78,6 +81,12 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     label: 'Access type',
     controlId: 'admin-search-filter-access',
     optionsKey: 'accessOptions',
+  },
+  {
+    key: 'closestCommunity',
+    label: 'Closest community',
+    controlId: 'admin-search-filter-closest-community',
+    optionsKey: 'closestCommunityOptions',
   },
 ] as const;
 

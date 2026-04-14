@@ -127,6 +127,17 @@ export class AdminSearchQueryDto {
   access?: string[];
 
   @ApiPropertyOptional({
+    description: 'Closest communities',
+    type: [String],
+    example: ['Chilliwack', 'Whistler'],
+  })
+  @Transform(transformStringArrayQueryParam)
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  closestCommunity?: string[];
+
+  @ApiPropertyOptional({
     description: 'Recreation status codes',
     type: [String],
     example: ['1', '2'],
