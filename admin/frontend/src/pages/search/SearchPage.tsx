@@ -31,8 +31,6 @@ export function SearchPage() {
     establishment_date_to: search.establishment_date_to,
   });
 
-  console.log('controller.appliedFilterChips', controller.appliedFilterChips);
-
   return (
     <PageLayout>
       <Stack gap={4} className="search-page">

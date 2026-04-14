@@ -147,14 +147,12 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     () => sortOptionsByLabel(closestCommunityOptionsByType?.options ?? []),
     [closestCommunityOptionsByType],
   );
-  const updateSearch = (nextSearch: AdminSearchRouteState) => {
-    console.log('Updating search with', nextSearch);
+  const updateSearch = (nextSearch: AdminSearchRouteState) =>
     navigate({
       to: ROUTE_PATHS.LANDING,
       search: serializeAdminSearchRouteState(nextSearch),
       resetScroll: false,
     });
-  };
   const setPageIndex = (pageIndex: number) => {
     const nextPageIndex = clamp(pageIndex, 0, Math.max(totalPages - 1, 0));
     updateSearch(setAdminSearchPage(search, nextPageIndex + 1));
