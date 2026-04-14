@@ -58,6 +58,7 @@ export const OptionsByTypeDtoTypeEnum = {
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
   PhotographerType: 'photographerType',
+  ClosestCommunity: 'closestCommunity',
 } as const;
 export type OptionsByTypeDtoTypeEnum =
   (typeof OptionsByTypeDtoTypeEnum)[keyof typeof OptionsByTypeDtoTypeEnum];
