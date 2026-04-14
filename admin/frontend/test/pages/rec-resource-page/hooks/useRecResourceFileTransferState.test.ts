@@ -1,3 +1,4 @@
+import { getMaxFilesByFileType } from '@/pages/rec-resource-page/helpers';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -5,29 +6,49 @@ import { renderHook } from '@testing-library/react';
 import { type ReactNode, createElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mockDocumentListState = {
-  galleryDocumentsFromServer: [] as any[],
-  isFetching: false,
-  refetch: vi.fn(),
-};
-
-const mockImageListState = {
-  galleryImagesFromServer: [] as any[],
-  isFetching: false,
-  refetch: vi.fn(),
-};
-
-const mockGalleryActions = {
-  handleFileAction: vi.fn(),
-  handleGeneralAction: vi.fn(),
-};
-
-const mockFileNameValidation = {
-  fileNameError: undefined as string | undefined,
-  validateFileName: vi.fn(),
-  hasError: false,
-  isValid: false,
-};
+const {
+  mockStoreState,
+  mockGetMaxFilesByFileType,
+  mockDocumentListState,
+  mockImageListState,
+  mockGalleryActions,
+  mockFileNameValidation,
+} = vi.hoisted(() => ({
+  mockStoreState: {
+    showUploadOverlay: false,
+    showDeleteModal: false,
+    fileToDelete: undefined,
+    uploadFileName: '',
+    selectedFileForUpload: null,
+    pendingDocs: [] as any[],
+    galleryDocuments: [] as any[],
+    pendingImages: [] as any[],
+    galleryImages: [] as any[],
+  },
+  mockGetMaxFilesByFileType: vi.fn((fileType: 'document' | 'image') =>
+    fileType === 'document' ? 5 : 5,
+  ),
+  mockDocumentListState: {
+    galleryDocumentsFromServer: [] as any[],
+    isFetching: false,
+    refetch: vi.fn(),
+  },
+  mockImageListState: {
+    galleryImagesFromServer: [] as any[],
+    isFetching: false,
+    refetch: vi.fn(),
+  },
+  mockGalleryActions: {
+    handleFileAction: vi.fn(),
+    handleGeneralAction: vi.fn(),
+  },
+  mockFileNameValidation: {
+    fileNameError: undefined as string | undefined,
+    validateFileName: vi.fn(),
+    hasError: false,
+    isValid: false,
+  },
+}));
 
 vi.mock('@/contexts/AuthContext', () => ({
   useAuthContext: () => ({
@@ -54,7 +75,7 @@ vi.mock('@/pages/rec-resource-page/hooks/useFileNameValidation', () => ({
 }));
 
 vi.mock('@/pages/rec-resource-page/helpers', () => ({
-  getMaxFilesByFileType: vi.fn().mockReturnValue(5),
+  getMaxFilesByFileType: mockGetMaxFilesByFileType,
 }));
 
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
@@ -63,34 +84,14 @@ vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
 
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   recResourceFileTransferStore: {
-    state: {
-      showUploadOverlay: false,
-      showDeleteModal: false,
-      docToDelete: null,
-      uploadFileName: '',
-      selectedFileForUpload: null,
-      pendingDocs: [],
-      galleryDocuments: [],
-      pendingImages: [],
-      galleryImages: [],
-    },
+    state: mockStoreState,
   },
   setGalleryDocuments: vi.fn(),
   setGalleryImages: vi.fn(),
 }));
 
 vi.mock('@tanstack/react-store', () => ({
-  useStore: () => ({
-    showUploadOverlay: false,
-    showDeleteModal: false,
-    docToDelete: null,
-    uploadFileName: '',
-    selectedFileForUpload: null,
-    pendingDocs: [],
-    galleryDocuments: [],
-    pendingImages: [],
-    galleryImages: [],
-  }),
+  useStore: () => mockStoreState,
 }));
 
 // Create a wrapper with QueryClient for tests
@@ -108,8 +109,20 @@ const createWrapper = () => {
 };
 
 describe('useRecResourceFileTransferState', () => {
+  const setGalleryByType = (fileType: 'document' | 'image', files: any[]) => {
+    if (fileType === 'document') {
+      mockStoreState.galleryDocuments = files;
+      return;
+    }
+
+    mockStoreState.galleryImages = files;
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getMaxFilesByFileType).mockImplementation((fileType) =>
+      fileType === 'document' ? 5 : 5,
+    );
 
     // Mock useRecResource
     vi.mocked(useRecResource).mockReturnValue({
@@ -136,6 +149,16 @@ describe('useRecResourceFileTransferState', () => {
     mockFileNameValidation.hasError = false;
     mockFileNameValidation.isValid = false;
     mockFileNameValidation.validateFileName.mockReset();
+
+    mockStoreState.showUploadOverlay = false;
+    mockStoreState.showDeleteModal = false;
+    mockStoreState.fileToDelete = undefined;
+    mockStoreState.uploadFileName = '';
+    mockStoreState.selectedFileForUpload = null;
+    mockStoreState.pendingDocs = [];
+    mockStoreState.galleryDocuments = [];
+    mockStoreState.pendingImages = [];
+    mockStoreState.galleryImages = [];
   });
 
   it('returns state and handlers from composed hooks', () => {
@@ -152,11 +175,13 @@ describe('useRecResourceFileTransferState', () => {
 
       // Document list
       galleryDocuments: expect.any(Array),
+      isDocumentMaxFilesReached: expect.any(Boolean),
       isDocumentUploadDisabled: expect.any(Boolean),
       isFetching: expect.any(Boolean),
 
       // Image list
       galleryImages: expect.any(Array),
+      isImageMaxFilesReached: expect.any(Boolean),
       isImageUploadDisabled: expect.any(Boolean),
       isFetchingImages: expect.any(Boolean),
 
@@ -249,57 +274,97 @@ describe('useRecResourceFileTransferState', () => {
     );
   });
 
-  it('returns values from all composed hooks', () => {
-    const { result } = renderHook(() => useRecResourceFileTransferState(), {
-      wrapper: createWrapper(),
-    });
+  it.each([
+    {
+      name: 'disables document upload at max files',
+      fileType: 'document' as const,
+      max: 2,
+      files: [{ id: '1' }, { id: '2' }],
+      expectedMaxReached: true,
+      expectedDisabled: true,
+      maxReachedKey: 'isDocumentMaxFilesReached' as const,
+      uploadDisabledKey: 'isDocumentUploadDisabled' as const,
+    },
+    {
+      name: 'disables document upload when a file is uploading below max',
+      fileType: 'document' as const,
+      max: 3,
+      files: [
+        { id: '1', isUploading: true },
+        { id: '2', isUploading: false },
+      ],
+      expectedMaxReached: false,
+      expectedDisabled: true,
+      maxReachedKey: 'isDocumentMaxFilesReached' as const,
+      uploadDisabledKey: 'isDocumentUploadDisabled' as const,
+    },
+    {
+      name: 'keeps document upload enabled below max without uploading files',
+      fileType: 'document' as const,
+      max: 3,
+      files: [{ id: '1' }, { id: '2' }],
+      expectedMaxReached: false,
+      expectedDisabled: false,
+      maxReachedKey: 'isDocumentMaxFilesReached' as const,
+      uploadDisabledKey: 'isDocumentUploadDisabled' as const,
+    },
+    {
+      name: 'disables image upload at max files',
+      fileType: 'image' as const,
+      max: 2,
+      files: [{ id: '1' }, { id: '2' }],
+      expectedMaxReached: true,
+      expectedDisabled: true,
+      maxReachedKey: 'isImageMaxFilesReached' as const,
+      uploadDisabledKey: 'isImageUploadDisabled' as const,
+    },
+    {
+      name: 'disables image upload when a file is uploading below max',
+      fileType: 'image' as const,
+      max: 3,
+      files: [
+        { id: '1', isUploading: true },
+        { id: '2', isUploading: false },
+      ],
+      expectedMaxReached: false,
+      expectedDisabled: true,
+      maxReachedKey: 'isImageMaxFilesReached' as const,
+      uploadDisabledKey: 'isImageUploadDisabled' as const,
+    },
+    {
+      name: 'keeps image upload enabled below max without uploading files',
+      fileType: 'image' as const,
+      max: 3,
+      files: [{ id: '1' }, { id: '2' }],
+      expectedMaxReached: false,
+      expectedDisabled: false,
+      maxReachedKey: 'isImageMaxFilesReached' as const,
+      uploadDisabledKey: 'isImageUploadDisabled' as const,
+    },
+  ])(
+    '$name',
+    ({
+      fileType,
+      max,
+      files,
+      expectedMaxReached,
+      expectedDisabled,
+      maxReachedKey,
+      uploadDisabledKey,
+    }) => {
+      vi.mocked(getMaxFilesByFileType).mockImplementation((currentType) =>
+        currentType === fileType ? max : 5,
+      );
+      setGalleryByType(fileType, files as any[]);
 
-    // Verify it includes properties from document list hook
-    expect(result.current.galleryDocuments).toEqual([]);
-    expect(result.current.isFetching).toBe(false);
+      const { result } = renderHook(() => useRecResourceFileTransferState(), {
+        wrapper: createWrapper(),
+      });
 
-    // Verify it includes properties from image list hook
-    expect(result.current.galleryImages).toEqual([]);
-    expect(result.current.isFetchingImages).toBe(false);
-
-    // Verify upload modal state structure
-    expect(result.current.uploadModalState).toEqual({
-      showUploadOverlay: false,
-      uploadFileName: '',
-      selectedFileForUpload: null,
-      fileNameError: undefined,
-    });
-
-    // Verify delete modal state structure
-    expect(result.current.deleteModalState).toEqual({
-      showDeleteModal: false,
-      fileToDelete: undefined,
-    });
-  });
-
-  it('calculates document upload disabled state based on max files', () => {
-    // Mock getMaxFilesByFileType to return 2 for this test
-    const mockGetMaxFiles = vi.fn().mockReturnValue(2);
-    vi.doMock('@/pages/rec-resource-page/helpers', () => ({
-      getMaxFilesByFileType: mockGetMaxFiles,
-    }));
-
-    const { result } = renderHook(() => useRecResourceFileTransferState(), {
-      wrapper: createWrapper(),
-    });
-
-    // With 0 documents, should not be disabled
-    expect(result.current.isDocumentUploadDisabled).toBe(false);
-  });
-
-  it('calculates image upload disabled state based on max files', () => {
-    const { result } = renderHook(() => useRecResourceFileTransferState(), {
-      wrapper: createWrapper(),
-    });
-
-    // With 0 images and max of 5, should not be disabled
-    expect(result.current.isImageUploadDisabled).toBe(false);
-  });
+      expect(result.current[maxReachedKey]).toBe(expectedMaxReached);
+      expect(result.current[uploadDisabledKey]).toBe(expectedDisabled);
+    },
+  );
 
   it('includes file name validation properties in upload modal state', () => {
     // Set up mock with validation error

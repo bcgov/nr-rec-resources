@@ -118,3 +118,6 @@ export const DOCUMENT_VIEWER_CARD_ACTIONS: ReadonlyArray<{
   icon: IconDefinition;
   label: string;
 }> = [ACTION_VIEW, ACTION_DOWNLOAD] as const;
+
+export const MAX_FILES_REACHED_MESSAGE =
+  'You’ve reached the maximum number of files. Remove a file to upload a new one.';
