@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 interface VisibleOnWebsiteProps {
-  visible: boolean;
+  readonly visible: boolean;
 }
 
 export function VisibleOnWebsite({ visible }: VisibleOnWebsiteProps) {
