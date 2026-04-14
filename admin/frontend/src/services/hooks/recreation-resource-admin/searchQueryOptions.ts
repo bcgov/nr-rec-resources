@@ -41,7 +41,6 @@ export function getAdminSearchQueryOptions(
   search: AdminSearchRouteState,
 ) {
   const request = buildAdminSearchRequest(search);
-  console.log('Request:', request);
   return {
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.search(
       request as SearchRecreationResourcesRequest,
