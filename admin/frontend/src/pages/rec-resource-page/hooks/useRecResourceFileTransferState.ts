@@ -97,23 +97,25 @@ export function useRecResourceFileTransferState() {
     [createGeneralActionHandler, refetchImages],
   );
 
-  // Calculate upload disabled state based on total documents (server + pending)
-  const isDocumentUploadDisabled = useMemo(() => {
-    const totalDocCount = galleryDocuments.length;
-    const hasUploadingDoc = galleryDocuments.some((doc) => doc.isUploading);
-    return (
-      totalDocCount >= getMaxFilesByFileType('document') || hasUploadingDoc
-    );
+  const isDocumentMaxFilesReached = useMemo(() => {
+    return galleryDocuments.length >= getMaxFilesByFileType('document');
   }, [galleryDocuments]);
 
-  // Calculate upload disabled state based on total images (server + pending)
-  const isImageUploadDisabled = useMemo(() => {
-    const totalImageCount = galleryImages.length;
-    const hasUploadingImage = galleryImages.some((image) => image.isUploading);
-    return (
-      totalImageCount >= getMaxFilesByFileType('image') || hasUploadingImage
-    );
+  const isImageMaxFilesReached = useMemo(() => {
+    return galleryImages.length >= getMaxFilesByFileType('image');
   }, [galleryImages]);
+
+  // Calculate upload disabled state based on total documents (server + pending)
+  const isDocumentUploadDisabled = useMemo(() => {
+    const hasUploadingDoc = galleryDocuments.some((doc) => doc.isUploading);
+    return isDocumentMaxFilesReached || hasUploadingDoc;
+  }, [galleryDocuments, isDocumentMaxFilesReached]);
+
+  // Calculate upload disabled state based on total images (server + pending)a
+  const isImageUploadDisabled = useMemo(() => {
+    const hasUploadingImage = galleryImages.some((image) => image.isUploading);
+    return isImageMaxFilesReached || hasUploadingImage;
+  }, [galleryImages, isImageMaxFilesReached]);
 
   // File name validation
   const { fileNameError } = useFileNameValidation();
@@ -128,11 +130,13 @@ export function useRecResourceFileTransferState() {
 
     // Document list
     galleryDocuments,
+    isDocumentMaxFilesReached,
     isDocumentUploadDisabled,
     isFetching,
 
     // Image list
     galleryImages,
+    isImageMaxFilesReached,
     isImageUploadDisabled,
     isFetchingImages,
 
