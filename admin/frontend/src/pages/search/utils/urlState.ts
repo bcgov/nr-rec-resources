@@ -82,6 +82,8 @@ export const serializeAdminSearchRouteState = (
     search.access = serializeListFilter(state.access);
   }
 
+  console.log('Search:', search);
+
   return search;
 };
 
