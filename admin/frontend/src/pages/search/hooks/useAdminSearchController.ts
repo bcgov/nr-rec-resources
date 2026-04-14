@@ -29,6 +29,7 @@ import {
   setAdminSearchSort,
   setAdminSearchTypeFilter,
   submitAdminSearchQuery,
+  setAdminSearchClosestCommunityFilter,
 } from '@/pages/search/utils/urlState';
 import useGetRecreationResourceSearch from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSearch';
 import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
@@ -44,6 +45,7 @@ const hasActiveEditableFilters = (search: AdminSearchRouteState) =>
   search.activities.length > 0 ||
   search.status.length > 0 ||
   search.access.length > 0 ||
+  search.closestCommunity.length > 0 ||
   Boolean(search.establishment_date_from) ||
   Boolean(search.establishment_date_to);
 
@@ -91,6 +93,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       GetOptionsByTypesTypesEnum.RecreationStatus,
       GetOptionsByTypesTypesEnum.Access,
       GetOptionsByTypesTypesEnum.District,
+      GetOptionsByTypesTypesEnum.ClosestCommunity,
     ]);
   const [
     activityOptionsByType,
@@ -98,6 +101,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     statusOptionsByType,
     accessOptionsByType,
     districtOptionsByType,
+    closestCommunityOptionsByType,
   ] = filterOptionsData ?? [];
   const results = useMemo(
     () => (resultsQuery.data?.data ?? []).map(mapAdminSearchResultRow),
@@ -139,12 +143,18 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       ),
     [districtOptionsByType],
   );
-  const updateSearch = (nextSearch: AdminSearchRouteState) =>
+  const closestCommunityOptions = useMemo(
+    () => sortOptionsByLabel(closestCommunityOptionsByType?.options ?? []),
+    [closestCommunityOptionsByType],
+  );
+  const updateSearch = (nextSearch: AdminSearchRouteState) => {
+    console.log('Updating search with', nextSearch);
     navigate({
       to: ROUTE_PATHS.LANDING,
       search: serializeAdminSearchRouteState(nextSearch),
       resetScroll: false,
     });
+  };
   const setPageIndex = (pageIndex: number) => {
     const nextPageIndex = clamp(pageIndex, 0, Math.max(totalPages - 1, 0));
     updateSearch(setAdminSearchPage(search, nextPageIndex + 1));
@@ -209,6 +219,13 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         search.access.filter((entry) => entry !== value),
       ),
     );
+  const clearClosestCommunity = (value: string) =>
+    updateSearch(
+      setAdminSearchClosestCommunityFilter(
+        search,
+        search.status.filter((entry) => entry !== value),
+      ),
+    );
   const clearEstablishmentDateFrom = () =>
     updateSearch(setAdminSearchEstablishmentDateFromFilter(search, undefined));
   const clearEstablishmentDateTo = () =>
@@ -240,6 +257,11 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       label: getOptionLabel(access, accessOptions),
       onClear: () => clearAccess(access),
     })),
+    ...search.closestCommunity.map((closestCommunity) => ({
+      key: `closestCommunity:${closestCommunity}`,
+      label: getOptionLabel(closestCommunity, closestCommunityOptions),
+      onClear: () => clearClosestCommunity(closestCommunity),
+    })),
   );
 
   if (search.establishment_date_from) {
@@ -265,6 +287,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         activities: search.activities,
         status: search.status,
         access: search.access,
+        closestCommunity: search.closestCommunity,
         establishment_date_from: search.establishment_date_from,
         establishment_date_to: search.establishment_date_to,
       }),
@@ -274,6 +297,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       search.activities,
       search.status,
       search.access,
+      search.closestCommunity,
       search.establishment_date_from,
       search.establishment_date_to,
     ],
@@ -307,6 +331,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     statusOptions,
     districtOptions,
     accessOptions,
+    closestCommunityOptions,
     appliedFilterChips,
     hasAppliedState: hasAppliedSearchState(search),
     isFilterPanelOpen,

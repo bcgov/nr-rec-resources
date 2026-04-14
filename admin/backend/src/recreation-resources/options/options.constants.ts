@@ -72,6 +72,11 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     labelField: 'description',
     prismaModel: 'recreation_photographer_type_code',
   },
+  [OPTION_TYPES.CLOSEST_COMMUNITY]: {
+    idField: 'closest_community',
+    labelField: 'closest_community',
+    prismaModel: 'recreation_resource',
+  },
 };
 
 export const VALID_OPTION_TYPES = Object.values(OPTION_TYPES);
