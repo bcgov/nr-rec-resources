@@ -28,6 +28,9 @@ export function buildAdminSearchRequest(
     activities: search.activities.length ? search.activities : undefined,
     status: search.status.length ? search.status : undefined,
     access: search.access.length ? search.access : undefined,
+    closestCommunity: search.closestCommunity.length
+      ? search.closestCommunity
+      : undefined,
     establishmentDateFrom: search.establishment_date_from,
     establishmentDateTo: search.establishment_date_to,
   };
@@ -38,7 +41,7 @@ export function getAdminSearchQueryOptions(
   search: AdminSearchRouteState,
 ) {
   const request = buildAdminSearchRequest(search);
-
+  console.log('Request:', request);
   return {
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.search(
       request as SearchRecreationResourcesRequest,

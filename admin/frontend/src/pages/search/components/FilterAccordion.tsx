@@ -22,6 +22,7 @@ type FilterAccordionControllerProps = Pick<
   | 'activityOptions'
   | 'statusOptions'
   | 'accessOptions'
+  | 'closestCommunityOptions'
   | 'applyFilters'
   | 'resetFilters'
 >;
@@ -42,6 +43,7 @@ const getEditableFilters = (
   activities: state.activities,
   status: state.status,
   access: state.access,
+  closestCommunity: state.closestCommunity,
   establishment_date_from: state.establishment_date_from,
   establishment_date_to: state.establishment_date_to,
 });
@@ -65,6 +67,7 @@ export function FilterAccordion({
     activityOptions,
     statusOptions,
     accessOptions,
+    closestCommunityOptions,
     applyFilters: onApply,
     resetFilters: onReset,
   } = controller;
@@ -74,6 +77,7 @@ export function FilterAccordion({
     activityOptions,
     statusOptions,
     accessOptions,
+    closestCommunityOptions,
   };
   const searchFilters = getEditableFilters(search);
   const searchKey = JSON.stringify(searchFilters);
@@ -190,6 +194,7 @@ export function FilterAccordion({
                     activities: draft.activities,
                     status: draft.status,
                     access: draft.access,
+                    closestCommunity: draft.closestCommunity,
                     establishment_date_from: draft.establishment_date_from,
                     establishment_date_to: draft.establishment_date_to,
                   });
