@@ -1,9 +1,16 @@
 import { AuthServiceEvent } from '@/services/auth/AuthService.constants';
 import { UserInfo } from '@/services/auth/AuthService.types';
+import {
+  addStatusNotification,
+  removeNotification,
+} from '@/store/notificationStore';
 import Keycloak from 'keycloak-js';
 
 export class AuthService {
   private static _instance: AuthService;
+  private static readonly SESSION_EXPIRY_NOTIFICATION_ID =
+    'session-expired-notification';
+  private reauthInProgress = false;
 
   public static getInstance(): AuthService {
     if (!AuthService._instance) {
@@ -34,6 +41,47 @@ export class AuthService {
     this.keycloak = new Keycloak(keycloakConfig);
   }
 
+  private async triggerLoginRedirect(): Promise<void> {
+    if (this.reauthInProgress) return;
+    this.reauthInProgress = true;
+    removeNotification(AuthService.SESSION_EXPIRY_NOTIFICATION_ID);
+
+    try {
+      await this.login();
+    } catch (err) {
+      this.reauthInProgress = false;
+      window.dispatchEvent(
+        new CustomEvent(AuthServiceEvent.AUTH_ERROR, { detail: err }),
+      );
+    }
+  }
+
+  private promptToStayLoggedIn(): void {
+    if (this.reauthInProgress) return;
+
+    addStatusNotification(
+      'Your session has expired because it reached the 10-hour limit.',
+      'warning',
+      AuthService.SESSION_EXPIRY_NOTIFICATION_ID,
+      false,
+      0,
+      [
+        {
+          label: 'Sign in again',
+          onClick: () => {
+            void this.triggerLoginRedirect();
+          },
+          variant: 'outline-primary',
+        },
+      ],
+      'Session expired',
+      () => {
+        // Called when user dismisses/closes the notification
+        void this.triggerLoginRedirect();
+      },
+    );
+  }
+
   async init(): Promise<boolean> {
     if (this.keycloak.didInitialize) {
       return this.keycloak.authenticated ?? false;
@@ -59,23 +107,14 @@ export class AuthService {
 
     // Refresh token when Keycloak reports it has expired (background refresh)
     this.keycloak.onTokenExpired = () => {
-      this.keycloak.updateToken(70).catch((err) => {
-        window.dispatchEvent(
-          new CustomEvent(AuthServiceEvent.AUTH_ERROR, { detail: err }),
-        );
+      this.keycloak.updateToken(70).catch(() => {
+        this.promptToStayLoggedIn();
       });
     };
 
     // When refresh fails (e.g. session expired), notify the app
     this.keycloak.onAuthRefreshError = () => {
-      window.dispatchEvent(
-        new CustomEvent(AuthServiceEvent.AUTH_ERROR, {
-          detail: {
-            error: 'session_expired',
-            error_description: 'Your session has expired. Please log in again.',
-          },
-        }),
-      );
+      this.promptToStayLoggedIn();
     };
 
     return this.keycloak.init({
