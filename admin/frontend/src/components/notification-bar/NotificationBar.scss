@@ -23,4 +23,29 @@
     border-radius: $border-radius;
     margin-bottom: unset;
   }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  &__title {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  &__actions {
+    flex-shrink: 0;
+    align-self: flex-end;
+    justify-content: flex-end;
+  }
+
+  &__spinner,
+  .notification-bar-container__alert svg {
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 0.25rem;
+  }
 }

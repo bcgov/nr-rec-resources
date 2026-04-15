@@ -33,6 +33,40 @@ describe('notificationStore', () => {
     ]);
   });
 
+  it('adds a status notification with actions', () => {
+    const actionHandler = vi.fn();
+    const actions = [
+      {
+        label: 'Retry',
+        onClick: actionHandler,
+        variant: 'primary' as const,
+      },
+    ];
+
+    addStatusNotification(
+      'Needs action',
+      'warning',
+      'id-actions',
+      false,
+      0,
+      actions,
+      'Action needed',
+    );
+
+    expect(notificationStore.state.messages).toEqual([
+      {
+        id: 'id-actions',
+        type: 'status',
+        title: 'Action needed',
+        message: 'Needs action',
+        variant: 'warning',
+        actions,
+        autoDismiss: false,
+        timeout: 0,
+      },
+    ]);
+  });
+
   it('adds a spinner notification', () => {
     addSpinnerNotification('Loading', 'spin1');
     expect(notificationStore.state.messages).toEqual([
