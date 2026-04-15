@@ -139,8 +139,7 @@ export const PhotoDetailsModal: FC = () => {
             <div className="photo-details-modal__item">
               <dt>Date taken</dt>
               <dd>
-                {formatDateReadable(image.date_taken, { timeZone: 'UTC' }) ||
-                  'Not specified'}
+                {formatDateReadable(image.date_taken) || 'Not specified'}
               </dd>
             </div>
             <div className="photo-details-modal__item">
