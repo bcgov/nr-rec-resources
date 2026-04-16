@@ -85,7 +85,9 @@ export function useEstablishmentOrderState(recResourceId: string) {
     const serverDocs = docs.map((doc) => ({
       id: doc.s3_key,
       name: doc.title,
-      date: formatDateReadable(doc.created_at) ?? '-',
+      date:
+        formatDateReadable(doc.created_at, { timeZone: 'America/Vancouver' }) ??
+        '-',
       url: doc.url,
       extension: doc.extension || 'pdf',
       type: 'document' as const,
