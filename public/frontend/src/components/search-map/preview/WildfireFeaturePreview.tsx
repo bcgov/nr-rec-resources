@@ -101,8 +101,6 @@ const WildfireFeaturePreview: React.FC<WildfireFeaturePreviewProps> = ({
             {ignitionDate && (
               <p>
                 <FontAwesomeIcon icon={faCalendar} className="me-2" />
-                {/* ignitionDate comes from the WildfireBC external API (IGNITION_DATE property).
-                    The value is a UTC ISO timestamp — the UTC default in formatDateFull handles it correctly. */}
                 Discovered on {formatDateFull(ignitionDate)}
               </p>
             )}
