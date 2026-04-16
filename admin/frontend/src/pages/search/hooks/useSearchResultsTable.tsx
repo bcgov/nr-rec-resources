@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-table';
 import type { KeyboardEvent } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { AdminStatusBadge } from '@/components';
+import { AdminStatusBadge, VisibleOnWebsite } from '@/components';
 import { ROUTE_PATHS } from '@/constants/routes';
 import {
   ADMIN_SEARCH_COLUMN_IDS,
@@ -68,6 +68,12 @@ const buildColumns = (
           label={row.original.status}
           statusCode={row.original.statusCode}
         />
+      );
+    }
+
+    if (id === 'display_on_public_site') {
+      column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => (
+        <VisibleOnWebsite visible={row.original.visible} />
       );
     }
 

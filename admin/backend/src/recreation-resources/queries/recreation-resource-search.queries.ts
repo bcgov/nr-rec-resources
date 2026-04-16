@@ -47,6 +47,8 @@ export const SORT_FIELD_MAP: Record<
   'access:desc': { name: 'desc' },
   'fee:asc': { name: 'asc' },
   'fee:desc': { name: 'desc' },
+  'display_on_public_site:asc': { display_on_public_site: 'asc' },
+  'display_on_public_site:desc': { display_on_public_site: 'desc' },
 };
 
 // These sorts depend on aggregated related data, so they use the raw SQL path

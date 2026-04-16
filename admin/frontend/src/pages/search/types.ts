@@ -40,4 +40,5 @@ export interface AdminSearchResultRow {
   closestCommunity: string;
   status: string;
   statusCode: number;
+  visible: boolean;
 }

@@ -21,6 +21,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'campsites:desc',
   'district:asc',
   'district:desc',
+  'display_on_public_site:asc',
+  'display_on_public_site:desc',
 ] as const;
 
 export type AdminSearchSort = (typeof ADMIN_SEARCH_SORT_VALUES)[number];
@@ -86,6 +88,12 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
     label: 'Defined campsites',
     resultKey: 'definedCampsites',
     sortKey: 'campsites',
+  },
+  {
+    id: 'display_on_public_site',
+    label: 'Website',
+    resultKey: 'visible',
+    sortKey: 'display_on_public_site',
   },
 ] as const;
 
