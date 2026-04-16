@@ -1,8 +1,13 @@
 import { Menu, MenuItem, RenderMenuProps } from 'react-bootstrap-typeahead';
 import { SuggestionListItem } from '@/components/rec-resource-suggestion-form/SuggestionListItem';
-import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
+import {
+  CommunitySuggestion,
+  RecreationResourceSuggestion,
+} from '@shared/components/suggestion-typeahead/types';
 import { Image } from 'react-bootstrap';
 import { RESOURCE_TYPE_ICONS } from '@shared/components/suggestion-typeahead/constants';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
+import { SuggestionListCommunity } from './SuggestionListCommunity';
 
 /**
  * Props for the SuggestionMenu component.
@@ -27,45 +32,75 @@ export const SuggestionMenu = ({
   results,
   searchTerm,
   menuProps,
-}: SuggestionMenuProps) => (
-  <Menu {...menuProps}>
-    {results.map((option: RecreationResourceSuggestion, index: number) => {
-      const {
-        rec_resource_id,
-        recreation_resource_type_code,
-        recreation_resource_type,
-        district_description,
-        name,
-        display_on_public_site,
-      } = option;
-      return (
+}: SuggestionMenuProps) => {
+  const communities: CommunitySuggestion[] = Array.from(
+    new Map(
+      results.map((c: any) => {
+        const upperId = c.closest_community.toUpperCase();
+
+        return [
+          upperId,
+          {
+            id: upperId,
+            name: capitalizeWords(upperId),
+          },
+        ];
+      }),
+    ).values(),
+  );
+  return (
+    <Menu {...menuProps}>
+      {communities.map((community: any, index) => (
         <MenuItem
-          key={rec_resource_id}
-          option={option}
+          key={community.id}
+          option={community}
           position={index}
           className="dropdown-menu-item"
         >
-          <SuggestionListItem
+          <SuggestionListCommunity
             searchTerm={searchTerm}
-            district={district_description}
-            icon={
-              <Image
-                src={
-                  RESOURCE_TYPE_ICONS[
-                    recreation_resource_type_code
-                      ? recreation_resource_type_code
-                      : 'NO_TYPE_ICON'
-                  ]
-                }
-              />
-            }
-            rec_resource_id={rec_resource_id}
-            resourceType={recreation_resource_type}
-            title={name}
-            display_on_public_site={display_on_public_site}
+            community={community.name}
           />
         </MenuItem>
-      );
-    })}
-  </Menu>
-);
+      ))}
+      {results.map((option: RecreationResourceSuggestion, index: number) => {
+        const {
+          rec_resource_id,
+          recreation_resource_type_code,
+          recreation_resource_type,
+          district_description,
+          name,
+          display_on_public_site,
+        } = option;
+        return (
+          <MenuItem
+            key={rec_resource_id}
+            option={option}
+            position={index}
+            className="dropdown-menu-item"
+          >
+            <SuggestionListItem
+              searchTerm={searchTerm}
+              district={district_description}
+              icon={
+                <Image
+                  src={
+                    RESOURCE_TYPE_ICONS[
+                      recreation_resource_type_code
+                        ? recreation_resource_type_code
+                        : 'NO_TYPE_ICON'
+                    ]
+                  }
+                />
+              }
+              rec_resource_id={rec_resource_id}
+              resourceType={recreation_resource_type}
+              title={name}
+              display_on_public_site={display_on_public_site}
+            />
+          </MenuItem>
+        );
+      })}
+    </Menu>
+  );
+};
