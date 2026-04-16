@@ -42,6 +42,14 @@ export class SuggestionDto {
   district_description: string | null;
 
   @ApiProperty({
+    description:
+      'Description of the closest community (e.g., Chilliwack, Merrit, etc.)',
+    type: String,
+    example: 'Merrit',
+  })
+  closest_community: string | null;
+
+  @ApiProperty({
     description: 'Defines if the resource should be displayed on public site.',
     type: Boolean,
     example: 'true',

@@ -11,6 +11,7 @@ import {
 import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchController';
 import { AdminSearchRouteState } from '@/pages/search/types';
 import './FilterAccordion.scss';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
 
 type FilterAccordionControllerProps = Pick<
   ReturnType<typeof useAdminSearchController>,
@@ -77,7 +78,10 @@ export function FilterAccordion({
     activityOptions,
     statusOptions,
     accessOptions,
-    closestCommunityOptions,
+    closestCommunityOptions: closestCommunityOptions.map((item) => ({
+      ...item,
+      label: capitalizeWords(item.label),
+    })),
   };
   const searchFilters = getEditableFilters(search);
   const searchKey = JSON.stringify(searchFilters);
@@ -106,7 +110,6 @@ export function FilterAccordion({
           <Row className="g-3">
             {ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS.map((field) => {
               const options = filterOptionsByKey[field.optionsKey] ?? [];
-
               return (
                 <Col key={field.key} md={6} xl={3}>
                   <Form.Group controlId={field.controlId}>

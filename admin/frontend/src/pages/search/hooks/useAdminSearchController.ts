@@ -38,6 +38,7 @@ import {
   useGetRecreationResourceOptions,
 } from '@/services';
 import type { PaginationState } from '@tanstack/react-table';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
 
 const hasActiveEditableFilters = (search: AdminSearchRouteState) =>
   search.type.length > 0 ||
@@ -221,7 +222,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     updateSearch(
       setAdminSearchClosestCommunityFilter(
         search,
-        search.status.filter((entry) => entry !== value),
+        search.closestCommunity.filter((entry) => entry !== value),
       ),
     );
   const clearEstablishmentDateFrom = () =>
@@ -257,7 +258,9 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     })),
     ...search.closestCommunity.map((closestCommunity) => ({
       key: `closestCommunity:${closestCommunity}`,
-      label: getOptionLabel(closestCommunity, closestCommunityOptions),
+      label: capitalizeWords(
+        getOptionLabel(closestCommunity, closestCommunityOptions),
+      ),
       onClear: () => clearClosestCommunity(closestCommunity),
     })),
   );

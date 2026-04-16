@@ -238,6 +238,7 @@ export class RecreationResourceRepository {
     return {
       closest_community: {
         in: communities,
+        mode: 'insensitive',
       },
     };
   }
