@@ -42,13 +42,6 @@ jobs:
         KEYCLOAK_REALM: ${{ secrets.KEYCLOAK_REALM }}
         KEYCLOAK_CLIENT_ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
         KEYCLOAK_ISSUER: ${{ secrets.KEYCLOAK_ISSUER }}
-        DAM_URL: ${{ secrets.DAM_URL }}
-        DAM_PRIVATE_KEY: ${{ secrets.DAM_PRIVATE_KEY }}
-        DAM_USER: ${{ secrets.DAM_USER }}
-        DAM_RST_PDF_COLLECTION_ID: ${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
-        DAM_RST_IMAGE_COLLECTION_ID: ${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
-        DAM_RESOURCE_TYPE_PDF: ${{ secrets.DAM_RESOURCE_TYPE_PDF }}
-        DAM_RESOURCE_TYPE_IMAGE: ${{ secrets.DAM_RESOURCE_TYPE_IMAGE }}
         RST_STORAGE_CLOUDFRONT_URL: ${{ secrets.RST_STORAGE_CLOUDFRONT_URL }}
         FOREST_CLIENT_API_URL: ${{ secrets.FOREST_CLIENT_API_URL }}
         FOREST_CLIENT_API_KEY: ${{ secrets.FOREST_CLIENT_API_KEY }}
