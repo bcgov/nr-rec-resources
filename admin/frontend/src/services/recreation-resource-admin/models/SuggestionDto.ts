@@ -50,6 +50,12 @@ export interface SuggestionDto {
    */
   district_description: string;
   /**
+   * Description of the closest community (e.g., Chilliwack, Merrit, etc.)
+   * @type {string}
+   * @memberof SuggestionDto
+   */
+  closest_community: string;
+  /**
    * Defines if the resource should be displayed on public site.
    * @type {boolean}
    * @memberof SuggestionDto
@@ -80,6 +86,11 @@ export function instanceOfSuggestionDto(value: object): value is SuggestionDto {
   )
     return false;
   if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
+  )
+    return false;
+  if (
     !('display_on_public_site' in value) ||
     value['display_on_public_site'] === undefined
   )
@@ -104,6 +115,7 @@ export function SuggestionDtoFromJSONTyped(
     recreation_resource_type: json['recreation_resource_type'],
     recreation_resource_type_code: json['recreation_resource_type_code'],
     district_description: json['district_description'],
+    closest_community: json['closest_community'],
     display_on_public_site: json['display_on_public_site'],
   };
 }
@@ -126,6 +138,7 @@ export function SuggestionDtoToJSONTyped(
     recreation_resource_type: value['recreation_resource_type'],
     recreation_resource_type_code: value['recreation_resource_type_code'],
     district_description: value['district_description'],
+    closest_community: value['closest_community'],
     display_on_public_site: value['display_on_public_site'],
   };
 }

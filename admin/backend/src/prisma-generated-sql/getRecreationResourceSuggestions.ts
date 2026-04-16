@@ -8,7 +8,7 @@ import * as $runtime from '@prisma/client/runtime/client';
  * @param text
  */
 export const getRecreationResourceSuggestions = $runtime.makeTypedQueryFactory(
-  "SELECT\nrr.name,\nrr.rec_resource_id,\nrrtv.description as recreation_resource_type,\nrrtv.rec_resource_type_code as recreation_resource_type_code,\nrd.description as district_description,\nrr.display_on_public_site\nFROM rst.recreation_resource rr\nLEFT JOIN rst.recreation_resource_type_view_admin rrtv ON rr.rec_resource_id = rrtv.rec_resource_id\nLEFT JOIN rst.recreation_district_code rd ON rr.district_code = rd.district_code\nWHERE similarity(rr.name, $1) > 0.1\nOR rr.rec_resource_id ILIKE '%' || $1 || '%'\nORDER BY GREATEST(\nsimilarity(rr.name, $1),\nsimilarity(rr.rec_resource_id, $1)\n) DESC\nLIMIT 30;",
+  "SELECT\nrr.name,\nrr.rec_resource_id,\nrrtv.description as recreation_resource_type,\nrrtv.rec_resource_type_code as recreation_resource_type_code,\nrd.description as district_description,\nrr.display_on_public_site,\nrr.closest_community\nFROM rst.recreation_resource rr\nLEFT JOIN rst.recreation_resource_type_view_admin rrtv ON rr.rec_resource_id = rrtv.rec_resource_id\nLEFT JOIN rst.recreation_district_code rd ON rr.district_code = rd.district_code\nWHERE similarity(rr.name, $1) > 0.1\nOR similarity(rr.closest_community, $1) > 0.1\nOR rr.rec_resource_id ILIKE '%' || $1 || '%'\nORDER BY GREATEST(\nsimilarity(rr.name, $1),\nsimilarity(rr.closest_community, $1),\nsimilarity(rr.rec_resource_id, $1)\n) DESC\nLIMIT 30;",
 ) as (
   text: string,
 ) => $runtime.TypedSql<
@@ -25,5 +25,6 @@ export namespace getRecreationResourceSuggestions {
     recreation_resource_type_code: string | null;
     district_description: string;
     display_on_public_site: boolean | null;
+    closest_community: string | null;
   };
 }
