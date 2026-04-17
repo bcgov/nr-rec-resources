@@ -3,19 +3,29 @@
  * Provides global notification management as a collection of messages.
  */
 import { Store } from '@tanstack/store';
-import { AlertProps } from 'react-bootstrap';
+import { AlertProps, ButtonProps } from 'react-bootstrap';
+
+export interface NotificationAction {
+  label: string;
+  onClick: () => void;
+  variant?: ButtonProps['variant'];
+  dismissOnClick?: boolean;
+}
 
 export type NotificationMessage =
   | {
       id: string | number;
       type: 'status';
+      title?: string;
       message: string;
       variant: Extract<
         AlertProps['variant'],
         'success' | 'danger' | 'warning' | 'info'
       >;
+      actions?: NotificationAction[];
       autoDismiss?: boolean;
       timeout?: number;
+      onDismiss?: () => void;
     }
   | {
       id: string | number;
@@ -41,6 +51,9 @@ export const addStatusNotification = (
   id?: string | number,
   autoDismiss = true,
   timeout = 3000,
+  actions?: NotificationAction[],
+  title?: string,
+  onDismiss?: () => void,
 ): void => {
   notificationStore.setState((prev) =>
     id && prev.messages.some((msg) => msg.id === id)
@@ -51,10 +64,13 @@ export const addStatusNotification = (
             {
               id: getId(id),
               type: 'status',
+              title,
               message,
               variant,
+              actions,
               autoDismiss,
               timeout,
+              onDismiss,
             },
           ],
         },
