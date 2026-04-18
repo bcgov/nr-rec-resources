@@ -20,11 +20,13 @@ import './SearchSubmitBar.scss';
 interface SearchSubmitBarProps {
   committedQuery: string;
   onSubmit: (value: string) => void;
+  onFilterCommunity: (value: string) => void;
 }
 
 export function SearchSubmitBar({
   committedQuery,
   onSubmit,
+  onFilterCommunity,
 }: Readonly<SearchSubmitBarProps>) {
   const { inputValue, setInputValue, suggestions, isLoading, error } =
     useAdminSearchTypeahead(committedQuery);
@@ -54,13 +56,7 @@ export function SearchSubmitBar({
         params: { id: suggestion.rec_resource_id },
       });
     } else {
-      navigate({
-        to: ROUTE_PATHS.LANDING,
-        search: (prev) => ({
-          ...prev,
-          closestCommunity: suggestion.id,
-        }),
-      });
+      onFilterCommunity(suggestion.id);
     }
   };
 
