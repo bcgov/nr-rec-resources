@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
@@ -32,6 +32,7 @@ interface FilterAccordionProps {
   search: AdminSearchRouteState;
   controller: FilterAccordionControllerProps;
   showTrigger?: boolean;
+  communityFilter: string[];
 }
 
 type FilterDraftState = EditableAdminSearchFilters;
@@ -58,6 +59,7 @@ export function FilterAccordion({
   search,
   controller,
   showTrigger = true,
+  communityFilter,
 }: Readonly<FilterAccordionProps>) {
   const {
     isFilterPanelOpen: isOpen,
@@ -86,7 +88,6 @@ export function FilterAccordion({
   const searchFilters = getEditableFilters(search);
   const searchKey = JSON.stringify(searchFilters);
   const [draft, setDraft] = useState<FilterDraftState>(searchFilters);
-
   const updateDraft = (
     updater: (current: FilterDraftState) => FilterDraftState,
   ) => {
@@ -98,6 +99,21 @@ export function FilterAccordion({
   const resetDraft = () => {
     setDraft(EMPTY_ADMIN_SEARCH_FILTERS);
   };
+
+  useEffect(() => {
+    setDraft((current) => ({ ...current, closestCommunity: communityFilter }));
+    onApply({
+      type: draft.type,
+      district: draft.district,
+      activities: draft.activities,
+      status: draft.status,
+      access: draft.access,
+      closestCommunity: communityFilter,
+      establishment_date_from: draft.establishment_date_from,
+      establishment_date_to: draft.establishment_date_to,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [communityFilter]);
 
   const renderedPanel = (
     <div
