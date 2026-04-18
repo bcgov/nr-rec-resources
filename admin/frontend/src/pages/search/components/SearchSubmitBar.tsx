@@ -7,7 +7,10 @@ import {
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { useNavigate } from '@tanstack/react-router';
 import { SuggestionTypeahead } from '@shared/components/suggestion-typeahead/SuggestionTypeahead';
-import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
+import {
+  CommunitySuggestion,
+  RecreationResourceSuggestion,
+} from '@shared/components/suggestion-typeahead/types';
 import { SuggestionMenu } from '@/components/rec-resource-suggestion-form/SuggestionMenu';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useAdminSearchTypeahead } from '@/pages/search/hooks/useAdminSearchTypeahead';
@@ -17,11 +20,13 @@ import './SearchSubmitBar.scss';
 interface SearchSubmitBarProps {
   committedQuery: string;
   onSubmit: (value: string) => void;
+  onFilterCommunity: (value: string) => void;
 }
 
 export function SearchSubmitBar({
   committedQuery,
   onSubmit,
+  onFilterCommunity,
 }: Readonly<SearchSubmitBarProps>) {
   const { inputValue, setInputValue, suggestions, isLoading, error } =
     useAdminSearchTypeahead(committedQuery);
@@ -40,6 +45,19 @@ export function SearchSubmitBar({
   const submitValue = (value: string) => {
     writeAdminSearchDraftQuery(value);
     onSubmit(value);
+  };
+
+  const navigateTo = (
+    suggestion: RecreationResourceSuggestion | CommunitySuggestion,
+  ) => {
+    if ('rec_resource_id' in suggestion) {
+      navigate({
+        to: ROUTE_PATHS.REC_RESOURCE_PAGE,
+        params: { id: suggestion.rec_resource_id },
+      });
+    } else {
+      onFilterCommunity(suggestion.id);
+    }
   };
 
   const renderMenu: TypeaheadComponentProps['renderMenu'] = useCallback(
@@ -83,7 +101,9 @@ export function SearchSubmitBar({
     >
       <Row className="g-2 align-items-start">
         <Col lg={9}>
-          <SuggestionTypeahead<RecreationResourceSuggestion>
+          <SuggestionTypeahead<
+            RecreationResourceSuggestion | CommunitySuggestion
+          >
             key={committedQuery}
             suggestions={suggestions}
             isLoading={isLoading}
@@ -94,14 +114,9 @@ export function SearchSubmitBar({
               updateInputValue('');
               submitValue('');
             }}
-            onChange={(suggestion) =>
-              navigate({
-                to: ROUTE_PATHS.REC_RESOURCE_PAGE,
-                params: { id: suggestion.rec_resource_id },
-              })
-            }
-            emptyLabel="Search by resource name or number"
-            placeholder="By name or number"
+            onChange={(suggestion) => navigateTo(suggestion)}
+            emptyLabel="Search by resource name, resource number or closest community"
+            placeholder="By name, number or closest community"
             renderMenu={renderMenu}
             isMobileSearchBtn={false}
             defaultValue={inputValue || committedQuery}

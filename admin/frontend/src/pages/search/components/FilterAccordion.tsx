@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
@@ -11,6 +11,7 @@ import {
 import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchController';
 import { AdminSearchRouteState } from '@/pages/search/types';
 import './FilterAccordion.scss';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
 
 type FilterAccordionControllerProps = Pick<
   ReturnType<typeof useAdminSearchController>,
@@ -22,6 +23,7 @@ type FilterAccordionControllerProps = Pick<
   | 'activityOptions'
   | 'statusOptions'
   | 'accessOptions'
+  | 'closestCommunityOptions'
   | 'applyFilters'
   | 'resetFilters'
 >;
@@ -30,6 +32,7 @@ interface FilterAccordionProps {
   search: AdminSearchRouteState;
   controller: FilterAccordionControllerProps;
   showTrigger?: boolean;
+  communityFilter: string[];
 }
 
 type FilterDraftState = EditableAdminSearchFilters;
@@ -42,6 +45,7 @@ const getEditableFilters = (
   activities: state.activities,
   status: state.status,
   access: state.access,
+  closestCommunity: state.closestCommunity,
   establishment_date_from: state.establishment_date_from,
   establishment_date_to: state.establishment_date_to,
 });
@@ -55,6 +59,7 @@ export function FilterAccordion({
   search,
   controller,
   showTrigger = true,
+  communityFilter,
 }: Readonly<FilterAccordionProps>) {
   const {
     isFilterPanelOpen: isOpen,
@@ -65,6 +70,7 @@ export function FilterAccordion({
     activityOptions,
     statusOptions,
     accessOptions,
+    closestCommunityOptions,
     applyFilters: onApply,
     resetFilters: onReset,
   } = controller;
@@ -74,11 +80,14 @@ export function FilterAccordion({
     activityOptions,
     statusOptions,
     accessOptions,
+    closestCommunityOptions: closestCommunityOptions.map((item) => ({
+      ...item,
+      label: capitalizeWords(item.label),
+    })),
   };
   const searchFilters = getEditableFilters(search);
   const searchKey = JSON.stringify(searchFilters);
   const [draft, setDraft] = useState<FilterDraftState>(searchFilters);
-
   const updateDraft = (
     updater: (current: FilterDraftState) => FilterDraftState,
   ) => {
@@ -91,6 +100,21 @@ export function FilterAccordion({
     setDraft(EMPTY_ADMIN_SEARCH_FILTERS);
   };
 
+  useEffect(() => {
+    setDraft((current) => ({ ...current, closestCommunity: communityFilter }));
+    onApply({
+      type: draft.type,
+      district: draft.district,
+      activities: draft.activities,
+      status: draft.status,
+      access: draft.access,
+      closestCommunity: communityFilter,
+      establishment_date_from: draft.establishment_date_from,
+      establishment_date_to: draft.establishment_date_to,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [communityFilter]);
+
   const renderedPanel = (
     <div
       className={`filters__collapse${isOpen ? ' is-open' : ''}`}
@@ -102,7 +126,6 @@ export function FilterAccordion({
           <Row className="g-3">
             {ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS.map((field) => {
               const options = filterOptionsByKey[field.optionsKey] ?? [];
-
               return (
                 <Col key={field.key} md={6} xl={3}>
                   <Form.Group controlId={field.controlId}>
@@ -190,6 +213,7 @@ export function FilterAccordion({
                     activities: draft.activities,
                     status: draft.status,
                     access: draft.access,
+                    closestCommunity: draft.closestCommunity,
                     establishment_date_from: draft.establishment_date_from,
                     establishment_date_to: draft.establishment_date_to,
                   });

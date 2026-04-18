@@ -1,4 +1,7 @@
-import { mapAccessOptions } from './options.mapper';
+import {
+  mapAccessOptions,
+  transformClosestCommunityOptions,
+} from './options.mapper';
 import { OPTION_TYPES, OptionType, TableMapping } from './options.types';
 
 export { OPTION_TYPES };
@@ -71,6 +74,12 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     idField: 'photographer_type_code',
     labelField: 'description',
     prismaModel: 'recreation_photographer_type_code',
+  },
+  [OPTION_TYPES.CLOSEST_COMMUNITY]: {
+    idField: 'closest_community',
+    labelField: 'closest_community',
+    prismaModel: 'recreation_resource',
+    middleware: transformClosestCommunityOptions,
   },
 };
 

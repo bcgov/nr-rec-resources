@@ -135,3 +135,27 @@ export async function transformResultsToOptionDtos(
   const middlewares = normalizeMiddlewares(mapping.middleware);
   return middlewares.reduce((acc, mw) => mw(acc, results), mapped);
 }
+
+/**
+ * Normalizes the closest community options.
+ */
+export const transformClosestCommunityOptions: OptionTransformMiddleware = (
+  mapped: OptionDto[],
+  _raw: any[],
+) => {
+  return Array.from(
+    new Map(
+      mapped.map(({ id, label }) => {
+        const upperId = id.toUpperCase();
+
+        return [
+          upperId,
+          {
+            id: upperId,
+            label: label,
+          },
+        ];
+      }),
+    ).values(),
+  );
+};
