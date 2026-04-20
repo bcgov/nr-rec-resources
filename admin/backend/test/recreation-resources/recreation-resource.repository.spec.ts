@@ -118,6 +118,7 @@ describe('RecreationResourceRepository', () => {
         sort: 'name:desc',
         type: ['SIT'],
         access: ['R'],
+        closestCommunity: ['COMM1'],
       });
 
       expect(prisma.$transaction).toHaveBeenCalledTimes(1);
