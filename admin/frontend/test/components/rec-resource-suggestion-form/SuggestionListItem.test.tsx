@@ -23,7 +23,9 @@ describe('SuggestionListItem', () => {
   });
 
   it('renders icon, title, resourceType, district, and rec_resource_id badges', () => {
-    render(<SuggestionListItem {...defaultProps} />);
+    render(
+      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
+    );
     expect(screen.getByTestId('icon')).toBeInTheDocument();
 
     const highlighters = screen.getAllByTestId('highlighter');
@@ -40,7 +42,9 @@ describe('SuggestionListItem', () => {
   });
 
   it('renders ListGroup.Item with action and correct classes', () => {
-    const { container } = render(<SuggestionListItem {...defaultProps} />);
+    const { container } = render(
+      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
+    );
     const item = container.querySelector('.list-group-item');
     expect(item).toBeInTheDocument();
     expect(item?.className).toContain('action');
@@ -48,7 +52,9 @@ describe('SuggestionListItem', () => {
   });
 
   it('renders mobile and desktop badge locations', () => {
-    render(<SuggestionListItem {...defaultProps} />);
+    render(
+      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
+    );
     const badges = screen.getAllByText('R-1234');
     expect(badges.length).toBe(2);
     // First badge is mobile, second is desktop
@@ -57,14 +63,18 @@ describe('SuggestionListItem', () => {
   });
 
   it('renders Highlighter with correct children and search term', () => {
-    render(<SuggestionListItem {...defaultProps} />);
+    render(
+      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
+    );
     const marks = screen.getAllByTestId('highlighter');
     expect(marks.length).toBe(1);
     expect(marks[0]).toHaveTextContent('riverfront park');
   });
 
   it('renders correct resourceType and district', () => {
-    render(<SuggestionListItem {...defaultProps} />);
+    render(
+      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
+    );
     expect(screen.getByText('Urban Park • Downtown')).toBeInTheDocument();
   });
 
@@ -77,7 +87,7 @@ describe('SuggestionListItem', () => {
       resourceType: 'Lake',
       district: 'Northside',
     };
-    render(<SuggestionListItem {...props} />);
+    render(<SuggestionListItem display_on_public_site={true} {...props} />);
     expect(screen.getByTestId('icon2')).toBeInTheDocument();
 
     const highlighters = screen.getAllByTestId('highlighter');
