@@ -23,6 +23,41 @@
   }
 }
 
+.header-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @include media-breakpoint-up(md) {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+.header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.district-image-container {
+  flex-shrink: 0;
+  width: 120px;
+  align-self: flex-end;
+
+  @include media-breakpoint-up(md) {
+    width: 200px;
+    align-self: flex-start;
+  }
+
+  img,
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
 .bg-container {
   width: 100%;
   background: $colorBrownLight;
