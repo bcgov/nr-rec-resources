@@ -134,7 +134,13 @@ function renderSearchSubmitBar({
   });
 
   render(
-    <SearchSubmitBar committedQuery={committedQuery} onSubmit={onSubmit} />,
+    <SearchSubmitBar
+      committedQuery={committedQuery}
+      onSubmit={onSubmit}
+      onFilterCommunity={function (_value: string): void {
+        throw new Error('Function not implemented.');
+      }}
+    />,
   );
 
   return { setInputValue, onSubmit };
@@ -160,7 +166,7 @@ describe('SearchSubmitBar', () => {
     const { onSubmit } = renderSearchSubmitBar();
 
     await user.type(
-      screen.getByPlaceholderText('By name or number'),
+      screen.getByPlaceholderText('By name, number or closest community'),
       '{enter}',
     );
 
@@ -179,7 +185,9 @@ describe('SearchSubmitBar', () => {
       onSubmit,
     });
 
-    const input = screen.getByPlaceholderText('By name or number');
+    const input = screen.getByPlaceholderText(
+      'By name, number or closest community',
+    );
     await user.clear(input);
     await user.type(input, 'ridge lake{enter}');
 
