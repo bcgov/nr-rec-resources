@@ -1,5 +1,6 @@
 import { AuthService, UserInfo } from '@/services/auth';
 import { AuthServiceEvent } from '@/services/auth/AuthService.constants';
+import * as notificationStoreModule from '@/store/notificationStore';
 import Keycloak from 'keycloak-js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -9,6 +10,8 @@ describe('AuthService', () => {
   let authService: AuthService;
   let mockKeycloak: any;
   let dispatchEventSpy: ReturnType<typeof vi.spyOn>;
+  let addStatusNotificationSpy: ReturnType<typeof vi.spyOn>;
+  let removeNotificationSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.stubEnv('VITE_KEYCLOAK_AUTH_SERVER_URL', 'http://localhost:8080');
@@ -38,10 +41,19 @@ describe('AuthService', () => {
     (Keycloak as any).mockImplementation(function () {
       return mockKeycloak;
     });
+    notificationStoreModule.notificationStore.setState({ messages: [] });
     dispatchEventSpy = vi.spyOn(
       window,
       'dispatchEvent',
     ) as unknown as ReturnType<typeof vi.spyOn>;
+    addStatusNotificationSpy = vi.spyOn(
+      notificationStoreModule,
+      'addStatusNotification',
+    );
+    removeNotificationSpy = vi.spyOn(
+      notificationStoreModule,
+      'removeNotification',
+    );
   });
 
   afterEach(() => {
@@ -144,7 +156,7 @@ describe('AuthService', () => {
       await expect(authService.init()).rejects.toThrow('fail');
     });
 
-    it('onTokenExpired calls updateToken(70) and dispatches AUTH_ERROR on reject', async () => {
+    it('onTokenExpired calls updateToken(70) and shows session-expiry notification on reject', async () => {
       await authService.init();
       mockKeycloak.updateToken.mockRejectedValueOnce(
         new Error('refresh failed'),
@@ -153,29 +165,110 @@ describe('AuthService', () => {
       expect(mockKeycloak.updateToken).toHaveBeenCalledWith(70);
       await vi.waitFor(
         () => {
-          expect(dispatchEventSpy).toHaveBeenCalledWith(
-            expect.objectContaining({
-              type: AuthServiceEvent.AUTH_ERROR,
-              detail: expect.any(Error),
-            }),
-          );
+          expect(addStatusNotificationSpy).toHaveBeenCalledOnce();
         },
         { timeout: 500 },
       );
+      expect(addStatusNotificationSpy).toHaveBeenCalledWith(
+        'Your session has expired because it reached the 10-hour limit.',
+        'warning',
+        'session-expired-notification',
+        false,
+        0,
+        expect.arrayContaining([
+          expect.objectContaining({ label: 'Sign in again' }),
+        ]),
+        'Session expired',
+        expect.any(Function),
+      );
+      expect(mockKeycloak.login).not.toHaveBeenCalled();
+      expect(dispatchEventSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: AuthServiceEvent.AUTH_ERROR }),
+      );
     });
 
-    it('onAuthRefreshError dispatches AUTH_ERROR with session-expired message', async () => {
+    it('onAuthRefreshError shows session-expiry notification', async () => {
       await authService.init();
       mockKeycloak.onAuthRefreshError!();
-      expect(dispatchEventSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: AuthServiceEvent.AUTH_ERROR,
-          detail: expect.objectContaining({
-            error: 'session_expired',
-            error_description: 'Your session has expired. Please log in again.',
-          }),
-        }),
+      expect(addStatusNotificationSpy).toHaveBeenCalledOnce();
+      expect(addStatusNotificationSpy).toHaveBeenCalledWith(
+        'Your session has expired because it reached the 10-hour limit.',
+        'warning',
+        'session-expired-notification',
+        false,
+        0,
+        expect.arrayContaining([
+          expect.objectContaining({ label: 'Sign in again' }),
+        ]),
+        'Session expired',
+        expect.any(Function),
       );
+      expect(mockKeycloak.login).not.toHaveBeenCalled();
+      expect(dispatchEventSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: AuthServiceEvent.AUTH_ERROR }),
+      );
+    });
+
+    it('clicking Sign in again action triggers login redirect and clears notification', async () => {
+      await authService.init();
+      mockKeycloak.onAuthRefreshError!();
+
+      const actions = addStatusNotificationSpy.mock.calls[0]?.[5];
+      expect(Array.isArray(actions)).toBe(true);
+
+      const signInAgainAction = (actions as any[]).find(
+        (action) => action.label === 'Sign in again',
+      );
+      expect(signInAgainAction).toBeDefined();
+
+      signInAgainAction.onClick();
+
+      await vi.waitFor(() => {
+        expect(mockKeycloak.login).toHaveBeenCalledTimes(1);
+      });
+      expect(removeNotificationSpy).toHaveBeenCalledWith(
+        'session-expired-notification',
+      );
+    });
+
+    it('dispatches AUTH_ERROR when login redirect fails after refresh error', async () => {
+      await authService.init();
+      mockKeycloak.login.mockRejectedValueOnce(
+        new Error('login redirect failed'),
+      );
+
+      mockKeycloak.onAuthRefreshError!();
+      const actions = addStatusNotificationSpy.mock.calls[0]?.[5] as any[];
+      const signInAgainAction = actions.find(
+        (action) => action.label === 'Sign in again',
+      );
+      signInAgainAction.onClick();
+
+      await vi.waitFor(() => {
+        expect(dispatchEventSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: AuthServiceEvent.AUTH_ERROR,
+            detail: expect.any(Error),
+          }),
+        );
+      });
+    });
+
+    it('keeps only one session-expiry notification when both expiry handlers fire', async () => {
+      await authService.init();
+
+      mockKeycloak.updateToken.mockRejectedValueOnce(
+        new Error('refresh failed'),
+      );
+      mockKeycloak.onTokenExpired!();
+      mockKeycloak.onAuthRefreshError!();
+
+      expect(
+        notificationStoreModule.notificationStore.state.messages,
+      ).toHaveLength(1);
+      expect(
+        notificationStoreModule.notificationStore.state.messages[0]?.id,
+      ).toBe('session-expired-notification');
     });
 
     it.each([
