@@ -13,7 +13,7 @@ import {
   buildFileNameWithExtension,
   downloadUrlAsFile,
   getFileNameWithoutExtension,
-  formatDateReadable,
+  formatDateTimeReadable,
   buildFileTooLargeMessage,
   isFileTooLarge,
   megabytesToBytes,
@@ -85,9 +85,7 @@ export function useEstablishmentOrderState(recResourceId: string) {
     const serverDocs = docs.map((doc) => ({
       id: doc.s3_key,
       name: doc.title,
-      date:
-        formatDateReadable(doc.created_at, { timeZone: 'America/Vancouver' }) ??
-        '-',
+      date: formatDateTimeReadable(doc.created_at) ?? '-',
       url: doc.url,
       extension: doc.extension || 'pdf',
       type: 'document' as const,
@@ -137,7 +135,7 @@ export function useEstablishmentOrderState(recResourceId: string) {
           const tempGalleryFile: GalleryFile = {
             id: `temp-${now.getTime()}-${crypto.randomUUID()}`,
             name: file.name,
-            date: formatDateReadable(now.toISOString()) ?? '-',
+            date: formatDateTimeReadable(now.toISOString()) ?? '-',
             url: URL.createObjectURL(file),
             extension,
             pendingFile: file,

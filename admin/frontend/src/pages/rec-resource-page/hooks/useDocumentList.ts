@@ -1,7 +1,7 @@
 import { useGetDocumentsByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId';
 import { RecreationResourceDocDto } from '@/services/recreation-resource-admin';
 import { useMemo } from 'react';
-import { formatGalleryFileDate } from '../helpers';
+import { formatDateTimeReadable } from '@shared/utils';
 import { GalleryDocument } from '../types';
 
 /**
@@ -19,7 +19,7 @@ export function useDocumentList(rec_resource_id?: string) {
       documentsFromServer.map((doc: RecreationResourceDocDto) => ({
         id: doc.document_id,
         name: doc.file_name,
-        date: formatGalleryFileDate(doc.created_at),
+        date: formatDateTimeReadable(doc.created_at)!,
         url: doc.url,
         extension: doc.extension,
         doc_code: doc.doc_code,
