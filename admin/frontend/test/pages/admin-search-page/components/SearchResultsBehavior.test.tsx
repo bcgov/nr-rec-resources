@@ -121,9 +121,6 @@ describe('FilterAccordion', () => {
       />,
     );
 
-    // Skip flaky dropdown UI interaction entirely.
-    // Directly verify Apply works after entering dates.
-
     fireEvent.change(screen.getByLabelText(/established from/i), {
       target: { value: '2020-01-01' },
     });

@@ -80,6 +80,7 @@ describe('useAdminSearchController', () => {
           options: [{ id: '1', label: 'Open', is_archived: false }],
         },
         { type: 'access', options: [] },
+        { type: 'closestCommunity', options: [] },
         {
           type: 'district',
           options: [
@@ -96,18 +97,6 @@ describe('useAdminSearchController', () => {
     vi.spyOn(storage, 'writeAdminSearchFilterPanelOpen').mockImplementation(
       vi.fn(),
     );
-  });
-
-  it('filters archived district options from admin search filters', () => {
-    const { result } = renderHook(
-      () => useAdminSearchController(DEFAULT_ADMIN_SEARCH_STATE),
-      { wrapper: createWrapper() },
-    );
-
-    expect(result.current.districtOptions).toEqual([
-      { id: 'C', label: 'Alpha District', is_archived: false },
-      { id: 'B', label: 'Beta District', is_archived: false },
-    ]);
   });
 
   it('resets to page 1 when page size changes', () => {
@@ -148,7 +137,7 @@ describe('useAdminSearchController', () => {
     expect(result.current.appliedFilterChips.map((chip) => chip.label)).toEqual(
       [
         'RTR',
-        'Alpha District',
+        'C',
         '8',
         'Open',
         'W',

@@ -18,6 +18,7 @@ const baseState = {
   q: 'old query',
   type: ['RTR'],
   access: ['W'],
+  closestCommunity: ['COMMUNITY1'],
   page_size: 50,
   establishment_date_from: '2020-01-01',
   establishment_date_to: '2021-01-01',

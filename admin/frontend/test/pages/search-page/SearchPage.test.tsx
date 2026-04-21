@@ -46,30 +46,59 @@ vi.mock('@/pages/search/hooks/useAdminSearchColumns', () => ({
 }));
 
 vi.mock('@/pages/search/components/SearchSubmitBar', () => ({
-  SearchSubmitBar: ({
-    committedQuery,
-    onSubmit,
-  }: {
-    committedQuery: string;
-    onSubmit: (value: string) => void;
-  }) => (
-    <button type="button" onClick={() => onSubmit('ridge')}>
-      Search results for {committedQuery}
-    </button>
-  ),
+  SearchSubmitBar: ({ committedQuery, onSubmit, onFilterCommunity }: any) => {
+    return (
+      <div>
+        <button onClick={() => onSubmit('ridge')}>
+          Search results for {committedQuery}
+        </button>
+
+        <button
+          data-testid="add-community-button"
+          onClick={() => onFilterCommunity?.('WHISTLER')}
+        >
+          Add Community
+        </button>
+      </div>
+    );
+  },
 }));
 
 vi.mock('@/pages/search/components/FilterAccordion', () => ({
-  FilterAccordion: ({ showTrigger }: { showTrigger: boolean }) => (
-    <div data-testid="filter-accordion">{String(showTrigger)}</div>
+  FilterAccordion: ({
+    showTrigger,
+    communityFilter,
+  }: {
+    showTrigger: boolean;
+    communityFilter: string[];
+  }) => (
+    <div data-testid="community-filter">
+      {String(showTrigger)}|{communityFilter.join(',')}
+    </div>
   ),
 }));
 
 vi.mock('@/pages/search/components/AppliedFilterChips', () => ({
-  AppliedFilterChips: ({ chips }: { chips: Array<{ label: string }> }) => (
-    <div data-testid="applied-filter-chips">
-      {chips.map((chip) => chip.label).join(',')}
-    </div>
+  AppliedFilterChips: ({
+    chips,
+    onClearCommunity,
+  }: {
+    chips: Array<{ label: string }>;
+    onClearCommunity: (value: string) => void;
+  }) => (
+    <>
+      <div data-testid="applied-filter-chips">
+        {chips.map((chip) => chip.label).join(',')}
+      </div>
+
+      <button
+        type="button"
+        data-testid="clear-community-button"
+        onClick={() => onClearCommunity('closestCommunity:WHISTLER')}
+      >
+        Clear community
+      </button>
+    </>
   ),
 }));
 
@@ -232,5 +261,28 @@ describe('SearchPage', () => {
     expect(
       screen.queryByTestId('applied-filter-chips'),
     ).not.toBeInTheDocument();
+  });
+
+  it('adds community filter', async () => {
+    const user = userEvent.setup();
+
+    render(<SearchPage />);
+
+    await user.click(screen.getByTestId('add-community-button'));
+
+    expect(screen.getByTestId('community-filter')).toHaveTextContent(
+      'WHISTLER',
+    );
+  });
+
+  it('clears community filter', async () => {
+    const user = userEvent.setup();
+
+    render(<SearchPage />);
+
+    await user.click(screen.getByTestId('add-community-button'));
+    await user.click(screen.getByTestId('clear-community-button'));
+
+    expect(screen.getByTestId('community-filter')).toHaveTextContent('false|');
   });
 });
