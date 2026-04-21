@@ -18,7 +18,6 @@ const baseState = {
   q: 'old query',
   type: ['RTR'],
   access: ['W'],
-  closestCommunity: ['COMMUNITY1'],
   page_size: 50,
   establishment_date_from: '2020-01-01',
   establishment_date_to: '2021-01-01',
@@ -107,12 +106,14 @@ describe('admin search urlState helpers', () => {
         district: ['RDCO'],
         activities: ['8', '12'],
         access: ['W', 'B'],
+        closestCommunity: ['COMMUNITY1', 'COMMUNITY2'],
       }),
     ).toEqual({
       type: 'IFT',
       district: 'RDCO',
       activities: '8_12',
       access: 'W_B',
+      closestCommunity: 'COMMUNITY1_COMMUNITY2',
     });
   });
 
