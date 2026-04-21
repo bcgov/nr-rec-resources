@@ -269,6 +269,7 @@ describe('SearchPage', () => {
     render(<SearchPage />);
 
     await user.click(screen.getByTestId('add-community-button'));
+    await user.click(screen.getByTestId('add-community-button'));
 
     expect(screen.getByTestId('community-filter')).toHaveTextContent(
       'WHISTLER',

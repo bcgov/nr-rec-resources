@@ -106,7 +106,10 @@ describe('FilterAccordion', () => {
           closeFilterPanel: vi.fn(),
           toggleFilterPanel: vi.fn(),
           typeOptions: [{ id: 'RTR', label: 'Rustic', is_archived: false }],
-          closestCommunityOptions: [],
+          closestCommunityOptions: [
+            { id: 'WHISTLER', label: 'Whistler' },
+            { id: 'MERRIT', label: 'Merrit' },
+          ],
           districtOptions: [
             { id: 'D1', label: 'District 1', is_archived: false },
           ],
