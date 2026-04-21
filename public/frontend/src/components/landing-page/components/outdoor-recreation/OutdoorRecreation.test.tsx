@@ -5,17 +5,19 @@ import { OutdoorRecreation } from './OutdoorRecreation';
 /**
  * Mock SVG imports
  */
-vi.mock('@/images/icons/campground.svg', () => ({ default: 'campground.svg' }));
-vi.mock('@/images/icons/flag.svg', () => ({ default: 'flag.svg' }));
-vi.mock('@/images/icons/tree.svg', () => ({ default: 'tree.svg' }));
-vi.mock('@/images/icons/campground-mobile.svg', () => ({
-  default: 'campground-mobile.svg',
+vi.mock('@/images/icons/site-tree.svg', () => ({ default: 'site-tree.svg' }));
+vi.mock('@/images/icons/trail-flag.svg', () => ({ default: 'trail-flag.svg' }));
+vi.mock('@/images/icons/forest-plant.svg', () => ({
+  default: 'forest-plant.svg',
 }));
-vi.mock('@/images/icons/flag-mobile.svg', () => ({
-  default: 'flag-mobile.svg',
+vi.mock('@/images/icons/site-tree-mobile.svg', () => ({
+  default: 'site-tree-mobile.svg',
 }));
-vi.mock('@/images/icons/tree-mobile.svg', () => ({
-  default: 'tree-mobile.svg',
+vi.mock('@/images/icons/trail-flag-mobile.svg', () => ({
+  default: 'trail-flag-mobile.svg',
+}));
+vi.mock('@/images/icons/forest-plant-mobile.svg', () => ({
+  default: 'forest-plant-mobile.svg',
 }));
 
 /**
