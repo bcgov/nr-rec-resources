@@ -27,6 +27,8 @@
     "@fortawesome/free-regular-svg-icons": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^7.0.1",
     "@fortawesome/react-fontawesome": "^0.2.6",
+    "@fortawesome/pro-solid-svg-icons": "^7.0.1",
+    "@fortawesome/pro-regular-svg-icons": "^7.0.1",
     "@tanstack/react-query": "^5.66.7",
     "@tanstack/react-router": "^1.133.22",
     "@tanstack/react-store": "^0.8.0",

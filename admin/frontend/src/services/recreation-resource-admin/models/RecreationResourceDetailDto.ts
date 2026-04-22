@@ -189,6 +189,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   right_of_way?: number | null;
+  /**
+   * Recreation resource status code (e.g., AR for Archived, HI for Issued)
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
+   */
+  rec_status_code?: string | null;
 }
 
 /**
@@ -318,6 +324,8 @@ export function RecreationResourceDetailDtoFromJSONTyped(
         : json['display_on_public_site'],
     right_of_way:
       json['right_of_way'] == null ? undefined : json['right_of_way'],
+    rec_status_code:
+      json['rec_status_code'] == null ? undefined : json['rec_status_code'],
   };
 }
 
@@ -369,5 +377,6 @@ export function RecreationResourceDetailDtoToJSONTyped(
     risk_rating: RecreationRiskRatingDtoToJSON(value['risk_rating']),
     display_on_public_site: value['display_on_public_site'],
     right_of_way: value['right_of_way'],
+    rec_status_code: value['rec_status_code'],
   };
 }

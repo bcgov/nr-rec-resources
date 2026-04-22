@@ -49,6 +49,18 @@ vi.mock('@shared/index', () => ({
   Breadcrumbs: () => <div data-testid="breadcrumbs">Mock Breadcrumbs</div>,
 }));
 
+vi.mock('@/components', () => ({
+  NotificationBar: () => (
+    <div data-testid="notification-bar">Mock NotificationBar</div>
+  ),
+}));
+
+vi.mock('@/components/archived-notice/ArchivedNotice', () => ({
+  ArchivedNotice: () => (
+    <div data-testid="archived-notice">Mock ArchivedNotice</div>
+  ),
+}));
+
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('@tanstack/react-router')>();
@@ -365,5 +377,29 @@ describe('RecResourcePageLayout', () => {
       },
       { timeout: 100 },
     );
+  });
+
+  it('renders ArchivedNotice and hides nav/outlet when resource is archived', async () => {
+    const mockResource = {
+      name: 'Test Resource',
+      rec_resource_id: '123',
+      rec_status_code: 'AR',
+    };
+
+    mockUseRecResource.mockReturnValue({
+      recResource: mockResource,
+      isLoading: false,
+      error: null,
+    });
+
+    render(<RecResourcePageLayout />, { wrapper: TestQueryClientProvider });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('archived-notice')).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('rec-resource-vertical-nav'),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+    });
   });
 });

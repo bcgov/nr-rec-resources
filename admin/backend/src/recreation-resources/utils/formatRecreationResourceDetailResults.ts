@@ -135,5 +135,6 @@ export function formatRecreationResourceDetailResults(
     risk_rating: riskRating,
     right_of_way:
       result.right_of_way != null ? Number(result.right_of_way) : undefined,
+    rec_status_code: result.rec_status_code,
   };
 }
