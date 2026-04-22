@@ -403,6 +403,27 @@ select aws_s3.table_import_from_s3(
 );
 
 select aws_s3.table_import_from_s3(
+  'fta.prov_forest_use',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true
+  )',
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'PROV_FOREST_USE.csv', 'ca-central-1')
+);
+
+
+select aws_s3.table_import_from_s3(
+               'fta.org_unit',
+               '',
+               '(
+                 FORMAT csv,
+                 HEADER true
+               )',
+               aws_commons.create_s3_uri('${S3_BUCKET}', 'ORG_UNIT.csv', 'ca-central-1')
+       );
+
+select aws_s3.table_import_from_s3(
   'fta.recreation_struct_dimen_code',
   '',
   '(

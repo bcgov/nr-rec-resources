@@ -26,6 +26,7 @@ model recreation_resource {
   control_access_code                  String?                                @db.VarChar(1)
   risk_rating_code                     String?                                @db.VarChar(2)
   right_of_way                         Decimal?                               @db.Decimal(7, 1)
+  rec_status_code                      String?                                @db.VarChar(50)
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
   recreation_agreement_holder          recreation_agreement_holder?
@@ -443,6 +444,7 @@ model recreation_resource_history {
   control_access_code       String?                  @db.VarChar(1)
   risk_rating_code          String?                  @db.VarChar(2)
   right_of_way              Decimal?                 @db.Decimal(7, 1)
+  rec_status_code           String?                  @db.VarChar(50)
 
   @@ignore
   @@schema("rst")
@@ -1158,6 +1160,76 @@ model recreation_photographer_type_code_history {
   created_at             DateTime?                @db.Timestamp(6)
   created_by             String?
   sys_period             Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model natural_resource_org_unit {
+  rec_resource_id  String                   @id @db.VarChar(10)
+  org_unit_no      Decimal                  @db.Decimal(10, 0)
+  org_unit_code    String                   @db.VarChar(6)
+  org_unit_name    String                   @db.VarChar(100)
+  location_code    String?                  @db.VarChar(3)
+  org_level_code   String?                  @db.VarChar(1)
+  office_name_code String?                  @db.VarChar(2)
+  region_no        Decimal?                 @db.Decimal(10, 0)
+  region_code      String?                  @db.VarChar(6)
+  district_no      Decimal?                 @db.Decimal(10, 0)
+  district_code    String?                  @db.VarChar(6)
+  effective_date   DateTime?                @db.Date
+  expiry_date      DateTime?                @db.Date
+  updated_at       DateTime?                @db.Date
+  sys_period       Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model natural_resource_org_unit_history {
+  rec_resource_id  String                   @db.VarChar(10)
+  org_unit_no      Decimal                  @db.Decimal(10, 0)
+  org_unit_code    String                   @db.VarChar(6)
+  org_unit_name    String                   @db.VarChar(100)
+  location_code    String?                  @db.VarChar(3)
+  org_level_code   String?                  @db.VarChar(1)
+  office_name_code String?                  @db.VarChar(2)
+  region_no        Decimal?                 @db.Decimal(10, 0)
+  region_code      String?                  @db.VarChar(6)
+  district_no      Decimal?                 @db.Decimal(10, 0)
+  district_code    String?                  @db.VarChar(6)
+  effective_date   DateTime?                @db.Date
+  expiry_date      DateTime?                @db.Date
+  updated_at       DateTime?                @db.Date
+  sys_period       Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_resource_status_code {
+  recreation_resource_status_code String                   @id @db.VarChar(3)
+  description                     String?                  @db.VarChar(120)
+  effective_date                  DateTime?                @db.Date
+  expiry_date                     DateTime?                @db.Date
+  update_timestamp                DateTime?                @db.Date
+  updated_at                      DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period                      Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_resource_status_code_history {
+  recreation_resource_status_code String                   @db.VarChar(3)
+  description                     String?                  @db.VarChar(120)
+  effective_date                  DateTime?                @db.Date
+  expiry_date                     DateTime?                @db.Date
+  update_timestamp                DateTime?                @db.Date
+  updated_at                      DateTime?                @db.Timestamp(6)
+  sys_period                      Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")
