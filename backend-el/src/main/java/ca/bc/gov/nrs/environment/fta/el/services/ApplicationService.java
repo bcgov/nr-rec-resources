@@ -52,6 +52,7 @@ public class ApplicationService {
   private final RecreationObjectiveRepository recreationObjectiveRepository;
   private final RecreationOccupancyCodeRepository recreationOccupancyCodeRepository;
   private final RecreationPlanRepository recreationPlanRepository;
+  private final ProvForestUseRepository provForestUseRepository;
   private final RecreationProjectRepository recreationProjectRepository;
   private final RecreationRemedRepairCodeRepository recreationRemedRepairCodeRepository;
   private final RecreationRiskEvaluationRepository recreationRiskEvaluationRepository;
@@ -101,6 +102,7 @@ public class ApplicationService {
                             RecreationObjectiveRepository recreationObjectiveRepository,
                             RecreationOccupancyCodeRepository recreationOccupancyCodeRepository,
                             RecreationPlanRepository recreationPlanRepository,
+                            ProvForestUseRepository provForestUseRepository,
                             RecreationProjectRepository recreationProjectRepository,
                             RecreationRemedRepairCodeRepository recreationRemedRepairCodeRepository,
                             RecreationRiskEvaluationRepository recreationRiskEvaluationRepository,
@@ -148,6 +150,7 @@ public class ApplicationService {
     this.recreationObjectiveRepository = recreationObjectiveRepository;
     this.recreationOccupancyCodeRepository = recreationOccupancyCodeRepository;
     this.recreationPlanRepository = recreationPlanRepository;
+    this.provForestUseRepository = provForestUseRepository;
     this.recreationProjectRepository = recreationProjectRepository;
     this.recreationRemedRepairCodeRepository = recreationRemedRepairCodeRepository;
     this.recreationRiskEvaluationRepository = recreationRiskEvaluationRepository;
@@ -196,6 +199,7 @@ public class ApplicationService {
     extractAndUploadRecreationObjective();
     extractAndUploadRecreationOccupancyCode();
     extractAndUploadRecreationPlan();
+    extractAndUploadProvForestUse();
     extractAndUploadRecreationProject();
     extractAndUploadRecreationRemedRepairCode();
     extractAndUploadRecreationRiskEvaluation();
@@ -599,6 +603,46 @@ public class ApplicationService {
       e.printStackTrace();
     }
   }
+
+private void extractAndUploadProvForestUse() {
+  var results = this.provForestUseRepository.findByFileTypeCode("F05");
+  var entityMetadata = getEntityMetadata(ProvForestUse.class);
+
+  try (
+    var out = new FileWriter(entityMetadata.filePath());
+    var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());
+  ) {
+    for (var item : results) {
+      printer.printRecord(
+        item.getForestFileId(),
+        item.getFileStatusCode(),
+        item.getFileStatusDate(),
+        item.getFileTypeCode(),
+        item.getForestRegion(),
+        item.getBctsOrgUnit(),
+        item.getSbFundedInd(),
+        item.getDistrictAdminZone(),
+        item.getMgmtUnitType(),
+        item.getMgmtUnitId(),
+        item.getRevisionCount(),
+        item.getEntryUserid(),
+        item.getEntryTimestamp(),
+        item.getUpdateUserid(),
+        item.getUpdateTimestamp(),
+        item.getForestTenureGuid()
+      );
+    }
+
+    printer.flush();
+    this.s3UploaderService.uploadFileToS3(
+      entityMetadata.filePath(),
+      entityMetadata.fileName()
+    );
+
+  } catch (IOException e) {
+    e.printStackTrace();
+  }
+}
 
   private void extractAndUploadRecreationOccupancyCode() {
     var results = this.recreationOccupancyCodeRepository.findAll();

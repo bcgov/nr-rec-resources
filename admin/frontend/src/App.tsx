@@ -1,4 +1,5 @@
 import { AuthGuard } from '@/components';
+import { AuthDebugPanel } from '@/components/AuthDebugPanel';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -47,6 +48,7 @@ function App() {
         <AuthGuard>
           <RouterProvider router={router} />
         </AuthGuard>
+        <AuthDebugPanel />
       </AuthProvider>
 
       <ReactQueryDevtools initialIsOpen={false} />
