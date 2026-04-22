@@ -1,11 +1,11 @@
 import { Container, Row } from 'react-bootstrap';
 import { RECREATION_RESOURCE_TYPES_PUBLIC } from '@shared/constants/types';
-import campground from '@/images/icons/campground.svg';
-import flag from '@/images/icons/flag.svg';
-import tree from '@/images/icons/tree.svg';
-import campgroundMobile from '@/images/icons/campground-mobile.svg';
-import flagMobile from '@/images/icons/flag-mobile.svg';
-import treeMobile from '@/images/icons/tree-mobile.svg';
+import siteTree from '@/images/icons/site-tree.svg';
+import trailFlag from '@/images/icons/trail-flag.svg';
+import forestPlant from '@/images/icons/forest-plant.svg';
+import siteTreeMobile from '@/images/icons/site-tree-mobile.svg';
+import trailFlagMobile from '@/images/icons/trail-flag-mobile.svg';
+import forestPlantMobile from '@/images/icons/forest-plant-mobile.svg';
 import './OutdoorRecreation.scss';
 import { Topic } from './interfaces';
 import { OutdoorRecreationTopic } from './OutdoorRecreationTopic';
@@ -14,8 +14,8 @@ import { ROUTE_PATHS } from '@/constants/routes';
 export const OutdoorRecreation = () => {
   const outdoorRecreationTopics: Topic[] = [
     {
-      icon: campground,
-      mobileIcon: campgroundMobile,
+      icon: siteTree,
+      mobileIcon: siteTreeMobile,
       title: '1455+',
       description:
         'Recreation Sites: Discover a great spot for camping, hiking, or picnicking—perfect for enjoying the outdoors.',
@@ -23,8 +23,8 @@ export const OutdoorRecreation = () => {
       type: RECREATION_RESOURCE_TYPES_PUBLIC.RECREATION_SITE,
     },
     {
-      icon: flag,
-      mobileIcon: flagMobile,
+      icon: trailFlag,
+      mobileIcon: trailFlagMobile,
       title: '750+',
       description:
         'Recreation Trails: Follow a marked path for walking, hiking, or cycling through beautiful scenery.',
@@ -32,8 +32,8 @@ export const OutdoorRecreation = () => {
       type: RECREATION_RESOURCE_TYPES_PUBLIC.RECREATION_TRAIL,
     },
     {
-      icon: tree,
-      mobileIcon: treeMobile,
+      icon: forestPlant,
+      mobileIcon: forestPlantMobile,
       title: '10+',
       description:
         'Interpretive Forests: Learn and connect with nature through educational displays and trails.',
