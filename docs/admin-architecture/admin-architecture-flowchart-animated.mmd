@@ -30,7 +30,6 @@ flowchart TD
     subgraph subGraph4["External Services"]
       KeycloakExt["BcGov SSO"]
       KeycloakExt@{ icon: "azure:multifactor-authentication", pos: "b" }
-      DAMExt["ResourceSpace DAM"]
     end
     UI e1@-->|"SSO Auth"| KeycloakExt
     UI e2@-->|"API Call"| CDN
@@ -39,7 +38,6 @@ flowchart TD
     ALB e7@--> API
     API e13@-->|"DB Query"| DB
     API e14@-->|"User Info"| KeycloakExt
-    API e15@-.->|"Media Fetch (images/docs)"| DAMExt
     UI e16@-->|"Asset Fetch"| CFAssets
     CFAssets e17@--> |"Asset Origin"| S3
     UI:::frontend
@@ -49,7 +47,6 @@ flowchart TD
     ALB:::aws
     Gateway:::aws
     KeycloakExt:::external
-    DAMExt:::external
     S3:::aws
     CFAssets:::aws
   end
