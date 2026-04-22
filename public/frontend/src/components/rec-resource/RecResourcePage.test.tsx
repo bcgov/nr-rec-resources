@@ -14,6 +14,10 @@ vi.mock('@/service/queries/recreation-resource', () => ({
   useGetSiteOperatorById: vi.fn(),
 }));
 
+vi.mock('@/hooks/useMediaQuery', () => ({
+  default: vi.fn(() => true),
+}));
+
 vi.mock('@shared/components/breadcrumbs', () => ({
   Breadcrumbs: () => <nav aria-label="breadcrumb">Breadcrumbs</nav>,
 }));
