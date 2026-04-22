@@ -955,6 +955,16 @@ comment on column fta.recreation_site_point.entry_timestamp is 'Timestamp indica
 comment on column fta.recreation_site_point.update_userid is 'The userid of the user that last updated the declared area record.';
 
 comment on column fta.recreation_site_point.update_timestamp is 'The timestamp of the last update to the declared area record.';
+create table fta.recreation_site_status_code (
+    file  varchar(10) primary key,
+    status varchar(50),
+    project_name varchar(255) null,
+    project_type varchar(255) null,
+    spatial varchar(2) null,
+    last_updated date null
+);
+
+comment on table fta.recreation_site_status_code is 'Stores site status values imported from the RECREATION_SITE_STATUS_CODE source file.';
 
 create table fta.recreation_struct_dimen_code (
     recreation_struct_dimen_code varchar(2) primary key,
