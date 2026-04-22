@@ -22,6 +22,8 @@ import {
 } from '@/components/layout/PageWithScrollMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import { districtImageMap } from '@/constants/districtImageMap';
+import { BOOTSTRAP_BREAKPOINTS } from '@/constants/breakpoints';
+import useMediaQuery from '@/hooks/useMediaQuery';
 import '@/components/rec-resource/RecResource.scss';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { useGetSiteOperatorById } from '@/service/queries/recreation-resource';
@@ -108,6 +110,7 @@ const RecResourcePage = () => {
     Boolean(recreation_resource_docs?.length) ||
     driving_directions;
   const isReservable = Boolean(recreation_resource_reservation_info);
+  const isMd = useMediaQuery(`(min-width: ${BOOTSTRAP_BREAKPOINTS.md}px)`);
 
   // Create page sections for PageWithScrollMenu
   const pageSections: PageSection[] = [
@@ -201,12 +204,14 @@ const RecResourcePage = () => {
                 <RecResourceReservation recResource={recResource} />
               )}
             </div>
-            {recreation_district?.district_code &&
+            {isMd &&
+              recreation_district?.district_code &&
               districtImageMap[recreation_district.district_code] && (
                 <div className="district-image-container">
                   <img
                     alt={`${recreation_district.description} district map`}
                     src={districtImageMap[recreation_district.district_code]}
+                    fetchPriority="high"
                   />
                 </div>
               )}

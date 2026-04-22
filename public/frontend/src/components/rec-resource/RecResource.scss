@@ -41,30 +41,17 @@
 }
 
 .district-image-container {
-  flex-shrink: 0;
-  width: 120px;
-  align-self: flex-end;
-
-  img,
-  svg {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
   @include media-breakpoint-up(md) {
-    width: auto;
-    align-self: stretch;
-    min-height: 160px;
-    max-height: 210px;
     display: flex;
-    align-items: flex-start;
+    flex-shrink: 0;
+    width: 300px;
+    align-self: flex-start;
+    justify-content: flex-end;
 
     img,
     svg {
-      height: 100%;
-      width: auto;
-      max-width: 240px;
+      width: 250px;
+      height: auto;
     }
   }
 }
