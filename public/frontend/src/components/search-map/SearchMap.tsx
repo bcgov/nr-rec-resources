@@ -126,7 +126,10 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
               : 'None',
           });
         },
-        selectedStyle: selectedWildfireIcon('default'),
+        selectedStyle: (feature: Feature) => {
+          const status = feature.get('FIRE_STATUS') || 'Out of Control';
+          return selectedWildfireIcon(status);
+        },
       },
     ],
     [clusteredRecreationFeatureLayer, wildfireLocationsLayer],

@@ -10,8 +10,6 @@ import WILDFIRE_ICON_HELD from '@shared/assets/icons/wildfire/being_held.svg';
 import WILDFIRE_ICON_UNDER from '@shared/assets/icons/wildfire/under_control.svg';
 
 const FIRE_STATUS_ICONS: Record<string, string> = {
-  // 'Fire of Note': '#ff6600',
-  // New: '#fc921f',
   'Out of Control': WILDFIRE_ICON_OUT,
   'Being Held': WILDFIRE_ICON_HELD,
   'Under Control': WILDFIRE_ICON_UNDER,

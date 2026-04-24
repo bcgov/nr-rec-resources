@@ -47,7 +47,6 @@ export const locationDotOrangeIcon = new Style({
 });
 
 export const selectedWildfireIcon = (type: string) => {
-  console.log('Selected wildfire status:', type); // Debug log to check the fire status value
   const iconSrc = FIRE_STATUS_BOLD_ICONS[type] || WILDFIRE_ICON_OUT_BOLD;
   return new Style({
     image: new Icon({ src: iconSrc, scale: 1 }),
