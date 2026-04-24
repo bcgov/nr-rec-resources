@@ -9,7 +9,7 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { FIRE_STATUS_COLOUR_MAP } from '@/components/search-map/constants';
-import { formatDateFull } from '@shared/utils';
+import { formatDateTimeFull } from '@shared/utils';
 import { faCalendar } from '@fortawesome/free-regular-svg-icons';
 import WILDFIRE_ICON from '@shared/assets/icons/wildfire_bc.svg';
 import '@/components/search-map/preview/MapFeaturePreview.scss';
@@ -101,7 +101,12 @@ const WildfireFeaturePreview: React.FC<WildfireFeaturePreviewProps> = ({
             {ignitionDate && (
               <p>
                 <FontAwesomeIcon icon={faCalendar} className="me-2" />
-                Discovered on {formatDateFull(ignitionDate)}
+                {/* timeZone: Vancouver because ignition times are always reported in Pacific time by BC Wildfire Service */}
+                Discovered on{' '}
+                {formatDateTimeFull(ignitionDate, {
+                  timeZone: 'America/Vancouver',
+                  timeZoneName: 'short',
+                })}
               </p>
             )}
             {currentSize && (
