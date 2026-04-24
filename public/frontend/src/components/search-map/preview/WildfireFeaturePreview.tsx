@@ -11,7 +11,7 @@ import {
 import { FIRE_STATUS_COLOUR_MAP } from '@/components/search-map/constants';
 import { formatDateFull } from '@shared/utils';
 import { faCalendar } from '@fortawesome/free-regular-svg-icons';
-import WILDFIRE_ICON from '@shared/assets/icons/wildfire_bc.svg';
+import WILDFIRE_ICON from '@shared/assets/icons/wildfire/active_wildfire.svg';
 import '@/components/search-map/preview/MapFeaturePreview.scss';
 import '@/components/search-map/preview/WildfireFeaturePreview.scss';
 

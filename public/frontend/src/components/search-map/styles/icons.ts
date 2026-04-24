@@ -9,6 +9,15 @@ import IF_ICON_CLOSED from '@shared/assets/icons/interpretive_forest_closed.svg'
 import SIT_ICON_SELECTED from '@shared/assets/icons/recreation_site_selected.svg';
 import RTE_ICON_SELECTED from '@shared/assets/icons/recreation_trail_selected.svg';
 import IF_ICON_SELECTED from '@shared/assets/icons/interpretive_forest_selected.svg';
+import WILDFIRE_ICON_UNDER_BOLD from '@shared/assets/icons/wildfire/under_control_bold.svg';
+import WILDFIRE_ICON_OUT_BOLD from '@shared/assets/icons/wildfire/out_of_control_bold.svg';
+import WILDFIRE_ICON_HELD_BOLD from '@shared/assets/icons/wildfire/being_held_bold.svg';
+
+const FIRE_STATUS_BOLD_ICONS: Record<string, string> = {
+  'Out of Control': WILDFIRE_ICON_OUT_BOLD,
+  'Being Held': WILDFIRE_ICON_HELD_BOLD,
+  'Under Control': WILDFIRE_ICON_UNDER_BOLD,
+};
 
 interface LocationDotIconOptions {
   opacity?: number;
@@ -36,6 +45,15 @@ export const locationDotOrangeIcon = new Style({
   image: new Icon({ src: locationDotOrange, scale: 0.5 }),
   zIndex: 10,
 });
+
+export const selectedWildfireIcon = (type: string) => {
+  console.log('Selected wildfire status:', type); // Debug log to check the fire status value
+  const iconSrc = FIRE_STATUS_BOLD_ICONS[type] || WILDFIRE_ICON_OUT_BOLD;
+  return new Style({
+    image: new Icon({ src: iconSrc, scale: 1 }),
+    zIndex: 10,
+  });
+};
 
 export type IconVariant = 'default' | 'closed' | 'selected';
 
