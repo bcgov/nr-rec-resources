@@ -106,12 +106,14 @@ describe('admin search urlState helpers', () => {
         district: ['RDCO'],
         activities: ['8', '12'],
         access: ['W', 'B'],
+        closestCommunity: ['COMMUNITY1', 'COMMUNITY2'],
       }),
     ).toEqual({
       type: 'IFT',
       district: 'RDCO',
       activities: '8_12',
       access: 'W_B',
+      closestCommunity: 'COMMUNITY1_COMMUNITY2',
     });
   });
 

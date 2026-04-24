@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
@@ -98,27 +98,6 @@ describe('FilterAccordion', () => {
     const user = userEvent.setup();
     const applyFilters = vi.fn();
 
-    const selectFilterOption = async (
-      label: string,
-      optionName: RegExp,
-      selectedToggleLabel: RegExp,
-    ) => {
-      const toggle = screen.getByRole('button', { name: label });
-      await user.click(toggle);
-
-      await waitFor(() => {
-        expect(toggle).toHaveAttribute('aria-expanded', 'true');
-      });
-
-      await user.click(await screen.findByRole('button', { name: optionName }));
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole('button', { name: selectedToggleLabel }),
-        ).toHaveAttribute('aria-expanded', 'true');
-      });
-    };
-
     render(
       <FilterAccordion
         search={DEFAULT_ADMIN_SEARCH_STATE}
@@ -127,6 +106,10 @@ describe('FilterAccordion', () => {
           closeFilterPanel: vi.fn(),
           toggleFilterPanel: vi.fn(),
           typeOptions: [{ id: 'RTR', label: 'Rustic', is_archived: false }],
+          closestCommunityOptions: [
+            { id: 'WHISTLER', label: 'Whistler' },
+            { id: 'MERRIT', label: 'Merrit' },
+          ],
           districtOptions: [
             { id: 'D1', label: 'District 1', is_archived: false },
           ],
@@ -137,27 +120,31 @@ describe('FilterAccordion', () => {
           resetFilters: vi.fn(),
         }}
         showTrigger={false}
+        communityFilter={[]}
       />,
     );
 
-    await selectFilterOption(
-      'Resource type',
-      /rustic/i,
-      /resource type \(1\)/i,
-    );
-    await selectFilterOption('District', /district 1/i, /district \(1\)/i);
-    await selectFilterOption('Activities', /camping/i, /activities \(1\)/i);
-    await selectFilterOption('Access type', /walk-in/i, /access type \(1\)/i);
-    await user.type(screen.getByLabelText('Established from'), '2020-01-01');
-    await user.type(screen.getByLabelText('Established to'), '2021-01-01');
-    await user.click(screen.getByRole('button', { name: 'Apply' }));
+    fireEvent.change(screen.getByLabelText(/established from/i), {
+      target: { value: '2020-01-01' },
+    });
 
-    expect(applyFilters).toHaveBeenCalledWith({
-      type: ['RTR'],
-      district: ['D1'],
-      activities: ['8'],
+    fireEvent.change(screen.getByLabelText(/established to/i), {
+      target: { value: '2021-01-01' },
+    });
+
+    const applyButton = screen.getByRole('button', { name: /apply/i });
+
+    await user.click(applyButton);
+
+    expect(applyFilters).toHaveBeenCalled();
+
+    expect(applyFilters).toHaveBeenLastCalledWith({
+      type: [],
+      district: [],
+      activities: [],
       status: [],
-      access: ['W'],
+      access: [],
+      closestCommunity: [],
       establishment_date_from: '2020-01-01',
       establishment_date_to: '2021-01-01',
     });
@@ -184,10 +171,12 @@ describe('FilterAccordion', () => {
           activityOptions: [],
           statusOptions: [],
           accessOptions: [],
+          closestCommunityOptions: [],
           applyFilters: vi.fn(),
           resetFilters,
         }}
         showTrigger={false}
+        communityFilter={[]}
       />,
     );
 

@@ -36,6 +36,7 @@ describe('SuggestionMenu', () => {
       district_description: 'Mountain District',
       name: 'Alpine Loop',
       display_on_public_site: true,
+      closest_community: 'Alpine Town',
     },
     {
       rec_resource_id: 'def456',
@@ -44,6 +45,7 @@ describe('SuggestionMenu', () => {
       district_description: 'Valley District',
       name: 'Sunset Camp',
       display_on_public_site: true,
+      closest_community: 'Valley District',
     },
   ];
 
@@ -119,6 +121,7 @@ describe('SuggestionMenu', () => {
         district_description: 'Test District',
         name: 'Test Resource',
         display_on_public_site: true,
+        closest_community: 'Test District',
       },
     ];
 
@@ -145,6 +148,7 @@ describe('SuggestionMenu', () => {
         district_description: 'Test District',
         name: 'Null Resource',
         display_on_public_site: false,
+        closest_community: 'Test District',
       },
     ];
 
