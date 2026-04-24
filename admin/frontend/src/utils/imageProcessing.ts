@@ -48,6 +48,94 @@ const PROGRESS = {
 
 const VALID_IMAGE_TYPES = FILE_TYPE_CONFIGS.image.accept;
 
+const HEIC_MIME_TYPES = new Set(['image/heic', 'image/heif']);
+const PREVIEW_RESOLUTION = { width: 1280, height: 720 };
+
+function isHeicFile(file: File): boolean {
+  return HEIC_MIME_TYPES.has(file.type.toLowerCase());
+}
+
+/**
+ * Decode a HEIC/HEIF file and return a WebP data URL suitable for use as an
+ * img src. Returns null if the file cannot be decoded.
+ * libheif-js is loaded dynamically so it is only bundled when needed.
+ */
+export async function heicToPreviewUrl(file: File): Promise<string | null> {
+  const { canvas, error } = await heicToCanvas(file, PREVIEW_RESOLUTION);
+  if (error || !canvas) return null;
+  return canvas.toDataURL('image/webp');
+}
+
+/**
+ * Decode a HEIC/HEIF file into an HTMLCanvasElement scaled to fit maxResolution.
+ * Uses a two-canvas approach: putImageData at native resolution, then drawImage
+ * to downscale, because putImageData does not perform scaling.
+ */
+async function heicToCanvas(
+  file: File,
+  maxResolution: { width: number; height: number },
+): Promise<{ canvas: HTMLCanvasElement; error: ImageValidationError | null }> {
+  try {
+    const { default: libheif } = await import('libheif-js/wasm-bundle');
+    const buffer = await file.arrayBuffer();
+
+    const decoder = new libheif.HeifDecoder();
+    const images = decoder.decode(new Uint8Array(buffer));
+
+    if (!images || images.length === 0) {
+      return {
+        canvas: null as any,
+        error: { type: 'loading', message: 'Failed to decode HEIC image' },
+      };
+    }
+
+    const image = images[0];
+    const srcWidth: number = image.get_width();
+    const srcHeight: number = image.get_height();
+
+    const dimensions = calculateContainDimensions(
+      srcWidth,
+      srcHeight,
+      maxResolution.width,
+      maxResolution.height,
+    );
+
+    // putImageData does not scale, so draw at native resolution first then downscale
+    const nativeCanvas = document.createElement('canvas');
+    nativeCanvas.width = srcWidth;
+    nativeCanvas.height = srcHeight;
+    const nativeCtx = getCanvasContext(nativeCanvas);
+    const imageData = nativeCtx.createImageData(srcWidth, srcHeight);
+
+    // eslint-disable-next-line promise/avoid-new
+    await new Promise<void>((resolve, reject) => {
+      image.display(imageData, (displayData: unknown) => {
+        if (!displayData) {
+          reject(new Error('Failed to decode HEIC pixel data'));
+        } else {
+          resolve();
+        }
+      });
+    });
+
+    nativeCtx.putImageData(imageData, 0, 0);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
+    const ctx = getCanvasContext(canvas);
+    configureCanvasQuality(ctx);
+    ctx.drawImage(nativeCanvas, 0, 0, dimensions.width, dimensions.height);
+
+    return { canvas, error: null };
+  } catch {
+    return {
+      canvas: null as any,
+      error: { type: 'loading', message: 'Failed to load HEIC image' },
+    };
+  }
+}
+
 /**
  * Check if WebP format is supported by the browser
  */
@@ -114,6 +202,7 @@ async function loadAndValidateImage(
   file: File,
   maxResolution: { width: number; height: number },
 ): Promise<{ canvas: HTMLCanvasElement; error: ImageValidationError | null }> {
+  // eslint-disable-next-line promise/avoid-new
   return new Promise((resolve) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -214,6 +303,7 @@ function canvasToWebP(
   canvas: HTMLCanvasElement,
   quality: number,
 ): Promise<Blob> {
+  // eslint-disable-next-line promise/avoid-new
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
@@ -416,8 +506,9 @@ export async function processImageToVariants(
 
     // Load image and validate dimensions in one step
     onProgress?.(PROGRESS.LOADING, 'Loading image...');
-    const { canvas: sourceCanvas, error: validationError } =
-      await loadAndValidateImage(file, maxResolution);
+    const { canvas: sourceCanvas, error: validationError } = isHeicFile(file)
+      ? await heicToCanvas(file, maxResolution)
+      : await loadAndValidateImage(file, maxResolution);
 
     if (validationError) {
       throw new Error(validationError.message);

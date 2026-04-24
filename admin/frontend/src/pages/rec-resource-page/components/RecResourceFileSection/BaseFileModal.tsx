@@ -1,12 +1,14 @@
 import { ClampLines } from '@/components';
-import { COLOR_RED } from '@/styles/colors';
+import { COLOR_GREY_MED, COLOR_RED } from '@/styles/colors';
+import { heicToPreviewUrl } from '@/utils/imageProcessing';
 import {
   IconDefinition,
   faFilePdf,
+  faImage,
   faUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useEffect, useState } from 'react';
 import {
   Alert,
   AlertProps,
@@ -58,53 +60,98 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
   className = '',
   onImageClick,
 }) => {
+  const isImage = galleryFile.type === 'image';
+  const isHeicImage =
+    isImage &&
+    (galleryFile.extension === 'heic' || galleryFile.extension === 'heif');
+
+  const [heicPreviewUrl, setHeicPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!show || !isHeicImage || !galleryFile.pendingFile) {
+      setHeicPreviewUrl(null);
+      return;
+    }
+    let cancelled = false;
+    const pendingFile = galleryFile.pendingFile;
+
+    async function loadPreview() {
+      const url = await heicToPreviewUrl(pendingFile);
+      if (!cancelled) setHeicPreviewUrl(url);
+    }
+
+    // heicToPreviewUrl handles decode errors internally and returns null;
+    // catch is required to satisfy the promise/catch-or-return lint rule
+    loadPreview().catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [show, isHeicImage, galleryFile.pendingFile]);
+
   if (!show) return null;
 
-  const isImage = galleryFile.type === 'image';
+  // HEIC requires async decode before a URL is available; standard images have
+  // url set immediately. Derive a single value so both share the same render path.
+  const imagePreviewUrl = isHeicImage ? heicPreviewUrl : galleryFile.url;
 
-  // Create preview component
   const filePreview = (() => {
-    if (isImage) {
-      const imageElement = (
-        <img
-          src={galleryFile.url}
-          alt="preview"
-          className={`${className}__preview-img base-file-modal__preview-img`}
-        />
+    if (!isImage) {
+      return (
+        <div
+          className={`${className}__preview-pdf base-file-modal__preview-pdf`}
+        >
+          <FontAwesomeIcon icon={faFilePdf} size="3x" color={COLOR_RED} />
+          <div
+            className={`${className}__file-name base-file-modal__file-name mt-2`}
+          >
+            <ClampLines text={galleryFile.name} />
+          </div>
+        </div>
       );
+    }
 
+    if (!imagePreviewUrl) {
+      // HEIC decode is in progress (heicToPreviewUrl returns null on failure too)
       return (
         <>
           <h4>Preview</h4>
-          {onImageClick ? (
-            <button
-              type="button"
-              onClick={onImageClick}
-              className="base-file-modal__preview-button"
-              aria-label="View full size image"
-            >
-              {imageElement}
-              <span className="base-file-modal__preview-icon">
-                <FontAwesomeIcon icon={faUpRightFromSquare} />
-              </span>
-            </button>
-          ) : (
-            imageElement
-          )}
+          <div className="base-file-modal__preview-heic">
+            <FontAwesomeIcon icon={faImage} size="3x" color={COLOR_GREY_MED} />
+            <span className="base-file-modal__file-name mt-2">
+              Loading preview...
+            </span>
+          </div>
         </>
       );
     }
 
-    // Show PDF icon for non-image files
+    const imageElement = (
+      <img
+        src={imagePreviewUrl}
+        alt="preview"
+        className={`${className}__preview-img base-file-modal__preview-img`}
+      />
+    );
+
     return (
-      <div className={`${className}__preview-pdf base-file-modal__preview-pdf`}>
-        <FontAwesomeIcon icon={faFilePdf} size="3x" color={COLOR_RED} />
-        <div
-          className={`${className}__file-name base-file-modal__file-name mt-2`}
-        >
-          <ClampLines text={galleryFile.name} />
-        </div>
-      </div>
+      <>
+        <h4>Preview</h4>
+        {onImageClick ? (
+          <button
+            type="button"
+            onClick={onImageClick}
+            className="base-file-modal__preview-button"
+            aria-label="View full size image"
+          >
+            {imageElement}
+            <span className="base-file-modal__preview-icon">
+              <FontAwesomeIcon icon={faUpRightFromSquare} />
+            </span>
+          </button>
+        ) : (
+          imageElement
+        )}
+      </>
     );
   })();
 
