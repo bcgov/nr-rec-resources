@@ -105,7 +105,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6
         with:
             role-to-assume: ${{ secrets.AWS_LZA_DEPLOY_ROLE_ARN }}
             aws-region: ${{ env.AWS_REGION }}
