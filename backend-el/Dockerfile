@@ -12,6 +12,7 @@ ARG DEPENDENCY=/app/target/
 COPY --from=build ${DEPENDENCY}/*.jar /app/app.jar
 COPY run_app.sh .
 RUN apt-get update && apt-get install -y --no-install-recommends
+RUN sed -i '/jdk.tls.disabledAlgorithms=/,/[^\\]$/c jdk.tls.disabledAlgorithms=SSLv3' "$JAVA_HOME/conf/security/java.security"
 RUN chmod -R 777 /opt && chmod -R 777 /etc/ca-certificates && chmod -R 777 "${JAVA_HOME}"/lib/security
 RUN useradd -ms /bin/bash appuser
 USER appuser
