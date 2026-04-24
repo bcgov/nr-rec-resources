@@ -1,10 +1,9 @@
 import { ClampLines } from '@/components';
-import { COLOR_GREY_MED, COLOR_RED } from '@/styles/colors';
+import { COLOR_RED } from '@/styles/colors';
 import { heicToPreviewUrl } from '@/utils/imageProcessing';
 import {
   IconDefinition,
   faFilePdf,
-  faImage,
   faUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,6 +14,7 @@ import {
   Button,
   ButtonProps,
   Modal,
+  Spinner,
   Stack,
 } from 'react-bootstrap';
 import { GalleryFile } from '../../types';
@@ -68,10 +68,8 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
   const [heicPreviewUrl, setHeicPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!show || !isHeicImage || !galleryFile.pendingFile) {
-      setHeicPreviewUrl(null);
-      return;
-    }
+    if (!show || !isHeicImage || !galleryFile.pendingFile) return;
+
     let cancelled = false;
     const pendingFile = galleryFile.pendingFile;
 
@@ -83,8 +81,11 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
     // heicToPreviewUrl handles decode errors internally and returns null;
     // catch is required to satisfy the promise/catch-or-return lint rule
     loadPreview().catch(() => {});
+
     return () => {
       cancelled = true;
+      // Reset so a stale URL is never shown when the modal reopens
+      setHeicPreviewUrl(null);
     };
   }, [show, isHeicImage, galleryFile.pendingFile]);
 
@@ -116,7 +117,11 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
         <>
           <h4>Preview</h4>
           <div className="base-file-modal__preview-heic">
-            <FontAwesomeIcon icon={faImage} size="3x" color={COLOR_GREY_MED} />
+            <Spinner
+              animation="border"
+              role="status"
+              aria-label="Loading preview"
+            />
             <span className="base-file-modal__file-name mt-2">
               Loading preview...
             </span>
