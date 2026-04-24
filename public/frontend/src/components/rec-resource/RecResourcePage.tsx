@@ -21,6 +21,9 @@ import {
   PageWithScrollMenu,
 } from '@/components/layout/PageWithScrollMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
+import { districtImageMap } from '@/constants/districtImageMap';
+import { BOOTSTRAP_BREAKPOINTS } from '@/constants/breakpoints';
+import useMediaQuery from '@/hooks/useMediaQuery';
 import '@/components/rec-resource/RecResource.scss';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { useGetSiteOperatorById } from '@/service/queries/recreation-resource';
@@ -75,6 +78,7 @@ const RecResourcePage = () => {
     recreation_resource_docs,
     spatial_feature_geometry,
     recreation_resource_reservation_info,
+    recreation_district,
   } = recResource || {};
 
   const formattedName = name
@@ -106,6 +110,7 @@ const RecResourcePage = () => {
     Boolean(recreation_resource_docs?.length) ||
     driving_directions;
   const isReservable = Boolean(recreation_resource_reservation_info);
+  const isMd = useMediaQuery(`(min-width: ${BOOTSTRAP_BREAKPOINTS.md}px)`);
 
   // Create page sections for PageWithScrollMenu
   const pageSections: PageSection[] = [
@@ -170,30 +175,46 @@ const RecResourcePage = () => {
       <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
         <div className="page">
           <Breadcrumbs className="mb-4" />
-          <section>
-            <div>
-              <h1>{formattedName}</h1>
-              <p className="bc-color-blue-dk mb-4">
-                <span>{rec_resource_type} |</span> {rec_resource_id}
-              </p>
+          <section className="header-section">
+            <div className="header-content">
+              <div>
+                <h1>{formattedName}</h1>
+                <p className="bc-color-blue-dk mb-4">
+                  <span>{rec_resource_type} |</span> {rec_resource_id}
+                </p>
+              </div>
+              <div className="icon-container mb-4">
+                <img
+                  alt="Location dot icon"
+                  src={locationDot}
+                  height={24}
+                  width={24}
+                />{' '}
+                <span className="capitalize">
+                  {closest_community?.toLowerCase()}
+                </span>
+              </div>
+              {statusCode && statusDescription && (
+                <Status
+                  description={statusDescription}
+                  statusCode={statusCode}
+                />
+              )}
+              {isRecreationSite && recResource && (
+                <RecResourceReservation recResource={recResource} />
+              )}
             </div>
-            <div className="icon-container mb-4">
-              <img
-                alt="Location dot icon"
-                src={locationDot}
-                height={24}
-                width={24}
-              />{' '}
-              <span className="capitalize">
-                {closest_community?.toLowerCase()}
-              </span>
-            </div>
-            {statusCode && statusDescription && (
-              <Status description={statusDescription} statusCode={statusCode} />
-            )}
-            {isRecreationSite && recResource && (
-              <RecResourceReservation recResource={recResource} />
-            )}
+            {isMd &&
+              recreation_district?.district_code &&
+              districtImageMap[recreation_district.district_code] && (
+                <div className="district-image-container">
+                  <img
+                    alt={`${recreation_district.description} district map`}
+                    src={districtImageMap[recreation_district.district_code]}
+                    fetchPriority="high"
+                  />
+                </div>
+              )}
           </section>
         </div>
       </div>

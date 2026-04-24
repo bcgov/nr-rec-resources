@@ -14,6 +14,10 @@ vi.mock('@/service/queries/recreation-resource', () => ({
   useGetSiteOperatorById: vi.fn(),
 }));
 
+vi.mock('@/hooks/useMediaQuery', () => ({
+  default: vi.fn(() => true),
+}));
+
 vi.mock('@shared/components/breadcrumbs', () => ({
   Breadcrumbs: () => <nav aria-label="breadcrumb">Breadcrumbs</nav>,
 }));
@@ -338,6 +342,44 @@ describe('RecResourcePage', () => {
         expect(Camping).not.toHaveBeenCalled();
       },
     );
+  });
+
+  describe('District image', () => {
+    test.each([
+      { district_code: 'RDCS', description: 'Cascades' },
+      { district_code: 'RDSQ', description: 'Squamish' },
+      { district_code: 'RDBO', description: 'Boundary-South Okanagan' },
+    ])(
+      'shows the district map image for $description ($district_code)',
+      async ({ district_code, description }) => {
+        await renderComponent({
+          ...mockResource,
+          recreation_district: { district_code, description },
+        });
+
+        expect(
+          screen.getByAltText(`${description} district map`),
+        ).toBeInTheDocument();
+      },
+    );
+
+    it('hides the district image when recreation_district is absent', async () => {
+      await renderComponent({
+        ...mockResource,
+        recreation_district: undefined,
+      });
+
+      expect(screen.queryByAltText(/district map/i)).not.toBeInTheDocument();
+    });
+
+    it('hides the district image for an unknown district code', async () => {
+      await renderComponent({
+        ...mockResource,
+        recreation_district: { district_code: 'RDXX', description: 'Unknown' },
+      });
+
+      expect(screen.queryByAltText(/district map/i)).not.toBeInTheDocument();
+    });
   });
 
   describe('Additional fees section', () => {
