@@ -55,12 +55,22 @@ function isHeicFile(file: File): boolean {
   return HEIC_MIME_TYPES.has(file.type.toLowerCase());
 }
 
+/**
+ * Decode a HEIC/HEIF file and return a WebP data URL suitable for use as an
+ * img src. Returns null if the file cannot be decoded.
+ * libheif-js is loaded dynamically so it is only bundled when needed.
+ */
 export async function heicToPreviewUrl(file: File): Promise<string | null> {
   const { canvas, error } = await heicToCanvas(file, PREVIEW_RESOLUTION);
   if (error || !canvas) return null;
   return canvas.toDataURL('image/webp');
 }
 
+/**
+ * Decode a HEIC/HEIF file into an HTMLCanvasElement scaled to fit maxResolution.
+ * Uses a two-canvas approach: putImageData at native resolution, then drawImage
+ * to downscale, because putImageData does not perform scaling.
+ */
 async function heicToCanvas(
   file: File,
   maxResolution: { width: number; height: number },
