@@ -1,7 +1,7 @@
 import { useGetImagesByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetImagesByRecResourceId';
 import { RecreationResourceImageDto } from '@/services/recreation-resource-admin';
 import { useMemo } from 'react';
-import { formatGalleryFileDate } from '../helpers';
+import { formatDateTimeReadable } from '@shared/utils';
 import { GalleryImage } from '../types';
 import { findImageVariant } from './utils/findImageVariant';
 
@@ -18,7 +18,7 @@ export function useImageList(rec_resource_id?: string) {
       return <GalleryImage>{
         id: img.image_id,
         name: img.file_name,
-        date: formatGalleryFileDate(img.created_at),
+        date: formatDateTimeReadable(img.created_at)!,
         url: original?.url,
         extension: original?.extension,
         previewUrl: preview?.url,
