@@ -203,20 +203,6 @@ variable "cors_allow_credentials" {
   default     = true
 }
 
-variable "dam_config" {
-  type = object({
-    dam_url = string
-    dam_private_key = string
-    dam_user = string
-    dam_rst_pdf_collection_id = string
-    dam_rst_image_collection_id = string
-    dam_rst_pdf_type_id = string
-    dam_rst_image_type_id = string
-  })
-  description = "DAM configuration for BC Image and Documents storage"
-  sensitive = true
-}
-
 variable "custom_domain" {
   description = "Custom domain for the admin application (used in prod for CORS)"
   type        = string
