@@ -1,6 +1,5 @@
 import {
   createTempGalleryFile,
-  formatGalleryFileDate,
   getMaxFilesByFileType,
   handleAddFileByType,
   handleAddFileClick,
@@ -60,23 +59,6 @@ function simulateFileSelection(
   const mockEvent = { target: mockInput } as unknown as Event;
   mockInput.onchange?.(mockEvent);
 }
-
-describe('formatGalleryFileDate', () => {
-  it.each([
-    ['2023-07-13T15:30:00Z', /Jul/],
-    ['2023-12-25T09:15:00Z', /\d{1,2}:\d{2}\s?(AM|PM|a\.m\.|p\.m\.)/i],
-    ['2023-01-05T12:00:00Z', /\b0[1-9]\b|\b[12][0-9]\b|\b3[01]\b/],
-  ])('formats date correctly for %s', (date, pattern) => {
-    const result = formatGalleryFileDate(date);
-    expect(result).toMatch(pattern);
-    expect(result).toMatch(/2023/);
-    expect(result).toMatch(/\d{2}:\d{2}/);
-  });
-
-  it('handles invalid date string gracefully', () => {
-    expect(formatGalleryFileDate('not-a-date')).toBe('Invalid Date');
-  });
-});
 
 describe('handleAddFileClick', () => {
   let mockInput: HTMLInputElement;
