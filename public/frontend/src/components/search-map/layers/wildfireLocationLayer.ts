@@ -2,12 +2,18 @@ import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
 import { bbox as bboxStrategy } from 'ol/loadingstrategy';
-import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
+import { Style, Icon } from 'ol/style';
 import { FeatureLike } from 'ol/Feature';
-import {
-  FIRE_STATUS_RGBA_COLOUR_MAP,
-  WILDFIRE_LOCATION_LAYER,
-} from '@/components/search-map/constants';
+import { WILDFIRE_LOCATION_LAYER } from '@/components/search-map/constants';
+import WILDFIRE_ICON_OUT from '@shared/assets/icons/wildfire/out_of_control.svg';
+import WILDFIRE_ICON_HELD from '@shared/assets/icons/wildfire/being_held.svg';
+import WILDFIRE_ICON_UNDER from '@shared/assets/icons/wildfire/under_control.svg';
+
+const FIRE_STATUS_ICONS: Record<string, string> = {
+  'Out of Control': WILDFIRE_ICON_OUT,
+  'Being Held': WILDFIRE_ICON_HELD,
+  'Under Control': WILDFIRE_ICON_UNDER,
+};
 
 const WILDFIRE_FIELDS = [
   'IGNITION_DATE',
@@ -24,17 +30,13 @@ export const createWildfireLocationStyle = (
   isHovered = false,
 ) => {
   const status = feature.get('FIRE_STATUS') || 'default';
-  const [r, g, b] = FIRE_STATUS_RGBA_COLOUR_MAP[status] || [153, 153, 153];
-  const opacity = isHovered ? 0.5 : 1;
 
   return new Style({
-    image: new CircleStyle({
-      radius: 10,
-      fill: new Fill({ color: `rgba(${r},${g},${b},${opacity})` }),
-      stroke: new Stroke({
-        color: '#000',
-        width: 1,
-      }),
+    image: new Icon({
+      src: FIRE_STATUS_ICONS[status] || WILDFIRE_ICON_OUT,
+      scale: isHovered ? 1.2 : 1,
+      displacement: [0, 0],
+      anchor: [0.5, 0.5],
     }),
   });
 };

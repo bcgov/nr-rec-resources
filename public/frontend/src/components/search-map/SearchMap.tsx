@@ -14,7 +14,7 @@ import {
   useWildfirePerimeterLayer,
   useZoomToExtent,
 } from '@/components/search-map/hooks';
-import { locationDotOrangeIcon } from '@/components/search-map/styles/icons';
+import { selectedWildfireIcon } from '@/components/search-map/styles/icons';
 import searchResultsStore from '@/store/searchResults';
 import {
   RecreationFeaturePreview,
@@ -126,14 +126,13 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
               : 'None',
           });
         },
-        selectedStyle: locationDotOrangeIcon,
+        selectedStyle: (feature: Feature) => {
+          const status = feature.get('FIRE_STATUS') || 'Out of Control';
+          return selectedWildfireIcon(status);
+        },
       },
     ],
-    [
-      clusteredRecreationFeatureLayer,
-      wildfireLocationsLayer,
-      setSelectedWildfireFeature,
-    ],
+    [clusteredRecreationFeatureLayer, wildfireLocationsLayer],
   );
 
   const { clearSelection } = useFeatureSelection({
@@ -191,6 +190,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     if (searchViewControlsProps.props.style?.visibility === 'visible') {
       const hideDialog = Cookies.get('hidemap-disclaimer-dialog');
       if (!hideDialog) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsDisclaimerModalOpen(true);
       }
     }
@@ -274,12 +274,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             <FontAwesomeIcon icon={faSliders} className="me-2" />
             <FilterButtonLabel selectedFilterCount={selectedFilterCount} />
           </Button>
-          <SearchViewControls
-            variant="list"
-            totalCount={searchViewControlsProps.totalCount}
-            ids={searchViewControlsProps.ids}
-            trackingView="map"
-          />
+          <SearchViewControls variant="list" />
         </div>
         <FilterMenuSearchMap
           isOpen={isFilterMenuOpen}
