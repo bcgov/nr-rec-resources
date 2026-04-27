@@ -6,24 +6,22 @@ import { TestQueryClientProvider } from '@/test-utils';
 const mockCitiesResponse = {
   data: [
     {
-      id: '1',
-      attributes: {
-        cityName: 'Vancouver',
-        rank: 1,
-        provinceCode: 'BC',
-        latitude: 49.2827,
-        longitude: -123.1207,
-      },
+      id: 1,
+      documentId: 'abc001',
+      cityName: 'Vancouver',
+      rank: 1,
+      provinceCode: 'BC',
+      latitude: 49.2827,
+      longitude: -123.1207,
     },
     {
-      id: '2',
-      attributes: {
-        cityName: 'Victoria',
-        rank: 2,
-        provinceCode: 'BC',
-        latitude: 48.4284,
-        longitude: -123.3656,
-      },
+      id: 2,
+      documentId: 'abc002',
+      cityName: 'Victoria',
+      rank: 2,
+      provinceCode: 'BC',
+      latitude: 48.4284,
+      longitude: -123.3656,
     },
   ],
 };
