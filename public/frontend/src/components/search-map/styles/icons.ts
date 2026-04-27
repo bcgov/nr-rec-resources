@@ -12,8 +12,10 @@ import IF_ICON_SELECTED from '@shared/assets/icons/interpretive_forest_selected.
 import WILDFIRE_ICON_UNDER_BOLD from '@shared/assets/icons/wildfire/under_control_bold.svg';
 import WILDFIRE_ICON_OUT_BOLD from '@shared/assets/icons/wildfire/out_of_control_bold.svg';
 import WILDFIRE_ICON_HELD_BOLD from '@shared/assets/icons/wildfire/being_held_bold.svg';
+import WILDFIRE_ICON_NOTE_BOLD from '@shared/assets/icons/wildfire/wildfire_of_note_bold.svg';
 
 const FIRE_STATUS_BOLD_ICONS: Record<string, string> = {
+  'Fire of Note': WILDFIRE_ICON_NOTE_BOLD,
   'Out of Control': WILDFIRE_ICON_OUT_BOLD,
   'Being Held': WILDFIRE_ICON_HELD_BOLD,
   'Under Control': WILDFIRE_ICON_UNDER_BOLD,

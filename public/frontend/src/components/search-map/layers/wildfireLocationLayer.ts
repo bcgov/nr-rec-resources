@@ -8,8 +8,10 @@ import { WILDFIRE_LOCATION_LAYER } from '@/components/search-map/constants';
 import WILDFIRE_ICON_OUT from '@shared/assets/icons/wildfire/out_of_control.svg';
 import WILDFIRE_ICON_HELD from '@shared/assets/icons/wildfire/being_held.svg';
 import WILDFIRE_ICON_UNDER from '@shared/assets/icons/wildfire/under_control.svg';
+import WILDFIRE_ICON_NOTE from '@shared/assets/icons/wildfire/wildfire_of_note.svg';
 
 const FIRE_STATUS_ICONS: Record<string, string> = {
+  'Fire of Note': WILDFIRE_ICON_NOTE,
   'Out of Control': WILDFIRE_ICON_OUT,
   'Being Held': WILDFIRE_ICON_HELD,
   'Under Control': WILDFIRE_ICON_UNDER,
