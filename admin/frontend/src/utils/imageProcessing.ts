@@ -74,7 +74,10 @@ export async function heicToPreviewUrl(file: File): Promise<string | null> {
 async function heicToCanvas(
   file: File,
   maxResolution: { width: number; height: number },
-): Promise<{ canvas: HTMLCanvasElement; error: ImageValidationError | null }> {
+): Promise<{
+  canvas: HTMLCanvasElement | null;
+  error: ImageValidationError | null;
+}> {
   try {
     const { default: libheif } = await import('libheif-js/wasm-bundle');
     const buffer = await file.arrayBuffer();
@@ -84,7 +87,7 @@ async function heicToCanvas(
 
     if (!images || images.length === 0) {
       return {
-        canvas: null as any,
+        canvas: null,
         error: { type: 'loading', message: 'Failed to decode HEIC image' },
       };
     }
@@ -130,7 +133,7 @@ async function heicToCanvas(
     return { canvas, error: null };
   } catch {
     return {
-      canvas: null as any,
+      canvas: null,
       error: { type: 'loading', message: 'Failed to load HEIC image' },
     };
   }
@@ -201,7 +204,10 @@ function validateImageBasic(file: File): ImageValidationError | null {
 async function loadAndValidateImage(
   file: File,
   maxResolution: { width: number; height: number },
-): Promise<{ canvas: HTMLCanvasElement; error: ImageValidationError | null }> {
+): Promise<{
+  canvas: HTMLCanvasElement | null;
+  error: ImageValidationError | null;
+}> {
   // eslint-disable-next-line promise/avoid-new
   return new Promise((resolve) => {
     const img = new Image();
@@ -235,7 +241,7 @@ async function loadAndValidateImage(
     img.onerror = () => {
       URL.revokeObjectURL(url);
       resolve({
-        canvas: null as any,
+        canvas: null,
         error: {
           type: 'loading',
           message: 'Failed to load image',
@@ -510,8 +516,8 @@ export async function processImageToVariants(
       ? await heicToCanvas(file, maxResolution)
       : await loadAndValidateImage(file, maxResolution);
 
-    if (validationError) {
-      throw new Error(validationError.message);
+    if (validationError || !sourceCanvas) {
+      throw new Error(validationError?.message ?? 'Failed to load image');
     }
 
     // Process variants

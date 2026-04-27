@@ -211,7 +211,7 @@ describe('BaseFileModal', () => {
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
 
-    it('keeps showing the spinner when heicToPreviewUrl returns null (decode failure)', async () => {
+    it('shows an error message when heicToPreviewUrl returns null (decode failure)', async () => {
       vi.spyOn(imageProcessing, 'heicToPreviewUrl').mockResolvedValue(null);
 
       render(<BaseFileModal {...defaultProps} galleryFile={heicFile} />, {
@@ -222,7 +222,8 @@ describe('BaseFileModal', () => {
         expect(imageProcessing.heicToPreviewUrl).toHaveBeenCalled();
       });
 
-      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.getByText('Failed to load preview')).toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
       expect(screen.queryByAltText('preview')).not.toBeInTheDocument();
     });
   });

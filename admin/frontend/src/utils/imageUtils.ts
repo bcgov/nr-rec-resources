@@ -4,7 +4,7 @@
  * @returns True if the file is an image, false otherwise.
  */
 export function isImageFile(file: File): boolean {
-  return /\.(jpg|jpeg|png|heic|webp|gif|bmp|tiff)$/i.test(file.name);
+  return /\.(jpg|jpeg|png|heic|heif|webp|gif|bmp|tiff)$/i.test(file.name);
 }
 
 /**

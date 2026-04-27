@@ -3,6 +3,7 @@ import { COLOR_RED } from '@/styles/colors';
 import { heicToPreviewUrl } from '@/utils/imageProcessing';
 import {
   IconDefinition,
+  faCircleExclamation,
   faFilePdf,
   faUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
@@ -66,16 +67,22 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
     (galleryFile.extension === 'heic' || galleryFile.extension === 'heif');
 
   const [heicPreviewUrl, setHeicPreviewUrl] = useState<string | null>(null);
+  const [heicDecodeError, setHeicDecodeError] = useState(false);
 
   useEffect(() => {
-    if (!show || !isHeicImage || !galleryFile.pendingFile) return;
+    if (!isHeicImage || !galleryFile.pendingFile) return;
 
     let cancelled = false;
     const pendingFile = galleryFile.pendingFile;
 
     async function loadPreview() {
       const url = await heicToPreviewUrl(pendingFile);
-      if (!cancelled) setHeicPreviewUrl(url);
+      if (cancelled) return;
+      if (url) {
+        setHeicPreviewUrl(url);
+      } else {
+        setHeicDecodeError(true);
+      }
     }
 
     // heicToPreviewUrl handles decode errors internally and returns null;
@@ -84,10 +91,11 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
 
     return () => {
       cancelled = true;
-      // Reset so a stale URL is never shown when the modal reopens
+      // Reset when the file changes so a stale URL is not shown
       setHeicPreviewUrl(null);
+      setHeicDecodeError(false);
     };
-  }, [show, isHeicImage, galleryFile.pendingFile]);
+  }, [isHeicImage, galleryFile.pendingFile]);
 
   if (!show) return null;
 
@@ -112,19 +120,33 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
     }
 
     if (!imagePreviewUrl) {
-      // HEIC decode is in progress (heicToPreviewUrl returns null on failure too)
       return (
         <>
           <h4>Preview</h4>
           <div className="base-file-modal__preview-heic">
-            <Spinner
-              animation="border"
-              role="status"
-              aria-label="Loading preview"
-            />
-            <span className="base-file-modal__file-name mt-2">
-              Loading preview...
-            </span>
+            {heicDecodeError ? (
+              <>
+                <FontAwesomeIcon
+                  icon={faCircleExclamation}
+                  size="2x"
+                  color={COLOR_RED}
+                />
+                <span className="base-file-modal__file-name mt-2">
+                  Failed to load preview
+                </span>
+              </>
+            ) : (
+              <>
+                <Spinner
+                  animation="border"
+                  role="status"
+                  aria-label="Loading preview"
+                />
+                <span className="base-file-modal__file-name mt-2">
+                  Loading preview...
+                </span>
+              </>
+            )}
           </div>
         </>
       );
