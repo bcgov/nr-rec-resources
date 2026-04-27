@@ -8,15 +8,20 @@ vi.mock(
   }),
 );
 
-vi.mock('@/pages/rec-resource-page/helpers', () => ({
-  formatGalleryFileDate: vi.fn(),
-}));
+vi.mock('@shared/utils', async () => {
+  const actual =
+    await vi.importActual<typeof import('@shared/utils')>('@shared/utils');
+  return {
+    ...actual,
+    formatDateTimeReadable: vi.fn(),
+  };
+});
 
 vi.mock('@/pages/rec-resource-page/hooks/utils/findImageVariant', () => ({
   findImageVariant: vi.fn(),
 }));
 
-import { formatGalleryFileDate } from '@/pages/rec-resource-page/helpers';
+import { formatDateTimeReadable } from '@shared/utils';
 import { useImageList } from '@/pages/rec-resource-page/hooks/useImageList';
 import { useGetImagesByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetImagesByRecResourceId';
 import { findImageVariant } from '@/pages/rec-resource-page/hooks/utils/findImageVariant';
@@ -24,7 +29,7 @@ import { findImageVariant } from '@/pages/rec-resource-page/hooks/utils/findImag
 describe('useImageList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (formatGalleryFileDate as any).mockImplementation(
+    (formatDateTimeReadable as any).mockImplementation(
       (date: string) => `formatted-${date}`,
     );
     (findImageVariant as any).mockImplementation(
@@ -112,8 +117,8 @@ describe('useImageList', () => {
       },
     ]);
 
-    expect(formatGalleryFileDate).toHaveBeenCalledWith('2025-01-01T10:00:00Z');
-    expect(formatGalleryFileDate).toHaveBeenCalledWith('2025-01-02T10:00:00Z');
+    expect(formatDateTimeReadable).toHaveBeenCalledWith('2025-01-01T10:00:00Z');
+    expect(formatDateTimeReadable).toHaveBeenCalledWith('2025-01-02T10:00:00Z');
   });
 
   it('should handle images without variants', () => {

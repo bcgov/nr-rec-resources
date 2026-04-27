@@ -1,5 +1,6 @@
 import { addErrorNotification } from '@/store/notificationStore';
 import {
+  formatDateTimeReadable,
   getFileNameWithoutExtension,
   validateFileMimeType,
   validateFileSize,
@@ -13,20 +14,6 @@ import {
 import { FileType, GalleryFile } from './types';
 
 /**
- * Formats the date string for display.
- */
-export function formatGalleryFileDate(date: string): string {
-  return new Date(date).toLocaleString('en-CA', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
-}
-
-/**
  * Creates a temporary GalleryFile object from a File for upload purposes.
  */
 export function createTempGalleryFile(file: File, type: FileType): GalleryFile {
@@ -36,7 +23,7 @@ export function createTempGalleryFile(file: File, type: FileType): GalleryFile {
   return {
     id: `temp-${now.getTime()}-${crypto.randomUUID()}`,
     name: file.name,
-    date: formatGalleryFileDate(now.toISOString()),
+    date: formatDateTimeReadable(now.toISOString())!,
     url: URL.createObjectURL(file),
     extension,
     pendingFile: file,

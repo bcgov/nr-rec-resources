@@ -37,9 +37,6 @@ export function mapRecreationResourceDetail(
       data.recreation_control_access_code?.description,
     project_established_date_readable_utc: formatDateReadable(
       data.project_established_date,
-      {
-        timeZone: 'UTC', // this date is stored in PST timezone in database
-      },
     ),
     risk_rating_code: data.risk_rating?.risk_rating_code,
     risk_rating_description: data.risk_rating?.description,
@@ -54,12 +51,8 @@ export function mapRecreationResourceDetail(
 export function mapRecreationFee(fee: RecreationFeeDto): RecreationFeeUIModel {
   return {
     ...fee,
-    fee_start_date_readable_utc: formatDateReadable(fee.fee_start_date, {
-      timeZone: 'UTC',
-    }),
-    fee_end_date_readable_utc: formatDateReadable(fee.fee_end_date, {
-      timeZone: 'UTC',
-    }),
+    fee_start_date_readable_utc: formatDateReadable(fee.fee_start_date),
+    fee_end_date_readable_utc: formatDateReadable(fee.fee_end_date),
   };
 }
 

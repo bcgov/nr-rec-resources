@@ -119,6 +119,47 @@ describe('dateUtils', () => {
     });
   });
 
+  describe('UTC calendar date regression — DB date values must not shift by timezone', () => {
+    // Prisma maps PostgreSQL `date` columns to JS Date objects at UTC midnight.
+    // These tests verify that a UTC-midnight date always formats to the same
+    // calendar day regardless of the environment's local timezone. In PST (UTC−8)
+    // the old code would shift "2024-06-30T00:00:00.000Z" back to June 29.
+    const utcMidnight = '2024-06-30T00:00:00.000Z';
+
+    it('formatDateFull should preserve calendar date for UTC midnight input', () => {
+      expect(formatDateFull(utcMidnight)).toBe('June 30, 2024');
+    });
+
+    it('formatDateReadable should preserve calendar date for UTC midnight input', () => {
+      expect(formatDateReadable(utcMidnight)).toBe('Jun 30, 2024');
+    });
+
+    it('formatDateISO should preserve calendar date for UTC midnight input', () => {
+      expect(formatDateISO(utcMidnight)).toBe('2024-06-30');
+    });
+
+    it('formatDateShort should preserve calendar date for UTC midnight input', () => {
+      expect(formatDateShort(utcMidnight)).toBe('24-06-30');
+    });
+
+    it('formatYearMonth should preserve calendar month for UTC midnight input', () => {
+      expect(formatYearMonth(utcMidnight)).toBe('2024-06');
+    });
+
+    it('formatMonthYear should preserve calendar month for UTC midnight input', () => {
+      expect(formatMonthYear(utcMidnight)).toBe('Jun 2024');
+    });
+
+    it('America/Vancouver override formats timestamp in Pacific time', () => {
+      // A UTC midnight date at Vancouver in summer is June 29 at 5:00 PM PDT (UTC−7).
+      // This confirms the override works as expected for real timestamps.
+      const result = formatDateFull(utcMidnight, {
+        timeZone: 'America/Vancouver',
+      });
+      expect(result).toBe('June 29, 2024');
+    });
+  });
+
   describe('getCurrentDateISO', () => {
     it('should return current date in ISO format', () => {
       vi.useFakeTimers();

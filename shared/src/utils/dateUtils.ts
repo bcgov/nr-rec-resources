@@ -1,9 +1,19 @@
 /**
- * Date formatting utilities for consistent date display across the application
+ * Date formatting utilities for consistent date display across the application.
  *
- * Input Policy: All dates are treated as UTC for consistency and predictability.
- * Output Policy: All formatted dates are displayed in Pacific timezone (America/Vancouver)
- * for user-friendly display in BC, Canada.
+ * Two function families — pick based on the DB column type:
+ *
+ *   formatDate*      → @db.Date fields (PostgreSQL `date`). Time is irrelevant.
+ *                      Always displays in UTC to preserve the calendar date.
+ *                      Example: formatDateFull(fee.fee_start_date)
+ *
+ *   formatDateTime*  → @db.Timestamp fields and external timestamps. Time matters.
+ *                      Displays in the user's browser local timezone by default.
+ *                      For geographically-bound events where official communications
+ *                      use a specific timezone, pass an explicit override and include
+ *                      timeZoneName: 'short' so the label is shown in the UI.
+ *                      Example: formatDateTimeReadable(doc.created_at)
+ *                      Example: formatDateTimeFull(ignitionDate, { timeZone: 'America/Vancouver', timeZoneName: 'short' })
  */
 
 export type DateInput = Date | string | number | null | undefined;
@@ -34,27 +44,69 @@ export const DEFAULT_LOCALE = 'en-CA';
 const DATE_FORMAT_CONFIGS = {
   iso: {
     locale: DEFAULT_LOCALE,
-    options: { year: 'numeric', month: '2-digit', day: '2-digit' } as const,
+    options: {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    } as const,
   },
   readable: {
     locale: DEFAULT_LOCALE,
-    options: { year: 'numeric', month: 'short', day: 'numeric' } as const,
+    options: {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    } as const,
   },
   full: {
     locale: DEFAULT_LOCALE,
-    options: { year: 'numeric', month: 'long', day: 'numeric' } as const,
+    options: {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    } as const,
   },
   short: {
     locale: DEFAULT_LOCALE,
-    options: { year: '2-digit', month: '2-digit', day: '2-digit' } as const,
+    options: {
+      timeZone: 'UTC',
+      year: '2-digit',
+      month: '2-digit',
+      day: '2-digit',
+    } as const,
   },
   yearMonth: {
     locale: DEFAULT_LOCALE,
-    options: { year: 'numeric', month: '2-digit' } as const,
+    options: { timeZone: 'UTC', year: 'numeric', month: '2-digit' } as const,
   },
   monthYear: {
     locale: DEFAULT_LOCALE,
-    options: { year: 'numeric', month: 'short' } as const,
+    options: { timeZone: 'UTC', year: 'numeric', month: 'short' } as const,
+  },
+  readableDateTime: {
+    locale: DEFAULT_LOCALE,
+    options: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    } as const,
+  },
+  fullDateTime: {
+    locale: DEFAULT_LOCALE,
+    options: {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    } as const,
   },
 } as const;
 
@@ -145,10 +197,30 @@ export const formatMonthYear = createDateFormatter(
 );
 
 /**
- * Generic date formatter with custom options using Pacific timezone
+ * Formats a @db.Timestamp in readable format (MMM D, YYYY, h:mm AM/PM) using browser local timezone.
+ * @param date - Timestamp to format
+ * @param dateTimeFormatOptions - Optional overrides (e.g. { timeZone: 'America/Vancouver', timeZoneName: 'short' })
+ * @returns Formatted datetime string or null if invalid
+ */
+export const formatDateTimeReadable = createDateFormatter(
+  DATE_FORMAT_CONFIGS.readableDateTime,
+);
+
+/**
+ * Formats a @db.Timestamp in full format (MMMM D, YYYY, h:mm AM/PM) using browser local timezone.
+ * @param date - Timestamp to format
+ * @param dateTimeFormatOptions - Optional overrides (e.g. { timeZone: 'America/Vancouver', timeZoneName: 'short' })
+ * @returns Formatted datetime string or null if invalid
+ */
+export const formatDateTimeFull = createDateFormatter(
+  DATE_FORMAT_CONFIGS.fullDateTime,
+);
+
+/**
+ * Generic date formatter with custom options
  * @param date - Date to format (treated as UTC input)
  * @param locale - Locale for formatting (default: 'en-CA')
- * @param options - Intl.DateTimeFormat options (timeZone will be set to Pacific)
+ * @param options - Intl.DateTimeFormat options
  * @returns Formatted date string or null if invalid
  */
 export const formatDateCustom = (

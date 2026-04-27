@@ -195,34 +195,6 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = var.keycloak_config.issuer
         },
         {
-          name  = "DAM_URL"
-          value = var.dam_config.dam_url
-        },
-        {
-          name  = "DAM_PRIVATE_KEY"
-          value = var.dam_config.dam_private_key
-        },
-        {
-          name  = "DAM_USER"
-          value = var.dam_config.dam_user
-        },
-        {
-          name  = "DAM_RST_PDF_COLLECTION_ID"
-          value = var.dam_config.dam_rst_pdf_collection_id
-        },
-        {
-          name  = "DAM_RST_IMAGE_COLLECTION_ID"
-          value = var.dam_config.dam_rst_image_collection_id
-        },
-        {
-          name  = "DAM_RESOURCE_TYPE_PDF"
-          value = var.dam_config.dam_rst_pdf_type_id
-        },
-        {
-          name  = "DAM_RESOURCE_TYPE_IMAGE"
-          value = var.dam_config.dam_rst_image_type_id
-        },
-        {
           name  = "ESTABLISHMENT_ORDER_DOCS_BUCKET"
           value = var.app == "admin" ? aws_s3_bucket.establishment_order_docs[0].id : ""
         },

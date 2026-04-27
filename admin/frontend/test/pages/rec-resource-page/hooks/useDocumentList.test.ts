@@ -10,9 +10,14 @@ vi.mock(
       mockUseGetDocumentsByRecResourceId(...args),
   }),
 );
-vi.mock('@/pages/rec-resource-page/helpers', () => ({
-  formatGalleryFileDate: (date: string) => `formatted-${date}`,
-}));
+vi.mock('@shared/utils', async () => {
+  const actual =
+    await vi.importActual<typeof import('@shared/utils')>('@shared/utils');
+  return {
+    ...actual,
+    formatDateTimeReadable: (date: string) => `formatted-${date}`,
+  };
+});
 
 const baseDoc = {
   document_id: '1',

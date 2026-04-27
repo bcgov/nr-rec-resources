@@ -26,7 +26,7 @@ vi.mock('@shared/utils', async () => {
     getFileNameWithoutExtension: vi.fn(),
     buildFileNameWithExtension: vi.fn(),
     downloadUrlAsFile: vi.fn(),
-    formatDateReadable: vi.fn((date: string) => date),
+    formatDateTimeReadable: vi.fn((date: string) => date),
   };
 });
 vi.mock('@/pages/rec-resource-page/validation/fileUploadSchema');

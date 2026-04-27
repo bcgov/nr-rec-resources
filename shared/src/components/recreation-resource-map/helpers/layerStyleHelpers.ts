@@ -2,12 +2,13 @@ import { Fill, Icon, Stroke, Text } from 'ol/style';
 import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
 import {
   ICON_SCALE,
-  MAP_ICONS,
   MAP_STYLES,
   StyleContext,
   TEXT_STYLE,
 } from '@shared/components/recreation-resource-map/constants';
 import locationDotOrange from '@shared/assets/icons/location-dot-orange.png';
+import locationPin from '@shared/assets/icons/location_pin.png';
+import trailHead from '@shared/assets/icons/trail_head.png';
 
 /**
  * Checks if the given recreation resource is a rec trail.
@@ -30,8 +31,8 @@ export function getRecResourceIcon(
   if (styleContext === StyleContext.MAP_DISPLAY) {
     return locationDotOrange;
   }
-  if (isRecreationTrail(recResource)) return MAP_ICONS.RECREATION_TRAIL_HEAD;
-  return MAP_ICONS.LOCATION_PIN;
+  if (isRecreationTrail(recResource)) return trailHead;
+  return locationPin;
 }
 
 /**
