@@ -25,7 +25,7 @@ const fetchCities = async (): Promise<City[]> => {
   const json = await response.json();
   const cities = json.data.map(
     (city: RawCity): City => ({
-      id: city.id,
+      id: Number(city.id),
       name: city.cityName,
       latitude: city.latitude,
       longitude: city.longitude,
