@@ -3,6 +3,7 @@ import {
   createSITIcon,
   createRTEIcon,
   createIFIcon,
+  selectedWildfireIcon,
 } from '@/components/search-map/styles/icons';
 import SIT_ICON from '@shared/assets/icons/recreation_site.svg';
 import SIT_ICON_CLOSED from '@shared/assets/icons/recreation_site_closed.svg';
@@ -13,6 +14,9 @@ import RTE_ICON_SELECTED from '@shared/assets/icons/recreation_trail_selected.sv
 import IF_ICON from '@shared/assets/icons/interpretive_forest.svg';
 import IF_ICON_CLOSED from '@shared/assets/icons/interpretive_forest_closed.svg';
 import IF_ICON_SELECTED from '@shared/assets/icons/interpretive_forest_selected.svg';
+import WILDFIRE_ICON_UNDER_BOLD from '@shared/assets/icons/wildfire/under_control_bold.svg';
+import WILDFIRE_ICON_OUT_BOLD from '@shared/assets/icons/wildfire/out_of_control_bold.svg';
+import WILDFIRE_ICON_HELD_BOLD from '@shared/assets/icons/wildfire/being_held_bold.svg';
 import { Icon } from 'ol/style';
 
 describe('Recreation Site Icons', () => {
@@ -76,5 +80,31 @@ describe('Interpretive Forest Icons', () => {
   it('createIFIcon creates selected variant', () => {
     const icon = createIFIcon({ variant: 'selected' }).getImage() as Icon;
     expect(icon.getSrc()).toBe(IF_ICON_SELECTED);
+  });
+});
+
+describe('Wildfire Icons', () => {
+  it('create out of control variant', () => {
+    const icon = selectedWildfireIcon('Out of Control').getImage() as Icon;
+    expect(icon.getSrc()).toBe(WILDFIRE_ICON_OUT_BOLD);
+    expect(icon.getScale()).toBe(1);
+  });
+
+  it('create being held variant', () => {
+    const icon = selectedWildfireIcon('Being Held').getImage() as Icon;
+    expect(icon.getSrc()).toBe(WILDFIRE_ICON_HELD_BOLD);
+    expect(icon.getScale()).toBe(1);
+  });
+
+  it('create under control variant', () => {
+    const icon = selectedWildfireIcon('Under Control').getImage() as Icon;
+    expect(icon.getSrc()).toBe(WILDFIRE_ICON_UNDER_BOLD);
+    expect(icon.getScale()).toBe(1);
+  });
+
+  it('create default variant', () => {
+    const icon = selectedWildfireIcon('defaults').getImage() as Icon;
+    expect(icon.getSrc()).toBe(WILDFIRE_ICON_OUT_BOLD);
+    expect(icon.getScale()).toBe(1);
   });
 });

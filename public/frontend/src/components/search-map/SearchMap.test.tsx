@@ -5,6 +5,8 @@ import { renderWithRouter } from '@/test-utils';
 import SearchMap from '@/components/search-map/SearchMap';
 import * as hooks from '@/components/search-map/hooks/useMapFocus';
 import { trackClickEvent, trackEvent } from '@shared/utils';
+import { selectedWildfireIcon } from './styles/icons';
+import { useFeatureSelection } from './hooks';
 
 const zoomToFeatureMock = vi.fn();
 const onSelectSuggestionMock = vi.fn();
@@ -153,6 +155,10 @@ vi.mock('ol/Overlay', () => {
     },
   };
 });
+
+vi.mock('@/components/search-map/styles/icons', () => ({
+  selectedWildfireIcon: vi.fn(),
+}));
 
 describe('SearchMap', () => {
   const mockUseMapFocus = hooks.useMapFocus as any;
@@ -399,5 +405,31 @@ describe('SearchMap', () => {
     expect(zoomToFeatureMock).toHaveBeenCalledWith(
       expect.objectContaining({ id_: '123' }),
     );
+  });
+
+  it('covers wildfire selectedStyle logic', async () => {
+    await renderWithRouter(
+      <SearchMap
+        totalCount={0}
+        ids={[]}
+        props={{ style: { visibility: 'hidden' } }}
+      />,
+    );
+
+    const hookArgs = vi.mocked(useFeatureSelection).mock.calls[0][0] as any;
+
+    const wildfireConfig = hookArgs.featureLayers.find(
+      (l: any) => l.id === 'wildfire-locations',
+    );
+
+    // Test Case 1: Status exists
+    const mockFeature1 = { get: vi.fn().mockReturnValue('Being Held') };
+    wildfireConfig.selectedStyle(mockFeature1);
+    expect(selectedWildfireIcon).toHaveBeenCalledWith('Being Held');
+
+    // Test Case 2: Status is null (Covers the || 'Out of Control' branch)
+    const mockFeature2 = { get: vi.fn().mockReturnValue(null) };
+    wildfireConfig.selectedStyle(mockFeature2);
+    expect(selectedWildfireIcon).toHaveBeenCalledWith('Out of Control');
   });
 });
