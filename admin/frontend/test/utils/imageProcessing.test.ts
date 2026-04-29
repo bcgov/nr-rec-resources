@@ -14,6 +14,25 @@ import {
   vi,
 } from 'vitest';
 
+// Module-level mock objects for libheif-js (vi.mock factory requires mock-prefixed vars)
+const mockHeifImage = {
+  get_width: vi.fn(() => 100),
+  get_height: vi.fn(() => 100),
+  // display(imageData, callback) — real lib populates imageData and calls back with it
+  display: vi.fn((imageData, callback) => callback(imageData)),
+};
+const mockDecoder = {
+  decode: vi.fn(() => [mockHeifImage]),
+};
+// Must be a regular function (not arrow) so `new MockHeifDecoder()` works
+const MockHeifDecoder = vi.fn(function () {
+  return mockDecoder;
+});
+
+vi.mock('libheif-js/wasm-bundle', () => ({
+  default: { HeifDecoder: MockHeifDecoder },
+}));
+
 // Shared test helper
 const makeFile = (size: number, type: string = 'image/jpeg') => {
   const file = new File([''], 'test.jpg', { type });
@@ -45,6 +64,8 @@ describe('imageProcessing', () => {
   };
   let mockContext: {
     drawImage: ReturnType<typeof vi.fn>;
+    putImageData: ReturnType<typeof vi.fn>;
+    createImageData: ReturnType<typeof vi.fn>;
     imageSmoothingEnabled: boolean;
     imageSmoothingQuality: string;
   };
@@ -108,6 +129,12 @@ describe('imageProcessing', () => {
     mockImage = createMockImage();
     mockContext = {
       drawImage: vi.fn(),
+      putImageData: vi.fn(),
+      createImageData: vi.fn((w, h) => ({
+        data: new Uint8ClampedArray(w * h * 4),
+        width: w,
+        height: h,
+      })),
       imageSmoothingEnabled: false,
       imageSmoothingQuality: 'low',
     };
@@ -162,6 +189,55 @@ describe('imageProcessing', () => {
       [8000, 6000, '8000×6000 (48.0MP)'],
     ])('should format %dx%d as %s', (width, height, expected) => {
       expect(formatDimensions(width, height)).toBe(expected);
+    });
+  });
+
+  describe('HEIC support', () => {
+    beforeEach(() => {
+      mockCanvas.width = 100;
+      mockCanvas.height = 100;
+      mockHeifImage.get_width.mockReturnValue(100);
+      mockHeifImage.get_height.mockReturnValue(100);
+      mockHeifImage.display.mockImplementation((imageData, callback) =>
+        callback(imageData),
+      );
+      mockDecoder.decode.mockReturnValue([mockHeifImage]);
+    });
+
+    it('should process a HEIC file through the libheif path', async () => {
+      const file = makeFile(1024 * 1024, 'image/heic');
+      const variants = await processImageToVariants({ file });
+
+      expect(variants).toHaveLength(4);
+      expect(mockDecoder.decode).toHaveBeenCalled();
+    });
+
+    it('should process a HEIF file through the libheif path', async () => {
+      const file = makeFile(1024 * 1024, 'image/heif');
+      const variants = await processImageToVariants({ file });
+
+      expect(variants).toHaveLength(4);
+      expect(mockDecoder.decode).toHaveBeenCalled();
+    });
+
+    it('should throw if HEIC decode returns no images', async () => {
+      mockDecoder.decode.mockReturnValueOnce([]);
+      const file = makeFile(1024 * 1024, 'image/heic');
+
+      await expect(processImageToVariants({ file })).rejects.toThrow(
+        'Failed to process image',
+      );
+    });
+
+    it('should throw if pixel data display callback returns null', async () => {
+      mockHeifImage.display.mockImplementationOnce((imageData, callback) =>
+        callback(null),
+      );
+      const file = makeFile(1024 * 1024, 'image/heic');
+
+      await expect(processImageToVariants({ file })).rejects.toThrow(
+        'Failed to process image',
+      );
     });
   });
 

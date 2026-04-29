@@ -1,8 +1,9 @@
 import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal';
 import { GalleryFile } from '@/pages/rec-resource-page/types';
+import * as imageProcessing from '@/utils/imageProcessing';
 import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { TestQueryClientProvider } from '@test/test-utils';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 Object.defineProperty(URL, 'createObjectURL', {
@@ -48,6 +49,16 @@ describe('BaseFileModal', () => {
     url: 'https://example.com/test.jpg',
     extension: 'jpg',
     type: 'image',
+  };
+
+  const heicFile: GalleryFile = {
+    id: 'heic-1',
+    name: 'photo.heic',
+    date: '2023-01-01',
+    url: '',
+    extension: 'heic',
+    type: 'image',
+    pendingFile: new File([''], 'photo.heic', { type: 'image/heic' }),
   };
 
   const defaultProps = {
@@ -162,6 +173,58 @@ describe('BaseFileModal', () => {
         wrapper: TestQueryClientProvider,
       });
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('HEIC preview', () => {
+    beforeEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('shows a spinner while the HEIC preview is decoding', () => {
+      // Never resolves during this test — keeps the component in the loading state
+      vi.spyOn(imageProcessing, 'heicToPreviewUrl').mockReturnValue(
+        new Promise(() => {}),
+      );
+
+      render(<BaseFileModal {...defaultProps} galleryFile={heicFile} />, {
+        wrapper: TestQueryClientProvider,
+      });
+
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.getByText('Loading preview...')).toBeInTheDocument();
+      expect(screen.queryByAltText('preview')).not.toBeInTheDocument();
+    });
+
+    it('shows the decoded image once heicToPreviewUrl resolves', async () => {
+      const previewUrl = 'data:image/webp;base64,abc';
+      vi.spyOn(imageProcessing, 'heicToPreviewUrl').mockResolvedValue(
+        previewUrl,
+      );
+
+      render(<BaseFileModal {...defaultProps} galleryFile={heicFile} />, {
+        wrapper: TestQueryClientProvider,
+      });
+
+      const img = await screen.findByAltText('preview');
+      expect(img).toHaveAttribute('src', previewUrl);
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it('shows an error message when heicToPreviewUrl returns null (decode failure)', async () => {
+      vi.spyOn(imageProcessing, 'heicToPreviewUrl').mockResolvedValue(null);
+
+      render(<BaseFileModal {...defaultProps} galleryFile={heicFile} />, {
+        wrapper: TestQueryClientProvider,
+      });
+
+      await waitFor(() => {
+        expect(imageProcessing.heicToPreviewUrl).toHaveBeenCalled();
+      });
+
+      expect(screen.getByText('Failed to load preview')).toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      expect(screen.queryByAltText('preview')).not.toBeInTheDocument();
     });
   });
 

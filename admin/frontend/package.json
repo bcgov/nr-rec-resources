@@ -39,6 +39,7 @@
     "dotenv": "^17.2.1",
     "html-react-parser": "^5.2.2",
     "keycloak-js": "^26.2.0",
+    "libheif-js": "^1.19.8",
     "ol": "^10.6.1",
     "ol-ext": "^4.0.35",
     "ol-mapbox-style": "^12.6.1",

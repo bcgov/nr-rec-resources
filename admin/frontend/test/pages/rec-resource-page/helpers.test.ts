@@ -189,7 +189,10 @@ describe('handleAddFileByType', () => {
 
   it.each([
     ['document', 'application/pdf'],
-    ['image', 'image/png,image/jpg,image/jpeg,image/webp'],
+    [
+      'image',
+      'image/png,image/jpg,image/jpeg,image/webp,image/heic,image/heif',
+    ],
   ])(
     'calls handleAddFileClick with correct mime type for %s',
     (type, expectedAccept) => {
