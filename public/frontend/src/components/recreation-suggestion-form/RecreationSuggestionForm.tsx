@@ -238,11 +238,12 @@ const RecreationSuggestionForm = ({
 
       case OPTION_TYPE.RECREATION_RESOURCE:
         if (disableNavigation) {
+          trackSearch('selected', suggestion.name);
           if (onSelectSuggestion) {
+            handleClearTypeaheadSearch();
             onSelectSuggestion(suggestion);
           }
-          trackSearch('selected', suggestion.name);
-          return handleSearch(suggestion.name);
+          return;
         }
         trackSearch('selected', suggestion.name);
         navigate({

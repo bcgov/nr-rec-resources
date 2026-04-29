@@ -15,10 +15,10 @@ describe('createWildfireLocationStyle', () => {
     expect(style.getImage()).toBeDefined();
   });
 
-  it('applies hover opacity', () => {
+  it('applies hover scale', () => {
     const feature = new Feature({ FIRE_STATUS: 'default' });
     const style = createWildfireLocationStyle(feature, true) as any;
-    expect(style.getImage().getFill().getColor()).toContain('0.5');
+    expect(style.getImage().getScale()).toEqual(1.2);
   });
 });
 

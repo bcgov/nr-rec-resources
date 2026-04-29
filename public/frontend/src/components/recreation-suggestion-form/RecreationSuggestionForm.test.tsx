@@ -433,11 +433,13 @@ describe('RecreationSuggestionForm', () => {
   });
 
   it('handles recreation resource selection with disabled navigation', async () => {
+    const onSelectSuggestion = vi.fn();
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch
         disableNavigation={true}
         trackingContext="Search_list"
+        onSelectSuggestion={onSelectSuggestion}
       />,
     );
 
@@ -451,7 +453,7 @@ describe('RecreationSuggestionForm', () => {
       });
     });
 
-    expect(handleSearch).toHaveBeenCalledWith('Test Resource');
+    expect(onSelectSuggestion).toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(trackClickEvent).toHaveBeenCalledWith({
       category: 'Search',

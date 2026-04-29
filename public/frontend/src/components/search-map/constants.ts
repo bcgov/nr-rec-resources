@@ -17,9 +17,9 @@ export const ZOOM_LEVELS = {
 export const FIRE_STATUS_COLOUR_MAP: Record<string, string> = {
   'Fire of Note': '#ff6600',
   New: '#fc921f',
-  'Out of Control': '#AA1D3E',
-  'Being Held': '#FFFF73',
-  'Under Control': '#B5E261',
+  'Out of Control': '#CB1616',
+  'Being Held': '#FF7B00',
+  'Under Control': '#FCBA19',
 };
 
 // RGBA colours so we can apply opacity
