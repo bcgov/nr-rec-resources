@@ -115,6 +115,31 @@ describe('ContactPage', () => {
     expect(screen.getByText('RAPP form')).toBeInTheDocument();
   });
 
+  it('renders Weddings and events section', () => {
+    render(<ContactPage />);
+    fireEvent.change(screen.getByLabelText('Topic'), {
+      target: { value: CONTACT_TOPICS.WEDDINGS_AND_EVENTS },
+    });
+    expect(screen.getAllByText('Weddings and events')[0]).toBeInTheDocument();
+    expect(
+      screen.getByText((content) =>
+        content.includes(
+          'cannot be booked or reserved for weddings or private events',
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText((content) =>
+        content.includes('Section 16 authorization'),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText((content) =>
+        content.includes('choosing a venue designed for events'),
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('renders Natural Resource Violation section', () => {
     render(<ContactPage />);
     fireEvent.change(screen.getByLabelText('Topic'), {

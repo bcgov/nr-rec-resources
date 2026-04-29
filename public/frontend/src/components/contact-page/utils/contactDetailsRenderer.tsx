@@ -177,6 +177,27 @@ const RAPPSection: React.FC = () => (
   </section>
 );
 
+const WeddingsAndEventsSection: React.FC = () => (
+  <section className="contact-page__section contact-page__details">
+    <h3 className="contact-page__details-title">Weddings and events</h3>
+    <p className="contact-page__details-desc">
+      Recreation Sites and Trails BC sites are intended for informal public
+      recreation and cannot be booked or reserved for weddings or private
+      events.
+    </p>
+    <p className="contact-page__details-desc">
+      In limited circumstances, a wedding or large gathering may be considered
+      through a Section 16 authorization, depending on the site, group size, and
+      potential impacts. These requests are reviewed case&#8209;by&#8209;case
+      and are often not approved.
+    </p>
+    <p className="contact-page__details-desc">
+      If you are planning a wedding or event, we recommend choosing a venue
+      designed for events.
+    </p>
+  </section>
+);
+
 const NaturalResourceViolationSection: React.FC = () => (
   <section className="contact-page__section contact-page__details">
     <h3 className="contact-page__details-title">
@@ -210,6 +231,8 @@ export const renderContactDetails = ({
       return <EmailSection emailLink={emailLink} />;
     case CONTACT_TOPICS.WILDFIRES:
       return <WildfiresSection />;
+    case CONTACT_TOPICS.WEDDINGS_AND_EVENTS:
+      return <WeddingsAndEventsSection />;
     case CONTACT_TOPICS.RAPP:
       return <RAPPSection />;
     case CONTACT_TOPICS.NATURAL_RESOURCE_VIOLATION:
