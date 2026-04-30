@@ -35,6 +35,11 @@ describe('KnowBeforeYouGo', () => {
     expect(
       screen.getByText(/Most sites operate on a cash-only basis/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /some site operators may be able to accept card payments/i,
+      ),
+    ).toBeInTheDocument();
   });
 
   it('renders FCFS content when isReservable = false and isCampingAvailable = true', () => {
@@ -69,9 +74,9 @@ describe('KnowBeforeYouGo', () => {
       />,
     );
 
-    // Cash only section appears
+    // Cash section appears
     expect(screen.getByAltText(/Cash Only icon/i)).toBeInTheDocument();
-    expect(screen.getByText(/Cash Only/i)).toBeInTheDocument();
+    expect(screen.getByText(/Bring cash/i)).toBeInTheDocument();
   });
 
   it('always renders safety and visit responsibly sections', () => {

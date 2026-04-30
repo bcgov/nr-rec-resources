@@ -39,10 +39,11 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
                   <p className="small-tittle">Bring cash</p>
                   <p>
                     Most sites operate on a cash-only basis, and fees are often
-                    collected directly by site operators unless you have paid
-                    through an online reservation ahead of time. Please come
-                    prepared with enough cash to cover your stay and any
-                    additional services.
+                    collected directly by site operators unless you have paid in
+                    advance through an online reservation system. While some
+                    site operators may be able to accept card payments on site,
+                    this is not guaranteed. Please arrive prepared with enough
+                    cash to cover your stay and any additional services.
                   </p>
                 </div>
               </div>
@@ -67,12 +68,14 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
                   <img src={cash} alt="Cash Only icon" height={40} width={40} />
                 </div>
                 <div className="col-sm">
-                  <p className="small-tittle">Cash only</p>
+                  <p className="small-tittle">Bring cash</p>
                   <p>
                     Most sites operate on a cash-only basis, and fees are often
-                    collected directly by site operators. Please come prepared
-                    with enough cash to cover your stay and any additional
-                    services.
+                    collected directly by site operators unless you have paid in
+                    advance through an online reservation system. While some
+                    site operators may be able to accept card payments on site,
+                    this is not guaranteed. Please arrive prepared with enough
+                    cash to cover your stay and any additional services.
                   </p>
                 </div>
               </div>
