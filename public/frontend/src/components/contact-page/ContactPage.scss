@@ -57,6 +57,22 @@
     }
   }
 
+  &__info-box {
+    background-color: $colorBlueLight;
+    color: $colorBlue;
+    padding: 1rem 1.25rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  &__sub-title {
+    font-size: 1.2rem !important;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    margin-top: 2rem;
+    color: $colorGrey;
+  }
+
   &__topics-title {
     font-size: 2rem;
     font-weight: 700;
