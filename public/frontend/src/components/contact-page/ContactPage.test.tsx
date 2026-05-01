@@ -71,11 +71,19 @@ describe('ContactPage', () => {
   it('renders contact form and changes topic', () => {
     render(<ContactPage />);
     expect(screen.getByLabelText('Topic')).toBeInTheDocument();
-    // Default topic details
+    // Default topic details (Reservations section)
     expect(
-      screen.getByText(
-        'The majority of recreation sites are on a "first come, first served" basis and cannot be booked ahead of time.',
+      screen.getByText((content) =>
+        content.includes(
+          'reservations are available at select recreation sites',
+        ),
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('How to check if a site has reservations:'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Need help with an existing reservation?'),
     ).toBeInTheDocument();
     // Change topic
     fireEvent.change(screen.getByLabelText('Topic'), {
