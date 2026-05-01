@@ -61,7 +61,7 @@ const AccessibleActivities = forwardRef<
                         />
                       </div>
                       <div className="col-sm">
-                        <h5>{trail.name}</h5>
+                        <h4>{trail.name}</h4>
                         <p>{trail.description}</p>
                       </div>
                     </div>
