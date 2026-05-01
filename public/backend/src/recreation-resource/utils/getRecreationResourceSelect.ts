@@ -41,6 +41,14 @@ export const getRecreationResourceSelect = () => ({
       },
     },
   },
+  recreation_activity_code_trails: {
+    select: {
+      recreation_activity_code: true,
+      trail_type: true,
+      name: true,
+      description: true,
+    },
+  },
   recreation_status: {
     select: {
       recreation_status_code: {

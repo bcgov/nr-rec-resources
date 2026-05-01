@@ -1,6 +1,7 @@
 import {
   RecreationResourceDetailDto,
   RecreationResourceMaintenanceStandardCode,
+  TrailType,
 } from 'src/recreation-resource/dto/recreation-resource.dto';
 import { RecreationResourceGetPayload } from 'src/recreation-resource/service/types';
 import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql/getRecreationResourceSpatialFeatureGeometry';
@@ -40,7 +41,7 @@ export const formatRecreationResourceDetailResults = ({
         district_code: recreation_district_code.district_code,
       }
     : undefined;
-
+  console.log('Result from database query:', result.recreation_activity);
   return {
     rec_resource_id: result.rec_resource_id,
     name: result.name,
@@ -54,11 +55,35 @@ export const formatRecreationResourceDetailResults = ({
     recreation_access: result.recreation_access?.map(
       (access) => access.recreation_access_code.description,
     ),
-    recreation_activity: result.recreation_activity?.map((activity) => ({
-      description: activity.recreation_activity.description,
-      recreation_activity_code:
-        activity.recreation_activity.recreation_activity_code,
-    })),
+    recreation_activity: result.recreation_activity
+      ?.filter((activity) => !activity.recreation_activity.is_accessible)
+      .map((activity) => ({
+        description: activity.recreation_activity.description,
+        details: activity.recreation_activity.details,
+        is_accessible: activity.recreation_activity.is_accessible,
+        recreation_activity_code:
+          activity.recreation_activity.recreation_activity_code,
+      })),
+    accessible_recreation_activity: result.recreation_activity
+      ?.filter((activity) => activity.recreation_activity.is_accessible)
+      .map((activity) => ({
+        description: activity.recreation_activity.description,
+        details: activity.recreation_activity.details,
+        is_accessible: activity.recreation_activity.is_accessible,
+        recreation_activity_code:
+          activity.recreation_activity.recreation_activity_code,
+        recreation_activity_trails: result.recreation_activity_code_trails
+          .filter(
+            (trail) =>
+              trail.recreation_activity_code ===
+              activity.recreation_activity.recreation_activity_code,
+          )
+          .map((trail) => ({
+            trail_type: TrailType[trail.trail_type],
+            name: trail.name,
+            description: trail.description,
+          })),
+      })),
     recreation_status: {
       description:
         result.recreation_status?.recreation_status_code.description ??
