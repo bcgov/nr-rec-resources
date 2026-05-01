@@ -46,7 +46,7 @@ const AccessibleActivities = forwardRef<
         return (
           <>
             <section className="mb-4">
-              <h4>{activity.description}</h4>
+              <h3>{activity.description}</h3>
               <p>{activity.details}</p>
               {activity.recreation_activity_trails && (
                 <div>
