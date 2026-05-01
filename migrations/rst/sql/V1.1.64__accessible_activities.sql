@@ -1,16 +1,21 @@
 alter table if exists rst.recreation_activity_code
-    add COLUMN details text,
-    add COLUMN is_accessible boolean default false;
+    add COLUMN if not exists details text,
+    add COLUMN if not exists is_accessible boolean default false;
 
 comment on column rst.recreation_activity_code.details is 'Additional details about the activity, such as accessibility features or specific accommodations available.';
 comment on column rst.recreation_activity_code.is_accessible is 'Indicates whether the activity is accessible to individuals with disabilities or special needs.';
 
-create type rst.trail_types as ENUM
-(
-    'BLUE',
-    'GREEN',
-    'BLACK'
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'trail_types') THEN
+        create type rst.trail_types as ENUM
+		(
+			'BLUE',
+			'GREEN',
+			'BLACK'
+		);
+    END IF;
+END$$;
 
 create sequence if not exists rst.recreation_activity_code_trails_id_seq
     INCREMENT 1

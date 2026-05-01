@@ -1186,6 +1186,8 @@ model natural_resource_org_unit {
   expiry_date      DateTime?                @db.Date
   updated_at       DateTime?                @db.Date
   sys_period       Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+
+  @@schema("rst")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -1261,6 +1263,9 @@ model recreation_resource_status_code_history {
   update_timestamp                DateTime?                @db.Date
   updated_at                      DateTime?                @db.Timestamp(6)
   sys_period                      Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
