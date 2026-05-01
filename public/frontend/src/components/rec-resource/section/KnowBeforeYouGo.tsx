@@ -2,6 +2,10 @@ import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import '@/components/rec-resource/section/KnowBeforeYouGo.scss';
 import recycle from '@/images/icons/recycle.svg';
 import celreception from '@/images/icons/cel-reception.svg';
+import wildlife from '@/images/icons/wildlife-animal-safety.svg';
+import toilet from '@/images/icons/toilet.svg';
+import forestServiceRoads from '@/images/icons/forest-service-roads.svg';
+import campfire from '@/images/icons/campfires-safety.svg';
 import cash from '@/images/icons/cash.svg';
 import { forwardRef } from 'react';
 
@@ -126,6 +130,102 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
                 of many of our rec sites.
               </p>
             </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-1">
+              <img
+                src={wildlife}
+                alt="Wildlife & Animal Safety icon"
+                height={40}
+                width={40}
+              />
+            </div>
+            <div className="col-sm safety-item">
+              <p className="small-tittle">Wildlife &amp; Animal Safety</p>
+              <p>
+                You may encounter wildlife, including bears, at or near this
+                site.
+              </p>
+              <p>
+                Store food, garbage, and scented items securely. Keep a safe
+                distance from all animals, never feed wildlife, and follow
+                posted safety guidance. Learn what to do if you encounter a bear
+                or other wildlife before your trip.
+              </p>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-1">
+              <img src={toilet} alt="Toilet icon" height={40} width={40} />
+            </div>
+            <div className="col-sm safety-item">
+              <p className="small-tittle">Toilets &amp; Sanitation</p>
+              <p>
+                Toilet facilities may be limited or unavailable at this site.
+              </p>
+              <p>
+                Bring your own toilet paper and be prepared to pack out all
+                waste where required. Help protect the environment by following
+                Leave No Trace practices.
+              </p>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-1">
+              <img
+                src={forestServiceRoads}
+                alt="Forest Service Roads icon"
+                height={40}
+                width={40}
+              />
+            </div>
+            <div className="col-sm safety-item">
+              <p className="small-tittle">Forest Service Roads</p>
+              <p>
+                Access to this site may involve driving on Forest Service Roads
+                (FSRs) or other natural resource roads.
+              </p>
+              <p>
+                These roads are often gravel, unmaintained, and shared with
+                industrial traffic. Conditions can change quickly due to weather
+                or active use. Drive with caution and check{' '}
+                <a
+                  href="https://www2.gov.bc.ca/gov/content/industry/natural-resource-use/resource-roads/local-road-safety-information"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Local road safety information (opens in new window)"
+                >
+                  local road safety information
+                </a>{' '}
+                before you go.
+              </p>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-1">
+              <img
+                src={campfire}
+                alt="Campfires & Fire Safety icon"
+                height={40}
+                width={40}
+              />
+            </div>
+            <div className="col-sm safety-item">
+              <p className="small-tittle">Campfires &amp; Fire Safety</p>
+              <p>Campfire bans or restrictions may be in place.</p>
+              <p>
+                Before lighting a fire, check current restrictions with BC
+                Wildfire Service and on local or Indigenous government websites.
+                Always follow posted signs, use designated fire rings where
+                provided, and fully extinguish fires.
+              </p>
+            </div>
+          </div>
+          <div className="know-before-you-go__info-box">
+            <strong>
+              Review the detailed guides under visit responsibly for more
+              information on staying safe and preserving natural spaces
+            </strong>
           </div>
           <h3>Visit responsibly</h3>
           <p>

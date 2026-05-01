@@ -20,6 +20,18 @@
     color: $colorBlueMed;
   }
 
+  .safety-item p:not(.small-tittle):not(:last-child) {
+    margin-bottom: 1rem;
+  }
+
+  &__info-box {
+    background-color: $colorBlueLight;
+    color: $colorBlue;
+    padding: 1rem 1.25rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+  }
+
   .small-tittle {
     font-weight: 700;
     font-style: Bold;

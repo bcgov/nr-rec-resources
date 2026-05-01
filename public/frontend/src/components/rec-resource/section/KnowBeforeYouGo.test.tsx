@@ -116,4 +116,39 @@ describe('KnowBeforeYouGo', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/The Camper's Code/i)).toBeInTheDocument();
   });
+
+  it('always renders the four new safety sections', () => {
+    render(
+      <KnowBeforeYouGo
+        isAdditionalFeesAvailable={false}
+        isReservable={false}
+        isCampingAvailable={false}
+      />,
+    );
+
+    expect(screen.getByText(/Wildlife & Animal Safety/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/You may encounter wildlife, including bears/i),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText(/Toilets & Sanitation/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Toilet facilities may be limited or unavailable/i),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText('Forest Service Roads')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Access to this site may involve driving on Forest Service Roads/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /local road safety information/i }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText(/Campfires & Fire Safety/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Campfire bans or restrictions may be in place/i),
+    ).toBeInTheDocument();
+  });
 });
