@@ -214,10 +214,18 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
               <p className="small-tittle">Campfires &amp; Fire Safety</p>
               <p>Campfire bans or restrictions may be in place.</p>
               <p>
-                Before lighting a fire, check current restrictions with BC
-                Wildfire Service and on local or Indigenous government websites.
-                Always follow posted signs, use designated fire rings where
-                provided, and fully extinguish fires.
+                Before lighting a fire, check current restrictions with{' '}
+                <a
+                  href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/alerts#wildfire-info"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="BC Wildfire Service (opens in new window)"
+                >
+                  BC Wildfire Service
+                </a>{' '}
+                and on local or Indigenous government websites. Always follow
+                posted signs, use designated fire rings where provided, and
+                fully extinguish fires.
               </p>
             </div>
           </div>
