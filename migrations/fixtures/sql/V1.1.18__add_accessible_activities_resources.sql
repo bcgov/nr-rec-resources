@@ -1,7 +1,7 @@
 insert into rst.recreation_activity_code (
     recreation_activity_code, description, details, is_accessible
 )
-values 
+values
 (
   34,
   'Adaptive mountain bike trails',
