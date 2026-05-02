@@ -25,6 +25,44 @@
             <column ascending="true" name="success"/>
          </index>
       </table>
+      <table name="natural_resource_org_unit" remarks="Stores natural resource organization unit details associated with recreation resource files." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="The recreation resource file identifier, sourced from the forest file id." size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="org_unit_no" nullable="false" remarks="Unique numeric identifier for the ministry organization unit." size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="org_unit_code" nullable="false" remarks="Short alphanumeric code representing the organization unit." size="6" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="org_unit_name" nullable="false" remarks="Full descriptive name of the organization unit." size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="location_code" nullable="true" remarks="Code identifying the physical location of the organization unit." size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="org_level_code" nullable="true" remarks="Code indicating the hierarchical level of the organization unit." size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="office_name_code" nullable="true" remarks="Code representing the office name of the organization unit." size="2" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="region_no" nullable="true" remarks="Numeric identifier of the region this organization unit rolls up to." size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="region_code" nullable="true" remarks="Code of the region this organization unit rolls up to." size="6" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="district_no" nullable="true" remarks="Numeric identifier of the district this organization unit rolls up to." size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="district_code" nullable="true" remarks="Code of the district this organization unit rolls up to." size="6" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="effective_date" nullable="true" remarks="The effective date of the organization unit record." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="expiry_date" nullable="true" remarks="The expiry date of the organization unit record." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_at" nullable="true" remarks="The timestamp when the record was last updated." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="14" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
+         <index name="natural_resource_org_unit_pkey" unique="true">
+            <column ascending="true" name="rec_resource_id"/>
+         </index>
+      </table>
+      <table name="natural_resource_org_unit_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="org_unit_no" nullable="false" remarks="" size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="org_unit_code" nullable="false" remarks="" size="6" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="org_unit_name" nullable="false" remarks="" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="location_code" nullable="true" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="org_level_code" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="office_name_code" nullable="true" remarks="" size="2" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="region_no" nullable="true" remarks="" size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="region_code" nullable="true" remarks="" size="6" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="district_no" nullable="true" remarks="" size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="district_code" nullable="true" remarks="" size="6" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="effective_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="expiry_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_at" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
       <table name="recreation_access" remarks="Recreation Resource Access types" schema="rst" type="TABLE">
          <column autoUpdated="true" defaultValue="nextval('rst.recreation_access_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial" typeCode="4">
             <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_access_history"/>
@@ -790,6 +828,7 @@
             <parent column="risk_rating_code" foreignKey="recreation_resource_risk_rating_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_risk_rating_code"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="1" id="15" name="right_of_way" nullable="true" remarks="Identifies the Right of Way width for a linear feature. Sourced from fta.recreation_project.right_of_way." size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="rec_status_code" nullable="true" remarks="Site status value for a recreation resource. Sourced from fta.recreation_file_status_code.file_status_st." size="50" type="varchar" typeCode="12"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_resource_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
@@ -923,6 +962,7 @@
             <parent column="risk_rating_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_risk_rating_code"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="1" id="15" name="right_of_way" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="rec_status_code" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
       </table>
       <table name="recreation_resource_image" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="image_id" nullable="false" remarks="Unique UUID identifier for the image" size="2147483647" type="uuid" typeCode="1111">
@@ -1042,6 +1082,32 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="has_tables" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="is_fees" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="is_reservable" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
+      </table>
+      <table name="recreation_resource_status_code" remarks="Describes the RECREATION FILE TYPE CODE for categorizing recreation files." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="recreation_resource_status_code" nullable="false" remarks="The RECREATION FILE TYPE CODE." size="3" type="varchar" typeCode="12">
+            <child column="recreation_resource_status_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_status_code_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="true" remarks="The description of the RECREATION FILE TYPE CODE." size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="effective_date" nullable="true" remarks="The effective date of the RECREATION FILE TYPE CODE." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="expiry_date" nullable="true" remarks="The expiry date of the RECREATION FILE TYPE CODE." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="update_timestamp" nullable="true" remarks="The timestamp when the record was last updated." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="5" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="6" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="recreation_resource_status_code" sequenceNumberInPK="1"/>
+         <index name="recreation_resource_status_code_pkey" unique="true">
+            <column ascending="true" name="recreation_resource_status_code"/>
+         </index>
+      </table>
+      <table name="recreation_resource_status_code_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="recreation_resource_status_code" nullable="false" remarks="" size="3" type="varchar" typeCode="12">
+            <parent column="recreation_resource_status_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_status_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="true" remarks="" size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="effective_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="expiry_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="update_timestamp" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_resource_type_code" remarks="Codes describing types of Recreation Resources" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_type_code" nullable="false" remarks="Identifies the Recreation Resource Type Code" size="10" type="varchar" typeCode="12">
