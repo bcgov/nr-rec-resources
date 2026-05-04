@@ -42,36 +42,34 @@ const AccessibleActivities = forwardRef<
       aria-labelledby={headingId}
     >
       <h2 className="section-heading">{SectionTitles.ACCESSIBLE_RECREATION}</h2>
-      {accessible_recreation_activity.map((activity) => {
+      {accessible_recreation_activity.map((activity, index) => {
         return (
-          <>
-            <section className="mb-4">
-              <p className="session-title">{activity.description}</p>
-              <p>{activity.details}</p>
-              {activity.recreation_activity_trails && (
-                <div>
-                  {activity.recreation_activity_trails.map((trail) => (
-                    <div className="row" key={trail.name}>
-                      <div className="col-sm-1">
-                        <img
-                          src={getIconForTrailType(trail.trail_type)}
-                          alt="Trail difficulty icon"
-                          height={48}
-                          width={48}
-                        />
-                      </div>
-                      <div className="col-sm d-flex flex-column">
-                        <span className="trail-title">{trail.name}</span>
-                        <span className="trail-description">
-                          {trail.description}
-                        </span>
-                      </div>
+          <section className="mb-4" key={index}>
+            <p className="session-title">{activity.description}</p>
+            <p>{activity.details}</p>
+            {activity.recreation_activity_trails && (
+              <div>
+                {activity.recreation_activity_trails.map((trail) => (
+                  <div className="row" key={trail.name}>
+                    <div className="col-sm-1">
+                      <img
+                        src={getIconForTrailType(trail.trail_type)}
+                        alt="Trail difficulty icon"
+                        height={48}
+                        width={48}
+                      />
                     </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          </>
+                    <div className="col-sm d-flex flex-column">
+                      <span className="trail-title">{trail.name}</span>
+                      <span className="trail-description">
+                        {trail.description}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         );
       })}
     </section>

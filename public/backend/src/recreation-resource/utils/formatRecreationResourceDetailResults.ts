@@ -41,7 +41,7 @@ export const formatRecreationResourceDetailResults = ({
         district_code: recreation_district_code.district_code,
       }
     : undefined;
-  console.log('Result from database query:', result.recreation_activity);
+
   return {
     rec_resource_id: result.rec_resource_id,
     name: result.name,
