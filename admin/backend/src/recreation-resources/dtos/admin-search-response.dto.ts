@@ -56,6 +56,14 @@ export class AdminSearchResultRowDto {
   status_code: number;
 
   @ApiProperty({
+    description: 'Resource archive status code',
+    example: 'AR',
+    required: false,
+    nullable: true,
+  })
+  rec_status_code?: string | null;
+
+  @ApiProperty({
     description: 'Access types associated with the resource',
     type: [String],
     example: ['Road', '4WD'],
