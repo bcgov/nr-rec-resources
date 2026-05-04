@@ -11,4 +11,9 @@ SELECT
     effective_date,
     expiry_date,
     update_timestamp
-FROM fta.recreation_file_status_code;
+FROM fta.recreation_file_status_code
+    ON CONFLICT (recreation_resource_status_code) DO UPDATE SET
+    description = excluded.description,
+                                                         effective_date = excluded.effective_date,
+                                                         expiry_date = excluded.expiry_date,
+                                                         update_timestamp = excluded.update_timestamp;
