@@ -192,6 +192,10 @@ function buildController() {
       nextPage: vi.fn(),
     },
     setSort: vi.fn(),
+    establishedOptions: [
+      { id: 'yes', label: 'Yes' },
+      { id: 'no', label: 'No' },
+    ],
   };
 }
 

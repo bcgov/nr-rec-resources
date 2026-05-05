@@ -30,6 +30,7 @@ export function SearchPage() {
     access: search.access,
     establishment_date_from: search.establishment_date_from,
     establishment_date_to: search.establishment_date_to,
+    established: search.established,
   });
 
   const [communityFilter, setCommunityFilter] = useState<string[]>([]);

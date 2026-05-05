@@ -211,6 +211,133 @@ describe('useAdminSearchController', () => {
     });
   });
 
+  it('generates filter chip for established=yes and established=no', () => {
+    const searchYes = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      established: 'yes',
+    };
+    const searchNo = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      established: 'no',
+    };
+
+    const { result: resultYes } = renderHook(
+      () => useAdminSearchController(searchYes),
+      { wrapper: createWrapper() },
+    );
+    const { result: resultNo } = renderHook(
+      () => useAdminSearchController(searchNo),
+      { wrapper: createWrapper() },
+    );
+
+    const chipYes = resultYes.current.appliedFilterChips.find(
+      (chip) => chip.key === 'established:yes',
+    );
+    const chipNo = resultNo.current.appliedFilterChips.find(
+      (chip) => chip.key === 'established:no',
+    );
+
+    expect(chipYes?.label).toBe('Established: Yes');
+    expect(chipNo?.label).toBe('Established: No');
+  });
+
+  it('does not generate filter chip when established is undefined', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      established: undefined,
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    const establishedChip = result.current.appliedFilterChips.find((chip) =>
+      chip.key?.startsWith('established:'),
+    );
+
+    expect(establishedChip).toBeUndefined();
+  });
+
+  it('clears established filter when calling clearEstablished', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      established: 'yes',
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.clearEstablished();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: {},
+      resetScroll: false,
+    });
+  });
+
+  it('detects established filter as active filter', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      established: 'yes',
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.hasAppliedState).toBe(true);
+  });
+
+  it('applies established filter through applyFilters', () => {
+    const search = DEFAULT_ADMIN_SEARCH_STATE;
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.applyFilters({
+        type: [],
+        district: [],
+        activities: [],
+        status: [],
+        access: [],
+        establishment_date_from: undefined,
+        establishment_date_to: undefined,
+        established: 'yes',
+      });
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: expect.objectContaining({
+        established: 'yes',
+      }),
+      resetScroll: false,
+    });
+  });
+
+  it('resets established filter when calling resetFilters', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      established: 'yes',
+      type: ['RTR'],
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.resetFilters();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: {},
+      resetScroll: false,
+    });
+  });
+
   it('persists preferred filter-panel state only when there are no active filters', () => {
     const writeSpy = vi.mocked(storage.writeAdminSearchFilterPanelOpen);
     const { result: noFilters } = renderHook(
@@ -245,5 +372,19 @@ describe('useAdminSearchController', () => {
     });
     expect(withFilters.current.isFilterPanelOpen).toBe(true);
     expect(writeSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('provides establishedOptions with yes and no values', () => {
+    const { result } = renderHook(
+      () => useAdminSearchController(DEFAULT_ADMIN_SEARCH_STATE),
+      {
+        wrapper: createWrapper(),
+      },
+    );
+
+    expect(result.current.establishedOptions).toEqual([
+      { id: 'yes', label: 'Yes' },
+      { id: 'no', label: 'No' },
+    ]);
   });
 });

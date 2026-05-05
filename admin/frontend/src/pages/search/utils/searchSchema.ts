@@ -122,6 +122,7 @@ export function validateAdminSearch(
     establishment_date_from: getOptionalToken(search.establishment_date_from),
     establishment_date_to: getOptionalToken(search.establishment_date_to),
     access: getSearchFilterTokenList(search.access),
+    established: getOptionalToken(search.established),
     closestCommunity: getSearchFilterTokenList(search.closestCommunity),
   });
 }

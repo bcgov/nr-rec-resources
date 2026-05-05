@@ -18,6 +18,7 @@ export type EditableAdminSearchFilters = Pick<
   | 'closestCommunity'
   | 'establishment_date_from'
   | 'establishment_date_to'
+  | 'established'
 >;
 
 export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
@@ -32,6 +33,7 @@ export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
   establishment_date_from: undefined,
   establishment_date_to: undefined,
   access: [],
+  established: undefined,
   closestCommunity: [],
 };
 
@@ -49,15 +51,10 @@ export const EMPTY_ADMIN_SEARCH_FILTERS: EditableAdminSearchFilters = {
   closestCommunity: [],
   establishment_date_from: undefined,
   establishment_date_to: undefined,
+  established: undefined,
 };
 
 export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
-  {
-    key: 'type',
-    label: 'Resource type',
-    controlId: 'admin-search-filter-resource-type',
-    optionsKey: 'typeOptions',
-  },
   {
     key: 'district',
     label: 'District',
@@ -65,10 +62,17 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     optionsKey: 'districtOptions',
   },
   {
-    key: 'activities',
-    label: 'Activities',
-    controlId: 'admin-search-filter-activities',
-    optionsKey: 'activityOptions',
+    key: 'type',
+    label: 'Resource type',
+    controlId: 'admin-search-filter-resource-type',
+    optionsKey: 'typeOptions',
+  },
+  {
+    key: 'established',
+    label: 'Established',
+    controlId: 'admin-search-filter-established',
+    optionsKey: 'establishedOptions',
+    isSelect: true,
   },
   {
     key: 'status',
@@ -76,6 +80,13 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     controlId: 'admin-search-filter-status',
     optionsKey: 'statusOptions',
   },
+  {
+    key: 'activities',
+    label: 'Activities',
+    controlId: 'admin-search-filter-activities',
+    optionsKey: 'activityOptions',
+  },
+
   {
     key: 'access',
     label: 'Access type',
@@ -88,6 +99,11 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     controlId: 'admin-search-filter-closest-community',
     optionsKey: 'closestCommunityOptions',
   },
+] as const;
+
+export const ADMIN_SEARCH_ESTABLISHED_OPTIONS = [
+  { id: 'yes', label: 'Yes' },
+  { id: 'no', label: 'No' },
 ] as const;
 
 export const ADMIN_SEARCH_STORAGE_KEYS = {

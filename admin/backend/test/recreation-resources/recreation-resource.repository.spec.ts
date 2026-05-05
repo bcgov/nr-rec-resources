@@ -245,6 +245,134 @@ describe('RecreationResourceRepository', () => {
         data: [],
       });
     });
+
+    it('should filter resources with established=yes (project_established_date is not null)', async () => {
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([10, []]);
+
+      await repo.searchResources({
+        established: 'yes',
+      });
+
+      expect(prisma.recreation_resource.count).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            AND: expect.arrayContaining([
+              {
+                project_established_date: {
+                  not: {
+                    equals: null,
+                  },
+                },
+              },
+            ]),
+          }),
+        }),
+      );
+    });
+
+    it('should filter resources with established=no (project_established_date is null)', async () => {
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([5, []]);
+
+      await repo.searchResources({
+        established: 'no',
+      });
+
+      expect(prisma.recreation_resource.count).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            AND: expect.arrayContaining([
+              {
+                project_established_date: {
+                  equals: null,
+                },
+              },
+            ]),
+          }),
+        }),
+      );
+    });
+
+    it('should ignore established filter when value is invalid', async () => {
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([15, []]);
+
+      await repo.searchResources({
+        established: 'invalid',
+      });
+
+      const countCall = prisma.recreation_resource.count.mock.calls[0];
+      const whereClause = countCall?.[0]?.where;
+
+      // Verify that the invalid established value doesn't add a project_established_date filter
+      if (whereClause?.AND) {
+        const hasEstablishedFilter = whereClause.AND.some(
+          (condition: any) => condition?.project_established_date,
+        );
+        expect(hasEstablishedFilter).toBe(false);
+      }
+    });
+
+    it('should ignore established filter when it is undefined', async () => {
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([15, []]);
+
+      await repo.searchResources({
+        established: undefined,
+      });
+
+      const countCall = prisma.recreation_resource.count.mock.calls[0];
+      const whereClause = countCall?.[0]?.where;
+
+      // Verify that undefined established value doesn't add a project_established_date filter
+      if (whereClause?.AND) {
+        const hasEstablishedFilter = whereClause.AND.some(
+          (condition: any) => condition?.project_established_date,
+        );
+        expect(hasEstablishedFilter).toBe(false);
+      }
+    });
+
+    it('should combine established filter with other filters', async () => {
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([3, []]);
+
+      await repo.searchResources({
+        established: 'yes',
+        district: ['ABC'],
+        status: ['1'],
+      });
+
+      expect(prisma.recreation_resource.count).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            AND: expect.arrayContaining([
+              {
+                project_established_date: {
+                  not: {
+                    equals: null,
+                  },
+                },
+              },
+              { district_code: { in: ['ABC'] } },
+              {
+                recreation_status: {
+                  status_code: {
+                    in: [1],
+                  },
+                },
+              },
+            ]),
+          }),
+        }),
+      );
+    });
   });
 
   describe('update', () => {

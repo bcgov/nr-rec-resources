@@ -23,6 +23,7 @@ import {
   setAdminSearchDistrictFilter,
   setAdminSearchEstablishmentDateFromFilter,
   setAdminSearchEstablishmentDateToFilter,
+  setAdminSearchEstablishedFilter,
   setAdminSearchPage,
   setAdminSearchPageSize,
   setAdminSearchStatusFilter,
@@ -48,7 +49,8 @@ const hasActiveEditableFilters = (search: AdminSearchRouteState) =>
   search.access.length > 0 ||
   search.closestCommunity.length > 0 ||
   Boolean(search.establishment_date_from) ||
-  Boolean(search.establishment_date_to);
+  Boolean(search.establishment_date_to) ||
+  Boolean(search.established);
 
 const hasAppliedSearchState = (search: AdminSearchRouteState) =>
   hasActiveEditableFilters(search) || Boolean(search.q);
@@ -148,6 +150,13 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     () => sortOptionsByLabel(closestCommunityOptionsByType?.options ?? []),
     [closestCommunityOptionsByType],
   );
+  const establishedOptions = useMemo(
+    () => [
+      { id: 'yes', label: 'Yes' },
+      { id: 'no', label: 'No' },
+    ],
+    [],
+  );
   const updateSearch = (nextSearch: AdminSearchRouteState) =>
     navigate({
       to: ROUTE_PATHS.LANDING,
@@ -229,6 +238,8 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     updateSearch(setAdminSearchEstablishmentDateFromFilter(search, undefined));
   const clearEstablishmentDateTo = () =>
     updateSearch(setAdminSearchEstablishmentDateToFilter(search, undefined));
+  const clearEstablished = () =>
+    updateSearch(setAdminSearchEstablishedFilter(search, undefined));
   const appliedFilterChips: AdminAppliedFilterChip[] = [];
   appliedFilterChips.push(
     ...search.type.map((type) => ({
@@ -280,6 +291,15 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       onClear: clearEstablishmentDateTo,
     });
   }
+
+  if (search.established) {
+    const labelMap = { yes: 'Yes', no: 'No' };
+    appliedFilterChips.push({
+      key: `established:${search.established}`,
+      label: `Established: ${labelMap[search.established as keyof typeof labelMap] || search.established}`,
+      onClear: clearEstablished,
+    });
+  }
   const activeFilterStateKey = useMemo(
     () =>
       JSON.stringify({
@@ -291,6 +311,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         closestCommunity: search.closestCommunity,
         establishment_date_from: search.establishment_date_from,
         establishment_date_to: search.establishment_date_to,
+        established: search.established,
       }),
     [
       search.type,
@@ -301,6 +322,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       search.closestCommunity,
       search.establishment_date_from,
       search.establishment_date_to,
+      search.established,
     ],
   );
   const isFilterPanelOpen = hasActiveFilters
@@ -333,6 +355,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     districtOptions,
     accessOptions,
     closestCommunityOptions,
+    establishedOptions,
     appliedFilterChips,
     hasAppliedState: hasAppliedSearchState(search),
     isFilterPanelOpen,
@@ -342,7 +365,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       updateSearch(submitAdminSearchQuery(search, query)),
     setSort: (sort: AdminSearchRouteState['sort']) =>
       updateSearch(setAdminSearchSort(search, sort)),
-    setPage: (page: number) => updateSearch(setAdminSearchPage(search, page)),
     applyFilters: (filters: EditableAdminSearchFilters) =>
       updateSearch({
         ...search,
@@ -366,5 +388,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     clearClosestCommunity,
     clearEstablishmentDateFrom,
     clearEstablishmentDateTo,
+    clearEstablished,
   };
 }
