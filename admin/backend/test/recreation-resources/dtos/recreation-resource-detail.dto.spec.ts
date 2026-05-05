@@ -67,6 +67,8 @@ describe('RecreationResourceDetailDto', () => {
     dto.recreation_control_access_code.recreation_control_access_code = 'G';
     dto.recreation_control_access_code.description = 'Gated';
 
+    dto.rec_status_code = 'AR';
+
     expect(dto.rec_resource_id).toBe('rec-123-abc');
     expect(dto.name).toBe('Evergreen Valley Campground');
     expect(dto.closest_community).toBe('Mountain View');
@@ -96,6 +98,7 @@ describe('RecreationResourceDetailDto', () => {
       dto.recreation_control_access_code.recreation_control_access_code,
     ).toBe('G');
     expect(dto.recreation_control_access_code.description).toBe('Gated');
+    expect(dto.rec_status_code).toBe('AR');
   });
 
   it('should allow undefined optional properties', () => {
@@ -108,6 +111,7 @@ describe('RecreationResourceDetailDto', () => {
     expect(dto.site_point_geometry).toBeUndefined();
     expect(dto.recreation_district).toBeUndefined();
     expect(dto.risk_rating).toBeUndefined();
+    expect(dto.rec_status_code).toBeUndefined();
   });
 
   it('should assign and use all enums', () => {

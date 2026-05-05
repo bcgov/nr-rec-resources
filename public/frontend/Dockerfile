@@ -3,9 +3,12 @@ FROM node:24-slim AS build
 
 # Build arguments for deployment environment
 ARG VITE_DEPLOYMENT_ENV
+ARG FONT_AWESOME_PRO_TOKEN
+
 
 # Set environment variables for build
 ENV VITE_DEPLOYMENT_ENV=${VITE_DEPLOYMENT_ENV}
+ENV FONT_AWESOME_PRO_TOKEN=$FONT_AWESOME_PRO_TOKEN
 
 WORKDIR /app
 
@@ -20,8 +23,13 @@ COPY public/frontend/package.json public/frontend/
 COPY shared/ shared/
 COPY public/frontend/ public/frontend/
 
-# Install all dependencies from root (npm workspace install)
-RUN npm install
+RUN --mount=type=secret,id=font_awesome_pro_token \
+    ls /run/secrets/ && \
+    cat /run/secrets/font_awesome_pro_token | wc -c
+
+# Install all dependencies at root (npm workspace install)
+RUN --mount=type=secret,id=font_awesome_pro_token \
+    npm install --@fortawesome:registry=https://npm.fontawesome.com/ --//npm.fontawesome.com/:_authToken=$(cat /run/secrets/font_awesome_pro_token)
 
 # Run deploy/build inside the frontend workspace
 WORKDIR /app/public/frontend

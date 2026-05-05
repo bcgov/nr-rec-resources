@@ -67,6 +67,7 @@ export const recreationResourceSelect = {
   ...baseRecreationResourceSelect,
   maintenance_standard_code: true,
   right_of_way: true,
+  rec_status_code: true,
   recreation_maintenance_standard_code: {
     select: {
       description: true,

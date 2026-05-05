@@ -12,7 +12,9 @@ import { Breadcrumbs } from '@shared/index';
 import { useEffect, useState } from 'react';
 import { Col, Row, Spinner, Stack } from 'react-bootstrap';
 import { Outlet, useMatches, useParams } from '@tanstack/react-router';
+import { NotificationBar } from '@/components';
 import './RecResourcePageLayout.scss';
+import { ArchivedNotice } from '@/components/archived-notice/ArchivedNotice';
 
 const LoadingSpinner = () => (
   <div className="rec-resource-page__loading-container">
@@ -51,6 +53,9 @@ export const RecResourcePageLayout = () => {
   if (isLoading || !recResource) {
     return <LoadingSpinner />;
   }
+
+  const isArchived = (recResource.rec_status_code ?? false) === 'AR';
+
   return (
     <Stack
       direction="vertical"
@@ -61,18 +66,23 @@ export const RecResourcePageLayout = () => {
     >
       <Breadcrumbs />
       <ResourceHeaderSection recResource={recResource} />
+      <NotificationBar />
 
-      <Row>
-        <Col md={3}>
-          <RecResourceVerticalNav
-            activeTab={activeTab}
-            resourceId={rec_resource_id}
-          />
-        </Col>
-        <Col md={9}>
-          <Outlet />
-        </Col>
-      </Row>
+      {isArchived && <ArchivedNotice />}
+
+      {!isArchived && (
+        <Row>
+          <Col md={3}>
+            <RecResourceVerticalNav
+              activeTab={activeTab}
+              resourceId={rec_resource_id}
+            />
+          </Col>
+          <Col md={9}>
+            <Outlet />
+          </Col>
+        </Row>
+      )}
     </Stack>
   );
 };

@@ -19,6 +19,7 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}-build-containers
       cancel-in-progress: true
     uses: ./.github/workflows/.build.yml
+    secrets: inherit
 
   repo-analysis:
     name: Repository analysis
