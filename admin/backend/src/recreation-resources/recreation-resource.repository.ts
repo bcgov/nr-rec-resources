@@ -231,7 +231,7 @@ export class RecreationResourceRepository {
   private buildClosestCommunityWhere(
     communities?: string[],
   ): Prisma.recreation_resourceWhereInput | null {
-    if (!communities) {
+    if (!communities || communities.length === 0) {
       return null;
     }
 

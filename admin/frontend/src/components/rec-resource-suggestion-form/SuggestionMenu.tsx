@@ -50,7 +50,7 @@ export const SuggestionMenu = ({
   );
   return (
     <Menu {...menuProps}>
-      {communities.map((community: any, index) => (
+      {communities.map((community: CommunitySuggestion, index) => (
         <MenuItem
           key={community.id}
           option={community}
@@ -76,7 +76,7 @@ export const SuggestionMenu = ({
           <MenuItem
             key={rec_resource_id}
             option={option}
-            position={index}
+            position={communities.length + index}
             className="dropdown-menu-item"
           >
             <SuggestionListItem
