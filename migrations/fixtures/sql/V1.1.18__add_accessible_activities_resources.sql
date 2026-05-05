@@ -29,3 +29,5 @@ values
   'Talladega King',
   'A 1 km popular green difficulty singletrack trail located near Prince George British Columbia. This mountain bike primary trail can be used uphill primary and has a easy overall physical rating with a 79 m green climb.'
 );
+
+refresh materialized view rst.recreation_resource_search_view;
