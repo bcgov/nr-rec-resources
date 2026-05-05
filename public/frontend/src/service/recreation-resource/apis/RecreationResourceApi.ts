@@ -16,6 +16,7 @@ import * as runtime from '../runtime';
 import type {
   AlphabeticalRecreationResourceDto,
   PaginatedRecreationResourceDto,
+  PaginatedRecreationResourceSummaryDto,
   RecResourcesIdsDto,
   RecreationResourceDetailDto,
   RecreationSuggestionDto,
@@ -26,6 +27,8 @@ import {
   AlphabeticalRecreationResourceDtoToJSON,
   PaginatedRecreationResourceDtoFromJSON,
   PaginatedRecreationResourceDtoToJSON,
+  PaginatedRecreationResourceSummaryDtoFromJSON,
+  PaginatedRecreationResourceSummaryDtoToJSON,
   RecResourcesIdsDtoFromJSON,
   RecResourcesIdsDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
@@ -44,6 +47,10 @@ export interface GetRecreationResourceByIdRequest {
 export interface GetRecreationResourcesAlphabeticallyRequest {
   letter: string;
   type?: string;
+}
+
+export interface GetRecreationResourcesSummaryRequest {
+  page?: number;
 }
 
 export interface GetRecreationSuggestionsRequest {
@@ -182,6 +189,52 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<AlphabeticalRecreationResourceDto>> {
     const response = await this.getRecreationResourcesAlphabeticallyRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Returns a page-based paginated summary of recreation resources with key metadata. Use the page query parameter to navigate through results. Each page returns up to 1000 resources.
+   * Get a paginated summary of recreation resources
+   */
+  async getRecreationResourcesSummaryRaw(
+    requestParameters: GetRecreationResourcesSummaryRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<PaginatedRecreationResourceSummaryDto>> {
+    const queryParameters: any = {};
+
+    if (requestParameters['page'] != null) {
+      queryParameters['page'] = requestParameters['page'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/summary`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      PaginatedRecreationResourceSummaryDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Returns a page-based paginated summary of recreation resources with key metadata. Use the page query parameter to navigate through results. Each page returns up to 1000 resources.
+   * Get a paginated summary of recreation resources
+   */
+  async getRecreationResourcesSummary(
+    requestParameters: GetRecreationResourcesSummaryRequest = {},
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<PaginatedRecreationResourceSummaryDto> {
+    const response = await this.getRecreationResourcesSummaryRaw(
       requestParameters,
       initOverrides,
     );

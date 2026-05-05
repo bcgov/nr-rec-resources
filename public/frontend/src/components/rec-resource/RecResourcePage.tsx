@@ -13,6 +13,7 @@ import {
   MapsAndLocation,
   SiteDescription,
   ThingsToDo,
+  AccessibleActivities,
 } from '@/components/rec-resource/section';
 import { Route } from '@/routes/resource/$id';
 import Status from '@/components/rec-resource/Status';
@@ -51,7 +52,7 @@ const RecResourcePage = () => {
           previewUrl: imageObj.url?.pre ?? '',
           fullResolutionUrl: imageObj.url?.original ?? '',
         }))
-        .filter((img) => img.previewUrl !== '') ?? [],
+        .filter((img: any) => img.previewUrl !== '') ?? [],
     [recResource],
   );
 
@@ -67,6 +68,7 @@ const RecResourcePage = () => {
     rec_resource_type,
     recreation_access,
     recreation_activity,
+    accessible_recreation_activity,
     recreation_fee,
     recreation_structure,
     recreation_status: {
@@ -90,7 +92,13 @@ const RecResourcePage = () => {
     ? ([...new Set(recreation_access)] as string[])
     : undefined;
 
-  const isThingsToDo = recreation_activity && recreation_activity.length > 0;
+  const allActivities = [
+    ...(recreation_activity ?? []),
+    ...(accessible_recreation_activity ?? []),
+  ];
+  const isThingsToDo = allActivities.length > 0;
+  const isAccessibleActivities =
+    accessible_recreation_activity && accessible_recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
   const isCampingAvailable =
     Boolean(campsite_count) || Boolean(recreation_fee?.length);
@@ -143,6 +151,12 @@ const RecResourcePage = () => {
       href: `#${SectionIds.THINGS_TO_DO}`,
       title: SectionTitles.THINGS_TO_DO,
       isVisible: Boolean(isThingsToDo),
+    },
+    {
+      id: SectionIds.ACCESSIBLE_RECREATION,
+      href: `#${SectionIds.ACCESSIBLE_RECREATION}`,
+      title: SectionTitles.ACCESSIBLE_RECREATION,
+      isVisible: Boolean(isAccessibleActivities),
     },
     {
       id: SectionIds.FACILITIES,
@@ -267,7 +281,16 @@ const RecResourcePage = () => {
 
                 {isThingsToDo && (
                   <ThingsToDo
-                    activities={recreation_activity}
+                    activities={allActivities}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
+
+                {isAccessibleActivities && (
+                  <AccessibleActivities
+                    accessible_recreation_activity={
+                      accessible_recreation_activity
+                    }
                     ref={sectionRefs[refIndex++]}
                   />
                 )}

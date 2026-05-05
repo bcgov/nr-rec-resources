@@ -305,21 +305,33 @@ describe('RecreationResourceService', () => {
           recreation_activity: [
             {
               recreation_activity: {
-                recreation_activity_code: 1,
-                description: 'Angling',
+                description: 'Snowmobiling',
+                details: null,
+                is_accessible: false,
+                recreation_activity_code: 22,
               },
             },
             {
               recreation_activity: {
-                recreation_activity_code: 7,
-                description: 'Swimming & bathing',
+                description: 'Adaptive mountain bike trails',
+                details: 'activity details',
+                is_accessible: true,
+                recreation_activity_code: 34,
               },
             },
+          ],
+          recreation_activity_code_trails: [
             {
-              recreation_activity: {
-                recreation_activity_code: 32,
-                description: 'Camping',
-              },
+              recreation_activity_code: 34,
+              trail_type: 'BLUE',
+              name: 'Talladega Knight',
+              description: 'trail 1 details',
+            },
+            {
+              recreation_activity_code: 34,
+              trail_type: 'GREEN',
+              name: 'Sesame Street',
+              description: 'trail 2 details',
             },
           ],
           recreation_status: {
@@ -359,16 +371,30 @@ describe('RecreationResourceService', () => {
           recreation_access: ['Road'],
           recreation_activity: [
             {
-              description: 'Angling',
-              recreation_activity_code: 1,
+              description: 'Snowmobiling',
+              details: null,
+              is_accessible: false,
+              recreation_activity_code: 22,
             },
+          ],
+          accessible_recreation_activity: [
             {
-              description: 'Swimming & bathing',
-              recreation_activity_code: 7,
-            },
-            {
-              description: 'Camping',
-              recreation_activity_code: 32,
+              description: 'Adaptive mountain bike trails',
+              details: 'activity details',
+              is_accessible: true,
+              recreation_activity_code: 34,
+              recreation_activity_trails: [
+                {
+                  trail_type: 'BLUE',
+                  name: 'Talladega Knight',
+                  description: 'trail 1 details',
+                },
+                {
+                  trail_type: 'GREEN',
+                  name: 'Sesame Street',
+                  description: 'trail 2 details',
+                },
+              ],
             },
           ],
           recreation_status: {
