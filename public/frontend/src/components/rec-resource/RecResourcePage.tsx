@@ -92,7 +92,11 @@ const RecResourcePage = () => {
     ? ([...new Set(recreation_access)] as string[])
     : undefined;
 
-  const isThingsToDo = recreation_activity && recreation_activity.length > 0;
+  const allActivities = [
+    ...(recreation_activity ?? []),
+    ...(accessible_recreation_activity ?? []),
+  ];
+  const isThingsToDo = allActivities.length > 0;
   const isAccessibleActivities =
     accessible_recreation_activity && accessible_recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
@@ -277,7 +281,7 @@ const RecResourcePage = () => {
 
                 {isThingsToDo && (
                   <ThingsToDo
-                    activities={recreation_activity}
+                    activities={allActivities}
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
