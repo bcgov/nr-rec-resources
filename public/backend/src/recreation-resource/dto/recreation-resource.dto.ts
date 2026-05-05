@@ -9,6 +9,34 @@ export enum RecreationResourceMaintenanceStandardCode {
   M = 'M', // Maintained
 }
 
+export enum TrailType {
+  BLUE = 'BLUE',
+  GREEN = 'GREEN',
+  BLACK = 'BLACK',
+}
+
+export class RecreationActivityTrailDto {
+  @ApiProperty({
+    description:
+      'Type of trail activity represented by code (BLUE, GREEN, BLACK)',
+    enum: TrailType,
+    example: 'BLUE',
+  })
+  trail_type: TrailType;
+
+  @ApiProperty({
+    description: 'Name of the trail',
+    example: 'Blue Ridge Trail',
+  })
+  name: string;
+
+  @ApiProperty({
+    description: 'Description of the trail',
+    example: 'A beginner-friendly trail with gentle slopes and scenic views',
+  })
+  description: string;
+}
+
 export class RecreationActivityDto {
   @ApiProperty({
     description: 'Unique code identifying the recreation activity',
@@ -17,10 +45,38 @@ export class RecreationActivityDto {
   recreation_activity_code: number;
 
   @ApiProperty({
-    description: 'Detailed description of the activity',
+    description: 'Description of the activity',
     example: 'Hiking trails available for all skill levels',
   })
   description: string;
+
+  @ApiProperty({
+    description:
+      'Detailed description of the activity including any accessibility information',
+    example: 'Accessible hiking trails with gentle slopes and clear signage',
+  })
+  details: string;
+
+  @ApiProperty({
+    description: 'Indicates if the activity is accessible',
+    example: true,
+  })
+  is_accessible: boolean;
+
+  @ApiProperty({
+    description:
+      'List of trails associated with the recreation activity (if applicable)',
+    example: [
+      {
+        trail_type: 'BLUE',
+        name: 'Blue Ridge Trail',
+        description:
+          'A beginner-friendly trail with gentle slopes and scenic views',
+      },
+    ],
+    required: false,
+  })
+  recreation_activity_trails?: RecreationActivityTrailDto[];
 }
 
 export class RecreationFeeDto {
@@ -191,6 +247,14 @@ export abstract class BaseRecreationResourceDto {
     type: [RecreationActivityDto],
   })
   recreation_activity: RecreationActivityDto[];
+
+  @ApiProperty({
+    description:
+      'List of accessible recreational activities available at this resource',
+    type: [RecreationActivityDto],
+    required: false,
+  })
+  accessible_recreation_activity?: RecreationActivityDto[];
 
   @ApiProperty({
     description: 'Current operational status of the Recreation Resource',
