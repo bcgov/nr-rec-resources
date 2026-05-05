@@ -12,7 +12,7 @@ SELECT
       AND (
         (rmf.recreation_resource_type) :: text = ANY (
           (
-            ARRAY ['RTR'::character varying, 'TBL'::character varying, 'TRB'::character varying, 'RTE'::character varying]
+            ARRAY ['RTR'::character varying, 'TBL'::character varying, 'TRB'::character varying]
           ) :: text []
         )
       )
@@ -66,7 +66,7 @@ FROM
               AND (
                 (rmf.recreation_resource_type) :: text = ANY (
                   (
-                    ARRAY ['RTR'::character varying, 'TBL'::character varying, 'TRB'::character varying, 'RTE'::character varying]
+                    ARRAY ['RTR'::character varying, 'TBL'::character varying, 'TRB'::character varying]
                   ) :: text []
                 )
               )

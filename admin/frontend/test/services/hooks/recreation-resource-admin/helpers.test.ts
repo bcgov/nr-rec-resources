@@ -161,6 +161,7 @@ describe('mapRecreationResourceDetail', () => {
       recreation_district: { description: 'District F' },
       recreation_status: { description: 'Open' },
       project_established_date: '2023-06-15T10:30:00Z',
+      rec_status_code: 'AR',
     };
 
     const result = helpersModule.mapRecreationResourceDetail(input as any);
@@ -176,6 +177,7 @@ describe('mapRecreationResourceDetail', () => {
     expect(result.project_established_date).toBe(
       input.project_established_date,
     );
+    expect(result.rec_status_code).toBe('AR');
 
     // Check that new properties are added
     expect(result.maintenance_standard_description).toBe('Maintained');

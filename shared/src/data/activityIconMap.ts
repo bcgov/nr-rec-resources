@@ -1,3 +1,4 @@
+import adaptiveMountainBikingIcon from '@shared/assets/icons/activities/adaptive-mountain-biking.svg';
 import beachActivitiesIcon from '@shared/assets/icons/activities/beach-activities.svg';
 import boatLaunchIcon from '@shared/assets/icons/activities/boat-launch.svg';
 import campingIcon from '@shared/assets/icons/activities/frontcountry-camping.svg';
@@ -69,6 +70,7 @@ const activityIconMap: ActivityMap = {
   '31': raftingIcon,
   '32': campingIcon,
   '33': skiTouringIcon,
+  '34': adaptiveMountainBikingIcon,
 };
 
 // Includes all activities including ones not for display on public site

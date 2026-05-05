@@ -956,6 +956,65 @@ comment on column fta.recreation_site_point.update_userid is 'The userid of the 
 
 comment on column fta.recreation_site_point.update_timestamp is 'The timestamp of the last update to the declared area record.';
 
+create table fta.prov_forest_use(
+                                                    forest_file_id      varchar(10)     not null,
+                                                    file_status_st      varchar(3)      null,
+                                                    file_status_date    date            null,
+                                                    file_type_code      varchar(10)     null,
+                                                    forest_region       numeric(10,0)   not null,
+                                                    bcts_org_unit       numeric(10,0)   null,
+                                                    sb_funded_ind       varchar(1)      not null,
+                                                    district_admin_zone varchar(4)      null,
+                                                    mgmt_unit_type      varchar(1)      null,
+                                                    mgmt_unit_id        varchar(4)      null,
+                                                    revision_count      numeric(5,0)    not null,
+                                                    entry_userid        varchar(30)     not null,
+                                                    entry_timestamp     date            not null,
+                                                    update_userid       varchar(30)     not null,
+                                                    update_timestamp    date            not null,
+                                                    forest_tenure_guid  varchar(36)     null
+);
+
+comment on table fta.prov_forest_use is 'Stores forest tenure file status records imported from the PROV_FOREST_USE source table.';
+
+create table fta.org_unit (
+                              org_unit_no         numeric(10, 0)  not null,
+                              org_unit_code       varchar(6)      not null,
+                              org_unit_name       varchar(100)    not null,
+                              location_code       varchar(3)      not null,
+                              area_code           varchar(3)      not null,
+                              telephone_no        varchar(7)      not null,
+                              org_level_code      varchar(1)      not null,
+                              office_name_code    varchar(2)      not null,
+                              rollup_region_no    numeric(10, 0)  not null,
+                              rollup_region_code  varchar(6)      not null,
+                              rollup_dist_no      numeric(10, 0)  not null,
+                              rollup_dist_code    varchar(6)      not null,
+                              effective_date      date            not null,
+                              expiry_date         date            not null,
+                              update_timestamp    date            null,
+
+                              constraint pk_org_unit primary key (org_unit_no)
+);
+comment on table fta.org_unit is 'Stores fta organization unit details.';
+
+comment on column fta.org_unit.org_unit_no is 'Unique numeric identifier for the ministry organization unit.';
+comment on column fta.org_unit.org_unit_code is 'Short alphanumeric code representing the organization unit.';
+comment on column fta.org_unit.org_unit_name is 'Full descriptive name of the organization unit.';
+comment on column fta.org_unit.location_code is 'Code identifying the physical location of the organization unit.';
+comment on column fta.org_unit.area_code is 'Code identifying the area associated with the organization unit.';
+comment on column fta.org_unit.telephone_no is 'Telephone number for the organization unit.';
+comment on column fta.org_unit.org_level_code is 'Code indicating the hierarchical level of the organization unit.';
+comment on column fta.org_unit.office_name_code is 'Code representing the office name of the organization unit.';
+comment on column fta.org_unit.rollup_region_no is 'Numeric identifier of the region this organization unit rolls up to.';
+comment on column fta.org_unit.rollup_region_code is 'Code of the region this organization unit rolls up to.';
+comment on column fta.org_unit.rollup_dist_no is 'Numeric identifier of the district this organization unit rolls up to.';
+comment on column fta.org_unit.rollup_dist_code is 'Code of the district this organization unit rolls up to.';
+comment on column fta.org_unit.effective_date is 'Date from which the organization unit record is active.';
+comment on column fta.org_unit.expiry_date is 'Date on which the organization unit record expires.';
+comment on column fta.org_unit.update_timestamp is 'Timestamp of the last update to the organization unit record.';
+
+
 create table fta.recreation_struct_dimen_code (
     recreation_struct_dimen_code varchar(2) primary key,
     description varchar(120) null,

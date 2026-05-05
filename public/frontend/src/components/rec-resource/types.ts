@@ -1,6 +1,8 @@
 export interface Activity {
   description: string;
   recreation_activity_code: number;
+  is_accessible?: boolean;
+  details?: string;
 }
 
 export interface RecreationStatus {

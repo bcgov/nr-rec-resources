@@ -368,4 +368,13 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     type: Number,
   })
   right_of_way?: number | null;
+
+  @ApiProperty({
+    description:
+      'Recreation resource status code (e.g., AR for Archived, HI for Issued)',
+    example: 'OPN',
+    type: String,
+    nullable: true,
+  })
+  rec_status_code?: string | null;
 }

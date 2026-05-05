@@ -1,7 +1,12 @@
 import { AdminStatusBadge, CustomBadge } from '@/components';
 import { ClampLines } from '@/components/clamp-lines';
 import { RecreationResourceDetailUIModel } from '@/services';
-import { COLOR_BLUE, COLOR_BLUE_LIGHT } from '@/styles/colors';
+import {
+  COLOR_BLUE,
+  COLOR_BLUE_LIGHT,
+  COLOR_RED,
+  COLOR_RED_LIGHT,
+} from '@/styles/colors';
 import { FC } from 'react';
 import { Stack } from 'react-bootstrap';
 import './ResourceHeaderSection.scss';
@@ -13,6 +18,8 @@ interface ResourceHeaderSectionProps {
 export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
+  const isArchived = (recResource.rec_status_code ?? false) === 'AR';
+
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
       {/* section: name, rec id, status */}
@@ -35,11 +42,20 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
             bgColor={COLOR_BLUE_LIGHT}
             textColor={COLOR_BLUE}
           />
-          {recResource.recreation_status_description && (
-            <AdminStatusBadge
-              label={recResource.recreation_status_description!}
-              statusCode={recResource.recreation_status_code ?? 1}
+          {isArchived ? (
+            <CustomBadge
+              label="Archived"
+              bgColor={COLOR_RED_LIGHT}
+              textColor={COLOR_RED}
+              fontWeight="bold"
             />
+          ) : (
+            recResource.recreation_status_description && (
+              <AdminStatusBadge
+                label={recResource.recreation_status_description!}
+                statusCode={recResource.recreation_status_code ?? 1}
+              />
+            )
           )}
         </Stack>
       </Stack>

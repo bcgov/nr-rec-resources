@@ -51,6 +51,8 @@ export const formatSearchResults = (
         resource.recreation_activity?.map((activity) => ({
           description: activity.description,
           recreation_activity_code: activity.recreation_activity_code,
+          details: activity.details,
+          is_accessible: activity.is_accessible,
         })) ?? [],
       recreation_status: {
         description:

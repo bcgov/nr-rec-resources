@@ -63,7 +63,7 @@ jobs:
       uses: actions/setup-node@v6
       with:
         node-version: '24'
-    - run: npm install
+    - run: npm install --@fortawesome:registry=https://npm.fontawesome.com/ --//npm.fontawesome.com/:_authToken=${{ secrets.FONT_AWESOME_PRO_TOKEN }}
       working-directory: ./${{ inputs.app }}/frontend
     - run: npx @playwright/test install --with-deps
       if: steps.playwright-cache.outputs.cache-hit != 'true'

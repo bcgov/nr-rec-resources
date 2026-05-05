@@ -9,8 +9,6 @@ import {
   MATOMO_NAME_CONTACT_EMAIL_RECINFO,
   MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
 } from '@/constants/analytics';
-import { Link } from '@tanstack/react-router';
-import { ROUTE_PATHS } from '@/constants/routes';
 
 export type ContactTopic = (typeof CONTACT_TOPICS)[keyof typeof CONTACT_TOPICS];
 
@@ -19,32 +17,43 @@ interface ContactDetailsProps {
   emailLink: string;
 }
 
-const ReservationsSection: FC = () => (
+const ReservationsSection: FC<{ emailLink: string }> = ({ emailLink }) => (
   <section className="contact-page__section contact-page__details">
     <h3 className="contact-page__details-title">
       Reservations, fees, and discounts
     </h3>
-    <p className="contact-page__details-desc">
+    <div className="contact-page__info-box">
       <strong>
-        The majority of recreation sites are on a "first come, first served"
-        basis and cannot be booked ahead of time.
+        Looking for reservations? While the majority of recreation sites are
+        offered on a first come, first served basis, reservations are available
+        at select recreation sites. Not all sites offer reservable camping or
+        facilities.
       </strong>
-    </p>
+    </div>
+    <h4 className="contact-page__sub-title">
+      How to check if a site has reservations:
+    </h4>
+    <ol className="contact-page__details-desc">
+      <li>
+        Look for the <strong>&ldquo;Reservable&rdquo;</strong> label on the site
+        page
+      </li>
+      <li>
+        Follow the reservation link provided
+        <br />
+        (Reservations are managed by the site operator, not RSTBC)
+      </li>
+    </ol>
+    <h4 className="contact-page__sub-title">
+      Need help with an existing reservation?
+    </h4>
     <p className="contact-page__details-desc">
-      Check the description section of the site you're interested in to get more
-      details about fees and reservations.
+      Contact the site operator located on the resource page
     </p>
-    <Stack gap={3}>
-      <a
-        href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/fees"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Reservations, fees, and discounts information (opens in new window)"
-      >
-        Reservations, fees, and discounts
-      </a>
-      <Link to={ROUTE_PATHS.SEARCH}>Search for a site or trail</Link>
-    </Stack>
+    <h4 className="contact-page__sub-title">
+      General site information missing or incorrect?
+    </h4>
+    <a href={emailLink}>Contact Us</a>
   </section>
 );
 
@@ -225,7 +234,7 @@ export const renderContactDetails = ({
 }: ContactDetailsProps): React.ReactNode => {
   switch (topic) {
     case CONTACT_TOPICS.RESERVATIONS:
-      return <ReservationsSection />;
+      return <ReservationsSection emailLink={emailLink} />;
     case CONTACT_TOPICS.SITE_OR_TRAIL:
     case CONTACT_TOPICS.CANNOT_FIND:
       return <EmailSection emailLink={emailLink} />;
