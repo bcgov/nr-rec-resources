@@ -29,6 +29,7 @@ model recreation_resource {
   rec_status_code                      String?                                @db.VarChar(50)
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
+  recreation_activity_code_trails      recreation_activity_code_trails[]
   recreation_agreement_holder          recreation_agreement_holder?
   recreation_defined_campsite          recreation_defined_campsite[]
   recreation_driving_direction         recreation_driving_direction?
@@ -71,11 +72,14 @@ model recreation_activity {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_activity_code {
-  recreation_activity_code Int                      @id @default(autoincrement())
-  description              String?                  @db.VarChar(120)
-  updated_at               DateTime?                @default(now()) @db.Timestamp(6)
-  sys_period               Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_activity      recreation_activity[]    @relation("recreation_activity")
+  recreation_activity_code                                                                                           Int                               @id
+  description                                                                                                        String?                           @db.VarChar(120)
+  updated_at                                                                                                         DateTime?                         @default(now()) @db.Timestamp(6)
+  sys_period                                                                                                         Unsupported("tstzrange")          @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  details                                                                                                            String?
+  is_accessible                                                                                                      Boolean?                          @default(false)
+  recreation_activity                                                                                                recreation_activity[]             @relation("recreation_activity")
+  recreation_activity_code_trails_recreation_activity_code_trails_recreation_activity_codeTorecreation_activity_code recreation_activity_code_trails[] @relation("recreation_activity_code_trails_recreation_activity_codeTorecreation_activity_code")
 
   @@schema("rst")
 }
@@ -1208,6 +1212,35 @@ model natural_resource_org_unit_history {
   @@schema("rst")
 }
 
+model recreation_activity_code_trails {
+  recreation_activity_code_trails_id                                                                          Int                      @id @default(autoincrement())
+  recreation_activity_code                                                                                    Int
+  rec_resource_id                                                                                             String                   @db.VarChar(20)
+  trail_type                                                                                                  trail_types
+  name                                                                                                        String                   @db.VarChar(120)
+  description                                                                                                 String?
+  updated_at                                                                                                  DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period                                                                                                  Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource                                                                                         recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_activity_code_recreation_activity_code_trails_recreation_activity_codeTorecreation_activity_code recreation_activity_code @relation("recreation_activity_code_trails_recreation_activity_codeTorecreation_activity_code", fields: [recreation_activity_code], references: [recreation_activity_code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("rst")
+}
+
+model recreation_activity_code_trails_history {
+  recreation_activity_code_trails_id Int
+  recreation_activity_code           Int
+  rec_resource_id                    String                   @db.VarChar(20)
+  trail_type                         trail_types
+  name                               String                   @db.VarChar(120)
+  description                        String?
+  updated_at                         DateTime?                @db.Timestamp(6)
+  sys_period                         Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_resource_status_code {
   recreation_resource_status_code String                   @id @db.VarChar(3)
@@ -1251,6 +1284,14 @@ view recreation_resource_type_view_public {
   rec_resource_type_code String?              @db.VarChar
   description            String?              @db.VarChar(200)
   recreation_resource    recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_type_view_public_recreation_resource_fkey")
+
+  @@schema("rst")
+}
+
+enum trail_types {
+  BLUE
+  GREEN
+  BLACK
 
   @@schema("rst")
 }

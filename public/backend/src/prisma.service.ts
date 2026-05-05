@@ -25,7 +25,6 @@ class PrismaService
     const dbSchema = appConfig.databaseSchema;
     const adapter = new PrismaPg({
       connectionString: dataSourceURL,
-      schema: dbSchema,
       options: `-c search_path=${dbSchema},public`,
     });
     super({
