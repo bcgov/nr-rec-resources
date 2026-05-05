@@ -24,6 +24,7 @@ const baseResource = {
   // joined metadata row that contains the description for the above code
   recreation_maintenance_standard_code: { description: 'Standard A' },
   recreation_resource_type_view_admin: [{ description: 'Campground' }],
+  rec_status_code: 'AR',
   recreation_access: [
     {
       recreation_access_code: { access_code: 'ROAD', description: 'Road' },
@@ -162,6 +163,9 @@ describe('formatRecreationResourceDetailResults', () => {
 
     // right_of_way is normalized to number when present
     expect(result.right_of_way).toBe(10);
+
+    // rec_status_code mapping
+    expect(result.rec_status_code).toBe('AR');
   });
 
   it('should handle missing optional fields and use OPEN_STATUS defaults', () => {
@@ -203,6 +207,7 @@ describe('formatRecreationResourceDetailResults', () => {
     expect(result.recreation_district).toBeUndefined();
     expect(result.risk_rating).toBeUndefined();
     expect(result.right_of_way).toBeUndefined();
+    expect(result.rec_status_code).toBeUndefined();
   });
 
   it('should group subAccessCodes by access code and sort accessCodes by code', () => {

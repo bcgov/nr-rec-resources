@@ -48,6 +48,8 @@ jobs:
           VITE_KEYCLOAK_AUTH_SERVER_URL=$KEYCLOAK_AUTH_SERVER_URL
           VITE_KEYCLOAK_REALM=$KEYCLOAK_REALM
           VITE_KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID
+        secrets: |
+          font_awesome_pro_token=${{ secrets.FONT_AWESOME_PRO_TOKEN }}
       env:
         KEYCLOAK_AUTH_SERVER_URL: ${{ matrix.package == 'admin/frontend' && secrets.KEYCLOAK_AUTH_SERVER_URL || '' }}
         KEYCLOAK_REALM: ${{ matrix.package == 'admin/frontend' && secrets.KEYCLOAK_REALM || '' }}
