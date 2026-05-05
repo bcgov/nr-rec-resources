@@ -23,8 +23,13 @@ COPY admin/frontend/package.json admin/frontend/
 # Copy all source files
 COPY . .
 
+RUN --mount=type=secret,id=font_awesome_pro_token \
+    ls /run/secrets/ && \
+    cat /run/secrets/font_awesome_pro_token | wc -c
+
 # Install all dependencies at root (npm workspace install)
-RUN npm install
+RUN --mount=type=secret,id=font_awesome_pro_token \
+    npm install --@fortawesome:registry=https://npm.fontawesome.com/ --//npm.fontawesome.com/:_authToken=$(cat /run/secrets/font_awesome_pro_token)
 
 # Build your frontend (runs in admin/frontend folder)
 WORKDIR /app/admin/frontend

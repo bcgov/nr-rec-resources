@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: install eslint packages
-        run: npm install
+        run: npm install --@fortawesome:registry=https://npm.fontawesome.com/ --//npm.fontawesome.com/:_authToken=${{ secrets.FONT_AWESOME_PRO_TOKEN }}
       - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
