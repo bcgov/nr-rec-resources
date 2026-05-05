@@ -101,6 +101,12 @@ export interface RecreationResourceDetailDto {
    */
   recreation_activity: Array<RecreationActivityDto>;
   /**
+   * List of accessible recreational activities available at this resource
+   * @type {Array<RecreationActivityDto>}
+   * @memberof RecreationResourceDetailDto
+   */
+  accessible_recreation_activity?: Array<RecreationActivityDto>;
+  /**
    * Current operational status of the Recreation Resource
    * @type {RecreationStatusDto}
    * @memberof RecreationResourceDetailDto
@@ -288,6 +294,12 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
     ),
+    accessible_recreation_activity:
+      json['accessible_recreation_activity'] == null
+        ? undefined
+        : (json['accessible_recreation_activity'] as Array<any>).map(
+            RecreationActivityDtoFromJSON,
+          ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
     recreation_resource_images:
@@ -358,6 +370,12 @@ export function RecreationResourceDetailDtoToJSONTyped(
     recreation_activity: (value['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoToJSON,
     ),
+    accessible_recreation_activity:
+      value['accessible_recreation_activity'] == null
+        ? undefined
+        : (value['accessible_recreation_activity'] as Array<any>).map(
+            RecreationActivityDtoToJSON,
+          ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
     recreation_resource_images:

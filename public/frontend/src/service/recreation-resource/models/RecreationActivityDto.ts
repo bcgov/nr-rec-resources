@@ -26,11 +26,29 @@ export interface RecreationActivityDto {
    */
   recreation_activity_code: number;
   /**
-   * Detailed description of the activity
+   * Description of the activity
    * @type {string}
    * @memberof RecreationActivityDto
    */
   description: string;
+  /**
+   * Detailed description of the activity including any accessibility information
+   * @type {string}
+   * @memberof RecreationActivityDto
+   */
+  details: string;
+  /**
+   * Indicates if the activity is accessible
+   * @type {boolean}
+   * @memberof RecreationActivityDto
+   */
+  is_accessible: boolean;
+  /**
+   * List of trails associated with the recreation activity (if applicable)
+   * @type {Array<string>}
+   * @memberof RecreationActivityDto
+   */
+  recreation_activity_trails?: Array<string>;
 }
 
 /**
@@ -45,6 +63,9 @@ export function instanceOfRecreationActivityDto(
   )
     return false;
   if (!('description' in value) || value['description'] === undefined)
+    return false;
+  if (!('details' in value) || value['details'] === undefined) return false;
+  if (!('is_accessible' in value) || value['is_accessible'] === undefined)
     return false;
   return true;
 }
@@ -65,6 +86,12 @@ export function RecreationActivityDtoFromJSONTyped(
   return {
     recreation_activity_code: json['recreation_activity_code'],
     description: json['description'],
+    details: json['details'],
+    is_accessible: json['is_accessible'],
+    recreation_activity_trails:
+      json['recreation_activity_trails'] == null
+        ? undefined
+        : json['recreation_activity_trails'],
   };
 }
 
@@ -83,5 +110,8 @@ export function RecreationActivityDtoToJSONTyped(
   return {
     recreation_activity_code: value['recreation_activity_code'],
     description: value['description'],
+    details: value['details'],
+    is_accessible: value['is_accessible'],
+    recreation_activity_trails: value['recreation_activity_trails'],
   };
 }
