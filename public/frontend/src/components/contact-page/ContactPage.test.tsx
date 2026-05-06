@@ -136,11 +136,7 @@ describe('ContactPage', () => {
         ),
       ),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText((content) =>
-        content.includes('Section 16 authorization'),
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Section 16')).toBeInTheDocument();
     expect(
       screen.getByText((content) =>
         content.includes('choosing a venue designed for events'),

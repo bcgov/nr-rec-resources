@@ -196,9 +196,18 @@ const WeddingsAndEventsSection: React.FC = () => (
     </p>
     <p className="contact-page__details-desc">
       In limited circumstances, a wedding or large gathering may be considered
-      through a Section 16 authorization, depending on the site, group size, and
-      potential impacts. These requests are reviewed case&#8209;by&#8209;case
-      and are often not approved.
+      through a{' '}
+      <a
+        href="https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/16_2004#section16"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Section 16 authorization (opens in new window)"
+      >
+        Section 16
+      </a>{' '}
+      authorization, depending on the site, group size, and potential impacts.
+      These requests are reviewed case&#8209;by&#8209;case and are often not
+      approved.
     </p>
     <p className="contact-page__details-desc">
       If you are planning a wedding or event, we recommend choosing a venue
