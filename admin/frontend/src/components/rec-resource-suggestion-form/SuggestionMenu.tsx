@@ -35,17 +35,19 @@ export const SuggestionMenu = ({
 }: SuggestionMenuProps) => {
   const communities: CommunitySuggestion[] = Array.from(
     new Map(
-      results.map((c: any) => {
-        const upperId = c.closest_community.toUpperCase();
+      results
+        .filter((c) => c.closest_community != null)
+        .map((c) => {
+          const upperId = c.closest_community.toUpperCase();
 
-        return [
-          upperId,
-          {
-            id: upperId,
-            name: capitalizeWords(upperId),
-          },
-        ];
-      }),
+          return [
+            upperId,
+            {
+              id: upperId,
+              name: capitalizeWords(upperId),
+            },
+          ];
+        }),
     ).values(),
   );
   return (
