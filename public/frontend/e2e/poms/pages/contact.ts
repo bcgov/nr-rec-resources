@@ -99,7 +99,7 @@ export class ContactPOM {
 
     // For select options, we check the select has the expected values rather than visibility
     const selectOptions = await this.topicSelect.locator('option').all();
-    expect(selectOptions.length).toBe(6);
+    expect(selectOptions.length).toBe(7);
 
     // Verify the select contains the expected option values
     const expectedValues = [
@@ -107,6 +107,7 @@ export class ContactPOM {
       'site-trail',
       'cannot-find',
       'wildfires',
+      'weddings-events',
       'rapp',
       'resource-violation',
     ];
