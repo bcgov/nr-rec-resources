@@ -4,6 +4,7 @@ const baseRecreationResourceSelect = {
   closest_community: true,
   project_established_date: true,
   display_on_public_site: true,
+  rec_status_code: true,
   recreation_resource_type_view_admin: {
     select: {
       rec_resource_type_code: true,
@@ -67,6 +68,7 @@ export const recreationResourceSelect = {
   ...baseRecreationResourceSelect,
   maintenance_standard_code: true,
   right_of_way: true,
+  rec_status_code: true,
   recreation_maintenance_standard_code: {
     select: {
       description: true,

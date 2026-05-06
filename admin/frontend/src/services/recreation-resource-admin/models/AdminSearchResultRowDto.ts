@@ -74,6 +74,12 @@ export interface AdminSearchResultRowDto {
    */
   status_code: number;
   /**
+   * Resource archive status code
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
+   */
+  rec_status_code?: string | null;
+  /**
    * Access types associated with the resource
    * @type {Array<string>}
    * @memberof AdminSearchResultRowDto
@@ -176,6 +182,8 @@ export function AdminSearchResultRowDtoFromJSONTyped(
     closest_community: json['closest_community'],
     status: json['status'],
     status_code: json['status_code'],
+    rec_status_code:
+      json['rec_status_code'] == null ? undefined : json['rec_status_code'],
     access_types: json['access_types'],
     activities: json['activities'],
     fee_indicators: json['fee_indicators'],
@@ -209,6 +217,7 @@ export function AdminSearchResultRowDtoToJSONTyped(
     closest_community: value['closest_community'],
     status: value['status'],
     status_code: value['status_code'],
+    rec_status_code: value['rec_status_code'],
     access_types: value['access_types'],
     activities: value['activities'],
     fee_indicators: value['fee_indicators'],

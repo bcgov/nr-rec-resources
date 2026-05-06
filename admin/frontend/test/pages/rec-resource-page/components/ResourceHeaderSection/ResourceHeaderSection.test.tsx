@@ -91,4 +91,47 @@ describe('ResourceHeaderSection', () => {
     expect(badges).toHaveLength(2); // ID badge and status badge
     expect(badges[1]).toHaveTextContent('Inactive');
   });
+
+  it('renders archived badge when rec_status_code is AR', () => {
+    const archivedResource = {
+      ...baseResource,
+      rec_status_code: 'AR',
+      recreation_status_description: 'Currently Open',
+      recreation_status_code: 1,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={archivedResource} />);
+
+    const badges = screen.getAllByTestId('custom-badge');
+    expect(badges).toHaveLength(2); // ID badge and archived badge
+    expect(badges[1]).toHaveTextContent('Archived');
+  });
+
+  it('renders recreation status badge when not archived', () => {
+    const activeResource = {
+      ...baseResource,
+      rec_status_code: 'AC',
+      recreation_status_description: 'Currently Open',
+      recreation_status_code: 1,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={activeResource} />);
+
+    const badges = screen.getAllByTestId('custom-badge');
+    expect(badges).toHaveLength(2); // ID badge and status badge
+    expect(badges[1]).toHaveTextContent('Currently Open');
+  });
+
+  it('does not render archived or status badge when not archived and no status description', () => {
+    const resourceNoStatus = {
+      ...baseResource,
+      rec_status_code: 'AC',
+      recreation_status_description: null,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resourceNoStatus} />);
+
+    const badges = screen.getAllByTestId('custom-badge');
+    expect(badges).toHaveLength(1); // Only ID badge
+  });
 });

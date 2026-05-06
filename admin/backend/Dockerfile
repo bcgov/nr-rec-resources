@@ -14,7 +14,8 @@ COPY admin/backend/package.json admin/backend/
 COPY . .
 
 # Install all dependencies at root (npm workspace install)
-RUN npm install
+RUN --mount=type=secret,id=font_awesome_pro_token \
+    npm install --@fortawesome:registry=https://npm.fontawesome.com/ --//npm.fontawesome.com/:_authToken=$(cat /run/secrets/font_awesome_pro_token)
 
 # Build the backend (runs in admin/backend folder)
 WORKDIR /app/admin/backend
@@ -35,8 +36,13 @@ COPY admin/backend/package.json admin/backend/
 # Copy all source files
 COPY . .
 
-# Install production dependencies at root (npm workspace install)
-RUN npm install --ignore-scripts --no-update-notifier --omit=dev
+RUN --mount=type=secret,id=font_awesome_pro_token \
+    ls /run/secrets/ && \
+    cat /run/secrets/font_awesome_pro_token | wc -c
+
+# Install all dependencies at root (npm workspace install)
+RUN --mount=type=secret,id=font_awesome_pro_token \
+    npm install --@fortawesome:registry=https://npm.fontawesome.com/ --//npm.fontawesome.com/:_authToken=$(cat /run/secrets/font_awesome_pro_token)
 
 # Deploy using minimal Distroless image
 FROM gcr.io/distroless/nodejs22-debian12:nonroot

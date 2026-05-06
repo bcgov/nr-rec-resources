@@ -41,7 +41,7 @@ jobs:
       - uses: bcgov/action-test-and-analyse@v1.6.0
         with:
           commands: |
-            npm install
+            npm install --@fortawesome:registry=https://npm.fontawesome.com/ --//npm.fontawesome.com/:_authToken=${{ secrets.FONT_AWESOME_PRO_TOKEN }}
             npm run prisma-generate || true
             npm run test:cov
           dir: ${{ inputs.app }}/${{ matrix.dir }}

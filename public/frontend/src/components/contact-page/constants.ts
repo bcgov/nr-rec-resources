@@ -6,6 +6,7 @@ export const CONTACT_TOPICS = {
   SITE_OR_TRAIL: 'site-trail',
   CANNOT_FIND: 'cannot-find',
   WILDFIRES: 'wildfires',
+  WEDDINGS_AND_EVENTS: 'weddings-events',
   RAPP: 'rapp',
   NATURAL_RESOURCE_VIOLATION: 'resource-violation',
 } as const;
@@ -16,6 +17,7 @@ export const CONTACT_TOPIC_LABELS = {
   [CONTACT_TOPICS.SITE_OR_TRAIL]: 'Site or Trail',
   [CONTACT_TOPICS.CANNOT_FIND]: "I cannot find what I'm looking for",
   [CONTACT_TOPICS.WILDFIRES]: 'Wildfires and Campfire Bans',
+  [CONTACT_TOPICS.WEDDINGS_AND_EVENTS]: 'Weddings and events',
   [CONTACT_TOPICS.RAPP]: 'Report All Poachers and Polluters',
   [CONTACT_TOPICS.NATURAL_RESOURCE_VIOLATION]:
     'Report a Natural Resource Violation',

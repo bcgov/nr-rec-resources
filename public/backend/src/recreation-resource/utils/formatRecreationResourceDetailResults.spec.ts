@@ -1,4 +1,5 @@
 import { formatRecreationResourceDetailResults } from 'src/recreation-resource/utils/formatRecreationResourceDetailResults';
+import { TrailType } from '../dto/recreation-resource.dto';
 
 export const mockResponse = {
   rec_resource_id: 'REC203239',
@@ -22,10 +23,35 @@ export const mockResponse = {
   recreation_activity: [
     {
       recreation_activity: {
-        recreation_activity_code: 22,
         description: 'Snowmobiling',
-        updated_at: new Date(),
+        details: null,
+        is_accessible: false,
+        recreation_activity_code: 22,
+        updated_at: expect.any(Date),
       },
+    },
+    {
+      recreation_activity: {
+        description: 'Adaptive mountain bike trails',
+        details: 'activity details',
+        is_accessible: true,
+        recreation_activity_code: 34,
+        updated_at: expect.any(Date),
+      },
+    },
+  ],
+  recreation_activity_code_trails: [
+    {
+      recreation_activity_code: 34,
+      trail_type: TrailType.BLUE,
+      name: 'Talladega Knight',
+      description: 'trail 1 details',
+    },
+    {
+      recreation_activity_code: 34,
+      trail_type: TrailType.GREEN,
+      name: 'Sesame Street',
+      description: 'trail 2 details',
     },
   ],
   recreation_status: {
@@ -124,7 +150,29 @@ export const mockResults = {
   recreation_activity: [
     {
       description: 'Snowmobiling',
+      details: null,
+      is_accessible: false,
       recreation_activity_code: 22,
+    },
+  ],
+  accessible_recreation_activity: [
+    {
+      description: 'Adaptive mountain bike trails',
+      details: 'activity details',
+      is_accessible: true,
+      recreation_activity_code: 34,
+      recreation_activity_trails: [
+        {
+          trail_type: 'BLUE',
+          name: 'Talladega Knight',
+          description: 'trail 1 details',
+        },
+        {
+          trail_type: 'GREEN',
+          name: 'Sesame Street',
+          description: 'trail 2 details',
+        },
+      ],
     },
   ],
   recreation_fee: [

@@ -86,6 +86,7 @@ export class RecreationResourceService {
           OPEN_STATUS.DESCRIPTION,
         status_code:
           resource.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
+        rec_status_code: resource.rec_status_code,
         activities: this.getUniqueValues(
           resource.recreation_activity?.map(
             (activity) => activity.recreation_activity?.description ?? '',

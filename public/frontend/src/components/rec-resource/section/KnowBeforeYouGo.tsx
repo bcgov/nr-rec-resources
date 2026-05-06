@@ -2,14 +2,31 @@ import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import '@/components/rec-resource/section/KnowBeforeYouGo.scss';
 import recycle from '@/images/icons/recycle.svg';
 import celreception from '@/images/icons/cel-reception.svg';
+import wildlife from '@/images/icons/wildlife-animal-safety.svg';
+import toilet from '@/images/icons/toilet.svg';
+import forestServiceRoads from '@/images/icons/forest-service-roads.svg';
+import campfire from '@/images/icons/campfires-safety.svg';
 import cash from '@/images/icons/cash.svg';
 import { forwardRef } from 'react';
+import InfoRow from '@/components/rec-resource/section/InfoRow';
 
 interface KnowBeforeYouGoProps {
   isAdditionalFeesAvailable: boolean;
   isCampingAvailable: boolean;
   isReservable: boolean;
 }
+
+const BringCashRow = () => (
+  <InfoRow icon={cash} iconAlt="Cash Only icon" title="Bring cash">
+    <p>
+      Most sites operate on a cash-only basis, and fees are often collected
+      directly by site operators unless you have paid in advance through an
+      online reservation system. While some site operators may be able to accept
+      card payments on site, this is not guaranteed. Please arrive prepared with
+      enough cash to cover your stay and any additional services.
+    </p>
+  </InfoRow>
+);
 
 const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
   ({ isAdditionalFeesAvailable, isCampingAvailable, isReservable }, ref) => {
@@ -31,21 +48,7 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
                 to arrive early, especially during busy periods as spots are
                 limited.
               </p>
-              <div className="row">
-                <div className="col-sm-1">
-                  <img src={cash} alt="Cash Only icon" height={40} width={40} />
-                </div>
-                <div className="col-sm">
-                  <p className="small-tittle">Bring cash</p>
-                  <p>
-                    Most sites operate on a cash-only basis, and fees are often
-                    collected directly by site operators unless you have paid
-                    through an online reservation ahead of time. Please come
-                    prepared with enough cash to cover your stay and any
-                    additional services.
-                  </p>
-                </div>
-              </div>
+              <BringCashRow />
             </>
           ) : (
             isCampingAvailable && (
@@ -61,22 +64,7 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
             )
           )}
           {(isAdditionalFeesAvailable || isCampingAvailable) &&
-            !isReservable && (
-              <div className="row">
-                <div className="col-sm-1">
-                  <img src={cash} alt="Cash Only icon" height={40} width={40} />
-                </div>
-                <div className="col-sm">
-                  <p className="small-tittle">Cash only</p>
-                  <p>
-                    Most sites operate on a cash-only basis, and fees are often
-                    collected directly by site operators. Please come prepared
-                    with enough cash to cover your stay and any additional
-                    services.
-                  </p>
-                </div>
-              </div>
-            )}
+            !isReservable && <BringCashRow />}
           <h3>Staying safe</h3>
           <p>
             Recreation sites and trails can be in remote areas with access via
@@ -84,45 +72,118 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
             traffic and logging trucks. Plan ahead, share your itinerary, and
             carry emergency supplies.
           </p>
-          <div className="row">
-            <div className="col-sm-1">
-              <img src={recycle} alt="Recycle icon" height={40} width={40} />
-            </div>
-            <div className="col-sm packing-info">
-              <p className="small-tittle">Pack in, pack out</p>
-              <p>
-                Garbage receptacles and potable water are not provided. Be
-                prepared to bring your own water and pack out any garbage.
-                Always follow Leave no Trace outdoor ethics. For more
-                information, see{' '}
-                <a
-                  href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning"
-                  target="_blank"
-                  rel="noreferer noreferrer"
-                  aria-label="Plan your visit (opens in new window)"
-                >
-                  planning your visit
-                </a>
-                .
-              </p>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-sm-1">
-              <img
-                src={celreception}
-                alt="Cel Reception icon"
-                height={40}
-                width={40}
-              />
-            </div>
-            <div className="col-sm">
-              <p className="small-tittle">Limited or no cellular reception</p>
-              <p>
-                Cell service may be limited or unavailable due to the remoteness
-                of many of our rec sites.
-              </p>
-            </div>
+          <InfoRow
+            icon={recycle}
+            iconAlt="Recycle icon"
+            title="Pack in, pack out"
+            className="packing-info"
+          >
+            <p>
+              Garbage receptacles and potable water are not provided. Be
+              prepared to bring your own water and pack out any garbage. Always
+              follow Leave no Trace outdoor ethics. For more information, see{' '}
+              <a
+                href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning"
+                target="_blank"
+                rel="noreferer noreferrer"
+                aria-label="Plan your visit (opens in new window)"
+              >
+                planning your visit
+              </a>
+              .
+            </p>
+          </InfoRow>
+          <InfoRow
+            icon={celreception}
+            iconAlt="Cel Reception icon"
+            title="Limited or no cellular reception"
+          >
+            <p>
+              Cell service may be limited or unavailable due to the remoteness
+              of many of our rec sites.
+            </p>
+          </InfoRow>
+          <InfoRow
+            icon={wildlife}
+            iconAlt="Wildlife & Animal Safety icon"
+            title="Wildlife & Animal Safety"
+            className="safety-item"
+          >
+            <p>
+              You may encounter wildlife, including bears, at or near this site.
+            </p>
+            <p>
+              Store food, garbage, and scented items securely. Keep a safe
+              distance from all animals, never feed wildlife, and follow posted
+              safety guidance. Learn what to do if you encounter a bear or other
+              wildlife before your trip.
+            </p>
+          </InfoRow>
+          <InfoRow
+            icon={toilet}
+            iconAlt="Toilet icon"
+            title="Toilets & Sanitation"
+            className="safety-item"
+          >
+            <p>Toilet facilities may be limited or unavailable at this site.</p>
+            <p>
+              Bring your own toilet paper and be prepared to pack out all waste
+              where required. Help protect the environment by following Leave No
+              Trace practices.
+            </p>
+          </InfoRow>
+          <InfoRow
+            icon={forestServiceRoads}
+            iconAlt="Forest Service Roads icon"
+            title="Forest Service Roads"
+            className="safety-item"
+          >
+            <p>
+              Access to this site may involve driving on Forest Service Roads
+              (FSRs) or other natural resource roads.
+            </p>
+            <p>
+              These roads are often gravel, unmaintained, and shared with
+              industrial traffic. Conditions can change quickly due to weather
+              or active use. Drive with caution and check{' '}
+              <a
+                href="https://www2.gov.bc.ca/gov/content/industry/natural-resource-use/resource-roads/local-road-safety-information"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Local road safety information (opens in new window)"
+              >
+                local road safety information
+              </a>{' '}
+              before you go.
+            </p>
+          </InfoRow>
+          <InfoRow
+            icon={campfire}
+            iconAlt="Campfires & Fire Safety icon"
+            title="Campfires & Fire Safety"
+            className="safety-item"
+          >
+            <p>Campfire bans or restrictions may be in place.</p>
+            <p>
+              Before lighting a fire, check current restrictions with{' '}
+              <a
+                href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/alerts#wildfire-info"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="BC Wildfire Service (opens in new window)"
+              >
+                BC Wildfire Service
+              </a>{' '}
+              and on local or Indigenous government websites. Always follow
+              posted signs, use designated fire rings where provided, and fully
+              extinguish fires.
+            </p>
+          </InfoRow>
+          <div className="know-before-you-go__info-box">
+            <strong>
+              Review the detailed guides under visit responsibly for more
+              information on staying safe and preserving natural spaces
+            </strong>
           </div>
           <h3>Visit responsibly</h3>
           <p>

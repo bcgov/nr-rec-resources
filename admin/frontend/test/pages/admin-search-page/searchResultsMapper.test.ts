@@ -53,4 +53,15 @@ describe('mapAdminSearchResultRow', () => {
       statusCode: 1,
     });
   });
+
+  it('maps rec_status_code when provided', () => {
+    expect(
+      mapAdminSearchResultRow({
+        ...baseRow,
+        rec_status_code: 'AR',
+      }),
+    ).toMatchObject({
+      recStatusCode: 'AR',
+    });
+  });
 });
