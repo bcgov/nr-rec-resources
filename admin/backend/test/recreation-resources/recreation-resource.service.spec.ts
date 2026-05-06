@@ -137,6 +137,7 @@ describe('RecreationResourceService', () => {
             },
             status_code: 1,
           },
+          rec_status_code: null,
           _count: {
             recreation_defined_campsite: 5,
           },
@@ -164,6 +165,7 @@ describe('RecreationResourceService', () => {
           closest_community: 'Hope',
           status: 'Open',
           status_code: 1,
+          rec_status_code: null,
           activities: ['Fishing', 'Hiking'],
           access_types: ['Walk in'],
           fee_indicators: ['Reservable', 'Has fees'],
@@ -194,6 +196,7 @@ describe('RecreationResourceService', () => {
           recreation_resource_type_view_admin: [],
           recreation_district_code: null,
           recreation_status: null,
+          rec_status_code: null,
           _count: {
             recreation_defined_campsite: 0,
           },
@@ -221,6 +224,7 @@ describe('RecreationResourceService', () => {
           established_date: null,
           updated_at: null,
           display_on_public_site: true,
+          rec_status_code: null,
           recreation_activity: [
             {
               recreation_activity: {
@@ -254,6 +258,7 @@ describe('RecreationResourceService', () => {
             },
           ],
           recreation_district_code: null,
+          recreation_status: null,
           _count: {
             recreation_defined_campsite: 0,
           },
@@ -279,6 +284,7 @@ describe('RecreationResourceService', () => {
           closest_community: null,
           project_established_date: null,
           display_on_public_site: null,
+          rec_status_code: null,
           recreation_activity: [
             {
               recreation_activity: {
@@ -312,6 +318,7 @@ describe('RecreationResourceService', () => {
           recreation_resource_reservation_info: null,
           recreation_resource_type_view_admin: [],
           recreation_district_code: null,
+          recreation_status: null,
           _count: {},
         },
       ],
@@ -339,6 +346,7 @@ describe('RecreationResourceService', () => {
           fee_indicators: ['No fees'],
           status: OPEN_STATUS.DESCRIPTION,
           status_code: OPEN_STATUS.STATUS_CODE,
+          rec_status_code: null,
           established_date: null,
           campsite_count: 0,
         },

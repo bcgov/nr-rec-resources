@@ -23,6 +23,7 @@ export function mapAdminSearchResultRow(
       : '-',
     status: row.status,
     statusCode: row.status_code,
+    recStatusCode: row.rec_status_code,
     visible: row.display_on_public_site,
   };
 }
