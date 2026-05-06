@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "deploy": "npm install --ignore-scripts --no-update-notifier && npm run build && npm prune --production",
+    "deploy": "npm install --ignore-scripts --no-update-notifier --@fortawesome:registry=https://npm.fontawesome.com/ --//npm.fontawesome.com/:_authToken=$FONT_AWESOME_PRO_TOKEN && npm run build && npm prune --production",
     "lint": "eslint . --fix",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
