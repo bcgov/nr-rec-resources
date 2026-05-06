@@ -123,6 +123,13 @@ export const ContactPage = () => {
                           <option value={CONTACT_TOPICS.WILDFIRES}>
                             {CONTACT_TOPIC_LABELS[CONTACT_TOPICS.WILDFIRES]}
                           </option>
+                          <option value={CONTACT_TOPICS.WEDDINGS_AND_EVENTS}>
+                            {
+                              CONTACT_TOPIC_LABELS[
+                                CONTACT_TOPICS.WEDDINGS_AND_EVENTS
+                              ]
+                            }
+                          </option>
                         </optgroup>
                         <optgroup label="Report a violation">
                           <option value={CONTACT_TOPICS.RAPP}>
