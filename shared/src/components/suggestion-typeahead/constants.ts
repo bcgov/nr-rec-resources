@@ -10,15 +10,15 @@ import ARCHIVED_ICON from '@shared/assets/icons/archived.svg';
 
 export const RESOURCE_TYPE_ICONS: Record<string, string> = {
   // Site type icons:
-  SIT: SIT_ICON, // done
-  RR: RR_ICON, // done
+  SIT: SIT_ICON,
+  RR: RR_ICON,
   // Trail type icons
-  RTR: RTR_ICON, // done
-  RTE: RTE_ICON, // done
-  TBL: TBL_ICON, // done
-  TRB: TRB_ICON, // done
+  RTR: RTR_ICON,
+  RTE: RTE_ICON,
+  TBL: TBL_ICON,
+  TRB: TRB_ICON,
   // Interpretive forest type icons:
-  IF: IF_ICON, // done
-  IFT: IFT_ICON, // done
+  IF: IF_ICON,
+  IFT: IFT_ICON,
   NO_TYPE_ICON: ARCHIVED_ICON,
 };
