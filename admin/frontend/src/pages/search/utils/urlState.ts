@@ -10,7 +10,8 @@ type SerializedListFilterFields =
   | 'district'
   | 'activities'
   | 'status'
-  | 'access';
+  | 'access'
+  | 'closestCommunity';
 
 export type SerializedAdminSearchRouteState = Partial<
   Omit<AdminSearchRouteState, SerializedListFilterFields | 'sort'> & {
@@ -63,6 +64,10 @@ export const serializeAdminSearchRouteState = (
 
   if (state.status.length > 0) {
     search.status = serializeListFilter(state.status);
+  }
+
+  if (state.closestCommunity.length > 0) {
+    search.closestCommunity = serializeListFilter(state.closestCommunity);
   }
 
   if (state.establishment_date_from) {
@@ -147,6 +152,11 @@ export const setAdminSearchStatusFilter = (
   state: AdminSearchRouteState,
   status: string[],
 ): AdminSearchRouteState => setFilterState(state, { status });
+
+export const setAdminSearchClosestCommunityFilter = (
+  state: AdminSearchRouteState,
+  closestCommunity: string[],
+): AdminSearchRouteState => setFilterState(state, { closestCommunity });
 
 export const setAdminSearchEstablishmentDateFromFilter = (
   state: AdminSearchRouteState,

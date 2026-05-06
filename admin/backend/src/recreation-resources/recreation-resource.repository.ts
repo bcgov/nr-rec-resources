@@ -228,6 +228,21 @@ export class RecreationResourceRepository {
     };
   }
 
+  private buildClosestCommunityWhere(
+    communities?: string[],
+  ): Prisma.recreation_resourceWhereInput | null {
+    if (!communities || communities.length === 0) {
+      return null;
+    }
+
+    return {
+      closest_community: {
+        in: communities.map((c) => c.toLowerCase()),
+        mode: 'insensitive',
+      },
+    };
+  }
+
   private buildEstablishmentDateWhere(
     query: AdminSearchQueryDto,
   ): Prisma.recreation_resourceWhereInput | null {
@@ -282,6 +297,7 @@ export class RecreationResourceRepository {
             },
           }
         : null,
+      this.buildClosestCommunityWhere(query.closestCommunity),
       this.buildStatusWhere(query.status),
       this.buildEstablishmentDateWhere(query),
     ].filter(

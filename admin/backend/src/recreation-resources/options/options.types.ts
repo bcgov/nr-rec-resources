@@ -26,6 +26,7 @@ export const OPTION_TYPES = {
   RISK_RATING_CODE: 'riskRatingCode',
   DISTRICT: 'district',
   PHOTOGRAPHER_TYPE: 'photographerType',
+  CLOSEST_COMMUNITY: 'closestCommunity',
 } as const;
 
 /**

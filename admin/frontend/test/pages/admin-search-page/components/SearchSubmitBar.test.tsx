@@ -116,14 +116,18 @@ function renderSearchSubmitBar({
   isLoading = false,
   error = null,
   onSubmit = vi.fn(),
+  onFilterCommunity = vi.fn(),
 }: {
   committedQuery?: string;
   inputValue?: string;
   setInputValue?: (value: string) => void;
-  suggestions?: Array<{ rec_resource_id: string; name: string }>;
+  suggestions?:
+    | Array<{ rec_resource_id: string; name: string }>
+    | Array<{ id: string; name: string }>;
   isLoading?: boolean;
   error?: Error | null;
   onSubmit?: (value: string) => void;
+  onFilterCommunity?: (value: string) => void;
 } = {}) {
   mockUseAdminSearchTypeahead.mockReturnValue({
     inputValue,
@@ -134,7 +138,11 @@ function renderSearchSubmitBar({
   });
 
   render(
-    <SearchSubmitBar committedQuery={committedQuery} onSubmit={onSubmit} />,
+    <SearchSubmitBar
+      committedQuery={committedQuery}
+      onSubmit={onSubmit}
+      onFilterCommunity={onFilterCommunity}
+    />,
   );
 
   return { setInputValue, onSubmit };
@@ -160,7 +168,7 @@ describe('SearchSubmitBar', () => {
     const { onSubmit } = renderSearchSubmitBar();
 
     await user.type(
-      screen.getByPlaceholderText('By name or number'),
+      screen.getByPlaceholderText('By name, number or closest community'),
       '{enter}',
     );
 
@@ -179,7 +187,9 @@ describe('SearchSubmitBar', () => {
       onSubmit,
     });
 
-    const input = screen.getByPlaceholderText('By name or number');
+    const input = screen.getByPlaceholderText(
+      'By name, number or closest community',
+    );
     await user.clear(input);
     await user.type(input, 'ridge lake{enter}');
 
@@ -205,6 +215,25 @@ describe('SearchSubmitBar', () => {
       to: ROUTE_PATHS.REC_RESOURCE_PAGE,
       params: { id: 'REC123' },
     });
+  });
+
+  it('runs closest community filter', async () => {
+    const user = userEvent.setup();
+    const onFilterCommunity = vi.fn();
+
+    renderSearchSubmitBar({
+      onFilterCommunity,
+      suggestions: [
+        {
+          id: 'WHISTLER',
+          name: 'Whistler',
+        },
+      ],
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Whistler' }));
+
+    expect(onFilterCommunity).toHaveBeenCalledOnce();
   });
 
   it('clears the draft input, suggestion query, and submits an empty search', async () => {
