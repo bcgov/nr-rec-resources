@@ -2,6 +2,7 @@ import {
   buildSelectFields,
   mapAccessOptions,
   mapResultToOptionDto,
+  transformClosestCommunityOptions,
   transformResultsToOptionDtos,
 } from '@/recreation-resources/options/options.mapper';
 import { TableMapping } from '@/recreation-resources/options/options.types';
@@ -299,6 +300,26 @@ describe('transformResultsToOptionDtos', () => {
       { id: 'A', label: 'Option A', is_archived: true },
       { id: 'B', label: 'Option B', is_archived: false },
     ]);
+  });
+});
+
+describe('transformClosestCommunityOptions', () => {
+  const mapped = [
+    { id: '100 Mile House', label: '100 Mile House' },
+    { id: '100 MILE HOUSE', label: '100 MILE HOUSE' },
+    { id: '70 MILE HOUSE', label: '70 MILE HOUSE' },
+    { id: 'Bob Quinn Lake', label: 'Bob Quinn Lake' },
+  ];
+
+  it('should make the options unique and with uppercase IDs', async () => {
+    const transformed = transformClosestCommunityOptions(mapped, []);
+
+    expect(transformed).toEqual([
+      { id: '100 MILE HOUSE', label: '100 MILE HOUSE' },
+      { id: '70 MILE HOUSE', label: '70 MILE HOUSE' },
+      { id: 'BOB QUINN LAKE', label: 'Bob Quinn Lake' },
+    ]);
+    expect(transformed.length).toBe(3);
   });
 });
 

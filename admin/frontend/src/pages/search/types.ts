@@ -10,6 +10,7 @@ export interface AdminSearchFilters {
   district: string[];
   activities: string[];
   status: string[];
+  closestCommunity: string[];
   establishment_date_from?: string;
   establishment_date_to?: string;
   access: string[];

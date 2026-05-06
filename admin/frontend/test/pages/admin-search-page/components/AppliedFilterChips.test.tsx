@@ -7,6 +7,7 @@ describe('AppliedFilterChips', () => {
   it('renders all active chip labels', () => {
     render(
       <AppliedFilterChips
+        onClearCommunity={vi.fn()}
         chips={[
           { key: 'query', label: 'Query: tamihi', onClear: vi.fn() },
           { key: 'type', label: 'Site', onClear: vi.fn() },
@@ -26,6 +27,7 @@ describe('AppliedFilterChips', () => {
 
     render(
       <AppliedFilterChips
+        onClearCommunity={vi.fn()}
         chips={[
           {
             key: 'query',
@@ -44,7 +46,9 @@ describe('AppliedFilterChips', () => {
   });
 
   it('renders nothing when no chips are active', () => {
-    const { container } = render(<AppliedFilterChips chips={[]} />);
+    const { container } = render(
+      <AppliedFilterChips chips={[]} onClearCommunity={vi.fn()} />,
+    );
 
     expect(container).toBeEmptyDOMElement();
   });

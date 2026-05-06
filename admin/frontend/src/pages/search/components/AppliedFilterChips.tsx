@@ -6,10 +6,12 @@ import './AppliedFilterChips.scss';
 
 interface AppliedFilterChipsProps {
   chips: AdminAppliedFilterChip[];
+  onClearCommunity: (communityId: string) => void;
 }
 
 export function AppliedFilterChips({
   chips,
+  onClearCommunity,
 }: Readonly<AppliedFilterChipsProps>) {
   if (chips.length === 0) {
     return null;
@@ -22,7 +24,10 @@ export function AppliedFilterChips({
           key={chip.label}
           type="button"
           className="chip"
-          onClick={chip.onClear}
+          onClick={() => {
+            chip.onClear();
+            onClearCommunity(chip.key);
+          }}
           aria-label={`Clear ${chip.label}`}
         >
           {chip.label}

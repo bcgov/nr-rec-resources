@@ -60,6 +60,7 @@ export class OptionsRepository {
 
       return model.findMany({
         select: selectFields,
+        distinct: [mapping.idField],
         orderBy: { [mapping.labelField]: 'asc' },
       });
     });
