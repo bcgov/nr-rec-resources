@@ -165,4 +165,31 @@ describe('SuggestionMenu', () => {
       `Null Resource | Test District | Unknown | ${RESOURCE_TYPE_ICONS.NO_TYPE_ICON} | null | null123`,
     );
   });
+
+  it('uses NO_TYPE_ICON when recreation_resource_type_code is archived', () => {
+    const resultsWithNullTypeCode = [
+      {
+        rec_resource_id: 'null123',
+        recreation_resource_type_code: 'AR',
+        recreation_resource_type: 'Unknown',
+        district_description: 'Test District',
+        name: 'Null Resource',
+        display_on_public_site: false,
+        closest_community: 'Test District',
+      },
+    ];
+
+    render(
+      <SuggestionMenu
+        results={resultsWithNullTypeCode}
+        searchTerm="null"
+        menuProps={mockMenuProps}
+      />,
+    );
+
+    const item = screen.getByTestId('suggestion-item');
+    expect(item).toHaveTextContent(
+      `Null Resource | Test District | Unknown | | null | null123`,
+    );
+  });
 });

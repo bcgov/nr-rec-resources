@@ -84,6 +84,11 @@ export const SuggestionMenu = ({
           display_on_public_site,
           rec_status_code,
         } = option;
+        const iconKey =
+          rec_status_code === RESOURCE_STATUS_TYPE.AR ||
+          !recreation_resource_type_code
+            ? 'NO_TYPE_ICON'
+            : recreation_resource_type_code;
         return (
           <MenuItem
             key={rec_resource_id}
@@ -94,19 +99,7 @@ export const SuggestionMenu = ({
             <SuggestionListItem
               searchTerm={searchTerm}
               district={district_description}
-              icon={
-                <Image
-                  src={
-                    RESOURCE_TYPE_ICONS[
-                      rec_status_code === RESOURCE_STATUS_TYPE.AR
-                        ? 'NO_TYPE_ICON'
-                        : recreation_resource_type_code
-                          ? recreation_resource_type_code
-                          : 'NO_TYPE_ICON'
-                    ]
-                  }
-                />
-              }
+              icon={<Image src={RESOURCE_TYPE_ICONS[iconKey]} />}
               rec_resource_id={rec_resource_id}
               resourceType={recreation_resource_type}
               recreation_resource_type_code={recreation_resource_type_code}
