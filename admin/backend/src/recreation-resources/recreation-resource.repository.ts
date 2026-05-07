@@ -49,6 +49,7 @@ export class RecreationResourceRepository {
     const data = await this.prisma.$queryRawTyped(
       getRecreationResourceSuggestions(searchTerm),
     );
+    console.log(`findSuggestions: ${JSON.stringify(data[0])}`);
     return { total: data.length, data };
   }
 
