@@ -4,8 +4,12 @@ import {
   useEditFeaturesForm,
   useFeatureOptions,
 } from '@/pages/rec-resource-page/components/RecResourceFeatureSection';
-import { RecResourceActivitiesEditSection } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection';
+import {
+  RecResourceActivitiesEditSection,
+  RecResourceAdaptiveActivitiesEditSection,
+} from '@/pages/rec-resource-page/components/RecResourceActivitiesSection';
 import { useActivitiesOptions } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection/EditSection/hooks/useActivitiesOptions';
+import { useAdaptiveActivitiesOptions } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection/EditSection/hooks/useAdaptiveActivitiesOptions';
 import { useEditActivitiesForm } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection/EditSection/hooks/useEditActivitiesForm';
 import {
   Link,
@@ -24,12 +28,14 @@ export const RecResourceActivitiesFeaturesEditPage = () => {
 
   const { options: activityOptions, isLoading: activityOptionsLoading } =
     useActivitiesOptions();
+  const { options: adaptiveOptions, isLoading: adaptiveOptionsLoading } =
+    useAdaptiveActivitiesOptions();
   const { options: featureOptions, isLoading: featureOptionsLoading } =
     useFeatureOptions();
 
   const {
-    control: activitiesControl,
-    errors: activitiesErrors,
+    control: activitiesFormControl,
+    errors: activitiesFormErrors,
     isDirty: isActivitiesDirty,
     updateMutation: updateActivitiesMutation,
     handleSubmit: handleSubmitActivities,
@@ -74,7 +80,7 @@ export const RecResourceActivitiesFeaturesEditPage = () => {
     updateActivitiesMutation.isPending || updateFeaturesMutation.isPending;
   const hasChanges = isActivitiesDirty || isFeaturesDirty;
   const isLoadingOptions =
-    (isActivitiesDirty && activityOptionsLoading) ||
+    (isActivitiesDirty && (activityOptionsLoading || adaptiveOptionsLoading)) ||
     (isFeaturesDirty && featureOptionsLoading);
   const isSaveDisabled = isSaving || !hasChanges || isLoadingOptions;
 
@@ -107,10 +113,22 @@ export const RecResourceActivitiesFeaturesEditPage = () => {
             </Stack>
           </div>
           <RecResourceActivitiesEditSection
-            control={activitiesControl}
-            errors={activitiesErrors}
+            control={activitiesFormControl}
+            errors={activitiesFormErrors}
             options={activityOptions}
             optionsLoading={activityOptionsLoading}
+          />
+        </Stack>
+
+        <Stack direction="vertical" gap={4}>
+          <div className="d-flex justify-content-between align-items-center">
+            <h2>Accessible activities</h2>
+          </div>
+          <RecResourceAdaptiveActivitiesEditSection
+            control={activitiesFormControl}
+            errors={activitiesFormErrors}
+            options={adaptiveOptions}
+            optionsLoading={adaptiveOptionsLoading}
           />
         </Stack>
 

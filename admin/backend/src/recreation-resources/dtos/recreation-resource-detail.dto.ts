@@ -22,6 +22,24 @@ export class RecreationActivityDto {
     example: 'Hiking trails available for all skill levels',
   })
   description: string;
+
+  @ApiProperty({
+    description: 'Whether this activity is an accessible activity',
+    type: Boolean,
+    example: false,
+    required: false,
+    nullable: true,
+  })
+  is_accessible?: boolean | null;
+
+  @ApiProperty({
+    description: 'Additional details about the accessible activity',
+    type: String,
+    example: 'Adaptive mountain biking trails with wide paths',
+    required: false,
+    nullable: true,
+  })
+  details?: string | null;
 }
 
 export class RecreationSubAccessCodeDto {

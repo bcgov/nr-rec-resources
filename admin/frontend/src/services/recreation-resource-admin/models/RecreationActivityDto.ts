@@ -31,6 +31,18 @@ export interface RecreationActivityDto {
    * @memberof RecreationActivityDto
    */
   description: string;
+  /**
+   * Whether this activity is an accessible activity
+   * @type {boolean}
+   * @memberof RecreationActivityDto
+   */
+  is_accessible?: boolean | null;
+  /**
+   * Additional details about the accessible activity
+   * @type {string}
+   * @memberof RecreationActivityDto
+   */
+  details?: string | null;
 }
 
 /**
@@ -65,6 +77,9 @@ export function RecreationActivityDtoFromJSONTyped(
   return {
     recreation_activity_code: json['recreation_activity_code'],
     description: json['description'],
+    is_accessible:
+      json['is_accessible'] == null ? undefined : json['is_accessible'],
+    details: json['details'] == null ? undefined : json['details'],
   };
 }
 
@@ -83,5 +98,7 @@ export function RecreationActivityDtoToJSONTyped(
   return {
     recreation_activity_code: value['recreation_activity_code'],
     description: value['description'],
+    is_accessible: value['is_accessible'],
+    details: value['details'],
   };
 }

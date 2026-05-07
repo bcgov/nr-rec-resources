@@ -21,11 +21,17 @@ export const useEditActivitiesForm = (
 ) => {
   const updateMutation = useUpdateActivities();
 
-  // Get default values from activities data
+  // Get default values from activities data, split by is_accessible flag
   const defaultValues: EditActivitiesFormData = useMemo(() => {
     return {
       activity_codes:
-        activities?.map((activity) => activity.recreation_activity_code) || [],
+        activities
+          ?.filter((a) => !a.is_accessible)
+          .map((a) => a.recreation_activity_code) || [],
+      adaptive_activity_codes:
+        activities
+          ?.filter((a) => a.is_accessible)
+          .map((a) => a.recreation_activity_code) || [],
     };
   }, [activities]);
 
@@ -52,7 +58,10 @@ export const useEditActivitiesForm = (
     try {
       await updateMutation.mutateAsync({
         recResourceId,
-        activity_codes: data.activity_codes,
+        activity_codes: [
+          ...data.activity_codes,
+          ...data.adaptive_activity_codes,
+        ],
       });
       addSuccessNotification('Activities updated successfully.');
       return true;

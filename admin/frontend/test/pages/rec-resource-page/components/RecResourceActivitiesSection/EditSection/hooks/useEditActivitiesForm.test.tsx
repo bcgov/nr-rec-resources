@@ -44,8 +44,23 @@ describe('useEditActivitiesForm', () => {
   };
 
   const mockActivities = [
-    { recreation_activity_code: 1, description: 'Hiking' },
-    { recreation_activity_code: 2, description: 'Camping' },
+    {
+      recreation_activity_code: 1,
+      description: 'Hiking',
+      is_accessible: false,
+    },
+    {
+      recreation_activity_code: 2,
+      description: 'Camping',
+      is_accessible: false,
+    },
+  ];
+  const mockAdaptiveActivities = [
+    {
+      recreation_activity_code: 34,
+      description: 'Adaptive mountain biking',
+      is_accessible: true,
+    },
   ];
   const mockRecResourceId = 'test-resource-123';
 
@@ -66,10 +81,25 @@ describe('useEditActivitiesForm', () => {
       resolver: 'mockResolver',
       defaultValues: {
         activity_codes: [1, 2],
+        adaptive_activity_codes: [],
       },
       mode: 'onChange',
     });
     expect(zodResolver).toHaveBeenCalled();
+  });
+
+  it('splits activities by is_accessible flag on initialization', () => {
+    const mixed = [...mockActivities, ...mockAdaptiveActivities];
+    renderHook(() => useEditActivitiesForm(mixed, mockRecResourceId));
+
+    expect(useForm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        defaultValues: {
+          activity_codes: [1, 2],
+          adaptive_activity_codes: [34],
+        },
+      }),
+    );
   });
 
   it('resets form when activities change', () => {
@@ -83,26 +113,32 @@ describe('useEditActivitiesForm', () => {
     // Initial reset call from useEffect
     expect(mockReset).toHaveBeenCalledWith({
       activity_codes: [1, 2],
+      adaptive_activity_codes: [],
     });
 
     // Update activities
     const newActivities = [
-      { recreation_activity_code: 3, description: 'Fishing' },
+      {
+        recreation_activity_code: 3,
+        description: 'Fishing',
+        is_accessible: false,
+      },
     ];
 
     rerender({ activities: newActivities });
 
     expect(mockReset).toHaveBeenCalledWith({
       activity_codes: [3],
+      adaptive_activity_codes: [],
     });
   });
 
-  it('handles successful submission', async () => {
+  it('handles successful submission by merging regular and adaptive codes', async () => {
     const { result } = renderHook(() =>
       useEditActivitiesForm(mockActivities, mockRecResourceId),
     );
 
-    const formData = { activity_codes: [1, 3] };
+    const formData = { activity_codes: [1, 3], adaptive_activity_codes: [34] };
     mockMutateAsync.mockResolvedValue(undefined);
 
     const submitResult = await result.current.onSubmit(formData);
@@ -110,7 +146,7 @@ describe('useEditActivitiesForm', () => {
     expect(submitResult).toBe(true);
     expect(mockMutateAsync).toHaveBeenCalledWith({
       recResourceId: mockRecResourceId,
-      activity_codes: [1, 3],
+      activity_codes: [1, 3, 34],
     });
   });
 
@@ -121,9 +157,14 @@ describe('useEditActivitiesForm', () => {
 
     const error = new Error('API Error');
     mockMutateAsync.mockRejectedValue(error);
-    vi.mocked(handleApiError).mockResolvedValue({ message: 'API Error' });
+    vi.mocked(handleApiError).mockResolvedValue({
+      message: 'API Error',
+      statusCode: 500,
+      isResponseError: false,
+      isAuthError: false,
+    });
 
-    const formData = { activity_codes: [1, 3] };
+    const formData = { activity_codes: [1, 3], adaptive_activity_codes: [] };
     const submitResult = await result.current.onSubmit(formData);
 
     expect(submitResult).toBe(false);
@@ -148,6 +189,7 @@ describe('useEditActivitiesForm', () => {
       expect.objectContaining({
         defaultValues: {
           activity_codes: [],
+          adaptive_activity_codes: [],
         },
       }),
     );
@@ -162,6 +204,7 @@ describe('useEditActivitiesForm', () => {
       expect.objectContaining({
         defaultValues: {
           activity_codes: [],
+          adaptive_activity_codes: [],
         },
       }),
     );

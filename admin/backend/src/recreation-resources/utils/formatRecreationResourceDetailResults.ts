@@ -100,6 +100,8 @@ export function formatRecreationResourceDetailResults(
       description: activity.recreation_activity.description ?? '',
       recreation_activity_code:
         activity.recreation_activity.recreation_activity_code,
+      is_accessible: activity.recreation_activity.is_accessible ?? undefined,
+      details: activity.recreation_activity.details ?? undefined,
     })),
     recreation_status: {
       description:

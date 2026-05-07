@@ -27,6 +27,8 @@ export class ActivitiesRepository {
           select: {
             recreation_activity_code: true,
             description: true,
+            is_accessible: true,
+            details: true,
           },
         },
       },
@@ -36,6 +38,8 @@ export class ActivitiesRepository {
       recreation_activity_code:
         activity.recreation_activity.recreation_activity_code,
       description: activity.recreation_activity.description ?? '',
+      is_accessible: activity.recreation_activity.is_accessible ?? undefined,
+      details: activity.recreation_activity.details ?? undefined,
     }));
   }
 

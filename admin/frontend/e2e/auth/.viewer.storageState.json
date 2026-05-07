@@ -1,0 +1,45 @@
+{
+  "cookies": [
+    {
+      "name": "AUTH_SESSION_ID",
+      "value": "MjBlZTM0ODEtOGMyZi00NjcyLTk5MDctMjBiZGZjYWY4ZWI0LlJlV3NOVjJJQ2Rha3JUS1VHeDBWU01HVjFEZzhoUmM5bzBqbzMtWDJSUU16a3pnaWtGY0JpUXZzaEFBenY2a0hudVoyR2NmMmhLU25aUnBxcWpDXzlB",
+      "domain": "localhost",
+      "path": "/realms/rst-local/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KC_AUTH_SESSION_HASH",
+      "value": "2iDiBQLMeAsZA15UUKhheRyK0eh8UBQm9kOFSEGi0N4",
+      "domain": "localhost",
+      "path": "/realms/rst-local/",
+      "expires": 1781898661.710535,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_IDENTITY",
+      "value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3MzFkNmFjZi03ZjVlLTQ2OWMtOWJiYy00MGE5YTM5MGE0YzEifQ.eyJleHAiOjE3ODE5MzQ2MDEsImlhdCI6MTc4MTg5ODYwMSwianRpIjoiYTkyZTQzMTQtMGExOC00Mzg0LTk4ZTAtY2U0MTA2NzVjOWYyIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9yc3QtbG9jYWwiLCJzdWIiOiI3N2I1MGY2OS0xNDAwLTRhMDAtYWUzMC05YzBhNTVkOWVhMDQiLCJ0eXAiOiJTZXJpYWxpemVkLUlEIiwic2lkIjoiMjBlZTM0ODEtOGMyZi00NjcyLTk5MDctMjBiZGZjYWY4ZWI0Iiwic3RhdGVfY2hlY2tlciI6IkF1YVVONmtCcFEzeUVYdHRiUHhoS1dOeGVzY3pPd1g5Y09HMnFva1BZQVEifQ.JEHLEGdkQ4IRbo8bNlpzasbU725Tqp6B3O6hWZ9jpYZT3kkwoE9vr6OCibf-X6H2k0BpvNxCInOYEd8G2Nc-7A",
+      "domain": "localhost",
+      "path": "/realms/rst-local/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_SESSION",
+      "value": "2iDiBQLMeAsZA15UUKhheRyK0eh8UBQm9kOFSEGi0N4",
+      "domain": "localhost",
+      "path": "/realms/rst-local/",
+      "expires": 1781934601.848302,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": []
+}

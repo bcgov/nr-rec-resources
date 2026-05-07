@@ -54,6 +54,15 @@ export async function recResourceActivitiesFeaturesLoader(args: any) {
     }),
     args.context.queryClient.ensureQueryData({
       queryKey: RECREATION_RESOURCE_QUERY_KEYS.options([
+        GetOptionsByTypesTypesEnum.AccessibleActivities,
+      ]),
+      queryFn: () =>
+        api.getOptionsByTypes({
+          types: [GetOptionsByTypesTypesEnum.AccessibleActivities],
+        }),
+    }),
+    args.context.queryClient.ensureQueryData({
+      queryKey: RECREATION_RESOURCE_QUERY_KEYS.options([
         GetOptionsByTypesTypesEnum.FeatureCode,
       ]),
       queryFn: () =>

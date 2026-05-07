@@ -1624,7 +1624,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -1673,7 +1673,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity
    * List all options for a type
    */
   async getOptionsByType(
@@ -2994,6 +2994,7 @@ export type GetExportPreviewDatasetEnum =
  */
 export const GetOptionsByTypeTypeEnum = {
   Activities: 'activities',
+  AccessibleActivities: 'accessibleActivities',
   Access: 'access',
   SubAccess: 'sub-access',
   Maintenance: 'maintenance',
@@ -3015,6 +3016,7 @@ export type GetOptionsByTypeTypeEnum =
  */
 export const GetOptionsByTypesTypesEnum = {
   Activities: 'activities',
+  AccessibleActivities: 'accessibleActivities',
   Access: 'access',
   SubAccess: 'sub-access',
   Maintenance: 'maintenance',
