@@ -55,6 +55,14 @@ export class SuggestionDto {
     example: 'true',
   })
   display_on_public_site: boolean | null;
+
+  @ApiProperty({
+    description: 'Resource archive status code',
+    example: 'AR',
+    required: false,
+    nullable: true,
+  })
+  rec_status_code?: string | null;
 }
 
 /**

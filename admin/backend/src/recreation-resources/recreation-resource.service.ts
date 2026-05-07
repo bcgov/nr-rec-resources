@@ -50,6 +50,7 @@ export class RecreationResourceService {
           district_description: item.district_description,
           display_on_public_site: item.display_on_public_site,
           closest_community: item.closest_community,
+          rec_status_code: item.rec_status_code,
         }),
       ),
     };

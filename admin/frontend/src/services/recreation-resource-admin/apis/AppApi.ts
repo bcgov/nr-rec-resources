@@ -35,12 +35,9 @@ export class AppApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api`;
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api`,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,

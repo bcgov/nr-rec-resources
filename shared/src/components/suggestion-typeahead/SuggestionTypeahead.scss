@@ -62,18 +62,48 @@
 }
 
 .rec-id-badge {
-  background: $colorIceBlue !important;
+  font-weight: 400;
+  font-size: 16px;
+  text-align: center;
+
+  background: rgba($colorGreen, 0.2) !important;
   min-width: 100px;
-  color: $colorBlue;
+  color: $colorGreen;
 
   .active &,
   .dropdown-menu-item:hover & {
+    background: $colorGreenLightest !important;
+  }
+
+  &.reserve-badge {
+    background: $colorBackgroundGrey !important;
+    color: $colorGreyMed;
+    .active &,
+    .dropdown-menu-item:hover & {
+      background: $colorGreyLight !important;
+    }
+  }
+
+  &.disabled-badge {
     background: $colorWhite !important;
+    color: $colorGreyMed;
+    .active &,
+    .dropdown-menu-item:hover & {
+      background: $colorWhite !important;
+    }
   }
 }
 
 .rec-name {
   white-space: normal;
+
+  &.is-resource {
+    color: $colorGreen;
+  }
+
+  &.is-reserve {
+    color: $colorGreyMed;
+  }
 
   .active &,
   .dropdown-menu-item:hover & {

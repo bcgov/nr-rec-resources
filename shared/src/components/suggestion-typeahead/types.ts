@@ -11,4 +11,5 @@ export interface RecreationResourceSuggestion {
   name: string;
   closest_community: string;
   display_on_public_site: boolean;
+  rec_status_code?: string;
 }

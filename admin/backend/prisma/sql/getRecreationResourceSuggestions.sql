@@ -5,7 +5,8 @@ SELECT
     rrtv.rec_resource_type_code as recreation_resource_type_code,
     rd.description as district_description,
     rr.display_on_public_site,
-    rr.closest_community
+    rr.closest_community,
+    rr.rec_status_code
 FROM rst.recreation_resource rr
 LEFT JOIN rst.recreation_resource_type_view_admin rrtv ON rr.rec_resource_id = rrtv.rec_resource_id
 LEFT JOIN rst.recreation_district_code rd ON rr.district_code = rd.district_code

@@ -61,6 +61,12 @@ export interface SuggestionDto {
    * @memberof SuggestionDto
    */
   display_on_public_site: boolean;
+  /**
+   * Resource archive status code
+   * @type {object}
+   * @memberof SuggestionDto
+   */
+  rec_status_code?: object | null;
 }
 
 /**
@@ -117,6 +123,8 @@ export function SuggestionDtoFromJSONTyped(
     district_description: json['district_description'],
     closest_community: json['closest_community'],
     display_on_public_site: json['display_on_public_site'],
+    rec_status_code:
+      json['rec_status_code'] == null ? undefined : json['rec_status_code'],
   };
 }
 
@@ -140,5 +148,6 @@ export function SuggestionDtoToJSONTyped(
     district_description: value['district_description'],
     closest_community: value['closest_community'],
     display_on_public_site: value['display_on_public_site'],
+    rec_status_code: value['rec_status_code'],
   };
 }

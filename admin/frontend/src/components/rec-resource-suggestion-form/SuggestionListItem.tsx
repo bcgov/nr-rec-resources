@@ -2,6 +2,10 @@ import { Badge, Col, ListGroup, Row } from 'react-bootstrap';
 import { FC, ReactNode } from 'react';
 import { Highlighter } from 'react-bootstrap-typeahead';
 import '@shared/components/suggestion-typeahead/SuggestionListItem.scss';
+import {
+  IS_RESERVE,
+  RESOURCE_STATUS_TYPE,
+} from '@shared/components/suggestion-typeahead/constants';
 
 /**
  * Props for the SuggestionListItem component.
@@ -15,12 +19,16 @@ interface SearchItemData {
   title: string;
   /** Type of the recreation resource (e.g.: Recreation site, Recreation trail, etc). */
   resourceType: string;
+  /** Code for the type of the recreation resource (e.g.: RR, RTR, etc). */
+  recreation_resource_type_code: string;
   /** District where the resource is located (e.g.: Chilliwack, Squamish, etc). */
   district: string;
   /** Unique identifier for the recreation resource (e.g.: REC00002). */
   rec_resource_id: string;
   /** Defines if the resource should be displayed on public site. */
   display_on_public_site: boolean;
+  /** Defines the status code for the recreation resource. */
+  rec_status_code?: string;
 }
 
 /**
@@ -36,8 +44,10 @@ export const SuggestionListItem: FC<SearchItemData> = ({
   icon,
   title,
   resourceType,
+  recreation_resource_type_code,
   district,
   display_on_public_site,
+  rec_status_code,
 }) => {
   return (
     <ListGroup.Item
@@ -57,7 +67,9 @@ export const SuggestionListItem: FC<SearchItemData> = ({
 
         {/* Combined Middle Section */}
         <Col className="content-col d-flex flex-column">
-          <span className="rec-name mb-1 capitalize">
+          <span
+            className={`rec-name mb-1 capitalize ${IS_RESERVE(recreation_resource_type_code) ? 'is-reserve' : 'is-resource'}`}
+          >
             <Highlighter search={searchTerm}>{title.toLowerCase()}</Highlighter>
           </span>
 
@@ -77,7 +89,9 @@ export const SuggestionListItem: FC<SearchItemData> = ({
           xs="auto"
           className="d-none d-sm-flex align-items-center flex-shrink-0"
         >
-          <Badge className="rec-id-badge px-3 py-2 rounded-pill">
+          <Badge
+            className={`rec-id-badge px-3 py-2 rounded-pill ${rec_status_code === RESOURCE_STATUS_TYPE.AR ? 'disabled-badge' : ''} ${IS_RESERVE(recreation_resource_type_code) ? 'reserve-badge' : ''}`}
+          >
             {rec_resource_id}
           </Badge>
         </Col>
