@@ -2,7 +2,7 @@ import { RecResourceActivitiesSection } from '@/pages/rec-resource-page/componen
 import { RecResourceAdaptiveActivitiesSection } from '@/pages/rec-resource-page/components/RecResourceAdaptiveActivitiesSection';
 import { RecResourceFeatureSection } from '@/pages/rec-resource-page/components/RecResourceFeatureSection';
 import { RecreationActivityDto } from '@/services/recreation-resource-admin/models';
-import { useLoaderData } from '@tanstack/react-router';
+import { useLoaderData, useParams } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { Stack } from 'react-bootstrap';
 
@@ -10,6 +10,7 @@ export const RecResourceActivitiesFeaturesPage = () => {
   const { activities, features } = useLoaderData({
     from: '/rec-resource/$id/activities-features/',
   });
+  const { id: rec_resource_id } = useParams({ from: '/rec-resource/$id' });
 
   const regularActivities = useMemo(
     () =>
@@ -31,6 +32,7 @@ export const RecResourceActivitiesFeaturesPage = () => {
     <Stack direction="vertical" gap={5}>
       <RecResourceActivitiesSection recreationActivities={regularActivities} />
       <RecResourceAdaptiveActivitiesSection
+        recResourceId={rec_resource_id}
         recreationActivities={adaptiveActivities}
       />
       <RecResourceFeatureSection recreationFeatures={features} />

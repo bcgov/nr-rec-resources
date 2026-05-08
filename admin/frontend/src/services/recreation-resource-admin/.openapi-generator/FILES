@@ -8,6 +8,7 @@ models/AdminSearchResultRowDto.ts
 models/BadRequestResponseDto.ts
 models/ConsentFormDownloadResponseDto.ts
 models/CreateRecreationFeeDto.ts
+models/CreateTrailDto.ts
 models/EstablishmentOrderDocDto.ts
 models/ExportDatasetDto.ts
 models/ExportPreviewResponseDto.ts
@@ -37,6 +38,7 @@ models/RecreationRiskRatingDto.ts
 models/RecreationStatusDto.ts
 models/RecreationStructureDto.ts
 models/RecreationSubAccessCodeDto.ts
+models/RecreationTrailDto.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts
 models/UpdateActivitiesDto.ts
@@ -47,6 +49,7 @@ models/UpdateRecreationFeeDto.ts
 models/UpdateRecreationResourceDto.ts
 models/UpdateRecreationResourceGeospatialDto.ts
 models/UpdateRecreationResourceReservationDto.ts
+models/UpdateTrailDto.ts
 models/ValidationErrorDetailDto.ts
 models/index.ts
 runtime.ts

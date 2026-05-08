@@ -1,5 +1,5 @@
 import { RecResourceActivitiesFeaturesPage } from '@/pages/rec-resource-page/RecResourceActivitiesFeaturesPage';
-import { useLoaderData } from '@tanstack/react-router';
+import { useLoaderData, useParams } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -9,6 +9,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   return {
     ...actual,
     useLoaderData: vi.fn(),
+    useParams: vi.fn(),
   };
 });
 
@@ -19,6 +20,15 @@ vi.mock(
       <div data-testid="rec-resource-activities-section">
         {recreationActivities?.length || 0} activities
       </div>
+    ),
+  }),
+);
+
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceAdaptiveActivitiesSection',
+  () => ({
+    RecResourceAdaptiveActivitiesSection: () => (
+      <div data-testid="rec-resource-adaptive-activities-section" />
     ),
   }),
 );
@@ -35,14 +45,8 @@ vi.mock(
 );
 
 const mockActivities = [
-  {
-    recreation_activity_code: 1,
-    description: 'Hiking',
-  },
-  {
-    recreation_activity_code: 2,
-    description: 'Camping',
-  },
+  { recreation_activity_code: 1, description: 'Hiking' },
+  { recreation_activity_code: 2, description: 'Camping' },
 ];
 
 describe('RecResourceActivitiesFeaturesPage', () => {
@@ -50,10 +54,15 @@ describe('RecResourceActivitiesFeaturesPage', () => {
     vi.clearAllMocks();
   });
 
+  beforeEach(() => {
+    vi.mocked(useParams).mockReturnValue({ id: 'REC123' });
+  });
+
   it('renders activities section when activities are loaded', () => {
     vi.mocked(useLoaderData).mockReturnValue({
       activities: mockActivities,
       features: [],
+      trails: [],
     } as any);
 
     render(<RecResourceActivitiesFeaturesPage />);
@@ -71,6 +80,7 @@ describe('RecResourceActivitiesFeaturesPage', () => {
     vi.mocked(useLoaderData).mockReturnValue({
       activities: [],
       features: [],
+      trails: [],
     } as any);
 
     render(<RecResourceActivitiesFeaturesPage />);

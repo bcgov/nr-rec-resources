@@ -7,10 +7,12 @@ import { Stack } from 'react-bootstrap';
 import { AdaptiveActivityList } from './AdaptiveActivityList';
 
 type RecResourceAdaptiveActivitiesSectionProps = {
+  recResourceId: string;
   recreationActivities: RecreationActivityDto[];
 };
 
 export const RecResourceAdaptiveActivitiesSection = ({
+  recResourceId,
   recreationActivities,
 }: RecResourceAdaptiveActivitiesSectionProps) => {
   const { id: rec_resource_id } = useParams({ from: '/rec-resource/$id' });
@@ -36,7 +38,10 @@ export const RecResourceAdaptiveActivitiesSection = ({
       {!recreationActivities || recreationActivities.length === 0 ? (
         <div className="text-secondary">No accessible activities assigned.</div>
       ) : (
-        <AdaptiveActivityList recreationActivities={recreationActivities} />
+        <AdaptiveActivityList
+          recResourceId={recResourceId}
+          recreationActivities={recreationActivities}
+        />
       )}
     </Stack>
   );

@@ -45,6 +45,11 @@ vi.mock(
     RecResourceActivitiesEditSection: () => (
       <div data-testid="activities-edit-section">Activities Edit Section</div>
     ),
+    RecResourceAdaptiveActivitiesEditSection: () => (
+      <div data-testid="adaptive-activities-edit-section">
+        Adaptive Activities Edit Section
+      </div>
+    ),
   }),
 );
 
@@ -73,6 +78,16 @@ vi.mock(
 );
 
 vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceActivitiesSection/EditSection/hooks/useAdaptiveActivitiesOptions',
+  () => ({
+    useAdaptiveActivitiesOptions: () => ({
+      options: [],
+      isLoading: false,
+    }),
+  }),
+);
+
+vi.mock(
   '@/pages/rec-resource-page/components/RecResourceActivitiesSection/EditSection/hooks/useEditActivitiesForm',
   () => ({
     useEditActivitiesForm: () => mockActivitiesFormReturn,
@@ -88,7 +103,6 @@ describe('RecResourceActivitiesFeaturesEditPage', () => {
     });
     vi.mocked(useParams).mockReturnValue({ id: 'test-123' });
 
-    // Reset mock return values to defaults
     mockActivitiesFormReturn.isDirty = false;
     mockActivitiesFormReturn.updateMutation = { isPending: false };
     mockFeaturesFormReturn.isDirty = false;

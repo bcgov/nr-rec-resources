@@ -18,6 +18,7 @@ import type {
   BadRequestResponseDto,
   ConsentFormDownloadResponseDto,
   CreateRecreationFeeDto,
+  CreateTrailDto,
   EstablishmentOrderDocDto,
   ExportPreviewResponseDto,
   FinalizeDocUploadRequestDto,
@@ -34,6 +35,7 @@ import type {
   RecreationResourceGeospatialDto,
   RecreationResourceImageDto,
   RecreationResourceReservationInfoDto,
+  RecreationTrailDto,
   SuggestionsResponseDto,
   UpdateActivitiesDto,
   UpdateFeaturesDto,
@@ -42,6 +44,7 @@ import type {
   UpdateRecreationResourceDto,
   UpdateRecreationResourceGeospatialDto,
   UpdateRecreationResourceReservationDto,
+  UpdateTrailDto,
 } from '../models/index';
 import {
   AdminSearchResponseDtoFromJSON,
@@ -52,6 +55,8 @@ import {
   ConsentFormDownloadResponseDtoToJSON,
   CreateRecreationFeeDtoFromJSON,
   CreateRecreationFeeDtoToJSON,
+  CreateTrailDtoFromJSON,
+  CreateTrailDtoToJSON,
   EstablishmentOrderDocDtoFromJSON,
   EstablishmentOrderDocDtoToJSON,
   ExportPreviewResponseDtoFromJSON,
@@ -84,6 +89,8 @@ import {
   RecreationResourceImageDtoToJSON,
   RecreationResourceReservationInfoDtoFromJSON,
   RecreationResourceReservationInfoDtoToJSON,
+  RecreationTrailDtoFromJSON,
+  RecreationTrailDtoToJSON,
   SuggestionsResponseDtoFromJSON,
   SuggestionsResponseDtoToJSON,
   UpdateActivitiesDtoFromJSON,
@@ -100,6 +107,8 @@ import {
   UpdateRecreationResourceGeospatialDtoToJSON,
   UpdateRecreationResourceReservationDtoFromJSON,
   UpdateRecreationResourceReservationDtoToJSON,
+  UpdateTrailDtoFromJSON,
+  UpdateTrailDtoToJSON,
 } from '../models/index';
 
 export interface CreateEstablishmentOrderDocRequest {
@@ -124,6 +133,11 @@ export interface CreateRecreationResourceFeeRequest {
   createRecreationFeeDto: CreateRecreationFeeDto;
 }
 
+export interface CreateTrailRequest {
+  recResourceId: string;
+  createTrailDto: CreateTrailDto;
+}
+
 export interface DeleteDocumentResourceRequest {
   recResourceId: string;
   documentId: string;
@@ -142,6 +156,11 @@ export interface DeleteImageResourceRequest {
 export interface DeleteRecreationResourceFeeRequest {
   recResourceId: string;
   feeId: number;
+}
+
+export interface DeleteTrailRequest {
+  recResourceId: string;
+  trailId: number;
 }
 
 export interface DownloadExportCsvRequest {
@@ -227,6 +246,10 @@ export interface GetRecreationResourceSuggestionsRequest {
   searchTerm: string;
 }
 
+export interface GetTrailsByRecResourceIdRequest {
+  recResourceId: string;
+}
+
 export interface PresignDocUploadRequest {
   recResourceId: string;
   fileName: string;
@@ -288,6 +311,12 @@ export interface UpdateRecreationResourceGeospatialRequest {
 export interface UpdateRecreationResourceReservationRequest {
   recResourceId: string;
   updateRecreationResourceReservationDto: UpdateRecreationResourceReservationDto;
+}
+
+export interface UpdateTrailRequest {
+  recResourceId: string;
+  trailId: number;
+  updateTrailDto: UpdateTrailDto;
 }
 
 /**
@@ -598,6 +627,78 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Create a new trail for a recreation resource
+   */
+  async createTrailRaw(
+    requestParameters: CreateTrailRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationTrailDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling createTrail().',
+      );
+    }
+
+    if (requestParameters['createTrailDto'] == null) {
+      throw new runtime.RequiredError(
+        'createTrailDto',
+        'Required parameter "createTrailDto" was null or undefined when calling createTrail().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/trails`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: CreateTrailDtoToJSON(requestParameters['createTrailDto']),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationTrailDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Create a new trail for a recreation resource
+   */
+  async createTrail(
+    requestParameters: CreateTrailRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationTrailDto> {
+    const response = await this.createTrailRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Delete a Document Resource
    */
   async deleteDocumentResourceRaw(
@@ -816,6 +917,73 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       initOverrides,
     );
     return await response.value();
+  }
+
+  /**
+   * Delete a trail
+   */
+  async deleteTrailRaw(
+    requestParameters: DeleteTrailRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<void>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling deleteTrail().',
+      );
+    }
+
+    if (requestParameters['trailId'] == null) {
+      throw new runtime.RequiredError(
+        'trailId',
+        'Required parameter "trailId" was null or undefined when calling deleteTrail().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/trails/{trail_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'trail_id'}}`,
+      encodeURIComponent(String(requestParameters['trailId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * Delete a trail
+   */
+  async deleteTrail(
+    requestParameters: DeleteTrailRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    await this.deleteTrailRaw(requestParameters, initOverrides);
   }
 
   /**
@@ -2143,6 +2311,68 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Get all trails for a recreation resource
+   */
+  async getTrailsByRecResourceIdRaw(
+    requestParameters: GetTrailsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationTrailDto>>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getTrailsByRecResourceId().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/trails`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationTrailDtoFromJSON),
+    );
+  }
+
+  /**
+   * Get all trails for a recreation resource
+   */
+  async getTrailsByRecResourceId(
+    requestParameters: GetTrailsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationTrailDto>> {
+    const response = await this.getTrailsByRecResourceIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Allocates a document ID and returns a presigned PUT URL for uploading the PDF directly to S3.
    * Request presigned URL for direct S3 document upload
    */
@@ -2938,6 +3168,89 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<UpdateRecreationResourceReservationDto> {
     const response = await this.updateRecreationResourceReservationRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Update an existing trail
+   */
+  async updateTrailRaw(
+    requestParameters: UpdateTrailRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationTrailDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling updateTrail().',
+      );
+    }
+
+    if (requestParameters['trailId'] == null) {
+      throw new runtime.RequiredError(
+        'trailId',
+        'Required parameter "trailId" was null or undefined when calling updateTrail().',
+      );
+    }
+
+    if (requestParameters['updateTrailDto'] == null) {
+      throw new runtime.RequiredError(
+        'updateTrailDto',
+        'Required parameter "updateTrailDto" was null or undefined when calling updateTrail().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/trails/{trail_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'trail_id'}}`,
+      encodeURIComponent(String(requestParameters['trailId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: UpdateTrailDtoToJSON(requestParameters['updateTrailDto']),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationTrailDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Update an existing trail
+   */
+  async updateTrail(
+    requestParameters: UpdateTrailRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationTrailDto> {
+    const response = await this.updateTrailRaw(
       requestParameters,
       initOverrides,
     );

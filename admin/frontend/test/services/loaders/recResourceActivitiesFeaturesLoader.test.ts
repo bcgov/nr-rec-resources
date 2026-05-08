@@ -35,6 +35,7 @@ describe('recResourceActivitiesLoader', () => {
     mockApi = {
       getActivitiesByRecResourceId: vi.fn(),
       getFeaturesByRecResourceId: vi.fn(),
+      getTrailsByRecResourceId: vi.fn(),
       getOptionsByTypes: vi.fn(),
     };
     (RecreationResourcesApi as any).mockImplementation(function () {
@@ -106,6 +107,7 @@ describe('recResourceActivitiesLoader', () => {
     (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
     mockApi.getActivitiesByRecResourceId.mockResolvedValue(mockActivities);
     mockApi.getFeaturesByRecResourceId.mockResolvedValue(mockFeatures);
+    mockApi.getTrailsByRecResourceId.mockResolvedValue([]);
 
     mockQueryClient.ensureQueryData.mockImplementation(
       async ({ queryFn }: any) => {
@@ -130,9 +132,11 @@ describe('recResourceActivitiesLoader', () => {
     const mockFeatures = [
       { recreation_feature_code: 'A', description: 'Picnic' },
     ];
+    const mockTrails: any[] = [];
 
     (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
     mockQueryClient.ensureQueryData
+      .mockResolvedValueOnce(mockTrails)
       .mockResolvedValueOnce(mockActivities)
       .mockResolvedValueOnce(mockFeatures);
 
@@ -140,6 +144,7 @@ describe('recResourceActivitiesLoader', () => {
 
     expect(result).toEqual({
       ...MOCK_PARENT_DATA,
+      trails: mockTrails,
       activities: mockActivities,
       features: mockFeatures,
     });
@@ -153,6 +158,7 @@ describe('recResourceActivitiesLoader', () => {
 
     expect(result).toEqual({
       ...MOCK_PARENT_DATA,
+      trails: [],
       activities: [],
       features: [],
     });
