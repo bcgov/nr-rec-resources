@@ -23,8 +23,10 @@ export class RecreationTrailDto {
     description: 'Difficulty classification of the trail',
     enum: TrailType,
     example: TrailType.BLUE,
+    required: false,
+    nullable: true,
   })
-  trail_type: TrailType;
+  trail_type: TrailType | null;
 
   @ApiProperty({
     description: 'Name of the trail',

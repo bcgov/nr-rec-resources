@@ -36,7 +36,7 @@ export interface RecreationTrailDto {
    * @type {string}
    * @memberof RecreationTrailDto
    */
-  trail_type: RecreationTrailDtoTrailTypeEnum;
+  trail_type: RecreationTrailDtoTrailTypeEnum | null;
   /**
    * Name of the trail
    * @type {string}
@@ -78,8 +78,7 @@ export function instanceOfRecreationTrailDto(
     value['recreation_activity_code'] === undefined
   )
     return false;
-  if (!('trail_type' in value) || value['trail_type'] === undefined)
-    return false;
+  if (!('trail_type' in value)) return false;
   if (!('name' in value) || value['name'] === undefined) return false;
   return true;
 }
@@ -99,7 +98,7 @@ export function RecreationTrailDtoFromJSONTyped(
     recreation_activity_code_trails_id:
       json['recreation_activity_code_trails_id'],
     recreation_activity_code: json['recreation_activity_code'],
-    trail_type: json['trail_type'],
+    trail_type: json['trail_type'] == null ? null : json['trail_type'],
     name: json['name'],
     description: json['description'] == null ? undefined : json['description'],
   };

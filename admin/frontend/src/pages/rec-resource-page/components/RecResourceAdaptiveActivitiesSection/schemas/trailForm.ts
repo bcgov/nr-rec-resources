@@ -7,7 +7,7 @@ export const TRAIL_TYPE_OPTIONS = [
 ] as const;
 
 export const trailFormSchema = z.object({
-  trail_type: z.enum(['GREEN', 'BLUE', 'BLACK']),
+  trail_type: z.enum(['GREEN', 'BLUE', 'BLACK']).nullish(),
   name: z
     .string()
     .min(1, 'Trail name is required')

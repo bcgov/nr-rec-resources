@@ -18,6 +18,7 @@ interface SelectFieldProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
   errors: FieldErrors<TFieldValues>;
   disabled?: boolean;
+  isClearable?: boolean;
   helperText?: ReactNode;
 }
 
@@ -33,6 +34,7 @@ export function SelectField<TFieldValues extends FieldValues>({
   control,
   errors,
   disabled = false,
+  isClearable = false,
   helperText,
 }: SelectFieldProps<TFieldValues>) {
   return (
@@ -50,11 +52,24 @@ export function SelectField<TFieldValues extends FieldValues>({
               options={options}
               placeholder={placeholder}
               isDisabled={disabled}
+              isClearable={isClearable}
               value={selectedOption}
               onChange={(
                 newValue: SingleValue<RecreationResourceOptionUIModel>,
               ) => {
-                onChange(newValue?.id);
+                onChange(newValue?.id ?? null);
+              }}
+              onKeyDown={(e) => {
+                if (isClearable && selectedOption) {
+                  const inputVal = (e.target as HTMLInputElement).value ?? '';
+                  if (
+                    e.key === 'Delete' ||
+                    (e.key === 'Backspace' && !inputVal)
+                  ) {
+                    onChange(null);
+                    e.preventDefault();
+                  }
+                }
               }}
               className={errors[name] ? 'is-invalid' : ''}
               classNamePrefix="select"

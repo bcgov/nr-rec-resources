@@ -37,14 +37,15 @@ export const TrailForm = ({
       <Stack direction="vertical" gap={4}>
         <SelectField<TrailFormData>
           name="trail_type"
-          label="Trail difficulty"
-          placeholder="Select difficulty..."
+          label="Trail difficulty (optional)"
+          placeholder="Not specified"
           options={TRAIL_TYPE_OPTIONS.map((o) => ({
             id: o.id,
             label: o.label,
           }))}
           control={control}
           errors={errors}
+          isClearable
         />
 
         <Form.Group controlId="trail-name">

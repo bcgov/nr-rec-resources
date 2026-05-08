@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
   IsInt,
@@ -16,13 +16,15 @@ export class CreateTrailDto {
   @IsInt()
   recreation_activity_code: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Difficulty classification of the trail',
     enum: TrailType,
     example: TrailType.BLUE,
+    nullable: true,
   })
   @IsEnum(TrailType)
-  trail_type: TrailType;
+  @IsOptional()
+  trail_type?: TrailType | null;
 
   @ApiProperty({
     description: 'Name of the trail',

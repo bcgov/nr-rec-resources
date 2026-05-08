@@ -7,10 +7,11 @@ export class UpdateTrailDto {
     description: 'Difficulty classification of the trail',
     enum: TrailType,
     example: TrailType.BLUE,
+    nullable: true,
   })
   @IsEnum(TrailType)
   @IsOptional()
-  trail_type?: TrailType;
+  trail_type?: TrailType | null;
 
   @ApiPropertyOptional({
     description: 'Name of the trail',

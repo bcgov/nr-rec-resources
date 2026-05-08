@@ -50,6 +50,9 @@ export const TrailsTable = ({
     {
       header: 'Difficulty',
       render: (trail: RecreationTrailDto) => {
+        if (!trail.trail_type) {
+          return <span className="text-secondary">—</span>;
+        }
         const badge = TRAIL_TYPE_BADGE[trail.trail_type] ?? {
           label: trail.trail_type,
           color: '#555',

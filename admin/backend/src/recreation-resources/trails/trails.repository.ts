@@ -27,7 +27,7 @@ export class TrailsRepository {
     return trails.map((t) => ({
       recreation_activity_code_trails_id: t.recreation_activity_code_trails_id,
       recreation_activity_code: t.recreation_activity_code,
-      trail_type: t.trail_type as TrailType,
+      trail_type: (t.trail_type as TrailType) ?? null,
       name: t.name,
       description: t.description ?? undefined,
     }));
@@ -41,7 +41,7 @@ export class TrailsRepository {
       data: {
         rec_resource_id,
         recreation_activity_code: dto.recreation_activity_code,
-        trail_type: dto.trail_type as trail_types,
+        trail_type: (dto.trail_type as trail_types) ?? null,
         name: dto.name,
         description: dto.description ?? null,
       },
@@ -51,7 +51,7 @@ export class TrailsRepository {
       recreation_activity_code_trails_id:
         trail.recreation_activity_code_trails_id,
       recreation_activity_code: trail.recreation_activity_code,
-      trail_type: trail.trail_type as TrailType,
+      trail_type: (trail.trail_type as TrailType) ?? null,
       name: trail.name,
       description: trail.description ?? undefined,
     };
@@ -65,7 +65,7 @@ export class TrailsRepository {
       where: { recreation_activity_code_trails_id: trail_id },
       data: {
         ...(dto.trail_type !== undefined && {
-          trail_type: dto.trail_type as trail_types,
+          trail_type: (dto.trail_type as trail_types) ?? null,
         }),
         ...(dto.name !== undefined && { name: dto.name }),
         ...(dto.description !== undefined && { description: dto.description }),
@@ -76,7 +76,7 @@ export class TrailsRepository {
       recreation_activity_code_trails_id:
         trail.recreation_activity_code_trails_id,
       recreation_activity_code: trail.recreation_activity_code,
-      trail_type: trail.trail_type as TrailType,
+      trail_type: (trail.trail_type as TrailType) ?? null,
       name: trail.name,
       description: trail.description ?? undefined,
     };

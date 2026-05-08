@@ -90,6 +90,8 @@ describe('ActivitiesRepository', () => {
             select: {
               recreation_activity_code: true,
               description: true,
+              is_accessible: true,
+              details: true,
             },
           },
         },

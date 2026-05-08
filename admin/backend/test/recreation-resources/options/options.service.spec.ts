@@ -81,6 +81,7 @@ describe('OptionsService', () => {
         idField: 'recreation_activity_code',
         labelField: 'description',
         prismaModel: 'recreation_activity_code',
+        whereClause: { is_accessible: false },
       });
     });
 
@@ -190,6 +191,7 @@ describe('OptionsService', () => {
           idField: 'recreation_activity_code',
           labelField: 'description',
           prismaModel: 'recreation_activity_code',
+          whereClause: { is_accessible: false },
         },
         1,
       );
@@ -244,6 +246,7 @@ describe('OptionsService', () => {
           idField: 'recreation_activity_code',
           labelField: 'description',
           prismaModel: 'recreation_activity_code',
+          whereClause: { is_accessible: false },
         },
         { description: 'Mountain Biking' },
       );
@@ -294,6 +297,7 @@ describe('OptionsService', () => {
           idField: 'recreation_activity_code',
           labelField: 'description',
           prismaModel: 'recreation_activity_code',
+          whereClause: { is_accessible: false },
         },
         1,
       );
@@ -302,6 +306,7 @@ describe('OptionsService', () => {
           idField: 'recreation_activity_code',
           labelField: 'description',
           prismaModel: 'recreation_activity_code',
+          whereClause: { is_accessible: false },
         },
         1,
         { description: 'Alpine Hiking' },
@@ -333,6 +338,7 @@ describe('OptionsService', () => {
           idField: 'recreation_activity_code',
           labelField: 'description',
           prismaModel: 'recreation_activity_code',
+          whereClause: { is_accessible: false },
         },
         1,
       );
@@ -341,6 +347,7 @@ describe('OptionsService', () => {
           idField: 'recreation_activity_code',
           labelField: 'description',
           prismaModel: 'recreation_activity_code',
+          whereClause: { is_accessible: false },
         },
         1,
       );

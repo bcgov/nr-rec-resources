@@ -15,7 +15,7 @@ import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 export interface CreateTrailRequest {
   recResourceId: string;
   recreation_activity_code: number;
-  trail_type: string;
+  trail_type?: string | null;
   name: string;
   description?: string;
 }
