@@ -36,7 +36,13 @@ export const SuggestionMenu = ({
   const communities: CommunitySuggestion[] = Array.from(
     new Map(
       results
-        .filter((c) => c.closest_community != null)
+        .filter(
+          (c) =>
+            c.closest_community != null &&
+            c.closest_community
+              .toUpperCase()
+              .includes(searchTerm.toUpperCase()),
+        )
         .map((c) => {
           const upperId = c.closest_community.toUpperCase();
 
