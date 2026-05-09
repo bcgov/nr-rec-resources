@@ -141,6 +141,16 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="recreation_activity_code_trails.recreation_activity_code references recreation_activity_code.recreation_activity_code via recreation_activity_code_trails_recreation_activity_code_fkey"><a href='recreation_activity_code_trails.html'>recreation_activity_code_trails</a><span class='relatedKey'>.recreation_activity_code</span></td>
+                                                <td class="constraint detail">recreation_activity_code_trails_recreation_activity_code_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="recreation_activity_code_trails_history.recreation_activity_code&#39;s name implies that it&#39;s a child of recreation_activity_code.recreation_activity_code, but it doesn&#39;t reference that column."><a href='recreation_activity_code_trails_history.html'>recreation_activity_code_trails_history</a><span class='relatedKey'>.recreation_activity_code</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="recreation_activity_history.recreation_activity_code&#39;s name implies that it&#39;s a child of recreation_activity_code.recreation_activity_code, but it doesn&#39;t reference that column."><a href='recreation_activity_history.html'>recreation_activity_history</a><span class='relatedKey'>.recreation_activity_code</span></td>
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -204,6 +214,40 @@
                                     </td>
                                     <td></td>
                                 </tr>
+                                <tr>
+                                    <td><span id="details">details</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Additional details about the activity, such as accessibility features or specific accommodations available.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="is_accessible">is_accessible</span></td>
+                                    <td>bool</td>
+                                    <td>1</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>false</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Indicates whether the activity is accessible to individuals with disabilities or special needs.</p></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -265,36 +309,42 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="459,5,701,152">
-<area shape="rect" id="node2" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="5,32,415,219">
+<area shape="rect" id="node1" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="498,5,741,152">
+<area shape="rect" id="node2" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="5,115,415,360">
+<area shape="rect" id="node3" href="recreation_activity_code_trails.html" target="_top" title="recreation_activity_code_trails" alt="" coords="459,169,780,345">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_activity_code.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="459,44,701,191">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="90,5,330,93">
-<area shape="rect" id="node3" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="5,111,415,297">
+<area shape="rect" id="node1" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="498,5,741,152">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="90,28,330,116">
+<area shape="rect" id="node3" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="5,175,415,420">
+<area shape="rect" id="node4" href="recreation_activity_code_trails.html" target="_top" title="recreation_activity_code_trails" alt="" coords="459,169,780,345">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_activity_code.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="506,5,749,152">
-<area shape="rect" id="node2" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="5,167,415,353">
-<area shape="rect" id="node3" href="recreation_activity_code_history.html" target="_top" title="recreation_activity_code_history" alt="" coords="459,169,796,287">
-<area shape="rect" id="node4" href="recreation_activity_history.html" target="_top" title="recreation_activity_history" alt="" coords="481,304,773,451">
+<area shape="rect" id="node1" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="530,5,773,152">
+<area shape="rect" id="node2" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="5,331,415,576">
+<area shape="rect" id="node3" href="recreation_activity_code_history.html" target="_top" title="recreation_activity_code_history" alt="" coords="483,169,820,287">
+<area shape="rect" id="node4" href="recreation_activity_code_trails.html" target="_top" title="recreation_activity_code_trails" alt="" coords="491,304,812,480">
+<area shape="rect" id="node5" href="recreation_activity_code_trails_history.html" target="_top" title="recreation_activity_code_trails_history" alt="" coords="459,497,844,644">
+<area shape="rect" id="node6" href="recreation_activity_history.html" target="_top" title="recreation_activity_history" alt="" coords="505,661,797,808">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_activity_code.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="790,169,1033,316">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,65,245,153">
-<area shape="rect" id="node3" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="289,196,699,383">
-<area shape="rect" id="node4" href="recreation_activity_code_history.html" target="_top" title="recreation_activity_code_history" alt="" coords="743,333,1080,451">
-<area shape="rect" id="node5" href="recreation_activity_history.html" target="_top" title="recreation_activity_history" alt="" coords="765,5,1057,152">
-<area shape="rect" id="node6" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="384,20,604,108">
+<area shape="rect" id="node1" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="530,111,773,257">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="90,225,330,313">
+<area shape="rect" id="node3" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="5,465,415,711">
+<area shape="rect" id="node4" href="recreation_activity_code_history.html" target="_top" title="recreation_activity_code_history" alt="" coords="483,632,820,749">
+<area shape="rect" id="node5" href="recreation_activity_code_trails.html" target="_top" title="recreation_activity_code_trails" alt="" coords="491,275,812,451">
+<area shape="rect" id="node6" href="recreation_activity_code_trails_history.html" target="_top" title="recreation_activity_code_trails_history" alt="" coords="459,468,844,615">
+<area shape="rect" id="node7" href="recreation_activity_history.html" target="_top" title="recreation_activity_history" alt="" coords="888,351,1180,497">
+<area shape="rect" id="node8" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="541,5,761,93">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_activity_code.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>

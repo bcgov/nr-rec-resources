@@ -25,6 +25,8 @@ recreation_feature_history
 recreation_feature
 recreation_defined_campsite
 recreation_activity_history
+recreation_activity_code_trails_history
+recreation_activity_code_trails
 recreation_activity
 recreation_structure_code_history
 recreation_status_code_history
@@ -72,7 +74,7 @@ recreation_photographer_type_code
 recreation_maintenance_standard_code
 recreation_fee_code
 recreation_feature_code
-recreation_activity_code
 recreation_resource_doc_code
 recreation_district_code
+recreation_activity_code
 recreation_access_code
