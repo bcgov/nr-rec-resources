@@ -116,7 +116,7 @@ export class TrailsService {
   ): Promise<void> {
     const trail = await this.trailsRepository.findOne(trail_id);
 
-    if (!trail || trail.rec_resource_id !== rec_resource_id) {
+    if (trail?.rec_resource_id !== rec_resource_id) {
       throw new NotFoundException(
         `Trail with ID ${trail_id} not found for recreation resource ${rec_resource_id}`,
       );

@@ -1,5 +1,4 @@
 import {
-  RecreationResourcesApi,
   RecreationTrailDto,
   ResponseError,
   createRetryHandler,
@@ -18,7 +17,7 @@ export interface DeleteTrailRequest {
 }
 
 export function useDeleteTrail() {
-  const api = useRecreationResourceAdminApiClient() as RecreationResourcesApi;
+  const api = useRecreationResourceAdminApiClient();
   const queryClient = useQueryClient();
 
   return useMutation<void, ResponseError, DeleteTrailRequest>({

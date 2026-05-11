@@ -30,8 +30,7 @@ export function useTrailForm({
   } = useForm<TrailFormData>({
     resolver: zodResolver(trailFormSchema),
     defaultValues: {
-      trail_type:
-        (initialTrail?.trail_type as TrailFormData['trail_type']) || undefined,
+      trail_type: initialTrail?.trail_type || undefined,
       name: initialTrail?.name ?? '',
       description: initialTrail?.description ?? '',
     },

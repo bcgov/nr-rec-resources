@@ -23,14 +23,9 @@ export const TrailForm = ({
   const { control, handleSubmit, errors, isDirty, mutation, onSubmit } =
     useTrailForm({ recResourceId, activityCode, mode, initialTrail, onDone });
 
-  const submitLabel =
-    mode === 'create'
-      ? mutation.isPending
-        ? 'Adding trail...'
-        : 'Add trail'
-      : mutation.isPending
-        ? 'Saving...'
-        : 'Save changes';
+  const pendingLabel = mode === 'create' ? 'Adding trail...' : 'Saving...';
+  const idleLabel = mode === 'create' ? 'Add trail' : 'Save changes';
+  const submitLabel = mutation.isPending ? pendingLabel : idleLabel;
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
