@@ -234,6 +234,20 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         search.closestCommunity.filter((entry) => entry !== value),
       ),
     );
+  const addClosestCommunity = (value: string) => {
+    const nextValue = value.trim();
+
+    if (!nextValue || search.closestCommunity.includes(nextValue)) {
+      return;
+    }
+
+    updateSearch(
+      setAdminSearchClosestCommunityFilter(search, [
+        ...search.closestCommunity,
+        nextValue,
+      ]),
+    );
+  };
   const clearEstablishmentDateFrom = () =>
     updateSearch(setAdminSearchEstablishmentDateFromFilter(search, undefined));
   const clearEstablishmentDateTo = () =>
@@ -385,6 +399,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     clearActivity,
     clearStatus,
     clearAccess,
+    addClosestCommunity,
     clearClosestCommunity,
     clearEstablishmentDateFrom,
     clearEstablishmentDateTo,

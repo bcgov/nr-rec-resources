@@ -16,7 +16,6 @@ import { SearchResultsSummary } from '@/pages/search/components/SearchResultsSum
 import { Route } from '@/routes';
 import { resolveAdminSearchRouteState } from '@/pages/search/utils/searchSchema';
 import './SearchPage.scss';
-import { useState } from 'react';
 
 export function SearchPage() {
   const search = resolveAdminSearchRouteState(Route.useSearch());
@@ -28,29 +27,14 @@ export function SearchPage() {
     activities: search.activities,
     status: search.status,
     access: search.access,
+    closestCommunity: search.closestCommunity,
     establishment_date_from: search.establishment_date_from,
     establishment_date_to: search.establishment_date_to,
     established: search.established,
   });
 
-  const [communityFilter, setCommunityFilter] = useState<string[]>([]);
-
-  const clearCommunityFilter = (value: string) => {
-    const communityId = value.split(':')[1];
-    if (communityId) {
-      setCommunityFilter((current) =>
-        current.filter((entry) => entry !== communityId),
-      );
-    }
-  };
-
   const addCommunityFilter = (communityId: string) => {
-    setCommunityFilter((current) => {
-      if (current.includes(communityId)) {
-        return current;
-      }
-      return [...current, communityId];
-    });
+    controller.addClosestCommunity(communityId);
   };
 
   return (
@@ -114,7 +98,6 @@ export function SearchPage() {
               search={search}
               controller={controller}
               showTrigger={false}
-              communityFilter={communityFilter}
             />
 
             <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3 mb-3">
@@ -126,10 +109,7 @@ export function SearchPage() {
                 />
               </div>
               {controller.hasAppliedState && (
-                <AppliedFilterChips
-                  chips={controller.appliedFilterChips}
-                  onClearCommunity={clearCommunityFilter}
-                />
+                <AppliedFilterChips chips={controller.appliedFilterChips} />
               )}
             </div>
 
