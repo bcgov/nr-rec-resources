@@ -6,7 +6,9 @@ import {
   addSuccessNotification,
 } from '@/store/notificationStore';
 import { TestQueryClientProvider } from '@test/test-utils';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { ReactNode } from 'react';
 import { Mock, vi } from 'vitest';
 
 vi.mock(
@@ -109,6 +111,59 @@ describe('useCreateTrail', () => {
       'Failed to create trail',
       'createTrail-error',
     );
+  });
+
+  it('should initialize cache with new trail when cache is empty', async () => {
+    mockCreateTrail.mockResolvedValueOnce(mockTrail);
+
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    const setQueryDataSpy = vi.spyOn(queryClient, 'setQueryData');
+    const Wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useCreateTrail(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate(createRequest);
+    });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    // Extract the updater function and verify the empty-cache branch: returns [data].
+    const updaterFn = setQueryDataSpy.mock.calls[0][1] as (old: any) => any;
+    expect(updaterFn(undefined)).toEqual([mockTrail]);
+  });
+
+  it('should append new trail to existing cache entries', async () => {
+    mockCreateTrail.mockResolvedValueOnce(mockTrail);
+
+    const existingTrail = {
+      recreation_activity_code_trails_id: 99,
+      name: 'Existing',
+    };
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    queryClient.setQueryData(
+      ['recreation-resource-admin', 'trails', 'REC0001'],
+      [existingTrail],
+    );
+    const setQueryDataSpy = vi.spyOn(queryClient, 'setQueryData');
+    const Wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useCreateTrail(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate(createRequest);
+    });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const updaterFn = setQueryDataSpy.mock.calls[0][1] as (old: any) => any;
+    expect(updaterFn([existingTrail])).toEqual([existingTrail, mockTrail]);
   });
 
   it('should call createRetryHandler with an onFail callback', () => {

@@ -126,6 +126,59 @@ describe('useUpdateTrail', () => {
     );
   });
 
+  it('should append to cache when trail id is not in existing list', async () => {
+    mockUpdateTrail.mockResolvedValueOnce(updatedTrail);
+
+    const otherTrail = {
+      recreation_activity_code_trails_id: 99,
+      name: 'Other',
+    };
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    queryClient.setQueryData(
+      ['recreation-resource-admin', 'trails', 'REC0001'],
+      [otherTrail],
+    );
+    const setQueryDataSpy = vi.spyOn(queryClient, 'setQueryData');
+    const Wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useUpdateTrail(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate(updateRequest);
+    });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    // Trail ID 1 is not in [otherTrail (id 99)], so idx === -1 → appends.
+    const updaterFn = setQueryDataSpy.mock.calls[0][1] as (old: any) => any;
+    expect(updaterFn([otherTrail])).toEqual([otherTrail, updatedTrail]);
+  });
+
+  it('should return [data] when cache is empty on update', async () => {
+    mockUpdateTrail.mockResolvedValueOnce(updatedTrail);
+
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    const setQueryDataSpy = vi.spyOn(queryClient, 'setQueryData');
+    const Wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useUpdateTrail(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate(updateRequest);
+    });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const updaterFn = setQueryDataSpy.mock.calls[0][1] as (old: any) => any;
+    expect(updaterFn(undefined)).toEqual([updatedTrail]);
+  });
+
   it('should show error notification on failure', async () => {
     mockUpdateTrail.mockRejectedValueOnce(new Error('Failed'));
 
