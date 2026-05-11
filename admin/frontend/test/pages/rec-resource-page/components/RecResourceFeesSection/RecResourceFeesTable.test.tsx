@@ -59,15 +59,37 @@ vi.mock(
   () => ({
     getIndividualDays: (fee: any) => {
       const days: string[] = [];
-      if (fee.monday_ind) days.push('Mon');
-      if (fee.tuesday_ind) days.push('Tue');
-      if (fee.wednesday_ind) days.push('Wed');
-      if (fee.thursday_ind) days.push('Thu');
-      if (fee.friday_ind) days.push('Fri');
-      if (fee.saturday_ind) days.push('Sat');
-      if (fee.sunday_ind) days.push('Sun');
+      if (fee.monday_ind === 'Y') days.push('Mon');
+      if (fee.tuesday_ind === 'Y') days.push('Tue');
+      if (fee.wednesday_ind === 'Y') days.push('Wed');
+      if (fee.thursday_ind === 'Y') days.push('Thu');
+      if (fee.friday_ind === 'Y') days.push('Fri');
+      if (fee.saturday_ind === 'Y') days.push('Sat');
+      if (fee.sunday_ind === 'Y') days.push('Sun');
       if (days.length === 7) return ['All days'];
       return days;
+    },
+    formatRecurringMonthDay: (mmdd?: string | null): string => {
+      if (!mmdd) return '--';
+      const match = mmdd.match(/^(\d{2})-(\d{2})$/);
+      if (!match) return '--';
+      const month = parseInt(match[1], 10);
+      const day = parseInt(match[2], 10);
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      return `${months[month - 1]} ${day}`;
     },
   }),
 );
@@ -85,45 +107,59 @@ describe('RecResourceFeesTable', () => {
       recreation_fee_code: 'TYPE_A',
       fee_type_description: 'Day Use',
       fee_amount: 10.5,
+      fee_start_date: new Date('2024-01-01T00:00:00.000Z'),
+      fee_end_date: new Date('2024-12-31T00:00:00.000Z'),
       fee_start_date_readable_utc: '2024-01-01',
       fee_end_date_readable_utc: '2024-12-31',
-      monday_ind: true,
-      tuesday_ind: true,
-      wednesday_ind: false,
-      thursday_ind: false,
-      friday_ind: false,
-      saturday_ind: false,
-      sunday_ind: false,
+      recurring_ind: true,
+      recurring_start_mmdd: '01-01',
+      recurring_end_mmdd: '12-31',
+      monday_ind: 'Y',
+      tuesday_ind: 'Y',
+      wednesday_ind: 'N',
+      thursday_ind: 'N',
+      friday_ind: 'N',
+      saturday_ind: 'N',
+      sunday_ind: 'N',
     },
     {
       fee_id: 2,
       recreation_fee_code: 'TYPE_B',
       fee_type_description: 'Camping',
       fee_amount: 25.0,
+      fee_start_date: new Date('2024-06-01T00:00:00.000Z'),
       fee_start_date_readable_utc: '2024-06-01',
       fee_end_date_readable_utc: null,
-      monday_ind: true,
-      tuesday_ind: true,
-      wednesday_ind: true,
-      thursday_ind: true,
-      friday_ind: true,
-      saturday_ind: true,
-      sunday_ind: true,
+      recurring_ind: false,
+      recurring_start_mmdd: undefined,
+      recurring_end_mmdd: undefined,
+      monday_ind: 'Y',
+      tuesday_ind: 'Y',
+      wednesday_ind: 'Y',
+      thursday_ind: 'Y',
+      friday_ind: 'Y',
+      saturday_ind: 'Y',
+      sunday_ind: 'Y',
     },
     {
       fee_id: 3,
       recreation_fee_code: 'TYPE_C',
-      fee_type_description: null,
-      fee_amount: null,
+      fee_type_description: undefined,
+      fee_amount: undefined,
+      fee_start_date: undefined,
+      fee_end_date: undefined,
       fee_start_date_readable_utc: null,
       fee_end_date_readable_utc: null,
-      monday_ind: false,
-      tuesday_ind: false,
-      wednesday_ind: false,
-      thursday_ind: false,
-      friday_ind: false,
-      saturday_ind: false,
-      sunday_ind: false,
+      recurring_ind: false,
+      recurring_start_mmdd: undefined,
+      recurring_end_mmdd: undefined,
+      monday_ind: 'N',
+      tuesday_ind: 'N',
+      wednesday_ind: 'N',
+      thursday_ind: 'N',
+      friday_ind: 'N',
+      saturday_ind: 'N',
+      sunday_ind: 'N',
     },
   ];
 
@@ -153,8 +189,8 @@ describe('RecResourceFeesTable', () => {
 
     expect(screen.getByText('Day Use')).toBeInTheDocument();
     expect(screen.getByText('$10.50')).toBeInTheDocument();
-    expect(screen.getByText('2024-01-01')).toBeInTheDocument();
-    expect(screen.getByText('2024-12-31')).toBeInTheDocument();
+    expect(screen.getByText('Jan 1')).toBeInTheDocument();
+    expect(screen.getByText('Dec 31')).toBeInTheDocument();
   });
 
   it('shows "--" for missing/null values', () => {

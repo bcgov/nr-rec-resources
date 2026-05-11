@@ -1,6 +1,6 @@
 import {
   CurrencyInputField,
-  DateInputField,
+  MonthDayPicker,
   SelectField,
 } from '@/components/form';
 import {
@@ -9,6 +9,7 @@ import {
 } from '@/services';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { Controller } from 'react-hook-form';
+import { useEffect } from 'react';
 import {
   FEE_APPLIES_OPTIONS,
   type AddFeeFormData,
@@ -17,12 +18,15 @@ import { useFeeForm } from '@/pages/rec-resource-page/components/RecResourceFees
 import { useFeeOptions } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeOptions';
 import {
   DAYS,
-  FEE_APPLIES_DROPDOWN_OPTIONS,
   DAY_PRESET_OPTIONS_LIST,
 } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/constants';
+import { trackEvent } from '@shared/utils';
 import './RecResourceFeeForm.scss';
 
 type FeeFormMode = 'create' | 'edit';
+
+const TRACKING_CATEGORY_FEE = 'Fee';
+const TRACKING_ACTION_RECURRING_TOGGLE = 'Toggle recurring fee';
 
 export const RecResourceFeeForm = ({
   recResourceId,
@@ -44,6 +48,7 @@ export const RecResourceFeeForm = ({
     mutation,
     onSubmit,
     feeApplies,
+    setValue,
   } = useFeeForm({
     recResourceId,
     mode,
@@ -67,39 +72,74 @@ export const RecResourceFeeForm = ({
         ? 'Saving...'
         : 'Save Changes';
 
+  const isRecurring = feeApplies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
+
+  useEffect(() => {
+    if (isRecurring) {
+      // Set day preset to all_days
+      setValue('day_preset', 'all_days');
+      // Set all days to true when preset is all_days
+      DAYS.forEach(({ key }) => {
+        setValue(key as keyof AddFeeFormData, true);
+      });
+    }
+  }, [isRecurring, setValue]);
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Stack direction="vertical" gap={4}>
-        <SelectField
+        <Controller<AddFeeFormData>
           name="fee_applies"
-          label="Fee Applies"
-          placeholder="Select when fee applies..."
-          options={FEE_APPLIES_DROPDOWN_OPTIONS}
           control={control}
-          errors={errors}
+          render={({ field }) => (
+            <Form.Check
+              type="checkbox"
+              id="fee-recurring"
+              label={
+                <>
+                  <strong>Fee is recurring.</strong> Fee applies every year for
+                  the selected dates
+                </>
+              }
+              checked={field.value === FEE_APPLIES_OPTIONS.SPECIFIC_DATES}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                field.onChange(
+                  checked
+                    ? FEE_APPLIES_OPTIONS.SPECIFIC_DATES
+                    : FEE_APPLIES_OPTIONS.ALWAYS,
+                );
+                trackEvent({
+                  category: TRACKING_CATEGORY_FEE,
+                  action: TRACKING_ACTION_RECURRING_TOGGLE,
+                  name: `${recResourceId}-${checked ? 'enabled' : 'disabled'}`,
+                });
+              }}
+            />
+          )}
         />
 
-        {feeApplies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES && (
-          <>
-            <Row className="gy-3">
-              <Col xs={12} md={6}>
-                <DateInputField
-                  name="fee_start_date"
-                  label="Start Date"
-                  control={control}
-                  errors={errors}
-                />
-              </Col>
-              <Col xs={12} md={6}>
-                <DateInputField
-                  name="fee_end_date"
-                  label="End Date"
-                  control={control}
-                  errors={errors}
-                />
-              </Col>
-            </Row>
-          </>
+        {isRecurring && (
+          <Row className="gy-3">
+            <Col xs={12} md={6}>
+              <MonthDayPicker
+                name="recurring_start_mmdd"
+                label="Start Date (Month / Day)"
+                control={control}
+                errors={errors}
+                required
+              />
+            </Col>
+            <Col xs={12} md={6}>
+              <MonthDayPicker
+                name="recurring_end_mmdd"
+                label="End Date (Month / Day)"
+                control={control}
+                errors={errors}
+                required
+              />
+            </Col>
+          </Row>
         )}
 
         <SelectField
@@ -109,6 +149,7 @@ export const RecResourceFeeForm = ({
           options={DAY_PRESET_OPTIONS_LIST}
           control={control}
           errors={errors}
+          disabled={isRecurring}
         />
 
         <Form.Group>
@@ -126,6 +167,7 @@ export const RecResourceFeeForm = ({
                     label={label}
                     checked={!!field.value}
                     onChange={(e) => field.onChange(e.target.checked)}
+                    disabled={isRecurring}
                   />
                 )}
               />
@@ -156,6 +198,7 @@ export const RecResourceFeeForm = ({
               label="Amount"
               control={control}
               errors={errors}
+              required
             />
           </Col>
         </Row>

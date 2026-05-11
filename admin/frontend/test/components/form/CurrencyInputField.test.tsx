@@ -17,25 +17,35 @@ vi.mock('react-hook-form', async () => {
 });
 
 describe('CurrencyInputField', () => {
-  const defaultProps = {
-    name: 'fee_amount',
-    label: 'Amount',
-    control: null as any,
-    errors: {},
-  };
-
-  const renderWithControl = (props = {}) => {
+  const renderWithControl = (
+    props: any = {},
+    setup?: (methods: any) => void,
+  ) => {
     const WrapperWithControl = () => {
-      const methods = useForm({
+      const methods = useForm<{ fee_amount: undefined }>({
         defaultValues: { fee_amount: undefined },
       });
+
+      // Allow custom setup of form state
+      if (setup) {
+        setup(methods);
+      }
+
+      // Merge props errors with form state errors
+      const allErrors = {
+        ...methods.formState.errors,
+        ...(props.errors || {}),
+      };
+
       return (
         <FormProvider {...methods}>
           <Form>
-            <CurrencyInputField
-              {...defaultProps}
+            <CurrencyInputField<{ fee_amount: undefined }>
+              name="fee_amount"
+              label="Amount"
               {...props}
               control={methods.control}
+              errors={allErrors}
             />
           </Form>
         </FormProvider>
@@ -130,5 +140,20 @@ describe('CurrencyInputField', () => {
     await user.clear(input);
 
     expect(input).toHaveValue('');
+  });
+
+  it('should not allow zero as a value', async () => {
+    const user = userEvent.setup();
+    renderWithControl({
+      errors: { fee_amount: { message: 'Amount cannot be zero' } },
+    });
+
+    const input = screen.getByRole('textbox');
+    await user.type(input, '0');
+    await user.click(document.body);
+
+    expect(input).toHaveValue('0.00');
+    expect(screen.getByText('Amount cannot be zero')).toBeInTheDocument();
+    expect(input).toHaveClass('is-invalid');
   });
 });

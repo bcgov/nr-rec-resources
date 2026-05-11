@@ -17,13 +17,15 @@ export const addFeeSchema = z
       .string()
       .min(1, 'Fee type is required')
       .max(1, 'Fee type must be a single character'),
-    fee_amount: z.number().positive('Amount must be greater than 0').optional(),
+    fee_amount: z.number().default(0),
     fee_applies: z.enum([
       FEE_APPLIES_OPTIONS.ALWAYS,
       FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
     ]),
     fee_start_date: z.string().optional(),
     fee_end_date: z.string().optional(),
+    recurring_start_mmdd: z.string().optional(),
+    recurring_end_mmdd: z.string().optional(),
     day_preset: z
       .enum([
         DAY_PRESET_OPTIONS.ALL_DAYS,
@@ -41,40 +43,42 @@ export const addFeeSchema = z
   })
   .refine(
     (data) => {
-      // If fee applies always, don't require dates
-      if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) {
-        return true;
-      }
-      // If specific dates, require start date
-      return data.fee_start_date !== null && data.fee_start_date !== undefined;
+      if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) return true;
+      return /^\d{2}-\d{2}$/.test(data.recurring_start_mmdd || '');
     },
     {
-      message: 'Start date is required when fee applies for specific dates',
-      path: ['fee_start_date'],
+      message: 'Start date is required',
+      path: ['recurring_start_mmdd'],
     },
   )
   .refine(
     (data) => {
-      // If no dates provided, validation passes
-      if (!data.fee_start_date) {
-        return true;
-      }
-      // If end date is provided, it must be after start date
-      if (data.fee_end_date) {
-        return new Date(data.fee_end_date) > new Date(data.fee_start_date);
-      }
-      return true;
+      if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) return true;
+      return /^\d{2}-\d{2}$/.test(data.recurring_end_mmdd || '');
     },
     {
-      message: 'End date must be after start date',
-      path: ['fee_end_date'],
+      message: 'End date is required',
+      path: ['recurring_end_mmdd'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (!data.recurring_start_mmdd || !data.recurring_end_mmdd) return true;
+      // Extract month from MMDD format
+      const startMonth = parseInt(data.recurring_start_mmdd.slice(0, 2), 10);
+      const endMonth = parseInt(data.recurring_end_mmdd.slice(0, 2), 10);
+      return startMonth < endMonth;
+    },
+    {
+      message: 'End date cannot be before the start date',
+      path: ['recurring_end_mmdd'],
     },
   )
   .refine(
     (data) => {
       // If fee applies to specific dates, at least one day must be selected
       if (data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES) {
-        const anyDaySelected = [
+        return [
           data.monday_ind,
           data.tuesday_ind,
           data.wednesday_ind,
@@ -82,14 +86,22 @@ export const addFeeSchema = z
           data.friday_ind,
           data.saturday_ind,
           data.sunday_ind,
-        ].some((day) => day === true);
-        return anyDaySelected;
+        ].some((day) => day);
       }
       return true;
     },
     {
       message: 'At least one day must be selected',
       path: ['monday_ind'],
+    },
+  )
+  .refine(
+    (data) => {
+      return data.fee_amount > 0;
+    },
+    {
+      message: 'Amount cannot be zero',
+      path: ['fee_amount'],
     },
   );
 

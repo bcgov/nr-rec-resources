@@ -1,5 +1,4 @@
 import { PrismaService } from '@/prisma.service';
-import { Prisma } from '@generated/prisma';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { RecreationFeeDto } from '@/recreation-resources/fees/dto/recreation-fee.dto';
 import { CreateRecreationFeeDto } from '@/recreation-resources/fees/dto/create-recreation-fee.dto';
@@ -15,43 +14,20 @@ export class FeesService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Get all fees for a recreation resource
-   * Fetches fees from database with fee code descriptions
-   * @param rec_resource_id - Recreation Resource ID
-   * @returns Array of fees sorted by fee type then start date
-   */
   async getAll(rec_resource_id: string): Promise<RecreationFeeDto[]> {
     this.logger.log(`Fetching fees for rec_resource_id: ${rec_resource_id}`);
 
-    // Fetch all fees from database with fee code description
     const fees = await this.prisma.recreation_fee.findMany({
-      where: {
-        rec_resource_id,
-      },
+      where: { rec_resource_id },
       include: {
-        with_description: {
-          select: {
-            description: true,
-          },
-        },
+        with_description: { select: { description: true } },
       },
-      orderBy: [
-        {
-          recreation_fee_code: 'asc',
-        },
-        {
-          fee_start_date: 'asc',
-        },
-      ],
+      orderBy: [{ recreation_fee_code: 'asc' }, { fee_start_date: 'asc' }],
     });
 
-    // Map to DTO format
-    const feesDto: RecreationFeeDto[] = fees.map((fee) =>
+    return fees.map((fee) =>
       formatRecreationFeeResult(fee as FeeWithDescription),
     );
-
-    return feesDto;
   }
 
   /**
@@ -81,45 +57,57 @@ export class FeesService {
       );
     }
 
+    const isRecurring = createFeeDto.recurring_ind === true;
+
+    const createData: Record<string, unknown> = {
+      rec_resource_id,
+      recreation_fee_code: createFeeDto.recreation_fee_code,
+      fee_amount: createFeeDto.fee_amount ?? null,
+      fee_start_date: createFeeDto.fee_start_date
+        ? new Date(createFeeDto.fee_start_date)
+        : null,
+      fee_end_date: createFeeDto.fee_end_date
+        ? new Date(createFeeDto.fee_end_date)
+        : null,
+      monday_ind: createFeeDto.monday_ind ?? 'N',
+      tuesday_ind: createFeeDto.tuesday_ind ?? 'N',
+      wednesday_ind: createFeeDto.wednesday_ind ?? 'N',
+      thursday_ind: createFeeDto.thursday_ind ?? 'N',
+      friday_ind: createFeeDto.friday_ind ?? 'N',
+      saturday_ind: createFeeDto.saturday_ind ?? 'N',
+      sunday_ind: createFeeDto.sunday_ind ?? 'N',
+      recurring_ind: isRecurring,
+      recurring_start_mmdd: isRecurring
+        ? (createFeeDto.recurring_start_mmdd ?? null)
+        : null,
+      recurring_end_mmdd: isRecurring
+        ? (createFeeDto.recurring_end_mmdd ?? null)
+        : null,
+    };
+
+    console.log('💾 Saving createData to database:', {
+      recurring_ind: createData.recurring_ind,
+      recurring_start_mmdd: createData.recurring_start_mmdd,
+      recurring_end_mmdd: createData.recurring_end_mmdd,
+    });
+
     const createdFee = await this.prisma.recreation_fee.create({
-      data: {
-        rec_resource_id,
-        recreation_fee_code: createFeeDto.recreation_fee_code,
-        fee_amount: createFeeDto.fee_amount ?? null,
-        fee_start_date: createFeeDto.fee_start_date
-          ? new Date(createFeeDto.fee_start_date)
-          : null,
-        fee_end_date: createFeeDto.fee_end_date
-          ? new Date(createFeeDto.fee_end_date)
-          : null,
-        monday_ind: createFeeDto.monday_ind ?? 'N',
-        tuesday_ind: createFeeDto.tuesday_ind ?? 'N',
-        wednesday_ind: createFeeDto.wednesday_ind ?? 'N',
-        thursday_ind: createFeeDto.thursday_ind ?? 'N',
-        friday_ind: createFeeDto.friday_ind ?? 'N',
-        saturday_ind: createFeeDto.saturday_ind ?? 'N',
-        sunday_ind: createFeeDto.sunday_ind ?? 'N',
-      },
+      data: createData as any,
       include: {
-        with_description: {
-          select: {
-            description: true,
-          },
-        },
+        with_description: { select: { description: true } },
       },
+    });
+
+    console.log('✅ Fee created successfully:', {
+      fee_id: createdFee.fee_id,
+      recurring_ind: createdFee.recurring_ind,
+      recurring_start_mmdd: createdFee.recurring_start_mmdd,
+      recurring_end_mmdd: createdFee.recurring_end_mmdd,
     });
 
     return formatRecreationFeeResult(createdFee as FeeWithDescription);
   }
 
-  /**
-   * Update an existing fee for a recreation resource
-   * @param rec_resource_id - Recreation Resource ID
-   * @param fee_id - Fee ID
-   * @param updateFeeDto - Fee fields to update
-   * @returns The updated fee
-   * @throws NotFoundException if fee not found for this resource
-   */
   async update(
     rec_resource_id: string,
     fee_id: number,
@@ -128,6 +116,10 @@ export class FeesService {
     this.logger.log(
       `Updating fee ${fee_id} for rec_resource_id: ${rec_resource_id}`,
     );
+    console.log('📥 Backend received updateFeeDto:', updateFeeDto);
+    console.log('  - recurring_ind:', updateFeeDto.recurring_ind);
+    console.log('  - recurring_start_mmdd:', updateFeeDto.recurring_start_mmdd);
+    console.log('  - recurring_end_mmdd:', updateFeeDto.recurring_end_mmdd);
 
     const existingFee = await this.prisma.recreation_fee.findUnique({
       where: { fee_id },
@@ -140,26 +132,41 @@ export class FeesService {
       );
     }
 
-    const data: Prisma.recreation_feeUpdateArgs['data'] = {};
+    const updateData: Record<string, unknown> = {};
 
     if (updateFeeDto.recreation_fee_code !== undefined) {
-      data.recreation_fee_code = updateFeeDto.recreation_fee_code;
+      updateData.recreation_fee_code = updateFeeDto.recreation_fee_code;
     }
-
     if (updateFeeDto.fee_amount !== undefined) {
-      data.fee_amount = updateFeeDto.fee_amount ?? null;
+      updateData.fee_amount = updateFeeDto.fee_amount ?? null;
     }
 
-    if (updateFeeDto.fee_start_date !== undefined) {
-      data.fee_start_date = updateFeeDto.fee_start_date
-        ? new Date(updateFeeDto.fee_start_date)
-        : null;
-    }
+    const feeStartDate =
+      updateFeeDto.fee_start_date !== undefined
+        ? updateFeeDto.fee_start_date
+          ? new Date(updateFeeDto.fee_start_date)
+          : null
+        : undefined;
 
+    if (feeStartDate !== undefined) {
+      updateData.fee_start_date = feeStartDate;
+    }
     if (updateFeeDto.fee_end_date !== undefined) {
-      data.fee_end_date = updateFeeDto.fee_end_date
+      updateData.fee_end_date = updateFeeDto.fee_end_date
         ? new Date(updateFeeDto.fee_end_date)
         : null;
+    }
+
+    if (updateFeeDto.recurring_ind !== undefined) {
+      updateData.recurring_ind = updateFeeDto.recurring_ind;
+    }
+
+    if (updateFeeDto.recurring_start_mmdd !== undefined) {
+      updateData.recurring_start_mmdd = updateFeeDto.recurring_start_mmdd;
+    }
+
+    if (updateFeeDto.recurring_end_mmdd !== undefined) {
+      updateData.recurring_end_mmdd = updateFeeDto.recurring_end_mmdd;
     }
 
     const dayFields = [
@@ -173,20 +180,30 @@ export class FeesService {
     ] as const;
 
     for (const field of dayFields) {
-      const value = updateFeeDto[field];
-      if (value !== undefined) data[field] = value;
+      if (updateFeeDto[field] !== undefined) {
+        updateData[field] = updateFeeDto[field];
+      }
     }
+
+    console.log('💾 Updating with data:', {
+      recurring_ind: updateData.recurring_ind,
+      recurring_start_mmdd: updateData.recurring_start_mmdd,
+      recurring_end_mmdd: updateData.recurring_end_mmdd,
+    });
 
     const updatedFee = await this.prisma.recreation_fee.update({
       where: { fee_id },
-      data,
+      data: updateData as any,
       include: {
-        with_description: {
-          select: {
-            description: true,
-          },
-        },
+        with_description: { select: { description: true } },
       },
+    });
+
+    console.log('✅ Fee updated successfully:', {
+      fee_id: updatedFee.fee_id,
+      recurring_ind: updatedFee.recurring_ind,
+      recurring_start_mmdd: updatedFee.recurring_start_mmdd,
+      recurring_end_mmdd: updatedFee.recurring_end_mmdd,
     });
 
     return formatRecreationFeeResult(updatedFee as FeeWithDescription);

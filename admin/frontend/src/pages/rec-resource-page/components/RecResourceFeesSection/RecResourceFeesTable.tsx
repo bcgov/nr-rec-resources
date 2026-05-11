@@ -2,7 +2,7 @@ import { CustomBadge, Table } from '@/components';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { RecreationFeeUIModel } from '@/services';
 import { COLOR_BLACK, COLOR_GREY } from '@/styles/colors';
-import { getIndividualDays } from './helpers';
+import { formatRecurringMonthDay, getIndividualDays } from './helpers';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
@@ -18,7 +18,6 @@ export const RecResourceFeesTable = ({
   recResourceId,
 }: RecResourceFeesTableProps) => {
   const { canEdit } = useAuthorizations();
-
   const columns: any[] = [
     {
       header: 'Fee Type',
@@ -41,13 +40,19 @@ export const RecResourceFeesTable = ({
     },
     {
       header: 'Start Date',
-      render: (fee: RecreationFeeUIModel) =>
-        fee.fee_start_date_readable_utc || '--',
+      render: (fee: RecreationFeeUIModel) => {
+        if (fee.recurring_ind)
+          return formatRecurringMonthDay(fee.recurring_start_mmdd);
+        return fee.fee_start_date_readable_utc || '--';
+      },
     },
     {
       header: 'End Date',
-      render: (fee: RecreationFeeUIModel) =>
-        fee.fee_end_date_readable_utc || '--',
+      render: (fee: RecreationFeeUIModel) => {
+        if (fee.recurring_ind)
+          return formatRecurringMonthDay(fee.recurring_end_mmdd);
+        return fee.fee_end_date_readable_utc || '--';
+      },
     },
     {
       header: 'Days',

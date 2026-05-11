@@ -5,6 +5,8 @@ import { FEE_APPLIES_OPTIONS } from '@/pages/rec-resource-page/components/RecRes
 import { useFeeForm } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeForm';
 import { useFeeOptions } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeOptions';
 
+const mockTrackEvent = vi.fn();
+
 const mockControl = { _mock: 'control' };
 const mockHandleSubmit = vi.fn((fn) => fn);
 const mockOnSubmit = vi.fn();
@@ -15,6 +17,9 @@ vi.mock(
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeOptions',
 );
+vi.mock('@shared/utils', () => ({
+  trackEvent: (...args: any[]) => mockTrackEvent(...args),
+}));
 
 vi.mock('@/components/form', () => ({
   CurrencyInputField: ({ name, label }: any) => (
@@ -22,6 +27,9 @@ vi.mock('@/components/form', () => ({
   ),
   DateInputField: ({ name, label }: any) => (
     <div data-testid={`date-field-${name}`}>{label}</div>
+  ),
+  MonthDayPicker: ({ name, label }: any) => (
+    <div data-testid={`month-day-picker-${name}`}>{label}</div>
   ),
   SelectField: ({ name, label, options }: any) => (
     <div data-testid={`select-field-${name}`}>
@@ -48,6 +56,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
+      setValue: vi.fn(),
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
       options: [
@@ -58,13 +67,16 @@ describe('RecResourceFeeFormFields (create)', () => {
     });
   });
 
-  it('renders Fee Applies dropdown', () => {
+  it('renders recurring fee checkbox', () => {
     render(
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
-    expect(screen.getByTestId('select-field-fee_applies')).toBeInTheDocument();
-    expect(screen.getByText(/Fee Applies/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', {
+        name: /Fee is recurring\. Fee applies every year for the selected dates/i,
+      }),
+    ).toBeInTheDocument();
   });
 
   it('renders Day Presets dropdown', () => {
@@ -106,7 +118,6 @@ describe('RecResourceFeeFormFields (create)', () => {
     );
 
     expect(screen.getByTestId('currency-field-fee_amount')).toBeInTheDocument();
-    expect(screen.getByText('Amount')).toBeInTheDocument();
   });
 
   it('renders Add Fee button', () => {
@@ -126,6 +137,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
+      setValue: vi.fn(),
     } as any);
 
     render(
@@ -149,14 +161,19 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
+      setValue: vi.fn(),
     } as any);
 
     render(
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
-    expect(screen.getByTestId('date-field-fee_start_date')).toBeInTheDocument();
-    expect(screen.getByTestId('date-field-fee_end_date')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('month-day-picker-recurring_start_mmdd'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('month-day-picker-recurring_end_mmdd'),
+    ).toBeInTheDocument();
   });
 
   it('disables submit button when form is not dirty', () => {
@@ -168,6 +185,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
+      setValue: vi.fn(),
     } as any);
 
     render(
@@ -186,6 +204,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: true },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
+      setValue: vi.fn(),
     } as any);
 
     render(
@@ -206,6 +225,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
+      setValue: vi.fn(),
     } as any);
 
     render(
@@ -224,6 +244,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: true },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
+      setValue: vi.fn(),
     } as any);
 
     render(

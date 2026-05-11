@@ -23,11 +23,6 @@ const transformDayIndicators = (data: AddFeeFormData) => {
   ) as Record<(typeof DAY_FIELDS)[number], 'Y' | 'N'>;
 };
 
-const toYmd = (date: Date | null | undefined): string | undefined => {
-  if (!date) return undefined;
-  return date.toISOString().slice(0, 10);
-};
-
 const dayPresetFromFee = (
   fee?: RecreationFeeUIModel,
 ): AddFeeFormData['day_preset'] => {
@@ -75,13 +70,17 @@ export function useFeeForm({
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         fee_start_date: undefined,
         fee_end_date: undefined,
+        recurring_start_mmdd: undefined,
+        recurring_end_mmdd: undefined,
         day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
         ...DAY_PRESET_CONFIG.all_days,
       };
     }
 
+    const isRecurring = initialFee.recurring_ind;
+
     const feeApplies =
-      initialFee.fee_start_date || initialFee.fee_end_date
+      isRecurring || initialFee.fee_start_date || initialFee.fee_end_date
         ? FEE_APPLIES_OPTIONS.SPECIFIC_DATES
         : FEE_APPLIES_OPTIONS.ALWAYS;
 
@@ -91,8 +90,10 @@ export function useFeeForm({
       recreation_fee_code: initialFee.recreation_fee_code ?? '',
       fee_amount: initialFee.fee_amount ?? undefined,
       fee_applies: feeApplies,
-      fee_start_date: toYmd(initialFee.fee_start_date),
-      fee_end_date: toYmd(initialFee.fee_end_date),
+      fee_start_date: initialFee.fee_start_date as any,
+      fee_end_date: initialFee.fee_end_date as any,
+      recurring_start_mmdd: initialFee.recurring_start_mmdd ?? undefined,
+      recurring_end_mmdd: initialFee.recurring_end_mmdd ?? undefined,
       day_preset,
       monday_ind: initialFee.monday_ind === 'Y',
       tuesday_ind: initialFee.tuesday_ind === 'Y',
@@ -147,6 +148,7 @@ export function useFeeForm({
 
   const onSubmit = async (data: AddFeeFormData) => {
     const dayIndicators = transformDayIndicators(data);
+    const isRecurring = data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
 
     if (mode === 'create') {
       const feeData = {
@@ -154,13 +156,17 @@ export function useFeeForm({
         recreation_fee_code: data.recreation_fee_code,
         fee_amount: data.fee_amount ?? undefined,
         ...dayIndicators,
-        ...(data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES
-          ? {
-              fee_start_date: data.fee_start_date ?? undefined,
-              fee_end_date: data.fee_end_date ?? undefined,
-            }
-          : {}),
+        recurring_ind: isRecurring,
+        recurring_start_mmdd: isRecurring
+          ? data.recurring_start_mmdd
+          : undefined,
+        recurring_end_mmdd: isRecurring ? data.recurring_end_mmdd : undefined,
       };
+
+      console.log('📤 Creating fee with data:', feeData);
+      console.log('  - recurring_ind:', feeData.recurring_ind);
+      console.log('  - recurring_start_mmdd:', feeData.recurring_start_mmdd);
+      console.log('  - recurring_end_mmdd:', feeData.recurring_end_mmdd);
 
       await createMutation.mutateAsync(feeData);
       reset();
@@ -169,28 +175,26 @@ export function useFeeForm({
     }
 
     if (!initialFee?.fee_id) {
-      // Should not happen – edit mode requires a fee id.
       return;
     }
 
-    const fee_start_date =
-      data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES
-        ? (data.fee_start_date ?? null)
-        : null;
-    const fee_end_date =
-      data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES
-        ? (data.fee_end_date ?? null)
-        : null;
-
-    await updateMutation.mutateAsync({
+    const updateData = {
       recResourceId,
       feeId: initialFee.fee_id,
       recreation_fee_code: data.recreation_fee_code,
       fee_amount: data.fee_amount ?? null,
-      fee_start_date,
-      fee_end_date,
+      recurring_ind: isRecurring,
+      recurring_start_mmdd: isRecurring ? data.recurring_start_mmdd : null,
+      recurring_end_mmdd: isRecurring ? data.recurring_end_mmdd : null,
       ...dayIndicators,
-    });
+    };
+
+    console.log('📝 Updating fee with data:', updateData);
+    console.log('  - recurring_ind:', updateData.recurring_ind);
+    console.log('  - recurring_start_mmdd:', updateData.recurring_start_mmdd);
+    console.log('  - recurring_end_mmdd:', updateData.recurring_end_mmdd);
+
+    await updateMutation.mutateAsync(updateData);
 
     reset();
     done();
@@ -206,5 +210,6 @@ export function useFeeForm({
     mutation,
     onSubmit,
     feeApplies,
+    setValue,
   };
 }

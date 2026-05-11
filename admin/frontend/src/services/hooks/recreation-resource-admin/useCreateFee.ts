@@ -18,8 +18,6 @@ export interface CreateFeeRequest {
   recResourceId: string;
   recreation_fee_code: string;
   fee_amount?: number;
-  fee_start_date?: string;
-  fee_end_date?: string;
   monday_ind?: string;
   tuesday_ind?: string;
   wednesday_ind?: string;
@@ -27,6 +25,9 @@ export interface CreateFeeRequest {
   friday_ind?: string;
   saturday_ind?: string;
   sunday_ind?: string;
+  recurring_ind?: boolean;
+  recurring_start_mmdd?: string;
+  recurring_end_mmdd?: string;
 }
 
 export function useCreateFee() {

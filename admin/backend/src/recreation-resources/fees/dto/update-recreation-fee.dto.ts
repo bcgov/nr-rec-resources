@@ -1,11 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsDateString,
   IsNumber,
   IsOptional,
   IsString,
   Matches,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateRecreationFeeDto {
   @ApiPropertyOptional({
@@ -132,4 +134,42 @@ export class UpdateRecreationFeeDto {
   })
   @IsOptional()
   sunday_ind?: string;
+
+  @ApiPropertyOptional({
+    description: 'Whether this fee recurs yearly for the given month/day range',
+    example: false,
+    type: Boolean,
+  })
+  @Type(() => Boolean)
+  @IsBoolean()
+  @IsOptional()
+  recurring_ind?: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      'Start month-day of the recurring fee period (MM-DD format, e.g. 06-01)',
+    example: '06-01',
+    type: String,
+    nullable: true,
+  })
+  @IsString()
+  @Matches(/^\d{2}-\d{2}$/, {
+    message: 'recurring_start_mmdd must be in MM-DD format',
+  })
+  @IsOptional()
+  recurring_start_mmdd?: string | null;
+
+  @ApiPropertyOptional({
+    description:
+      'End month-day of the recurring fee period (MM-DD format, e.g. 08-31)',
+    example: '08-31',
+    type: String,
+    nullable: true,
+  })
+  @IsString()
+  @Matches(/^\d{2}-\d{2}$/, {
+    message: 'recurring_end_mmdd must be in MM-DD format',
+  })
+  @IsOptional()
+  recurring_end_mmdd?: string | null;
 }
