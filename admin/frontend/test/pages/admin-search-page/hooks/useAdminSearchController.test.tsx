@@ -241,6 +241,22 @@ describe('useAdminSearchController', () => {
     expect(chipNo?.label).toBe('Established: No');
   });
 
+  it('uses raw established value when no known label mapping exists', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      established: 'unknown',
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    const chip = result.current.appliedFilterChips.find(
+      (entry) => entry.key === 'established:unknown',
+    );
+
+    expect(chip?.label).toBe('Established: unknown');
+  });
+
   it('does not generate filter chip when established is undefined', () => {
     const search = {
       ...DEFAULT_ADMIN_SEARCH_STATE,
@@ -277,6 +293,70 @@ describe('useAdminSearchController', () => {
     });
   });
 
+  it('clears established filter when using the established chip clear action', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      established: 'yes',
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    const chip = result.current.appliedFilterChips.find(
+      (entry) => entry.key === 'established:yes',
+    );
+
+    act(() => {
+      chip?.onClear();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: {},
+      resetScroll: false,
+    });
+  });
+
+  it('adds a trimmed closest community when value is new', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      closestCommunity: ['KAMLOOPS'],
+      page: 4,
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.addClosestCommunity('  WHISTLER  ');
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: {
+        closestCommunity: 'KAMLOOPS_WHISTLER',
+      },
+      resetScroll: false,
+    });
+  });
+
+  it('does not add closest community for empty or duplicate values', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      closestCommunity: ['KAMLOOPS'],
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.addClosestCommunity('   ');
+      result.current.addClosestCommunity('KAMLOOPS');
+    });
+
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
   it('detects established filter as active filter', () => {
     const search = {
       ...DEFAULT_ADMIN_SEARCH_STATE,
@@ -302,6 +382,7 @@ describe('useAdminSearchController', () => {
         activities: [],
         status: [],
         access: [],
+        closestCommunity: [],
         establishment_date_from: undefined,
         establishment_date_to: undefined,
         established: 'yes',
