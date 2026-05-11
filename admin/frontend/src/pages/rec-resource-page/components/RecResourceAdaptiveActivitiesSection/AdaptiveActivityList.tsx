@@ -49,15 +49,13 @@ export const AdaptiveActivityList = ({
                       height={24}
                     />
                   )}
-                  <div>
-                    <div className="fw-bold">{activity.description}</div>
-                    {activity.details && (
-                      <div className="text-secondary small mt-1">
-                        {activity.details}
-                      </div>
-                    )}
-                  </div>
+                  <div className="fw-bold">{activity.description}</div>
                 </div>
+                {activity.details && (
+                  <div className="text-secondary small mt-1">
+                    {activity.details}
+                  </div>
+                )}
               </Col>
             </Row>
 

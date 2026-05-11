@@ -14,10 +14,16 @@ set recreation_activity_code = excluded.recreation_activity_code,
     updated_by = excluded.updated_by;
 
 -- If an activity row is removed in FTA, remove it in RST
+-- Skip accessible activity codes as those are managed in RST, not FTA
 delete from rst.recreation_activity ra
 where not exists (
     select 1
     from fta.recreation_activity fta
     where fta.forest_file_id = ra.rec_resource_id
       and cast(fta.recreation_activity_code as int) = ra.recreation_activity_code
+)
+and ra.recreation_activity_code not in (
+    select recreation_activity_code
+    from rst.recreation_activity_code
+    where is_accessible = true
 );

@@ -51,20 +51,26 @@ export const TrailsTable = ({
       header: 'Difficulty',
       render: (trail: RecreationTrailDto) => {
         if (!trail.trail_type) {
-          return <span className="text-secondary">—</span>;
+          return (
+            <div className="text-center">
+              <span className="text-secondary">—</span>
+            </div>
+          );
         }
         const badge = TRAIL_TYPE_BADGE[trail.trail_type] ?? {
           label: trail.trail_type,
           color: '#555',
         };
         return (
-          <CustomBadge
-            label={badge.label}
-            bgColor={badge.color}
-            textColor="#ffffff"
-            borderColor={badge.color}
-            fontWeight="bold"
-          />
+          <div className="text-center">
+            <CustomBadge
+              label={badge.label}
+              bgColor={badge.color}
+              textColor="#ffffff"
+              borderColor={badge.color}
+              fontWeight="bold"
+            />
+          </div>
         );
       },
     },
