@@ -126,7 +126,6 @@ describe('FilterAccordion', () => {
           resetFilters: vi.fn(),
         }}
         showTrigger={false}
-        communityFilter={[]}
       />,
     );
 
@@ -183,7 +182,6 @@ describe('FilterAccordion', () => {
           resetFilters,
         }}
         showTrigger={false}
-        communityFilter={[]}
       />,
     );
 
@@ -200,6 +198,55 @@ describe('FilterAccordion', () => {
 
     await user.click(screen.getByRole('button', { name: 'Reset filters' }));
     expect(resetFilters).toHaveBeenCalledTimes(1);
+  });
+
+  it('supports searching long multiselect option lists', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <FilterAccordion
+        search={DEFAULT_ADMIN_SEARCH_STATE}
+        controller={{
+          isFilterPanelOpen: true,
+          closeFilterPanel: vi.fn(),
+          toggleFilterPanel: vi.fn(),
+          typeOptions: [
+            { id: 'RUSTIC', label: 'Rustic', is_archived: false },
+            { id: 'CABIN', label: 'Cabin', is_archived: false },
+            { id: 'LODGE', label: 'Lodge', is_archived: false },
+            { id: 'CAMPSITE', label: 'Campsite', is_archived: false },
+            { id: 'VIEWPOINT', label: 'Viewpoint', is_archived: false },
+            { id: 'PICNIC', label: 'Picnic Site', is_archived: false },
+            { id: 'DAYUSE', label: 'Day Use Area', is_archived: false },
+            { id: 'TRAILHEAD', label: 'Trailhead', is_archived: false },
+            { id: 'LOOKOUT', label: 'Lookout', is_archived: false },
+            { id: 'SHELTER', label: 'Shelter', is_archived: false },
+            { id: 'BEACH', label: 'Beach Access', is_archived: false },
+            { id: 'BOAT', label: 'Boat Launch', is_archived: false },
+            { id: 'PARKING', label: 'Parking Area', is_archived: false },
+            { id: 'BOARDWALK', label: 'Boardwalk', is_archived: false },
+            { id: 'VIEWDECK', label: 'Viewing Deck', is_archived: false },
+          ],
+          districtOptions: [],
+          activityOptions: [],
+          statusOptions: [],
+          accessOptions: [],
+          establishedOptions,
+          closestCommunityOptions: [],
+          applyFilters: vi.fn(),
+          resetFilters: vi.fn(),
+        }}
+        showTrigger={false}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Resource type' }));
+    await user.type(screen.getByLabelText('Search Resource type'), 'cabin');
+
+    expect(screen.getByRole('button', { name: 'Cabin' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Rustic' }),
+    ).not.toBeInTheDocument();
   });
 
   it('applies established filter when selected', async () => {
@@ -224,7 +271,6 @@ describe('FilterAccordion', () => {
           resetFilters: vi.fn(),
         }}
         showTrigger={false}
-        communityFilter={[]}
       />,
     );
 
@@ -274,7 +320,6 @@ describe('FilterAccordion', () => {
           resetFilters: vi.fn(),
         }}
         showTrigger={false}
-        communityFilter={[]}
       />,
     );
 
@@ -324,7 +369,6 @@ describe('FilterAccordion', () => {
           resetFilters: vi.fn(),
         }}
         showTrigger={false}
-        communityFilter={[]}
       />,
     );
 
@@ -360,7 +404,6 @@ describe('FilterAccordion', () => {
           resetFilters,
         }}
         showTrigger={false}
-        communityFilter={[]}
       />,
     );
 
