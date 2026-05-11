@@ -33,6 +33,7 @@ export function buildAdminSearchRequest(
       : undefined,
     establishmentDateFrom: search.establishment_date_from,
     establishmentDateTo: search.establishment_date_to,
+    established: search.established,
   };
 }
 

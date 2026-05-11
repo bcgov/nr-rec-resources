@@ -6,6 +6,11 @@ import { FilterAccordion } from '@/pages/search/components/FilterAccordion';
 import { SearchResultsPagination } from '@/pages/search/components/SearchResultsPagination';
 import { SearchResultsSummary } from '@/pages/search/components/SearchResultsSummary';
 
+const establishedOptions = [
+  { id: 'yes', label: 'Yes' },
+  { id: 'no', label: 'No' },
+];
+
 describe('SearchResultsSummary', () => {
   it('renders loading, query, and total states', () => {
     const { rerender } = render(
@@ -116,6 +121,7 @@ describe('FilterAccordion', () => {
           activityOptions: [{ id: '8', label: 'Camping', is_archived: false }],
           statusOptions: [],
           accessOptions: [{ id: 'W', label: 'Walk-in', is_archived: false }],
+          establishedOptions,
           applyFilters,
           resetFilters: vi.fn(),
         }}
@@ -171,6 +177,7 @@ describe('FilterAccordion', () => {
           activityOptions: [],
           statusOptions: [],
           accessOptions: [],
+          establishedOptions,
           closestCommunityOptions: [],
           applyFilters: vi.fn(),
           resetFilters,
@@ -193,5 +200,175 @@ describe('FilterAccordion', () => {
 
     await user.click(screen.getByRole('button', { name: 'Reset filters' }));
     expect(resetFilters).toHaveBeenCalledTimes(1);
+  });
+
+  it('applies established filter when selected', async () => {
+    const user = userEvent.setup();
+    const applyFilters = vi.fn();
+
+    render(
+      <FilterAccordion
+        search={DEFAULT_ADMIN_SEARCH_STATE}
+        controller={{
+          isFilterPanelOpen: true,
+          closeFilterPanel: vi.fn(),
+          toggleFilterPanel: vi.fn(),
+          typeOptions: [],
+          districtOptions: [],
+          activityOptions: [],
+          statusOptions: [],
+          accessOptions: [],
+          establishedOptions,
+          closestCommunityOptions: [],
+          applyFilters,
+          resetFilters: vi.fn(),
+        }}
+        showTrigger={false}
+        communityFilter={[]}
+      />,
+    );
+
+    const establishedSelect = screen.getByDisplayValue('Established');
+    await user.selectOptions(establishedSelect, 'yes');
+
+    const applyButton = screen.getByRole('button', { name: 'Apply' });
+    expect(applyButton).toBeEnabled();
+
+    await user.click(applyButton);
+
+    expect(applyFilters).toHaveBeenLastCalledWith({
+      type: [],
+      district: [],
+      activities: [],
+      status: [],
+      access: [],
+      closestCommunity: [],
+      establishment_date_from: undefined,
+      establishment_date_to: undefined,
+      established: 'yes',
+    });
+  });
+
+  it('clears established filter when changed back to default', async () => {
+    const user = userEvent.setup();
+    const applyFilters = vi.fn();
+
+    render(
+      <FilterAccordion
+        search={{
+          ...DEFAULT_ADMIN_SEARCH_STATE,
+          established: 'yes',
+        }}
+        controller={{
+          isFilterPanelOpen: true,
+          closeFilterPanel: vi.fn(),
+          toggleFilterPanel: vi.fn(),
+          typeOptions: [],
+          districtOptions: [],
+          activityOptions: [],
+          statusOptions: [],
+          accessOptions: [],
+          establishedOptions,
+          closestCommunityOptions: [],
+          applyFilters,
+          resetFilters: vi.fn(),
+        }}
+        showTrigger={false}
+        communityFilter={[]}
+      />,
+    );
+
+    const establishedSelect = screen.getByDisplayValue('Yes');
+    await user.selectOptions(establishedSelect, '');
+
+    const applyButton = screen.getByRole('button', { name: 'Apply' });
+    expect(applyButton).toBeEnabled();
+
+    await user.click(applyButton);
+
+    expect(applyFilters).toHaveBeenLastCalledWith({
+      type: [],
+      district: [],
+      activities: [],
+      status: [],
+      access: [],
+      closestCommunity: [],
+      establishment_date_from: undefined,
+      establishment_date_to: undefined,
+      established: undefined,
+    });
+  });
+
+  it('preserves established filter when canceling without changes', async () => {
+    const user = userEvent.setup();
+    const closeFilterPanel = vi.fn();
+
+    render(
+      <FilterAccordion
+        search={{
+          ...DEFAULT_ADMIN_SEARCH_STATE,
+          established: 'yes',
+        }}
+        controller={{
+          isFilterPanelOpen: true,
+          closeFilterPanel,
+          toggleFilterPanel: vi.fn(),
+          typeOptions: [],
+          districtOptions: [],
+          activityOptions: [],
+          statusOptions: [],
+          accessOptions: [],
+          establishedOptions,
+          closestCommunityOptions: [],
+          applyFilters: vi.fn(),
+          resetFilters: vi.fn(),
+        }}
+        showTrigger={false}
+        communityFilter={[]}
+      />,
+    );
+
+    const applyButton = screen.getByRole('button', { name: 'Apply' });
+    expect(applyButton).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(closeFilterPanel).toHaveBeenCalledTimes(1);
+  });
+
+  it('resets established filter when reset filters is clicked', async () => {
+    const user = userEvent.setup();
+    const resetFilters = vi.fn();
+
+    render(
+      <FilterAccordion
+        search={{
+          ...DEFAULT_ADMIN_SEARCH_STATE,
+          established: 'yes',
+        }}
+        controller={{
+          isFilterPanelOpen: true,
+          closeFilterPanel: vi.fn(),
+          toggleFilterPanel: vi.fn(),
+          typeOptions: [],
+          districtOptions: [],
+          activityOptions: [],
+          statusOptions: [],
+          accessOptions: [],
+          establishedOptions,
+          closestCommunityOptions: [],
+          applyFilters: vi.fn(),
+          resetFilters,
+        }}
+        showTrigger={false}
+        communityFilter={[]}
+      />,
+    );
+
+    expect(screen.getByDisplayValue('Yes')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Reset filters' }));
+
+    expect(resetFilters).toHaveBeenCalledTimes(1);
+    expect(screen.getByDisplayValue('Established')).toBeInTheDocument();
   });
 });

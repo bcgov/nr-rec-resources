@@ -11,7 +11,7 @@ interface CheckboxDropdownFieldProps {
   className?: string;
   label: ReactNode;
   items: CheckboxDropdownItem[];
-  selectedValues: string[];
+  selectedValues?: string[];
   onToggle: (value: string) => void;
   showSelectedCount?: boolean;
   variant?: string;
@@ -23,7 +23,7 @@ export function CheckboxDropdownField({
   className,
   label,
   items,
-  selectedValues,
+  selectedValues = [],
   onToggle,
   showSelectedCount = false,
   variant,

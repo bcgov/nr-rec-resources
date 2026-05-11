@@ -28,6 +28,7 @@ describe('recreation-resource-search.queries', () => {
       status: ['3', 'bad', '4'],
       establishment_date_from: '2020-01-01',
       establishment_date_to: '2024-12-31',
+      established: 'yes',
     });
 
     const normalizedSql = normalizeSql(whereSql);
@@ -41,6 +42,7 @@ describe('recreation-resource-search.queries', () => {
     expect(normalizedSql).toContain('rs.status_code IN (?,?)');
     expect(normalizedSql).toContain('rr.project_established_date >= ?');
     expect(normalizedSql).toContain('rr.project_established_date <= ?');
+    expect(normalizedSql).toContain('rr.project_established_date IS NOT NULL');
     expect(whereSql.values).toEqual([
       '%lake%',
       '%lake%',
@@ -66,6 +68,42 @@ describe('recreation-resource-search.queries', () => {
     const normalizedSql = normalizeSql(whereSql);
 
     expect(normalizedSql).not.toContain('recreation_activity_code IN');
+  });
+
+  it('includes established filter in WHERE clause', () => {
+    const whereYes = buildSearchWhereSql({
+      established: 'yes',
+    });
+    const whereNo = buildSearchWhereSql({
+      established: 'no',
+    });
+
+    expect(normalizeSql(whereYes)).toContain(
+      'rr.project_established_date IS NOT NULL',
+    );
+    expect(normalizeSql(whereNo)).toContain(
+      'rr.project_established_date IS NULL',
+    );
+  });
+
+  it('ignores established filter with invalid value', () => {
+    const whereInvalid = buildSearchWhereSql({
+      established: 'invalid',
+    });
+
+    expect(whereInvalid).toBe(Prisma.empty);
+  });
+
+  it('ignores established filter when undefined or empty', () => {
+    const whereUndefined = buildSearchWhereSql({
+      established: undefined,
+    });
+    const whereEmpty = buildSearchWhereSql({
+      established: '',
+    });
+
+    expect(whereUndefined).toBe(Prisma.empty);
+    expect(whereEmpty).toBe(Prisma.empty);
   });
 
   it('maps raw SQL sorts and derived order clauses correctly', () => {

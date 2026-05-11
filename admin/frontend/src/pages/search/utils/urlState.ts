@@ -82,6 +82,10 @@ export const serializeAdminSearchRouteState = (
     search.access = serializeListFilter(state.access);
   }
 
+  if (state.established) {
+    search.established = state.established;
+  }
+
   return search;
 };
 
@@ -172,6 +176,14 @@ export const setAdminSearchEstablishmentDateToFilter = (
 ): AdminSearchRouteState =>
   setFilterState(state, {
     establishment_date_to: establishmentDateTo || undefined,
+  });
+
+export const setAdminSearchEstablishedFilter = (
+  state: AdminSearchRouteState,
+  established: AdminSearchRouteState['established'],
+): AdminSearchRouteState =>
+  setFilterState(state, {
+    established: established || undefined,
   });
 
 export const clearAdminSearchState = (

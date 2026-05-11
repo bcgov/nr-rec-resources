@@ -4,6 +4,7 @@ import {
   setAdminSearchAccessFilter,
   setAdminSearchEstablishmentDateFromFilter,
   setAdminSearchEstablishmentDateToFilter,
+  setAdminSearchEstablishedFilter,
   setAdminSearchPageSize,
   setAdminSearchTypeFilter,
   submitAdminSearchQuery,
@@ -58,6 +59,25 @@ describe('admin search urlState helpers', () => {
     });
   });
 
+  it('sets established filter and resets page', () => {
+    expect(setAdminSearchEstablishedFilter(baseState, 'yes')).toMatchObject({
+      established: 'yes',
+      page: 1,
+    });
+
+    expect(setAdminSearchEstablishedFilter(baseState, 'no')).toMatchObject({
+      established: 'no',
+      page: 1,
+    });
+
+    expect(setAdminSearchEstablishedFilter(baseState, undefined)).toMatchObject(
+      {
+        established: undefined,
+        page: 1,
+      },
+    );
+  });
+
   it('resets page when changing page size', () => {
     expect(setAdminSearchPageSize(baseState, 100)).toMatchObject({
       page: 1,
@@ -95,6 +115,26 @@ describe('admin search urlState helpers', () => {
       page_size: 50,
       district: 'RDCS',
       access: 'W',
+    });
+  });
+
+  it('serializes established filter in search state', () => {
+    expect(
+      serializeAdminSearchRouteState({
+        ...DEFAULT_ADMIN_SEARCH_STATE,
+        established: 'yes',
+      }),
+    ).toEqual({
+      established: 'yes',
+    });
+
+    expect(
+      serializeAdminSearchRouteState({
+        ...DEFAULT_ADMIN_SEARCH_STATE,
+        established: 'no',
+      }),
+    ).toEqual({
+      established: 'no',
     });
   });
 

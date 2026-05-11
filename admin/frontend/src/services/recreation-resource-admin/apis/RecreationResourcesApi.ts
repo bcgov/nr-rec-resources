@@ -245,6 +245,7 @@ export interface SearchRecreationResourcesRequest {
   status?: Array<string>;
   establishmentDateFrom?: string;
   establishmentDateTo?: string;
+  established?: string;
 }
 
 export interface UpdateActivitiesRequest {
@@ -2269,6 +2270,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     if (requestParameters['establishmentDateTo'] != null) {
       queryParameters['establishment_date_to'] =
         requestParameters['establishmentDateTo'];
+    }
+
+    if (requestParameters['established'] != null) {
+      queryParameters['established'] = requestParameters['established'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};

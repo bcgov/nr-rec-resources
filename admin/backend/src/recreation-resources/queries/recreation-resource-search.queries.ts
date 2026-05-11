@@ -108,6 +108,22 @@ function buildDateCondition(
   return Prisma.sql`rr.project_established_date ${Prisma.raw(operator)} ${new Date(value)}`;
 }
 
+function buildEstablishedCondition(
+  value: string | undefined,
+): Prisma.Sql | null {
+  if (!value) {
+    return null;
+  }
+
+  if (value === 'yes') {
+    return Prisma.sql`rr.project_established_date IS NOT NULL`;
+  } else if (value === 'no') {
+    return Prisma.sql`rr.project_established_date IS NULL`;
+  }
+
+  return null;
+}
+
 function buildMultiValueExistsCondition({
   values,
   table,
@@ -168,6 +184,7 @@ export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
       : null,
     buildDateCondition(query.establishment_date_from, '>='),
     buildDateCondition(query.establishment_date_to, '<='),
+    buildEstablishedCondition(query.established),
   ].filter((condition): condition is Prisma.Sql => condition !== null);
 
   if (conditions.length === 0) {
