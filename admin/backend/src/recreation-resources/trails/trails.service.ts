@@ -82,6 +82,9 @@ export class TrailsService {
     rec_resource_id: string,
     recreation_activity_code: number,
   ): Promise<void> {
+    // Trails can only be attached to activity codes explicitly flagged as accessible
+    // (e.g. "Adaptive mountain bike trails", code 34). This guards against creating
+    // trails under generic activity codes that have no accessible-trail semantics.
     const activityCode = await this.prisma.recreation_activity_code.findUnique({
       where: { recreation_activity_code },
       select: { is_accessible: true },
@@ -93,6 +96,8 @@ export class TrailsService {
       );
     }
 
+    // Separately verify the activity code is actually assigned to this resource.
+    // A code can be globally accessible but still not linked to every resource.
     const assignment = await this.prisma.recreation_activity.findUnique({
       where: {
         rec_resource_id_recreation_activity_code: {
@@ -116,6 +121,8 @@ export class TrailsService {
   ): Promise<void> {
     const trail = await this.trailsRepository.findOne(trail_id);
 
+    // Optional chain covers both cases: trail not found (null → undefined !== id)
+    // and trail belonging to a different resource (id mismatch).
     if (trail?.rec_resource_id !== rec_resource_id) {
       throw new NotFoundException(
         `Trail with ID ${trail_id} not found for recreation resource ${rec_resource_id}`,

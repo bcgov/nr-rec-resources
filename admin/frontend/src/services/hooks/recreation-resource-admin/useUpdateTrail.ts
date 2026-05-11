@@ -25,6 +25,8 @@ export function useUpdateTrail() {
 
   return useMutation<RecreationTrailDto, ResponseError, UpdateTrailRequest>({
     mutationFn: ({ recResourceId, trailId, ...updateTrailDto }) =>
+      // `as any` works around a type mismatch between the generated API client
+      // and the local DTO — the shapes are compatible at runtime.
       api.updateTrail({
         recResourceId,
         trailId,
@@ -51,6 +53,8 @@ export function useUpdateTrail() {
               t.recreation_activity_code_trails_id ===
               data.recreation_activity_code_trails_id,
           );
+          // Append if the trail isn't in the cache yet (e.g. cache was
+          // partially populated), otherwise replace in-place.
           if (idx === -1) return [...old, data];
           const next = [...old];
           next[idx] = data;

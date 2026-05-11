@@ -25,6 +25,8 @@ export function useCreateTrail() {
 
   return useMutation<RecreationTrailDto, ResponseError, CreateTrailRequest>({
     mutationFn: ({ recResourceId, ...createTrailDto }) =>
+      // `as any` works around a type mismatch between the generated API client
+      // and the local DTO — the shapes are compatible at runtime.
       api.createTrail({ recResourceId, createTrailDto: createTrailDto as any }),
     retry: createRetryHandler({
       onFail: () =>

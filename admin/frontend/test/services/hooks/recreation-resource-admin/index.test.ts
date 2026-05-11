@@ -24,6 +24,10 @@ describe('services/hooks/recreation-resource-admin/index', () => {
     expect(recreationResourceAdminIndex).toHaveProperty(
       'useRecreationResourceAdminApiClient',
     );
+    expect(recreationResourceAdminIndex).toHaveProperty('useGetTrails');
+    expect(recreationResourceAdminIndex).toHaveProperty('useCreateTrail');
+    expect(recreationResourceAdminIndex).toHaveProperty('useUpdateTrail');
+    expect(recreationResourceAdminIndex).toHaveProperty('useDeleteTrail');
   });
 
   it('exports helpers', () => {

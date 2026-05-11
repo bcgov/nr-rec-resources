@@ -8,6 +8,7 @@ export function useGetTrails(recResourceId: string) {
   return useQuery({
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.trails(recResourceId),
     queryFn: () => api.getTrailsByRecResourceId({ recResourceId }),
+    // Guard against firing with an empty id while the parent resource is still loading.
     enabled: !!recResourceId,
     staleTime: 30_000,
   });
