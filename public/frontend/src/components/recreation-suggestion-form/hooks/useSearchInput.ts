@@ -45,6 +45,7 @@ export const useSearchInput = () => {
       delete newParams[LAT_PARAM_KEY];
       delete newParams[LON_PARAM_KEY];
       delete newParams[COMMUNITY_PARAM_KEY];
+      // delete newParams['focus'];
 
       if (trimmedValue) newParams[FILTER_PARAM_KEY] = trimmedValue;
       else delete newParams[FILTER_PARAM_KEY];
@@ -84,6 +85,7 @@ export const useSearchInput = () => {
     delete newParams[LAT_PARAM_KEY];
     delete newParams[LON_PARAM_KEY];
     delete newParams[COMMUNITY_PARAM_KEY];
+    // delete newParams['focus'];
 
     navigate({
       to: ROUTE_PATHS.SEARCH,
@@ -114,8 +116,13 @@ export const useSearchInput = () => {
         [COMMUNITY_PARAM_KEY]: city.name.trim(),
       };
       delete newParams[FILTER_PARAM_KEY];
+      delete newParams['focus'];
 
       setSelectedCity([city]);
+      // Clear wasCleared so the incoming city extent always triggers a zoom.
+      // If wasCleared is still true from a prior rec-resource selection (province-wide
+      // query not yet resolved), it would wrongly suppress the city zoom.
+      searchInputStore.setState((prev) => ({ ...prev, wasCleared: false }));
       navigate({
         to: ROUTE_PATHS.SEARCH,
         search: newParams,

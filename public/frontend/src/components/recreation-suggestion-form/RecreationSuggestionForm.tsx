@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
+import searchInputStore from '@/store/searchInputStore';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -37,6 +38,7 @@ import {
   OPTION_TYPE,
   SEARCH_PLACEHOLDER,
 } from '@/components/recreation-suggestion-form/constants';
+import { SearchMapFocusModes } from '@/components/search-map/constants';
 import { Option } from 'react-bootstrap-typeahead/types/types';
 
 interface RecreationSuggestionFormProps {
@@ -239,10 +241,33 @@ const RecreationSuggestionForm = ({
       case OPTION_TYPE.RECREATION_RESOURCE:
         if (disableNavigation) {
           trackSearch('selected', suggestion.name);
-          if (onSelectSuggestion) {
-            handleClearTypeaheadSearch();
-            onSelectSuggestion(suggestion);
+          // If the user had an active search (filter/lat/lon/community), removing those
+          // params will trigger a province-wide extent change. Set wasCleared so
+          // useZoomToExtent absorbs that change instead of zooming to province-wide,
+          // leaving useMapFocus free to zoom to the specific resource.
+          if (
+            searchParams.filter ||
+            searchParams.lat ||
+            searchParams.lon ||
+            searchParams.community
+          ) {
+            searchInputStore.setState((prev) => ({
+              ...prev,
+              wasCleared: true,
+            }));
           }
+          navigate({
+            to: ROUTE_PATHS.SEARCH,
+            search: (prev) => {
+              // const { filter, lat, lon, community, ...rest } = prev;
+              const { ...rest } = prev;
+              return {
+                ...rest,
+                focus: `${SearchMapFocusModes.REC_RESOURCE_ID}:${suggestion.rec_resource_id}`,
+              };
+            },
+          });
+          onSelectSuggestion?.(suggestion);
           return;
         }
         trackSearch('selected', suggestion.name);
