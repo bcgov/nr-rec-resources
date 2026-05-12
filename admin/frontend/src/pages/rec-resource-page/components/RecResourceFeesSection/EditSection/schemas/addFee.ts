@@ -64,10 +64,7 @@ export const addFeeSchema = z
   .refine(
     (data) => {
       if (!data.recurring_start_mmdd || !data.recurring_end_mmdd) return true;
-      // Extract month from MMDD format
-      const startMonth = parseInt(data.recurring_start_mmdd.slice(0, 2), 10);
-      const endMonth = parseInt(data.recurring_end_mmdd.slice(0, 2), 10);
-      return startMonth < endMonth;
+      return data.recurring_start_mmdd <= data.recurring_end_mmdd;
     },
     {
       message: 'End date cannot be before the start date',

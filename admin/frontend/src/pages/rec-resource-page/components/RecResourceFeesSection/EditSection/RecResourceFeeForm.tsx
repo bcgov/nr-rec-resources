@@ -20,13 +20,9 @@ import {
   DAYS,
   DAY_PRESET_OPTIONS_LIST,
 } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/constants';
-import { trackEvent } from '@shared/utils';
 import './RecResourceFeeForm.scss';
 
 type FeeFormMode = 'create' | 'edit';
-
-const TRACKING_CATEGORY_FEE = 'Fee';
-const TRACKING_ACTION_RECURRING_TOGGLE = 'Toggle recurring fee';
 
 export const RecResourceFeeForm = ({
   recResourceId,
@@ -109,11 +105,6 @@ export const RecResourceFeeForm = ({
                     ? FEE_APPLIES_OPTIONS.SPECIFIC_DATES
                     : FEE_APPLIES_OPTIONS.ALWAYS,
                 );
-                trackEvent({
-                  category: TRACKING_CATEGORY_FEE,
-                  action: TRACKING_ACTION_RECURRING_TOGGLE,
-                  name: `${recResourceId}-${checked ? 'enabled' : 'disabled'}`,
-                });
               }}
             />
           )}

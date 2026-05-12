@@ -85,24 +85,11 @@ export class FeesService {
         : null,
     };
 
-    console.log('💾 Saving createData to database:', {
-      recurring_ind: createData.recurring_ind,
-      recurring_start_mmdd: createData.recurring_start_mmdd,
-      recurring_end_mmdd: createData.recurring_end_mmdd,
-    });
-
     const createdFee = await this.prisma.recreation_fee.create({
       data: createData as any,
       include: {
         with_description: { select: { description: true } },
       },
-    });
-
-    console.log('✅ Fee created successfully:', {
-      fee_id: createdFee.fee_id,
-      recurring_ind: createdFee.recurring_ind,
-      recurring_start_mmdd: createdFee.recurring_start_mmdd,
-      recurring_end_mmdd: createdFee.recurring_end_mmdd,
     });
 
     return formatRecreationFeeResult(createdFee as FeeWithDescription);
@@ -116,11 +103,6 @@ export class FeesService {
     this.logger.log(
       `Updating fee ${fee_id} for rec_resource_id: ${rec_resource_id}`,
     );
-    console.log('📥 Backend received updateFeeDto:', updateFeeDto);
-    console.log('  - recurring_ind:', updateFeeDto.recurring_ind);
-    console.log('  - recurring_start_mmdd:', updateFeeDto.recurring_start_mmdd);
-    console.log('  - recurring_end_mmdd:', updateFeeDto.recurring_end_mmdd);
-
     const existingFee = await this.prisma.recreation_fee.findUnique({
       where: { fee_id },
       select: { fee_id: true, rec_resource_id: true },
@@ -185,12 +167,6 @@ export class FeesService {
       }
     }
 
-    console.log('💾 Updating with data:', {
-      recurring_ind: updateData.recurring_ind,
-      recurring_start_mmdd: updateData.recurring_start_mmdd,
-      recurring_end_mmdd: updateData.recurring_end_mmdd,
-    });
-
     const updatedFee = await this.prisma.recreation_fee.update({
       where: { fee_id },
       data: updateData as any,
@@ -198,14 +174,6 @@ export class FeesService {
         with_description: { select: { description: true } },
       },
     });
-
-    console.log('✅ Fee updated successfully:', {
-      fee_id: updatedFee.fee_id,
-      recurring_ind: updatedFee.recurring_ind,
-      recurring_start_mmdd: updatedFee.recurring_start_mmdd,
-      recurring_end_mmdd: updatedFee.recurring_end_mmdd,
-    });
-
     return formatRecreationFeeResult(updatedFee as FeeWithDescription);
   }
 }

@@ -5,8 +5,9 @@ import {
   formatFeeDays,
   getFeeDaysArray,
   getFeeTypeLabel,
+  formatRecurringMonthDay,
   type FeeWithDayIndicators,
-} from '../../utils/feeUtils';
+} from '@shared/utils';
 
 describe('feeTypeMap', () => {
   it('contains all expected fee type codes', () => {
@@ -341,6 +342,89 @@ describe('formatFeeDays', () => {
           allDaysText: 'All week',
         }),
       ).toBe('All week');
+    });
+  });
+});
+
+describe('formatRecurringMonthDay', () => {
+  it('formats MM-DD format date correctly', () => {
+    expect(formatRecurringMonthDay('06-15')).toBe('Jun 15');
+  });
+
+  it('formats January 1st correctly', () => {
+    expect(formatRecurringMonthDay('01-01')).toBe('Jan 1');
+  });
+
+  it('formats December 31st correctly', () => {
+    expect(formatRecurringMonthDay('12-31')).toBe('Dec 31');
+  });
+
+  it('returns "--" for null', () => {
+    expect(formatRecurringMonthDay(null)).toBe('--');
+  });
+
+  it('returns "--" for undefined', () => {
+    expect(formatRecurringMonthDay(undefined)).toBe('--');
+  });
+
+  it('returns "--" for invalid format', () => {
+    expect(formatRecurringMonthDay('6-15')).toBe('--');
+    expect(formatRecurringMonthDay('06/15')).toBe('--');
+    expect(formatRecurringMonthDay('2024-06-15')).toBe('--');
+  });
+
+  it('returns "--" for invalid month', () => {
+    expect(formatRecurringMonthDay('13-15')).toBe('--');
+    expect(formatRecurringMonthDay('00-15')).toBe('--');
+    expect(formatRecurringMonthDay('-1-15')).toBe('--');
+  });
+
+  it('returns "--" for invalid day for the month', () => {
+    expect(formatRecurringMonthDay('02-30')).toBe('--'); // February only has 29 days max
+    expect(formatRecurringMonthDay('04-31')).toBe('--'); // April only has 30 days
+    expect(formatRecurringMonthDay('06-31')).toBe('--'); // June only has 30 days
+  });
+
+  it('returns "--" for day 0', () => {
+    expect(formatRecurringMonthDay('06-00')).toBe('--');
+  });
+
+  it('handles February 29th (leap year)', () => {
+    expect(formatRecurringMonthDay('02-29')).toBe('Feb 29');
+  });
+
+  it('formats all months correctly', () => {
+    const months = [
+      '01-01',
+      '02-28',
+      '03-15',
+      '04-30',
+      '05-15',
+      '06-15',
+      '07-15',
+      '08-31',
+      '09-30',
+      '10-31',
+      '11-30',
+      '12-25',
+    ];
+    const expected = [
+      'Jan 1',
+      'Feb 28',
+      'Mar 15',
+      'Apr 30',
+      'May 15',
+      'Jun 15',
+      'Jul 15',
+      'Aug 31',
+      'Sep 30',
+      'Oct 31',
+      'Nov 30',
+      'Dec 25',
+    ];
+
+    months.forEach((mmdd, index) => {
+      expect(formatRecurringMonthDay(mmdd)).toBe(expected[index]);
     });
   });
 });
