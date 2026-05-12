@@ -96,12 +96,14 @@ describe('RecreationFee', () => {
     expect(getFeeTypeLabel).toHaveBeenCalledWith('CAMPING');
     expect(formatRecurringMonthDay).toHaveBeenCalledWith('06-01');
     expect(formatRecurringMonthDay).toHaveBeenCalledWith('09-30');
+    expect(formatFeeDays).toHaveBeenCalledWith(mockRecurringFee);
 
     // Verify rendered content
     expect(screen.getByText('Camping fee')).toBeInTheDocument();
     expect(screen.getByText('$25.50')).toBeInTheDocument();
     expect(screen.getByText('Fee applies')).toBeInTheDocument();
     expect(screen.getByText('Jun 1 - Sep 30')).toBeInTheDocument();
+    expect(screen.getByText('Monday - Sunday')).toBeInTheDocument();
   });
 
   it('renders multiple fees correctly', () => {

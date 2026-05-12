@@ -11,36 +11,39 @@ export const DAY_PRESET_OPTIONS = {
   CUSTOM: 'custom',
 } as const;
 
-export const addFeeSchema = z
-  .object({
-    recreation_fee_code: z
-      .string()
-      .min(1, 'Fee type is required')
-      .max(1, 'Fee type must be a single character'),
-    fee_amount: z.number().default(0),
-    fee_applies: z.enum([
-      FEE_APPLIES_OPTIONS.ALWAYS,
-      FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
-    ]),
-    fee_start_date: z.string().optional(),
-    fee_end_date: z.string().optional(),
-    recurring_start_mmdd: z.string().optional(),
-    recurring_end_mmdd: z.string().optional(),
-    day_preset: z
-      .enum([
-        DAY_PRESET_OPTIONS.ALL_DAYS,
-        DAY_PRESET_OPTIONS.WEEKENDS,
-        DAY_PRESET_OPTIONS.CUSTOM,
-      ])
-      .default(DAY_PRESET_OPTIONS.ALL_DAYS),
-    monday_ind: z.boolean().default(false),
-    tuesday_ind: z.boolean().default(false),
-    wednesday_ind: z.boolean().default(false),
-    thursday_ind: z.boolean().default(false),
-    friday_ind: z.boolean().default(false),
-    saturday_ind: z.boolean().default(false),
-    sunday_ind: z.boolean().default(false),
-  })
+// Base schema for real-time validation (applied on onChange)
+export const addFeeSchemaBase = z.object({
+  recreation_fee_code: z
+    .string()
+    .min(1, 'Fee type is required')
+    .max(1, 'Fee type must be a single character'),
+  fee_amount: z.number().optional(),
+  fee_applies: z.enum([
+    FEE_APPLIES_OPTIONS.ALWAYS,
+    FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
+  ]),
+  fee_start_date: z.string().optional(),
+  fee_end_date: z.string().optional(),
+  recurring_start_mmdd: z.string().optional(),
+  recurring_end_mmdd: z.string().optional(),
+  day_preset: z
+    .enum([
+      DAY_PRESET_OPTIONS.ALL_DAYS,
+      DAY_PRESET_OPTIONS.WEEKENDS,
+      DAY_PRESET_OPTIONS.CUSTOM,
+    ])
+    .default(DAY_PRESET_OPTIONS.ALL_DAYS),
+  monday_ind: z.boolean().default(false),
+  tuesday_ind: z.boolean().default(false),
+  wednesday_ind: z.boolean().default(false),
+  thursday_ind: z.boolean().default(false),
+  friday_ind: z.boolean().default(false),
+  saturday_ind: z.boolean().default(false),
+  sunday_ind: z.boolean().default(false),
+});
+
+// Submit schema with strict date and day validations
+export const addFeeSchema = addFeeSchemaBase
   .refine(
     (data) => {
       if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) return true;
@@ -58,16 +61,6 @@ export const addFeeSchema = z
     },
     {
       message: 'End date is required',
-      path: ['recurring_end_mmdd'],
-    },
-  )
-  .refine(
-    (data) => {
-      if (!data.recurring_start_mmdd || !data.recurring_end_mmdd) return true;
-      return data.recurring_start_mmdd <= data.recurring_end_mmdd;
-    },
-    {
-      message: 'End date cannot be before the start date',
       path: ['recurring_end_mmdd'],
     },
   )
@@ -94,6 +87,9 @@ export const addFeeSchema = z
   )
   .refine(
     (data) => {
+      if (data.fee_amount === undefined || data.fee_amount === null) {
+        return false;
+      }
       return data.fee_amount > 0;
     },
     {

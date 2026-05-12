@@ -105,6 +105,27 @@ export class RecreationFeeDto {
   recreation_fee_code: string;
 
   @ApiProperty({
+    description: 'Recurring start date in MMDD format (month-day)',
+    example: '06-15',
+    required: false,
+  })
+  recurring_start_mmdd?: string;
+
+  @ApiProperty({
+    description: 'Recurring end date in MMDD format (month-day)',
+    example: '08-31',
+    required: false,
+  })
+  recurring_end_mmdd?: string;
+
+  @ApiProperty({
+    description: 'Indicates if the fee is recurring annually',
+    example: true,
+    required: false,
+  })
+  recurring_ind?: boolean;
+
+  @ApiProperty({
     description: 'Indicates if the fee applies on Monday',
     example: 'Y',
   })

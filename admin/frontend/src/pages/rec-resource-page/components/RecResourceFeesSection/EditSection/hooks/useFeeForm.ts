@@ -114,7 +114,7 @@ export function useFeeForm({
   } = useForm<AddFeeFormData>({
     resolver: zodResolver(addFeeSchema) as any,
     defaultValues,
-    mode: 'onChange',
+    mode: 'onSubmit',
   });
 
   const feeApplies = useWatch({ control, name: 'fee_applies' });
@@ -128,10 +128,11 @@ export function useFeeForm({
       return;
     }
 
-    const presetConfig =
-      dayPreset === DAY_PRESET_OPTIONS.CUSTOM
-        ? DAY_PRESET_CONFIG.custom
-        : DAY_PRESET_CONFIG[dayPreset];
+    if (dayPreset === DAY_PRESET_OPTIONS.CUSTOM) {
+      return;
+    }
+
+    const presetConfig = DAY_PRESET_CONFIG[dayPreset];
 
     DAY_FIELDS.forEach((field) => {
       setValue(field, presetConfig[field]);
@@ -163,11 +164,6 @@ export function useFeeForm({
         recurring_end_mmdd: isRecurring ? data.recurring_end_mmdd : undefined,
       };
 
-      console.log('📤 Creating fee with data:', feeData);
-      console.log('  - recurring_ind:', feeData.recurring_ind);
-      console.log('  - recurring_start_mmdd:', feeData.recurring_start_mmdd);
-      console.log('  - recurring_end_mmdd:', feeData.recurring_end_mmdd);
-
       await createMutation.mutateAsync(feeData);
       reset();
       done();
@@ -188,12 +184,6 @@ export function useFeeForm({
       recurring_end_mmdd: isRecurring ? data.recurring_end_mmdd : null,
       ...dayIndicators,
     };
-
-    console.log('📝 Updating fee with data:', updateData);
-    console.log('  - recurring_ind:', updateData.recurring_ind);
-    console.log('  - recurring_start_mmdd:', updateData.recurring_start_mmdd);
-    console.log('  - recurring_end_mmdd:', updateData.recurring_end_mmdd);
-
     await updateMutation.mutateAsync(updateData);
 
     reset();

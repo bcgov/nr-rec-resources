@@ -74,7 +74,6 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
       options: [
@@ -155,7 +154,6 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
     render(
@@ -179,7 +177,6 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
-      setValue: vi.fn(),
     } as any);
 
     render(
@@ -203,7 +200,6 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
     render(
@@ -222,7 +218,6 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: true },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
     render(
@@ -243,7 +238,6 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
     render(
@@ -279,7 +273,6 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
     render(
@@ -303,7 +296,6 @@ describe('RecResourceFeeForm (edit mode)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
       options: [
@@ -333,7 +325,6 @@ describe('RecResourceFeeForm (edit mode)', () => {
       mutation: { isPending: true },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
     render(
@@ -376,8 +367,7 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
     vi.clearAllMocks();
   });
 
-  it('sets all days to true when switching to recurring fee mode', () => {
-    const setValueMock = vi.fn();
+  it('does not disable day preset when fee is recurring', () => {
     vi.mocked(useFeeForm).mockReturnValue({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
@@ -386,7 +376,6 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
-      setValue: setValueMock,
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
       options: [{ id: 'D', label: 'Day use' }],
@@ -397,18 +386,10 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
-    expect(setValueMock).toHaveBeenCalledWith('day_preset', 'all_days');
-    expect(setValueMock).toHaveBeenCalledWith('monday_ind', true);
-    expect(setValueMock).toHaveBeenCalledWith('tuesday_ind', true);
-    expect(setValueMock).toHaveBeenCalledWith('wednesday_ind', true);
-    expect(setValueMock).toHaveBeenCalledWith('thursday_ind', true);
-    expect(setValueMock).toHaveBeenCalledWith('friday_ind', true);
-    expect(setValueMock).toHaveBeenCalledWith('saturday_ind', true);
-    expect(setValueMock).toHaveBeenCalledWith('sunday_ind', true);
+    expect(screen.getByTestId('select-field-day_preset')).toBeInTheDocument();
   });
 
-  it('does not set days when fee applies always', () => {
-    const setValueMock = vi.fn();
+  it('does not disable day checkboxes when fee is recurring', () => {
     vi.mocked(useFeeForm).mockReturnValue({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
@@ -416,8 +397,7 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
       isDirty: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
-      feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: setValueMock,
+      feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
       options: [{ id: 'D', label: 'Day use' }],
@@ -428,6 +408,7 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
-    expect(setValueMock).not.toHaveBeenCalled();
+    expect(screen.getByText('Monday')).toBeInTheDocument();
+    expect(screen.getByText('Sunday')).toBeInTheDocument();
   });
 });

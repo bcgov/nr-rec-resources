@@ -9,7 +9,6 @@ import {
 } from '@/services';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { Controller } from 'react-hook-form';
-import { useEffect } from 'react';
 import {
   FEE_APPLIES_OPTIONS,
   type AddFeeFormData,
@@ -44,7 +43,6 @@ export const RecResourceFeeForm = ({
     mutation,
     onSubmit,
     feeApplies,
-    setValue,
   } = useFeeForm({
     recResourceId,
     mode,
@@ -69,17 +67,6 @@ export const RecResourceFeeForm = ({
         : 'Save Changes';
 
   const isRecurring = feeApplies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
-
-  useEffect(() => {
-    if (isRecurring) {
-      // Set day preset to all_days
-      setValue('day_preset', 'all_days');
-      // Set all days to true when preset is all_days
-      DAYS.forEach(({ key }) => {
-        setValue(key as keyof AddFeeFormData, true);
-      });
-    }
-  }, [isRecurring, setValue]);
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -140,7 +127,6 @@ export const RecResourceFeeForm = ({
           options={DAY_PRESET_OPTIONS_LIST}
           control={control}
           errors={errors}
-          disabled={isRecurring}
         />
 
         <Form.Group>
@@ -158,7 +144,6 @@ export const RecResourceFeeForm = ({
                     label={label}
                     checked={!!field.value}
                     onChange={(e) => field.onChange(e.target.checked)}
-                    disabled={isRecurring}
                   />
                 )}
               />

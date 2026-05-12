@@ -65,7 +65,7 @@ export const useAddFeeForm = (recResourceId: string) => {
   } = useForm<AddFeeFormData>({
     resolver: zodResolver(addFeeSchema) as any,
     defaultValues,
-    mode: 'onChange',
+    mode: 'onSubmit',
   });
 
   const feeApplies = useWatch({ control, name: 'fee_applies' });

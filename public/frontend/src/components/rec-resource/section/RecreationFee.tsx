@@ -33,6 +33,7 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
                   {formatRecurringMonthDay(fee.recurring_start_mmdd)} -{' '}
                   {formatRecurringMonthDay(fee.recurring_end_mmdd)}
                 </span>
+                <span>{formatFeeDays(fee)}</span>
               </>
             ) : (
               <>

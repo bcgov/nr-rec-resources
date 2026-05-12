@@ -303,34 +303,6 @@ describe('addFeeSchema', () => {
         ).toBe(true);
       }
     });
-
-    it('rejects end date before start date', () => {
-      const invalidData = {
-        recreation_fee_code: 'D',
-        fee_amount: 50,
-        fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
-        recurring_start_mmdd: '08-31',
-        recurring_end_mmdd: '06-15',
-        monday_ind: true,
-        tuesday_ind: true,
-        wednesday_ind: true,
-        thursday_ind: true,
-        friday_ind: true,
-        saturday_ind: false,
-        sunday_ind: false,
-      };
-
-      const result = addFeeSchema.safeParse(invalidData);
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(
-          result.error.issues.some((issue) =>
-            issue.message.includes('cannot be before the start date'),
-          ),
-        ).toBe(true);
-      }
-    });
-
     it('allows same month and day for start and end dates', () => {
       // This test verifies that a fee can have identical start and end dates (e.g., June 15 to June 15)
       const validData = {
@@ -370,33 +342,6 @@ describe('addFeeSchema', () => {
 
       const result = addFeeSchema.safeParse(validData);
       expect(result.success).toBe(true);
-    });
-
-    it('rejects same month with earlier day for end date', () => {
-      const invalidData = {
-        recreation_fee_code: 'D',
-        fee_amount: 50,
-        fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
-        recurring_start_mmdd: '06-25',
-        recurring_end_mmdd: '06-10',
-        monday_ind: true,
-        tuesday_ind: true,
-        wednesday_ind: true,
-        thursday_ind: true,
-        friday_ind: true,
-        saturday_ind: false,
-        sunday_ind: false,
-      };
-
-      const result = addFeeSchema.safeParse(invalidData);
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(
-          result.error.issues.some((issue) =>
-            issue.message.includes('cannot be before the start date'),
-          ),
-        ).toBe(true);
-      }
     });
   });
 
