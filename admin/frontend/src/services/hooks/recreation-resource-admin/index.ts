@@ -2,6 +2,7 @@ export * from './helpers';
 export * from './useCreateImageConsent';
 export * from './useCreateFee';
 export * from './useDeleteEstablishmentOrderDoc';
+export * from './useDeleteFee';
 export * from './useDeleteResourceDocument';
 export * from './useDeleteResourceImage';
 export * from './useGetExportDatasets';

@@ -280,6 +280,7 @@ export function buildDerivedSortQueryParts(
                       SELECT 1
                       FROM rst.recreation_fee rf
                       WHERE rf.rec_resource_id = rr.rec_resource_id
+                        AND rf.is_deleted = false
                     ) THEN 'Has fees'
                     ELSE 'No fees'
                   END AS fee_value

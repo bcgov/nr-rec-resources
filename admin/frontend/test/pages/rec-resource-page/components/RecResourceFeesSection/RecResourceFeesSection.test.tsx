@@ -3,6 +3,13 @@ import { Route } from '@/routes/rec-resource/$id/fees/index';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
+vi.mock('@/services', () => ({
+  useDeleteFee: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+}));
+
 const mockUseAuthorizations = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
   useAuthorizations: () => mockUseAuthorizations(),

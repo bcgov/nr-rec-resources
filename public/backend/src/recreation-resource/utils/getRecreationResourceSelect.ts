@@ -61,6 +61,9 @@ export const getRecreationResourceSelect = () => ({
     },
   },
   recreation_fee: {
+    where: {
+      is_deleted: false,
+    } as any,
     select: {
       fee_amount: true,
       fee_start_date: true,
