@@ -1,12 +1,16 @@
 import { CustomBadge, Table } from '@/components';
 import { ROUTE_PATHS } from '@/constants/routes';
-import { RecreationFeeUIModel } from '@/services';
+import { RecreationFeeUIModel, useDeleteFee } from '@/services';
 import { COLOR_BLACK, COLOR_GREY } from '@/styles/colors';
 import { formatRecurringMonthDay, getIndividualDays } from './helpers';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPen } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Link } from '@tanstack/react-router';
+import { Button } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { DeleteFeeConfirmationModal } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/DeleteFeeConfirmationModal';
+import { addSuccessNotification } from '@/store/notificationStore';
 
 interface RecResourceFeesTableProps {
   fees: RecreationFeeUIModel[];
@@ -18,6 +22,32 @@ export const RecResourceFeesTable = ({
   recResourceId,
 }: RecResourceFeesTableProps) => {
   const { canEdit } = useAuthorizations();
+  const deleteFee = useDeleteFee();
+  const [selectedFee, setSelectedFee] = useState<RecreationFeeUIModel>();
+  const [tableFees, setTableFees] = useState<RecreationFeeUIModel[]>(fees);
+
+  useEffect(() => {
+    setTableFees(fees);
+  }, [fees]);
+
+  const handleConfirmDelete = async () => {
+    if (!recResourceId || !selectedFee?.fee_id) return;
+
+    const deletedFeeId = selectedFee.fee_id;
+
+    await deleteFee.mutateAsync({
+      recResourceId,
+      feeId: deletedFeeId,
+    });
+
+    // Update visible rows first, then show success feedback.
+    setTableFees((currentFees) =>
+      currentFees.filter((fee) => fee.fee_id !== deletedFeeId),
+    );
+    setSelectedFee(undefined);
+    addSuccessNotification('Fee deleted successfully', 'deleteFee-success');
+  };
+
   const columns: any[] = [
     {
       header: 'Fee Type',
@@ -83,26 +113,46 @@ export const RecResourceFeesTable = ({
       render: (fee: RecreationFeeUIModel) => {
         if (!canEdit || !recResourceId) return <span>--</span>;
         return (
-          <Link
-            to={ROUTE_PATHS.REC_RESOURCE_FEE_EDIT}
-            params={{ id: recResourceId, feeId: String(fee.fee_id) }}
-            className="p-0 align-middle bc-color-blue-dk"
-            aria-label="Edit fee"
-            title="Edit fee"
-          >
-            <FontAwesomeIcon icon={faPen} />
-          </Link>
+          <div className="d-flex align-items-center gap-3">
+            <Link
+              to={ROUTE_PATHS.REC_RESOURCE_FEE_EDIT}
+              params={{ id: recResourceId, feeId: String(fee.fee_id) }}
+              className="p-0 align-middle bc-color-blue-dk"
+              aria-label="Edit fee"
+              title="Edit fee"
+            >
+              <FontAwesomeIcon icon={faPen} />
+            </Link>
+            <Button
+              variant="link"
+              className="p-0 align-middle text-danger"
+              aria-label="Delete fee"
+              title="Delete fee"
+              onClick={() => setSelectedFee(fee)}
+            >
+              <FontAwesomeIcon icon={faTrash} />
+            </Button>
+          </div>
         );
       },
     },
   ];
 
   return (
-    <Table
-      columns={columns}
-      rows={fees}
-      getRowKey={(fee) => String(fee.fee_id)}
-      emptyMessage="Currently no fees"
-    />
+    <>
+      <Table
+        columns={columns}
+        rows={tableFees}
+        getRowKey={(fee) => String(fee.fee_id)}
+        emptyMessage="Currently no fees"
+      />
+      <DeleteFeeConfirmationModal
+        show={Boolean(selectedFee)}
+        fee={selectedFee}
+        isDeleting={deleteFee.isPending}
+        onCancel={() => setSelectedFee(undefined)}
+        onConfirm={handleConfirmDelete}
+      />
+    </>
   );
 };
