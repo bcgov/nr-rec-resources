@@ -62,11 +62,6 @@ interface RecreationSuggestionFormProps {
    * Values come from analytics constants (Search_home/Search_list/Search_map).
    */
   trackingContext: MatomoSearchContext;
-
-  /**
-   * Triggers when a suggestion is selected, only applicable when disableNavigation is true
-   */
-  onSelectSuggestion?(suggestion: RecreationSuggestion): void;
 }
 
 const RecreationSuggestionForm = ({
@@ -74,7 +69,6 @@ const RecreationSuggestionForm = ({
   disableNavigation = false,
   searchBtnVariant = 'primary',
   trackingContext,
-  onSelectSuggestion,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
   const searchParams = useSearch({ strict: false });
@@ -259,15 +253,14 @@ const RecreationSuggestionForm = ({
           navigate({
             to: ROUTE_PATHS.SEARCH,
             search: (prev) => {
-              // const { filter, lat, lon, community, ...rest } = prev;
-              const { ...rest } = prev;
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { filter, lat, lon, community, ...rest } = prev;
               return {
                 ...rest,
                 focus: `${SearchMapFocusModes.REC_RESOURCE_ID}:${suggestion.rec_resource_id}`,
               };
             },
           });
-          onSelectSuggestion?.(suggestion);
           return;
         }
         trackSearch('selected', suggestion.name);

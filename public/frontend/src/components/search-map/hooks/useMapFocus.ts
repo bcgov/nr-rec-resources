@@ -32,9 +32,9 @@ export function useMapFocus({
   const { data: recResource } = useGetRecreationResourceById({ id: value });
 
   // Reset didFocus when the focus target changes so subsequent selections work.
-  // useEffect(() => {
-  //   setDidFocus(false);
-  // }, [value]);
+  useEffect(() => {
+    setDidFocus(false);
+  }, [value]);
 
   useEffect(() => {
     if (
