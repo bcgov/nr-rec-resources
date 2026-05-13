@@ -60,6 +60,7 @@ export class AdminSearchResultRowDto {
     example: 'AR',
     required: false,
     nullable: true,
+    type: String,
   })
   rec_status_code?: string | null;
 

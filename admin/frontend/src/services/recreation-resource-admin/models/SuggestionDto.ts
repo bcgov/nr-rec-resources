@@ -63,10 +63,10 @@ export interface SuggestionDto {
   display_on_public_site: boolean;
   /**
    * Resource archive status code
-   * @type {object}
+   * @type {string}
    * @memberof SuggestionDto
    */
-  rec_status_code?: object | null;
+  rec_status_code?: string | null;
 }
 
 /**
