@@ -15,7 +15,7 @@ export interface ImageVariant {
 export interface ProcessImageOptions {
   file: File;
   maxResolution?: { width: number; height: number }; // Default: 3840x2160 (4K)
-  quality?: number; // WebP quality, default: 0.85
+  quality?: number; // Output quality, default: 0.85
   onProgress?: (progress: number, stage: string) => void;
 }
 
@@ -137,16 +137,6 @@ async function heicToCanvas(
       error: { type: 'loading', message: 'Failed to load HEIC image' },
     };
   }
-}
-
-/**
- * Check if WebP format is supported by the browser
- */
-function isWebPSupported(): boolean {
-  const canvas = document.createElement('canvas');
-  canvas.width = 1;
-  canvas.height = 1;
-  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
 }
 
 /**
@@ -303,7 +293,10 @@ function calculateCoverDimensions(
 }
 
 /**
- * Convert canvas to WebP blob
+ * Convert canvas to an image blob, preferring WebP.
+ * Falls back to JPEG on browsers that don't support WebP canvas encoding (e.g. Safari).
+ * PNG is the browser's built-in fallback for unsupported types, but JPEG is much
+ * smaller for photographs, so we request it explicitly on fallback.
  */
 function canvasToWebP(
   canvas: HTMLCanvasElement,
@@ -313,11 +306,23 @@ function canvasToWebP(
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error('Failed to convert canvas to WebP'));
+        if (!blob) {
+          reject(new Error('Failed to convert canvas to image'));
+          return;
         }
+        if (blob.type === 'image/webp') {
+          resolve(blob);
+          return;
+        }
+        // Browser doesn't support WebP encoding — fall back to JPEG
+        canvas.toBlob(
+          (jpegBlob) => {
+            if (jpegBlob) resolve(jpegBlob);
+            else reject(new Error('Failed to convert canvas to image'));
+          },
+          'image/jpeg',
+          quality,
+        );
       },
       'image/webp',
       quality,
@@ -329,7 +334,6 @@ function canvasToWebP(
  * Create a variant from canvas with specified dimensions and filename
  */
 async function createVariantFromCanvas(
-  sourceCanvas: HTMLCanvasElement,
   sizeCode: ImageVariant['sizeCode'],
   width: number,
   height: number,
@@ -349,7 +353,8 @@ async function createVariantFromCanvas(
   drawFn(ctx, targetCanvas);
 
   const blob = await canvasToWebP(targetCanvas, quality);
-  const file = new File([blob], filename, { type: 'image/webp' });
+  const ext = blob.type === 'image/webp' ? 'webp' : 'jpg';
+  const file = new File([blob], `${filename}.${ext}`, { type: blob.type });
 
   return {
     sizeCode,
@@ -370,26 +375,22 @@ async function processOriginal(
 ): Promise<ImageVariant> {
   const { width: sourceWidth, height: sourceHeight } = sourceCanvas;
 
-  // Check if we need to downscale
   if (
     sourceWidth <= maxResolution.width &&
     sourceHeight <= maxResolution.height
   ) {
-    // No downscaling needed, just convert to WebP
     return createVariantFromCanvas(
-      sourceCanvas,
       'original',
       sourceWidth,
       sourceHeight,
       quality,
-      'original.webp',
+      'original',
       (ctx) => {
         ctx.drawImage(sourceCanvas, 0, 0);
       },
     );
   }
 
-  // Downscale to max resolution
   const dimensions = calculateContainDimensions(
     sourceWidth,
     sourceHeight,
@@ -398,12 +399,11 @@ async function processOriginal(
   );
 
   return createVariantFromCanvas(
-    sourceCanvas,
     'original',
     dimensions.width,
     dimensions.height,
     quality,
-    'original.webp',
+    'original',
     (ctx) => {
       ctx.drawImage(sourceCanvas, 0, 0, dimensions.width, dimensions.height);
     },
@@ -429,12 +429,11 @@ async function processContainVariant(
   );
 
   return createVariantFromCanvas(
-    sourceCanvas,
     sizeCode,
     dimensions.width,
     dimensions.height,
     quality,
-    `${sizeCode}.webp`,
+    sizeCode,
     (ctx) => {
       ctx.drawImage(sourceCanvas, 0, 0, dimensions.width, dimensions.height);
     },
@@ -458,14 +457,12 @@ async function processThumbnail(
   );
 
   return createVariantFromCanvas(
-    sourceCanvas,
     'thm',
     targetSize,
     targetSize,
     quality,
-    'thm.webp',
+    'thm',
     (ctx) => {
-      // Draw cropped and scaled image in one step
       ctx.drawImage(
         sourceCanvas,
         cropDimensions.sourceX,
@@ -495,14 +492,6 @@ export async function processImageToVariants(
   } = options;
 
   try {
-    // Check WebP support
-    onProgress?.(PROGRESS.VALIDATING, 'Checking WebP support...');
-    if (!isWebPSupported()) {
-      throw new Error(
-        'WebP format is not supported in this browser. Please use a modern browser.',
-      );
-    }
-
     // Basic validation (size, format) - fast check before loading
     onProgress?.(PROGRESS.VALIDATING, 'Validating image...');
     const basicError = validateImageBasic(file);
