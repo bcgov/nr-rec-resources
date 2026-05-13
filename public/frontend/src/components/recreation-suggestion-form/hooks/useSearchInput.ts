@@ -114,8 +114,13 @@ export const useSearchInput = () => {
         [COMMUNITY_PARAM_KEY]: city.name.trim(),
       };
       delete newParams[FILTER_PARAM_KEY];
+      delete newParams['focus'];
 
       setSelectedCity([city]);
+      // Clear wasCleared so the incoming city extent always triggers a zoom.
+      // If wasCleared is still true from a prior rec-resource selection (province-wide
+      // query not yet resolved), it would wrongly suppress the city zoom.
+      searchInputStore.setState((prev) => ({ ...prev, wasCleared: false }));
       navigate({
         to: ROUTE_PATHS.SEARCH,
         search: newParams,

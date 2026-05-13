@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
+import searchInputStore from '@/store/searchInputStore';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -37,6 +38,7 @@ import {
   OPTION_TYPE,
   SEARCH_PLACEHOLDER,
 } from '@/components/recreation-suggestion-form/constants';
+import { SearchMapFocusModes } from '@/components/search-map/constants';
 import { Option } from 'react-bootstrap-typeahead/types/types';
 
 interface RecreationSuggestionFormProps {
@@ -60,11 +62,6 @@ interface RecreationSuggestionFormProps {
    * Values come from analytics constants (Search_home/Search_list/Search_map).
    */
   trackingContext: MatomoSearchContext;
-
-  /**
-   * Triggers when a suggestion is selected, only applicable when disableNavigation is true
-   */
-  onSelectSuggestion?(suggestion: RecreationSuggestion): void;
 }
 
 const RecreationSuggestionForm = ({
@@ -72,7 +69,6 @@ const RecreationSuggestionForm = ({
   disableNavigation = false,
   searchBtnVariant = 'primary',
   trackingContext,
-  onSelectSuggestion,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
   const searchParams = useSearch({ strict: false });
@@ -239,10 +235,28 @@ const RecreationSuggestionForm = ({
       case OPTION_TYPE.RECREATION_RESOURCE:
         if (disableNavigation) {
           trackSearch('selected', suggestion.name);
-          if (onSelectSuggestion) {
-            handleClearTypeaheadSearch();
-            onSelectSuggestion(suggestion);
+          if (
+            searchParams.filter ||
+            searchParams.lat ||
+            searchParams.lon ||
+            searchParams.community
+          ) {
+            searchInputStore.setState((prev) => ({
+              ...prev,
+              wasCleared: true,
+            }));
           }
+          navigate({
+            to: ROUTE_PATHS.SEARCH,
+            search: (prev) => {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { filter, lat, lon, community, ...rest } = prev;
+              return {
+                ...rest,
+                focus: `${SearchMapFocusModes.REC_RESOURCE_ID}:${suggestion.rec_resource_id}`,
+              };
+            },
+          });
           return;
         }
         trackSearch('selected', suggestion.name);

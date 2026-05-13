@@ -41,7 +41,6 @@ import Overlay from 'ol/Overlay';
 import { LoadingOverlay } from '@shared/components/loading-overlay';
 import { useBaseMaps } from '@/components/search-map/hooks/useBaseMaps';
 import filterChipStore from '@/store/filterChips';
-import { RecreationSuggestion } from '@/components/recreation-suggestion-form/types';
 import '@/components/search-map/SearchMap.scss';
 
 interface SearchViewControlsProps {
@@ -75,7 +74,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     mapRef.current.getMap().addOverlay(overlay);
     overlayRef.current = overlay;
     return () => {
-      // eslint-disable-next-line
       mapRef.current?.getMap().removeOverlay(overlay);
       overlayRef.current = null;
     };
@@ -141,17 +139,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     featureLayers: featureSelectionLayers,
   });
 
-  const { zoomToFeature } = useZoomToExtent(mapRef, extent);
-
-  const handleSelectedSuggestion = (suggestion: RecreationSuggestion) => {
-    const allFeatures = clusteredRecreationFeatureLayer.clusters.flatMap(
-      (item: any) => item.values_?.features || [],
-    );
-    const clickedFeature = allFeatures.find(
-      (f: any) => f.id_ === suggestion.rec_resource_id,
-    );
-    zoomToFeature(clickedFeature);
-  };
+  useZoomToExtent(mapRef, extent);
 
   const { isMapFocusLoading, loadingProgress } = useMapFocus({
     mapRef,
@@ -190,7 +178,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     if (searchViewControlsProps.props.style?.visibility === 'visible') {
       const hideDialog = Cookies.get('hidemap-disclaimer-dialog');
       if (!hideDialog) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsDisclaimerModalOpen(true);
       }
     }
@@ -253,7 +240,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             disableNavigation={true}
             searchBtnVariant="secondary"
             trackingContext={MATOMO_SEARCH_CONTEXT_MAP}
-            onSelectSuggestion={handleSelectedSuggestion}
           />
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}

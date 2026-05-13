@@ -8,9 +8,6 @@ import { trackClickEvent, trackEvent } from '@shared/utils';
 import { selectedWildfireIcon } from './styles/icons';
 import { useFeatureSelection } from './hooks';
 
-const zoomToFeatureMock = vi.fn();
-const onSelectSuggestionMock = vi.fn();
-
 vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual('@tanstack/react-router');
   return {
@@ -70,9 +67,7 @@ vi.mock('@/components/search-map/hooks', () => ({
     selectedFeature: null,
     setSelectedFeature: vi.fn(),
   })),
-  useZoomToExtent: vi.fn(() => ({
-    zoomToFeature: zoomToFeatureMock,
-  })),
+  useZoomToExtent: vi.fn(),
 }));
 
 vi.mock('@bcgov/prp-map', () => ({
@@ -138,11 +133,7 @@ vi.mock('@/components/layout/Header', () => ({
 vi.mock(
   '@/components/recreation-suggestion-form/RecreationSuggestionForm',
   () => ({
-    default: (props: any) => {
-      onSelectSuggestionMock.mockImplementation(props.onSelectSuggestion);
-
-      return <div data-testid="recreation-suggestion-form" />;
-    },
+    default: () => <div data-testid="recreation-suggestion-form" />,
   }),
 );
 
@@ -391,19 +382,6 @@ describe('SearchMap', () => {
     expect(sessionStorage.setItem).toHaveBeenCalledWith(
       'locationZoomState',
       '10',
-    );
-  });
-
-  it('calls zoomToFeature with the correct feature', async () => {
-    await renderWithRouter(<SearchMap totalCount={0} ids={[]} props={{}} />);
-
-    // simulate selection
-    onSelectSuggestionMock({
-      rec_resource_id: '123',
-    });
-
-    expect(zoomToFeatureMock).toHaveBeenCalledWith(
-      expect.objectContaining({ id_: '123' }),
     );
   });
 
