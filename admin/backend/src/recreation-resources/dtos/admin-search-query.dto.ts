@@ -165,4 +165,13 @@ export class AdminSearchQueryDto {
   @IsOptional()
   @IsDateString()
   establishment_date_to?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by establishment date presence (yes/no)',
+    enum: ['yes', 'no'],
+    example: 'yes',
+  })
+  @IsOptional()
+  @IsIn(['yes', 'no'])
+  established?: string;
 }

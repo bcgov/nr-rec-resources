@@ -65,40 +65,16 @@ vi.mock('@/pages/search/components/SearchSubmitBar', () => ({
 }));
 
 vi.mock('@/pages/search/components/FilterAccordion', () => ({
-  FilterAccordion: ({
-    showTrigger,
-    communityFilter,
-  }: {
-    showTrigger: boolean;
-    communityFilter: string[];
-  }) => (
-    <div data-testid="community-filter">
-      {String(showTrigger)}|{communityFilter.join(',')}
-    </div>
+  FilterAccordion: ({ showTrigger }: { showTrigger: boolean }) => (
+    <div data-testid="community-filter">{String(showTrigger)}</div>
   ),
 }));
 
 vi.mock('@/pages/search/components/AppliedFilterChips', () => ({
-  AppliedFilterChips: ({
-    chips,
-    onClearCommunity,
-  }: {
-    chips: Array<{ label: string }>;
-    onClearCommunity: (value: string) => void;
-  }) => (
-    <>
-      <div data-testid="applied-filter-chips">
-        {chips.map((chip) => chip.label).join(',')}
-      </div>
-
-      <button
-        type="button"
-        data-testid="clear-community-button"
-        onClick={() => onClearCommunity('closestCommunity:WHISTLER')}
-      >
-        Clear community
-      </button>
-    </>
+  AppliedFilterChips: ({ chips }: { chips: Array<{ label: string }> }) => (
+    <div data-testid="applied-filter-chips">
+      {chips.map((chip) => chip.label).join(',')}
+    </div>
   ),
 }));
 
@@ -192,6 +168,12 @@ function buildController() {
       nextPage: vi.fn(),
     },
     setSort: vi.fn(),
+    applyFilters: vi.fn(),
+    addClosestCommunity: vi.fn(),
+    establishedOptions: [
+      { id: 'yes', label: 'Yes' },
+      { id: 'no', label: 'No' },
+    ],
   };
 }
 
@@ -263,27 +245,16 @@ describe('SearchPage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('adds community filter', async () => {
+  it('adds community filter through the controller closest-community action', async () => {
     const user = userEvent.setup();
+    const controller = buildController();
+
+    mockController.mockReturnValue(controller);
 
     render(<SearchPage />);
 
     await user.click(screen.getByTestId('add-community-button'));
-    await user.click(screen.getByTestId('add-community-button'));
 
-    expect(screen.getByTestId('community-filter')).toHaveTextContent(
-      'WHISTLER',
-    );
-  });
-
-  it('clears community filter', async () => {
-    const user = userEvent.setup();
-
-    render(<SearchPage />);
-
-    await user.click(screen.getByTestId('add-community-button'));
-    await user.click(screen.getByTestId('clear-community-button'));
-
-    expect(screen.getByTestId('community-filter')).toHaveTextContent('false|');
+    expect(controller.addClosestCommunity).toHaveBeenCalledWith('WHISTLER');
   });
 });

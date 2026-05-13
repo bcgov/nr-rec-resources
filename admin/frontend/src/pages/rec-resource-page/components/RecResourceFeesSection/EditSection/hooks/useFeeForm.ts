@@ -1,6 +1,6 @@
 import { useCreateFee, useUpdateFee, RecreationFeeUIModel } from '@/services';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useNavigate } from '@tanstack/react-router';
@@ -109,7 +109,7 @@ export function useFeeForm({
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isDirty, dirtyFields },
+    formState: { errors, isDirty },
   } = useForm<AddFeeFormData>({
     resolver: zodResolver(addFeeSchema) as any,
     defaultValues,
@@ -118,19 +118,24 @@ export function useFeeForm({
 
   const feeApplies = useWatch({ control, name: 'fee_applies' });
   const dayPreset = useWatch({ control, name: 'day_preset' });
+  const hasInitializedDayPreset = useRef(false);
 
   useEffect(() => {
-    // This preserves existing day selections in edit mode when the preset is "custom".
-    if (!dirtyFields.day_preset) return;
+    // Preserve initial day selections until the user changes the preset.
+    if (!hasInitializedDayPreset.current) {
+      hasInitializedDayPreset.current = true;
+      return;
+    }
 
     const presetConfig =
       dayPreset === DAY_PRESET_OPTIONS.CUSTOM
         ? DAY_PRESET_CONFIG.custom
         : DAY_PRESET_CONFIG[dayPreset];
+
     DAY_FIELDS.forEach((field) => {
       setValue(field, presetConfig[field]);
     });
-  }, [dayPreset, dirtyFields.day_preset, setValue]);
+  }, [dayPreset, setValue]);
 
   const done = () => {
     if (onDone) return onDone();

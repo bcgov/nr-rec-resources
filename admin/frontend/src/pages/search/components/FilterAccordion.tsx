@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
@@ -24,6 +24,7 @@ type FilterAccordionControllerProps = Pick<
   | 'statusOptions'
   | 'accessOptions'
   | 'closestCommunityOptions'
+  | 'establishedOptions'
   | 'applyFilters'
   | 'resetFilters'
 >;
@@ -32,7 +33,6 @@ interface FilterAccordionProps {
   search: AdminSearchRouteState;
   controller: FilterAccordionControllerProps;
   showTrigger?: boolean;
-  communityFilter: string[];
 }
 
 type FilterDraftState = EditableAdminSearchFilters;
@@ -48,6 +48,7 @@ const getEditableFilters = (
   closestCommunity: state.closestCommunity,
   establishment_date_from: state.establishment_date_from,
   establishment_date_to: state.establishment_date_to,
+  established: state.established,
 });
 
 const toggleFilterValue = (currentValues: string[], value: string): string[] =>
@@ -59,7 +60,6 @@ export function FilterAccordion({
   search,
   controller,
   showTrigger = true,
-  communityFilter,
 }: Readonly<FilterAccordionProps>) {
   const {
     isFilterPanelOpen: isOpen,
@@ -71,6 +71,7 @@ export function FilterAccordion({
     statusOptions,
     accessOptions,
     closestCommunityOptions,
+    establishedOptions,
     applyFilters: onApply,
     resetFilters: onReset,
   } = controller;
@@ -80,7 +81,8 @@ export function FilterAccordion({
     activityOptions,
     statusOptions,
     accessOptions,
-    closestCommunityOptions: closestCommunityOptions.map((item) => ({
+    establishedOptions,
+    closestCommunityOptions: (closestCommunityOptions ?? []).map((item) => ({
       ...item,
       label: capitalizeWords(item.label),
     })),
@@ -100,21 +102,6 @@ export function FilterAccordion({
     setDraft(EMPTY_ADMIN_SEARCH_FILTERS);
   };
 
-  useEffect(() => {
-    setDraft((current) => ({ ...current, closestCommunity: communityFilter }));
-    onApply({
-      type: draft.type,
-      district: draft.district,
-      activities: draft.activities,
-      status: draft.status,
-      access: draft.access,
-      closestCommunity: communityFilter,
-      establishment_date_from: draft.establishment_date_from,
-      establishment_date_to: draft.establishment_date_to,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [communityFilter]);
-
   const renderedPanel = (
     <div
       className={`filters__collapse${isOpen ? ' is-open' : ''}`}
@@ -125,26 +112,63 @@ export function FilterAccordion({
         <div className="filters__panel mb-3">
           <Row className="g-3">
             {ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS.map((field) => {
-              const options = filterOptionsByKey[field.optionsKey] ?? [];
+              const options =
+                filterOptionsByKey[
+                  field.optionsKey as keyof typeof filterOptionsByKey
+                ] ?? [];
+              const typedOptions = options as Array<{
+                id: string;
+                label: string;
+              }>;
+              // Handle established field as a select instead of checkbox dropdown
+              if ('isSelect' in field && field.isSelect) {
+                return (
+                  <Col key={field.key} md={6} xl={3}>
+                    <Form.Group controlId={field.controlId}>
+                      <Form.Label>{field.label}</Form.Label>
+                      <Form.Select
+                        value={draft[field.key as keyof typeof draft] ?? ''}
+                        onChange={(event) =>
+                          updateDraft((current) => ({
+                            ...current,
+                            [field.key]: event.target.value || undefined,
+                          }))
+                        }
+                      >
+                        <option value="">{field.label}</option>
+                        {typedOptions.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                );
+              }
               return (
                 <Col key={field.key} md={6} xl={3}>
                   <Form.Group controlId={field.controlId}>
                     <Form.Label>{field.label}</Form.Label>
                     <CheckboxDropdownField
                       label={field.label}
-                      items={options.flatMap((option) =>
+                      items={typedOptions.flatMap((option) =>
                         option.id
                           ? [{ value: option.id, label: option.label }]
                           : [],
                       )}
-                      selectedValues={draft[field.key]}
+                      selectedValues={
+                        draft[field.key as keyof typeof draft] as string[]
+                      }
                       toggleStyle="field"
                       showSelectedCount
                       onToggle={(value) =>
                         updateDraft((current) => ({
                           ...current,
                           [field.key]: toggleFilterValue(
-                            current[field.key],
+                            current[
+                              field.key as keyof typeof current
+                            ] as string[],
                             value,
                           ),
                         }))
@@ -216,6 +240,7 @@ export function FilterAccordion({
                     closestCommunity: draft.closestCommunity,
                     establishment_date_from: draft.establishment_date_from,
                     establishment_date_to: draft.establishment_date_to,
+                    established: draft.established,
                   });
                 }}
               >

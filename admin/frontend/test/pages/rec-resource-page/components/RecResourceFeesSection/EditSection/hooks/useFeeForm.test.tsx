@@ -35,11 +35,9 @@ describe('useFeeForm', () => {
   const mockReset = vi.fn();
   const mockHandleSubmit = vi.fn();
   const mockSetValue = vi.fn();
-  let mockDirtyFields: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockDirtyFields = {};
 
     vi.mocked(useNavigate).mockReturnValue(mockNavigate);
 
@@ -56,7 +54,7 @@ describe('useFeeForm', () => {
       handleSubmit: mockHandleSubmit,
       reset: mockReset,
       setValue: mockSetValue,
-      formState: { errors: {}, isDirty: false, dirtyFields: mockDirtyFields },
+      formState: { errors: {}, isDirty: false, dirtyFields: {} },
     } as any);
 
     // Avoid preset effect noise; it's not needed for submit behavior
@@ -66,7 +64,8 @@ describe('useFeeForm', () => {
   it('does not overwrite existing day selections on initial load when day preset is custom', () => {
     const recResourceId = 'REC123';
 
-    vi.mocked(reactHookForm.useWatch).mockImplementation(({ name }: any) => {
+    vi.mocked(reactHookForm.useWatch).mockImplementation((args?: any) => {
+      const name = args?.name;
       if (name === 'day_preset') return DAY_PRESET_OPTIONS.CUSTOM;
       return FEE_APPLIES_OPTIONS.ALWAYS;
     });
@@ -97,7 +96,8 @@ describe('useFeeForm', () => {
     let currentPreset: (typeof DAY_PRESET_OPTIONS)[keyof typeof DAY_PRESET_OPTIONS] =
       DAY_PRESET_OPTIONS.ALL_DAYS;
 
-    vi.mocked(reactHookForm.useWatch).mockImplementation(({ name }: any) => {
+    vi.mocked(reactHookForm.useWatch).mockImplementation((args?: any) => {
+      const name = args?.name;
       if (name === 'day_preset') return currentPreset;
       return FEE_APPLIES_OPTIONS.ALWAYS;
     });
@@ -111,15 +111,6 @@ describe('useFeeForm', () => {
 
     expect(mockSetValue).not.toHaveBeenCalled();
 
-    mockDirtyFields = { day_preset: true };
-    vi.mocked(reactHookForm.useForm).mockReturnValue({
-      control: { _mock: 'control' },
-      handleSubmit: mockHandleSubmit,
-      reset: mockReset,
-      setValue: mockSetValue,
-      formState: { errors: {}, isDirty: true, dirtyFields: mockDirtyFields },
-    } as any);
-
     currentPreset = DAY_PRESET_OPTIONS.CUSTOM;
     rerender();
 
@@ -130,6 +121,43 @@ describe('useFeeForm', () => {
     expect(mockSetValue).toHaveBeenCalledWith('friday_ind', false);
     expect(mockSetValue).toHaveBeenCalledWith('saturday_ind', false);
     expect(mockSetValue).toHaveBeenCalledWith('sunday_ind', false);
+  });
+
+  it('reselects all days when switching from weekends back to all days', () => {
+    const recResourceId = 'REC123';
+    let currentPreset: (typeof DAY_PRESET_OPTIONS)[keyof typeof DAY_PRESET_OPTIONS] =
+      DAY_PRESET_OPTIONS.ALL_DAYS;
+
+    vi.mocked(reactHookForm.useWatch).mockImplementation((args?: any) => {
+      const name = args?.name;
+      if (name === 'day_preset') return currentPreset;
+      return FEE_APPLIES_OPTIONS.ALWAYS;
+    });
+
+    const { rerender } = renderHook(() =>
+      useFeeForm({
+        recResourceId,
+        mode: 'create',
+      }),
+    );
+
+    currentPreset = DAY_PRESET_OPTIONS.WEEKENDS;
+    rerender();
+    expect(mockSetValue).toHaveBeenCalledWith('monday_ind', false);
+    expect(mockSetValue).toHaveBeenCalledWith('saturday_ind', true);
+    expect(mockSetValue).toHaveBeenCalledWith('sunday_ind', true);
+
+    mockSetValue.mockClear();
+    currentPreset = DAY_PRESET_OPTIONS.ALL_DAYS;
+    rerender();
+
+    expect(mockSetValue).toHaveBeenCalledWith('monday_ind', true);
+    expect(mockSetValue).toHaveBeenCalledWith('tuesday_ind', true);
+    expect(mockSetValue).toHaveBeenCalledWith('wednesday_ind', true);
+    expect(mockSetValue).toHaveBeenCalledWith('thursday_ind', true);
+    expect(mockSetValue).toHaveBeenCalledWith('friday_ind', true);
+    expect(mockSetValue).toHaveBeenCalledWith('saturday_ind', true);
+    expect(mockSetValue).toHaveBeenCalledWith('sunday_ind', true);
   });
 
   it('create mode: submits with day indicators transformed and dates included only for specific dates', async () => {

@@ -14,6 +14,7 @@ export interface AdminSearchFilters {
   establishment_date_from?: string;
   establishment_date_to?: string;
   access: string[];
+  established?: string;
 }
 
 export interface AdminSearchRouteState extends AdminSearchFilters {

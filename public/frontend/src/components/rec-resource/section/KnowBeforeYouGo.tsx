@@ -67,21 +67,24 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
             !isReservable && <BringCashRow />}
           <h3>Staying safe</h3>
           <p>
-            Recreation sites and trails can be in remote areas with access via
-            gravel resource roads. Drive cautiously and watch out for industrial
-            traffic and logging trucks. Plan ahead, share your itinerary, and
-            carry emergency supplies.
+            Generally located in remote areas and accessed by gravel forestry
+            roads, most recreation sites provide basic facilities, such as
+            outhouses, fire rings and picnic tables.
           </p>
           <InfoRow
             icon={recycle}
             iconAlt="Recycle icon"
             title="Pack in, pack out"
-            className="packing-info"
+            className="safety-item"
           >
             <p>
-              Garbage receptacles and potable water are not provided. Be
-              prepared to bring your own water and pack out any garbage. Always
-              follow Leave no Trace outdoor ethics. For more information, see{' '}
+              The majority of recreation sites and trails don't offer garbage
+              receptacles or have potable water. Be prepared and bring your own
+              water, and pack out any garbage.
+            </p>
+            <p>
+              Always follow Leave no Trace outdoor ethics. For more information,
+              see{' '}
               <a
                 href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning"
                 target="_blank"
@@ -99,8 +102,9 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
             title="Limited or no cellular reception"
           >
             <p>
-              Cell service may be limited or unavailable due to the remoteness
-              of many of our rec sites.
+              Cell service may be limited or unavailable in many of our rec
+              sites — plan ahead, share your itinerary, and carry emergency
+              supplies.
             </p>
           </InfoRow>
           <InfoRow
