@@ -235,10 +235,6 @@ const RecreationSuggestionForm = ({
       case OPTION_TYPE.RECREATION_RESOURCE:
         if (disableNavigation) {
           trackSearch('selected', suggestion.name);
-          // If the user had an active search (filter/lat/lon/community), removing those
-          // params will trigger a province-wide extent change. Set wasCleared so
-          // useZoomToExtent absorbs that change instead of zooming to province-wide,
-          // leaving useMapFocus free to zoom to the specific resource.
           if (
             searchParams.filter ||
             searchParams.lat ||

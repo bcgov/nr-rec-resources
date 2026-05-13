@@ -124,20 +124,17 @@ describe('RecreationSuggestionForm', () => {
     });
   });
 
-  it('calls onSelectSuggestion when selecting a recreation resource and disableNavigation is true', async () => {
-    const onSelectSuggestion = vi.fn();
-
+  it('navigates with focus param when selecting a recreation resource and disableNavigation is true', async () => {
     renderWithQueryClient(
       <RecreationSuggestionForm
         disableNavigation={true}
         trackingContext="Search_list"
-        onSelectSuggestion={onSelectSuggestion}
       />,
     );
 
     await userEvent.click(screen.getByTestId('suggestion-typeahead'));
 
-    expect(onSelectSuggestion).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
   });
 
   it('does not call handleSearch if input is empty and allowEmptySearch is false', () => {
@@ -433,13 +430,11 @@ describe('RecreationSuggestionForm', () => {
   });
 
   it('handles recreation resource selection with disabled navigation', async () => {
-    const onSelectSuggestion = vi.fn();
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch
         disableNavigation={true}
         trackingContext="Search_list"
-        onSelectSuggestion={onSelectSuggestion}
       />,
     );
 
@@ -453,8 +448,7 @@ describe('RecreationSuggestionForm', () => {
       });
     });
 
-    expect(onSelectSuggestion).toHaveBeenCalled();
-    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalled();
     expect(trackClickEvent).toHaveBeenCalledWith({
       category: 'Search',
       action: 'Search_list_selected',
