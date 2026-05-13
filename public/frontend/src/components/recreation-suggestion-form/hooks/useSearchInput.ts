@@ -45,7 +45,6 @@ export const useSearchInput = () => {
       delete newParams[LAT_PARAM_KEY];
       delete newParams[LON_PARAM_KEY];
       delete newParams[COMMUNITY_PARAM_KEY];
-      // delete newParams['focus'];
 
       if (trimmedValue) newParams[FILTER_PARAM_KEY] = trimmedValue;
       else delete newParams[FILTER_PARAM_KEY];
@@ -85,7 +84,6 @@ export const useSearchInput = () => {
     delete newParams[LAT_PARAM_KEY];
     delete newParams[LON_PARAM_KEY];
     delete newParams[COMMUNITY_PARAM_KEY];
-    // delete newParams['focus'];
 
     navigate({
       to: ROUTE_PATHS.SEARCH,
