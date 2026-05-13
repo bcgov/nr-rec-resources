@@ -151,10 +151,9 @@ model recreation_fee {
   created_by           String?
   sys_period           Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   fee_id               Int                      @id @default(autoincrement())
-  fee_applies          String?                  @default("always") @db.VarChar(20)
   recurring_ind        Boolean                  @default(false)
-  recurring_start_mmdd String?                  @db.VarChar(5)
-  recurring_end_mmdd   String?                  @db.VarChar(5)
+  recurring_start_mmdd String?
+  recurring_end_mmdd   String?
   recreation_resource  recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   with_description     recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
 

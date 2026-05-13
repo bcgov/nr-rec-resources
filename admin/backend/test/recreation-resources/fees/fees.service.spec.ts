@@ -596,7 +596,11 @@ describe('FeesService', () => {
       expect(updateCallArg.where).toEqual({ fee_id: 123 });
 
       expect(updateCallArg.data).toMatchObject({
-        recreation_fee_code: 'D',
+        with_description: {
+          connect: {
+            recreation_fee_code: 'D',
+          },
+        },
         fee_amount: null,
         fee_start_date: new Date('2024-06-01'),
         fee_end_date: null,

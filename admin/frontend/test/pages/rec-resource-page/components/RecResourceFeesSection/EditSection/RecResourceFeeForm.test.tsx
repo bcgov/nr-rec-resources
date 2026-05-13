@@ -60,6 +60,10 @@ vi.mock(
       { id: 'weekdays', label: 'Weekdays' },
       { id: 'weekends', label: 'Weekends' },
     ],
+    FEE_APPLIES_DROPDOWN_OPTIONS: [
+      { id: 'always', label: 'Fee always applies' },
+      { id: 'specific_dates', label: 'Fee applies for specific dates' },
+    ],
   }),
 );
 
@@ -73,7 +77,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       isDirty: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
-      feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
+      feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
       options: [
@@ -145,6 +149,28 @@ describe('RecResourceFeeFormFields (create)', () => {
     expect(screen.getByRole('button', { name: 'Add Fee' })).toBeInTheDocument();
   });
 
+  it('does not render recurring fee checkbox when fee applies always', () => {
+    vi.mocked(useFeeForm).mockReturnValueOnce({
+      control: mockControl,
+      handleSubmit: mockHandleSubmit,
+      errors: {},
+      isDirty: false,
+      mutation: { isPending: false },
+      onSubmit: mockOnSubmit,
+      feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
+    } as any);
+
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
+
+    expect(
+      screen.queryByRole('checkbox', {
+        name: /Fee is recurring\. Fee applies every year for the selected dates/i,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
   it('does not render date fields when fee applies always', () => {
     vi.mocked(useFeeForm).mockReturnValueOnce({
       control: mockControl,
@@ -168,7 +194,7 @@ describe('RecResourceFeeFormFields (create)', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders date fields when fee applies for specific dates', () => {
+  it('renders recurring month/day pickers when fee applies for specific dates and is recurring', () => {
     vi.mocked(useFeeForm).mockReturnValueOnce({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
@@ -177,6 +203,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
+      isRecurring: true,
     } as any);
 
     render(
@@ -189,6 +216,29 @@ describe('RecResourceFeeFormFields (create)', () => {
     expect(
       screen.getByTestId('month-day-picker-recurring_end_mmdd'),
     ).toBeInTheDocument();
+  });
+
+  it('renders start/end date fields when fee applies for specific dates and is not recurring', () => {
+    vi.mocked(useFeeForm).mockReturnValueOnce({
+      control: mockControl,
+      handleSubmit: mockHandleSubmit,
+      errors: {},
+      isDirty: false,
+      mutation: { isPending: false },
+      onSubmit: mockOnSubmit,
+      feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
+      isRecurring: false,
+    } as any);
+
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
+
+    expect(screen.getByTestId('date-field-fee_start_date')).toBeInTheDocument();
+    expect(screen.getByTestId('date-field-fee_end_date')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('month-day-picker-recurring_start_mmdd'),
+    ).not.toBeInTheDocument();
   });
 
   it('disables submit button when form is not dirty', () => {

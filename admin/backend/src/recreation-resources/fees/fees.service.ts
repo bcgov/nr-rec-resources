@@ -117,7 +117,9 @@ export class FeesService {
     const updateData: Record<string, unknown> = {};
 
     if (updateFeeDto.recreation_fee_code !== undefined) {
-      updateData.recreation_fee_code = updateFeeDto.recreation_fee_code;
+      updateData.with_description = {
+        connect: { recreation_fee_code: updateFeeDto.recreation_fee_code },
+      };
     }
     if (updateFeeDto.fee_amount !== undefined) {
       updateData.fee_amount = updateFeeDto.fee_amount ?? null;

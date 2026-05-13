@@ -1,5 +1,6 @@
 import {
   CurrencyInputField,
+  DateInputField,
   MonthDayPicker,
   SelectField,
 } from '@/components/form';
@@ -17,6 +18,7 @@ import { useFeeForm } from '@/pages/rec-resource-page/components/RecResourceFees
 import { useFeeOptions } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeOptions';
 import {
   DAYS,
+  FEE_APPLIES_DROPDOWN_OPTIONS,
   DAY_PRESET_OPTIONS_LIST,
 } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/constants';
 import './RecResourceFeeForm.scss';
@@ -43,6 +45,7 @@ export const RecResourceFeeForm = ({
     mutation,
     onSubmit,
     feeApplies,
+    isRecurring,
   } = useFeeForm({
     recResourceId,
     mode,
@@ -66,58 +69,83 @@ export const RecResourceFeeForm = ({
         ? 'Saving...'
         : 'Save Changes';
 
-  const isRecurring = feeApplies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
+  const isSpecificDates = feeApplies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Stack direction="vertical" gap={4}>
-        <Controller<AddFeeFormData>
+        <SelectField
           name="fee_applies"
+          label="Fee Applies"
+          placeholder="Select when fee applies..."
+          options={FEE_APPLIES_DROPDOWN_OPTIONS}
           control={control}
-          render={({ field }) => (
-            <Form.Check
-              type="checkbox"
-              id="fee-recurring"
-              label={
-                <>
-                  <strong>Fee is recurring.</strong> Fee applies every year for
-                  the selected dates
-                </>
-              }
-              checked={field.value === FEE_APPLIES_OPTIONS.SPECIFIC_DATES}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                field.onChange(
-                  checked
-                    ? FEE_APPLIES_OPTIONS.SPECIFIC_DATES
-                    : FEE_APPLIES_OPTIONS.ALWAYS,
-                );
-              }}
-            />
-          )}
+          errors={errors}
         />
 
-        {isRecurring && (
-          <Row className="gy-3">
-            <Col xs={12} md={6}>
-              <MonthDayPicker
-                name="recurring_start_mmdd"
-                label="Start Date (Month / Day)"
-                control={control}
-                errors={errors}
-                required
-              />
-            </Col>
-            <Col xs={12} md={6}>
-              <MonthDayPicker
-                name="recurring_end_mmdd"
-                label="End Date (Month / Day)"
-                control={control}
-                errors={errors}
-                required
-              />
-            </Col>
-          </Row>
+        {isSpecificDates && (
+          <>
+            <Controller<AddFeeFormData>
+              name="is_recurring"
+              control={control}
+              render={({ field }) => (
+                <Form.Check
+                  type="checkbox"
+                  id="fee-recurring"
+                  label={
+                    <>
+                      <strong>Fee is recurring.</strong> Fee applies every year
+                      for the selected dates
+                    </>
+                  }
+                  checked={!!field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                />
+              )}
+            />
+
+            {isRecurring ? (
+              <Row className="gy-3">
+                <Col xs={12} md={6}>
+                  <MonthDayPicker
+                    name="recurring_start_mmdd"
+                    label="Start Date (Month / Day)"
+                    control={control}
+                    errors={errors}
+                    required
+                  />
+                </Col>
+                <Col xs={12} md={6}>
+                  <MonthDayPicker
+                    name="recurring_end_mmdd"
+                    label="End Date (Month / Day)"
+                    control={control}
+                    errors={errors}
+                    required
+                  />
+                </Col>
+              </Row>
+            ) : (
+              <Row className="gy-3">
+                <Col xs={12} md={6}>
+                  <DateInputField
+                    name="fee_start_date"
+                    label="Start Date"
+                    control={control}
+                    errors={errors}
+                  />
+                </Col>
+                <Col xs={12} md={6}>
+                  <DateInputField
+                    name="fee_end_date"
+                    label="End Date"
+                    control={control}
+                    errors={errors}
+                  />
+                </Col>
+              </Row>
+            )}
+          </>
         )}
 
         <SelectField
@@ -174,7 +202,6 @@ export const RecResourceFeeForm = ({
               label="Amount"
               control={control}
               errors={errors}
-              required
             />
           </Col>
         </Row>

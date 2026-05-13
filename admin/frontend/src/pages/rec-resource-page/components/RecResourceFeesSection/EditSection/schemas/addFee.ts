@@ -26,6 +26,7 @@ export const addFeeSchemaBase = z.object({
   fee_end_date: z.string().optional(),
   recurring_start_mmdd: z.string().optional(),
   recurring_end_mmdd: z.string().optional(),
+  is_recurring: z.boolean().default(false),
   day_preset: z
     .enum([
       DAY_PRESET_OPTIONS.ALL_DAYS,
@@ -47,6 +48,7 @@ export const addFeeSchema = addFeeSchemaBase
   .refine(
     (data) => {
       if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) return true;
+      if (!data.is_recurring) return true;
       return /^\d{2}-\d{2}$/.test(data.recurring_start_mmdd || '');
     },
     {
@@ -57,6 +59,7 @@ export const addFeeSchema = addFeeSchemaBase
   .refine(
     (data) => {
       if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) return true;
+      if (!data.is_recurring) return true;
       return /^\d{2}-\d{2}$/.test(data.recurring_end_mmdd || '');
     },
     {

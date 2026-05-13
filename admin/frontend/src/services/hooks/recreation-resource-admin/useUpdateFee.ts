@@ -29,6 +29,8 @@ export interface UpdateFeeRequest {
   recurring_ind?: boolean;
   recurring_start_mmdd?: string | null;
   recurring_end_mmdd?: string | null;
+  fee_start_date?: string | null;
+  fee_end_date?: string | null;
 }
 
 export function useUpdateFee() {

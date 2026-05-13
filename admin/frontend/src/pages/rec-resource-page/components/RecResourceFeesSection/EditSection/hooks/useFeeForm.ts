@@ -68,6 +68,7 @@ export function useFeeForm({
         recreation_fee_code: '',
         fee_amount: undefined,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+        is_recurring: false,
         fee_start_date: undefined,
         fee_end_date: undefined,
         recurring_start_mmdd: undefined,
@@ -90,8 +91,13 @@ export function useFeeForm({
       recreation_fee_code: initialFee.recreation_fee_code ?? '',
       fee_amount: initialFee.fee_amount ?? undefined,
       fee_applies: feeApplies,
-      fee_start_date: initialFee.fee_start_date as any,
-      fee_end_date: initialFee.fee_end_date as any,
+      is_recurring: !!initialFee.recurring_ind,
+      fee_start_date: initialFee.fee_start_date
+        ? initialFee.fee_start_date.toISOString().split('T')[0]
+        : undefined,
+      fee_end_date: initialFee.fee_end_date
+        ? initialFee.fee_end_date.toISOString().split('T')[0]
+        : undefined,
       recurring_start_mmdd: initialFee.recurring_start_mmdd ?? undefined,
       recurring_end_mmdd: initialFee.recurring_end_mmdd ?? undefined,
       day_preset,
@@ -118,6 +124,7 @@ export function useFeeForm({
   });
 
   const feeApplies = useWatch({ control, name: 'fee_applies' });
+  const isRecurring = useWatch({ control, name: 'is_recurring' });
   const dayPreset = useWatch({ control, name: 'day_preset' });
   const hasInitializedDayPreset = useRef(false);
 
@@ -149,7 +156,9 @@ export function useFeeForm({
 
   const onSubmit = async (data: AddFeeFormData) => {
     const dayIndicators = transformDayIndicators(data);
-    const isRecurring = data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
+    const isSpecificDates =
+      data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
+    const isRecurring = isSpecificDates && data.is_recurring;
 
     if (mode === 'create') {
       const feeData = {
@@ -162,6 +171,10 @@ export function useFeeForm({
           ? data.recurring_start_mmdd
           : undefined,
         recurring_end_mmdd: isRecurring ? data.recurring_end_mmdd : undefined,
+        fee_start_date:
+          isSpecificDates && !isRecurring ? data.fee_start_date : undefined,
+        fee_end_date:
+          isSpecificDates && !isRecurring ? data.fee_end_date : undefined,
       };
 
       await createMutation.mutateAsync(feeData);
@@ -182,6 +195,9 @@ export function useFeeForm({
       recurring_ind: isRecurring,
       recurring_start_mmdd: isRecurring ? data.recurring_start_mmdd : null,
       recurring_end_mmdd: isRecurring ? data.recurring_end_mmdd : null,
+      fee_start_date:
+        isSpecificDates && !isRecurring ? data.fee_start_date : null,
+      fee_end_date: isSpecificDates && !isRecurring ? data.fee_end_date : null,
       ...dayIndicators,
     };
     await updateMutation.mutateAsync(updateData);
@@ -200,6 +216,7 @@ export function useFeeForm({
     mutation,
     onSubmit,
     feeApplies,
+    isRecurring,
     setValue,
   };
 }
