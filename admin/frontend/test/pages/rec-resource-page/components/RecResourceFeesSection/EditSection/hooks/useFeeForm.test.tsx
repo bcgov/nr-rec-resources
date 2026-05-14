@@ -64,11 +64,11 @@ describe('useFeeForm', () => {
   it('does not overwrite existing day selections on initial load when day preset is custom', () => {
     const recResourceId = 'REC123';
 
-    vi.mocked(reactHookForm.useWatch).mockImplementation((args?: any) => {
+    vi.mocked(reactHookForm.useWatch).mockImplementation(((args?: any) => {
       const name = args?.name;
       if (name === 'day_preset') return DAY_PRESET_OPTIONS.CUSTOM;
       return FEE_APPLIES_OPTIONS.ALWAYS;
-    });
+    }) as any);
 
     renderHook(() =>
       useFeeForm({
@@ -91,16 +91,16 @@ describe('useFeeForm', () => {
     expect(mockSetValue).not.toHaveBeenCalled();
   });
 
-  it('clears day selections when user switches to custom day preset', () => {
+  it('preserves day selections when user switches to custom day preset', () => {
     const recResourceId = 'REC123';
     let currentPreset: (typeof DAY_PRESET_OPTIONS)[keyof typeof DAY_PRESET_OPTIONS] =
       DAY_PRESET_OPTIONS.ALL_DAYS;
 
-    vi.mocked(reactHookForm.useWatch).mockImplementation((args?: any) => {
+    vi.mocked(reactHookForm.useWatch).mockImplementation(((args?: any) => {
       const name = args?.name;
       if (name === 'day_preset') return currentPreset;
       return FEE_APPLIES_OPTIONS.ALWAYS;
-    });
+    }) as any);
 
     const { rerender } = renderHook(() =>
       useFeeForm({
@@ -114,13 +114,9 @@ describe('useFeeForm', () => {
     currentPreset = DAY_PRESET_OPTIONS.CUSTOM;
     rerender();
 
-    expect(mockSetValue).toHaveBeenCalledWith('monday_ind', false);
-    expect(mockSetValue).toHaveBeenCalledWith('tuesday_ind', false);
-    expect(mockSetValue).toHaveBeenCalledWith('wednesday_ind', false);
-    expect(mockSetValue).toHaveBeenCalledWith('thursday_ind', false);
-    expect(mockSetValue).toHaveBeenCalledWith('friday_ind', false);
-    expect(mockSetValue).toHaveBeenCalledWith('saturday_ind', false);
-    expect(mockSetValue).toHaveBeenCalledWith('sunday_ind', false);
+    // When switching to CUSTOM, setValue should NOT be called because
+    // the user is managing custom day selections manually
+    expect(mockSetValue).not.toHaveBeenCalled();
   });
 
   it('reselects all days when switching from weekends back to all days', () => {
@@ -128,11 +124,11 @@ describe('useFeeForm', () => {
     let currentPreset: (typeof DAY_PRESET_OPTIONS)[keyof typeof DAY_PRESET_OPTIONS] =
       DAY_PRESET_OPTIONS.ALL_DAYS;
 
-    vi.mocked(reactHookForm.useWatch).mockImplementation((args?: any) => {
+    vi.mocked(reactHookForm.useWatch).mockImplementation(((args?: any) => {
       const name = args?.name;
       if (name === 'day_preset') return currentPreset;
       return FEE_APPLIES_OPTIONS.ALWAYS;
-    });
+    }) as any);
 
     const { rerender } = renderHook(() =>
       useFeeForm({
@@ -178,8 +174,9 @@ describe('useFeeForm', () => {
       recreation_fee_code: 'D',
       fee_amount: 15,
       fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
-      fee_start_date: '2024-05-15',
-      fee_end_date: '2024-10-15',
+      is_recurring: true,
+      recurring_start_mmdd: '05-15',
+      recurring_end_mmdd: '10-15',
       day_preset: DAY_PRESET_OPTIONS.CUSTOM,
       monday_ind: false,
       tuesday_ind: true,
@@ -194,8 +191,9 @@ describe('useFeeForm', () => {
       recResourceId,
       recreation_fee_code: 'D',
       fee_amount: 15,
-      fee_start_date: '2024-05-15',
-      fee_end_date: '2024-10-15',
+      recurring_ind: true,
+      recurring_start_mmdd: '05-15',
+      recurring_end_mmdd: '10-15',
       monday_ind: 'N',
       tuesday_ind: 'Y',
       wednesday_ind: 'N',
@@ -237,8 +235,11 @@ describe('useFeeForm', () => {
       recreation_fee_code: 'D',
       fee_amount: undefined,
       fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
-      fee_start_date: '2024-05-15',
-      fee_end_date: '2024-10-15',
+      is_recurring: false,
+      recurring_start_mmdd: undefined,
+      recurring_end_mmdd: undefined,
+      fee_start_date: undefined,
+      fee_end_date: undefined,
       day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
       monday_ind: true,
       tuesday_ind: true,
@@ -256,6 +257,9 @@ describe('useFeeForm', () => {
       fee_amount: null,
       fee_start_date: null,
       fee_end_date: null,
+      recurring_ind: false,
+      recurring_start_mmdd: null,
+      recurring_end_mmdd: null,
       monday_ind: 'Y',
       tuesday_ind: 'Y',
       wednesday_ind: 'Y',

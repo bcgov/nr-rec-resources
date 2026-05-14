@@ -5,7 +5,9 @@ import {
   IsOptional,
   IsDateString,
   Matches,
+  IsBoolean,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateRecreationFeeDto {
   @ApiProperty({
@@ -128,4 +130,40 @@ export class CreateRecreationFeeDto {
   })
   @IsOptional()
   sunday_ind?: string;
+
+  @ApiProperty({
+    description: 'Whether this fee recurs yearly for the given month/day range',
+    example: false,
+    required: false,
+  })
+  @Type(() => Boolean)
+  @IsBoolean()
+  @IsOptional()
+  recurring_ind?: boolean;
+
+  @ApiProperty({
+    description:
+      'Start month-day of the recurring fee period (MM-DD format, e.g. 06-01)',
+    example: '06-01',
+    required: false,
+  })
+  @IsString()
+  @Matches(/^\d{2}-\d{2}$/, {
+    message: 'recurring_start_mmdd must be in MM-DD format',
+  })
+  @IsOptional()
+  recurring_start_mmdd?: string;
+
+  @ApiProperty({
+    description:
+      'End month-day of the recurring fee period (MM-DD format, e.g. 08-31)',
+    example: '08-31',
+    required: false,
+  })
+  @IsString()
+  @Matches(/^\d{2}-\d{2}$/, {
+    message: 'recurring_end_mmdd must be in MM-DD format',
+  })
+  @IsOptional()
+  recurring_end_mmdd?: string;
 }
