@@ -88,4 +88,26 @@ export class RecreationFeeDto {
     required: false,
   })
   sunday_ind?: string;
+
+  @ApiProperty({
+    description: 'Whether this fee recurs yearly for the given month/day range',
+    example: false,
+  })
+  recurring_ind: boolean;
+
+  @ApiProperty({
+    description:
+      'Start month-day of the recurring fee period (MM-DD format, e.g. 06-01)',
+    example: '06-01',
+    required: false,
+  })
+  recurring_start_mmdd?: string;
+
+  @ApiProperty({
+    description:
+      'End month-day of the recurring fee period (MM-DD format, e.g. 08-31)',
+    example: '08-31',
+    required: false,
+  })
+  recurring_end_mmdd?: string;
 }

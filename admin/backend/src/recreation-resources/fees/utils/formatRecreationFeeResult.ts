@@ -3,7 +3,11 @@ import { RecreationFeeDto } from '@/recreation-resources/fees/dto/recreation-fee
 
 export type FeeWithDescription = Prisma.recreation_feeGetPayload<{
   include: { with_description: { select: { description: true } } };
-}>;
+}> & {
+  recurring_ind: boolean;
+  recurring_start_mmdd: string | null;
+  recurring_end_mmdd: string | null;
+};
 
 export function formatRecreationFeeResult(
   fee: FeeWithDescription,
@@ -22,5 +26,8 @@ export function formatRecreationFeeResult(
     friday_ind: fee.friday_ind ?? undefined,
     saturday_ind: fee.saturday_ind ?? undefined,
     sunday_ind: fee.sunday_ind ?? undefined,
+    recurring_ind: fee.recurring_ind ?? false,
+    recurring_start_mmdd: fee.recurring_start_mmdd ?? undefined,
+    recurring_end_mmdd: fee.recurring_end_mmdd ?? undefined,
   };
 }

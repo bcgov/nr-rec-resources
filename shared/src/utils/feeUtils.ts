@@ -136,3 +136,49 @@ export function formatFeeDays(
 
   return daysArray.join(', ');
 }
+
+/**
+ * Month names for recurring fee date formatting
+ */
+const SHORT_MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+/**
+ * Days in each month (using 29 for February to account for leap years)
+ */
+const DAYS_IN_MONTH = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+/**
+ * Formats MM-DD strings to "Mon D" format (e.g., "06-15" -> "Jun 15").
+ * Validates that the month is between 1-12 and day is valid for that month.
+ * @param mmdd - Month-day string in MM-DD format
+ * @returns Formatted date string or '--' if invalid
+ */
+export function formatRecurringMonthDay(mmdd?: string | null): string {
+  if (!mmdd) return '--';
+
+  const match = mmdd.match(/^(\d{2})-(\d{2})$/);
+  if (!match) return '--';
+
+  const month = parseInt(match[1], 10);
+  const day = parseInt(match[2], 10);
+
+  if (month < 1 || month > 12) return '--';
+
+  const maxDaysInMonth = DAYS_IN_MONTH[month - 1];
+  if (day < 1 || day > maxDaysInMonth) return '--';
+
+  return `${SHORT_MONTHS[month - 1]} ${day}`;
+}

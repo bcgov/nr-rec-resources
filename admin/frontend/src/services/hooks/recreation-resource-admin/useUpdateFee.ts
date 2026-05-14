@@ -19,8 +19,6 @@ export interface UpdateFeeRequest {
   feeId: number;
   recreation_fee_code?: string;
   fee_amount?: number | null;
-  fee_start_date?: string | null;
-  fee_end_date?: string | null;
   monday_ind?: string;
   tuesday_ind?: string;
   wednesday_ind?: string;
@@ -28,6 +26,11 @@ export interface UpdateFeeRequest {
   friday_ind?: string;
   saturday_ind?: string;
   sunday_ind?: string;
+  recurring_ind?: boolean;
+  recurring_start_mmdd?: string | null;
+  recurring_end_mmdd?: string | null;
+  fee_start_date?: string | null;
+  fee_end_date?: string | null;
 }
 
 export function useUpdateFee() {

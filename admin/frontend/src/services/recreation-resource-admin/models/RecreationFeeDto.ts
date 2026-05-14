@@ -97,6 +97,24 @@ export interface RecreationFeeDto {
    * @memberof RecreationFeeDto
    */
   sunday_ind?: string;
+  /**
+   * Whether this fee recurs yearly for the given month/day range
+   * @type {boolean}
+   * @memberof RecreationFeeDto
+   */
+  recurring_ind: boolean;
+  /**
+   * Recurrence range start formatted as MM-DD
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  recurring_start_mmdd?: string;
+  /**
+   * Recurrence range end formatted as MM-DD
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  recurring_end_mmdd?: string;
 }
 
 /**
@@ -151,6 +169,15 @@ export function RecreationFeeDtoFromJSONTyped(
     saturday_ind:
       json['saturday_ind'] == null ? undefined : json['saturday_ind'],
     sunday_ind: json['sunday_ind'] == null ? undefined : json['sunday_ind'],
+    recurring_ind: json['recurring_ind'] ?? false,
+    recurring_start_mmdd:
+      json['recurring_start_mmdd'] == null
+        ? undefined
+        : json['recurring_start_mmdd'],
+    recurring_end_mmdd:
+      json['recurring_end_mmdd'] == null
+        ? undefined
+        : json['recurring_end_mmdd'],
   };
 }
 
@@ -186,5 +213,8 @@ export function RecreationFeeDtoToJSONTyped(
     friday_ind: value['friday_ind'],
     saturday_ind: value['saturday_ind'],
     sunday_ind: value['sunday_ind'],
+    recurring_ind: value['recurring_ind'],
+    recurring_start_mmdd: value['recurring_start_mmdd'],
+    recurring_end_mmdd: value['recurring_end_mmdd'],
   };
 }

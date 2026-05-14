@@ -89,7 +89,7 @@ describe('useAddFeeForm', () => {
         saturday_ind: true,
         sunday_ind: true,
       },
-      mode: 'onChange',
+      mode: 'onSubmit',
     });
     expect(zodResolver).toHaveBeenCalled();
   });

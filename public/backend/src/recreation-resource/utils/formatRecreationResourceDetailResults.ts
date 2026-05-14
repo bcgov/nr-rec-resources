@@ -114,20 +114,19 @@ export const formatRecreationResourceDetailResults = ({
         sunday_ind: fee.sunday_ind,
         recreation_fee_code: fee.recreation_fee_code,
         fee_description: fee.with_description?.description,
+        recurring_ind: fee.recurring_ind,
+        recurring_start_mmdd: fee.recurring_start_mmdd,
+        recurring_end_mmdd: fee.recurring_end_mmdd,
       })),
     recreation_structure: {
-      has_toilet: result.recreation_structure?.some((s) =>
+      has_toilet: !!result.recreation_structure?.some((s) =>
         s.recreation_structure_code.description
           .toLowerCase()
           .includes('toilet'),
-      )
-        ? true
-        : false,
-      has_table: result.recreation_structure?.some((s) =>
+      ),
+      has_table: !!result.recreation_structure?.some((s) =>
         s.recreation_structure_code.description.toLowerCase().includes('table'),
-      )
-        ? true
-        : false,
+      ),
     },
     additional_fees: result.recreation_fee
       ?.filter((fee) => fee.recreation_fee_code !== 'C')
@@ -143,6 +142,9 @@ export const formatRecreationResourceDetailResults = ({
         saturday_ind: fee.saturday_ind,
         sunday_ind: fee.sunday_ind,
         recreation_fee_code: fee.recreation_fee_code,
+        recurring_ind: fee.recurring_ind,
+        recurring_start_mmdd: fee.recurring_start_mmdd,
+        recurring_end_mmdd: fee.recurring_end_mmdd,
       })),
     recreation_resource_docs: (
       result.recreation_resource_document as Array<{
