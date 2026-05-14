@@ -121,9 +121,8 @@ export class RecreationFeeDto {
   @ApiProperty({
     description: 'Indicates if the fee is recurring annually',
     example: true,
-    required: false,
   })
-  recurring_ind?: boolean;
+  recurring_ind: boolean;
 
   @ApiProperty({
     description: 'Indicates if the fee applies on Monday',
