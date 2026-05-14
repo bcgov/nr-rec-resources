@@ -109,8 +109,8 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
           </InfoRow>
           <InfoRow
             icon={wildlife}
-            iconAlt="Wildlife & Animal Safety icon"
-            title="Wildlife & Animal Safety"
+            iconAlt="Wildlife and Animal Safety icon"
+            title="Wildlife and animal safety"
             className="safety-item"
           >
             <p>
@@ -126,7 +126,7 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
           <InfoRow
             icon={toilet}
             iconAlt="Toilet icon"
-            title="Toilets & Sanitation"
+            title="Toilets and sanitation"
             className="safety-item"
           >
             <p>Toilet facilities may be limited or unavailable at this site.</p>
@@ -163,8 +163,8 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
           </InfoRow>
           <InfoRow
             icon={campfire}
-            iconAlt="Campfires & Fire Safety icon"
-            title="Campfires & Fire Safety"
+            iconAlt="Campfires and fire safety icon"
+            title="Campfires and fire safety"
             className="safety-item"
           >
             <p>Campfire bans or restrictions may be in place.</p>

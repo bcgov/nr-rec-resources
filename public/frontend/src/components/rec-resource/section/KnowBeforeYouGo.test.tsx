@@ -126,12 +126,12 @@ describe('KnowBeforeYouGo', () => {
       />,
     );
 
-    expect(screen.getByText(/Wildlife & Animal Safety/i)).toBeInTheDocument();
+    expect(screen.getByText(/Wildlife and animal safety/i)).toBeInTheDocument();
     expect(
       screen.getByText(/You may encounter wildlife, including bears/i),
     ).toBeInTheDocument();
 
-    expect(screen.getByText(/Toilets & Sanitation/i)).toBeInTheDocument();
+    expect(screen.getByText(/Toilets and sanitation/i)).toBeInTheDocument();
     expect(
       screen.getByText(/Toilet facilities may be limited or unavailable/i),
     ).toBeInTheDocument();
@@ -146,7 +146,7 @@ describe('KnowBeforeYouGo', () => {
       screen.getByRole('link', { name: /local road safety information/i }),
     ).toBeInTheDocument();
 
-    expect(screen.getByText(/Campfires & Fire Safety/i)).toBeInTheDocument();
+    expect(screen.getByText(/Campfires and fire safety/i)).toBeInTheDocument();
     expect(
       screen.getByText(/Campfire bans or restrictions may be in place/i),
     ).toBeInTheDocument();
