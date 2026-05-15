@@ -21,6 +21,7 @@ export type SearchParams = {
   page?: number;
   view?: string;
   letter?: string;
+  focus?: string;
 };
 
 export const Route = createFileRoute('/search/')({
@@ -42,6 +43,7 @@ export const Route = createFileRoute('/search/')({
       page: search.page as number | undefined,
       view: search.view as string | undefined,
       letter: search.letter as string | undefined,
+      focus: search.focus as string | undefined,
     };
   },
   head: () => {

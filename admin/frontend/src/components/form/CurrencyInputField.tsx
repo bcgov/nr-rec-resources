@@ -121,18 +121,22 @@ export const CurrencyInputField = <TFieldValues extends FieldValues>({
       name={name}
       control={control}
       render={({ field }) => (
-        <CurrencyInput
-          value={field.value}
-          onChange={field.onChange}
-          onBlur={field.onBlur}
-          placeholder={placeholder}
-          isInvalid={!!errors[name]}
-          disabled={disabled}
-        />
+        <>
+          <CurrencyInput
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            placeholder={placeholder}
+            isInvalid={!!errors[name]}
+            disabled={disabled}
+          />
+          {errors[name] && (
+            <Form.Control.Feedback type="invalid" style={{ display: 'block' }}>
+              {errors[name]?.message as string}
+            </Form.Control.Feedback>
+          )}
+        </>
       )}
     />
-    <Form.Control.Feedback type="invalid">
-      {errors[name]?.message as string}
-    </Form.Control.Feedback>
   </Form.Group>
 );

@@ -72,7 +72,7 @@ model recreation_activity {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_activity_code {
-  recreation_activity_code                                                                                           Int                               @id
+  recreation_activity_code                                                                                           Int                               @id @default(autoincrement())
   description                                                                                                        String?                           @db.VarChar(120)
   updated_at                                                                                                         DateTime?                         @default(now()) @db.Timestamp(6)
   sys_period                                                                                                         Unsupported("tstzrange")          @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
@@ -133,26 +133,29 @@ model recreation_district_code {
 }
 
 model recreation_fee {
-  rec_resource_id     String                   @db.VarChar(200)
-  fee_amount          Int?
-  fee_start_date      DateTime?                @db.Date
-  fee_end_date        DateTime?                @db.Date
-  monday_ind          String?                  @default("N") @db.VarChar(1)
-  tuesday_ind         String?                  @default("N") @db.VarChar(1)
-  wednesday_ind       String?                  @default("N") @db.VarChar(1)
-  thursday_ind        String?                  @default("N") @db.VarChar(1)
-  friday_ind          String?                  @default("N") @db.VarChar(1)
-  saturday_ind        String?                  @default("N") @db.VarChar(1)
-  sunday_ind          String?                  @default("N") @db.VarChar(1)
-  recreation_fee_code String                   @db.VarChar(1)
-  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
-  updated_by          String?
-  created_at          DateTime?                @default(now()) @db.Timestamp(6)
-  created_by          String?
-  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  fee_id              Int                      @id @default(autoincrement())
-  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
-  with_description    recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
+  rec_resource_id      String                   @db.VarChar(200)
+  fee_amount           Int?
+  fee_start_date       DateTime?                @db.Date
+  fee_end_date         DateTime?                @db.Date
+  monday_ind           String?                  @default("N") @db.VarChar(1)
+  tuesday_ind          String?                  @default("N") @db.VarChar(1)
+  wednesday_ind        String?                  @default("N") @db.VarChar(1)
+  thursday_ind         String?                  @default("N") @db.VarChar(1)
+  friday_ind           String?                  @default("N") @db.VarChar(1)
+  saturday_ind         String?                  @default("N") @db.VarChar(1)
+  sunday_ind           String?                  @default("N") @db.VarChar(1)
+  recreation_fee_code  String                   @db.VarChar(1)
+  updated_at           DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by           String?
+  created_at           DateTime?                @default(now()) @db.Timestamp(6)
+  created_by           String?
+  sys_period           Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  fee_id               Int                      @id @default(autoincrement())
+  recurring_ind        Boolean                  @default(false)
+  recurring_start_mmdd String?
+  recurring_end_mmdd   String?
+  recreation_resource  recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  with_description     recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([rec_resource_id, recreation_fee_code, monday_ind, tuesday_ind, wednesday_ind, thursday_ind, friday_ind, saturday_ind, sunday_ind], map: "recreation_fee_unique_idx")
   @@index([rec_resource_id], map: "idx_recreation_fee_rec_resource_id")
@@ -366,23 +369,26 @@ model recreation_fee_code_history {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_fee_history {
-  rec_resource_id     String                   @db.VarChar(200)
-  fee_amount          Int?
-  fee_start_date      DateTime?                @db.Date
-  fee_end_date        DateTime?                @db.Date
-  monday_ind          String?                  @db.VarChar(1)
-  tuesday_ind         String?                  @db.VarChar(1)
-  wednesday_ind       String?                  @db.VarChar(1)
-  thursday_ind        String?                  @db.VarChar(1)
-  friday_ind          String?                  @db.VarChar(1)
-  saturday_ind        String?                  @db.VarChar(1)
-  sunday_ind          String?                  @db.VarChar(1)
-  recreation_fee_code String                   @db.VarChar(1)
-  updated_at          DateTime?                @db.Timestamp(6)
-  updated_by          String?
-  created_at          DateTime?                @db.Timestamp(6)
-  created_by          String?
-  sys_period          Unsupported("tstzrange")
+  rec_resource_id      String                   @db.VarChar(200)
+  fee_amount           Int?
+  fee_start_date       DateTime?                @db.Date
+  fee_end_date         DateTime?                @db.Date
+  monday_ind           String?                  @db.VarChar(1)
+  tuesday_ind          String?                  @db.VarChar(1)
+  wednesday_ind        String?                  @db.VarChar(1)
+  thursday_ind         String?                  @db.VarChar(1)
+  friday_ind           String?                  @db.VarChar(1)
+  saturday_ind         String?                  @db.VarChar(1)
+  sunday_ind           String?                  @db.VarChar(1)
+  recreation_fee_code  String                   @db.VarChar(1)
+  updated_at           DateTime?                @db.Timestamp(6)
+  updated_by           String?
+  created_at           DateTime?                @db.Timestamp(6)
+  created_by           String?
+  sys_period           Unsupported("tstzrange")
+  recurring_ind        Boolean?
+  recurring_start_mmdd String?
+  recurring_end_mmdd   String?
 
   @@ignore
   @@schema("rst")

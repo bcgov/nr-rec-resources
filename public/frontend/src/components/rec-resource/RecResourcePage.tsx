@@ -119,7 +119,6 @@ const RecResourcePage = () => {
     driving_directions;
   const isReservable = Boolean(recreation_resource_reservation_info);
   const isMd = useMediaQuery(`(min-width: ${BOOTSTRAP_BREAKPOINTS.md}px)`);
-
   // Create page sections for PageWithScrollMenu
   const pageSections: PageSection[] = [
     {

@@ -2,7 +2,10 @@ import { RecreationFeeDto } from '@/services';
 import {
   formatFeeDays as formatFeeDaysShared,
   getFeeDaysArray,
+  formatRecurringMonthDay,
 } from '@shared/utils/feeUtils';
+
+// ...existing code...
 
 /**
  * Formats the days of week from fee day indicators.
@@ -25,3 +28,6 @@ export function formatFeeDays(fee: RecreationFeeDto): string {
 export function getIndividualDays(fee: RecreationFeeDto): string[] {
   return getFeeDaysArray(fee, { abbreviated: true });
 }
+
+// Re-export formatRecurringMonthDay from shared utils
+export { formatRecurringMonthDay };

@@ -305,5 +305,36 @@ describe('useMapFocus', () => {
       rerender();
       expect(mockFocusRecResourceOnMap).toHaveBeenCalled();
     });
+
+    it('should reset didFocus when value changes so the same hook can focus a second resource', () => {
+      const { result, rerender } = renderHook(() =>
+        useMapFocus(defaultProps as any),
+      );
+
+      // Complete first focus
+      act(() => {
+        const fitCallback = mockMapView.fit.mock.calls[0][1].callback;
+        fitCallback(true);
+        vi.advanceTimersByTime(300);
+      });
+
+      vi.clearAllMocks();
+
+      // Simulate selecting a second resource (value changes)
+      mockUseMapFocusParam.mockReturnValue({
+        mode: SearchMapFocusModes.REC_RESOURCE_ID,
+        value: 'second-resource',
+        resetParams: vi.fn(),
+      });
+      mockUseGetRecreationResourceById.mockReturnValue({
+        data: { id: 'second-resource', name: 'Second Resource' },
+      });
+
+      rerender();
+
+      // didFocus was reset by the value-change effect, so focus should run again
+      expect(mockFocusRecResourceOnMap).toHaveBeenCalled();
+      expect(result.current.isMapFocusLoading).toBe(false);
+    });
   });
 });

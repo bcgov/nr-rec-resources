@@ -278,7 +278,6 @@ describe('imageProcessing', () => {
 
       await processImageToVariants({ file, onProgress });
 
-      expect(onProgress).toHaveBeenCalledWith(0, 'Checking WebP support...');
       expect(onProgress).toHaveBeenCalledWith(0, 'Validating image...');
       expect(onProgress).toHaveBeenCalledWith(10, 'Loading image...');
       expect(onProgress).toHaveBeenCalledWith(25, 'Processing original...');
@@ -311,13 +310,32 @@ describe('imageProcessing', () => {
       );
     });
 
-    it('should handle WebP not supported', async () => {
+    it('should fall back to JPEG when WebP encoding is not supported', async () => {
       const file = makeFile(1024 * 1024, 'image/jpeg');
-      mockCanvas.toDataURL = vi.fn(() => 'data:image/png;base64,test');
-
-      await expect(processImageToVariants({ file })).rejects.toThrow(
-        'WebP format is not supported',
+      mockImage.width = 1920;
+      mockImage.height = 1080;
+      mockCanvas.toBlob = vi.fn(
+        (callback: (blob: Blob | null) => void, type?: string) => {
+          if (type === 'image/webp') {
+            // Simulate Safari: WebP falls back to PNG
+            callback(new Blob(['test'], { type: 'image/png' }));
+          } else {
+            // JPEG fallback succeeds
+            callback(new Blob(['test'], { type: 'image/jpeg' }));
+          }
+        },
       );
+
+      const variants = await processImageToVariants({ file });
+
+      expect(variants).toHaveLength(4);
+      expect(mockCanvas.toBlob).toHaveBeenCalledWith(
+        expect.any(Function),
+        'image/jpeg',
+        expect.any(Number),
+      );
+      expect(variants[0].file.name).toBe('original.jpg');
+      expect(variants[0].file.type).toBe('image/jpeg');
     });
 
     it('should use custom maxResolution and quality', async () => {

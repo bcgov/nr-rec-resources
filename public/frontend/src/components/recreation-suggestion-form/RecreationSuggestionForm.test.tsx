@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import { renderWithQueryClient } from '@/test-utils';
 import { trackClickEvent } from '@shared/utils';
 import { useSearchCitiesApi } from '@/components/recreation-suggestion-form/hooks/useSearchCitiesApi';
@@ -11,6 +11,7 @@ import { useCurrentLocation } from '@/components/recreation-suggestion-form/hook
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import { useSearch } from '@tanstack/react-router';
 import { OPTION_TYPE } from './constants';
+import searchInputStore from '@/store/searchInputStore';
 
 vi.mock('@/components/recreation-suggestion-form/hooks/useSearchInput');
 vi.mock('@/components/recreation-suggestion-form/hooks/useCurrentLocation');
@@ -44,7 +45,12 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 vi.mock('@/constants/routes', () => ({
   ROUTE_PATHS: {
     REC_RESOURCE: '/recreation-resource/$id',
+    SEARCH: '/search',
   },
+}));
+
+vi.mock('@/store/searchInputStore', () => ({
+  default: { setState: vi.fn() },
 }));
 
 vi.mock('@/service/queries/recreation-resource', () => ({
@@ -124,20 +130,17 @@ describe('RecreationSuggestionForm', () => {
     });
   });
 
-  it('calls onSelectSuggestion when selecting a recreation resource and disableNavigation is true', async () => {
-    const onSelectSuggestion = vi.fn();
-
+  it('navigates with focus param when selecting a recreation resource and disableNavigation is true', async () => {
     renderWithQueryClient(
       <RecreationSuggestionForm
         disableNavigation={true}
         trackingContext="Search_list"
-        onSelectSuggestion={onSelectSuggestion}
       />,
     );
 
     await userEvent.click(screen.getByTestId('suggestion-typeahead'));
 
-    expect(onSelectSuggestion).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
   });
 
   it('does not call handleSearch if input is empty and allowEmptySearch is false', () => {
@@ -433,13 +436,11 @@ describe('RecreationSuggestionForm', () => {
   });
 
   it('handles recreation resource selection with disabled navigation', async () => {
-    const onSelectSuggestion = vi.fn();
     renderWithQueryClient(
       <RecreationSuggestionForm
         allowEmptySearch
         disableNavigation={true}
         trackingContext="Search_list"
-        onSelectSuggestion={onSelectSuggestion}
       />,
     );
 
@@ -453,14 +454,116 @@ describe('RecreationSuggestionForm', () => {
       });
     });
 
-    expect(onSelectSuggestion).toHaveBeenCalled();
-    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalled();
     expect(trackClickEvent).toHaveBeenCalledWith({
       category: 'Search',
       action: 'Search_list_selected',
       name: 'Test Resource',
     });
   });
+
+  it('navigates to search route (not resource page) with focus param when disableNavigation is true', async () => {
+    renderWithQueryClient(
+      <RecreationSuggestionForm
+        allowEmptySearch
+        disableNavigation={true}
+        trackingContext="Search_list"
+      />,
+    );
+
+    const handleSuggestionChange = (window as any).testOnChangeHandler;
+
+    await act(async () => {
+      handleSuggestionChange({
+        option_type: 'RECREATION_RESOURCE',
+        name: 'Test Resource',
+        rec_resource_id: '456',
+      });
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({ to: '/search' }),
+    );
+    expect(mockNavigate).not.toHaveBeenCalledWith(
+      expect.objectContaining({ to: '/recreation-resource/$id' }),
+    );
+    const { search } = mockNavigate.mock.calls[0][0];
+    expect(search({})).toEqual({ focus: 'recResourceId:456' });
+    expect(
+      search({
+        filter: 'camping',
+        lat: 49,
+        lon: -123,
+        community: 'vic',
+        page: 1,
+      }),
+    ).toEqual({ page: 1, focus: 'recResourceId:456' });
+  });
+
+  it('does not set searchInputStore.wasCleared when no active search params', async () => {
+    vi.mocked(useSearch).mockReturnValue({});
+
+    renderWithQueryClient(
+      <RecreationSuggestionForm
+        allowEmptySearch
+        disableNavigation={true}
+        trackingContext="Search_list"
+      />,
+    );
+
+    const handleSuggestionChange = (window as any).testOnChangeHandler;
+
+    await act(async () => {
+      handleSuggestionChange({
+        option_type: 'RECREATION_RESOURCE',
+        name: 'Test Resource',
+        rec_resource_id: '456',
+      });
+    });
+
+    expect(searchInputStore.setState).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { filter: 'camping' },
+    { lat: 49.2 },
+    { lon: -123.1 },
+    { community: 'Victoria' },
+  ])(
+    'sets searchInputStore.wasCleared when search param %o is active and disableNavigation is true',
+    async (searchParam) => {
+      vi.mocked(useSearch).mockReturnValue(searchParam);
+
+      renderWithQueryClient(
+        <RecreationSuggestionForm
+          allowEmptySearch
+          disableNavigation={true}
+          trackingContext="Search_list"
+        />,
+      );
+
+      const handleSuggestionChange = (window as any).testOnChangeHandler;
+
+      await act(async () => {
+        handleSuggestionChange({
+          option_type: 'RECREATION_RESOURCE',
+          name: 'Test Resource',
+          rec_resource_id: '456',
+        });
+      });
+
+      const setState = searchInputStore.setState as Mock;
+      expect(setState).toHaveBeenCalledTimes(1);
+      const setter = setState.mock.calls[0][0];
+      expect(
+        setter({
+          searchInputValue: '',
+          wasCleared: false,
+          selectedCity: undefined,
+        }),
+      ).toMatchObject({ wasCleared: true });
+    },
+  );
 
   it('tracks city selection', async () => {
     renderWithQueryClient(

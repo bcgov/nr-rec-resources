@@ -27,6 +27,9 @@ export interface CreateFeeRequest {
   friday_ind?: string;
   saturday_ind?: string;
   sunday_ind?: string;
+  recurring_ind?: boolean;
+  recurring_start_mmdd?: string;
+  recurring_end_mmdd?: string;
 }
 
 export function useCreateFee() {

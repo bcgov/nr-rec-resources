@@ -73,6 +73,9 @@ export const getRecreationResourceSelect = () => ({
       saturday_ind: true,
       sunday_ind: true,
       recreation_fee_code: true,
+      recurring_ind: true,
+      recurring_start_mmdd: true,
+      recurring_end_mmdd: true,
       with_description: {
         select: {
           description: true,
