@@ -14,12 +14,12 @@ WHERE similarity(rr.name, $1) > 0.1
    OR similarity(rr.closest_community, $1) > 0.1
    OR rr.rec_resource_id ILIKE '%' || $1 || '%'
 ORDER BY
-	POSITION(UPPER('lake') IN UPPER(rr.name)) > 0 DESC,
+	POSITION(UPPER($1) IN UPPER(rr.name)) > 0 DESC,
 	rrtv.rec_resource_type_code DESC,
 	rr.rec_status_code DESC,
 	GREATEST(
-	    rst.similarity(rr.name, 'lake'),
-	    rst.similarity(rr.closest_community, 'lake'),
-	    rst.similarity(rr.rec_resource_id, 'lake')
+	    similarity(rr.name, $1),
+	    similarity(rr.closest_community, $1),
+	    similarity(rr.rec_resource_id, $1)
     ) DESC
 LIMIT 30;
