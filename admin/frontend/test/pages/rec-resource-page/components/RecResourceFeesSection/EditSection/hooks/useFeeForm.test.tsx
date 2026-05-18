@@ -35,6 +35,7 @@ describe('useFeeForm', () => {
   const mockReset = vi.fn();
   const mockHandleSubmit = vi.fn();
   const mockSetValue = vi.fn();
+  const mockSetError = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -54,6 +55,7 @@ describe('useFeeForm', () => {
       handleSubmit: mockHandleSubmit,
       reset: mockReset,
       setValue: mockSetValue,
+      setError: mockSetError,
       formState: { errors: {}, isDirty: false, dirtyFields: {} },
     } as any);
 
@@ -185,6 +187,7 @@ describe('useFeeForm', () => {
       friday_ind: false,
       saturday_ind: true,
       sunday_ind: false,
+      fee_determination_letter_confirmed: true,
     });
 
     expect(mockCreateMutateAsync).toHaveBeenCalledWith({
@@ -248,6 +251,7 @@ describe('useFeeForm', () => {
       friday_ind: true,
       saturday_ind: true,
       sunday_ind: true,
+      fee_determination_letter_confirmed: false,
     });
 
     expect(mockUpdateMutateAsync).toHaveBeenCalledWith({
@@ -270,5 +274,205 @@ describe('useFeeForm', () => {
     });
     expect(mockReset).toHaveBeenCalled();
     expect(onDone).toHaveBeenCalled();
+  });
+
+  describe('isSubmittable', () => {
+    it('create mode: is always true regardless of dirty state', () => {
+      vi.mocked(reactHookForm.useForm).mockReturnValue({
+        control: { _mock: 'control' },
+        handleSubmit: mockHandleSubmit,
+        reset: mockReset,
+        setValue: mockSetValue,
+        setError: mockSetError,
+        formState: { errors: {}, isDirty: false, dirtyFields: {} },
+      } as any);
+
+      const { result } = renderHook(() =>
+        useFeeForm({ recResourceId: 'REC1', mode: 'create' }),
+      );
+
+      expect(result.current.isSubmittable).toBe(true);
+    });
+
+    it('edit mode: false when no fields other than FDL are dirty', () => {
+      vi.mocked(reactHookForm.useForm).mockReturnValue({
+        control: { _mock: 'control' },
+        handleSubmit: mockHandleSubmit,
+        reset: mockReset,
+        setValue: mockSetValue,
+        setError: mockSetError,
+        formState: {
+          errors: {},
+          isDirty: true,
+          dirtyFields: { fee_determination_letter_confirmed: true },
+        },
+      } as any);
+
+      const { result } = renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC1',
+          mode: 'edit',
+          initialFee: { fee_id: 1 } as any,
+        }),
+      );
+
+      expect(result.current.isSubmittable).toBe(false);
+    });
+
+    it('edit mode: true when at least one non-FDL field is dirty', () => {
+      vi.mocked(reactHookForm.useForm).mockReturnValue({
+        control: { _mock: 'control' },
+        handleSubmit: mockHandleSubmit,
+        reset: mockReset,
+        setValue: mockSetValue,
+        setError: mockSetError,
+        formState: {
+          errors: {},
+          isDirty: true,
+          dirtyFields: {
+            fee_determination_letter_confirmed: true,
+            fee_amount: true,
+          },
+        },
+      } as any);
+
+      const { result } = renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC1',
+          mode: 'edit',
+          initialFee: { fee_id: 1 } as any,
+        }),
+      );
+
+      expect(result.current.isSubmittable).toBe(true);
+    });
+  });
+
+  describe('edit mode FDL validation in onSubmit', () => {
+    const baseSubmitData = {
+      recreation_fee_code: 'D',
+      fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+      is_recurring: false,
+      recurring_start_mmdd: undefined,
+      recurring_end_mmdd: undefined,
+      fee_start_date: undefined,
+      fee_end_date: undefined,
+      day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
+      monday_ind: true,
+      tuesday_ind: true,
+      wednesday_ind: true,
+      thursday_ind: true,
+      friday_ind: true,
+      saturday_ind: false,
+      sunday_ind: false,
+    };
+
+    it('blocks submission and sets error when amount is dirty but FDL is unchecked', async () => {
+      vi.mocked(reactHookForm.useForm).mockReturnValue({
+        control: { _mock: 'control' },
+        handleSubmit: mockHandleSubmit,
+        reset: mockReset,
+        setValue: mockSetValue,
+        setError: mockSetError,
+        formState: {
+          errors: {},
+          isDirty: true,
+          dirtyFields: { fee_amount: true },
+        },
+      } as any);
+
+      const { result } = renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC1',
+          mode: 'edit',
+          initialFee: { fee_id: 99, fee_amount: 10 } as any,
+        }),
+      );
+
+      await result.current.onSubmit({
+        ...baseSubmitData,
+        fee_amount: 20,
+        fee_determination_letter_confirmed: false,
+      });
+
+      expect(mockSetError).toHaveBeenCalledWith(
+        'fee_determination_letter_confirmed',
+        { message: 'You must confirm you have a fee determination letter' },
+      );
+      expect(mockUpdateMutateAsync).not.toHaveBeenCalled();
+    });
+
+    it('proceeds with submission when amount is dirty and FDL is checked', async () => {
+      vi.mocked(reactHookForm.useForm).mockReturnValue({
+        control: { _mock: 'control' },
+        handleSubmit: mockHandleSubmit,
+        reset: mockReset,
+        setValue: mockSetValue,
+        setError: mockSetError,
+        formState: {
+          errors: {},
+          isDirty: true,
+          dirtyFields: { fee_amount: true },
+        },
+      } as any);
+
+      mockUpdateMutateAsync.mockResolvedValueOnce(undefined);
+
+      const onDone = vi.fn();
+      const { result } = renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC1',
+          mode: 'edit',
+          initialFee: { fee_id: 99, fee_amount: 10 } as any,
+          onDone,
+        }),
+      );
+
+      await result.current.onSubmit({
+        ...baseSubmitData,
+        fee_amount: 20,
+        fee_determination_letter_confirmed: true,
+      });
+
+      expect(mockSetError).not.toHaveBeenCalled();
+      expect(mockUpdateMutateAsync).toHaveBeenCalled();
+      expect(onDone).toHaveBeenCalled();
+    });
+
+    it('proceeds with submission when amount is not dirty even if FDL is unchecked', async () => {
+      vi.mocked(reactHookForm.useForm).mockReturnValue({
+        control: { _mock: 'control' },
+        handleSubmit: mockHandleSubmit,
+        reset: mockReset,
+        setValue: mockSetValue,
+        setError: mockSetError,
+        formState: {
+          errors: {},
+          isDirty: true,
+          dirtyFields: { monday_ind: true },
+        },
+      } as any);
+
+      mockUpdateMutateAsync.mockResolvedValueOnce(undefined);
+
+      const onDone = vi.fn();
+      const { result } = renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC1',
+          mode: 'edit',
+          initialFee: { fee_id: 99, fee_amount: 10 } as any,
+          onDone,
+        }),
+      );
+
+      await result.current.onSubmit({
+        ...baseSubmitData,
+        fee_amount: 10,
+        fee_determination_letter_confirmed: false,
+      });
+
+      expect(mockSetError).not.toHaveBeenCalled();
+      expect(mockUpdateMutateAsync).toHaveBeenCalled();
+    });
   });
 });

@@ -8,7 +8,7 @@ import {
   AddFeeFormData,
   FEE_APPLIES_OPTIONS,
   DAY_PRESET_OPTIONS,
-  addFeeSchema,
+  createAddFeeSchema,
 } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/schemas/addFee';
 import {
   DAY_FIELDS,
@@ -53,6 +53,8 @@ export const useAddFeeForm = (recResourceId: string) => {
     fee_start_date: undefined,
     fee_end_date: undefined,
     day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
+    is_recurring: false,
+    fee_determination_letter_confirmed: false,
     ...DAY_PRESET_CONFIG.all_days,
   };
 
@@ -63,7 +65,9 @@ export const useAddFeeForm = (recResourceId: string) => {
     setValue,
     formState: { errors, isDirty },
   } = useForm<AddFeeFormData>({
-    resolver: zodResolver(addFeeSchema) as any,
+    resolver: zodResolver(
+      createAddFeeSchema({ requireFdlConfirmation: true }),
+    ) as any,
     defaultValues,
     mode: 'onSubmit',
   });
