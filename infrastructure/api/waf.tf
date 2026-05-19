@@ -14,7 +14,6 @@ locals {
     "https://${local.frontend_url}",
     "https://sitesandtrailsbc.ca",
     "https://www.sitesandtrailsbc.ca",
-    "https://beta.sitesandtrailsbc.ca",
     "https://staff.sitesandtrailsbc.ca"
   ]
 
