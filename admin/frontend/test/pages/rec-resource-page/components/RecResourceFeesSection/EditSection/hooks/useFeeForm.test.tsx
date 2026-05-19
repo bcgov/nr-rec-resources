@@ -346,6 +346,94 @@ describe('useFeeForm', () => {
 
       expect(result.current.isSubmittable).toBe(true);
     });
+
+    it('edit mode: false when dirtyFields is completely empty', () => {
+      // dirtyFields: {} is already the beforeEach default, but this test
+      // explicitly asserts the false case for an untouched edit form
+      const { result } = renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC1',
+          mode: 'edit',
+          initialFee: { fee_id: 1 } as any,
+        }),
+      );
+
+      expect(result.current.isSubmittable).toBe(false);
+    });
+  });
+
+  describe('amountLocked', () => {
+    it('is false in create mode regardless of FDL state', () => {
+      const { result } = renderHook(() =>
+        useFeeForm({ recResourceId: 'REC1', mode: 'create' }),
+      );
+
+      expect(result.current.amountLocked).toBe(false);
+    });
+
+    it('is true in edit mode when FDL checkbox is unchecked', () => {
+      vi.mocked(reactHookForm.useWatch).mockImplementation(((args?: any) => {
+        if (args?.name === 'fee_determination_letter_confirmed') return false;
+        return undefined;
+      }) as any);
+
+      const { result } = renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC1',
+          mode: 'edit',
+          initialFee: { fee_id: 1 } as any,
+        }),
+      );
+
+      expect(result.current.amountLocked).toBe(true);
+    });
+
+    it('is false in edit mode when FDL checkbox is checked', () => {
+      vi.mocked(reactHookForm.useWatch).mockImplementation(((args?: any) => {
+        if (args?.name === 'fee_determination_letter_confirmed') return true;
+        return undefined;
+      }) as any);
+
+      const { result } = renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC1',
+          mode: 'edit',
+          initialFee: { fee_id: 1 } as any,
+        }),
+      );
+
+      expect(result.current.amountLocked).toBe(false);
+    });
+  });
+
+  describe('edit mode: missing initialFee guard', () => {
+    it('does not call update when initialFee is absent', async () => {
+      const { result } = renderHook(() =>
+        useFeeForm({ recResourceId: 'REC1', mode: 'edit' }),
+      );
+
+      await result.current.onSubmit({
+        recreation_fee_code: 'D',
+        fee_amount: 50,
+        fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+        is_recurring: false,
+        recurring_start_mmdd: undefined,
+        recurring_end_mmdd: undefined,
+        fee_start_date: undefined,
+        fee_end_date: undefined,
+        day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
+        monday_ind: true,
+        tuesday_ind: true,
+        wednesday_ind: true,
+        thursday_ind: true,
+        friday_ind: true,
+        saturday_ind: false,
+        sunday_ind: false,
+        fee_determination_letter_confirmed: true,
+      });
+
+      expect(mockUpdateMutateAsync).not.toHaveBeenCalled();
+    });
   });
 
   describe('edit mode FDL validation in onSubmit', () => {

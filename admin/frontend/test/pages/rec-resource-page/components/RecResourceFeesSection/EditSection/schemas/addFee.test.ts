@@ -312,6 +312,23 @@ describe('addFeeSchema', () => {
         ).toBe(true);
       }
     });
+    it('skips recurring date validation when is_recurring is false for specific dates', () => {
+      const validData = {
+        recreation_fee_code: 'D',
+        fee_amount: 50,
+        fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
+        is_recurring: false,
+        monday_ind: true,
+      };
+
+      const result = editSchema.safeParse(validData);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.recurring_start_mmdd).toBeUndefined();
+        expect(result.data.recurring_end_mmdd).toBeUndefined();
+      }
+    });
+
     it('allows same month and day for start and end dates', () => {
       // This test verifies that a fee can have identical start and end dates (e.g., June 15 to June 15)
       const validData = {
@@ -570,6 +587,34 @@ describe('addFeeSchema', () => {
       if (result.success) {
         expect(result.data.fee_start_date).toBeUndefined();
         expect(result.data.fee_end_date).toBeUndefined();
+      }
+    });
+
+    it('is_recurring defaults to false when not provided', () => {
+      const validData = {
+        recreation_fee_code: 'D',
+        fee_amount: 50,
+        fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+      };
+
+      const result = editSchema.safeParse(validData);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.is_recurring).toBe(false);
+      }
+    });
+
+    it('fee_determination_letter_confirmed defaults to false when not provided', () => {
+      const validData = {
+        recreation_fee_code: 'D',
+        fee_amount: 50,
+        fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+      };
+
+      const result = editSchema.safeParse(validData);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.fee_determination_letter_confirmed).toBe(false);
       }
     });
   });

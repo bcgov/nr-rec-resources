@@ -75,7 +75,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
@@ -155,7 +155,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
@@ -177,7 +177,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
@@ -200,7 +200,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
@@ -224,7 +224,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
@@ -247,7 +247,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
@@ -265,7 +265,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: true,
+      isSubmittable: true,
       mutation: { isPending: true },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
@@ -285,7 +285,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: true,
+      isSubmittable: true,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
@@ -311,6 +311,42 @@ describe('RecResourceFeeFormFields (create)', () => {
     expect(screen.getByRole('button', { name: 'Add Fee' })).toBeDisabled();
   });
 
+  it('renders FDL confirmation checkbox', () => {
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: /I confirm that a signed fee determination letter has been approved for this fee/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders FDL error message when validation fails', () => {
+    vi.mocked(useFeeForm).mockReturnValueOnce({
+      control: mockControl,
+      handleSubmit: mockHandleSubmit,
+      errors: {
+        fee_determination_letter_confirmed: {
+          message: 'You must confirm you have a fee determination letter',
+        },
+      },
+      isSubmittable: false,
+      mutation: { isPending: false },
+      onSubmit: mockOnSubmit,
+      feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
+    } as any);
+
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
+
+    expect(
+      screen.getByText('You must confirm you have a fee determination letter'),
+    ).toBeInTheDocument();
+  });
+
   it('renders error message for day selection validation', () => {
     vi.mocked(useFeeForm).mockReturnValueOnce({
       control: mockControl,
@@ -320,7 +356,7 @@ describe('RecResourceFeeFormFields (create)', () => {
           message: 'At least one day must be selected',
         },
       },
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
@@ -343,7 +379,7 @@ describe('RecResourceFeeForm (edit mode)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
@@ -355,6 +391,18 @@ describe('RecResourceFeeForm (edit mode)', () => {
       ],
       isLoading: false,
     });
+  });
+
+  it('renders FDL confirmation checkbox in edit mode', () => {
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="edit" />,
+    );
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: /I confirm that a signed fee determination letter has been approved for this fee/i,
+      }),
+    ).toBeInTheDocument();
   });
 
   it('shows Save Changes button text in edit mode', () => {
@@ -372,7 +420,7 @@ describe('RecResourceFeeForm (edit mode)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: true,
+      isSubmittable: true,
       mutation: { isPending: true },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
@@ -423,7 +471,7 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
@@ -445,7 +493,7 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
-      isDirty: false,
+      isSubmittable: false,
       mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
