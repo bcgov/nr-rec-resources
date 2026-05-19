@@ -245,7 +245,7 @@ export interface SearchRecreationResourcesRequest {
   status?: Array<string>;
   establishmentDateFrom?: string;
   establishmentDateTo?: string;
-  established?: string;
+  established?: SearchRecreationResourcesEstablishedEnum;
 }
 
 export interface UpdateActivitiesRequest {
@@ -2992,3 +2992,12 @@ export const SearchRecreationResourcesPageSizeEnum = {
 } as const;
 export type SearchRecreationResourcesPageSizeEnum =
   (typeof SearchRecreationResourcesPageSizeEnum)[keyof typeof SearchRecreationResourcesPageSizeEnum];
+/**
+ * @export
+ */
+export const SearchRecreationResourcesEstablishedEnum = {
+  Yes: 'yes',
+  No: 'no',
+} as const;
+export type SearchRecreationResourcesEstablishedEnum =
+  (typeof SearchRecreationResourcesEstablishedEnum)[keyof typeof SearchRecreationResourcesEstablishedEnum];
