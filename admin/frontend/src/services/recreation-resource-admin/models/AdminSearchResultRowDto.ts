@@ -75,10 +75,10 @@ export interface AdminSearchResultRowDto {
   status_code: number;
   /**
    * Resource archive status code
-   * @type {object}
+   * @type {string}
    * @memberof AdminSearchResultRowDto
    */
-  rec_status_code?: object | null;
+  rec_status_code?: string | null;
   /**
    * Access types associated with the resource
    * @type {Array<string>}
