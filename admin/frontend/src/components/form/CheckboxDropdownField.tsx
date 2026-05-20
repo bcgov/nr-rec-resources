@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Dropdown } from 'react-bootstrap';
 import './CheckboxDropdownField.scss';
 
@@ -17,6 +17,24 @@ interface CheckboxDropdownFieldProps {
   variant?: string;
   toggleStyle?: 'button' | 'field';
   icon?: ReactNode;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  noResultsText?: string;
+}
+
+function highlightMatch(text: string, query: string): ReactNode {
+  if (!query) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escaped})`, 'gi');
+  return text.split(regex).map((part, i) =>
+    regex.test(part) ? (
+      <mark className="checkbox-dropdown__match" key={i}>
+        {part}
+      </mark>
+    ) : (
+      part
+    ),
+  );
 }
 
 export function CheckboxDropdownField({
@@ -29,21 +47,43 @@ export function CheckboxDropdownField({
   variant,
   toggleStyle = 'button',
   icon,
+  searchable = false,
+  searchPlaceholder = 'Search options',
+  noResultsText = 'No matches found',
 }: Readonly<CheckboxDropdownFieldProps>) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const trimmedQuery = searchQuery.trim();
+
   const resolvedVariant =
     variant ??
     (toggleStyle === 'field' ? 'outline-secondary' : 'outline-primary');
+
   const selectedCount = selectedValues.length;
   const selectedValueSet = new Set(selectedValues);
+
   const toggleLabel =
     showSelectedCount && selectedCount > 0 && typeof label === 'string'
       ? `${label} (${selectedCount})`
       : label;
 
+  const filteredItems = useMemo(
+    () =>
+      items.filter((item) =>
+        item.label.toLowerCase().includes(trimmedQuery.toLowerCase()),
+      ),
+    [items, trimmedQuery],
+  );
+
+  const searchAriaLabel =
+    typeof label === 'string' ? `Search ${label}` : 'Search options';
+
   return (
     <Dropdown
       autoClose="outside"
       className={`checkbox-dropdown checkbox-dropdown--${toggleStyle}`}
+      onToggle={(nextShow) => {
+        if (!nextShow) setSearchQuery('');
+      }}
     >
       <Dropdown.Toggle
         variant={resolvedVariant}
@@ -68,23 +108,45 @@ export function CheckboxDropdownField({
           <span className="checkbox-dropdown__toggle-label">{toggleLabel}</span>
         </span>
       </Dropdown.Toggle>
+
       <Dropdown.Menu className="checkbox-dropdown__menu">
-        {items.map((item) => (
-          <Dropdown.Item
-            as="button"
-            key={item.value}
-            onClick={() => onToggle(item.value)}
-            className="checkbox-dropdown__item"
-          >
+        {searchable ? (
+          <div className="checkbox-dropdown__search-wrap px-2 py-2">
             <input
-              type="checkbox"
-              checked={selectedValueSet.has(item.value)}
-              readOnly
-              className="checkbox-dropdown__checkbox"
+              type="search"
+              className="form-control form-control-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={searchPlaceholder}
+              aria-label={searchAriaLabel}
             />
-            <span className="checkbox-dropdown__label">{item.label}</span>
-          </Dropdown.Item>
-        ))}
+          </div>
+        ) : null}
+
+        {filteredItems.length > 0 ? (
+          filteredItems.map((item) => (
+            <Dropdown.Item
+              as="button"
+              key={item.value}
+              onClick={() => onToggle(item.value)}
+              className="checkbox-dropdown__item"
+            >
+              <input
+                type="checkbox"
+                checked={selectedValueSet.has(item.value)}
+                readOnly
+                className="checkbox-dropdown__checkbox"
+              />
+              <span className="checkbox-dropdown__label">
+                {highlightMatch(item.label, trimmedQuery)}
+              </span>
+            </Dropdown.Item>
+          ))
+        ) : (
+          <div className="checkbox-dropdown__empty-state px-3 py-2 text-muted small">
+            {noResultsText}
+          </div>
+        )}
       </Dropdown.Menu>
     </Dropdown>
   );
