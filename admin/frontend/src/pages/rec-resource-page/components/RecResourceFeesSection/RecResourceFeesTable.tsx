@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Link } from '@tanstack/react-router';
 import { Button } from 'react-bootstrap';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { DeleteFeeConfirmationModal } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/DeleteFeeConfirmationModal';
 import { addSuccessNotification } from '@/store/notificationStore';
 
@@ -24,26 +24,15 @@ export const RecResourceFeesTable = ({
   const { canEdit } = useAuthorizations();
   const deleteFee = useDeleteFee();
   const [selectedFee, setSelectedFee] = useState<RecreationFeeUIModel>();
-  const [tableFees, setTableFees] = useState<RecreationFeeUIModel[]>(fees);
-
-  useEffect(() => {
-    setTableFees(fees);
-  }, [fees]);
 
   const handleConfirmDelete = async () => {
     if (!recResourceId || !selectedFee?.fee_id) return;
 
-    const deletedFeeId = selectedFee.fee_id;
-
     await deleteFee.mutateAsync({
       recResourceId,
-      feeId: deletedFeeId,
+      feeId: selectedFee.fee_id,
     });
 
-    // Update visible rows first, then show success feedback.
-    setTableFees((currentFees) =>
-      currentFees.filter((fee) => fee.fee_id !== deletedFeeId),
-    );
     setSelectedFee(undefined);
     addSuccessNotification('Fee deleted successfully', 'deleteFee-success');
   };
@@ -142,7 +131,7 @@ export const RecResourceFeesTable = ({
     <>
       <Table
         columns={columns}
-        rows={tableFees}
+        rows={fees}
         getRowKey={(fee) => String(fee.fee_id)}
         emptyMessage="Currently no fees"
       />

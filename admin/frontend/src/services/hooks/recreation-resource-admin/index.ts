@@ -10,6 +10,7 @@ export * from './useGetExportPreview';
 export * from './useGetDocumentsByRecResourceId';
 export * from './useGetEstablishmentOrderDocs';
 export * from './useGetImagesByRecResourceId';
+export * from './useGetFees';
 export * from './useGetRecreationResourceById';
 export * from './useGetRecreationResourceOptions';
 export { default as useGetRecreationResourceSearch } from './useGetRecreationResourceSearch';
