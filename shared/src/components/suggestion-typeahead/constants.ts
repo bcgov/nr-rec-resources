@@ -22,3 +22,23 @@ export const RESOURCE_TYPE_ICONS: Record<string, string> = {
   IFT: IFT_ICON,
   NO_TYPE_ICON: ARCHIVED_ICON,
 };
+
+export const RESOURCE_STATUS_TYPE: Record<string, string> = {
+  EE: 'EE',
+  AR: 'AR',
+  CL: 'CL',
+  DD: 'DD',
+  DE: 'DE',
+  HI: 'HI',
+  HX: 'HX',
+  NC: 'NC',
+  PE: 'PE',
+  PI: 'PI',
+};
+
+export const IS_RESERVE = (recreation_resource_type_code: string): boolean => {
+  return (
+    recreation_resource_type_code === 'RR' ||
+    recreation_resource_type_code === 'RTR'
+  );
+};

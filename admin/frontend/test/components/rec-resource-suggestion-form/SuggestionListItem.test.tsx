@@ -15,6 +15,9 @@ const defaultProps = {
   title: 'Riverfront Park',
   resourceType: 'Urban Park',
   district: 'Downtown',
+  display_on_public_site: true,
+  recreation_resource_type_code: 'SIT',
+  rec_status_code: 'EE',
 };
 
 describe('SuggestionListItem', () => {
@@ -23,9 +26,7 @@ describe('SuggestionListItem', () => {
   });
 
   it('renders icon, title, resourceType, district, and rec_resource_id badges', () => {
-    render(
-      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
-    );
+    render(<SuggestionListItem {...defaultProps} />);
     expect(screen.getByTestId('icon')).toBeInTheDocument();
 
     const highlighters = screen.getAllByTestId('highlighter');
@@ -42,9 +43,7 @@ describe('SuggestionListItem', () => {
   });
 
   it('renders ListGroup.Item with action and correct classes', () => {
-    const { container } = render(
-      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
-    );
+    const { container } = render(<SuggestionListItem {...defaultProps} />);
     const item = container.querySelector('.list-group-item');
     expect(item).toBeInTheDocument();
     expect(item?.className).toContain('action');
@@ -52,9 +51,7 @@ describe('SuggestionListItem', () => {
   });
 
   it('renders mobile and desktop badge locations', () => {
-    render(
-      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
-    );
+    render(<SuggestionListItem {...defaultProps} />);
     const badges = screen.getAllByText('R-1234');
     expect(badges.length).toBe(2);
     // First badge is mobile, second is desktop
@@ -63,18 +60,14 @@ describe('SuggestionListItem', () => {
   });
 
   it('renders Highlighter with correct children and search term', () => {
-    render(
-      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
-    );
+    render(<SuggestionListItem {...defaultProps} />);
     const marks = screen.getAllByTestId('highlighter');
     expect(marks.length).toBe(1);
     expect(marks[0]).toHaveTextContent('riverfront park');
   });
 
   it('renders correct resourceType and district', () => {
-    render(
-      <SuggestionListItem display_on_public_site={true} {...defaultProps} />,
-    );
+    render(<SuggestionListItem {...defaultProps} />);
     expect(screen.getByText('Urban Park • Downtown')).toBeInTheDocument();
   });
 
@@ -86,8 +79,10 @@ describe('SuggestionListItem', () => {
       title: 'Crystal Lake',
       resourceType: 'Lake',
       district: 'Northside',
+      display_on_public_site: true,
+      recreation_resource_type_code: 'SIT',
     };
-    render(<SuggestionListItem display_on_public_site={true} {...props} />);
+    render(<SuggestionListItem {...props} />);
     expect(screen.getByTestId('icon2')).toBeInTheDocument();
 
     const highlighters = screen.getAllByTestId('highlighter');
@@ -97,5 +92,40 @@ describe('SuggestionListItem', () => {
     expect(screen.getByText('Lake • Northside')).toBeInTheDocument();
 
     expect(screen.getAllByText('R-9999').length).toBe(2);
+  });
+
+  it('renders a reserve', () => {
+    const props = {
+      searchTerm: 'Lake',
+      rec_resource_id: 'R-9999',
+      icon: <span data-testid="icon2" />,
+      title: 'Crystal Lake',
+      resourceType: 'Lake',
+      district: 'Northside',
+      display_on_public_site: true,
+      recreation_resource_type_code: 'RR',
+    };
+    render(<SuggestionListItem {...props} />);
+    expect(screen.getAllByText('R-9999')[1].className).toContain(
+      'reserve-badge',
+    );
+  });
+
+  it('renders a archived resource', () => {
+    const props = {
+      searchTerm: 'Lake',
+      rec_resource_id: 'R-9999',
+      icon: <span data-testid="icon2" />,
+      title: 'Crystal Lake',
+      resourceType: 'Lake',
+      district: 'Northside',
+      display_on_public_site: true,
+      recreation_resource_type_code: 'RR',
+      rec_status_code: 'AR',
+    };
+    render(<SuggestionListItem {...props} />);
+    expect(screen.getAllByText('R-9999')[1].className).toContain(
+      'disabled-badge',
+    );
   });
 });

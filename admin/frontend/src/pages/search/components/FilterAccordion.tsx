@@ -157,6 +157,8 @@ export function FilterAccordion({
                           ? [{ value: option.id, label: option.label }]
                           : [],
                       )}
+                      searchable={typedOptions.length >= 15}
+                      searchPlaceholder={`Search ${field.label.toLowerCase()}`}
                       selectedValues={
                         draft[field.key as keyof typeof draft] as string[]
                       }
