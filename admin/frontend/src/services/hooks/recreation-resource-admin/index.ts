@@ -7,6 +7,7 @@ export * from './useDeleteResourceDocument';
 export * from './useDeleteResourceImage';
 export * from './useGetExportDatasets';
 export * from './useGetExportPreview';
+export * from './useGetFees';
 export * from './useGetDocumentsByRecResourceId';
 export * from './useGetEstablishmentOrderDocs';
 export * from './useGetImagesByRecResourceId';

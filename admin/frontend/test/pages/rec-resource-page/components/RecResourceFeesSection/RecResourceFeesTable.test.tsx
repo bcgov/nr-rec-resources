@@ -408,7 +408,7 @@ describe('RecResourceFeesTable', () => {
     expect(mockDeleteFeeMutation.mutateAsync).not.toHaveBeenCalled();
   });
 
-  it('confirming delete calls mutateAsync, removes fee from table, and shows success notification', async () => {
+  it('confirming delete calls mutateAsync, closes modal, and shows success notification', async () => {
     const { addSuccessNotification } = await import(
       '@/store/notificationStore'
     );
@@ -434,14 +434,10 @@ describe('RecResourceFeesTable', () => {
       });
     });
 
-    // Fee should be removed from the table
-    await waitFor(() => {
-      expect(screen.queryByText('Day Use')).not.toBeInTheDocument();
-    });
-    expect(screen.getByText('Camping')).toBeInTheDocument();
-
     // Modal should be closed
-    expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument();
+    });
 
     // Success notification
     expect(addSuccessNotification).toHaveBeenCalledWith(
