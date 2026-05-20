@@ -45,11 +45,10 @@ The following DNS records are configured in Route 53:
 
 ### Public Frontend Records
 
-| Record Type | Domain                     | Target                  | Purpose                             |
-| ----------- | -------------------------- | ----------------------- | ----------------------------------- |
-| A (Alias)   | `sitesandtrailsbc.ca`      | CloudFront Distribution | Apex domain for public site         |
-| A (Alias)   | `www.sitesandtrailsbc.ca`  | CloudFront Distribution | WWW subdomain for public site       |
-| A (Alias)   | `beta.sitesandtrailsbc.ca` | CloudFront Distribution | Beta/preview version of public site |
+| Record Type | Domain                    | Target                  | Purpose                       |
+| ----------- | ------------------------- | ----------------------- | ----------------------------- |
+| A (Alias)   | `sitesandtrailsbc.ca`     | CloudFront Distribution | Apex domain for public site   |
+| A (Alias)   | `www.sitesandtrailsbc.ca` | CloudFront Distribution | WWW subdomain for public site |
 
 ### Admin Frontend Records
 
@@ -134,8 +133,7 @@ flowchart TD
     subgraph DNS["DNS Records in Route 53"]
         D1["sitesandtrailsbc.ca"]
         D2["www.sitesandtrailsbc.ca"]
-        D3["beta.sitesandtrailsbc.ca"]
-        D4["staff.sitesandtrailsbc.ca"]
+        D3["staff.sitesandtrailsbc.ca"]
     end
 
     A e1@-->|"NS Records"| B

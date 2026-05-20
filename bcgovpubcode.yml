@@ -19,7 +19,7 @@ product_information:
   product_name: Recreation Resource Services - RSTBC
   product_status: active
   product_urls:
-    - https://beta.sitesandtrailsbc.ca
+    - https://sitesandtrailsbc.ca
   program_area: Parks and Recreation Program
 product_technology_information:
   backend_frameworks:
