@@ -1,5 +1,16 @@
 @use '@shared/styles/variables' as vars;
 
+.delete-confirmation-modal--split-actions {
+  .modal-footer {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .modal-footer .btn:first-child {
+    margin-right: auto;
+  }
+}
+
 .delete-fee-confirmation-modal {
   .modal-dialog {
     max-width: 686px;
@@ -65,9 +76,9 @@
     width: min(638px, 100%);
 
     @media (max-width: 576px) {
-      flex-direction: column;
       gap: 12px;
-      align-items: stretch;
+      align-items: center;
+      justify-content: space-between;
     }
   }
 
@@ -89,10 +100,11 @@
       width: 100%;
     }
   }
+
   .delete-fee-confirmation-modal__confirm-button {
-    background-color: vars.$colorRed;
-    border: none;
-    color: vars.$color-grey100;
+    background-color: transparent;
+    border: 1px solid vars.$colorRed;
+    color: vars.$colorRed;
   }
 
   .btn-close {

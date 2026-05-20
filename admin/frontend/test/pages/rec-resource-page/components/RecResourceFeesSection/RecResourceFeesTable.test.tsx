@@ -17,9 +17,9 @@ vi.mock('@/store/notificationStore', () => ({
 }));
 
 vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/DeleteFeeConfirmationModal',
-  () => ({
-    DeleteFeeConfirmationModal: ({
+  '@/components/delete-confirmation-modal/DeleteConfirmationModal',
+  () => {
+    const DeleteConfirmationModal = ({
       show,
       isDeleting,
       onCancel,
@@ -38,8 +38,10 @@ vi.mock(
             Delete fee
           </button>
         </div>
-      ) : null,
-  }),
+      ) : null;
+
+    return { DeleteConfirmationModal };
+  },
 );
 
 vi.mock('@tanstack/react-router', () => ({

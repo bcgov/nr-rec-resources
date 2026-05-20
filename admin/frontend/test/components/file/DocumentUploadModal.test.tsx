@@ -1,4 +1,4 @@
-import { DocumentUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DocumentUploadModal';
+import { DocumentUploadModal } from '@/components/file/DocumentUploadModal';
 import * as fileTransferState from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { TestQueryClientProvider } from '@test/test-utils';
@@ -13,30 +13,27 @@ vi.mock('@/utils/imageUtils', () => ({
   isImageFile: vi.fn((file) => file.type.startsWith('image/')),
 }));
 
-vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal',
-  () => ({
-    BaseFileModal: ({
-      show,
-      title,
-      children,
-      onCancel,
-      onConfirm,
-      confirmButtonText,
-      confirmButtonDisabled,
-    }: any) =>
-      show ? (
-        <div data-testid="base-file-modal">
-          <div data-testid="modal-title">{title}</div>
-          <div data-testid="modal-body">{children}</div>
-          <button onClick={onCancel}>Cancel</button>
-          <button onClick={onConfirm} disabled={confirmButtonDisabled}>
-            {confirmButtonText}
-          </button>
-        </div>
-      ) : null,
-  }),
-);
+vi.mock('@/components/file/BaseFileModal', () => ({
+  BaseFileModal: ({
+    show,
+    title,
+    children,
+    onCancel,
+    onConfirm,
+    confirmButtonText,
+    confirmButtonDisabled,
+  }: any) =>
+    show ? (
+      <div data-testid="base-file-modal">
+        <div data-testid="modal-title">{title}</div>
+        <div data-testid="modal-body">{children}</div>
+        <button onClick={onCancel}>Cancel</button>
+        <button onClick={onConfirm} disabled={confirmButtonDisabled}>
+          {confirmButtonText}
+        </button>
+      </div>
+    ) : null,
+}));
 
 vi.mock(
   '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState',
@@ -90,8 +87,10 @@ describe('DocumentUploadModal', () => {
     } as any);
   };
 
-  const renderModal = () =>
-    render(<DocumentUploadModal />, { wrapper: TestQueryClientProvider });
+  const renderModal = (props?: any) =>
+    render(<DocumentUploadModal {...props} />, {
+      wrapper: TestQueryClientProvider,
+    });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -244,6 +243,150 @@ describe('DocumentUploadModal', () => {
           'confirm-upload',
         );
       }
+    });
+  });
+
+  describe('Props Mode - Store-based fallback', () => {
+    it('returns null when not shown or no file selected in store mode', () => {
+      setMockState({
+        showUploadOverlay: false,
+        selectedFileForUpload: createFile(),
+      });
+      expect(renderModal().container.firstChild).toBeNull();
+
+      setMockState({ showUploadOverlay: true, selectedFileForUpload: null });
+      expect(renderModal().container.firstChild).toBeNull();
+    });
+  });
+
+  describe('Props Mode - Props-based with custom callbacks', () => {
+    const mockOnFileNameChange = vi.fn();
+    const mockOnCancel = vi.fn();
+    const mockOnConfirm = vi.fn();
+
+    beforeEach(() => {
+      mockOnFileNameChange.mockClear();
+      mockOnCancel.mockClear();
+      mockOnConfirm.mockClear();
+      vi.clearAllMocks();
+    });
+
+    it('renders with props when show prop is provided', () => {
+      const file = createFile();
+      renderModal({
+        show: true,
+        file,
+        fileName: 'test-file',
+        onFileNameChange: mockOnFileNameChange,
+        onCancel: mockOnCancel,
+        onConfirm: mockOnConfirm,
+        title: 'Upload establishment order',
+      });
+
+      expect(
+        screen.getByText('Upload establishment order'),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('textbox')).toHaveValue('test-file');
+    });
+
+    it('returns null when show is false in props mode', () => {
+      const file = createFile();
+      const { container } = renderModal({
+        show: false,
+        file,
+        fileName: 'test-file',
+      });
+
+      expect(container.firstChild).toBeNull();
+    });
+
+    it('returns null when file is null in props mode', () => {
+      const { container } = renderModal({
+        show: true,
+        file: null,
+        fileName: 'test-file',
+      });
+
+      expect(container.firstChild).toBeNull();
+    });
+
+    it('handles file name changes with provided callback in props mode', () => {
+      const file = createFile();
+      renderModal({
+        show: true,
+        file,
+        fileName: 'initial',
+        onFileNameChange: mockOnFileNameChange,
+        onCancel: mockOnCancel,
+        onConfirm: mockOnConfirm,
+      });
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: 'new-name' } });
+
+      expect(mockOnFileNameChange).toHaveBeenCalledWith('new-name');
+    });
+
+    it('calls provided onCancel callback in props mode', () => {
+      const file = createFile();
+      renderModal({
+        show: true,
+        file,
+        fileName: 'test',
+        onFileNameChange: mockOnFileNameChange,
+        onCancel: mockOnCancel,
+        onConfirm: mockOnConfirm,
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      expect(mockOnCancel).toHaveBeenCalled();
+    });
+
+    it('calls provided onConfirm callback in props mode', () => {
+      const file = createFile();
+      renderModal({
+        show: true,
+        file,
+        fileName: 'test',
+        onFileNameChange: mockOnFileNameChange,
+        onCancel: mockOnCancel,
+        onConfirm: mockOnConfirm,
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /upload/i }));
+      expect(mockOnConfirm).toHaveBeenCalled();
+    });
+
+    it('uses custom title when provided in props mode', () => {
+      const file = createFile();
+      renderModal({
+        show: true,
+        file,
+        fileName: 'test',
+        title: 'Custom upload title',
+        onFileNameChange: mockOnFileNameChange,
+        onCancel: mockOnCancel,
+        onConfirm: mockOnConfirm,
+      });
+
+      expect(screen.getByText('Custom upload title')).toBeInTheDocument();
+    });
+
+    it('shows validation errors in props mode', () => {
+      const file = createFile();
+      renderModal({
+        show: true,
+        file,
+        fileName: 'test',
+        fileNameError: 'Invalid filename format',
+        onFileNameChange: mockOnFileNameChange,
+        onCancel: mockOnCancel,
+        onConfirm: mockOnConfirm,
+      });
+
+      expect(screen.getByText('Invalid filename format')).toBeInTheDocument();
+      expect(screen.getByRole('textbox')).toHaveClass('is-invalid');
+      expect(screen.getByRole('button', { name: /upload/i })).toBeDisabled();
     });
   });
 });

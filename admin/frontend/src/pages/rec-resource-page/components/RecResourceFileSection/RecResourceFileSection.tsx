@@ -1,8 +1,8 @@
 import { FILE_TYPE_CONFIGS, MAX_FILE_SIZE_MB } from '@/pages/rec-resource-page';
 import { processSelectedFile } from '@/pages/rec-resource-page/helpers';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
-import { DeleteFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal';
-import { DocumentUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DocumentUploadModal';
+import { DeleteFileModal } from '@/components/delete-confirmation-modal/DeleteFileModal';
+import { DocumentUploadModal } from '@/components/file/DocumentUploadModal';
 import { ImageUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import {
@@ -16,7 +16,6 @@ import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useStore } from '@tanstack/react-store';
 import { useEffect } from 'react';
-import { GalleryAccordion } from './GalleryAccordion';
 import { GalleryFileCard } from './GalleryFileCard';
 import {
   DOCUMENT_VIEWER_CARD_ACTIONS,
@@ -29,6 +28,7 @@ import {
 import { ImageLightboxModal } from './ImageLightboxModal';
 import { PhotoDetailsModal } from './PhotoDetailsModal';
 import { EditPhotoModal } from './EditPhotoModal';
+import { GalleryAccordion } from '@/components/file/GalleryAccordion';
 
 export const RecResourceFileSection = () => {
   const { canEdit } = useAuthorizations();

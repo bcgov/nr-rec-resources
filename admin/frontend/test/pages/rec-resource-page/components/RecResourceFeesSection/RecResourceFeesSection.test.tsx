@@ -1,5 +1,6 @@
 import { RecResourceFeesSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection';
-import { Route } from '@/routes/rec-resource/$id/fees/index';
+import { Route } from '@/routes/rec-resource/$id/fees';
+import { useGetFees } from '@/services/hooks/recreation-resource-admin/useGetFees';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
@@ -8,6 +9,15 @@ vi.mock('@/services', () => ({
     mutateAsync: vi.fn(),
     isPending: false,
   }),
+  useRecreationResourceAdminApiClient: vi.fn(() => ({
+    get: vi.fn(),
+    post: vi.fn(),
+    delete: vi.fn(),
+  })),
+}));
+
+vi.mock('@/services/hooks/recreation-resource-admin/useGetFees', () => ({
+  useGetFees: vi.fn(),
 }));
 
 const mockUseAuthorizations = vi.fn();
@@ -71,7 +81,7 @@ const mockFees = [
   },
 ];
 
-vi.mock('@/routes/rec-resource/$id/fees/index', () => {
+vi.mock('@/routes/rec-resource/$id/fees', () => {
   return {
     Route: {
       useLoaderData: vi.fn(() => ({
@@ -112,6 +122,9 @@ describe('RecResourceFeesSection', () => {
     vi.mocked(Route.useParams).mockReturnValue({
       id: 'test-id',
     });
+    vi.mocked(useGetFees).mockReturnValue({
+      data: mockFees,
+    } as any);
   });
 
   it('renders h2 heading with Fees title', () => {
@@ -123,9 +136,8 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('renders empty state when no fees', () => {
-    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
-      fees: [],
-    });
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({ fees: [] });
+    vi.mocked(useGetFees).mockReturnValueOnce({ data: [] } as any);
 
     render(<RecResourceFeesSection />);
 
@@ -161,16 +173,14 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('handles missing fee amount', () => {
-    const feesWithNullAmount = [
-      {
-        ...mockFees[0],
-        fee_amount: undefined,
-      },
-    ];
+    const feesWithNullAmount = [{ ...mockFees[0], fee_amount: undefined }];
 
     vi.mocked(Route.useLoaderData).mockReturnValueOnce({
       fees: feesWithNullAmount as any,
     });
+    vi.mocked(useGetFees).mockReturnValueOnce({
+      data: feesWithNullAmount,
+    } as any);
 
     render(<RecResourceFeesSection />);
 
@@ -192,6 +202,9 @@ describe('RecResourceFeesSection', () => {
     vi.mocked(Route.useLoaderData).mockReturnValueOnce({
       fees: feesWithNullDates as any,
     });
+    vi.mocked(useGetFees).mockReturnValueOnce({
+      data: feesWithNullDates,
+    } as any);
 
     render(<RecResourceFeesSection />);
 
@@ -201,15 +214,15 @@ describe('RecResourceFeesSection', () => {
 
   it('uses fee code when description is missing', () => {
     const feesWithoutDescription = [
-      {
-        ...mockFees[0],
-        fee_type_description: '',
-      },
+      { ...mockFees[0], fee_type_description: '' },
     ];
 
     vi.mocked(Route.useLoaderData).mockReturnValueOnce({
       fees: feesWithoutDescription,
     });
+    vi.mocked(useGetFees).mockReturnValueOnce({
+      data: feesWithoutDescription,
+    } as any);
 
     render(<RecResourceFeesSection />);
 
@@ -217,16 +230,14 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('handles fee amount of zero', () => {
-    const feesWithZeroAmount = [
-      {
-        ...mockFees[0],
-        fee_amount: 0,
-      },
-    ];
+    const feesWithZeroAmount = [{ ...mockFees[0], fee_amount: 0 }];
 
     vi.mocked(Route.useLoaderData).mockReturnValueOnce({
       fees: feesWithZeroAmount,
     });
+    vi.mocked(useGetFees).mockReturnValueOnce({
+      data: feesWithZeroAmount,
+    } as any);
 
     render(<RecResourceFeesSection />);
 
@@ -249,9 +260,10 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
-      fees: duplicateFees,
-    });
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({ fees: duplicateFees });
+    vi.mocked(useGetFees).mockReturnValueOnce({
+      data: duplicateFees,
+    } as any);
 
     render(<RecResourceFeesSection />);
 
@@ -271,6 +283,9 @@ describe('RecResourceFeesSection', () => {
     vi.mocked(Route.useLoaderData).mockReturnValueOnce({
       fees: feesWithOnlyStartDate as any,
     });
+    vi.mocked(useGetFees).mockReturnValueOnce({
+      data: feesWithOnlyStartDate,
+    } as any);
 
     render(<RecResourceFeesSection />);
 

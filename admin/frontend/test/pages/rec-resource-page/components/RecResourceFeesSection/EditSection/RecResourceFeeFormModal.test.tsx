@@ -173,7 +173,7 @@ describe('RecResourceFeeFormModal', () => {
     )!;
     await user.click(
       within(deleteConfirmModal1 as HTMLElement).getByRole('button', {
-        name: /delete fee/i,
+        name: /delete/i,
       }),
     );
 
@@ -213,7 +213,7 @@ describe('RecResourceFeeFormModal', () => {
     )!;
     await user.click(
       within(deleteConfirmModal2 as HTMLElement).getByRole('button', {
-        name: /delete fee/i,
+        name: /delete/i,
       }),
     );
 

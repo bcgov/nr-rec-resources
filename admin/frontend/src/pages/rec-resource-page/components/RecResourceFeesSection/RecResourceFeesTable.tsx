@@ -9,7 +9,7 @@ import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Link } from '@tanstack/react-router';
 import { Button } from 'react-bootstrap';
 import { useState } from 'react';
-import { DeleteFeeConfirmationModal } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/DeleteFeeConfirmationModal';
+import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal/DeleteConfirmationModal';
 import { addSuccessNotification } from '@/store/notificationStore';
 
 interface RecResourceFeesTableProps {
@@ -137,12 +137,21 @@ export const RecResourceFeesTable = ({
         getRowKey={(fee) => String(fee.fee_id)}
         emptyMessage="Currently no fees"
       />
-      <DeleteFeeConfirmationModal
+      <DeleteConfirmationModal
         show={Boolean(selectedFee)}
-        fee={selectedFee}
+        title="Delete this fee?"
+        description={
+          'Deleting this fee will immediately remove it from RecSpace and from the public website. This action cannot be undone, but the fee will remain in the backend for audit tracking.'
+        }
         isDeleting={deleteFee.isPending}
         onCancel={() => setSelectedFee(undefined)}
         onConfirm={handleConfirmDelete}
+        className="delete-fee-confirmation-modal"
+        bodyClassName="delete-fee-confirmation-modal__body"
+        cancelButtonClassName="delete-fee-confirmation-modal__cancel-button"
+        confirmButtonClassName="delete-fee-confirmation-modal__confirm-button"
+        confirmText="Delete"
+        confirmVariant="outline-danger"
       />
     </>
   );
