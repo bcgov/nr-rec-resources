@@ -104,13 +104,13 @@ export interface RecreationFeeDto {
    */
   recurring_ind: boolean;
   /**
-   * Recurrence range start formatted as MM-DD
+   * Start month-day of the recurring fee period (MM-DD format, e.g. 06-01)
    * @type {string}
    * @memberof RecreationFeeDto
    */
   recurring_start_mmdd?: string;
   /**
-   * Recurrence range end formatted as MM-DD
+   * End month-day of the recurring fee period (MM-DD format, e.g. 08-31)
    * @type {string}
    * @memberof RecreationFeeDto
    */
@@ -133,6 +133,8 @@ export function instanceOfRecreationFeeDto(
     !('fee_type_description' in value) ||
     value['fee_type_description'] === undefined
   )
+    return false;
+  if (!('recurring_ind' in value) || value['recurring_ind'] === undefined)
     return false;
   return true;
 }
@@ -169,7 +171,7 @@ export function RecreationFeeDtoFromJSONTyped(
     saturday_ind:
       json['saturday_ind'] == null ? undefined : json['saturday_ind'],
     sunday_ind: json['sunday_ind'] == null ? undefined : json['sunday_ind'],
-    recurring_ind: json['recurring_ind'] ?? false,
+    recurring_ind: json['recurring_ind'],
     recurring_start_mmdd:
       json['recurring_start_mmdd'] == null
         ? undefined

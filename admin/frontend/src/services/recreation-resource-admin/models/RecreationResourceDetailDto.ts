@@ -379,5 +379,6 @@ export function RecreationResourceDetailDtoToJSONTyped(
     display_on_public_site: value['display_on_public_site'],
     right_of_way: value['right_of_way'],
     rec_status_code: value['rec_status_code'],
+    natural_resource_org_unit_name: value['natural_resource_org_unit_name'],
   };
 }

@@ -5,6 +5,11 @@ export enum RecreationResourceMaintenanceStandardCode {
   M = 'M', // Maintained
 }
 
+export class RecreationNaturalResourceDto {
+  org_unit_code: string;
+  org_unit_name: string;
+}
+
 export class RecreationActivityDto {
   @ApiProperty({
     description: 'Unique code identifying the recreation activity',
@@ -377,4 +382,12 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     nullable: true,
   })
   rec_status_code?: string | null;
+
+  @ApiProperty({
+    description: 'Full descriptive name of the organization unit',
+    example: 'Selkirk Natural Resource District',
+    type: String,
+    nullable: true,
+  })
+  natural_resource_org_unit_name?: string | null;
 }
