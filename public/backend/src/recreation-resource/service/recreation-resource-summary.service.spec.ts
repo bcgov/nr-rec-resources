@@ -19,6 +19,7 @@ const createMockDbRow = (
   name: 'Aileen Lake',
   closest_community: 'Merritt',
   display_on_public_site: true,
+  natural_resource_district: 'Chilliwack Natural Resource District',
   district_code: 'RDCK',
   district_description: 'Chilliwack',
   rec_resource_type_code: 'SIT',
@@ -35,6 +36,7 @@ const expectedDto = {
   rec_resource_id: 'REC204117',
   name: 'Aileen Lake',
   closest_community: 'Merritt',
+  natural_resource_district: 'Chilliwack Natural Resource District',
   district_code: 'RDCK',
   district: 'Chilliwack',
   rec_resource_type_code: 'SIT',
@@ -171,5 +173,15 @@ describe('RecreationResourceSummaryService', () => {
     const result = await service.findAll();
 
     expect(result.data[0].closest_community).toBeNull();
+  });
+
+  it('should allow natural_resource_district to be null', async () => {
+    vi.mocked(prismaService.$queryRawTyped).mockResolvedValueOnce([
+      createMockDbRow('REC204117', { natural_resource_district: null }),
+    ]);
+
+    const result = await service.findAll();
+
+    expect(result.data[0].natural_resource_district).toBeNull();
   });
 });
