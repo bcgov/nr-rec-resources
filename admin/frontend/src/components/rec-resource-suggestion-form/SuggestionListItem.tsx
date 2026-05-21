@@ -25,8 +25,6 @@ interface SearchItemData {
   district: string;
   /** Unique identifier for the recreation resource (e.g.: REC00002). */
   rec_resource_id: string;
-  /** Defines if the resource should be displayed on public site. */
-  display_on_public_site: boolean;
   /** Defines the status code for the recreation resource. */
   rec_status_code?: string;
 }
@@ -46,14 +44,10 @@ export const SuggestionListItem: FC<SearchItemData> = ({
   resourceType,
   recreation_resource_type_code,
   district,
-  display_on_public_site,
   rec_status_code,
 }) => {
   return (
-    <ListGroup.Item
-      action
-      className={`suggestion-list-item px-2 py-2 ${!display_on_public_site && 'not-displayed-on-public'}`}
-    >
+    <ListGroup.Item action className="suggestion-list-item px-2 py-2">
       <Row className="suggestion-list-row">
         {/* Left Section: Icon */}
         <Col xs="auto" className="icon-col flex-shrink-0">
