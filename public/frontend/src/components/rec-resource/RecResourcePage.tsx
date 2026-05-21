@@ -117,7 +117,11 @@ const RecResourcePage = () => {
     Boolean(spatial_feature_geometry?.length) ||
     Boolean(recreation_resource_docs?.length) ||
     driving_directions;
-  const isReservable = Boolean(recreation_resource_reservation_info);
+  const isReservable = !!(
+    recreation_resource_reservation_info?.reservation_email ||
+    recreation_resource_reservation_info?.phone ||
+    recreation_resource_reservation_info?.website
+  );
   const isMd = useMediaQuery(`(min-width: ${BOOTSTRAP_BREAKPOINTS.md}px)`);
   // Create page sections for PageWithScrollMenu
   const pageSections: PageSection[] = [
