@@ -9,10 +9,8 @@ import {
   RecResourceRouteContext,
 } from '@/pages/rec-resource-page/types';
 import { Breadcrumbs } from '@shared/index';
-import { useEffect, useState } from 'react';
 import { Col, Row, Spinner, Stack } from 'react-bootstrap';
 import { Outlet, useMatches, useParams } from '@tanstack/react-router';
-import { NotificationBar } from '@/components';
 import './RecResourcePageLayout.scss';
 import { ArchivedNotice } from '@/components/archived-notice/ArchivedNotice';
 
@@ -33,18 +31,11 @@ export const RecResourcePageLayout = () => {
   const matches = useMatches() as unknown as Array<{
     handle?: RecResourcePageRouteHandle<RecResourceRouteContext>;
   }>;
-  const [activeTab, setActiveTab] = useState<RecResourceNavKey>(
-    RecResourceNavKey.OVERVIEW,
-  );
 
-  // Update store based on current route context
-  useEffect(() => {
-    const currentMatch = matches[matches.length - 1];
-    const tabFromRoute = (currentMatch as any).context?.tab;
-    if (tabFromRoute) {
-      setActiveTab(tabFromRoute);
-    }
-  }, [matches]);
+  // Derive activeTab from current route context
+  const currentMatch = matches[matches.length - 1];
+  const activeTab =
+    (currentMatch as any).context?.tab ?? RecResourceNavKey.OVERVIEW;
 
   if (!rec_resource_id || error) {
     return null;
@@ -66,7 +57,6 @@ export const RecResourcePageLayout = () => {
     >
       <Breadcrumbs />
       <ResourceHeaderSection recResource={recResource} />
-      <NotificationBar />
 
       {isArchived && <ArchivedNotice />}
 

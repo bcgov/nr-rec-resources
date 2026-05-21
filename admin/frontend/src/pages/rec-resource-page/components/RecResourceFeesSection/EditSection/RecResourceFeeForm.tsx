@@ -30,11 +30,15 @@ export const RecResourceFeeForm = ({
   mode,
   initialFee,
   onDone,
+  showDeleteAction = false,
+  onDelete,
 }: {
   recResourceId: string;
   mode: FeeFormMode;
   initialFee?: RecreationFeeUIModel;
   onDone?: () => void;
+  showDeleteAction?: boolean;
+  onDelete?: () => void;
 }) => {
   const { options: feeOptions, isLoading: optionsLoading } = useFeeOptions();
   const {
@@ -207,7 +211,14 @@ export const RecResourceFeeForm = ({
         </Row>
 
         <Row className="gy-3">
-          <Col xs={12} className="d-flex justify-content-end">
+          <Col xs={12} className="d-flex justify-content-between">
+            {showDeleteAction ? (
+              <Button variant="outline-danger" type="button" onClick={onDelete}>
+                Delete
+              </Button>
+            ) : (
+              <span />
+            )}
             <Button
               variant="primary"
               type="submit"

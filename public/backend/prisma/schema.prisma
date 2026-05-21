@@ -1,7 +1,7 @@
 generator client {
   provider        = "prisma-client"
   output          = "../src/generated/prisma"
-  previewFeatures = ["typedSql", "views"]
+  previewFeatures = ["partialIndexes", "typedSql", "views"]
 }
 
 datasource db {
@@ -154,10 +154,13 @@ model recreation_fee {
   recurring_ind        Boolean                  @default(false)
   recurring_start_mmdd String?
   recurring_end_mmdd   String?
+  is_deleted           Boolean                  @default(false)
+  deleted_at           DateTime?                @db.Timestamp(6)
+  deleted_by           String?
   recreation_resource  recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   with_description     recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([rec_resource_id, recreation_fee_code, monday_ind, tuesday_ind, wednesday_ind, thursday_ind, friday_ind, saturday_ind, sunday_ind], map: "recreation_fee_unique_idx")
+  @@unique([rec_resource_id, recreation_fee_code, monday_ind, tuesday_ind, wednesday_ind, thursday_ind, friday_ind, saturday_ind, sunday_ind], map: "recreation_fee_unique_idx", where: raw("(is_deleted = false)"))
   @@index([rec_resource_id], map: "idx_recreation_fee_rec_resource_id")
   @@schema("rst")
 }
@@ -389,6 +392,10 @@ model recreation_fee_history {
   recurring_ind        Boolean?
   recurring_start_mmdd String?
   recurring_end_mmdd   String?
+  fee_id               Int?
+  is_deleted           Boolean?
+  deleted_at           DateTime?                @db.Timestamp(6)
+  deleted_by           String?
 
   @@ignore
   @@schema("rst")
