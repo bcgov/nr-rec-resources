@@ -119,8 +119,8 @@ const RecResourcePage = () => {
     driving_directions;
   const isReservable = !!(
     recreation_resource_reservation_info?.reservation_email ||
-    recreation_resource_reservation_info?.phone ||
-    recreation_resource_reservation_info?.website
+    recreation_resource_reservation_info?.reservation_phone_number ||
+    recreation_resource_reservation_info?.reservation_website
   );
   const isMd = useMediaQuery(`(min-width: ${BOOTSTRAP_BREAKPOINTS.md}px)`);
   // Create page sections for PageWithScrollMenu
