@@ -402,4 +402,56 @@ describe('RecResourcePageLayout', () => {
       expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
     });
   });
+
+  it('defaults activeTab to OVERVIEW when context has no tab', async () => {
+    const mockResource = {
+      name: 'Test Resource',
+      rec_resource_id: '123',
+    };
+
+    mockUseRecResource.mockReturnValue({
+      recResource: mockResource,
+      isLoading: false,
+      error: null,
+    });
+
+    // Return a match with no tab in context
+    mockUseMatches.mockReturnValue([{ context: {} }]);
+
+    render(<RecResourcePageLayout />, { wrapper: TestQueryClientProvider });
+
+    await waitFor(() => {
+      const verticalNav = screen.getByTestId('rec-resource-vertical-nav');
+      expect(verticalNav).toHaveAttribute(
+        'data-active-tab',
+        RecResourceNavKey.OVERVIEW,
+      );
+    });
+  });
+
+  it('defaults activeTab to OVERVIEW when match has no context', async () => {
+    const mockResource = {
+      name: 'Test Resource',
+      rec_resource_id: '123',
+    };
+
+    mockUseRecResource.mockReturnValue({
+      recResource: mockResource,
+      isLoading: false,
+      error: null,
+    });
+
+    // Return a match with no context at all
+    mockUseMatches.mockReturnValue([{}]);
+
+    render(<RecResourcePageLayout />, { wrapper: TestQueryClientProvider });
+
+    await waitFor(() => {
+      const verticalNav = screen.getByTestId('rec-resource-vertical-nav');
+      expect(verticalNav).toHaveAttribute(
+        'data-active-tab',
+        RecResourceNavKey.OVERVIEW,
+      );
+    });
+  });
 });

@@ -1,7 +1,12 @@
 import { RecResourceFeesEditSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeesEditSection';
 import { Route } from '@/routes/rec-resource/$id/fees/$feeId/edit';
+import { useGetFees } from '@/services';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+
+vi.mock('@/services', () => ({
+  useGetFees: vi.fn(),
+}));
 
 vi.mock('@tanstack/react-router', async () => {
   const actual: any = await vi.importActual('@tanstack/react-router');
@@ -68,14 +73,6 @@ vi.mock('@/routes/rec-resource/$id/fees/$feeId/edit', () => {
   };
 });
 
-vi.mock('@tanstack/react-query', async () => {
-  const actual: any = await vi.importActual('@tanstack/react-query');
-  return {
-    ...actual,
-    useQuery: vi.fn(({ initialData }: any) => ({ data: initialData })),
-  };
-});
-
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFeesSection/RecResourceFeesTable',
   () => ({
@@ -107,6 +104,7 @@ describe('RecResourceFeesEditSection', () => {
       id: 'test-id',
       feeId: '1',
     });
+    vi.mocked(useGetFees).mockReturnValue({ data: mockFees } as any);
   });
 
   it('renders Edit Fee modal', () => {
@@ -124,9 +122,8 @@ describe('RecResourceFeesEditSection', () => {
   });
 
   it('handles empty fees array', () => {
-    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
-      fees: [],
-    });
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({ fees: [] });
+    vi.mocked(useGetFees).mockReturnValueOnce({ data: [] } as any);
 
     render(<RecResourceFeesEditSection />);
 

@@ -1,5 +1,6 @@
 import { RecResourceFileSection } from '@/pages/rec-resource-page/components/RecResourceFileSection';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { MAX_FILES_REACHED_MESSAGE } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/constants';
 
 const mockUseAuthorizations = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
@@ -22,30 +23,29 @@ vi.mock('@tanstack/react-store', () => ({
   useStore: () => mockUseStore(),
 }));
 
-vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryAccordion',
-  () => ({
-    GalleryAccordion: ({
-      items = [],
-      renderItem,
-      onFileUploadTileClick,
-      uploadDisabled,
-      uploadLabel,
-      description,
-    }: any) => (
-      <div data-testid="gallery-accordion">
-        <span
-          data-testid="upload-label"
-          onClick={uploadDisabled ? undefined : onFileUploadTileClick}
-        >
-          {uploadLabel}
-        </span>
-        <span data-testid="accordion-description">{description}</span>
-        {items.map(renderItem)}
-      </div>
-    ),
-  }),
-);
+// Moved to shared/
+vi.mock('@/components/file/GalleryAccordion', () => ({
+  GalleryAccordion: ({
+    items = [],
+    renderItem,
+    onFileUploadTileClick,
+    uploadDisabled,
+    uploadLabel,
+    description,
+  }: any) => (
+    <div data-testid="gallery-accordion">
+      <span
+        data-testid="upload-label"
+        onClick={uploadDisabled ? undefined : onFileUploadTileClick}
+      >
+        {uploadLabel}
+      </span>
+      <span data-testid="accordion-description">{description}</span>
+      {items.map(renderItem)}
+    </div>
+  ),
+}));
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard',
   () => ({
@@ -57,6 +57,7 @@ vi.mock(
     ),
   }),
 );
+
 vi.mock(
   '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState',
   () => ({
@@ -64,19 +65,19 @@ vi.mock(
       mockUseRecResourceFileTransferState(),
   }),
 );
-vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceFileSection/DocumentUploadModal',
-  () => ({
-    DocumentUploadModal: () => {
-      const { uploadModalState } = mockUseRecResourceFileTransferState();
-      return uploadModalState.showUploadOverlay &&
-        uploadModalState.selectedFileForUpload &&
-        uploadModalState.selectedFileForUpload.type === 'document' ? (
-        <div data-testid="document-upload-modal" />
-      ) : null;
-    },
-  }),
-);
+
+// Moved to shared/
+vi.mock('@/components/file/DocumentUploadModal', () => ({
+  DocumentUploadModal: () => {
+    const { uploadModalState } = mockUseRecResourceFileTransferState();
+    return uploadModalState.showUploadOverlay &&
+      uploadModalState.selectedFileForUpload &&
+      uploadModalState.selectedFileForUpload.type === 'document' ? (
+      <div data-testid="document-upload-modal" />
+    ) : null;
+  },
+}));
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal',
   () => ({
@@ -90,24 +91,26 @@ vi.mock(
     },
   }),
 );
-vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal',
-  () => ({
-    DeleteFileModal: () => <div data-testid="delete-file-modal" />,
-  }),
-);
+
+// Moved to shared/
+vi.mock('@/components/delete-confirmation-modal/DeleteFileModal', () => ({
+  DeleteFileModal: () => <div data-testid="delete-file-modal" />,
+}));
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFileSection/PhotoDetailsModal',
   () => ({
     PhotoDetailsModal: () => <div data-testid="photo-details-modal" />,
   }),
 );
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFileSection/EditPhotoModal',
   () => ({
     EditPhotoModal: () => <div data-testid="edit-photo-modal" />,
   }),
 );
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFileSection/ImageLightboxModal',
   () => ({
@@ -162,7 +165,7 @@ describe('RecResourceFileSection', () => {
       galleryDocuments: [{ id: 1, name: 'Doc1' }],
     });
     render(<RecResourceFileSection />);
-    expect(screen.getAllByTestId('gallery-accordion')).toHaveLength(2); // One for images, one for documents
+    expect(screen.getAllByTestId('gallery-accordion')).toHaveLength(2);
     expect(screen.getByTestId('gallery-file-card')).toBeInTheDocument();
     expect(screen.getByText('Doc1')).toBeInTheDocument();
   });
@@ -174,7 +177,7 @@ describe('RecResourceFileSection', () => {
       getDocumentGeneralActionHandler,
     });
     render(<RecResourceFileSection />);
-    fireEvent.click(screen.getAllByTestId('upload-label')[1]); // Documents is the second accordion now
+    fireEvent.click(screen.getAllByTestId('upload-label')[1]);
     expect(getDocumentGeneralActionHandler).toHaveBeenCalledWith('upload');
   });
 
@@ -187,8 +190,8 @@ describe('RecResourceFileSection', () => {
       isDocumentUploadDisabled: true,
     });
     render(<RecResourceFileSection />);
-    fireEvent.click(screen.getAllByTestId('upload-label')[1]); // Documents is the second accordion now
-    expect(actionHandler).not.toHaveBeenCalled(); // Upload action should not be called
+    fireEvent.click(screen.getAllByTestId('upload-label')[1]);
+    expect(actionHandler).not.toHaveBeenCalled();
   });
 
   it('shows document upload modal when uploadModalState has showUploadModal and selectedFile for document', () => {
@@ -263,25 +266,15 @@ describe('RecResourceFileSection', () => {
       getImageFileActionHandler: vi.fn(() => imageActionHandler),
     });
     render(<RecResourceFileSection />);
-
-    // Check that image is rendered
     expect(screen.getByText('Image1.jpg')).toBeInTheDocument();
-
-    // Click the view action on image card
     fireEvent.click(screen.getByText('View'));
     expect(imageActionHandler).toHaveBeenCalled();
   });
 
   it('calls resetRecResourceFileTransferStore on component unmount', () => {
     const { unmount } = render(<RecResourceFileSection />);
-
-    // Verify reset function was not called on mount
     expect(mockResetRecResourceFileTransferStore).not.toHaveBeenCalled();
-
-    // Unmount the component to trigger cleanup
     unmount();
-
-    // Verify reset function was called during cleanup
     expect(mockResetRecResourceFileTransferStore).toHaveBeenCalledTimes(1);
   });
 
@@ -325,20 +318,15 @@ describe('RecResourceFileSection', () => {
       expect(defaultState.getImageGeneralActionHandler).toHaveBeenCalled();
     }
   });
-
   it('replaces image info text and announces when image max is reached', () => {
     mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
       isImageMaxFilesReached: true,
       isImageUploadDisabled: true,
     });
-
     render(<RecResourceFileSection />);
-
     const descriptions = screen.getAllByTestId('accordion-description');
-    expect(descriptions[0]).toHaveTextContent(
-      'You’ve reached the maximum number of files. Remove a file to upload a new one.',
-    );
+    expect(descriptions[0]).toHaveTextContent(MAX_FILES_REACHED_MESSAGE);
   });
 
   it('replaces document info text and announces when document max is reached', () => {
@@ -347,12 +335,8 @@ describe('RecResourceFileSection', () => {
       isDocumentMaxFilesReached: true,
       isDocumentUploadDisabled: true,
     });
-
     render(<RecResourceFileSection />);
-
     const descriptions = screen.getAllByTestId('accordion-description');
-    expect(descriptions[1]).toHaveTextContent(
-      'You’ve reached the maximum number of files. Remove a file to upload a new one.',
-    );
+    expect(descriptions[1]).toHaveTextContent(MAX_FILES_REACHED_MESSAGE);
   });
 });

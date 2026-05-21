@@ -1,5 +1,5 @@
 import { FormLabel } from '@/components/form/FormLabel';
-import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal';
+import { BaseFileModal } from '@/components/file/BaseFileModal';
 import { useConsentDownload } from '@/pages/rec-resource-page/hooks/useConsentDownload';
 import { useFileDownload } from '@/pages/rec-resource-page/hooks/useFileDownload';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';

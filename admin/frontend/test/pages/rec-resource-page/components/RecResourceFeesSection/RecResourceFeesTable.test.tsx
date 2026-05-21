@@ -1,7 +1,48 @@
 import { RecResourceFeesTable } from '@/pages/rec-resource-page/components/RecResourceFeesSection/RecResourceFeesTable';
 import { RecreationFeeUIModel } from '@/services';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const mockDeleteFeeMutation = {
+  mutateAsync: vi.fn(),
+  isPending: false,
+};
+
+vi.mock('@/services', () => ({
+  useDeleteFee: () => mockDeleteFeeMutation,
+}));
+
+vi.mock('@/store/notificationStore', () => ({
+  addSuccessNotification: vi.fn(),
+}));
+
+vi.mock(
+  '@/components/delete-confirmation-modal/DeleteConfirmationModal',
+  () => {
+    const DeleteConfirmationModal = ({
+      show,
+      isDeleting,
+      onCancel,
+      onConfirm,
+    }: any) =>
+      show ? (
+        <div data-testid="delete-modal">
+          <button onClick={onCancel} data-testid="modal-cancel">
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            data-testid="modal-confirm"
+            disabled={isDeleting}
+          >
+            Delete fee
+          </button>
+        </div>
+      ) : null;
+
+    return { DeleteConfirmationModal };
+  },
+);
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ to, children, ...props }: any) => (
@@ -144,7 +185,7 @@ describe('RecResourceFeesTable', () => {
     {
       fee_id: 3,
       recreation_fee_code: 'TYPE_C',
-      fee_type_description: undefined,
+      fee_type_description: null,
       fee_amount: undefined,
       fee_start_date: undefined,
       fee_end_date: undefined,
@@ -241,12 +282,14 @@ describe('RecResourceFeesTable', () => {
     );
 
     const editLink = screen.getByLabelText('Edit fee');
+    const deleteButton = screen.getByLabelText('Delete fee');
     expect(editLink).toBeInTheDocument();
+    expect(deleteButton).toBeInTheDocument();
     expect(editLink).toHaveAttribute(
       'href',
       '/rec-resource/$id/fees/$feeId/edit',
     );
-    expect(screen.getByTestId('fa-icon')).toBeInTheDocument();
+    expect(screen.getAllByTestId('fa-icon')).toHaveLength(2);
   });
 
   it('hides actions column when admin edit access is disabled', () => {
@@ -340,5 +383,95 @@ describe('RecResourceFeesTable', () => {
     } else {
       expect(screen.queryByLabelText('Edit fee')).not.toBeInTheDocument();
     }
+  });
+
+  it('clicking delete button opens the confirmation modal', () => {
+    render(
+      <RecResourceFeesTable fees={[mockFees[0]]} recResourceId="REC123" />,
+    );
+
+    expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('Delete fee'));
+
+    expect(screen.getByTestId('delete-modal')).toBeInTheDocument();
+  });
+
+  it('canceling the delete modal closes it without deleting', () => {
+    render(
+      <RecResourceFeesTable fees={[mockFees[0]]} recResourceId="REC123" />,
+    );
+
+    fireEvent.click(screen.getByLabelText('Delete fee'));
+    expect(screen.getByTestId('delete-modal')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('modal-cancel'));
+    expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument();
+    expect(mockDeleteFeeMutation.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('confirming delete calls mutateAsync, closes modal, and shows success notification', async () => {
+    const { addSuccessNotification } = await import(
+      '@/store/notificationStore'
+    );
+    mockDeleteFeeMutation.mutateAsync.mockResolvedValueOnce(undefined);
+
+    render(
+      <RecResourceFeesTable
+        fees={[mockFees[0], mockFees[1]]}
+        recResourceId="REC123"
+      />,
+    );
+
+    // Open modal for first fee
+    const deleteButtons = screen.getAllByLabelText('Delete fee');
+    fireEvent.click(deleteButtons[0]);
+
+    fireEvent.click(screen.getByTestId('modal-confirm'));
+
+    await waitFor(() => {
+      expect(mockDeleteFeeMutation.mutateAsync).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        feeId: mockFees[0].fee_id,
+      });
+    });
+
+    // Modal should be closed
+    await waitFor(() => {
+      expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument();
+    });
+
+    // Success notification
+    expect(addSuccessNotification).toHaveBeenCalledWith(
+      'Fee deleted successfully',
+      'deleteFee-success',
+    );
+  });
+
+  it('handleConfirmDelete does nothing when recResourceId is missing', async () => {
+    render(<RecResourceFeesTable fees={[mockFees[0]]} />);
+
+    // No actions rendered without recResourceId, so we confirm no mutation
+    expect(mockDeleteFeeMutation.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('handleConfirmDelete does nothing when fee has no fee_id', async () => {
+    const feeWithoutId: RecreationFeeUIModel = {
+      ...mockFees[0],
+      fee_id: undefined as any,
+    };
+    mockDeleteFeeMutation.mutateAsync.mockResolvedValueOnce(undefined);
+
+    render(
+      <RecResourceFeesTable fees={[feeWithoutId]} recResourceId="REC123" />,
+    );
+
+    fireEvent.click(screen.getByLabelText('Delete fee'));
+    fireEvent.click(screen.getByTestId('modal-confirm'));
+
+    // mutateAsync should not be called because fee_id is missing
+    await waitFor(() => {
+      expect(mockDeleteFeeMutation.mutateAsync).not.toHaveBeenCalled();
+    });
   });
 });

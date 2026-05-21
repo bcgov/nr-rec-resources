@@ -1,5 +1,6 @@
 import { RecResourceFeeForm } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeeForm';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { FEE_APPLIES_OPTIONS } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/schemas/addFee';
 import { useFeeForm } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeForm';
@@ -460,5 +461,91 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
 
     expect(screen.getByText('Monday')).toBeInTheDocument();
     expect(screen.getByText('Sunday')).toBeInTheDocument();
+  });
+});
+
+describe('RecResourceFeeForm (checkbox onChange handlers)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(useFeeForm).mockReturnValue({
+      control: mockControl,
+      handleSubmit: mockHandleSubmit,
+      errors: {},
+      isDirty: false,
+      mutation: { isPending: false },
+      onSubmit: mockOnSubmit,
+      feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
+    } as any);
+    vi.mocked(useFeeOptions).mockReturnValue({
+      options: [{ id: 'D', label: 'Day use' }],
+      isLoading: false,
+    });
+  });
+
+  it('fires onChange on the is_recurring checkbox without errors', () => {
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
+
+    const checkbox = screen.getByRole('checkbox', {
+      name: /Fee is recurring\./i,
+    });
+    expect(() => fireEvent.click(checkbox)).not.toThrow();
+  });
+
+  it('fires onChange on a day checkbox without errors', () => {
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
+
+    const mondayCheckbox = screen.getByRole('checkbox', { name: 'Monday' });
+    expect(() => fireEvent.click(mondayCheckbox)).not.toThrow();
+  });
+
+  it('renders Delete button when showDeleteAction is true', () => {
+    const onDelete = vi.fn();
+
+    render(
+      <RecResourceFeeForm
+        recResourceId="test-rec-resource-id"
+        mode="edit"
+        showDeleteAction={true}
+        onDelete={onDelete}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  });
+
+  it('calls onDelete when Delete button is clicked', async () => {
+    const user = userEvent.setup();
+    const onDelete = vi.fn();
+
+    render(
+      <RecResourceFeeForm
+        recResourceId="test-rec-resource-id"
+        mode="edit"
+        showDeleteAction={true}
+        onDelete={onDelete}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(onDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not render Delete button when showDeleteAction is false', () => {
+    render(
+      <RecResourceFeeForm
+        recResourceId="test-rec-resource-id"
+        mode="edit"
+        showDeleteAction={false}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Delete' }),
+    ).not.toBeInTheDocument();
   });
 });

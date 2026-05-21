@@ -1,9 +1,14 @@
 import { RecResourceFeesAddSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeesAddSection';
 import { Route } from '@/routes/rec-resource/$id/fees/add';
+import { useGetFees } from '@/services';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 const navigateMock = vi.fn();
+
+vi.mock('@/services', () => ({
+  useGetFees: vi.fn(),
+}));
 
 vi.mock('@tanstack/react-router', async () => {
   const actual: any = await vi.importActual('@tanstack/react-router');
@@ -53,6 +58,7 @@ describe('RecResourceFeesAddSection', () => {
     navigateMock.mockClear();
     vi.mocked(Route.useLoaderData).mockReturnValue({ fees: mockFees } as any);
     vi.mocked(Route.useParams).mockReturnValue({ id: 'REC123' } as any);
+    vi.mocked(useGetFees).mockReturnValue({ data: mockFees } as any);
   });
 
   it('renders the fees background content', () => {
