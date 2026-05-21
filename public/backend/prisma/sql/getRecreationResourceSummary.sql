@@ -5,6 +5,7 @@ rr.rec_resource_id,
 rr.name,
 rr.closest_community,
 rr.display_on_public_site,
+  nrou.org_unit_name as natural_resource_district,
 rdc.district_code,
 rdc.description as district_description,
 rtv.rec_resource_type_code,
@@ -18,6 +19,8 @@ from rst.recreation_resource rr
   inner join rst.recreation_resource_type_view_admin rtv
     on rr.rec_resource_id = rtv.rec_resource_id
     and rtv.rec_resource_type_code is not null
+  left join rst.natural_resource_org_unit nrou
+    on rr.rec_resource_id = nrou.rec_resource_id
   left join rst.recreation_district_code rdc
     on rr.district_code = rdc.district_code
   left join rst.recreation_status rs
