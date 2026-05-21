@@ -30,6 +30,11 @@ export const RecResourceOverviewSection = (
       value: recResource.recreation_district_description,
     },
     {
+      key: 'natural_resource_org',
+      label: 'Natural Resource District',
+      value: recResource.natural_resource_org_unit_name,
+    },
+    {
       key: 'maintenance-type',
       label: 'Maintenance Type',
       value: recResource.maintenance_standard_description,

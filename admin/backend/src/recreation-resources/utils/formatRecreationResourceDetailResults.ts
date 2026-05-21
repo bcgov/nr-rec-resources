@@ -1,5 +1,8 @@
 import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql/getRecreationResourceSpatialFeatureGeometry';
-import { RecreationResourceDetailDto } from '../dtos/recreation-resource-detail.dto';
+import {
+  RecreationNaturalResourceDto,
+  RecreationResourceDetailDto,
+} from '../dtos/recreation-resource-detail.dto';
 import { OPEN_STATUS } from '../recreation-resource.constants';
 import { RecreationResourceGetPayload } from '../recreation-resource.types';
 
@@ -16,6 +19,7 @@ export function formatRecreationResourceDetailResults(
     ...result
   }: RecreationResourceGetPayload,
   recreationResourceSpatialFeatureGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[] = [],
+  naturalresource: RecreationNaturalResourceDto | null = null,
 ): RecreationResourceDetailDto {
   const spatialFeatures = recreationResourceSpatialFeatureGeometryResult?.[0];
   const recreationDistrict = recreation_district_code
@@ -136,5 +140,6 @@ export function formatRecreationResourceDetailResults(
     right_of_way:
       result.right_of_way != null ? Number(result.right_of_way) : undefined,
     rec_status_code: result.rec_status_code,
+    natural_resource_org_unit_name: naturalresource?.org_unit_name ?? undefined,
   };
 }
