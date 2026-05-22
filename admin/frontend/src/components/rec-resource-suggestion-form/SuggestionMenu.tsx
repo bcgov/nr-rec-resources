@@ -81,7 +81,6 @@ export const SuggestionMenu = ({
           recreation_resource_type,
           district_description,
           name,
-          display_on_public_site,
           rec_status_code,
         } = option;
         const iconKey =
@@ -104,7 +103,6 @@ export const SuggestionMenu = ({
               resourceType={recreation_resource_type}
               recreation_resource_type_code={recreation_resource_type_code}
               title={name}
-              display_on_public_site={display_on_public_site}
               rec_status_code={rec_status_code}
             />
           </MenuItem>

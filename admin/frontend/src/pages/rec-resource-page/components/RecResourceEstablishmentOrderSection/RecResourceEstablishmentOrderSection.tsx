@@ -1,13 +1,13 @@
-import { GalleryAccordion } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryAccordion';
+import { GalleryAccordion } from '@/components/file/GalleryAccordion';
 import { GalleryFileCard } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard';
-import { EstablishmentOrderUploadModal } from './EstablishmentOrderUploadModal';
-import { EstablishmentOrderDeleteModal } from './EstablishmentOrderDeleteModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { COLOR_RED } from '@/styles/colors';
 import { ESTABLISHMENT_ORDER_ACTIONS } from './constants';
 import { useEstablishmentOrderState } from '@/pages/rec-resource-page/hooks/useEstablishmentOrderState';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
+import { DeleteFileModal } from '@/components/delete-confirmation-modal/DeleteFileModal';
+import { DocumentUploadModal } from '@/components/file/DocumentUploadModal';
 
 interface RecResourceEstablishmentOrderSectionProps {
   recResourceId: string;
@@ -70,7 +70,7 @@ export const RecResourceEstablishmentOrderSection = ({
         isLoading={isLoading}
       />
 
-      <EstablishmentOrderUploadModal
+      <DocumentUploadModal
         show={uploadModalState.show}
         file={uploadModalState.file}
         fileName={uploadModalState.fileName}
@@ -78,13 +78,17 @@ export const RecResourceEstablishmentOrderSection = ({
         onFileNameChange={setUploadFileName}
         onCancel={handleUploadCancel}
         onConfirm={handleUploadConfirm}
+        title="Upload establishment order"
       />
 
-      <EstablishmentOrderDeleteModal
+      <DeleteFileModal
         show={deleteModalState.show}
         file={deleteModalState.file}
         onCancel={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
+        title="Delete establishment order"
+        alertText="Deleting this establishment order document is permanent and cannot be undone."
+        confirmationText="Are you sure you want to delete this establishment order?"
       />
     </section>
   );

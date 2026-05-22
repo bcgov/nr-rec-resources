@@ -1,4 +1,4 @@
-INSERT INTO natural_resource_org_unit (
+INSERT INTO rst.natural_resource_org_unit (
     rec_resource_id, org_unit_no, org_unit_code, org_unit_name, location_code,
     org_level_code, office_name_code, region_no, region_code, district_no,
     district_code, effective_date, expiry_date, updated_at

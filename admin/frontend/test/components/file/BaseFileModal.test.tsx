@@ -1,4 +1,4 @@
-import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal';
+import { BaseFileModal } from '@/components/file/BaseFileModal';
 import { GalleryFile } from '@/pages/rec-resource-page/types';
 import * as imageProcessing from '@/utils/imageProcessing';
 import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';

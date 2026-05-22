@@ -13,9 +13,13 @@ LEFT JOIN rst.recreation_district_code rd ON rr.district_code = rd.district_code
 WHERE similarity(rr.name, $1) > 0.1
    OR similarity(rr.closest_community, $1) > 0.1
    OR rr.rec_resource_id ILIKE '%' || $1 || '%'
-ORDER BY GREATEST(
-    similarity(rr.name, $1),
-    similarity(rr.closest_community, $1),
-    similarity(rr.rec_resource_id, $1)
+ORDER BY
+	POSITION(UPPER($1) IN UPPER(rr.name)) > 0 DESC,
+	CASE WHEN rrtv.rec_resource_type_code IN ('RR', 'RTR') THEN 1 ELSE 0 END ASC,
+    CASE WHEN rr.rec_status_code = 'AR' THEN 1 ELSE 0 END ASC,
+	GREATEST(
+	    similarity(rr.name, $1),
+	    similarity(rr.closest_community, $1),
+	    similarity(rr.rec_resource_id, $1)
     ) DESC
 LIMIT 30;
