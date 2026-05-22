@@ -41,64 +41,86 @@ export const addFeeSchemaBase = z.object({
   friday_ind: z.boolean().default(false),
   saturday_ind: z.boolean().default(false),
   sunday_ind: z.boolean().default(false),
+  fee_determination_letter_confirmed: z.boolean().default(false),
 });
 
-// Submit schema with strict date and day validations
-export const addFeeSchema = addFeeSchemaBase
-  .refine(
-    (data) => {
-      if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) return true;
-      if (!data.is_recurring) return true;
-      return /^\d{2}-\d{2}$/.test(data.recurring_start_mmdd || '');
-    },
-    {
-      message: 'Start date is required',
-      path: ['recurring_start_mmdd'],
-    },
-  )
-  .refine(
-    (data) => {
-      if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) return true;
-      if (!data.is_recurring) return true;
-      return /^\d{2}-\d{2}$/.test(data.recurring_end_mmdd || '');
-    },
-    {
-      message: 'End date is required',
-      path: ['recurring_end_mmdd'],
-    },
-  )
-  .refine(
-    (data) => {
-      // If fee applies to specific dates, at least one day must be selected
-      if (data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES) {
-        return [
-          data.monday_ind,
-          data.tuesday_ind,
-          data.wednesday_ind,
-          data.thursday_ind,
-          data.friday_ind,
-          data.saturday_ind,
-          data.sunday_ind,
-        ].some((day) => day);
-      }
-      return true;
-    },
-    {
-      message: 'At least one day must be selected',
-      path: ['monday_ind'],
-    },
-  )
-  .refine(
-    (data) => {
-      if (data.fee_amount === undefined || data.fee_amount === null) {
-        return false;
-      }
-      return data.fee_amount > 0;
-    },
-    {
-      message: 'Amount cannot be zero',
-      path: ['fee_amount'],
-    },
-  );
+// Submit schema with strict date, day, and conditional FDL validations
+export const createAddFeeSchema = ({
+  requireFdlConfirmation = false,
+}: {
+  requireFdlConfirmation?: boolean;
+} = {}) =>
+  addFeeSchemaBase
+    .refine(
+      (data) => {
+        if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) return true;
+        if (!data.is_recurring) return true;
+        return /^\d{2}-\d{2}$/.test(data.recurring_start_mmdd || '');
+      },
+      {
+        message: 'Start date is required',
+        path: ['recurring_start_mmdd'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (data.fee_applies === FEE_APPLIES_OPTIONS.ALWAYS) return true;
+        if (!data.is_recurring) return true;
+        return /^\d{2}-\d{2}$/.test(data.recurring_end_mmdd || '');
+      },
+      {
+        message: 'End date is required',
+        path: ['recurring_end_mmdd'],
+      },
+    )
+    .refine(
+      (data) => {
+        // If fee applies to specific dates, at least one day must be selected
+        if (data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES) {
+          return [
+            data.monday_ind,
+            data.tuesday_ind,
+            data.wednesday_ind,
+            data.thursday_ind,
+            data.friday_ind,
+            data.saturday_ind,
+            data.sunday_ind,
+          ].some((day) => day);
+        }
+        return true;
+      },
+      {
+        message: 'At least one day must be selected',
+        path: ['monday_ind'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (data.fee_amount === undefined || data.fee_amount === null) {
+          return false;
+        }
+        return data.fee_amount > 0;
+      },
+      {
+        message: 'Amount cannot be zero',
+        path: ['fee_amount'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (requireFdlConfirmation) {
+          return data.fee_determination_letter_confirmed === true;
+        }
+        return true;
+      },
+      {
+        message: 'You must confirm you have a fee determination letter',
+        path: ['fee_determination_letter_confirmed'],
+      },
+    );
 
-export type AddFeeFormData = z.infer<typeof addFeeSchema>;
+export const addFeeSchema = createAddFeeSchema({
+  requireFdlConfirmation: true,
+});
+
+export type AddFeeFormData = z.infer<ReturnType<typeof createAddFeeSchema>>;

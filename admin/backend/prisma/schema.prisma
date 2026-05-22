@@ -159,9 +159,20 @@ model recreation_fee {
   deleted_by           String?
   recreation_resource  recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   with_description     recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_fee_fdl_log recreation_fee_fdl_log[]
 
   @@unique([rec_resource_id, recreation_fee_code, monday_ind, tuesday_ind, wednesday_ind, thursday_ind, friday_ind, saturday_ind, sunday_ind], map: "recreation_fee_unique_idx", where: raw("(is_deleted = false)"))
   @@index([rec_resource_id], map: "idx_recreation_fee_rec_resource_id")
+  @@schema("rst")
+}
+
+model recreation_fee_fdl_log {
+  id             BigInt         @id @default(autoincrement())
+  fee_id         Int
+  confirmed_by   String
+  confirmed_at   DateTime       @default(now()) @db.Timestamptz(6)
+  recreation_fee recreation_fee @relation(fields: [fee_id], references: [fee_id], onDelete: NoAction, onUpdate: NoAction)
+
   @@schema("rst")
 }
 
