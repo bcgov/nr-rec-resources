@@ -66,6 +66,7 @@ on conflict (
     saturday_ind,
     sunday_ind
 )
+where is_deleted = false
 do update
 set
     fee_amount = excluded.fee_amount,

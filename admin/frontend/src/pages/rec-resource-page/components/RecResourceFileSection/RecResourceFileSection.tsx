@@ -45,6 +45,7 @@ export const RecResourceFileSection = () => {
     isImageUploadDisabled,
     isFetching,
     isFetchingImages,
+    deleteModalState,
   } = useRecResourceFileTransferState();
 
   const { showImageLightbox, selectedImageForLightbox } = useStore(
@@ -132,7 +133,13 @@ export const RecResourceFileSection = () => {
 
       <DocumentUploadModal />
       <ImageUploadModal />
-      <DeleteFileModal />
+      <DeleteFileModal
+        onConfirm={
+          deleteModalState?.fileToDelete?.type === 'image'
+            ? getImageGeneralActionHandler('confirm-delete')
+            : getDocumentGeneralActionHandler('confirm-delete')
+        }
+      />
       <PhotoDetailsModal />
       <EditPhotoModal />
       <ImageLightboxModal

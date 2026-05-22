@@ -47,7 +47,7 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = ({
     ? propOnCancel || (() => {})
     : hideDeleteModal;
 
-  const handleConfirm = usePropsMode ? propOnConfirm || (() => {}) : () => {};
+  const handleConfirm = propOnConfirm ?? (() => {});
 
   const alerts = [
     {
