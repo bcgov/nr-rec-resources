@@ -10,6 +10,8 @@ import { SearchViewControls } from '@/components/search';
 import {
   useClusteredRecreationFeatureLayer,
   useFeatureSelection,
+  useRecreationBoundaryLayer,
+  useRecreationTrailLayer,
   useWildfireLocationLayer,
   useWildfirePerimeterLayer,
   useZoomToExtent,
@@ -29,6 +31,7 @@ import { trackClickEvent } from '@shared/utils';
 import { MATOMO_SEARCH_CONTEXT_MAP } from '@/constants/analytics';
 import {
   ANIMATED_CLUSTER_OPTIONS,
+  BOUNDARY_LAYERS_MIN_ZOOM,
   CLUSTER_OPTIONS,
   LEGACY_MAP_LINK,
   WILDFIRE_LOCATION_MIN_ZOOM,
@@ -94,6 +97,19 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     applyHoverStyles: false,
     hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
   });
+
+  const { layer: recreationTrailLayer } = useRecreationTrailLayer(mapRef, {
+    hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
+    visibleIds: recResourceIds,
+  });
+
+  const { layer: recreationBoundaryLayer } = useRecreationBoundaryLayer(
+    mapRef,
+    {
+      hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
+      visibleIds: recResourceIds,
+    },
+  );
 
   const featureSelectionLayers = useMemo(
     () => [
@@ -162,6 +178,16 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
         visible: true,
       },
       {
+        id: 'recreation-trails',
+        layerInstance: recreationTrailLayer,
+        visible: true,
+      },
+      {
+        id: 'recreation-boundaries',
+        layerInstance: recreationBoundaryLayer,
+        visible: true,
+      },
+      {
         id: 'recreation-features',
         layerInstance: clusteredRecreationFeatureLayer,
         visible: true,
@@ -169,6 +195,8 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     ],
     [
       clusteredRecreationFeatureLayer,
+      recreationBoundaryLayer,
+      recreationTrailLayer,
       wildfireLocationsLayer,
       wildfirePerimeterLayer,
     ],

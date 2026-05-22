@@ -6,6 +6,7 @@ import type Style from 'ol/style/Style';
 export type UseLayerOptions = {
   hideBelowZoom?: number;
   applyHoverStyles?: boolean;
+  visibleIds?: string[];
 };
 
 export type MapRef = RefObject<{ getMap: () => OLMap } | null>;

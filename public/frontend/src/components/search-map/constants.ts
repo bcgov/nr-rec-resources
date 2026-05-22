@@ -45,6 +45,21 @@ export const WILDFIRE_LOCATION_LAYER =
 export const WILDFIRE_PERIMETER_LAYER =
   'https://services6.arcgis.com/ubm4tcTYICKBpist/arcgis/rest/services/BCWS_FirePerimeters_PublicView/FeatureServer/0';
 
+// Temporary proxy for BCGW layers — bypasses maps.gov.bc.ca CORS misconfiguration.
+// When the BCGW CORS ticket resolves, delete BCGW_PROXY_URL, uncomment the direct URLs
+// below, and update the url() functions in recreationTrailLayer.ts and recreationBoundaryLayer.ts.
+export const BCGW_PROXY_URL = '/api/v1/geospatial/bcgw';
+
+// Direct BCGW URLs (use once CORS is fixed):
+// const BCGW_FOREST_TENURE_BASE =
+//   'https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_forest_tenure/MapServer';
+// export const RECREATION_TRAIL_LAYER = `${BCGW_FOREST_TENURE_BASE}/3`;
+// export const RECREATION_BOUNDARY_LAYER = `${BCGW_FOREST_TENURE_BASE}/5`;
+// NOTE: when switching to direct URLs, the layer url() functions must include inSR=102100
+// alongside outSR=102100 so BCGW knows the bbox extent is in Web Mercator, not BC Albers.
+
+export const BOUNDARY_LAYERS_MIN_ZOOM = 10;
+
 export enum SearchMapFocusModes {
   REC_RESOURCE_ID = 'recResourceId',
 }

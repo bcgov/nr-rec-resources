@@ -16,7 +16,7 @@ export function useLayer(
   createStyle: (feature: Feature, isHovered: boolean) => any,
   options: UseLayerOptions = {},
 ) {
-  const { hideBelowZoom, applyHoverStyles = false } = options;
+  const { hideBelowZoom, applyHoverStyles = false, visibleIds } = options;
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
 
   const source = useMemo(() => createSource(), [createSource]);
@@ -87,6 +87,18 @@ export function useLayer(
 
     layerRef.current.changed();
   }, [applyHoverStyles, createStyle, hoveredFeature]);
+
+  useEffect(() => {
+    if (!layerRef.current || visibleIds === undefined) return;
+
+    const idSet = new Set(visibleIds);
+    layerRef.current.setStyle((feature: FeatureLike) => {
+      const id = (feature as Feature).get('FOREST_FILE_ID');
+      if (!idSet.has(String(id))) return null;
+      return createStyle(feature as Feature, false);
+    });
+    layerRef.current.changed();
+  }, [visibleIds, createStyle]);
 
   return { layer: layerRef.current };
 }
