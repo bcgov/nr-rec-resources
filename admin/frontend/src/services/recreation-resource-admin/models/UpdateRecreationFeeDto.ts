@@ -174,8 +174,6 @@ export function UpdateRecreationFeeDtoToJSONTyped(
     return value;
   }
 
-  const isRecurring = value['recurring_ind'];
-
   return {
     recreation_fee_code: value['recreation_fee_code'],
     fee_amount: value['fee_amount'],
@@ -189,7 +187,7 @@ export function UpdateRecreationFeeDtoToJSONTyped(
     saturday_ind: value['saturday_ind'],
     sunday_ind: value['sunday_ind'],
     recurring_ind: value['recurring_ind'],
-    recurring_start_mmdd: isRecurring ? value['recurring_start_mmdd'] : null,
-    recurring_end_mmdd: isRecurring ? value['recurring_end_mmdd'] : null,
+    recurring_start_mmdd: value['recurring_start_mmdd'],
+    recurring_end_mmdd: value['recurring_end_mmdd'],
   };
 }

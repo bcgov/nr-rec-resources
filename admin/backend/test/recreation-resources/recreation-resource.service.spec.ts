@@ -380,6 +380,9 @@ describe('RecreationResourceService - findOne', () => {
   });
 
   it('should format and return resource detail if found', async () => {
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn(),
+    };
     const resource = {
       rec_resource_id: 'id1',
       name: 'Test Name',
@@ -421,8 +424,15 @@ describe('RecreationResourceService - findOne', () => {
         site_point_geometry: null,
       },
     ];
+    const mockNaturalResource = {
+      org_unit_code: 'NR1',
+      org_unit_name: 'Natural Resource Unit 1',
+    };
     (repo.findOneById as any).mockResolvedValue(resource);
     (prisma.$queryRawTyped as any).mockResolvedValue(geometryData);
+    (prisma as any).natural_resource_org_unit.findUnique.mockResolvedValue(
+      mockNaturalResource,
+    );
     const result = await service.findOne('id1');
     expect(result).toMatchObject({
       rec_resource_id: 'id1',
@@ -442,6 +452,7 @@ describe('RecreationResourceService - findOne', () => {
       campsite_count: 5,
       recreation_structure: { has_toilet: true, has_table: true },
       recreation_district: { description: 'District', district_code: 'D1' },
+      natural_resource_org_unit_name: 'Natural Resource Unit 1',
     });
   });
 });

@@ -2,7 +2,10 @@ import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-s
 import { getRecreationResourceSuggestions } from '@prisma-generated-sql/getRecreationResourceSuggestions';
 import { PrismaService } from '@/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { RecreationResourceDetailDto } from './dtos/recreation-resource-detail.dto';
+import {
+  RecreationNaturalResourceDto,
+  RecreationResourceDetailDto,
+} from './dtos/recreation-resource-detail.dto';
 import {
   ADMIN_SEARCH_PAGE_SIZE_VALUES,
   AdminSearchQueryDto,
@@ -127,6 +130,15 @@ export class RecreationResourceService {
       await this.recreationResourceRepository.findOneById(rec_resource_id);
     if (!resource) return null;
 
+    const naturalresource: RecreationNaturalResourceDto | null =
+      await this.prisma.natural_resource_org_unit.findUnique({
+        where: { rec_resource_id },
+        select: {
+          org_unit_code: true,
+          org_unit_name: true,
+        },
+      });
+
     // Fetch the spatial features
     const recResourceSpatialGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[] =
       await this.prisma.$queryRawTyped(
@@ -136,6 +148,7 @@ export class RecreationResourceService {
     return formatRecreationResourceDetailResults(
       resource,
       recResourceSpatialGeometryResult,
+      naturalresource,
     );
   }
 

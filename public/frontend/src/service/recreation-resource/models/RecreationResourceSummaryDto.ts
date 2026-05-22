@@ -38,6 +38,12 @@ export interface RecreationResourceSummaryDto {
    */
   closest_community: string | null;
   /**
+   * Natural resource district name from the associated organization unit
+   * @type {string}
+   * @memberof RecreationResourceSummaryDto
+   */
+  natural_resource_district: string | null;
+  /**
    * District code of the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceSummaryDto
@@ -107,6 +113,11 @@ export function instanceOfRecreationResourceSummaryDto(
     value['closest_community'] === undefined
   )
     return false;
+  if (
+    !('natural_resource_district' in value) ||
+    value['natural_resource_district'] === undefined
+  )
+    return false;
   if (!('district_code' in value) || value['district_code'] === undefined)
     return false;
   if (!('district' in value) || value['district'] === undefined) return false;
@@ -155,6 +166,7 @@ export function RecreationResourceSummaryDtoFromJSONTyped(
     rec_resource_id: json['rec_resource_id'],
     name: json['name'],
     closest_community: json['closest_community'],
+    natural_resource_district: json['natural_resource_district'],
     district_code: json['district_code'],
     district: json['district'],
     rec_resource_type_code: json['rec_resource_type_code'],
@@ -185,6 +197,7 @@ export function RecreationResourceSummaryDtoToJSONTyped(
     rec_resource_id: value['rec_resource_id'],
     name: value['name'],
     closest_community: value['closest_community'],
+    natural_resource_district: value['natural_resource_district'],
     district_code: value['district_code'],
     district: value['district'],
     rec_resource_type_code: value['rec_resource_type_code'],

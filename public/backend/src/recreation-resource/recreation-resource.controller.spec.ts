@@ -477,6 +477,7 @@ describe('RecreationResourceController', () => {
         {
           rec_resource_id: 'REC204117',
           name: 'Aileen Lake',
+          natural_resource_district: 'Chilliwack Natural Resource District',
           district_code: 'RDCK',
           district: 'Chilliwack',
           rec_resource_type_code: 'SIT',

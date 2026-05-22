@@ -59,6 +59,9 @@ describe('getRecreationResourceSelect', () => {
         },
       },
       recreation_fee: {
+        where: {
+          is_deleted: false,
+        },
         select: {
           fee_amount: true,
           fee_start_date: true,

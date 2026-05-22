@@ -76,6 +76,7 @@ describe('RecResourceOverviewSection', () => {
   const recResource = {
     description: '<b>Test Description</b>',
     closest_community: 'Test Community',
+    natural_resource_org_unit_name: 'Test Natural Resource District',
     recreation_district_description: 'Test District',
     maintenance_standard_description: 'Test Maintenance',
     driving_directions: '<i>Test Directions</i>',
@@ -113,6 +114,9 @@ describe('RecResourceOverviewSection', () => {
     expect(screen.getByText('Project Established Date')).toBeInTheDocument();
     expect(screen.getByText('Risk Rating')).toBeInTheDocument();
     expect(screen.getByText('Test Community')).toBeInTheDocument();
+    expect(
+      screen.getByText('Test Natural Resource District'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Test District')).toBeInTheDocument();
     expect(screen.getByText('Test Maintenance')).toBeInTheDocument();
     expect(screen.getByText('June 15, 2023')).toBeInTheDocument();

@@ -9,6 +9,7 @@ import { BadRequestResponseDto } from '@/common/dtos/bad-request-response.dto';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Param,
@@ -180,6 +181,46 @@ export class FeesController {
         throw error;
       }
       throw new HttpException('Error updating fee', 500);
+    }
+  }
+
+  @Delete(':fee_id')
+  @ApiOperation({
+    operationId: 'deleteRecreationResourceFee',
+    summary: 'Soft-delete an existing fee for a recreation resource',
+    description:
+      'Marks an existing fee as deleted so it no longer appears in active admin or public responses',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    description: 'Recreation Resource ID',
+    example: 'REC262200',
+  })
+  @ApiParam({
+    name: 'fee_id',
+    description: 'Fee ID',
+    example: 123,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Fee deleted successfully',
+    type: RecreationFeeDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Fee not found for this recreation resource',
+  })
+  async delete(
+    @Param('rec_resource_id') rec_resource_id: string,
+    @Param('fee_id', ParseIntPipe) fee_id: number,
+  ): Promise<RecreationFeeDto> {
+    try {
+      return await this.feesService.delete(rec_resource_id, fee_id);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error deleting fee', 500);
     }
   }
 }

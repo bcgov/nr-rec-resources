@@ -21,6 +21,55 @@ vi.mock('@/pages/rec-resource-page/validation/fileUploadSchema', () => ({
   })),
 }));
 
+// Mock DocumentUploadModal and DeleteFileModal to avoid router/store dependencies
+vi.mock('@/components/file/DocumentUploadModal', () => ({
+  DocumentUploadModal: ({
+    show,
+    file,
+    fileName,
+    fileNameError,
+    onFileNameChange,
+    onCancel,
+    onConfirm,
+    title,
+  }: any) =>
+    show && file ? (
+      <div role="dialog" data-testid="document-upload-modal">
+        <div>{title || 'Upload document'}</div>
+        <input
+          type="text"
+          value={fileName}
+          onChange={(e) => onFileNameChange?.(e.target.value)}
+        />
+        {fileNameError && <div>{fileNameError}</div>}
+        <button onClick={onCancel}>Cancel</button>
+        <button onClick={onConfirm}>Upload</button>
+      </div>
+    ) : null,
+}));
+vi.mock('@/components/delete-confirmation-modal/DeleteFileModal', () => ({
+  DeleteFileModal: ({
+    show,
+    file,
+    onCancel,
+    onConfirm,
+    title,
+    alertText,
+    confirmationText,
+  }: any) =>
+    show && file ? (
+      <div role="dialog" data-testid="delete-file-modal">
+        <div>{title || 'Delete File'}</div>
+        {alertText && <div role="alert">{alertText}</div>}
+        <div>
+          {confirmationText || 'Are you sure you want to delete this file?'}
+        </div>
+        <div>{file.name}</div>
+        <button onClick={onCancel}>Cancel</button>
+        <button onClick={onConfirm}>Delete</button>
+      </div>
+    ) : null,
+}));
 const mockDocs = [
   {
     s3_key: 'doc1',
@@ -259,6 +308,43 @@ describe('RecResourceEstablishmentOrderSection', () => {
       });
     });
 
+    it('displays custom delete modal title', async () => {
+      const user = userEvent.setup();
+
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      const deleteButton = screen.getAllByRole('button', {
+        name: /delete/i,
+      })[0];
+      await user.click(deleteButton);
+
+      await waitFor(() => {
+        const modal = screen.getByRole('dialog');
+        expect(
+          within(modal).getByText(/Delete establishment order/i),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('displays custom establishment order delete alert text', async () => {
+      const user = userEvent.setup();
+
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      const deleteButton = screen.getAllByRole('button', {
+        name: /delete/i,
+      })[0];
+      await user.click(deleteButton);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Deleting this establishment order document is permanent and cannot be undone\./i,
+          ),
+        ).toBeInTheDocument();
+      });
+    });
+
     it('deletes file successfully', async () => {
       const user = userEvent.setup();
 
@@ -347,6 +433,22 @@ describe('RecResourceEstablishmentOrderSection', () => {
       });
 
       expect(mockDeleteMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('DocumentUploadModal and DeleteFileModal integration', () => {
+    it('uses DocumentUploadModal with custom establishment order title', async () => {
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+      expect(
+        screen.queryByText('Upload establishment order'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('uses DeleteFileModal with custom establishment order props', async () => {
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+      expect(
+        screen.queryByText('Delete establishment order'),
+      ).not.toBeInTheDocument();
     });
   });
 });

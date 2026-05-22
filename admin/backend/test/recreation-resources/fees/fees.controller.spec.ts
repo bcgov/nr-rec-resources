@@ -19,6 +19,7 @@ describe('FeesController', () => {
             getAll: vi.fn(),
             create: vi.fn(),
             update: vi.fn(),
+            delete: vi.fn(),
           },
         },
       ],
@@ -189,6 +190,42 @@ describe('FeesController', () => {
       await expect(
         controller.update('REC1222', 123, updateFeeDto as any),
       ).rejects.toThrow(new HttpException('Error updating fee', 500));
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete and return a fee', async () => {
+      const expectedResult = {
+        fee_id: 123,
+        recreation_fee_code: 'D',
+        fee_amount: 25,
+        fee_type_description: 'Day use',
+      };
+
+      vi.spyOn(feesService, 'delete').mockResolvedValue(expectedResult as any);
+
+      const response = await controller.delete('REC1222', 123);
+
+      expect(response).toBe(expectedResult);
+      expect(feesService.delete).toHaveBeenCalledWith('REC1222', 123);
+    });
+
+    it('should re-throw HttpException as-is', async () => {
+      const httpException = new HttpException('Not Found', 404);
+      vi.spyOn(feesService, 'delete').mockRejectedValue(httpException);
+
+      await expect(controller.delete('REC1222', 123)).rejects.toThrow(
+        httpException,
+      );
+    });
+
+    it('should wrap generic errors in 500 HttpException', async () => {
+      const genericError = new Error('Database error');
+      vi.spyOn(feesService, 'delete').mockRejectedValue(genericError);
+
+      await expect(controller.delete('REC1222', 123)).rejects.toThrow(
+        new HttpException('Error deleting fee', 500),
+      );
     });
   });
 });

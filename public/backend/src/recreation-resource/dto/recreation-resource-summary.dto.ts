@@ -22,6 +22,15 @@ export class RecreationResourceSummaryDto {
   closest_community: string | null;
 
   @ApiProperty({
+    description:
+      'Natural resource district name from the associated organization unit',
+    example: 'Chilliwack Natural Resource District',
+    type: String,
+    nullable: true,
+  })
+  natural_resource_district: string | null;
+
+  @ApiProperty({
     description: 'District code of the Recreation Resource',
     example: 'RDCK',
   })
