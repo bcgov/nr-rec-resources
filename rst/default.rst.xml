@@ -3,6 +3,7 @@
       <sequence increment="1" name="recreation_access_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_activity_code_recreation_activity_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_activity_code_trails_id_seq" startValue="1"/>
+      <sequence increment="1" name="recreation_fee_fdl_log_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_status_code_status_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_structure_code_structure_code_seq" startValue="1"/>
    </sequences>
@@ -516,10 +517,15 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="14" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="16" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
-         <column autoUpdated="true" defaultValue="null" digits="0" id="17" name="fee_id" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="true" defaultValue="null" digits="0" id="17" name="fee_id" nullable="false" remarks="" size="10" type="int4" typeCode="4">
+            <child column="fee_id" foreignKey="recreation_fee_fdl_log_fee_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_fdl_log"/>
+         </column>
          <column autoUpdated="false" defaultValue="false" digits="0" id="18" name="recurring_ind" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="recurring_start_mmdd" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="recurring_end_mmdd" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="21" name="is_deleted" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="22" name="deleted_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="deleted_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <primaryKey column="fee_id" sequenceNumberInPK="1"/>
          <index name="recreation_fee_pkey" unique="true">
             <column ascending="true" name="fee_id"/>
@@ -561,6 +567,18 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
+      <table name="recreation_fee_fdl_log" remarks="Append-only audit log recording each time a fee determination letter was confirmed by staff when creating or updating a recreation fee." schema="rst" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('rst.recreation_fee_fdl_log_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="Surrogate primary key." size="19" type="bigserial" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="fee_id" nullable="false" remarks="Foreign key to the recreation fee this confirmation relates to." size="10" type="int4" typeCode="4">
+            <parent column="fee_id" foreignKey="recreation_fee_fdl_log_fee_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="confirmed_by" nullable="false" remarks="IDIR username of the staff member who confirmed the fee determination letter." size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="3" name="confirmed_at" nullable="false" remarks="Timestamp when the confirmation was recorded." size="35" type="timestamptz" typeCode="93"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="recreation_fee_fdl_log_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
       <table name="recreation_fee_history" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="" size="200" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_status"/>
@@ -586,6 +604,10 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="recurring_ind" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="recurring_start_mmdd" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="recurring_end_mmdd" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="fee_id" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="is_deleted" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="22" name="deleted_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="deleted_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
       </table>
       <table name="recreation_image_consent_form" remarks="Links recreation resource images to their consent forms" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="consent_id" nullable="false" remarks="Unique UUID identifier for the consent record" size="2147483647" type="uuid" typeCode="1111">

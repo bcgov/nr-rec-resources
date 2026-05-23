@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>recreation_fee_code - default.rst</title>
+        <title>recreation_fee_fdl_log - default.rst</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>recreation_fee_code</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <h1>recreation_fee_fdl_log</h1><p><span id="recordNumber">-1</span> rows</p><br />
                     <div class="box box-primary">
                         <div class="box-header with-border">
                             <i class="fa fa-file-text-o"></i>
@@ -84,7 +84,7 @@
                             </div>
                         </div><!-- /.box-header -->
                         <div class="box-body clearfix">
-                            <p>Recreation fee codes for classification of fees within a project</p>
+                            <p>Append-only audit log recording each time a fee determination letter was confirmed by staff when creating or updating a recreation fee.</p>
                         </div><!-- /.box-body -->
                     </div>
                 </section>
@@ -122,41 +122,26 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="recreation_fee_code">recreation_fee_code</span></td>
-                                    <td>varchar</td>
-                                    <td>1</td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="id">id</span></td>
+                                    <td>bigserial</td>
+                                    <td>19</td>
                                     <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
+                                    <td title='Automatically updated by the database'>√</td>
+                                    <td>nextval(&#39;rst.recreation_fee_fdl_log_id_seq&#39;::regclass)</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="recreation_fee.recreation_fee_code references recreation_fee_code.recreation_fee_code via recreation_fee_recreation_fee_code_fkey"><a href='recreation_fee.html'>recreation_fee</a><span class='relatedKey'>.recreation_fee_code</span></td>
-                                                <td class="constraint detail">recreation_fee_recreation_fee_code_fkey</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="recreation_fee_code_history.recreation_fee_code&#39;s name implies that it&#39;s a child of recreation_fee_code.recreation_fee_code, but it doesn&#39;t reference that column."><a href='recreation_fee_code_history.html'>recreation_fee_code_history</a><span class='relatedKey'>.recreation_fee_code</span></td>
-                                                <td class="constraint detail">Implied Constraint</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="recreation_fee_history.recreation_fee_code&#39;s name implies that it&#39;s a child of recreation_fee_code.recreation_fee_code, but it doesn&#39;t reference that column."><a href='recreation_fee_history.html'>recreation_fee_history</a><span class='relatedKey'>.recreation_fee_code</span></td>
-                                                <td class="constraint detail">Implied Constraint</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
                                         </table>
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>A code indicating a specific recreation fee type. E.g., C for Camping, D for Day Use, H for Hut.</p></td>
+                                    <td><p>Surrogate primary key.</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="description">description</span></td>
-                                    <td>varchar</td>
-                                    <td>120</td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="fee_id">fee_id</span></td>
+                                    <td>int4</td>
+                                    <td>10</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
@@ -166,15 +151,37 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_fee_fdl_log.fee_id references recreation_fee.fee_id via recreation_fee_fdl_log_fee_id_fkey"><a href='recreation_fee.html'>recreation_fee</a><span class='relatedKey'>.fee_id</span></td>
+                                                <td class="constraint detail">recreation_fee_fdl_log_fee_id_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>Description of the recreation fee type.</p></td>
+                                    <td><p>Foreign key to the recreation fee this confirmation relates to.</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="updated_at">updated_at</span></td>
-                                    <td>timestamp</td>
-                                    <td>29,6</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="confirmed_by">confirmed_by</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>IDIR username of the staff member who confirmed the fee determination letter.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="confirmed_at">confirmed_at</span></td>
+                                    <td>timestamptz</td>
+                                    <td>35,6</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>now()</td>
                                     <td>
@@ -185,24 +192,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="sys_period">sys_period</span></td>
-                                    <td>tstzrange</td>
-                                    <td>2147483647</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
+                                    <td><p>Timestamp when the confirmation was recorded.</p></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -235,10 +225,10 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> recreation_fee_code_pkey</td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> recreation_fee_fdl_log_pkey</td>
                                     <td>Primary key</td>
                                     <td><span title='Ascending'>Asc</span></td>
-                                    <td>recreation_fee_code</td>
+                                    <td>id</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -259,46 +249,23 @@
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
                                     <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
-                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
-                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="424,5,651,387">
-<area shape="rect" id="node2" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="5,237,380,424">
+<area shape="rect" id="node1" href="recreation_fee_fdl_log.html" target="_top" title="recreation_fee_fdl_log" alt="" coords="276,237,637,424">
+<area shape="rect" id="node2" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="5,5,232,387">
 </map>
-                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_fee_code.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_fee_fdl_log.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="424,5,651,387">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="73,8,313,96">
-<area shape="rect" id="node3" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="5,237,380,424">
-<area shape="rect" id="node4" href="recreation_fee_fdl_log.html" target="_top" title="recreation_fee_fdl_log" alt="" coords="695,272,948,360">
+<area shape="rect" id="node1" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="289,5,516,387">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,8,245,96">
+<area shape="rect" id="node3" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="6,243,245,331">
+<area shape="rect" id="node4" href="recreation_fee_fdl_log.html" target="_top" title="recreation_fee_fdl_log" alt="" coords="560,237,921,424">
 </map>
-                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_fee_code.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
-                                    </div>
-                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="462,5,689,387">
-<area shape="rect" id="node2" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="5,401,380,588">
-<area shape="rect" id="node3" href="recreation_fee_code_history.html" target="_top" title="recreation_fee_code_history" alt="" coords="424,404,727,521">
-<area shape="rect" id="node4" href="recreation_fee_history.html" target="_top" title="recreation_fee_history" alt="" coords="447,539,704,685">
-</map>
-                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_fee_code.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
-                                    </div>
-                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="462,111,689,492">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="73,60,313,148">
-<area shape="rect" id="node3" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="5,507,380,693">
-<area shape="rect" id="node4" href="recreation_fee_code_history.html" target="_top" title="recreation_fee_code_history" alt="" coords="424,509,727,627">
-<area shape="rect" id="node5" href="recreation_fee_fdl_log.html" target="_top" title="recreation_fee_fdl_log" alt="" coords="773,377,1026,465">
-<area shape="rect" id="node6" href="recreation_fee_history.html" target="_top" title="recreation_fee_history" alt="" coords="771,108,1028,255">
-<area shape="rect" id="node7" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="465,5,685,93">
-</map>
-                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_fee_code.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_fee_fdl_log.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

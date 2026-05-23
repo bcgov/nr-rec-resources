@@ -20,7 +20,6 @@ recreation_status_history
 recreation_resource_document_history
 recreation_map_feature_geom
 recreation_fee_history
-recreation_fee
 recreation_feature_history
 recreation_feature
 recreation_defined_campsite
@@ -43,6 +42,7 @@ recreation_photographer_type_code_history
 recreation_map_feature_history
 recreation_map_feature_geom_history
 recreation_maintenance_standard_code_history
+recreation_fee_fdl_log
 recreation_fee_code_history
 recreation_feature_code_history
 recreation_establishment_order_docs_history
@@ -56,6 +56,7 @@ recreation_access_code_history
 recreation_access_and_sub_access_code_history
 recreation_map_feature
 recreation_image_consent_form
+recreation_fee
 recreation_establishment_order_docs
 recreation_status
 recreation_resource_document
