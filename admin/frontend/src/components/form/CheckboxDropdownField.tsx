@@ -26,15 +26,11 @@ function highlightMatch(text: string, query: string): ReactNode {
   if (!query) return text;
   const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const regex = new RegExp(`(${escaped})`, 'gi');
-  return text.split(regex).map((part, i) =>
-    regex.test(part) ? (
-      <mark className="checkbox-dropdown__match" key={i}>
-        {part}
-      </mark>
-    ) : (
-      part
-    ),
-  );
+  return text
+    .split(regex)
+    .map((part, i) =>
+      regex.test(part) ? <strong key={i}>{part}</strong> : part,
+    );
 }
 
 export function CheckboxDropdownField({
