@@ -18,7 +18,7 @@ import {
   Spinner,
   Stack,
 } from 'react-bootstrap';
-import { GalleryFile } from '../../types';
+import { GalleryFile } from '../../pages/rec-resource-page/types';
 import './BaseFileModal.scss';
 
 interface AlertConfig {

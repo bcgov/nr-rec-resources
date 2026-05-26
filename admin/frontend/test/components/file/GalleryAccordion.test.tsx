@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { GalleryAccordion } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryAccordion';
+import { GalleryAccordion } from '@/components/file/GalleryAccordion';
 
 const items = [
   { id: 1, name: 'File 1' },

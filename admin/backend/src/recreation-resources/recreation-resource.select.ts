@@ -46,6 +46,9 @@ const baseRecreationResourceSelect = {
     },
   },
   recreation_fee: {
+    where: {
+      is_deleted: false,
+    } as any,
     select: {
       recreation_fee_code: true,
     },

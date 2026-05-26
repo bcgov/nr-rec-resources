@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
-  addFeeSchema,
+  createAddFeeSchema,
   FEE_APPLIES_OPTIONS,
   DAY_PRESET_OPTIONS,
 } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/schemas/addFee';
+
+// Used for tests that focus on rules other than FDL confirmation
+const editSchema = createAddFeeSchema({ requireFdlConfirmation: false });
+// Used for tests that specifically cover FDL confirmation behaviour
+const createSchema = createAddFeeSchema({ requireFdlConfirmation: true });
 
 describe('addFeeSchema', () => {
   describe('valid data', () => {
@@ -22,7 +27,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.fee_amount).toBe(50);
@@ -47,7 +52,7 @@ describe('addFeeSchema', () => {
         sunday_ind: true,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.recurring_start_mmdd).toBe('06-15');
@@ -72,7 +77,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
     });
 
@@ -93,7 +98,7 @@ describe('addFeeSchema', () => {
         sunday_ind: true,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
     });
 
@@ -104,7 +109,7 @@ describe('addFeeSchema', () => {
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.day_preset).toBe(DAY_PRESET_OPTIONS.ALL_DAYS);
@@ -121,7 +126,7 @@ describe('addFeeSchema', () => {
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('required');
@@ -135,7 +140,7 @@ describe('addFeeSchema', () => {
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('single character');
@@ -151,7 +156,7 @@ describe('addFeeSchema', () => {
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(
@@ -169,7 +174,7 @@ describe('addFeeSchema', () => {
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(
@@ -187,7 +192,7 @@ describe('addFeeSchema', () => {
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.fee_amount).toBe(25.5);
@@ -213,7 +218,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(
@@ -241,7 +246,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(
@@ -269,7 +274,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(
@@ -297,7 +302,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(
@@ -307,6 +312,23 @@ describe('addFeeSchema', () => {
         ).toBe(true);
       }
     });
+    it('skips recurring date validation when is_recurring is false for specific dates', () => {
+      const validData = {
+        recreation_fee_code: 'D',
+        fee_amount: 50,
+        fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
+        is_recurring: false,
+        monday_ind: true,
+      };
+
+      const result = editSchema.safeParse(validData);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.recurring_start_mmdd).toBeUndefined();
+        expect(result.data.recurring_end_mmdd).toBeUndefined();
+      }
+    });
+
     it('allows same month and day for start and end dates', () => {
       // This test verifies that a fee can have identical start and end dates (e.g., June 15 to June 15)
       const validData = {
@@ -324,7 +346,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
     });
 
@@ -344,7 +366,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
     });
   });
@@ -366,7 +388,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(
@@ -391,7 +413,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
     });
 
@@ -411,7 +433,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
     });
   });
@@ -425,7 +447,7 @@ describe('addFeeSchema', () => {
         day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.day_preset).toBe(DAY_PRESET_OPTIONS.ALL_DAYS);
@@ -440,7 +462,7 @@ describe('addFeeSchema', () => {
         day_preset: DAY_PRESET_OPTIONS.WEEKENDS,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.day_preset).toBe(DAY_PRESET_OPTIONS.WEEKENDS);
@@ -455,7 +477,7 @@ describe('addFeeSchema', () => {
         day_preset: DAY_PRESET_OPTIONS.CUSTOM,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.day_preset).toBe(DAY_PRESET_OPTIONS.CUSTOM);
@@ -469,7 +491,7 @@ describe('addFeeSchema', () => {
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.day_preset).toBe(DAY_PRESET_OPTIONS.ALL_DAYS);
@@ -484,7 +506,7 @@ describe('addFeeSchema', () => {
         day_preset: 'invalid_preset' as any,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
     });
   });
@@ -497,7 +519,7 @@ describe('addFeeSchema', () => {
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.fee_applies).toBe(FEE_APPLIES_OPTIONS.ALWAYS);
@@ -514,7 +536,7 @@ describe('addFeeSchema', () => {
         monday_ind: true,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.fee_applies).toBe(
@@ -530,7 +552,7 @@ describe('addFeeSchema', () => {
         fee_applies: 'invalid_option' as any,
       };
 
-      const result = addFeeSchema.safeParse(invalidData);
+      const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
     });
   });
@@ -545,7 +567,7 @@ describe('addFeeSchema', () => {
         fee_end_date: '2025-12-31',
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.fee_start_date).toBe('2025-01-01');
@@ -560,11 +582,39 @@ describe('addFeeSchema', () => {
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.fee_start_date).toBeUndefined();
         expect(result.data.fee_end_date).toBeUndefined();
+      }
+    });
+
+    it('is_recurring defaults to false when not provided', () => {
+      const validData = {
+        recreation_fee_code: 'D',
+        fee_amount: 50,
+        fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+      };
+
+      const result = editSchema.safeParse(validData);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.is_recurring).toBe(false);
+      }
+    });
+
+    it('fee_determination_letter_confirmed defaults to false when not provided', () => {
+      const validData = {
+        recreation_fee_code: 'D',
+        fee_amount: 50,
+        fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+      };
+
+      const result = editSchema.safeParse(validData);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.fee_determination_letter_confirmed).toBe(false);
       }
     });
   });
@@ -589,7 +639,7 @@ describe('addFeeSchema', () => {
         sunday_ind: false,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.fee_amount).toBe(100.99);
@@ -615,7 +665,66 @@ describe('addFeeSchema', () => {
         sunday_ind: true,
       };
 
-      const result = addFeeSchema.safeParse(validData);
+      const result = editSchema.safeParse(validData);
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('fee_determination_letter_confirmed', () => {
+    const baseValid = {
+      recreation_fee_code: 'D',
+      fee_amount: 50,
+      fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+    };
+
+    it('createSchema: rejects when FDL checkbox is unchecked (default false)', () => {
+      const result = createSchema.safeParse(baseValid);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(
+          result.error.issues.some((i) =>
+            i.path.includes('fee_determination_letter_confirmed'),
+          ),
+        ).toBe(true);
+      }
+    });
+
+    it('createSchema: rejects when FDL checkbox is explicitly false', () => {
+      const result = createSchema.safeParse({
+        ...baseValid,
+        fee_determination_letter_confirmed: false,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(
+          result.error.issues.some((i) =>
+            i.message.includes('fee determination letter'),
+          ),
+        ).toBe(true);
+      }
+    });
+
+    it('createSchema: passes when FDL checkbox is checked', () => {
+      const result = createSchema.safeParse({
+        ...baseValid,
+        fee_determination_letter_confirmed: true,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('editSchema: passes without FDL checkbox checked', () => {
+      const result = editSchema.safeParse({
+        ...baseValid,
+        fee_determination_letter_confirmed: false,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('editSchema: also passes with FDL checkbox checked', () => {
+      const result = editSchema.safeParse({
+        ...baseValid,
+        fee_determination_letter_confirmed: true,
+      });
       expect(result.success).toBe(true);
     });
   });

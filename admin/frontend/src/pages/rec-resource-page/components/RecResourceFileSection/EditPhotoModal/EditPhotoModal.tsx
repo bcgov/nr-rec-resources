@@ -1,4 +1,4 @@
-import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal';
+import { BaseFileModal } from '@/components/file/BaseFileModal';
 import { ImageUploadForm } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/sections';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FC } from 'react';

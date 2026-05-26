@@ -1,4 +1,4 @@
-import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal';
+import { BaseFileModal } from '@/components/file/BaseFileModal';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { faInfoCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FC, useCallback, useRef, useState } from 'react';

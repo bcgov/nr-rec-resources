@@ -2,8 +2,9 @@ import { FeesService } from '@/recreation-resources/fees/fees.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma.service';
 import { Mocked, beforeEach, describe, expect, it, vi } from 'vitest';
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CreateRecreationFeeDto } from '@/recreation-resources/fees/dto/create-recreation-fee.dto';
+import { UserContextService } from '@/common/modules/user-context/user-context.service';
 
 const mockedFees = [
   {
@@ -44,6 +45,7 @@ const mockedFees = [
 
 describe('FeesService', () => {
   let prismaService: Mocked<PrismaService>;
+  let userContextService: Mocked<UserContextService>;
   let service: FeesService;
 
   beforeEach(async () => {
@@ -56,12 +58,25 @@ describe('FeesService', () => {
             recreation_fee: {
               findMany: vi.fn(),
               create: vi.fn(),
+              findFirst: vi.fn(),
               findUnique: vi.fn(),
               update: vi.fn(),
             },
             recreation_resource: {
               findUnique: vi.fn(),
             },
+            recreation_fee_fdl_log: {
+              create: vi.fn().mockResolvedValue({}),
+            },
+          },
+        },
+        {
+          provide: UserContextService,
+          useValue: {
+            getCurrentUserName: vi.fn().mockReturnValue('testuser'),
+            getIdentityProviderPrefixedUsername: vi
+              .fn()
+              .mockReturnValue('IDIR\\test.user'),
           },
         },
       ],
@@ -69,6 +84,7 @@ describe('FeesService', () => {
 
     service = module.get<FeesService>(FeesService);
     prismaService = module.get(PrismaService);
+    userContextService = module.get(UserContextService);
   });
 
   describe('getAll', () => {
@@ -96,6 +112,7 @@ describe('FeesService', () => {
       expect(prismaService.recreation_fee.findMany).toHaveBeenCalledWith({
         where: {
           rec_resource_id: 'REC1222',
+          is_deleted: false,
         },
         include: {
           with_description: {
@@ -302,8 +319,12 @@ describe('FeesService', () => {
       ).mockResolvedValue({
         rec_resource_id: recId,
       });
+      vi.mocked(
+        prismaService.recreation_fee.findFirst as any,
+      ).mockResolvedValue(null);
 
       const createdRecord = {
+        fee_id: 100,
         rec_resource_id: recId,
         recreation_fee_code: 'C',
         fee_amount: 15.5,
@@ -341,6 +362,97 @@ describe('FeesService', () => {
       expect(createCallArg.data.fee_end_date).toEqual(new Date('2024-09-30'));
       expect(createCallArg.data.recreation_fee_code).toBe('C');
       expect(createCallArg.data.rec_resource_id).toBe(recId);
+      expect(prismaService.recreation_fee.findFirst).toHaveBeenCalledWith({
+        where: {
+          rec_resource_id: recId,
+          recreation_fee_code: 'C',
+          is_deleted: false,
+          monday_ind: 'Y',
+          tuesday_ind: 'N',
+          wednesday_ind: 'N',
+          thursday_ind: 'N',
+          friday_ind: 'N',
+          saturday_ind: 'N',
+          sunday_ind: 'N',
+        },
+        select: { fee_id: true },
+      });
+    });
+
+    it('throws ConflictException when an active duplicate fee exists', async () => {
+      const recId = 'REC123';
+      const input: CreateRecreationFeeDto = {
+        recreation_fee_code: 'C',
+        monday_ind: 'Y',
+      };
+
+      vi.mocked(
+        prismaService.recreation_resource!.findUnique as any,
+      ).mockResolvedValue({
+        rec_resource_id: recId,
+      });
+      vi.mocked(
+        prismaService.recreation_fee.findFirst as any,
+      ).mockResolvedValue({
+        fee_id: 10,
+      });
+
+      await expect(service.create(recId, input)).rejects.toBeInstanceOf(
+        ConflictException,
+      );
+
+      expect(prismaService.recreation_fee.create).not.toHaveBeenCalled();
+    });
+
+    it('creates fee when only deleted duplicate exists', async () => {
+      const recId = 'REC123';
+      const input: CreateRecreationFeeDto = {
+        recreation_fee_code: 'C',
+        monday_ind: 'Y',
+      };
+
+      vi.mocked(
+        prismaService.recreation_resource!.findUnique as any,
+      ).mockResolvedValue({
+        rec_resource_id: recId,
+      });
+      vi.mocked(
+        prismaService.recreation_fee.findFirst as any,
+      ).mockResolvedValue(null);
+      vi.mocked(prismaService.recreation_fee.create as any).mockResolvedValue({
+        rec_resource_id: recId,
+        recreation_fee_code: 'C',
+        fee_amount: null,
+        fee_start_date: null,
+        fee_end_date: null,
+        monday_ind: 'Y',
+        tuesday_ind: 'N',
+        wednesday_ind: 'N',
+        thursday_ind: 'N',
+        friday_ind: 'N',
+        saturday_ind: 'N',
+        sunday_ind: 'N',
+        with_description: { description: 'Camping' },
+      });
+
+      const result = await service.create(recId, input);
+
+      expect(result.recreation_fee_code).toBe('C');
+      expect(prismaService.recreation_fee.findFirst).toHaveBeenCalledWith({
+        where: {
+          rec_resource_id: recId,
+          recreation_fee_code: 'C',
+          is_deleted: false,
+          monday_ind: 'Y',
+          tuesday_ind: 'N',
+          wednesday_ind: 'N',
+          thursday_ind: 'N',
+          friday_ind: 'N',
+          saturday_ind: 'N',
+          sunday_ind: 'N',
+        },
+        select: { fee_id: true },
+      });
     });
 
     it('throws NotFoundException when the recreation resource does not exist', async () => {
@@ -550,6 +662,7 @@ describe('FeesService', () => {
       vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
         fee_id: 123,
         rec_resource_id: 'REC1222',
+        fee_amount: 20,
       } as any);
 
       const updateDto = {
@@ -760,6 +873,7 @@ describe('FeesService', () => {
       vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
         fee_id: 222,
         rec_resource_id: 'REC1222',
+        fee_amount: 20,
       } as any);
 
       const updateDto = {
@@ -815,6 +929,216 @@ describe('FeesService', () => {
       expect(updateCallArg.data.friday_ind).toBe('Y');
       expect(updateCallArg.data.saturday_ind).toBe('Y');
       expect(updateCallArg.data.sunday_ind).toBe('Y');
+    });
+  });
+
+  describe('delete', () => {
+    it('throws NotFoundException when fee does not exist', async () => {
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue(
+        null,
+      );
+
+      await expect(service.delete('REC1222', 123)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+
+      expect(prismaService.recreation_fee.update).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when fee is already deleted', async () => {
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
+        fee_id: 123,
+        rec_resource_id: 'REC1222',
+        is_deleted: true,
+      } as any);
+
+      await expect(service.delete('REC1222', 123)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+
+      expect(prismaService.recreation_fee.update).not.toHaveBeenCalled();
+    });
+
+    it('soft-deletes the fee and returns mapped dto', async () => {
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
+        fee_id: 123,
+        rec_resource_id: 'REC1222',
+        is_deleted: false,
+      } as any);
+
+      vi.mocked(prismaService.recreation_fee.update).mockResolvedValue({
+        fee_id: 123,
+        rec_resource_id: 'REC1222',
+        recreation_fee_code: 'D',
+        fee_amount: 25,
+        fee_start_date: null,
+        fee_end_date: null,
+        monday_ind: 'Y',
+        tuesday_ind: 'Y',
+        wednesday_ind: 'Y',
+        thursday_ind: 'Y',
+        friday_ind: 'Y',
+        saturday_ind: 'Y',
+        sunday_ind: 'Y',
+        with_description: { description: 'Day use' },
+      } as any);
+
+      const result = await service.delete('REC1222', 123);
+
+      expect(prismaService.recreation_fee.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { fee_id: 123 },
+          data: expect.objectContaining({
+            is_deleted: true,
+            deleted_by: 'IDIR\\test.user',
+            deleted_at: expect.any(Date),
+          }),
+        }),
+      );
+      expect(
+        userContextService.getIdentityProviderPrefixedUsername,
+      ).toHaveBeenCalled();
+      expect(result).toMatchObject({
+        fee_id: 123,
+        recreation_fee_code: 'D',
+        fee_type_description: 'Day use',
+      });
+    });
+  });
+
+  describe('FDL log behaviour', () => {
+    const baseCreatedRecord = {
+      fee_id: 101,
+      rec_resource_id: 'REC_FDL',
+      recreation_fee_code: 'D',
+      fee_amount: 15,
+      fee_start_date: null,
+      fee_end_date: null,
+      recurring_ind: false,
+      recurring_start_mmdd: null,
+      recurring_end_mmdd: null,
+      monday_ind: 'Y',
+      tuesday_ind: 'Y',
+      wednesday_ind: 'Y',
+      thursday_ind: 'Y',
+      friday_ind: 'Y',
+      saturday_ind: 'N',
+      sunday_ind: 'N',
+      with_description: { description: 'Day use' },
+    };
+
+    const baseUpdatedRecord = {
+      ...baseCreatedRecord,
+      fee_id: 200,
+    };
+
+    describe('create', () => {
+      it('always writes an FDL log entry recording the confirming user', async () => {
+        vi.mocked(
+          prismaService.recreation_resource!.findUnique as any,
+        ).mockResolvedValue({ rec_resource_id: 'REC_FDL' });
+
+        vi.mocked(
+          prismaService.recreation_fee!.create as any,
+        ).mockResolvedValue(baseCreatedRecord);
+
+        await service.create('REC_FDL', {
+          recreation_fee_code: 'D',
+          fee_amount: 15,
+        });
+
+        expect(
+          prismaService.recreation_fee_fdl_log!.create,
+        ).toHaveBeenCalledWith({
+          data: {
+            fee_id: 101,
+            confirmed_by: 'testuser',
+          },
+        });
+      });
+    });
+
+    describe('update', () => {
+      it('writes FDL log when fee_amount changes', async () => {
+        vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
+          fee_id: 200,
+          rec_resource_id: 'REC_FDL',
+          fee_amount: 15,
+        } as any);
+
+        vi.mocked(prismaService.recreation_fee.update).mockResolvedValue(
+          baseUpdatedRecord as any,
+        );
+
+        await service.update('REC_FDL', 200, { fee_amount: 25 } as any);
+
+        expect(
+          prismaService.recreation_fee_fdl_log!.create,
+        ).toHaveBeenCalledWith({
+          data: {
+            fee_id: 200,
+            confirmed_by: 'testuser',
+          },
+        });
+      });
+
+      it('writes FDL log when fee_amount is cleared to null', async () => {
+        vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
+          fee_id: 200,
+          rec_resource_id: 'REC_FDL',
+          fee_amount: 15,
+        } as any);
+
+        vi.mocked(prismaService.recreation_fee.update).mockResolvedValue({
+          ...baseUpdatedRecord,
+          fee_amount: null,
+        } as any);
+
+        await service.update('REC_FDL', 200, { fee_amount: null } as any);
+
+        expect(
+          prismaService.recreation_fee_fdl_log!.create,
+        ).toHaveBeenCalledOnce();
+      });
+
+      it('does not write FDL log when fee_amount is unchanged', async () => {
+        vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
+          fee_id: 200,
+          rec_resource_id: 'REC_FDL',
+          fee_amount: 15,
+        } as any);
+
+        vi.mocked(prismaService.recreation_fee.update).mockResolvedValue(
+          baseUpdatedRecord as any,
+        );
+
+        await service.update('REC_FDL', 200, { fee_amount: 15 } as any);
+
+        expect(
+          prismaService.recreation_fee_fdl_log!.create,
+        ).not.toHaveBeenCalled();
+      });
+
+      it('does not write FDL log when fee_amount is not part of the update', async () => {
+        vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
+          fee_id: 200,
+          rec_resource_id: 'REC_FDL',
+          fee_amount: 15,
+        } as any);
+
+        vi.mocked(prismaService.recreation_fee.update).mockResolvedValue(
+          baseUpdatedRecord as any,
+        );
+
+        await service.update('REC_FDL', 200, {
+          monday_ind: 'N',
+          saturday_ind: 'Y',
+        } as any);
+
+        expect(
+          prismaService.recreation_fee_fdl_log!.create,
+        ).not.toHaveBeenCalled();
+      });
     });
   });
 });

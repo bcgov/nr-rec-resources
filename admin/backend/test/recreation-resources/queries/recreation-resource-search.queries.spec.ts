@@ -157,6 +157,7 @@ describe('recreation-resource-search.queries', () => {
     expect(normalizedIdsSql).toContain('Reservable');
     expect(normalizedIdsSql).toContain('Has fees');
     expect(normalizedIdsSql).toContain('No fees');
+    expect(normalizedIdsSql).toContain('rf.is_deleted = false');
     expect(normalizedIdsSql).not.toContain('activity_agg');
     expect(normalizedIdsSql).not.toContain('access_agg');
     expect(normalizedIdsSql).not.toContain('recreation_status_code');
