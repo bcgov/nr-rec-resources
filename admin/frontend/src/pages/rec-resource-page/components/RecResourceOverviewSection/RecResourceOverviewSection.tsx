@@ -1,5 +1,5 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { RoleGuard } from '@/components/auth';
+import { EditableGuard } from '@/components/auth';
 import { ROLES } from '@/hooks/useAuthorizations';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { Link } from '@tanstack/react-router';
@@ -17,6 +17,7 @@ export const RecResourceOverviewSection = (
   props: RecResourceOverviewSectionProps,
 ) => {
   const { recResource } = props;
+  const isArchived = recResource.rec_status_code === 'AR';
 
   const overviewItems = [
     {
@@ -61,7 +62,7 @@ export const RecResourceOverviewSection = (
       <div className="d-flex justify-content-between align-items-center">
         <h2>Overview</h2>
 
-        <RoleGuard requireAll={[ROLES.ADMIN]}>
+        <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
           <Link
             to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
               '$id',
@@ -71,7 +72,7 @@ export const RecResourceOverviewSection = (
           >
             Edit
           </Link>
-        </RoleGuard>
+        </EditableGuard>
       </div>
 
       <Row>
@@ -121,6 +122,7 @@ export const RecResourceOverviewSection = (
 
       <RecResourceEstablishmentOrderSection
         recResourceId={recResource.rec_resource_id}
+        isArchived={isArchived}
       />
 
       {recResource && <RecResourceLocationSection recResource={recResource} />}

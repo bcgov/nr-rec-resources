@@ -42,6 +42,22 @@ vi.mock('@/components/auth', () => ({
 
     return <>{children}</>;
   },
+  EditableGuard: ({ children, requireAll, isArchived }: any) => {
+    const auth = mockUseAuthorizations();
+    const isAdminGuard =
+      Array.isArray(requireAll) && requireAll.includes('rst-admin');
+
+    if ((isAdminGuard && !auth.canEdit) || isArchived) {
+      return null;
+    }
+
+    return <>{children}</>;
+  },
+}));
+
+const mockUseRecResource = vi.fn();
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
+  useRecResource: () => mockUseRecResource(),
 }));
 
 const mockFees = [
@@ -110,6 +126,11 @@ vi.mock('@tanstack/react-router', async () => {
 describe('RecResourceFeesSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseRecResource.mockReturnValue({
+      recResource: { rec_status_code: 'OP' },
+      isLoading: false,
+      error: null,
+    });
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,

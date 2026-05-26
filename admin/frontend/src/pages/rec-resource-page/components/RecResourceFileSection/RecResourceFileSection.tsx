@@ -30,8 +30,13 @@ import { PhotoDetailsModal } from './PhotoDetailsModal';
 import { EditPhotoModal } from './EditPhotoModal';
 import { GalleryAccordion } from '@/components/file/GalleryAccordion';
 
-export const RecResourceFileSection = () => {
+export const RecResourceFileSection = ({
+  isArchived = false,
+}: {
+  isArchived?: boolean;
+}) => {
   const { canEdit } = useAuthorizations();
+  const canModifyFiles = canEdit && !isArchived;
   const {
     getDocumentFileActionHandler,
     getDocumentGeneralActionHandler,
@@ -68,7 +73,7 @@ export const RecResourceFileSection = () => {
       }
       file={doc}
       getFileActionHandler={getDocumentFileActionHandler}
-      actions={canEdit ? undefined : DOCUMENT_VIEWER_CARD_ACTIONS}
+      actions={canModifyFiles ? undefined : DOCUMENT_VIEWER_CARD_ACTIONS}
     />
   );
 
@@ -79,9 +84,9 @@ export const RecResourceFileSection = () => {
       topContent={<img src={image.previewUrl} alt={image.name} />}
       file={image}
       getFileActionHandler={getImageFileActionHandler}
-      actions={canEdit ? IMAGE_CARD_ACTIONS : IMAGE_VIEWER_CARD_ACTIONS}
+      actions={canModifyFiles ? IMAGE_CARD_ACTIONS : IMAGE_VIEWER_CARD_ACTIONS}
       previewActions={
-        canEdit ? IMAGE_PREVIEW_ACTIONS : IMAGE_VIEWER_PREVIEW_ACTIONS
+        canModifyFiles ? IMAGE_PREVIEW_ACTIONS : IMAGE_VIEWER_PREVIEW_ACTIONS
       }
     />
   );
@@ -100,13 +105,15 @@ export const RecResourceFileSection = () => {
         uploadLabel="Upload"
         isLoading={isFetchingImages}
         onFileUploadTileClick={
-          canEdit ? getImageGeneralActionHandler('upload') : undefined
+          canModifyFiles ? getImageGeneralActionHandler('upload') : undefined
         }
         onFileDrop={
-          canEdit ? (file) => processSelectedFile(file, 'image') : undefined
+          canModifyFiles
+            ? (file) => processSelectedFile(file, 'image')
+            : undefined
         }
-        uploadDisabled={!canEdit || isImageUploadDisabled}
-        showInfoBanner={canEdit}
+        uploadDisabled={!canModifyFiles || isImageUploadDisabled}
+        showInfoBanner={canModifyFiles}
         renderItem={renderGalleryImageCard}
       />
       <GalleryAccordion<GalleryDocument>
@@ -121,13 +128,15 @@ export const RecResourceFileSection = () => {
         uploadLabel="Upload"
         isLoading={isFetching}
         onFileUploadTileClick={
-          canEdit ? getDocumentGeneralActionHandler('upload') : undefined
+          canModifyFiles ? getDocumentGeneralActionHandler('upload') : undefined
         }
         onFileDrop={
-          canEdit ? (file) => processSelectedFile(file, 'document') : undefined
+          canModifyFiles
+            ? (file) => processSelectedFile(file, 'document')
+            : undefined
         }
-        uploadDisabled={!canEdit || isDocumentUploadDisabled}
-        showInfoBanner={canEdit}
+        uploadDisabled={!canModifyFiles || isDocumentUploadDisabled}
+        showInfoBanner={canModifyFiles}
         renderItem={renderGalleryDocumentCard}
       />
 
