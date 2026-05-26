@@ -10,6 +10,7 @@ import { SearchViewControls } from '@/components/search';
 import {
   useClusteredRecreationFeatureLayer,
   useFeatureSelection,
+  useMapFocusParam,
   useRecreationBoundaryLayer,
   useRecreationTrailLayer,
   useWildfireLocationLayer,
@@ -55,12 +56,25 @@ interface SearchViewControlsProps {
 const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const { extent, recResourceIds } = useStore(searchResultsStore);
   const filterChips = useStore(filterChipStore);
+  const { value: focusedRecResourceId } = useMapFocusParam();
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const [selectedWildfireFeature, setSelectedWildfireFeature] =
     useState<Feature | null>(null);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [isDisclaimerModalOpen, setIsDisclaimerModalOpen] = useState(false);
   const selectedFilterCount = filterChips.length;
+
+  // Current search results and the focused resource (if any),
+  // so the cluster + boundary + trail layers all fetch geometry for the same
+  // set of ids. Without this, typeaheading to a resource outside the active
+  // search would leave its boundary/trail unrendered.
+  const allRelevantIds = useMemo(
+    () =>
+      focusedRecResourceId && !recResourceIds.includes(focusedRecResourceId)
+        ? [...recResourceIds, focusedRecResourceId]
+        : recResourceIds,
+    [recResourceIds, focusedRecResourceId],
+  );
 
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -83,7 +97,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   }, [mapRef, popupRef]);
 
   const { layer: clusteredRecreationFeatureLayer } =
-    useClusteredRecreationFeatureLayer(recResourceIds, mapRef, {
+    useClusteredRecreationFeatureLayer(allRelevantIds, mapRef, {
       clusterOptions: CLUSTER_OPTIONS,
       animatedClusterOptions: ANIMATED_CLUSTER_OPTIONS,
     });
@@ -100,14 +114,14 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
 
   const { layer: recreationTrailLayer } = useRecreationTrailLayer(mapRef, {
     hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
-    visibleIds: recResourceIds,
+    filteredIds: allRelevantIds,
   });
 
   const { layer: recreationBoundaryLayer } = useRecreationBoundaryLayer(
     mapRef,
     {
       hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
-      visibleIds: recResourceIds,
+      filteredIds: allRelevantIds,
     },
   );
 

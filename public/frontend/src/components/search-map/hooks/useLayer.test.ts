@@ -12,18 +12,27 @@ describe('useLayer', () => {
   let createStyle: Mock;
 
   beforeEach(() => {
-    createSource = vi.fn();
     createStyle = vi.fn();
 
     const setVisible = vi.fn();
     const setStyle = vi.fn();
     const changed = vi.fn();
+    let currentSource: any = null;
     const vectorLayerMock = {
       setVisible,
       setStyle,
       changed,
       set: vi.fn(),
+      getSource: vi.fn(() => currentSource),
+      setSource: vi.fn((src: any) => {
+        currentSource = src;
+      }),
     };
+    createSource = vi.fn(() => {
+      const src = {};
+      currentSource = src;
+      return src;
+    });
 
     createLayer = vi.fn(() => vectorLayerMock);
 
@@ -107,13 +116,23 @@ describe('useLayer', () => {
     mapMock.getTargetElement = vi.fn(() => ({ style: styleMock }));
 
     let layerInstance: any;
+    let currentSource: any = null;
     createLayer = vi.fn(() => {
       layerInstance = {
         setVisible: vi.fn(),
         setStyle: vi.fn(),
         changed: vi.fn(),
+        getSource: vi.fn(() => currentSource),
+        setSource: vi.fn((src: any) => {
+          currentSource = src;
+        }),
       };
       return layerInstance;
+    });
+    createSource = vi.fn(() => {
+      const src = {};
+      currentSource = src;
+      return src;
     });
 
     mapMock.forEachFeatureAtPixel = vi.fn((_pixel, _callback, options) => {

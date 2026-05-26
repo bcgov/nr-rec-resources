@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { UseLayerOptions, MapRef } from '@/components/search-map/hooks/types';
 
@@ -11,33 +12,43 @@ export type UseLayer = (
 // hook to manage an OpenLayers vector layer with optional hover styles and zoom-based visibility
 export function useLayer(
   mapRef: MapRef,
-  createSource: () => any,
-  createLayer: (source: any) => VectorLayer,
+  createSource: () => VectorSource,
+  createLayer: (source: VectorSource) => VectorLayer,
   createStyle: (feature: Feature, isHovered: boolean) => any,
   options: UseLayerOptions = {},
 ) {
-  const { hideBelowZoom, applyHoverStyles = false, visibleIds } = options;
+  const { hideBelowZoom, applyHoverStyles = false } = options;
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
 
+  // Source is recreated whenever the caller's createSource reference changes,
+  // letting consumers swap in a fresh source (e.g. after a search) by passing
+  // a memoized factory keyed.
   const source = useMemo(() => createSource(), [createSource]);
 
-  const layerRef = useRef<VectorLayer | null>(null);
-  if (!layerRef.current) {
-    layerRef.current = createLayer(source);
+  const layer = useMemo(() => {
+    const l = createLayer(source);
     if (hideBelowZoom) {
-      layerRef.current.set('hideBelowZoom', hideBelowZoom);
+      l.set('hideBelowZoom', hideBelowZoom);
     }
-  }
+    return l;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !layerRef.current) return;
+    if (layer.getSource() !== source) {
+      layer.setSource(source);
+    }
+  }, [source, layer]);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
 
     const map = mapRef.current.getMap();
 
     const updateVisibility = () => {
       if (!hideBelowZoom) return;
       const zoom = map.getView().getZoom() ?? 0;
-      layerRef.current?.setVisible(zoom >= hideBelowZoom);
+      layer.setVisible(zoom >= hideBelowZoom);
     };
 
     const onPointerMove = (evt: any) => {
@@ -47,7 +58,7 @@ export function useLayer(
         pixel,
         (feat) => feat as Feature,
         {
-          layerFilter: (candidateLayer) => candidateLayer === layerRef.current,
+          layerFilter: (candidateLayer) => candidateLayer === layer,
         },
       );
       const feature = featureAtPixel || null;
@@ -76,29 +87,17 @@ export function useLayer(
         map.getTargetElement().style.cursor = '';
       }
     };
-  }, [mapRef, hoveredFeature, hideBelowZoom, applyHoverStyles]);
+  }, [mapRef, hoveredFeature, hideBelowZoom, applyHoverStyles, layer]);
 
   useEffect(() => {
-    if (!applyHoverStyles || !layerRef.current) return;
+    if (!applyHoverStyles) return;
 
-    layerRef.current.setStyle((feature: FeatureLike, _resolution: number) =>
+    layer.setStyle((feature: FeatureLike, _resolution: number) =>
       createStyle(feature as Feature, feature === hoveredFeature),
     );
 
-    layerRef.current.changed();
-  }, [applyHoverStyles, createStyle, hoveredFeature]);
+    layer.changed();
+  }, [applyHoverStyles, createStyle, hoveredFeature, layer]);
 
-  useEffect(() => {
-    if (!layerRef.current || visibleIds === undefined) return;
-
-    const idSet = new Set(visibleIds);
-    layerRef.current.setStyle((feature: FeatureLike) => {
-      const id = (feature as Feature).get('FOREST_FILE_ID');
-      if (!idSet.has(String(id))) return null;
-      return createStyle(feature as Feature, false);
-    });
-    layerRef.current.changed();
-  }, [visibleIds, createStyle]);
-
-  return { layer: layerRef.current };
+  return { layer };
 }
