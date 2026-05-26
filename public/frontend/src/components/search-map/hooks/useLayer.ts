@@ -29,6 +29,7 @@ export function useLayer(
     const l = createLayer(source);
     if (hideBelowZoom) {
       l.set('hideBelowZoom', hideBelowZoom);
+      l.setVisible(false);
     }
     return l;
     // eslint-disable-next-line react-hooks/exhaustive-deps
