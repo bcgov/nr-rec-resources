@@ -89,24 +89,30 @@ export class RecreationFeeDto {
   @ApiProperty({
     description: 'Start date for the fee applicability',
     example: '2024-06-01',
+    nullable: true,
+    required: false,
   })
-  fee_start_date: Date;
+  fee_start_date: Date | null;
 
   @ApiProperty({
     description: 'End date for the fee applicability',
     example: '2024-09-30',
+    nullable: true,
+    required: false,
   })
-  fee_end_date: Date;
+  fee_end_date: Date | null;
 
   @ApiProperty({
-    description: 'Type of fee applicable represented by code (C, D, H, P, T)',
-    example: 'C',
+    description:
+      'Top-level fee category code: `O` (Overnight), `T` (Trail use), `A` (Additional). ' +
+      'Sub-categorization is conveyed via `recreation_fee_sub_code`.',
+    example: 'O',
   })
   recreation_fee_code: string;
 
   @ApiProperty({
     description:
-      'Fee sub-type code scoped to recreation_fee_code (for example O/C, A/P, T/SK)',
+      'Fee sub-type code scoped to `recreation_fee_code` (for example O/C, A/P, T/SK)',
     example: 'C',
     required: false,
   })
@@ -173,6 +179,20 @@ export class RecreationFeeDto {
     example: 'Y',
   })
   sunday_ind: string;
+
+  @ApiProperty({
+    description: 'Description of the fee sub-type from the database',
+    example: 'Camping',
+    required: false,
+  })
+  fee_sub_type_description?: string;
+
+  @ApiProperty({
+    description: 'Human-readable description of the fee type',
+    example: 'Camping',
+    required: false,
+  })
+  fee_description?: string;
 }
 
 export class RecreationStatusDto {
@@ -502,8 +522,11 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
 
   @ApiProperty({
     description:
-      "List of fee details for the recreation resource (supports multiple fees with code 'C')",
+      '@deprecated Always returns an empty array. Fees are now returned in ' +
+      'exactly one of `overnight_fees` (code `O`), `trail_use_fees` (code `T`), ' +
+      'or `additional_fees` (code `A`). Use those fields instead.',
     type: [RecreationFeeDto],
+    deprecated: true,
   })
   recreation_fee: RecreationFeeDto[];
 
@@ -516,10 +539,29 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
 
   @ApiProperty({
     description:
-      "List of additional fees that do not fall under the main recreation fee category (non-'C' codes)",
+      'Additional fees (recreation_fee_code = `A`), e.g. parking or day-use. ' +
+      'Sub-type is conveyed by `recreation_fee_sub_code` on each item.',
     type: [RecreationFeeDto],
   })
   additional_fees: RecreationFeeDto[];
+
+  @ApiProperty({
+    description:
+      'Overnight fees (recreation_fee_code = `O`), e.g. camping, cabins, huts. ' +
+      'Sub-type is conveyed by `recreation_fee_sub_code` on each item.',
+    type: [RecreationFeeDto],
+    required: false,
+  })
+  overnight_fees?: RecreationFeeDto[];
+
+  @ApiProperty({
+    description:
+      'Trail use fees (recreation_fee_code = `T`). ' +
+      'Sub-type (e.g. ski, mountain bike) is conveyed by `recreation_fee_sub_code`.',
+    type: [RecreationFeeDto],
+    required: false,
+  })
+  trail_use_fees?: RecreationFeeDto[];
 
   @ApiProperty({
     description:

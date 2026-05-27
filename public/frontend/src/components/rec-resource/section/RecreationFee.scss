@@ -1,0 +1,455 @@
+@import '@/styles/global.scss';
+
+.fee-groups {
+  width: 100%;
+}
+
+.fee-group {
+  width: 100%;
+}
+
+.fee-card-wrapper {
+  position: relative;
+
+  &.with-divider {
+    &::after {
+      content: '';
+      display: block;
+      border-bottom: 1px solid $colorGreyLight;
+      margin-top: 1rem;
+    }
+  }
+}
+
+.fee-item {
+  width: 100%;
+  position: relative;
+
+  &.with-item-divider {
+    // Smaller breathing room when collapsed (header-only); the rule below
+    // bumps it back up when the item is expanded so the divider sits
+    // comfortably below the revealed content.
+    padding-bottom: 0.75rem;
+    margin-bottom: 0;
+
+    &.is-expanded {
+      padding-bottom: 2rem;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: calc(var(--card-padding-x, 50px) * -1);
+      right: calc(var(--card-padding-x, 50px) * -1);
+      border-bottom: 1px solid $colorGreyMed;
+    }
+  }
+}
+
+// Per-item expand/collapse toggle.
+// The entire header row (title + chevron) is a single button so the whole
+// row is clickable/keyboard-accessible. Title stays left, chevron right.
+.fee-item-toggle {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0.25rem 0;
+  margin: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+
+  &:hover .fee-card-title,
+  &:focus-visible .fee-card-title {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $colorBlueMed;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.fee-item-header {
+  padding: 0.25rem 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.fee-item-chevron {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: $colorGrey;
+  transition: transform 0.2s ease;
+
+  &.expanded {
+    transform: rotate(0deg); // points up
+  }
+
+  &.collapsed {
+    transform: rotate(180deg); // points down
+  }
+}
+
+// Content revealed when an item is expanded
+.fee-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1rem;
+
+  @media (max-width: $mdBreakpoint) {
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+}
+
+.fee-card {
+  --card-padding-x: 50px;
+
+  background: #f2f0eb;
+  border-color: #656565;
+  border-style: solid;
+  border-width: 1px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 24px var(--card-padding-x);
+  box-sizing: border-box;
+
+  @media (max-width: $mdBreakpoint) {
+    --card-padding-x: 24px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    gap: 0.75rem;
+  }
+
+  @media (max-width: $smBreakpoint) {
+    --card-padding-x: 16px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+}
+
+// Fee card title (inside the card)
+.fee-card-title-wrap {
+  width: 100%;
+}
+
+h4.fee-card-title {
+  color: $colorBlue;
+  font-size: 1.125rem !important;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.35;
+
+  @media (max-width: $smBreakpoint) {
+    font-size: 1rem !important;
+  }
+}
+
+// ...existing code...
+
+.fee-card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+.fee-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+}
+
+.fee-type-heading {
+  color: $colorBlue;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.fee-table {
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  margin-left: 32px;
+  width: calc(100% - 32px);
+
+  tbody tr {
+    border-bottom: 1px solid $colorGreyLight;
+  }
+
+  th,
+  td {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    text-align: left;
+    vertical-align: top;
+    font-weight: normal;
+  }
+
+  td:last-child {
+    white-space: nowrap;
+    width: 130px;
+  }
+
+  @media (max-width: $mdBreakpoint) {
+    margin-left: 0;
+    width: 100%;
+
+    th,
+    td {
+      padding: 0.5rem 0.5rem;
+    }
+
+    td:last-child {
+      white-space: normal;
+      width: auto;
+    }
+  }
+}
+
+// Table footer text
+.fee-table-footer {
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  margin: 0.5rem 0 0 0;
+  line-height: 1.4;
+  margin-left: 32px;
+
+  a {
+    color: $colorBlueMed;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:visited {
+      color: $colorBlueMed;
+    }
+
+    &:hover {
+      color: $colorBlue;
+      text-decoration: none;
+    }
+  }
+
+  @media (max-width: $mdBreakpoint) {
+    margin-left: 0;
+  }
+}
+
+.fee-table-row-days {
+  border-top: 1px solid $colorGreyLight;
+
+  th:first-child,
+  td:first-child {
+    background: $colorBrownMed;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .fee-table-value {
+    color: #1a1a1a;
+  }
+}
+
+.fee-table-row-amount {
+  th:first-child,
+  td:first-child {
+    background: $colorBrownMed;
+    font-weight: 600;
+  }
+}
+
+.fee-table-row-overnight {
+  th:first-child,
+  td:first-child {
+    background: $colorBrownMed;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .fee-table-value {
+    color: #1a1a1a;
+  }
+}
+
+.fee-subtype-label {
+  font-weight: 600;
+}
+
+.fee-applies-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 1rem;
+  width: 100%;
+
+  @media (max-width: $mdBreakpoint) {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.fee-applies-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fee-applies-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+
+  @media (max-width: $smBreakpoint) {
+    gap: 12px;
+  }
+}
+
+.fee-applies-icon {
+  font-size: 16px;
+  color: #000000;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.fee-applies-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+h5.fee-applies-title {
+  color: #1a1a1a;
+  font-size: 16px !important;
+  font-weight: 700;
+  margin: 0;
+  line-height: 24px;
+  font-family: 'BC Sans', sans-serif;
+}
+
+.fee-applies-date {
+  color: #1a1a1a;
+  font-size: 16px;
+  margin: 0;
+  line-height: 24px;
+  font-family: 'BC Sans', sans-serif;
+}
+
+.fee-applies-campsites-icon {
+  font-size: 16px;
+  color: #000000;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+h5.fee-applies-campsites-title {
+  color: #1a1a1a;
+  font-size: 16px !important;
+  font-weight: 700;
+  margin: 0;
+  line-height: 24px;
+  font-family: 'BC Sans', sans-serif;
+}
+
+.fee-applies-campsites-count {
+  color: #1a1a1a;
+  font-size: 16px;
+  margin: 0;
+  line-height: 24px;
+  font-family: 'BC Sans', sans-serif;
+}
+
+// Days Applied Section
+.fee-days-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.fee-days-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+
+  @media (max-width: $smBreakpoint) {
+    gap: 12px;
+  }
+}
+
+.fee-days-icon {
+  font-size: 16px;
+  color: #000000;
+  flex-shrink: 0;
+}
+
+h5.fee-days-title {
+  color: #1a1a1a;
+  font-size: 16px !important;
+  font-weight: 700;
+  margin: 0;
+  line-height: 24px;
+  font-family: 'BC Sans', sans-serif;
+}
+
+.fee-days-value {
+  color: #1a1a1a;
+  font-size: 16px;
+  margin: 0;
+  margin-left: 32px;
+  line-height: 24px;
+  font-family: 'BC Sans', sans-serif;
+
+  @media (max-width: $mdBreakpoint) {
+    margin-left: 0;
+  }
+}
+
+.fee-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.fee-section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+
+  @media (max-width: $smBreakpoint) {
+    gap: 12px;
+  }
+}
+
+.fee-section-icon {
+  font-size: 16px;
+  color: #000000;
+  flex-shrink: 0;
+}
+
+h5.fee-section-title {
+  color: #1a1a1a;
+  font-size: 16px !important;
+  font-weight: 700;
+  margin: 0;
+  line-height: 24px;
+  font-family: 'BC Sans', sans-serif;
+}

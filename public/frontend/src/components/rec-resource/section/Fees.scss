@@ -1,0 +1,70 @@
+@import '@/styles/global.scss';
+
+// H3 - PRP heading styling (design spec)
+h3.fee-section-heading {
+  font-family: 'BC Sans', sans-serif;
+  font-weight: 700;
+  // Unfortunate use of !important due to bootstrap theme headings using !important
+  font-size: 1.44rem !important;
+  line-height: 2.075rem;
+  letter-spacing: 0;
+  margin: 0 0 0.72rem 0;
+  color: $colorGrey;
+}
+
+.fee-section-wrapper {
+  margin-bottom: 2rem;
+}
+
+.fee-section-collapse-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.fee-section-collapse-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $colorBlueMed;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: 'BC Sans', sans-serif;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $colorBlue;
+  }
+
+  &:active {
+    color: $colorBlue;
+  }
+
+  .collapse-icon {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+    font-size: 16px;
+
+    &.expanded {
+      transform: rotate(0deg);
+    }
+
+    &.collapsed {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+// NOTE: The old `.fee-card` / `.fee-card-title` rules that lived here used to
+// style the title-only collapsed list (rendered directly by Fees.tsx). That
+// branch was removed - <RecreationFee> now renders even when the parent is
+// collapsed so every item has its own chevron - and those rules would have
+// otherwise bled into <RecreationFee>'s own `.fee-card-title` via descendant
+// selector.

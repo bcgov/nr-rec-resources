@@ -5,8 +5,6 @@ import PhotoGallery, {
   PhotoGalleryProps,
 } from '@/components/rec-resource/PhotoGallery';
 import {
-  AdditionalFees,
-  Camping,
   Closures,
   Contact,
   Facilities,
@@ -14,6 +12,7 @@ import {
   SiteDescription,
   ThingsToDo,
   AccessibleActivities,
+  Fees,
 } from '@/components/rec-resource/section';
 import { Route } from '@/routes/resource/$id';
 import Status from '@/components/rec-resource/Status';
@@ -70,7 +69,8 @@ const RecResourcePage = () => {
     recreation_access,
     recreation_activity,
     accessible_recreation_activity,
-    recreation_fee,
+    overnight_fees,
+    trail_use_fees,
     recreation_structure,
     recreation_status: {
       status_code: statusCode,
@@ -100,9 +100,12 @@ const RecResourcePage = () => {
     accessible_recreation_activity && accessible_recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
   const isCampingAvailable =
-    Boolean(campsite_count) || Boolean(recreation_fee?.length);
+    Boolean(campsite_count) || Boolean(overnight_fees?.length);
+  const isTrailFeesAvailable = Boolean(trail_use_fees?.length);
   const isAdditionalFeesAvailable =
     additional_fees !== undefined && additional_fees.length > 0;
+  const isFeesAvailable =
+    isCampingAvailable || isTrailFeesAvailable || isAdditionalFeesAvailable;
   const isSiteDescription = description || maintenance_standard_code;
   const isRecreationSite = rec_resource_type === RECREATION_SITE;
 
@@ -139,16 +142,10 @@ const RecResourcePage = () => {
       isVisible: Boolean(isSiteDescription),
     },
     {
-      id: SectionIds.CAMPING,
-      href: `#${SectionIds.CAMPING}`,
-      title: SectionTitles.CAMPING,
-      isVisible: Boolean(isCampingAvailable),
-    },
-    {
-      id: SectionIds.ADDITIONAL_FEES,
-      href: `#${SectionIds.ADDITIONAL_FEES}`,
-      title: SectionTitles.ADDITIONAL_FEES,
-      isVisible: Boolean(isAdditionalFeesAvailable),
+      id: SectionIds.FEES,
+      href: `#${SectionIds.FEES}`,
+      title: 'Fees',
+      isVisible: Boolean(isFeesAvailable),
     },
     {
       id: SectionIds.THINGS_TO_DO,
@@ -267,20 +264,14 @@ const RecResourcePage = () => {
                   />
                 )}
 
-                {isCampingAvailable && (
-                  <Camping
-                    id={SectionIds.CAMPING}
+                {isFeesAvailable && (
+                  <Fees
+                    id={SectionIds.FEES}
                     ref={sectionRefs[refIndex++]}
                     campsite_count={campsite_count}
-                    fees={recreation_fee}
-                  />
-                )}
-
-                {isAdditionalFeesAvailable && (
-                  <AdditionalFees
-                    id={SectionIds.ADDITIONAL_FEES}
-                    ref={sectionRefs[refIndex++]}
-                    fees={additional_fees}
+                    overnight_fees={overnight_fees}
+                    trail_use_fees={trail_use_fees}
+                    additional_fees={additional_fees}
                   />
                 )}
 

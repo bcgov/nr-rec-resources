@@ -9,212 +9,212 @@ export interface RecResourceReservationProps {
   recResource: RecreationResourceDetailDto;
 }
 
-const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
-  recResource,
-}) => {
-  const isCampingAvailable =
-    Boolean(recResource.campsite_count) ||
-    Boolean(recResource.recreation_fee?.length);
+// ─── helper-functions ────────────────────────────────────────────────────
 
-  const isFacilitiesAvailable =
-    recResource.recreation_structure?.has_toilet ||
-    recResource.recreation_structure?.has_table;
+const hasCamping = (r: RecreationResourceDetailDto) =>
+  Boolean(r.campsite_count) || Boolean(r.overnight_fees?.length);
 
-  const isAdditionalFeesAvailable =
-    recResource.additional_fees !== undefined &&
-    recResource.additional_fees.length > 0;
+const hasFacilities = (r: RecreationResourceDetailDto) =>
+  Boolean(
+    r.recreation_structure?.has_toilet || r.recreation_structure?.has_table,
+  );
 
-  const hasReservation =
-    recResource.recreation_resource_reservation_info &&
-    (recResource.recreation_resource_reservation_info.reservation_website ||
-      recResource.recreation_resource_reservation_info.reservation_email ||
-      recResource.recreation_resource_reservation_info
-        .reservation_phone_number) &&
-    (recResource.recreation_resource_reservation_info.reservation_website !==
-      '' ||
-      recResource.recreation_resource_reservation_info.reservation_email !==
-        '' ||
-      recResource.recreation_resource_reservation_info
-        .reservation_phone_number !== '');
+const hasAdditionalFees = (r: RecreationResourceDetailDto) =>
+  Boolean(r.additional_fees?.length);
+
+const hasOperatorReservation = (r: RecreationResourceDetailDto) => {
+  const info = r.recreation_resource_reservation_info;
+  return Boolean(
+    info &&
+      (info.reservation_website ||
+        info.reservation_email ||
+        info.reservation_phone_number),
+  );
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+/** Shown when a site operator manages reservations. */
+const OperatorReservation: React.FC<{
+  recResource: RecreationResourceDetailDto;
+}> = ({ recResource }) => {
+  const info = recResource.recreation_resource_reservation_info!;
 
   return (
     <>
-      {hasReservation ? (
-        <>
-          <div className="icon-container mt-4 mb-4">
-            <div className="camp-icon-container">
-              <img
-                src={campground}
-                alt="Campground icon"
-                height={24}
-                width={24}
-              />{' '}
-              <div>
-                <span>Reservations available through site operator.</span>{' '}
-                <br />
-                <span className="note">
-                  *Please note that Recreation Sites and Trails do not manage
-                  reservations
-                </span>
-              </div>
-            </div>
-          </div>
+      <div className="icon-container mt-4 mb-4">
+        <div className="camp-icon-container">
+          <img src={campground} alt="Campground icon" height={24} width={24} />
           <div>
-            {recResource.recreation_resource_reservation_info &&
-              recResource.recreation_resource_reservation_info
-                .reservation_website && (
-                <RecReservationButton
-                  text={
-                    recResource.recreation_resource_reservation_info
-                      .reservation_website
-                  }
-                  type={ReservationType.LINK}
-                />
-              )}
-            {recResource.recreation_resource_reservation_info &&
-              recResource.recreation_resource_reservation_info
-                .reservation_email && (
-                <RecReservationButton
-                  text={
-                    recResource.recreation_resource_reservation_info
-                      .reservation_email
-                  }
-                  type={ReservationType.EMAIL}
-                />
-              )}
-            {recResource.recreation_resource_reservation_info &&
-              recResource.recreation_resource_reservation_info
-                .reservation_phone_number && (
-                <RecReservationButton
-                  text={
-                    recResource.recreation_resource_reservation_info
-                      .reservation_phone_number
-                  }
-                  type={ReservationType.PHONE}
-                />
-              )}
+            <span>Reservations available through site operator.</span>
+            <br />
+            <span className="note">
+              *Please note that Recreation Sites and Trails do not manage
+              reservations
+            </span>
           </div>
-        </>
-      ) : (
-        <>
-          {isCampingAvailable ? (
-            <div className="camping-info icon-container mt-4 reservation-icon">
-              <div className="camp-icon-container">
-                <img
-                  src={campground}
-                  alt="Campground icon"
-                  height={24}
-                  width={24}
-                />{' '}
-                <div>
-                  <span>This site is first come first served.</span>
-                  {!isAdditionalFeesAvailable &&
-                    Boolean(recResource.recreation_fee?.length) === false && (
-                      <>
-                        {' '}
-                        <span>No fees apply.</span>
-                      </>
-                    )}
-                  <br />
-                  {(isAdditionalFeesAvailable ||
-                    Boolean(recResource.recreation_fee?.length)) && (
-                    <>
-                      <span>Fees apply when arriving on site.</span> <br />
-                    </>
-                  )}
-                  {(isAdditionalFeesAvailable || isFacilitiesAvailable) && (
-                    <span>
-                      Check{' '}
-                      <>
-                        <a
-                          href={`/resource/${recResource.rec_resource_id}#camping`}
-                        >
-                          camping
-                        </a>{' '}
-                        {isAdditionalFeesAvailable &&
-                          !isFacilitiesAvailable &&
-                          'and '}
-                        {isAdditionalFeesAvailable &&
-                          isFacilitiesAvailable &&
-                          ', '}
-                        {!isAdditionalFeesAvailable &&
-                          isFacilitiesAvailable &&
-                          'and '}
-                      </>
-                      {isAdditionalFeesAvailable && (
-                        <>
-                          <a
-                            href={`/resource/${recResource.rec_resource_id}#additional-fees`}
-                          >
-                            additional fees
-                          </a>{' '}
-                          {isFacilitiesAvailable && 'and '}
-                        </>
-                      )}
-                      {isFacilitiesAvailable && (
-                        <>
-                          <a
-                            href={`/resource/${recResource.rec_resource_id}#facilities`}
-                          >
-                            facilities
-                          </a>{' '}
-                        </>
-                      )}
-                      for more information.
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="camping-info icon-container mt-4 reservation-icon">
-              <div className="camp-icon-container">
-                <FontAwesomeIcon icon={faInfoCircle} className="info-icon" />
-              </div>
-              <div>
-                {isAdditionalFeesAvailable || isFacilitiesAvailable ? (
-                  <>
-                    {!isAdditionalFeesAvailable ? (
-                      <span>No fees apply</span>
-                    ) : (
-                      <span>Fees apply when arriving on site.</span>
-                    )}
-                    <br />
-                    <span>
-                      Check{' '}
-                      {isAdditionalFeesAvailable && (
-                        <>
-                          <a
-                            href={`/resource/${recResource.rec_resource_id}#additional-fees`}
-                          >
-                            additional fees
-                          </a>{' '}
-                          {isFacilitiesAvailable && 'and '}
-                        </>
-                      )}
-                      {isFacilitiesAvailable && (
-                        <>
-                          <a
-                            href={`/resource/${recResource.rec_resource_id}#facilities`}
-                          >
-                            facilities
-                          </a>{' '}
-                        </>
-                      )}
-                      for more information
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span>No fees apply</span>{' '}
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-        </>
-      )}
+        </div>
+      </div>
+
+      <div>
+        {info.reservation_website && (
+          <RecReservationButton
+            text={info.reservation_website}
+            type={ReservationType.LINK}
+          />
+        )}
+        {info.reservation_email && (
+          <RecReservationButton
+            text={info.reservation_email}
+            type={ReservationType.EMAIL}
+          />
+        )}
+        {info.reservation_phone_number && (
+          <RecReservationButton
+            text={info.reservation_phone_number}
+            type={ReservationType.PHONE}
+          />
+        )}
+      </div>
     </>
+  );
+};
+
+/** "Check camping / additional fees / facilities for more information" link sentence. */
+const MoreInfoLinks: React.FC<{
+  id: string;
+  showCamping: boolean;
+  showAdditionalFees: boolean;
+  showFacilities: boolean;
+}> = ({ id, showCamping, showAdditionalFees, showFacilities }) => {
+  if (!showCamping && !showAdditionalFees && !showFacilities) return null;
+
+  const links: React.ReactNode[] = [];
+
+  if (showCamping) {
+    links.push(
+      <a key="camping" href={`/resource/${id}#camping`}>
+        camping
+      </a>,
+    );
+  }
+  if (showAdditionalFees) {
+    links.push(
+      <a key="fees" href={`/resource/${id}#additional-fees`}>
+        additional fees
+      </a>,
+    );
+  }
+  if (showFacilities) {
+    links.push(
+      <a key="facilities" href={`/resource/${id}#facilities`}>
+        facilities
+      </a>,
+    );
+  }
+
+  return (
+    <span>
+      Check{' '}
+      {links.map((link, i) => (
+        <span key={i}>
+          {link}
+          {i < links.length - 1 && (i === links.length - 2 ? ' and ' : ', ')}
+          {i === links.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+      for more information.
+    </span>
+  );
+};
+
+/** First-come-first-served camping block. */
+const CampingInfo: React.FC<{ recResource: RecreationResourceDetailDto }> = ({
+  recResource,
+}) => {
+  const showFees =
+    hasAdditionalFees(recResource) ||
+    Boolean(recResource.overnight_fees?.length);
+  const showFacilities = hasFacilities(recResource);
+
+  return (
+    <div className="camping-info icon-container mt-4 reservation-icon">
+      <div className="camp-icon-container">
+        <img src={campground} alt="Campground icon" height={24} width={24} />
+        <div>
+          <span>This site is first come first served.</span>
+          {!showFees && (
+            <>
+              {' '}
+              <span>No fees apply.</span>
+            </>
+          )}
+          <br />
+          {showFees && (
+            <>
+              <span>Fees apply when arriving on site.</span> <br />
+            </>
+          )}
+          <MoreInfoLinks
+            id={recResource.rec_resource_id}
+            showCamping={showFees || showFacilities}
+            showAdditionalFees={hasAdditionalFees(recResource)}
+            showFacilities={showFacilities}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/** Non-camping day-use block (no campsites). */
+const DayUseInfo: React.FC<{ recResource: RecreationResourceDetailDto }> = ({
+  recResource,
+}) => {
+  const showFees = hasAdditionalFees(recResource);
+  const showFacilities = hasFacilities(recResource);
+  const hasDetails = showFees || showFacilities;
+
+  return (
+    <div className="camping-info icon-container mt-4 reservation-icon">
+      <div className="camp-icon-container">
+        <FontAwesomeIcon icon={faInfoCircle} className="info-icon" />
+      </div>
+      <div>
+        {hasDetails ? (
+          <>
+            <span>
+              {showFees ? 'Fees apply when arriving on site.' : 'No fees apply'}
+            </span>
+            <br />
+            <MoreInfoLinks
+              id={recResource.rec_resource_id}
+              showCamping={false}
+              showAdditionalFees={showFees}
+              showFacilities={showFacilities}
+            />
+          </>
+        ) : (
+          <span>No fees apply</span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─── Root component ───────────────────────────────────────────────────────────
+
+const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
+  recResource,
+}) => {
+  if (hasOperatorReservation(recResource)) {
+    return <OperatorReservation recResource={recResource} />;
+  }
+
+  return hasCamping(recResource) ? (
+    <CampingInfo recResource={recResource} />
+  ) : (
+    <DayUseInfo recResource={recResource} />
   );
 };
 

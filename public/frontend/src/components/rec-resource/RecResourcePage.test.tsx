@@ -7,7 +7,7 @@ import {
   useGetSiteOperatorById,
 } from '@/service/queries/recreation-resource';
 import { ReactNode } from 'react';
-import { AdditionalFees, Camping } from '@/components/rec-resource/section';
+import { Fees } from '@/components/rec-resource/section';
 
 vi.mock('@/service/queries/recreation-resource', () => ({
   useGetRecreationResourceById: vi.fn(),
@@ -54,17 +54,10 @@ vi.mock('@/components/rec-resource/section', async () => ({
       </>
     ),
   ),
-  Camping: vi.fn(
+  Fees: vi.fn(
     (): ReactNode => (
       <>
-        <h2 className="section-heading">Camping</h2>
-      </>
-    ),
-  ),
-  AdditionalFees: vi.fn(
-    (): ReactNode => (
-      <>
-        <h2 className="section-heading">AdditionalFees</h2>
+        <h2 className="section-heading">Fees</h2>
       </>
     ),
   ),
@@ -298,10 +291,10 @@ describe('RecResourcePage', () => {
 
   describe('Camping section', () => {
     const mockCampsiteCount = 10;
-    const mockFees = [
+    const mockOvernightFees = [
       {
         fee_description: 'Hut Fee',
-        recreation_fee_code: 'P',
+        recreation_fee_code: 'O',
         fee_amount: 10,
       },
     ];
@@ -311,17 +304,17 @@ describe('RecResourcePage', () => {
     });
 
     test.each([
-      { recreation_fee: mockFees },
+      { overnight_fees: mockOvernightFees },
       { campsite_count: mockCampsiteCount },
-      { recreation_fee: mockFees, campsite_count: mockCampsiteCount },
+      { overnight_fees: mockOvernightFees, campsite_count: mockCampsiteCount },
     ])('displays camping section when %p', async (props) => {
       await renderComponent({
         ...mockResource,
         ...props,
       });
-      const args = vi.mocked(Camping).mock.calls[0][0];
-      if (props.recreation_fee) {
-        expect(args.fees).toEqual(mockFees);
+      const args = vi.mocked(Fees).mock.calls[0][0];
+      if (props.overnight_fees) {
+        expect(args.overnight_fees).toEqual(mockOvernightFees);
       }
       if (props.campsite_count) {
         expect(args.campsite_count).toEqual(mockCampsiteCount);
@@ -329,17 +322,17 @@ describe('RecResourcePage', () => {
     });
 
     test.each([
-      { recreation_fee: undefined, campsite_count: undefined },
-      { recreation_fee: undefined, campsite_count: 0 },
+      { overnight_fees: undefined, campsite_count: undefined },
+      { overnight_fees: undefined, campsite_count: 0 },
     ])(
       'does not display camping section when %p',
-      async ({ recreation_fee, campsite_count }) => {
+      async ({ overnight_fees, campsite_count }) => {
         await renderComponent({
           ...mockResource,
-          recreation_fee,
+          overnight_fees,
           campsite_count,
         });
-        expect(Camping).not.toHaveBeenCalled();
+        expect(Fees).not.toHaveBeenCalled();
       },
     );
   });
@@ -387,7 +380,7 @@ describe('RecResourcePage', () => {
       vi.clearAllMocks();
     });
 
-    test('displays AdditionalFees section when additional fees are available', async () => {
+    test('displays Fees section when additional fees are available', async () => {
       const additional_fees = [
         {
           fee_description: 'Hut Fee',
@@ -399,19 +392,19 @@ describe('RecResourcePage', () => {
         ...mockResource,
         additional_fees,
       });
-      const args = vi.mocked(AdditionalFees).mock.calls[0][0];
-      expect(args.fees).toEqual(additional_fees);
+      const args = vi.mocked(Fees).mock.calls[0][0];
+      expect(args.additional_fees).toEqual(additional_fees);
     });
 
     describe('when additional fees are missing', () => {
       test.each([{ additional_fees: undefined }, { additional_fees: [] }])(
-        'does not display AdditionalFees section when %p',
+        'does not display Fees section when %p',
         async ({ additional_fees }) => {
           await renderComponent({
             ...mockResource,
             additional_fees,
           });
-          expect(Camping).not.toHaveBeenCalled();
+          expect(Fees).not.toHaveBeenCalled();
         },
       );
     });
@@ -479,7 +472,7 @@ describe('RecResourcePage', () => {
           input: { spatial_feature_geometry: ['some-geometry'] },
         },
         {
-          name: 'Additional fees',
+          name: 'Fees',
           input: {
             additional_fees: [
               {
