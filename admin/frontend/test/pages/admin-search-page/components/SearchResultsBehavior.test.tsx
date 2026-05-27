@@ -324,7 +324,7 @@ describe('FilterAccordion', () => {
     );
 
     const establishedSelect = screen.getByDisplayValue('Yes');
-    await user.selectOptions(establishedSelect, '');
+    fireEvent.change(establishedSelect, { target: { value: '' } });
 
     const applyButton = screen.getByRole('button', { name: 'Apply' });
     expect(applyButton).toBeEnabled();

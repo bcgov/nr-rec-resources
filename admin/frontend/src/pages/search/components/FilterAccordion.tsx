@@ -135,7 +135,9 @@ export function FilterAccordion({
                           }))
                         }
                       >
-                        <option value="">{field.label}</option>
+                        <option value="" disabled hidden>
+                          {field.label}
+                        </option>
                         {typedOptions.map((option) => (
                           <option key={option.id} value={option.id}>
                             {option.label}
