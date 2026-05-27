@@ -3,10 +3,10 @@ import {
   DateInputField,
   MonthDayPicker,
   SelectField,
+  GroupedMultiSelectField, // add this
 } from '@/components/form';
 import {
   RecreationFeeUIModel,
-  RecreationResourceOptionUIModel,
 } from '@/services';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { Controller } from 'react-hook-form';
@@ -26,13 +26,13 @@ import './RecResourceFeeForm.scss';
 type FeeFormMode = 'create' | 'edit';
 
 export const RecResourceFeeForm = ({
-  recResourceId,
-  mode,
-  initialFee,
-  onDone,
-  showDeleteAction = false,
-  onDelete,
-}: {
+                                     recResourceId,
+                                     mode,
+                                     initialFee,
+                                     onDone,
+                                     showDeleteAction = false,
+                                     onDelete,
+                                   }: {
   recResourceId: string;
   mode: FeeFormMode;
   initialFee?: RecreationFeeUIModel;
@@ -40,7 +40,7 @@ export const RecResourceFeeForm = ({
   showDeleteAction?: boolean;
   onDelete?: () => void;
 }) => {
-  const { options: feeOptions, isLoading: optionsLoading } = useFeeOptions();
+  const { groupedFeeOptions, isLoading: optionsLoading } = useFeeOptions(); // fixed: destructure correctly
   const {
     control,
     handleSubmit,
@@ -57,13 +57,6 @@ export const RecResourceFeeForm = ({
     initialFee,
     onDone,
   });
-
-  const feeTypeOptions: RecreationResourceOptionUIModel[] = feeOptions.map(
-    (option: RecreationResourceOptionUIModel) => ({
-      id: option.id,
-      label: option.label,
-    }),
-  );
 
   const submitLabel =
     mode === 'create'
@@ -214,13 +207,14 @@ export const RecResourceFeeForm = ({
 
         <Row className="gy-3">
           <Col xs={12} md={6}>
-            <SelectField
+            <GroupedMultiSelectField<AddFeeFormData>
               name="fee_type_sub_type"
               label="Fee Type"
-              options={feeTypeOptions}
+              options={groupedFeeOptions}
               placeholder="Select fee type..."
               control={control}
               errors={errors}
+              isMulti={false}
               disabled={
                 optionsLoading ||
                 (mode === 'edit' &&
