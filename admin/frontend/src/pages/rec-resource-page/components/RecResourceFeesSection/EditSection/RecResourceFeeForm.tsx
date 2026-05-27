@@ -104,7 +104,7 @@ export const RecResourceFeeForm = ({
       <Stack direction="vertical" gap={4}>
         <SelectField
           name="fee_applies"
-          label="Fee Applies"
+          label="When does this fee apply?"
           placeholder="Select when fee applies..."
           options={FEE_APPLIES_DROPDOWN_OPTIONS}
           control={control}
@@ -178,7 +178,7 @@ export const RecResourceFeeForm = ({
 
         <SelectField
           name="day_preset"
-          label="Day Presets"
+          label="Days"
           placeholder="Select day preset..."
           options={DAY_PRESET_OPTIONS_LIST}
           control={control}

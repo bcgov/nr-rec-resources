@@ -15,7 +15,7 @@ export const ZOOM_LEVELS = {
 };
 
 export const FIRE_STATUS_COLOUR_MAP: Record<string, string> = {
-  'Fire of Note': '#ff6600',
+  'Fire of Note': '#CB1616',
   New: '#fc921f',
   'Out of Control': '#CB1616',
   'Being Held': '#FF7B00',
@@ -27,11 +27,11 @@ export const FIRE_STATUS_RGBA_COLOUR_MAP: Record<
   string,
   [number, number, number]
 > = {
-  'Fire of Note': [255, 102, 0],
-  New: [252, 146, 31],
-  'Out of Control': [170, 29, 62],
-  'Being Held': [255, 255, 115],
-  'Under Control': [181, 226, 97],
+  'Fire of Note': [203, 22, 22],
+  New: [203, 22, 22],
+  'Out of Control': [203, 22, 22],
+  'Being Held': [203, 22, 22],
+  'Under Control': [203, 22, 22],
 };
 
 export const WILDFIRE_LOCATION_MIN_ZOOM = ZOOM_LEVELS.DISTRICT;

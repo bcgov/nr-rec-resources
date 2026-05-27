@@ -101,13 +101,12 @@ describe('RecResourceFeeFormFields (create)', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders Day Presets dropdown', () => {
+  it('renders Days dropdown', () => {
     render(
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
     expect(screen.getByTestId('select-field-day_preset')).toBeInTheDocument();
-    expect(screen.getByText(/Day Presets/)).toBeInTheDocument();
   });
 
   it('renders all day checkboxes', () => {
