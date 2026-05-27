@@ -146,6 +146,7 @@ model recreation_fee {
   saturday_ind           String?                  @default("N") @db.VarChar(1)
   sunday_ind             String?                  @default("N") @db.VarChar(1)
   recreation_fee_code    String                   @db.VarChar(1)
+  recreation_fee_sub_code String?                 @db.VarChar(30)
   updated_at             DateTime?                @default(now()) @db.Timestamp(6)
   updated_by             String?
   created_at             DateTime?                @default(now()) @db.Timestamp(6)
@@ -160,9 +161,10 @@ model recreation_fee {
   deleted_by             String?
   recreation_resource    recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   with_description       recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
+  with_sub_description   recreation_fee_sub_code? @relation("fee_with_sub_description", fields: [recreation_fee_code, recreation_fee_sub_code], references: [recreation_fee_code, recreation_fee_sub_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_fee_fdl_log recreation_fee_fdl_log[]
 
-  @@unique([rec_resource_id, recreation_fee_code, monday_ind, tuesday_ind, wednesday_ind, thursday_ind, friday_ind, saturday_ind, sunday_ind], map: "recreation_fee_unique_idx", where: raw("(is_deleted = false)"))
+  @@unique([rec_resource_id, recreation_fee_code, recreation_fee_sub_code], map: "recreation_fee_unique_idx", where: raw("(is_deleted = false AND recreation_fee_sub_code IS NOT NULL)"))
   @@index([rec_resource_id], map: "idx_recreation_fee_rec_resource_id")
   @@schema("rst")
 }
@@ -173,7 +175,21 @@ model recreation_fee_code {
   updated_at          DateTime?                @default(now()) @db.Timestamp(6)
   sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   with_description    recreation_fee[]         @relation("fee_with_description")
+  sub_types           recreation_fee_sub_code[]
 
+  @@schema("rst")
+}
+
+model recreation_fee_sub_code {
+  recreation_fee_code     String                   @db.VarChar(1)
+  recreation_fee_sub_code String                   @db.VarChar(30)
+  description             String                   @db.VarChar(120)
+  updated_at              DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period              Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  fee_type                recreation_fee_code      @relation(fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
+  with_sub_description    recreation_fee[]         @relation("fee_with_sub_description")
+
+  @@id([recreation_fee_code, recreation_fee_sub_code])
   @@schema("rst")
 }
 

@@ -11,12 +11,11 @@ export const DAY_PRESET_OPTIONS = {
   CUSTOM: 'custom',
 } as const;
 
-// Base schema for real-time validation (applied on onChange)
 export const addFeeSchemaBase = z.object({
   recreation_fee_code: z
     .string()
-    .min(1, 'Fee type is required')
-    .max(1, 'Fee type must be a single character'),
+    .min(1, 'Fee code is required')
+    .max(1, 'Fee code must be a single character'),
   fee_amount: z.number().optional(),
   fee_applies: z.enum([
     FEE_APPLIES_OPTIONS.ALWAYS,
@@ -44,7 +43,6 @@ export const addFeeSchemaBase = z.object({
   fee_determination_letter_confirmed: z.boolean().default(false),
 });
 
-// Submit schema with strict date, day, and conditional FDL validations
 export const createAddFeeSchema = ({
   requireFdlConfirmation = false,
 }: {
@@ -75,7 +73,32 @@ export const createAddFeeSchema = ({
     )
     .refine(
       (data) => {
-        // If fee applies to specific dates, at least one day must be selected
+        if (data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES) {
+          if (data.is_recurring === false) return true;
+          return /^\d{2}-\d{2}$/.test(data.recurring_start_mmdd || '');
+        }
+        return true;
+      },
+      {
+        message: 'Start date is required',
+        path: ['recurring_start_mmdd'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES) {
+          if (data.is_recurring === false) return true;
+          return /^\d{2}-\d{2}$/.test(data.recurring_end_mmdd || '');
+        }
+        return true;
+      },
+      {
+        message: 'End date is required',
+        path: ['recurring_end_mmdd'],
+      },
+    )
+    .refine(
+      (data) => {
         if (data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES) {
           return [
             data.monday_ind,
@@ -85,7 +108,7 @@ export const createAddFeeSchema = ({
             data.friday_ind,
             data.saturday_ind,
             data.sunday_ind,
-          ].some((day) => day);
+          ].some(Boolean);
         }
         return true;
       },

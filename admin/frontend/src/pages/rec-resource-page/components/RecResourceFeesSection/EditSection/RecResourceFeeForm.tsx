@@ -215,13 +215,17 @@ export const RecResourceFeeForm = ({
         <Row className="gy-3">
           <Col xs={12} md={6}>
             <SelectField
-              name="recreation_fee_code"
+              name="fee_type_sub_type"
               label="Fee Type"
               options={feeTypeOptions}
               placeholder="Select fee type..."
               control={control}
               errors={errors}
-              disabled={optionsLoading || mode === 'edit'}
+              disabled={
+                optionsLoading ||
+                (mode === 'edit' &&
+                  Boolean(initialFee?.recreation_fee_sub_code))
+              }
             />
           </Col>
           <Col xs={12} md={6}>

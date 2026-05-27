@@ -18,6 +18,7 @@ export interface UpdateFeeRequest {
   recResourceId: string;
   feeId: number;
   recreation_fee_code?: string;
+  recreation_fee_sub_code?: string;
   fee_amount?: number | null;
   monday_ind?: string;
   tuesday_ind?: string;
@@ -80,7 +81,7 @@ export function useUpdateFee() {
       const statusCode = error.response?.status;
       if (statusCode === 409) {
         addErrorNotification(
-          'This fee type already exists for this resource',
+          'This fee type and sub-type already exists for this resource',
           'updateFee-conflict',
         );
       } else if (statusCode === 404) {

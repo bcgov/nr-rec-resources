@@ -17,6 +17,7 @@ import { mapRecreationFee } from './helpers';
 export interface CreateFeeRequest {
   recResourceId: string;
   recreation_fee_code: string;
+  recreation_fee_sub_code?: string;
   fee_amount?: number;
   fee_start_date?: string;
   fee_end_date?: string;
@@ -69,7 +70,7 @@ export function useCreateFee() {
       const statusCode = error.response?.status;
       if (statusCode === 409) {
         addErrorNotification(
-          'This fee type already exists for this resource',
+          'This fee type and sub-type already exists for this resource',
           'createFee-conflict',
         );
       } else if (statusCode === 404) {

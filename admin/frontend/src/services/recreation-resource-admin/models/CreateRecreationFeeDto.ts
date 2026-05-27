@@ -26,6 +26,12 @@ export interface CreateRecreationFeeDto {
    */
   recreation_fee_code: string;
   /**
+   * Subtype of fee represented by code (e.g., CAMPING, HUTS, DAY_USE)
+   * @type {string}
+   * @memberof CreateRecreationFeeDto
+   */
+  recreation_fee_sub_code?: string;
+  /**
    * Amount charged for the recreation resource
    * @type {number}
    * @memberof CreateRecreationFeeDto
@@ -134,6 +140,10 @@ export function CreateRecreationFeeDtoFromJSONTyped(
   }
   return {
     recreation_fee_code: json['recreation_fee_code'],
+    recreation_fee_sub_code:
+      json['recreation_fee_sub_code'] == null
+        ? undefined
+        : json['recreation_fee_sub_code'],
     fee_amount: json['fee_amount'] == null ? undefined : json['fee_amount'],
     fee_start_date:
       json['fee_start_date'] == null ? undefined : json['fee_start_date'],
@@ -178,6 +188,7 @@ export function CreateRecreationFeeDtoToJSONTyped(
 
   return {
     recreation_fee_code: value['recreation_fee_code'],
+    recreation_fee_sub_code: value['recreation_fee_sub_code'],
     fee_amount: value['fee_amount'],
     fee_start_date: value['fee_start_date'],
     fee_end_date: value['fee_end_date'],

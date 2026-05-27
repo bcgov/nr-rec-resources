@@ -27,6 +27,8 @@ export interface RecreationResourceDetailUIModel
 export interface RecreationFeeUIModel extends RecreationFeeDto {
   fee_start_date_readable_utc: string | null;
   fee_end_date_readable_utc: string | null;
+  recreation_fee_sub_code?: string;
+  fee_sub_type_description?: string;
 }
 
 export interface RecreationResourceOptionUIModel {

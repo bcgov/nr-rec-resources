@@ -21,6 +21,20 @@ export class CreateRecreationFeeDto {
   recreation_fee_code: string;
 
   @ApiProperty({
+    description:
+      'Subtype of fee represented by code (e.g., CAMPING, HUTS, DAY_USE)',
+    example: 'CAMPING',
+    required: false,
+  })
+  @IsString()
+  @Matches(/^[A-Z_]{2,30}$/, {
+    message:
+      'recreation_fee_sub_code must be uppercase letters/underscores (2-30 chars)',
+  })
+  @IsOptional()
+  recreation_fee_sub_code?: string;
+
+  @ApiProperty({
     description: 'Amount charged for the recreation resource',
     example: 15.5,
     required: false,

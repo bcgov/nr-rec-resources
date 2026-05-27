@@ -159,3 +159,44 @@ export const transformClosestCommunityOptions: OptionTransformMiddleware = (
     ).values(),
   );
 };
+
+const FEE_TYPE_LABELS: Record<string, string> = {
+  O: 'Overnight',
+  T: 'Trail use',
+  A: 'Additional fees',
+};
+
+const FEE_TYPE_ORDER: Record<string, number> = {
+  O: 1,
+  T: 2,
+  A: 3,
+};
+
+/**
+ * Flattens fee type + subtype into a searchable single-select option.
+ */
+export const mapFeeTypeSubtypeOptions: OptionTransformMiddleware = (
+  mapped: OptionDto[],
+  raw: any[],
+) => {
+  const withType = mapped.map((option, index) => {
+    const typeCode = raw[index]?.recreation_fee_code;
+    const typeLabel = FEE_TYPE_LABELS[typeCode] ?? typeCode ?? '';
+
+    return {
+      id: `${typeCode}|${option.id}`,
+      label: `${typeLabel} - ${option.label}`,
+      _typeCode: typeCode,
+      _typeOrder: FEE_TYPE_ORDER[typeCode] ?? 999,
+    };
+  });
+
+  return withType
+    .sort((a, b) => {
+      if (a._typeOrder !== b._typeOrder) {
+        return a._typeOrder - b._typeOrder;
+      }
+      return a.label.localeCompare(b.label);
+    })
+    .map(({ id, label }) => ({ id, label }));
+};

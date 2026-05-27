@@ -17,6 +17,57 @@ import {
 
 type FeeFormMode = 'create' | 'edit';
 
+const LEGACY_FEE_CODE_MAP: Record<
+  string,
+  { recreation_fee_code: string; recreation_fee_sub_code?: string }
+> = {
+  C: { recreation_fee_code: 'O', recreation_fee_sub_code: 'CAMPING' },
+  H: { recreation_fee_code: 'O', recreation_fee_sub_code: 'HUTS' },
+  D: { recreation_fee_code: 'A', recreation_fee_sub_code: 'DAY_USE' },
+  P: { recreation_fee_code: 'A', recreation_fee_sub_code: 'PARKING' },
+};
+
+const toFeeTypeSubtypeValue = (fee?: RecreationFeeUIModel): string => {
+  const feeWithSubtype = fee as RecreationFeeUIModel & {
+    recreation_fee_sub_code?: string;
+  };
+
+  if (
+    !feeWithSubtype?.recreation_fee_code ||
+    !feeWithSubtype?.recreation_fee_sub_code
+  ) {
+    return '';
+  }
+
+  return `${feeWithSubtype.recreation_fee_code}|${feeWithSubtype.recreation_fee_sub_code}`;
+};
+
+const parseFeeTypeSubtypeValue = (value: string) => {
+  const normalizedValue = value.trim();
+
+  if (normalizedValue.includes('|')) {
+    const [recreation_fee_code, recreation_fee_sub_code] =
+      normalizedValue.split('|');
+
+    return {
+      recreation_fee_code,
+      recreation_fee_sub_code,
+    };
+  }
+
+  const legacyMapped = LEGACY_FEE_CODE_MAP[normalizedValue];
+  if (legacyMapped) {
+    return legacyMapped;
+  }
+
+  const [recreation_fee_code, recreation_fee_sub_code] = value.split('|');
+
+  return {
+    recreation_fee_code,
+    recreation_fee_sub_code,
+  };
+};
+
 const transformDayIndicators = (data: AddFeeFormData) => {
   return Object.fromEntries(
     DAY_FIELDS.map((field) => [field, data[field] ? 'Y' : 'N']),
@@ -65,7 +116,7 @@ export function useFeeForm({
   const defaultValues: AddFeeFormData = useMemo(() => {
     if (!initialFee) {
       return {
-        recreation_fee_code: '',
+        fee_type_sub_type: '',
         fee_amount: undefined,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         is_recurring: false,
@@ -89,7 +140,7 @@ export function useFeeForm({
     const day_preset = dayPresetFromFee(initialFee);
 
     return {
-      recreation_fee_code: initialFee.recreation_fee_code ?? '',
+      fee_type_sub_type: toFeeTypeSubtypeValue(initialFee),
       fee_amount: initialFee.fee_amount ?? undefined,
       fee_applies: feeApplies,
       is_recurring: !!initialFee.recurring_ind,
@@ -175,6 +226,16 @@ export function useFeeForm({
   };
 
   const onSubmit = async (data: AddFeeFormData) => {
+    const { recreation_fee_code, recreation_fee_sub_code } =
+      parseFeeTypeSubtypeValue(data.fee_type_sub_type);
+
+    if (!recreation_fee_sub_code) {
+      setError('fee_type_sub_type', {
+        message: 'Fee sub-type is required',
+      });
+      return;
+    }
+
     const dayIndicators = transformDayIndicators(data);
     const isSpecificDates =
       data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
@@ -183,7 +244,8 @@ export function useFeeForm({
     if (mode === 'create') {
       const feeData = {
         recResourceId,
-        recreation_fee_code: data.recreation_fee_code,
+        recreation_fee_code,
+        recreation_fee_sub_code,
         fee_amount: data.fee_amount ?? undefined,
         ...dayIndicators,
         recurring_ind: isRecurring,
@@ -217,7 +279,8 @@ export function useFeeForm({
     const updateData = {
       recResourceId,
       feeId: initialFee.fee_id,
-      recreation_fee_code: data.recreation_fee_code,
+      recreation_fee_code,
+      recreation_fee_sub_code,
       fee_amount: data.fee_amount ?? null,
       recurring_ind: isRecurring,
       recurring_start_mmdd: isRecurring ? data.recurring_start_mmdd : null,
