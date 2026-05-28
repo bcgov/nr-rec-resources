@@ -16,6 +16,10 @@ import {
 
 @Injectable()
 export class FeesService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userContext: UserContextService,
+  ) {}
   private readonly logger = new Logger(FeesService.name);
 
   private async ensureFeeBelongsToResource(
@@ -41,11 +45,6 @@ export class FeesService {
       );
     }
   }
-
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly userContext: UserContextService,
-  ) {}
 
   /**
    * Get all fees for a recreation resource
@@ -170,6 +169,13 @@ export class FeesService {
       },
     });
 
+    await this.prisma.recreation_fee_fdl_log.create({
+      data: {
+        fee_id: createdFee.fee_id,
+        confirmed_by: this.userContext.getCurrentUserName(),
+      },
+    });
+
     return formatRecreationFeeResult(createdFee as FeeWithDescription);
   }
 
@@ -247,6 +253,11 @@ export class FeesService {
       }
     }
 
+    const existingFee = await this.prisma.recreation_fee.findUnique({
+      where: { fee_id } as any,
+      select: { fee_id: true, rec_resource_id: true, fee_amount: true },
+    });
+
     const updatedFee = await this.prisma.recreation_fee.update({
       where: { fee_id },
       data: updateData as any,
@@ -254,6 +265,20 @@ export class FeesService {
         with_description: { select: { description: true } },
       },
     });
+
+    const amountChanged =
+      updateFeeDto.fee_amount !== undefined &&
+      updateFeeDto.fee_amount !== existingFee?.fee_amount;
+
+    if (amountChanged) {
+      await this.prisma.recreation_fee_fdl_log.create({
+        data: {
+          fee_id: updatedFee.fee_id,
+          confirmed_by: this.userContext.getCurrentUserName(),
+        },
+      });
+    }
+
     return formatRecreationFeeResult(updatedFee as FeeWithDescription);
   }
 

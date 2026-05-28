@@ -10,6 +10,9 @@ import { SearchViewControls } from '@/components/search';
 import {
   useClusteredRecreationFeatureLayer,
   useFeatureSelection,
+  useMapFocusParam,
+  useRecreationBoundaryLayer,
+  useRecreationTrailLayer,
   useWildfireLocationLayer,
   useWildfirePerimeterLayer,
   useZoomToExtent,
@@ -29,6 +32,7 @@ import { trackClickEvent } from '@shared/utils';
 import { MATOMO_SEARCH_CONTEXT_MAP } from '@/constants/analytics';
 import {
   ANIMATED_CLUSTER_OPTIONS,
+  BOUNDARY_LAYERS_MIN_ZOOM,
   CLUSTER_OPTIONS,
   LEGACY_MAP_LINK,
   WILDFIRE_LOCATION_MIN_ZOOM,
@@ -52,12 +56,25 @@ interface SearchViewControlsProps {
 const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const { extent, recResourceIds } = useStore(searchResultsStore);
   const filterChips = useStore(filterChipStore);
+  const { value: focusedRecResourceId } = useMapFocusParam();
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const [selectedWildfireFeature, setSelectedWildfireFeature] =
     useState<Feature | null>(null);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [isDisclaimerModalOpen, setIsDisclaimerModalOpen] = useState(false);
   const selectedFilterCount = filterChips.length;
+
+  // Current search results and the focused resource (if any),
+  // so the cluster + boundary + trail layers all fetch geometry for the same
+  // set of ids. Without this, typeaheading to a resource outside the active
+  // search would leave its boundary/trail unrendered.
+  const allRelevantIds = useMemo(
+    () =>
+      focusedRecResourceId && !recResourceIds.includes(focusedRecResourceId)
+        ? [...recResourceIds, focusedRecResourceId]
+        : recResourceIds,
+    [recResourceIds, focusedRecResourceId],
+  );
 
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -80,7 +97,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   }, [mapRef, popupRef]);
 
   const { layer: clusteredRecreationFeatureLayer } =
-    useClusteredRecreationFeatureLayer(recResourceIds, mapRef, {
+    useClusteredRecreationFeatureLayer(allRelevantIds, mapRef, {
       clusterOptions: CLUSTER_OPTIONS,
       animatedClusterOptions: ANIMATED_CLUSTER_OPTIONS,
     });
@@ -94,6 +111,19 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     applyHoverStyles: false,
     hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
   });
+
+  const { layer: recreationTrailLayer } = useRecreationTrailLayer(mapRef, {
+    hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
+    filteredIds: allRelevantIds,
+  });
+
+  const { layer: recreationBoundaryLayer } = useRecreationBoundaryLayer(
+    mapRef,
+    {
+      hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
+      filteredIds: allRelevantIds,
+    },
+  );
 
   const featureSelectionLayers = useMemo(
     () => [
@@ -162,6 +192,16 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
         visible: true,
       },
       {
+        id: 'recreation-trails',
+        layerInstance: recreationTrailLayer,
+        visible: true,
+      },
+      {
+        id: 'recreation-boundaries',
+        layerInstance: recreationBoundaryLayer,
+        visible: true,
+      },
+      {
         id: 'recreation-features',
         layerInstance: clusteredRecreationFeatureLayer,
         visible: true,
@@ -169,6 +209,8 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     ],
     [
       clusteredRecreationFeatureLayer,
+      recreationBoundaryLayer,
+      recreationTrailLayer,
       wildfireLocationsLayer,
       wildfirePerimeterLayer,
     ],

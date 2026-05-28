@@ -45,7 +45,8 @@ export const RecResourceFeeForm = ({
     control,
     handleSubmit,
     errors,
-    isDirty,
+    isSubmittable,
+    amountLocked,
     mutation,
     onSubmit,
     feeApplies,
@@ -75,12 +76,35 @@ export const RecResourceFeeForm = ({
 
   const isSpecificDates = feeApplies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
 
+  const fdlCheckbox = (
+    <Controller<AddFeeFormData>
+      name="fee_determination_letter_confirmed"
+      control={control}
+      render={({ field }) => (
+        <Form.Group>
+          <Form.Check
+            type="checkbox"
+            id="fee_determination_letter_confirmed"
+            label="I confirm that a signed fee determination letter has been approved for this fee"
+            checked={!!field.value}
+            onChange={(e) => field.onChange(e.target.checked)}
+          />
+          {errors.fee_determination_letter_confirmed && (
+            <Form.Text className="text-danger">
+              {errors.fee_determination_letter_confirmed.message}
+            </Form.Text>
+          )}
+        </Form.Group>
+      )}
+    />
+  );
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Stack direction="vertical" gap={4}>
         <SelectField
           name="fee_applies"
-          label="Fee Applies"
+          label="When does this fee apply?"
           placeholder="Select when fee applies..."
           options={FEE_APPLIES_DROPDOWN_OPTIONS}
           control={control}
@@ -154,7 +178,7 @@ export const RecResourceFeeForm = ({
 
         <SelectField
           name="day_preset"
-          label="Day Presets"
+          label="Days"
           placeholder="Select day preset..."
           options={DAY_PRESET_OPTIONS_LIST}
           control={control}
@@ -197,7 +221,7 @@ export const RecResourceFeeForm = ({
               placeholder="Select fee type..."
               control={control}
               errors={errors}
-              disabled={optionsLoading}
+              disabled={optionsLoading || mode === 'edit'}
             />
           </Col>
           <Col xs={12} md={6}>
@@ -206,9 +230,12 @@ export const RecResourceFeeForm = ({
               label="Amount"
               control={control}
               errors={errors}
+              disabled={amountLocked}
             />
           </Col>
         </Row>
+
+        {['edit', 'create'].includes(mode) && fdlCheckbox}
 
         <Row className="gy-3">
           <Col xs={12} className="d-flex justify-content-between">
@@ -222,7 +249,7 @@ export const RecResourceFeeForm = ({
             <Button
               variant="primary"
               type="submit"
-              disabled={!isDirty || mutation.isPending || optionsLoading}
+              disabled={!isSubmittable || mutation.isPending || optionsLoading}
             >
               {submitLabel}
             </Button>

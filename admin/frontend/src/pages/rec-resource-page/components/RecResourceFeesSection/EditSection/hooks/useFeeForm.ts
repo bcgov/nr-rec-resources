@@ -8,7 +8,7 @@ import {
   AddFeeFormData,
   FEE_APPLIES_OPTIONS,
   DAY_PRESET_OPTIONS,
-  addFeeSchema,
+  createAddFeeSchema,
 } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/schemas/addFee';
 import {
   DAY_FIELDS,
@@ -74,6 +74,7 @@ export function useFeeForm({
         recurring_start_mmdd: undefined,
         recurring_end_mmdd: undefined,
         day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
+        fee_determination_letter_confirmed: false,
         ...DAY_PRESET_CONFIG.all_days,
       };
     }
@@ -108,6 +109,7 @@ export function useFeeForm({
       friday_ind: initialFee.friday_ind === 'Y',
       saturday_ind: initialFee.saturday_ind === 'Y',
       sunday_ind: initialFee.sunday_ind === 'Y',
+      fee_determination_letter_confirmed: false,
     };
   }, [initialFee]);
 
@@ -116,9 +118,12 @@ export function useFeeForm({
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isDirty },
+    setError,
+    formState: { errors, dirtyFields },
   } = useForm<AddFeeFormData>({
-    resolver: zodResolver(addFeeSchema) as any,
+    resolver: zodResolver(
+      createAddFeeSchema({ requireFdlConfirmation: mode === 'create' }),
+    ) as any,
     defaultValues,
     mode: 'onSubmit',
   });
@@ -126,7 +131,22 @@ export function useFeeForm({
   const feeApplies = useWatch({ control, name: 'fee_applies' });
   const isRecurring = useWatch({ control, name: 'is_recurring' });
   const dayPreset = useWatch({ control, name: 'day_preset' });
+  const fdlChecked = useWatch({
+    control,
+    name: 'fee_determination_letter_confirmed',
+  });
   const hasInitializedDayPreset = useRef(false);
+
+  // In edit mode, amount is locked until FDL checkbox is ticked
+  const amountLocked = mode === 'edit' && !fdlChecked;
+
+  // FDL checkbox ticking alone should not enable the submit button in edit mode
+  const isSubmittable =
+    mode === 'edit'
+      ? Object.keys(dirtyFields).some(
+          (f) => f !== 'fee_determination_letter_confirmed',
+        )
+      : true;
 
   useEffect(() => {
     // Preserve initial day selections until the user changes the preset.
@@ -187,6 +207,13 @@ export function useFeeForm({
       return;
     }
 
+    if (dirtyFields.fee_amount && !data.fee_determination_letter_confirmed) {
+      setError('fee_determination_letter_confirmed', {
+        message: 'You must confirm you have a fee determination letter',
+      });
+      return;
+    }
+
     const updateData = {
       recResourceId,
       feeId: initialFee.fee_id,
@@ -212,7 +239,9 @@ export function useFeeForm({
     control,
     handleSubmit,
     errors,
-    isDirty,
+    isSubmittable,
+    amountLocked,
+    fdlChecked,
     mutation,
     onSubmit,
     feeApplies,
