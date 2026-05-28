@@ -20,8 +20,7 @@ export class GeospatialController {
     description:
       'Forwards requests to maps.gov.bc.ca server-side to bypass the CORS misconfiguration on BCGW. ' +
       'Only layer indices 3 (recreation trails) and 5 (recreation boundaries) are permitted. ' +
-      'Filters by FOREST_FILE_ID so responses are bounded by the caller’s id list, not viewport density. ' +
-      'Remove this endpoint once the BCGW CORS ticket is resolved.',
+      'Filters by FOREST_FILE_ID so responses are bounded by the caller’s id list, not viewport density. ',
   })
   @ApiQuery({
     name: 'layer',
