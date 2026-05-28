@@ -45,6 +45,10 @@ export const WILDFIRE_LOCATION_LAYER =
 export const WILDFIRE_PERIMETER_LAYER =
   'https://services6.arcgis.com/ubm4tcTYICKBpist/arcgis/rest/services/BCWS_FirePerimeters_PublicView/FeatureServer/0';
 
+export const BCGW_PROXY_URL = '/api/v1/geospatial/bcgw';
+
+export const BOUNDARY_LAYERS_MIN_ZOOM = 10;
+
 export enum SearchMapFocusModes {
   REC_RESOURCE_ID = 'recResourceId',
 }

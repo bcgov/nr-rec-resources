@@ -297,4 +297,30 @@ describe('useClusteredRecreationFeatureLayer', () => {
       duration: 500,
     });
   });
+
+  it('invokes the feature transform callback and layerFilter inside forEachFeatureAtPixel (covers lines 91-93)', () => {
+    renderHook(() => useClusteredRecreationFeatureLayer(['1'], mapRef));
+
+    const pointerMoveCall = mockMap.on.mock.calls.find(
+      (call) => call[0] === 'pointermove',
+    );
+    expect(pointerMoveCall).toBeDefined();
+    const handler = pointerMoveCall![1];
+
+    const mockFeature = new Feature();
+    mockMap.forEachFeatureAtPixel.mockImplementation(
+      (_pixel: any, callback: any, options: any) => {
+        if (options?.layerFilter?.(mockLayer)) {
+          return callback(mockFeature, mockLayer, null);
+        }
+        return null;
+      },
+    );
+
+    act(() => {
+      handler({ pixel: [0, 0] });
+    });
+
+    expect(mockTargetElement.style.cursor).toBe('pointer');
+  });
 });

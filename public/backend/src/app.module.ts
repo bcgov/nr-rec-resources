@@ -14,6 +14,7 @@ import { ApiMetricsModule } from '@shared/api/api-metrics/api-metrics.module';
 import { PUBLIC_METRIC_NAMESPACE_NAME_PREFIX } from '@shared/api/api-metrics/api-metrics.constants';
 import { SitemapModule } from './sitemap/sitemap.module';
 import { AppConfigModule } from './app-config/app-config.module';
+import { GeospatialModule } from './geospatial/geospatial.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AppConfigModule } from './app-config/app-config.module';
     TerminusModule,
     RecreationResourceModule,
     SitemapModule,
+    GeospatialModule,
     ApiMetricsModule.forRoot({
       namespacePrefix: PUBLIC_METRIC_NAMESPACE_NAME_PREFIX,
     }),
