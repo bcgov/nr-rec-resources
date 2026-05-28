@@ -141,6 +141,15 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
       }
     }
 
+    dynamic "function_association" {
+      # Iterate over the list of function ARNs when in prod; otherwise empty
+      for_each = var.app_env == "prod" ? toset(aws_cloudfront_function.beta_to_sites_and_trails[*].arn) : []
+      content {
+        event_type  = "viewer-request"
+        function_arn = function_association.value
+      }
+    }
+
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
