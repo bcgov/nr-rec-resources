@@ -30,7 +30,7 @@ import {
   GalleryFile,
   GalleryImage,
 } from '@/pages/rec-resource-page/types';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const baseDoc: GalleryDocument = {
   id: '1',
@@ -454,6 +454,192 @@ describe('recResourceFileTransferStore', () => {
       expect(
         recResourceFileTransferStore.state.selectedImageForLightbox,
       ).toBeNull();
+    });
+  });
+
+  describe('GuardDuty bridge: uploadComplete flag on pending images', () => {
+    it('sets uploadComplete to true via updatePendingImage', () => {
+      addPendingImage(baseImage);
+      updatePendingImage('img1', { uploadComplete: true, id: 'server-img-1' });
+
+      const updated = recResourceFileTransferStore.state.pendingImages[0];
+      expect(updated.uploadComplete).toBe(true);
+      expect(updated.id).toBe('server-img-1');
+      expect(updated.name).toBe(baseImage.name);
+    });
+  });
+
+  describe('GuardDuty bridge: blob URL revocation in removePendingImage', () => {
+    beforeEach(() => {
+      vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('revokes blob URL when removing a pending image with a blob previewUrl', () => {
+      const blobImage: GalleryImage = {
+        ...baseImage,
+        id: 'img-blob',
+        previewUrl: 'blob:http://localhost/abc-123',
+        uploadComplete: true,
+      };
+      addPendingImage(blobImage);
+      removePendingImage('img-blob');
+
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith(
+        'blob:http://localhost/abc-123',
+      );
+      expect(recResourceFileTransferStore.state.pendingImages).toEqual([]);
+    });
+
+    it('does not revoke URL when removing a pending image with a non-blob previewUrl', () => {
+      const httpImage: GalleryImage = {
+        ...baseImage,
+        id: 'img-http',
+        previewUrl: 'https://cdn.example.com/preview.jpg',
+      };
+      addPendingImage(httpImage);
+      removePendingImage('img-http');
+
+      expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('does not revoke URL when removing a pending image with an empty previewUrl', () => {
+      const noPreviewImage: GalleryImage = {
+        ...baseImage,
+        id: 'img-no-preview',
+        previewUrl: '',
+      };
+      addPendingImage(noPreviewImage);
+      removePendingImage('img-no-preview');
+
+      expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('does not revoke URL and is a no-op when id does not exist', () => {
+      addPendingImage(baseImage);
+      removePendingImage('non-existent-id');
+
+      expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+      expect(recResourceFileTransferStore.state.pendingImages).toEqual([
+        baseImage,
+      ]);
+    });
+
+    it('revokes only the matching image blob URL when multiple pending images exist', () => {
+      const blobImage: GalleryImage = {
+        ...baseImage,
+        id: 'img-blob',
+        previewUrl: 'blob:http://localhost/abc-123',
+        uploadComplete: true,
+      };
+      addPendingImage(blobImage);
+      addPendingImage(anotherImage);
+      removePendingImage('img-blob');
+
+      expect(URL.revokeObjectURL).toHaveBeenCalledTimes(1);
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith(
+        'blob:http://localhost/abc-123',
+      );
+      expect(recResourceFileTransferStore.state.pendingImages).toEqual([
+        anotherImage,
+      ]);
+    });
+  });
+
+  describe('GuardDuty bridge: blob URL revocation in resetRecResourceFileTransferStore', () => {
+    beforeEach(() => {
+      vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('revokes all blob URLs from pending images on reset', () => {
+      const blobImage1: GalleryImage = {
+        ...baseImage,
+        id: 'img-1',
+        previewUrl: 'blob:http://localhost/abc-1',
+        uploadComplete: true,
+      };
+      const blobImage2: GalleryImage = {
+        ...anotherImage,
+        id: 'img-2',
+        previewUrl: 'blob:http://localhost/abc-2',
+        uploadComplete: true,
+      };
+      addPendingImage(blobImage1);
+      addPendingImage(blobImage2);
+
+      resetRecResourceFileTransferStore();
+
+      expect(URL.revokeObjectURL).toHaveBeenCalledTimes(2);
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith(
+        'blob:http://localhost/abc-1',
+      );
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith(
+        'blob:http://localhost/abc-2',
+      );
+      expect(recResourceFileTransferStore.state.pendingImages).toEqual([]);
+    });
+
+    it('only revokes blob URLs and skips non-blob previewUrls on reset', () => {
+      const blobImage: GalleryImage = {
+        ...baseImage,
+        id: 'img-blob',
+        previewUrl: 'blob:http://localhost/abc-blob',
+        uploadComplete: true,
+      };
+      const httpImage: GalleryImage = {
+        ...anotherImage,
+        id: 'img-http',
+        previewUrl: 'https://cdn.example.com/preview.jpg',
+      };
+      addPendingImage(blobImage);
+      addPendingImage(httpImage);
+
+      resetRecResourceFileTransferStore();
+
+      expect(URL.revokeObjectURL).toHaveBeenCalledTimes(1);
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith(
+        'blob:http://localhost/abc-blob',
+      );
+    });
+
+    it('does not call revokeObjectURL when there are no pending images on reset', () => {
+      resetRecResourceFileTransferStore();
+
+      expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('resets store to initial state even when pending images have blob URLs', () => {
+      const blobImage: GalleryImage = {
+        ...baseImage,
+        id: 'img-blob',
+        previewUrl: 'blob:http://localhost/abc-blob',
+        uploadComplete: true,
+      };
+      addPendingImage(blobImage);
+      addPendingDoc(
+        anotherDoc ||
+          ({
+            id: 'doc-2',
+            name: 'doc2.pdf',
+            date: '2024-01-02',
+            url: 'http://example.com/doc2.pdf',
+            extension: 'pdf',
+            type: 'document',
+          } as any),
+      );
+
+      resetRecResourceFileTransferStore();
+
+      expect(recResourceFileTransferStore.state.pendingImages).toEqual([]);
+      expect(recResourceFileTransferStore.state.pendingDocs).toEqual([]);
+      expect(recResourceFileTransferStore.state.galleryImages).toEqual([]);
     });
   });
 });

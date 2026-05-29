@@ -185,7 +185,7 @@ function addPendingFile<T extends GalleryFile>(file: T, type: FileType): void {
     } else {
       return {
         ...prev,
-        pendingImages: [file as GalleryImage, ...prev.pendingImages],
+        pendingImages: [file as unknown as GalleryImage, ...prev.pendingImages],
       };
     }
   });
@@ -221,6 +221,11 @@ function removePendingFile(id: string, type: FileType): void {
         pendingDocs: prev.pendingDocs.filter((doc) => doc.id !== id),
       };
     } else {
+      // Revoke any blob URL set during the GuardDuty bridge window before removing.
+      const img = prev.pendingImages.find((img) => img.id === id);
+      if (img?.previewUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(img.previewUrl);
+      }
       return {
         ...prev,
         pendingImages: prev.pendingImages.filter((img) => img.id !== id),
@@ -304,6 +309,14 @@ export function updateGalleryImage(id: string, updates: Partial<GalleryImage>) {
 }
 
 export function resetRecResourceFileTransferStore() {
+  // Revoke any blob URLs held by uploadComplete pending images.
+  // These blob URLs bridge the GuardDuty scan window and must be freed explicitly
+  // since they were created with URL.createObjectURL and are not garbage collected automatically.
+  recResourceFileTransferStore.state.pendingImages.forEach((img) => {
+    if (img.previewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(img.previewUrl);
+    }
+  });
   recResourceFileTransferStore.setState({
     ...INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE,
   });

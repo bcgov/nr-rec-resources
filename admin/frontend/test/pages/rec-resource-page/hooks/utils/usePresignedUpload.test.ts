@@ -82,6 +82,12 @@ describe('usePresignedUpload', () => {
       isResponseError: false,
       isAuthError: false,
     });
+    // URL.createObjectURL is not implemented in jsdom — stub it so image upload
+    // success paths that create blob preview URLs don't throw.
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue(
+      'blob:http://localhost/mock-pre-blob',
+    );
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
   });
 
   describe('Image upload flow', () => {
@@ -183,11 +189,22 @@ describe('usePresignedUpload', () => {
       });
       expect(finalizeCall.file_size_original).toBeGreaterThan(0);
 
-      // Success
+      // After finalize, pending image is transitioned to uploadComplete rather
+      // than removed — it stays visible with a blob URL while GuardDuty scans.
+      expect(mockUpdatePendingFile).toHaveBeenCalledWith(
+        'temp-img-123',
+        expect.objectContaining({
+          id: 'img-123',
+          isUploading: false,
+          uploadComplete: true,
+          previewUrl: 'blob:http://localhost/mock-pre-blob',
+        }),
+      );
+      expect(mockRemovePendingFile).not.toHaveBeenCalled();
+
       expect(mockAddSuccessNotification).toHaveBeenCalledWith(
         'Image "test-image" uploaded successfully.',
       );
-      expect(mockRemovePendingFile).toHaveBeenCalledWith('temp-img-123');
     });
 
     it('updates progress during image processing', async () => {
@@ -252,6 +269,125 @@ describe('usePresignedUpload', () => {
           processingStage: 'Processing stage 2',
         });
       });
+    });
+
+    it('uses empty string as previewUrl when no pre variant is present', async () => {
+      const mockImage = createMockGalleryFile<GalleryImage>('image', {
+        id: 'temp-img-123',
+        name: 'test-image',
+        pendingFile: createMockFile('test-image.jpg', 'image/jpeg'),
+      });
+
+      const presignResponse = {
+        image_id: 'img-456',
+        presigned_urls: [
+          {
+            size_code: 'original',
+            url: 'https://s3.com/original',
+            key: 'key-original',
+          },
+        ],
+      };
+
+      // processedData has no 'pre' variant
+      const processedData = {
+        variants: [
+          { sizeCode: 'original', blob: new Blob(['original']), size: 8 },
+        ],
+      };
+
+      mockPresignMutation.mutateAsync.mockResolvedValue(presignResponse);
+      mockProcessFile.mockResolvedValue(processedData);
+      mockS3UploadMutation.mutateAsync.mockResolvedValue({
+        key: 'key-original',
+        statusCode: 200,
+      });
+      mockFinalizeMutation.mutateAsync.mockResolvedValue({ id: 'img-456' });
+
+      const { result } = renderHook(() => usePresignedUpload<GalleryImage>(), {
+        wrapper: TestQueryClientProvider,
+      });
+
+      await result.current.executePresignedUpload({
+        recResourceId: 'rec-123',
+        galleryFile: mockImage,
+        tempId: 'temp-img-123',
+        presignMutation: mockPresignMutation,
+        finalizeMutation: mockFinalizeMutation,
+        processFile: mockProcessFile,
+        updatePendingFile: mockUpdatePendingFile,
+        removePendingFile: mockRemovePendingFile,
+        successMessage: (fileName) =>
+          `Image "${fileName}" uploaded successfully.`,
+        fileType: 'image',
+      });
+
+      // No 'pre' blob → previewUrl should be empty string
+      expect(mockUpdatePendingFile).toHaveBeenCalledWith(
+        'temp-img-123',
+        expect.objectContaining({
+          id: 'img-456',
+          uploadComplete: true,
+          previewUrl: '',
+        }),
+      );
+      expect(URL.createObjectURL).not.toHaveBeenCalled();
+      expect(mockRemovePendingFile).not.toHaveBeenCalled();
+    });
+
+    it('calls onSuccess callback on image upload success', async () => {
+      const mockImage = createMockGalleryFile<GalleryImage>('image', {
+        id: 'temp-img-123',
+        name: 'test-image',
+        pendingFile: createMockFile('test-image.jpg', 'image/jpeg'),
+      });
+
+      const presignResponse = {
+        image_id: 'img-789',
+        presigned_urls: [
+          {
+            size_code: 'pre',
+            url: 'https://s3.com/pre',
+            key: 'key-pre',
+          },
+        ],
+      };
+
+      const processedData = {
+        variants: [{ sizeCode: 'pre', blob: new Blob(['pre']), size: 3 }],
+      };
+
+      const onSuccessMock = vi.fn();
+      mockPresignMutation.mutateAsync.mockResolvedValue(presignResponse);
+      mockProcessFile.mockResolvedValue(processedData);
+      mockS3UploadMutation.mutateAsync.mockResolvedValue({
+        key: 'key-pre',
+        statusCode: 200,
+      });
+      mockFinalizeMutation.mutateAsync.mockResolvedValue({ id: 'img-789' });
+
+      const { result } = renderHook(() => usePresignedUpload<GalleryImage>(), {
+        wrapper: TestQueryClientProvider,
+      });
+
+      await result.current.executePresignedUpload({
+        recResourceId: 'rec-123',
+        galleryFile: mockImage,
+        tempId: 'temp-img-123',
+        presignMutation: mockPresignMutation,
+        finalizeMutation: mockFinalizeMutation,
+        processFile: mockProcessFile,
+        updatePendingFile: mockUpdatePendingFile,
+        removePendingFile: mockRemovePendingFile,
+        successMessage: (fileName) =>
+          `Image "${fileName}" uploaded successfully.`,
+        fileType: 'image',
+        onSuccess: onSuccessMock,
+      });
+
+      expect(onSuccessMock).toHaveBeenCalledOnce();
+      // early return path must not also invoke removePendingFile
+      expect(mockRemovePendingFile).not.toHaveBeenCalled();
     });
 
     it('handles missing presigned URL for variant', async () => {
