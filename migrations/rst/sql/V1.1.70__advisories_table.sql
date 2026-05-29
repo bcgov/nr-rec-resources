@@ -55,4 +55,4 @@ comment on column rst.act_advisories_flat.expiry_date is 'Date when the advisory
 comment on column rst.act_advisories_flat.removal_date is 'Date when the advisory should  be removed from the system, providing a timeline for data retention and cleanup.';
 comment on column rst.act_advisories_flat.updated_date is 'Date when the advisory was last updated, allowing users to see how current the information is.';
 comment on column rst.act_advisories_flat.modified_date is 'Date when the advisory was last modified, providing a record of changes to the advisory information.';
-comment on column rst.act_advisories_flat.published_at is 'Date when the advisory was published and made visible to users, indicating when the information became available for public consumption.'; 
+comment on column rst.act_advisories_flat.published_at is 'Date when the advisory was published and made visible to users, indicating when the information became available for public consumption.';
