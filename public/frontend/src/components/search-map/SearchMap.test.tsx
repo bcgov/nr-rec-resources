@@ -68,6 +68,19 @@ vi.mock('@/components/search-map/hooks', () => ({
     setSelectedFeature: vi.fn(),
   })),
   useZoomToExtent: vi.fn(),
+  useRecreationBoundaryLayer: vi.fn(() => ({
+    layer: {
+      getSource: () => ({ getFeatures: () => [] }),
+      setVisible: vi.fn(),
+    },
+  })),
+  useRecreationTrailLayer: vi.fn(() => ({
+    layer: {
+      getSource: () => ({ getFeatures: () => [] }),
+      setVisible: vi.fn(),
+    },
+  })),
+  useMapFocusParam: vi.fn(() => ({ mode: undefined, value: undefined })),
 }));
 
 vi.mock('@bcgov/prp-map', () => ({

@@ -30,6 +30,7 @@ import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { useGetSiteOperatorById } from '@/service/queries/recreation-resource';
 import RecResourceReservation from './RecResourceReservation';
 import KnowBeforeYouGo from './section/KnowBeforeYouGo';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
 const RECREATION_SITE = 'Recreation site';
 
 const RecResourcePage = () => {
@@ -83,9 +84,7 @@ const RecResourcePage = () => {
     recreation_district,
   } = recResource || {};
 
-  const formattedName = name
-    ?.toLowerCase()
-    .replace(/(^\w|\s\w)/g, (m: string) => m.toUpperCase());
+  const formattedName = capitalizeWords(name);
 
   // Deduplicate access types
   const uniqueRecreationAccess = recreation_access
