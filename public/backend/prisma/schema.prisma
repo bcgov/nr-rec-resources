@@ -73,7 +73,7 @@ model recreation_activity {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_activity_code {
-  recreation_activity_code                                                                                           Int                               @id @default(autoincrement())
+  recreation_activity_code                                                                                           Int                               @id
   description                                                                                                        String?                           @db.VarChar(120)
   updated_at                                                                                                         DateTime?                         @default(now()) @db.Timestamp(6)
   sys_period                                                                                                         Unsupported("tstzrange")          @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
