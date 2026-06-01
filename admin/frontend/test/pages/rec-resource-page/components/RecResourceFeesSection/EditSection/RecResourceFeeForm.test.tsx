@@ -32,7 +32,33 @@ vi.mock('@/components/form', () => ({
       {label} - {options?.length || 0} options
     </div>
   ),
+  GroupedMultiSelectField: ({ name, label, options, isMulti }: any) => (
+    <div data-testid={`grouped-field-${name}`}>
+      {label} - {(options ?? []).flatMap((g: any) => g.options ?? []).length}{' '}
+      options - Multi: {isMulti ? 'true' : 'false'}
+    </div>
+  ),
 }));
+
+const mockGroupedFeeOptions = [
+  {
+    label: 'Additional fees',
+    options: [
+      {
+        value: 'A|D',
+        label: 'Day use',
+        group: 'A',
+        groupLabel: 'Additional fees',
+      },
+      {
+        value: 'A|P',
+        label: 'Parking',
+        group: 'A',
+        groupLabel: 'Additional fees',
+      },
+    ],
+  },
+];
 
 vi.mock('react-hook-form', () => ({
   Controller: ({ name, render }: any) => {
@@ -81,9 +107,10 @@ describe('RecResourceFeeFormFields (create)', () => {
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
+      groupedFeeOptions: mockGroupedFeeOptions as any,
       options: [
-        { id: 'D', label: 'Day use' },
-        { id: 'C', label: 'Camping' },
+        { id: 'A|D', label: 'Additional fees - Day use' },
+        { id: 'A|P', label: 'Additional fees - Parking' },
       ],
       isLoading: false,
     });
@@ -128,7 +155,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
-    const feeTypeField = screen.getByTestId('select-field-recreation_fee_code');
+    const feeTypeField = screen.getByTestId('grouped-field-fee_type_sub_type');
     expect(feeTypeField).toBeInTheDocument();
     expect(feeTypeField).toHaveTextContent('2 options');
   });
@@ -299,6 +326,7 @@ describe('RecResourceFeeFormFields (create)', () => {
 
   it('disables submit button when options are loading', () => {
     vi.mocked(useFeeOptions).mockReturnValueOnce({
+      groupedFeeOptions: [] as any,
       options: [],
       isLoading: true,
     });
@@ -384,9 +412,10 @@ describe('RecResourceFeeForm (edit mode)', () => {
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
+      groupedFeeOptions: mockGroupedFeeOptions as any,
       options: [
-        { id: 'D', label: 'Day use' },
-        { id: 'C', label: 'Camping' },
+        { id: 'A|D', label: 'Additional fees - Day use' },
+        { id: 'A|P', label: 'Additional fees - Parking' },
       ],
       isLoading: false,
     });
@@ -476,7 +505,8 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
-      options: [{ id: 'D', label: 'Day use' }],
+      groupedFeeOptions: mockGroupedFeeOptions as any,
+      options: [{ id: 'A|D', label: 'Additional fees - Day use' }],
       isLoading: false,
     });
 
@@ -498,7 +528,8 @@ describe('RecResourceFeeForm (recurring fee behavior)', () => {
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
-      options: [{ id: 'D', label: 'Day use' }],
+      groupedFeeOptions: mockGroupedFeeOptions as any,
+      options: [{ id: 'A|D', label: 'Additional fees - Day use' }],
       isLoading: false,
     });
 
@@ -524,7 +555,8 @@ describe('RecResourceFeeForm (checkbox onChange handlers)', () => {
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
-      options: [{ id: 'D', label: 'Day use' }],
+      groupedFeeOptions: mockGroupedFeeOptions as any,
+      options: [{ id: 'A|D', label: 'Additional fees - Day use' }],
       isLoading: false,
     });
   });

@@ -11,11 +11,13 @@ export const DAY_PRESET_OPTIONS = {
   CUSTOM: 'custom',
 } as const;
 
+export const FEE_APPLIES_DROPDOWN_OPTIONS = [
+  { value: FEE_APPLIES_OPTIONS.ALWAYS, label: 'Always' },
+  { value: FEE_APPLIES_OPTIONS.SPECIFIC_DATES, label: 'Specific Dates' },
+];
+
 export const addFeeSchemaBase = z.object({
-  recreation_fee_code: z
-    .string()
-    .min(1, 'Fee code is required')
-    .max(1, 'Fee code must be a single character'),
+  fee_type_sub_type: z.string().min(1, 'Fee type is required'),
   fee_amount: z.number().optional(),
   fee_applies: z.enum([
     FEE_APPLIES_OPTIONS.ALWAYS,

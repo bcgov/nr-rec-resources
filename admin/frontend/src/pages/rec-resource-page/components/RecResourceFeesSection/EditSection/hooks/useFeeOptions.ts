@@ -3,12 +3,6 @@ import { useGetRecreationResourceOptions } from '@/services';
 import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 import type { GroupedOptions, GroupedOption } from '@/components/form';
 
-const FEE_TYPE_GROUP_LABELS: Record<string, string> = {
-  O: 'Overnight',
-  T: 'Trail use',
-  A: 'Additional fees',
-};
-
 export const useFeeOptions = () => {
   const { data: resourceOptions, isLoading } = useGetRecreationResourceOptions([
     GetOptionsByTypesTypesEnum.FeeType,
@@ -22,12 +16,17 @@ export const useFeeOptions = () => {
 
   const groupedFeeOptions = useMemo((): GroupedOptions[] => {
     const groupMap = new Map<string, GroupedOption[]>();
+    const groupLabels = new Map<string, string>();
 
     for (const option of options) {
       const [typeCode, subTypeCode] = option.id.split('|');
       if (!typeCode || !subTypeCode) continue;
 
-      const groupLabel = FEE_TYPE_GROUP_LABELS[typeCode] ?? typeCode;
+      const [derivedGroupLabel, ...rest] = option.label.split(' - ');
+      const subTypeLabel = rest.length ? rest.join(' - ') : option.label;
+      const groupLabel = derivedGroupLabel || typeCode;
+
+      groupLabels.set(typeCode, groupLabel);
 
       if (!groupMap.has(typeCode)) {
         groupMap.set(typeCode, []);
@@ -35,16 +34,14 @@ export const useFeeOptions = () => {
 
       groupMap.get(typeCode)!.push({
         value: option.id,
-        label: option.label.includes(' - ')
-          ? option.label.split(' - ').slice(1).join(' - ')
-          : option.label,
+        label: subTypeLabel,
         group: typeCode,
         groupLabel,
       });
-    } // <- this was missing
+    }
 
     return Array.from(groupMap.entries()).map(([typeCode, opts]) => ({
-      label: FEE_TYPE_GROUP_LABELS[typeCode] ?? typeCode,
+      label: groupLabels.get(typeCode) ?? typeCode,
       options: opts,
     }));
   }, [options]);

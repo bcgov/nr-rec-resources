@@ -42,25 +42,25 @@ on conflict (recreation_fee_code, recreation_fee_sub_code)
 update rst.recreation_fee
 set
     recreation_fee_code = 'O',
-    recreation_fee_sub_code = 'CAMPING'
+    recreation_fee_sub_code = 'C'
 where recreation_fee_code = 'C';
 
 update rst.recreation_fee
 set
     recreation_fee_code = 'O',
-    recreation_fee_sub_code = 'HUTS'
+    recreation_fee_sub_code = 'H'
 where recreation_fee_code = 'H';
 
 update rst.recreation_fee
 set
     recreation_fee_code = 'A',
-    recreation_fee_sub_code = 'DAY_USE'
+    recreation_fee_sub_code = 'D'
 where recreation_fee_code = 'D';
 
 update rst.recreation_fee
 set
     recreation_fee_code = 'A',
-    recreation_fee_sub_code = 'PARKING'
+    recreation_fee_sub_code = 'P'
 where recreation_fee_code = 'P';
 
 -- Legacy trail-use rows intentionally keep null subtype until staff updates them.

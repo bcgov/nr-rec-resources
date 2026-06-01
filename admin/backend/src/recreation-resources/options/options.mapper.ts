@@ -180,8 +180,8 @@ export const mapFeeTypeSubtypeOptions: OptionTransformMiddleware = (
   raw: any[],
 ) => {
   const withType = mapped.map((option, index) => {
-    const typeCode = raw[index]?.recreation_fee_code;
-    const typeLabel = FEE_TYPE_LABELS[typeCode] ?? typeCode ?? '';
+    const typeCode = raw[index]?.recreation_fee_code ?? '';
+    const typeLabel = FEE_TYPE_LABELS[typeCode] ?? typeCode;
 
     return {
       id: `${typeCode}|${option.id}`,

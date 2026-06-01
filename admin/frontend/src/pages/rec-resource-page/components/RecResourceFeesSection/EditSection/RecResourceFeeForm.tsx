@@ -3,11 +3,9 @@ import {
   DateInputField,
   MonthDayPicker,
   SelectField,
-  GroupedMultiSelectField, // add this
+  GroupedMultiSelectField,
 } from '@/components/form';
-import {
-  RecreationFeeUIModel,
-} from '@/services';
+import { RecreationFeeUIModel } from '@/services';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { Controller } from 'react-hook-form';
 import {
@@ -26,13 +24,13 @@ import './RecResourceFeeForm.scss';
 type FeeFormMode = 'create' | 'edit';
 
 export const RecResourceFeeForm = ({
-                                     recResourceId,
-                                     mode,
-                                     initialFee,
-                                     onDone,
-                                     showDeleteAction = false,
-                                     onDelete,
-                                   }: {
+  recResourceId,
+  mode,
+  initialFee,
+  onDone,
+  showDeleteAction = false,
+  onDelete,
+}: {
   recResourceId: string;
   mode: FeeFormMode;
   initialFee?: RecreationFeeUIModel;

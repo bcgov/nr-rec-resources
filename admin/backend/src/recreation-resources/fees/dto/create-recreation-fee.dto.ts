@@ -27,9 +27,9 @@ export class CreateRecreationFeeDto {
     required: false,
   })
   @IsString()
-  @Matches(/^[A-Z_]{2,30}$/, {
+  @Matches(/^[A-Z_]{1,30}$/, {
     message:
-      'recreation_fee_sub_code must be uppercase letters/underscores (2-30 chars)',
+      'recreation_fee_sub_code must be uppercase letters/underscores (1-30 chars)',
   })
   @IsOptional()
   recreation_fee_sub_code?: string;

@@ -17,15 +17,9 @@ import {
 
 type FeeFormMode = 'create' | 'edit';
 
-const LEGACY_FEE_CODE_MAP: Record<
-  string,
-  { recreation_fee_code: string; recreation_fee_sub_code?: string }
-> = {
-  C: { recreation_fee_code: 'O', recreation_fee_sub_code: 'CAMPING' },
-  H: { recreation_fee_code: 'O', recreation_fee_sub_code: 'HUTS' },
-  D: { recreation_fee_code: 'A', recreation_fee_sub_code: 'DAY_USE' },
-  P: { recreation_fee_code: 'A', recreation_fee_sub_code: 'PARKING' },
-};
+const FEE_CODE_REGEX = /^[A-Z]$/;
+// Allow canonical short codes (e.g., D) and legacy long aliases (e.g., DAY_USE).
+const FEE_SUB_CODE_REGEX = /^[A-Z_]{1,30}$/;
 
 const toFeeTypeSubtypeValue = (fee?: RecreationFeeUIModel): string => {
   const feeWithSubtype = fee as RecreationFeeUIModel & {
@@ -39,32 +33,34 @@ const toFeeTypeSubtypeValue = (fee?: RecreationFeeUIModel): string => {
     return '';
   }
 
-  return `${feeWithSubtype.recreation_fee_code}|${feeWithSubtype.recreation_fee_sub_code}`;
+  // Store as uppercase TYPE|SUBTYPE to match option IDs from DB.
+  return `${feeWithSubtype.recreation_fee_code.toUpperCase()}|${feeWithSubtype.recreation_fee_sub_code.toUpperCase()}`;
 };
 
-const parseFeeTypeSubtypeValue = (value: string) => {
-  const normalizedValue = value.trim();
+export const parseFeeTypeSubtypeValue = (value: string) => {
+  if (!value) {
+    return {
+      recreation_fee_code: '',
+      recreation_fee_sub_code: '',
+    };
+  }
+
+  // Normalize to uppercase to keep payload values consistent.
+  const normalizedValue = value.trim().toUpperCase();
 
   if (normalizedValue.includes('|')) {
     const [recreation_fee_code, recreation_fee_sub_code] =
       normalizedValue.split('|');
 
     return {
-      recreation_fee_code,
-      recreation_fee_sub_code,
+      recreation_fee_code: recreation_fee_code ?? '',
+      recreation_fee_sub_code: recreation_fee_sub_code ?? '',
     };
   }
 
-  const legacyMapped = LEGACY_FEE_CODE_MAP[normalizedValue];
-  if (legacyMapped) {
-    return legacyMapped;
-  }
-
-  const [recreation_fee_code, recreation_fee_sub_code] = value.split('|');
-
   return {
-    recreation_fee_code,
-    recreation_fee_sub_code,
+    recreation_fee_code: normalizedValue,
+    recreation_fee_sub_code: '',
   };
 };
 
@@ -143,7 +139,7 @@ export function useFeeForm({
       fee_type_sub_type: toFeeTypeSubtypeValue(initialFee),
       fee_amount: initialFee.fee_amount ?? undefined,
       fee_applies: feeApplies,
-      is_recurring: !!initialFee.recurring_ind,
+      is_recurring: initialFee.recurring_ind,
       fee_start_date: initialFee.fee_start_date
         ? initialFee.fee_start_date.toISOString().split('T')[0]
         : undefined,
@@ -188,10 +184,8 @@ export function useFeeForm({
   });
   const hasInitializedDayPreset = useRef(false);
 
-  // In edit mode, amount is locked until FDL checkbox is ticked
   const amountLocked = mode === 'edit' && !fdlChecked;
 
-  // FDL checkbox ticking alone should not enable the submit button in edit mode
   const isSubmittable =
     mode === 'edit'
       ? Object.keys(dirtyFields).some(
@@ -200,7 +194,6 @@ export function useFeeForm({
       : true;
 
   useEffect(() => {
-    // Preserve initial day selections until the user changes the preset.
     if (!hasInitializedDayPreset.current) {
       hasInitializedDayPreset.current = true;
       return;
@@ -229,9 +222,21 @@ export function useFeeForm({
     const { recreation_fee_code, recreation_fee_sub_code } =
       parseFeeTypeSubtypeValue(data.fee_type_sub_type);
 
-    if (!recreation_fee_sub_code) {
+    // Guard: require valid fee code and sub-code
+    if (!FEE_CODE_REGEX.test(recreation_fee_code)) {
       setError('fee_type_sub_type', {
-        message: 'Fee sub-type is required',
+        message: 'Please select a valid fee type',
+      });
+      return;
+    }
+
+    // Sub-code is required and must be uppercase letters/underscores.
+    if (
+      !recreation_fee_sub_code ||
+      !FEE_SUB_CODE_REGEX.test(recreation_fee_sub_code)
+    ) {
+      setError('fee_type_sub_type', {
+        message: 'Please select a valid fee subtype',
       });
       return;
     }
@@ -239,7 +244,9 @@ export function useFeeForm({
     const dayIndicators = transformDayIndicators(data);
     const isSpecificDates =
       data.fee_applies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
-    const isRecurring = isSpecificDates && data.is_recurring;
+    // Don't shadow the top-level `isRecurring` (from useWatch). Use a distinct name
+    // for the computed value coming from the submitted form data.
+    const isRecurringFromData = isSpecificDates && data.is_recurring;
 
     if (mode === 'create') {
       const feeData = {
@@ -248,11 +255,13 @@ export function useFeeForm({
         recreation_fee_sub_code,
         fee_amount: data.fee_amount ?? undefined,
         ...dayIndicators,
-        recurring_ind: isRecurring,
-        recurring_start_mmdd: isRecurring
+        recurring_ind: isRecurringFromData,
+        recurring_start_mmdd: isRecurringFromData
           ? data.recurring_start_mmdd
           : undefined,
-        recurring_end_mmdd: isRecurring ? data.recurring_end_mmdd : undefined,
+        recurring_end_mmdd: isRecurringFromData
+          ? data.recurring_end_mmdd
+          : undefined,
         fee_start_date:
           isSpecificDates && !isRecurring ? data.fee_start_date : undefined,
         fee_end_date:
@@ -282,16 +291,18 @@ export function useFeeForm({
       recreation_fee_code,
       recreation_fee_sub_code,
       fee_amount: data.fee_amount ?? null,
-      recurring_ind: isRecurring,
-      recurring_start_mmdd: isRecurring ? data.recurring_start_mmdd : null,
-      recurring_end_mmdd: isRecurring ? data.recurring_end_mmdd : null,
+      recurring_ind: isRecurringFromData,
+      recurring_start_mmdd: isRecurringFromData
+        ? data.recurring_start_mmdd
+        : null,
+      recurring_end_mmdd: isRecurringFromData ? data.recurring_end_mmdd : null,
       fee_start_date:
         isSpecificDates && !isRecurring ? data.fee_start_date : null,
       fee_end_date: isSpecificDates && !isRecurring ? data.fee_end_date : null,
       ...dayIndicators,
     };
-    await updateMutation.mutateAsync(updateData);
 
+    await updateMutation.mutateAsync(updateData);
     reset();
     done();
   };
