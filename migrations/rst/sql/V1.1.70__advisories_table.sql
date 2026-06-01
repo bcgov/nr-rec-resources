@@ -23,6 +23,7 @@ create table if not exists rst.act_advisories_flat (
     updated_date timestamptz NOT NULL,
     modified_date timestamptz NOT NULL,
     published_at timestamptz NULL,
+    PRIMARY KEY (rec_resource_id, advisory_number),
     CONSTRAINT act_advisories_flat_rec_resource_id_fkey FOREIGN KEY (rec_resource_id)
         REFERENCES rst.recreation_resource (rec_resource_id) MATCH SIMPLE
         ON UPDATE NO ACTION
