@@ -13,9 +13,17 @@ flowchart TD
       CFAssets["CloudFront CDN (Assets)"]
       CFAssets@{ icon: "aws:arch-amazon-cloudfront", pos: "b" }
     end
+    subgraph subGraphStorage["S3 Storage"]
+      StorageCDN["CloudFront CDN (Storage)"]
+      StorageCDN@{ icon: "aws:arch-amazon-cloudfront", pos: "b" }
+      ImagesS3["S3 (Images)"]
+      ImagesS3@{ icon: "aws:arch-amazon-simple-storage-service", pos: "b" }
+      DocsS3["S3 (Documents)"]
+      DocsS3@{ icon: "aws:arch-amazon-simple-storage-service", pos: "b" }
+    end
     subgraph subGraph1["Admin Backend"]
-      CDN["CloudFront CDN"]
-      CDN@{ icon: "aws:arch-amazon-cloudfront", pos: "b" }
+      APICDN["API CDN"]
+      APICDN@{ icon: "aws:arch-amazon-cloudfront", pos: "b" }
       ALB["App Load Balancer"]
       ALB@{ icon: "aws:arch-elastic-load-balancing", pos: "b" }
       Gateway["API Gateway"]
@@ -32,23 +40,31 @@ flowchart TD
       KeycloakExt@{ icon: "azure:multifactor-authentication", pos: "b" }
     end
     UI e1@-->|"SSO Auth"| KeycloakExt
-    UI e2@-->|"API Call"| CDN
-    CDN e5@-->|"API Routing"| Gateway
+    UI e2@-->|"API Call"| APICDN
+    APICDN e5@-->|"API Routing"| Gateway
     Gateway e6@-->|"Load Balancing"| ALB
     ALB e7@--> API
     API e13@-->|"DB Query"| DB
     API e14@-->|"User Info"| KeycloakExt
     UI e16@-->|"Asset Fetch"| CFAssets
-    CFAssets e17@--> |"Asset Origin"| S3
+    CFAssets e17@-->|"Asset Origin"| S3
+    UI e18@-->|"File Read"| StorageCDN
+    StorageCDN e19@-->|"CDN Origin"| ImagesS3
+    StorageCDN e20@-->|"CDN Origin"| DocsS3
+    UI e21@-->|"Direct Upload"| ImagesS3
+    UI e22@-->|"Direct Upload"| DocsS3
     UI:::frontend
     API:::backend
     DB:::database
-    CDN:::aws
+    APICDN:::aws
     ALB:::aws
     Gateway:::aws
     KeycloakExt:::external
     S3:::aws
     CFAssets:::aws
+    StorageCDN:::aws
+    ImagesS3:::aws
+    DocsS3:::aws
   end
 
   class Container container;
@@ -62,3 +78,8 @@ flowchart TD
   e15@{ animation: fast }
   e16@{ animation: fast }
   e17@{ animation: fast }
+  e18@{ animation: fast }
+  e19@{ animation: slow }
+  e20@{ animation: slow }
+  e21@{ animation: fast }
+  e22@{ animation: fast }
