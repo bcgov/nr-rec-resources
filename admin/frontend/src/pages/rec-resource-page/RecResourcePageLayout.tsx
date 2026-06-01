@@ -56,23 +56,21 @@ export const RecResourcePageLayout = () => {
       aria-label="Recreation resource content"
     >
       <Breadcrumbs />
-      <ResourceHeaderSection recResource={recResource} />
-
       {isArchived && <ArchivedNotice />}
 
-      {!isArchived && (
-        <Row>
-          <Col md={3}>
-            <RecResourceVerticalNav
-              activeTab={activeTab}
-              resourceId={rec_resource_id}
-            />
-          </Col>
-          <Col md={9}>
-            <Outlet />
-          </Col>
-        </Row>
-      )}
+      <ResourceHeaderSection recResource={recResource} />
+
+      <Row>
+        <Col md={3}>
+          <RecResourceVerticalNav
+            activeTab={activeTab}
+            resourceId={rec_resource_id}
+          />
+        </Col>
+        <Col md={9}>
+          <Outlet />
+        </Col>
+      </Row>
     </Stack>
   );
 };

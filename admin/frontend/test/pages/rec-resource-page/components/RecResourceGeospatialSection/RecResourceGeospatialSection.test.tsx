@@ -33,7 +33,7 @@ vi.mock(
 );
 
 vi.mock('@/components/auth', () => ({
-  RoleGuard: ({ children }: any) => <>{children}</>,
+  EditableGuard: ({ children }: any) => <>{children}</>,
 }));
 
 const mockUseAuthorizations = vi.fn();
@@ -70,7 +70,7 @@ describe('RecResourceGeospatialSection', () => {
 
     mockUseRecResource.mockReturnValue({
       rec_resource_id: 'REC0001',
-      recResource: {},
+      recResource: { rec_status_code: 'OP' },
       isLoading: false,
       error: undefined,
     });

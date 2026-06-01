@@ -1,7 +1,8 @@
 import { CustomButton } from '@/components';
-import { RoleGuard } from '@/components/auth';
+import { EditableGuard } from '@/components/auth';
 import { ROLES } from '@/hooks/useAuthorizations';
 import { RecResourceFileSection } from '@/pages/rec-resource-page/components/RecResourceFileSection';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import {
   faEllipsisH,
@@ -56,7 +57,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   </CustomButton>
 );
 
-const ActionButtonsSection = () => {
+const ActionButtonsSection = ({ isArchived }: { isArchived: boolean }) => {
   const {
     isDocumentUploadDisabled,
     isImageUploadDisabled,
@@ -72,7 +73,7 @@ const ActionButtonsSection = () => {
     >
       <h2 className="mb-0">Files</h2>
 
-      <RoleGuard requireAll={[ROLES.ADMIN]}>
+      <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
         <>
           {/* Responsive actions: dropdown on mobile, buttons on desktop */}
           {/* Mobile: show dropdown */}
@@ -132,19 +133,22 @@ const ActionButtonsSection = () => {
             />
           </Stack>
         </>
-      </RoleGuard>
+      </EditableGuard>
     </Stack>
   );
 };
 
 export const RecResourceFilesPage = () => {
+  const { recResource } = useRecResource();
+  const isArchived = recResource?.rec_status_code === 'AR';
+
   return (
     <Stack direction="vertical" gap={4}>
-      <ActionButtonsSection />
-      <RoleGuard requireAll={[ROLES.ADMIN]}>
+      <ActionButtonsSection isArchived={isArchived} />
+      <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
         <InfoBanner />
-      </RoleGuard>
-      <RecResourceFileSection />
+      </EditableGuard>
+      <RecResourceFileSection isArchived={isArchived} />
     </Stack>
   );
 };

@@ -379,7 +379,7 @@ describe('RecResourcePageLayout', () => {
     );
   });
 
-  it('renders ArchivedNotice and hides nav/outlet when resource is archived', async () => {
+  it('renders ArchivedNotice and keeps nav/outlet visible when resource is archived', async () => {
     const mockResource = {
       name: 'Test Resource',
       rec_resource_id: '123',
@@ -397,9 +397,9 @@ describe('RecResourcePageLayout', () => {
     await waitFor(() => {
       expect(screen.getByTestId('archived-notice')).toBeInTheDocument();
       expect(
-        screen.queryByTestId('rec-resource-vertical-nav'),
-      ).not.toBeInTheDocument();
-      expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+        screen.getByTestId('rec-resource-vertical-nav'),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId('outlet')).toBeInTheDocument();
     });
   });
 

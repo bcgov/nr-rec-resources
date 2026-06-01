@@ -7,7 +7,7 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 vi.mock('@/components/auth', () => ({
-  RoleGuard: ({ children }: any) => <>{children}</>,
+  EditableGuard: ({ children }: any) => <>{children}</>,
 }));
 
 const mockUseAuthorizations = vi.fn();
