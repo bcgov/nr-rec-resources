@@ -34,6 +34,10 @@ export interface GalleryImage extends GalleryFile {
   variants: Array<RecreationResourceImageVariantDto>;
   previewUrl: string;
   type: 'image';
+  // Set to true after a successful upload while the entry is still pending.
+  // The pending image stays visible (using a local blob URL) until navigation,
+  // bridging the GuardDuty scan window during which the CloudFront URL is inaccessible.
+  uploadComplete?: boolean;
   consentData?: ImageUploadConsentData;
   file_size?: number;
   date_taken?: string;

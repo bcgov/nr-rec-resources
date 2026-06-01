@@ -52,9 +52,20 @@ export function useRecResourceFileTransferState() {
     setGalleryDocuments([...pendingDocs, ...galleryDocumentsFromServer]);
   }, [pendingDocs, galleryDocumentsFromServer]);
 
-  // Sync galleryImagesFromServer to store
+  // Sync galleryImagesFromServer to store.
+  // uploadComplete pending images bridge the GuardDuty scan window: they stay
+  // visible (using a local blob URL as previewUrl) until navigation. Their id
+  // has been updated to the real server image_id, so we filter out the matching
+  // server entry to avoid showing the same image twice.
   useEffect(() => {
-    setGalleryImages([...pendingImages, ...galleryImagesFromServer]);
+    const bridgedIds = new Set(
+      pendingImages.filter((img) => img.uploadComplete).map((img) => img.id),
+    );
+    const serverImages =
+      bridgedIds.size === 0
+        ? galleryImagesFromServer
+        : galleryImagesFromServer.filter((img) => !bridgedIds.has(img.id));
+    setGalleryImages([...pendingImages, ...serverImages]);
   }, [pendingImages, galleryImagesFromServer]);
 
   const { handleFileAction, handleGeneralAction } = useGalleryActions();

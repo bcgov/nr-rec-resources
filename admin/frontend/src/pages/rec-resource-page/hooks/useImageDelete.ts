@@ -4,6 +4,7 @@ import { useStore } from '@tanstack/react-store';
 import { useCallback } from 'react';
 import {
   recResourceFileTransferStore,
+  removePendingImage,
   setFileToDelete,
   updateGalleryImage,
 } from '../store/recResourceFileTransferStore';
@@ -18,6 +19,8 @@ export function useImageDelete() {
 
   const handleDelete = useCallback(
     async (onSuccess?: () => void) => {
+      // Capture the id before the async operation clears fileToDelete.
+      const deletingId = fileToDelete?.id;
       await executeDelete({
         recResourceId: recResource?.rec_resource_id,
         file: fileToDelete,
@@ -32,7 +35,13 @@ export function useImageDelete() {
         successMessage: (fileName) =>
           `Image "${fileName}" deleted successfully.`,
         errorMessage: 'Unable to delete image: missing required information.',
-        onSuccess,
+        onSuccess: () => {
+          // Remove any uploadComplete pending image that was bridging this server
+          // image while GuardDuty ran. For regular server images this is a no-op
+          // since no pending entry with that id exists.
+          if (deletingId) removePendingImage(deletingId);
+          onSuccess?.();
+        },
       });
     },
     [executeDelete, deleteResourceImageMutation, recResource, fileToDelete],
