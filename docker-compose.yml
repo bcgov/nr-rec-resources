@@ -93,7 +93,7 @@ services:
   localstack:
     profiles: ['local']
     container_name: localstack
-    image: localstack/localstack:latest
+    image: localstack/localstack:3.8.1
     ports:
       - '4566:4566' # LocalStack Gateway
       - '4510-4559:4510-4559' # External services port range

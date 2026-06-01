@@ -1,3 +1,5 @@
+import { getBasePath } from '@/service/hooks/helpers';
+
 export enum MAP_LAYER_OPTIONS {
   TILE_SIZE = 512,
   MAX_ZOOM_LEVEL = 30,
@@ -45,7 +47,7 @@ export const WILDFIRE_LOCATION_LAYER =
 export const WILDFIRE_PERIMETER_LAYER =
   'https://services6.arcgis.com/ubm4tcTYICKBpist/arcgis/rest/services/BCWS_FirePerimeters_PublicView/FeatureServer/0';
 
-export const BCGW_PROXY_URL = '/api/v1/geospatial/bcgw';
+export const BCGW_PROXY_URL = `${getBasePath()}/api/v1/geospatial/bcgw`;
 
 export const BOUNDARY_LAYERS_MIN_ZOOM = 10;
 

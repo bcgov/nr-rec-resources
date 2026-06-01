@@ -74,6 +74,8 @@ describe('RecResourceOverviewSection', () => {
   });
 
   const recResource = {
+    rec_resource_id: '00000000-0000-0000-0000-000000000000',
+    rec_status_code: 'OP',
     description: '<b>Test Description</b>',
     closest_community: 'Test Community',
     natural_resource_org_unit_name: 'Test Natural Resource District',
@@ -348,6 +350,18 @@ describe('RecResourceOverviewSection', () => {
     expect(
       screen.getByText('RecResourceEstablishmentOrderSection'),
     ).toBeInTheDocument();
+  });
+
+  it('hides Edit action for archived resources', () => {
+    renderWithProvider(
+      <RecResourceOverviewSection
+        recResource={{ ...recResource, rec_status_code: 'AR' }}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('link', { name: 'Edit' }),
+    ).not.toBeInTheDocument();
   });
 
   it('renders the Establishment Order section regardless of flagged-content access', () => {

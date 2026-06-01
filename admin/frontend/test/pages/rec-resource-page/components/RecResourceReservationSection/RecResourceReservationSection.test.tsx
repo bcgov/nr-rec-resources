@@ -12,7 +12,12 @@ vi.mock('@/routes/rec-resource/$id/reservation', () => ({
 }));
 
 vi.mock('@/components/auth', () => ({
-  RoleGuard: ({ children }: any) => <>{children}</>,
+  EditableGuard: ({ children }: any) => <>{children}</>,
+}));
+
+const mockUseRecResource = vi.fn();
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
+  useRecResource: () => mockUseRecResource(),
 }));
 
 const mockUseAuthorizations = vi.fn();
@@ -57,6 +62,11 @@ describe('RecResourceReservationSection', () => {
       canEditFeatureFlag: true,
     });
     vi.mocked(Route.useParams).mockReturnValue({ id: 'REC123' });
+    mockUseRecResource.mockReturnValue({
+      recResource: { rec_status_code: 'OP' },
+      isLoading: false,
+      error: null,
+    });
   });
 
   it('renders correctly when reservationInfo is null', () => {

@@ -35,6 +35,7 @@ vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   },
   updateGalleryImage: vi.fn(),
   setFileToDelete: vi.fn(),
+  removePendingImage: vi.fn(),
 }));
 
 vi.mock('@/pages/rec-resource-page/hooks/utils/useFileDelete', () => ({
@@ -104,7 +105,9 @@ describe('useImageDelete', () => {
         updateGalleryFile: store.updateGalleryImage,
         setFileToDelete: store.setFileToDelete,
         errorMessage: 'Unable to delete image: missing required information.',
-        onSuccess,
+        // onSuccess is always a wrapper that calls removePendingImage then the
+        // original callback — never the raw callback reference or undefined.
+        onSuccess: expect.any(Function),
       });
 
       // Verify getMutationParams function
@@ -132,11 +135,77 @@ describe('useImageDelete', () => {
         await result.current.handleDelete();
       });
 
+      // onSuccess is always a wrapper function even when no callback is provided.
       expect(mockExecuteDelete).toHaveBeenCalledWith(
         expect.objectContaining({
-          onSuccess: undefined,
+          onSuccess: expect.any(Function),
         }),
       );
+    });
+
+    describe('onSuccess wrapper: GuardDuty bridge cleanup', () => {
+      it('calls removePendingImage with fileToDelete.id when onSuccess fires', async () => {
+        // Make executeDelete invoke the onSuccess from its config so we can
+        // observe the wrapper's side-effects.
+        mockExecuteDelete.mockImplementation(async (config: any) => {
+          await config.onSuccess?.();
+        });
+
+        const { result } = renderHook(() => useImageDelete());
+
+        await act(async () => {
+          await result.current.handleDelete();
+        });
+
+        expect(store.removePendingImage).toHaveBeenCalledWith('test-image-123');
+      });
+
+      it('calls the provided onSuccess callback after removePendingImage', async () => {
+        const onSuccess = vi.fn();
+        mockExecuteDelete.mockImplementation(async (config: any) => {
+          await config.onSuccess?.();
+        });
+
+        const { result } = renderHook(() => useImageDelete());
+
+        await act(async () => {
+          await result.current.handleDelete(onSuccess);
+        });
+
+        expect(store.removePendingImage).toHaveBeenCalledWith('test-image-123');
+        expect(onSuccess).toHaveBeenCalledOnce();
+      });
+
+      it('does not call removePendingImage when fileToDelete is undefined', async () => {
+        vi.mocked(useStore).mockReturnValue({ fileToDelete: undefined });
+        mockExecuteDelete.mockImplementation(async (config: any) => {
+          await config.onSuccess?.();
+        });
+
+        const { result } = renderHook(() => useImageDelete());
+
+        await act(async () => {
+          await result.current.handleDelete();
+        });
+
+        expect(store.removePendingImage).not.toHaveBeenCalled();
+      });
+
+      it('still calls provided onSuccess even when fileToDelete is undefined', async () => {
+        vi.mocked(useStore).mockReturnValue({ fileToDelete: undefined });
+        mockExecuteDelete.mockImplementation(async (config: any) => {
+          await config.onSuccess?.();
+        });
+        const onSuccess = vi.fn();
+
+        const { result } = renderHook(() => useImageDelete());
+
+        await act(async () => {
+          await result.current.handleDelete(onSuccess);
+        });
+
+        expect(onSuccess).toHaveBeenCalledOnce();
+      });
     });
 
     it('passes fileToDelete from store to executeDelete', async () => {

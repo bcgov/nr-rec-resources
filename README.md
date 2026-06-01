@@ -327,7 +327,7 @@ Schedule job runs every saturday and keep schema documentation upto date in
 
 ![RST Public App Architecture](docs/rst-arch.drawio.svg)
 
-#### Admin App
+#### Admin App (with S3)
 
 ![RST Admin App Architecture](docs/admin-architecture/rst-admin-arch.mermaid.svg)
 

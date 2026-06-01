@@ -1,6 +1,7 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { RoleGuard } from '@/components/auth';
+import { EditableGuard } from '@/components/auth';
 import { RecreationResourceReservationInfoDto } from '@/services';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { Link } from '@tanstack/react-router';
 import { Col, Row, Stack } from 'react-bootstrap';
 import { Route } from '@/routes/rec-resource/$id/reservation';
@@ -21,6 +22,8 @@ export const RecResourceReservationSection = (
 ) => {
   const params = Route.useParams();
   const recResourceId = params?.id;
+  const { recResource } = useRecResource();
+  const isArchived = recResource?.rec_status_code === 'AR';
   const { reservationInfo } = props;
   const reservationMethodKey = getReservationMethod(reservationInfo);
   const reservationMethod = reservationMethodKey
@@ -60,7 +63,7 @@ export const RecResourceReservationSection = (
       <div className="reservation-section__header d-flex justify-content-between align-items-center">
         <h2 className="mb-0">Reservations</h2>
 
-        <RoleGuard requireAll={[ROLES.ADMIN]}>
+        <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
           <Link
             to={ROUTE_PATHS.REC_RESOURCE_RESERVATION_EDIT.replace(
               '$id',
@@ -70,7 +73,7 @@ export const RecResourceReservationSection = (
           >
             Edit
           </Link>
-        </RoleGuard>
+        </EditableGuard>
       </div>
 
       <div className="reservation-panel">

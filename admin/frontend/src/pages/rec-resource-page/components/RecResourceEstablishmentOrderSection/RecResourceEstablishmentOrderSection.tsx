@@ -11,14 +11,17 @@ import { DocumentUploadModal } from '@/components/file/DocumentUploadModal';
 
 interface RecResourceEstablishmentOrderSectionProps {
   recResourceId: string;
+  isArchived?: boolean;
 }
 
 const MAX_UPLOADS = 30;
 
 export const RecResourceEstablishmentOrderSection = ({
   recResourceId,
+  isArchived = false,
 }: RecResourceEstablishmentOrderSectionProps) => {
   const { canEdit } = useAuthorizations();
+  const canModifyFiles = canEdit && !isArchived;
   const {
     galleryFiles,
     isLoading,
@@ -35,7 +38,8 @@ export const RecResourceEstablishmentOrderSection = ({
   } = useEstablishmentOrderState(recResourceId);
 
   const reachedMaxUploads = (galleryFiles?.length ?? 0) >= MAX_UPLOADS;
-  const uploadDisabled = !canEdit || isUploadDisabled || reachedMaxUploads;
+  const uploadDisabled =
+    !canModifyFiles || isUploadDisabled || reachedMaxUploads;
 
   return (
     <section>
@@ -54,14 +58,14 @@ export const RecResourceEstablishmentOrderSection = ({
         description="Documents are only accepted in PDF format with a 9.5 MB file size limit. Maximum 30 documents."
         items={galleryFiles}
         uploadLabel="Upload"
-        onFileUploadTileClick={canEdit ? handleUploadClick : undefined}
+        onFileUploadTileClick={canModifyFiles ? handleUploadClick : undefined}
         uploadDisabled={uploadDisabled}
-        showInfoBanner={canEdit}
+        showInfoBanner={canModifyFiles}
         renderItem={(file) => (
           <GalleryFileCard
             file={file}
             getFileActionHandler={handleFileAction}
-            actions={canEdit ? ESTABLISHMENT_ORDER_ACTIONS : []}
+            actions={canModifyFiles ? ESTABLISHMENT_ORDER_ACTIONS : []}
             topContent={
               <FontAwesomeIcon icon={faFilePdf} size="2x" color={COLOR_RED} />
             }

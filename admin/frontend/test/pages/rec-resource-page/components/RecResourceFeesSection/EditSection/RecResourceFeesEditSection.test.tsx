@@ -37,6 +37,7 @@ vi.mock('@/hooks/useAuthorizations', () => ({
 
 vi.mock('@/components/auth', () => ({
   RoleGuard: ({ children }: any) => <>{children}</>,
+  EditableGuard: ({ children }: any) => <>{children}</>,
 }));
 
 const mockFees = [
