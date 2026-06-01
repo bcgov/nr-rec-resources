@@ -1413,9 +1413,19 @@ view recreation_resource_type_view_public {
 
 /// This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 view recreation_resource_type_view_admin {
-  rec_resource_id        String? @db.VarChar(20)
-  rec_resource_type_code String? @db.VarChar(3)
-  description            String? @db.VarChar(200)
+  rec_resource_id        String               @unique @db.VarChar(20)
+  rec_resource_type_code String?              @db.VarChar(3)
+  description            String?              @db.VarChar(200)
+  recreation_resource    recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_type_view_admin_recreation_resource_fkey")
+
+  @@schema("rst")
+}
+
+view recreation_resource_type_view_public {
+  rec_resource_id        String               @unique @db.VarChar(20)
+  rec_resource_type_code String?              @db.VarChar
+  description            String?              @db.VarChar(200)
+  recreation_resource    recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_type_view_public_recreation_resource_fkey")
 
   @@schema("rst")
 }
