@@ -15,11 +15,13 @@ import { addSuccessNotification } from '@/store/notificationStore';
 interface RecResourceFeesTableProps {
   fees: RecreationFeeUIModel[];
   recResourceId?: string;
+  isArchived?: boolean;
 }
 
 export const RecResourceFeesTable = ({
   fees,
   recResourceId,
+  isArchived = false,
 }: RecResourceFeesTableProps) => {
   const { canEdit } = useAuthorizations();
   const deleteFee = useDeleteFee();
@@ -102,7 +104,7 @@ export const RecResourceFeesTable = ({
     {
       header: 'Actions',
       render: (fee: RecreationFeeUIModel) => {
-        if (!canEdit || !recResourceId) return <span>--</span>;
+        if (!canEdit || isArchived || !recResourceId) return <span>--</span>;
         return (
           <div className="d-flex align-items-center gap-3">
             <Link

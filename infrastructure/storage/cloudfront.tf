@@ -57,6 +57,21 @@ resource "aws_s3_bucket_policy" "images" {
             "s3:ExistingObjectTag/GuardDutyMalwareScanStatus" = "THREATS_FOUND"
           }
         }
+      },
+      {
+        # Deny access to objects that GuardDuty has not yet scanned (tag is absent).
+        # Prevents a window where a malicious file could be served
+        # between upload finalization and GuardDuty tagging the object.
+        Sid       = "DenyUnscannedObjects"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.images.arn}/*"
+        Condition = {
+          Null = {
+            "s3:ExistingObjectTag/GuardDutyMalwareScanStatus" = "true"
+          }
+        }
       }
     ]
   })
@@ -91,6 +106,20 @@ resource "aws_s3_bucket_policy" "documents" {
         Condition = {
           StringEquals = {
             "s3:ExistingObjectTag/GuardDutyMalwareScanStatus" = "THREATS_FOUND"
+          }
+        }
+      },
+      {
+        # Deny access to objects that GuardDuty has not yet scanned (tag absent).
+        # See the images policy comment above for full rationale.
+        Sid       = "DenyUnscannedObjects"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.documents.arn}/*"
+        Condition = {
+          Null = {
+            "s3:ExistingObjectTag/GuardDutyMalwareScanStatus" = "true"
           }
         }
       }

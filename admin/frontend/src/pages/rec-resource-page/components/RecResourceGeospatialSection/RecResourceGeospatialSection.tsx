@@ -1,5 +1,5 @@
 import { Col, Row, Stack } from 'react-bootstrap';
-import { RoleGuard } from '@/components/auth';
+import { EditableGuard } from '@/components/auth';
 import { CopyButton } from '@shared/components/copy-button';
 import { FieldItem } from '../shared/FieldItem';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
@@ -19,6 +19,7 @@ export function RecResourceGeospatialSection() {
   const params = Route.useParams();
   const recResourceId = params?.id;
   const { recResource } = useRecResource();
+  const isArchived = recResource?.rec_status_code === 'AR';
 
   const { data: geospatialData } =
     useGetRecreationResourceGeospatial(recResourceId);
@@ -93,7 +94,7 @@ export function RecResourceGeospatialSection() {
       <div className="d-flex justify-content-between align-items-center">
         <h2>Geospatial</h2>
 
-        <RoleGuard requireAll={[ROLES.ADMIN]}>
+        <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
           {hasGeometryData && (
             <Link
               to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
@@ -105,7 +106,7 @@ export function RecResourceGeospatialSection() {
               Edit
             </Link>
           )}
-        </RoleGuard>
+        </EditableGuard>
       </div>
 
       <div className="rec-resource-geospatial-section__body">

@@ -1,6 +1,7 @@
 import { getMaxFilesByFileType } from '@/pages/rec-resource-page/helpers';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
+import { setGalleryImages } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import { type ReactNode, createElement } from 'react';
@@ -377,5 +378,147 @@ describe('useRecResourceFileTransferState', () => {
     });
 
     expect(result.current.uploadModalState.fileNameError).toBe('Test error');
+  });
+
+  describe('GuardDuty bridge: deduplication of uploadComplete pending images', () => {
+    const makeServerImage = (id: string) => ({
+      id,
+      name: `server-${id}.jpg`,
+      date: '2024-01-01',
+      url: `https://cdn.example.com/${id}.jpg`,
+      extension: 'jpg',
+      type: 'image' as const,
+      variants: [],
+      previewUrl: `https://cdn.example.com/preview-${id}.jpg`,
+    });
+
+    const makePendingImage = (
+      id: string,
+      overrides: Record<string, unknown> = {},
+    ) => ({
+      id,
+      name: `pending-${id}.jpg`,
+      date: '2024-01-01',
+      url: '',
+      extension: 'jpg',
+      type: 'image' as const,
+      variants: [],
+      previewUrl: `blob:http://localhost/${id}`,
+      uploadComplete: true,
+      ...overrides,
+    });
+
+    it('passes all server images through when no uploadComplete pending images exist', () => {
+      const serverImg1 = makeServerImage('img-1');
+      const serverImg2 = makeServerImage('img-2');
+      mockImageListState.galleryImagesFromServer = [serverImg1, serverImg2];
+      mockStoreState.pendingImages = [];
+
+      renderHook(() => useRecResourceFileTransferState(), {
+        wrapper: createWrapper(),
+      });
+
+      expect(vi.mocked(setGalleryImages)).toHaveBeenCalledWith([
+        serverImg1,
+        serverImg2,
+      ]);
+    });
+
+    it('filters out server images whose id matches an uploadComplete pending image', () => {
+      const serverImg1 = makeServerImage('img-1');
+      const serverImg2 = makeServerImage('img-2');
+      const pendingImg1 = makePendingImage('img-1'); // same id as serverImg1
+
+      mockImageListState.galleryImagesFromServer = [serverImg1, serverImg2];
+      mockStoreState.pendingImages = [pendingImg1] as any;
+
+      renderHook(() => useRecResourceFileTransferState(), {
+        wrapper: createWrapper(),
+      });
+
+      // serverImg1 is deduplicated — pendingImg1 (blob URL) takes precedence
+      expect(vi.mocked(setGalleryImages)).toHaveBeenCalledWith([
+        pendingImg1,
+        serverImg2,
+      ]);
+    });
+
+    it('deduplicates multiple uploadComplete pending images at once', () => {
+      const serverImg1 = makeServerImage('img-1');
+      const serverImg2 = makeServerImage('img-2');
+      const serverImg3 = makeServerImage('img-3');
+      const pendingImg1 = makePendingImage('img-1');
+      const pendingImg2 = makePendingImage('img-2');
+
+      mockImageListState.galleryImagesFromServer = [
+        serverImg1,
+        serverImg2,
+        serverImg3,
+      ];
+      mockStoreState.pendingImages = [pendingImg1, pendingImg2] as any;
+
+      renderHook(() => useRecResourceFileTransferState(), {
+        wrapper: createWrapper(),
+      });
+
+      // img-1 and img-2 deduplicated; img-3 passes through
+      expect(vi.mocked(setGalleryImages)).toHaveBeenCalledWith([
+        pendingImg1,
+        pendingImg2,
+        serverImg3,
+      ]);
+    });
+
+    it('does not filter server images for pending images that are still uploading (not uploadComplete)', () => {
+      const serverImg1 = makeServerImage('img-1');
+      const uploadingPending = makePendingImage('img-1', {
+        uploadComplete: false,
+        isUploading: true,
+      });
+
+      mockImageListState.galleryImagesFromServer = [serverImg1];
+      mockStoreState.pendingImages = [uploadingPending] as any;
+
+      renderHook(() => useRecResourceFileTransferState(), {
+        wrapper: createWrapper(),
+      });
+
+      // In-flight pending images do not bridge a server entry — both appear
+      expect(vi.mocked(setGalleryImages)).toHaveBeenCalledWith([
+        uploadingPending,
+        serverImg1,
+      ]);
+    });
+
+    it('does not filter server images for failed pending uploads (uploadComplete absent)', () => {
+      const serverImg1 = makeServerImage('img-1');
+      const failedPending = makePendingImage('img-1', {
+        uploadComplete: undefined,
+        uploadFailed: true,
+      });
+
+      mockImageListState.galleryImagesFromServer = [serverImg1];
+      mockStoreState.pendingImages = [failedPending] as any;
+
+      renderHook(() => useRecResourceFileTransferState(), {
+        wrapper: createWrapper(),
+      });
+
+      expect(vi.mocked(setGalleryImages)).toHaveBeenCalledWith([
+        failedPending,
+        serverImg1,
+      ]);
+    });
+
+    it('handles empty server and pending image lists without error', () => {
+      mockImageListState.galleryImagesFromServer = [];
+      mockStoreState.pendingImages = [];
+
+      renderHook(() => useRecResourceFileTransferState(), {
+        wrapper: createWrapper(),
+      });
+
+      expect(vi.mocked(setGalleryImages)).toHaveBeenCalledWith([]);
+    });
   });
 });

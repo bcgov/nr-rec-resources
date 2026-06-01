@@ -1,6 +1,7 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { RoleGuard } from '@/components/auth';
+import { EditableGuard } from '@/components/auth';
 import { ROLES } from '@/hooks/useAuthorizations';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { RecreationActivityDto } from '@/services/recreation-resource-admin/models';
 import { Link, useParams } from '@tanstack/react-router';
 import { Stack } from 'react-bootstrap';
@@ -14,13 +15,15 @@ export const RecResourceActivitiesSection = ({
   recreationActivities,
 }: RecResourceActivitiesSectionProps) => {
   const { id: rec_resource_id } = useParams({ from: '/rec-resource/$id' });
+  const { recResource } = useRecResource();
+  const isArchived = recResource?.rec_status_code === 'AR';
 
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
         <h2>Activities</h2>
 
-        <RoleGuard requireAll={[ROLES.ADMIN]}>
+        <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
           <Link
             to={ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES_EDIT.replace(
               '$id',
@@ -30,7 +33,7 @@ export const RecResourceActivitiesSection = ({
           >
             Edit
           </Link>
-        </RoleGuard>
+        </EditableGuard>
       </div>
 
       {!recreationActivities || recreationActivities.length === 0 ? (

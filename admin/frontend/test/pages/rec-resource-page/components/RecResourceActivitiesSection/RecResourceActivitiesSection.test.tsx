@@ -18,9 +18,14 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 });
 
 vi.mock('@/components/auth', () => ({
-  RoleGuard: ({ children }: any) => (
+  EditableGuard: ({ children }: any) => (
     <div data-testid="role-guard">{children}</div>
   ),
+}));
+
+const mockUseRecResource = vi.fn();
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
+  useRecResource: () => mockUseRecResource(),
 }));
 
 const mockUseAuthorizations = vi.fn();
@@ -52,6 +57,12 @@ describe('RecResourceActivitiesSection', () => {
     vi.mocked(useParams).mockReturnValue({
       id: 'test-resource-123',
     } as any);
+
+    mockUseRecResource.mockReturnValue({
+      recResource: { rec_status_code: 'OP' },
+      isLoading: false,
+      error: null,
+    });
   });
 
   it('renders section title', () => {
