@@ -7,6 +7,7 @@ import {
   RecreationStatusDto,
   RecreationStructureDto,
   SiteOperatorDto,
+  AdvisoryDto,
 } from './recreation-resource.dto';
 
 describe('Recreation DTOs', () => {
@@ -44,6 +45,47 @@ describe('Recreation DTOs', () => {
     });
   });
 
+  describe('AdvisoryDto', () => {
+    it('should create a valid AdvisoryDto', () => {
+      const advisory = new AdvisoryDto();
+      advisory.advisory_number = 12345;
+      advisory.title = 'Seasonal wildlife migration activity in area';
+      advisory.description =
+        'A permit is required to access this ecological reserve';
+      advisory.submitted_by = 'John Doe, Park Ranger';
+      advisory.access_status_grouplabel = 'Information';
+      advisory.access_status_name = 'Information';
+      advisory.access_status_description = 'General park notice or update.';
+      advisory.event_type = 'Fire Management';
+      advisory.urgency = 'Low';
+      advisory.advisory_status = 'Published';
+      advisory.is_reservations_affected = false;
+      advisory.is_advisory_date_displayed = false;
+      advisory.is_effective_date_displayed = false;
+      advisory.is_end_date_displayed = false;
+      advisory.is_updated_date_displayed = false;
+      advisory.advisory_date = new Date('2024-06-01T12:00:00Z');
+      advisory.effective_date = new Date('2024-06-01T12:00:00Z');
+      advisory.end_date = new Date('2024-09-30T23:59:00Z');
+      advisory.removal_date = new Date('2024-12-31T23:59:00Z');
+      advisory.modified_date = new Date('2024-06-15T15:30:00Z');
+      advisory.published_at = new Date('2024-06-01T12:00:00Z');
+
+      expect(advisory.advisory_number).toBeDefined();
+      expect(advisory.description).toBeDefined();
+    });
+
+    it('should allow null comment', () => {
+      const status: RecreationStatusDto = {
+        status_code: 1,
+        comment: null,
+        description: 'The facility is open',
+      };
+
+      expect(status.comment).toBeNull();
+    });
+  });
+
   describe('RecreationResourceDetailDto', () => {
     it('should create a valid RecreationResourceDetailDto', () => {
       const district_code = new RecreationResourceDistrictDto();
@@ -63,6 +105,8 @@ describe('Recreation DTOs', () => {
         {
           recreation_activity_code: 1,
           description: 'Hiking',
+          details: '',
+          is_accessible: false,
         },
       ];
       resource.recreation_status = {
@@ -89,6 +133,7 @@ describe('Recreation DTOs', () => {
           friday_ind: 'Y',
           saturday_ind: 'N',
           sunday_ind: 'N',
+          recurring_ind: false,
         },
         {
           fee_amount: 10.0,
@@ -102,6 +147,7 @@ describe('Recreation DTOs', () => {
           friday_ind: 'Y',
           saturday_ind: 'Y',
           sunday_ind: 'Y',
+          recurring_ind: false,
         },
       ];
       resource.recreation_district = district_code;
@@ -172,6 +218,7 @@ describe('Recreation DTOs', () => {
           friday_ind: 'Y',
           saturday_ind: 'N',
           sunday_ind: 'N',
+          recurring_ind: false,
         },
         {
           fee_amount: 10.0,
@@ -185,6 +232,7 @@ describe('Recreation DTOs', () => {
           friday_ind: 'Y',
           saturday_ind: 'Y',
           sunday_ind: 'Y',
+          recurring_ind: false,
         },
       ];
 

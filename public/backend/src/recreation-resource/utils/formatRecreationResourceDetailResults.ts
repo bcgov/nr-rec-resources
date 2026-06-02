@@ -167,5 +167,6 @@ export const formatRecreationResourceDetailResults = ({
     recreation_district: recreationDistrict,
     recreation_resource_reservation_info:
       result.recreation_resource_reservation_info,
+    advisories: result.act_advisories_flat?.map((advisory) => advisory),
   };
 };

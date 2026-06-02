@@ -234,6 +234,186 @@ export class RecreationResourceReservationInfoDto {
     required: false,
   })
   reservation_email?: string;
+  reservation_instructions: string;
+  reservation_comments: string;
+}
+
+export class AdvisoryDto {
+  @ApiProperty({
+    description: 'Unique identifier for the advisory',
+    example: 12345,
+  })
+  advisory_number: number;
+
+  @ApiProperty({
+    description: 'Title of the advisory',
+    example: 'Seasonal wildlife migration activity in area',
+  })
+  title: string;
+
+  @ApiProperty({
+    description: 'Description of the advisory',
+    example: 'A permit is required to access this ecological reserve',
+    required: false,
+  })
+  description?: string;
+
+  @ApiProperty({
+    description:
+      'Name of the person or organization that submitted the advisory',
+    example: 'John Doe, Park Ranger',
+  })
+  submitted_by: string;
+
+  @ApiProperty({
+    description: 'Access status group label for the advisory',
+    example: 'Information',
+  })
+  access_status_grouplabel: string;
+
+  @ApiProperty({
+    description: 'Access status name for the advisory',
+    example: 'Information',
+  })
+  access_status_name: string;
+
+  @ApiProperty({
+    description: 'Description of the access status for the advisory',
+    example: 'General park notice or update.',
+  })
+  access_status_description?: string;
+
+  @ApiProperty({
+    description: 'Event type of the advisory',
+    example: 'Fire Management',
+  })
+  event_type: string;
+
+  @ApiProperty({
+    description: 'Urgency level of the advisory',
+    example: 'Low',
+  })
+  urgency: string;
+
+  @ApiProperty({
+    description: 'Publication status of the advisory',
+    example: 'Published',
+  })
+  advisory_status: string;
+
+  @ApiProperty({
+    description: 'Indicates if the advisory affects reservations',
+    example: false,
+  })
+  is_reservations_affected: boolean;
+
+  @ApiProperty({
+    description: 'Indicates if the advisory date should be displayed',
+    example: false,
+  })
+  is_advisory_date_displayed: boolean;
+
+  @ApiProperty({
+    description: 'Indicates if the effective date should be displayed',
+    example: false,
+  })
+  is_effective_date_displayed: boolean;
+
+  @ApiProperty({
+    description: 'Indicates if the end date should be displayed',
+    example: false,
+  })
+  is_end_date_displayed: boolean;
+
+  @ApiProperty({
+    description: 'Indicates if the updated date should be displayed',
+    example: false,
+  })
+  is_updated_date_displayed: boolean;
+
+  @ApiProperty({
+    description: 'Date and time when the advisory was created',
+    example: '2024-06-01T12:00:00Z',
+    required: false,
+  })
+  advisory_date: Date;
+
+  @ApiProperty({
+    description: 'Date and time when the advisory becomes effective',
+    example: '2024-06-01T12:00:00Z',
+    required: false,
+  })
+  effective_date: Date;
+
+  @ApiProperty({
+    description: 'Date and time when the advisory ends',
+    example: '2024-09-30T23:59:00Z',
+    required: false,
+  })
+  end_date?: Date;
+
+  @ApiProperty({
+    description: 'Date and time when the advisory is to be removed',
+    example: '2024-12-31T23:59:00Z',
+    required: false,
+  })
+  removal_date?: Date;
+
+  @ApiProperty({
+    description: 'Date and time when the advisory was last modified',
+    example: '2024-06-15T15:30:00Z',
+    required: false,
+  })
+  modified_date: Date;
+
+  @ApiProperty({
+    description: 'Date and time when the advisory was published',
+    example: '2024-06-01T12:00:00Z',
+    required: false,
+  })
+  published_at?: Date;
+
+  @ApiProperty({
+    description: 'Date and time when the advisory was last updated',
+    example: '2024-06-15T15:30:00Z',
+    required: false,
+  })
+  updated_date?: Date;
+
+  @ApiProperty({
+    description: 'Date and time when the advisory will expire',
+    example: '2024-09-30T23:59:00Z',
+    required: false,
+  })
+  expiry_date?: Date;
+
+  @ApiProperty({
+    description:
+      'Rank for ordering advisories in listings, calculated based on urgency, access status, and event type to ensure the most critical advisories are displayed prominently.',
+    example: '50',
+  })
+  listing_rank: number;
+
+  @ApiProperty({
+    description:
+      'Sequence number for the urgency level associated with the advisory.',
+    example: '1',
+  })
+  urgency_sequence: number;
+
+  @ApiProperty({
+    description:
+      'Precedence value for the access status associated with the advisory.',
+    example: '2',
+  })
+  access_status_precedence: number;
+
+  @ApiProperty({
+    description:
+      'Precedence value for the event type associated with the advisory.',
+    example: '3',
+  })
+  event_type_precedence: number;
 }
 
 /**
@@ -395,6 +575,13 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     required: false,
   })
   recreation_resource_reservation_info?: RecreationResourceReservationInfoDto;
+
+  @ApiProperty({
+    description: 'Recreation resource reservation info',
+    type: [AdvisoryDto],
+    required: false,
+  })
+  advisories?: AdvisoryDto[];
 }
 
 /**
