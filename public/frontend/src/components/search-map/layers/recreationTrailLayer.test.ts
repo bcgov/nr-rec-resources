@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import {
@@ -6,12 +6,6 @@ import {
   createRecreationTrailSource,
   createRecreationTrailLayer,
 } from './recreationTrailLayer';
-
-vi.mock('./bcgwFeatures', () => ({
-  fetchBcgwFeaturesByIds: vi.fn(),
-}));
-
-import { fetchBcgwFeaturesByIds } from './bcgwFeatures';
 
 describe('createRecreationTrailStyle', () => {
   it('returns a Style with a stroke', () => {
@@ -41,56 +35,12 @@ describe('createRecreationTrailStyle', () => {
 });
 
 describe('createRecreationTrailSource', () => {
-  let capturedLoader: () => Promise<void>;
-  let setLoaderSpy: ReturnType<typeof vi.spyOn>;
-  let addFeaturesSpy: ReturnType<typeof vi.spyOn>;
-
-  beforeEach(() => {
-    setLoaderSpy = vi
-      .spyOn(VectorSource.prototype, 'setLoader')
-      .mockImplementation(function (fn: any) {
-        capturedLoader = fn;
-      });
-    addFeaturesSpy = vi
-      .spyOn(VectorSource.prototype, 'addFeatures')
-      .mockImplementation(() => {});
-    vi.mocked(fetchBcgwFeaturesByIds).mockResolvedValue([]);
-  });
-
-  afterEach(() => {
-    setLoaderSpy.mockRestore();
-    addFeaturesSpy.mockRestore();
-    vi.clearAllMocks();
-  });
-
-  it('returns a VectorSource', () => {
-    const source = createRecreationTrailSource([]);
+  // Geometry is loaded incrementally by useViewportIdFetch, so the factory just
+  // returns an empty source — no loader, no fetch.
+  it('returns an empty VectorSource', () => {
+    const source = createRecreationTrailSource();
     expect(source).toBeInstanceOf(VectorSource);
-  });
-
-  it('does not fetch when filteredIds is empty', async () => {
-    createRecreationTrailSource([]);
-    await capturedLoader();
-    expect(fetchBcgwFeaturesByIds).not.toHaveBeenCalled();
-  });
-
-  it('fetches features using BCGW layer 3', async () => {
-    const ids = ['AB001', 'AB002'];
-    createRecreationTrailSource(ids);
-    await capturedLoader();
-    expect(fetchBcgwFeaturesByIds).toHaveBeenCalledWith(
-      expect.objectContaining({ layer: '3', ids }),
-    );
-  });
-
-  it('adds fetched features to the source', async () => {
-    const mockFeature = {};
-    vi.mocked(fetchBcgwFeaturesByIds).mockResolvedValue([mockFeature] as any);
-
-    createRecreationTrailSource(['AB001']);
-    await capturedLoader();
-
-    expect(addFeaturesSpy).toHaveBeenCalledWith([mockFeature]);
+    expect(source.getFeatures()).toHaveLength(0);
   });
 });
 

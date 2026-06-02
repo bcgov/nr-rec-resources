@@ -1,5 +1,10 @@
 import { useCallback } from 'react';
+import type Feature from 'ol/Feature';
+import type VectorSource from 'ol/source/Vector';
 import { useLayer } from '@/components/search-map/hooks/useLayer';
+import { useViewportIdFetch } from '@/components/search-map/hooks/useViewportIdFetch';
+import { fetchBcgwFeaturesByIds } from '@/components/search-map/layers/bcgwFeatures';
+import { BCGW_PROXY_URL } from '@/components/search-map/constants';
 import type {
   MapRef,
   UseLayerOptions,
@@ -11,24 +16,37 @@ import {
 } from '@/components/search-map/layers/recreationTrailLayer';
 
 interface UseRecreationTrailLayerOptions extends UseLayerOptions {
-  filteredIds: string[];
+  // Cluster inner pin source — the spatial index of search results in view.
+  pinSource: VectorSource | null;
 }
 
 export const useRecreationTrailLayer = (
   mapRef: MapRef,
   options: UseRecreationTrailLayerOptions,
 ) => {
-  const { filteredIds, ...layerOptions } = options;
-  const createSource = useCallback(
-    () => createRecreationTrailSource(filteredIds),
-    [filteredIds],
-  );
+  const { pinSource, ...layerOptions } = options;
 
-  return useLayer(
+  const { layer, source } = useLayer(
     mapRef,
-    createSource,
+    createRecreationTrailSource,
     createRecreationTrailLayer,
     createRecreationTrailStyle,
     layerOptions,
   );
+
+  const fetchByIds = useCallback(
+    (ids: string[]): Promise<Feature[]> =>
+      fetchBcgwFeaturesByIds({ url: BCGW_PROXY_URL, layer: '3', ids }),
+    [],
+  );
+
+  useViewportIdFetch({
+    mapRef,
+    pinSource,
+    source,
+    minZoom: layerOptions.hideBelowZoom ?? 0,
+    fetchByIds,
+  });
+
+  return { layer };
 };

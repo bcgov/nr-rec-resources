@@ -96,7 +96,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     };
   }, [mapRef, popupRef]);
 
-  const { layer: clusteredRecreationFeatureLayer } =
+  const { layer: clusteredRecreationFeatureLayer, innerSource: pinSource } =
     useClusteredRecreationFeatureLayer(allRelevantIds, mapRef, {
       clusterOptions: CLUSTER_OPTIONS,
       animatedClusterOptions: ANIMATED_CLUSTER_OPTIONS,
@@ -114,14 +114,14 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
 
   const { layer: recreationTrailLayer } = useRecreationTrailLayer(mapRef, {
     hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
-    filteredIds: allRelevantIds,
+    pinSource,
   });
 
   const { layer: recreationBoundaryLayer } = useRecreationBoundaryLayer(
     mapRef,
     {
       hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
-      filteredIds: allRelevantIds,
+      pinSource,
     },
   );
 

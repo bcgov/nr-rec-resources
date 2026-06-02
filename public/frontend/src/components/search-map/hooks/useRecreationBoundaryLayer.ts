@@ -1,5 +1,10 @@
 import { useCallback } from 'react';
+import type Feature from 'ol/Feature';
+import type VectorSource from 'ol/source/Vector';
 import { useLayer } from '@/components/search-map/hooks/useLayer';
+import { useViewportIdFetch } from '@/components/search-map/hooks/useViewportIdFetch';
+import { fetchBcgwFeaturesByIds } from '@/components/search-map/layers/bcgwFeatures';
+import { BCGW_PROXY_URL } from '@/components/search-map/constants';
 import type {
   MapRef,
   UseLayerOptions,
@@ -11,24 +16,37 @@ import {
 } from '@/components/search-map/layers/recreationBoundaryLayer';
 
 interface UseRecreationBoundaryLayerOptions extends UseLayerOptions {
-  filteredIds: string[];
+  // Cluster inner pin source — the spatial index of search results in view.
+  pinSource: VectorSource | null;
 }
 
 export const useRecreationBoundaryLayer = (
   mapRef: MapRef,
   options: UseRecreationBoundaryLayerOptions,
 ) => {
-  const { filteredIds, ...layerOptions } = options;
-  const createSource = useCallback(
-    () => createRecreationBoundarySource(filteredIds),
-    [filteredIds],
-  );
+  const { pinSource, ...layerOptions } = options;
 
-  return useLayer(
+  const { layer, source } = useLayer(
     mapRef,
-    createSource,
+    createRecreationBoundarySource,
     createRecreationBoundaryLayer,
     createRecreationBoundaryStyle,
     layerOptions,
   );
+
+  const fetchByIds = useCallback(
+    (ids: string[]): Promise<Feature[]> =>
+      fetchBcgwFeaturesByIds({ url: BCGW_PROXY_URL, layer: '5', ids }),
+    [],
+  );
+
+  useViewportIdFetch({
+    mapRef,
+    pinSource,
+    source,
+    minZoom: layerOptions.hideBelowZoom ?? 0,
+    fetchByIds,
+  });
+
+  return { layer };
 };
