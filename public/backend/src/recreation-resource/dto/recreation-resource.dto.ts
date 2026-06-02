@@ -234,8 +234,6 @@ export class RecreationResourceReservationInfoDto {
     required: false,
   })
   reservation_email?: string;
-  reservation_instructions: string;
-  reservation_comments: string;
 }
 
 export class AdvisoryDto {

@@ -127,8 +127,6 @@ export const getRecreationResourceSelect = () => ({
       reservation_website: true,
       reservation_phone_number: true,
       reservation_email: true,
-      reservation_instructions: true,
-      reservation_comments: true,
     },
   },
   _count: {

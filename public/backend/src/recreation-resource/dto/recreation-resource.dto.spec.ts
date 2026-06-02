@@ -155,16 +155,12 @@ describe('Recreation DTOs', () => {
       const recreation_resource_reservation_info =
         new RecreationResourceReservationInfoDto();
 
-      recreation_resource_reservation_info.reservation_instructions =
-        'All reservations through partner, not RSTBC';
       recreation_resource_reservation_info.reservation_website =
         'https://accwhistler.ca/WendyThompson.html';
       recreation_resource_reservation_info.reservation_phone_number =
         '1-999-999-9999';
       recreation_resource_reservation_info.reservation_email =
         'email@email.com';
-      recreation_resource_reservation_info.reservation_comments =
-        'this is a huge comment';
 
       resource.recreation_resource_reservation_info =
         recreation_resource_reservation_info;

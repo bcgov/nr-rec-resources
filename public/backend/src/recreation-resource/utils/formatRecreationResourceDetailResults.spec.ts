@@ -114,11 +114,9 @@ export const mockResponse: any = {
     description: 'Merritt',
   },
   recreation_resource_reservation_info: {
-    reservation_instructions: 'All reservations through partner, not RSTBC',
     reservation_website: 'https://accwhistler.ca/WendyThompson.html',
     reservation_phone_number: '1-999-999-9999',
     reservation_email: 'email@email.com',
-    reservation_comments: 'this is a huge comment',
   },
   act_advisories_flat: [
     {
@@ -356,11 +354,9 @@ export const mockResults = {
     district_code: 'MERRITT',
   },
   recreation_resource_reservation_info: {
-    reservation_instructions: 'All reservations through partner, not RSTBC',
     reservation_website: 'https://accwhistler.ca/WendyThompson.html',
     reservation_phone_number: '1-999-999-9999',
     reservation_email: 'email@email.com',
-    reservation_comments: 'this is a huge comment',
   },
   advisories: [
     {
