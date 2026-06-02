@@ -164,7 +164,7 @@ model recreation_fee {
   with_sub_description    recreation_fee_sub_code? @relation("fee_with_sub_description", fields: [recreation_fee_code, recreation_fee_sub_code], references: [recreation_fee_code, recreation_fee_sub_code], onDelete: NoAction, onUpdate: NoAction, map: "recreation_fee_sub_code_fk")
   recreation_fee_fdl_log  recreation_fee_fdl_log[]
 
-  @@unique([rec_resource_id, recreation_fee_code, recreation_fee_sub_code], map: "recreation_fee_unique_idx", where: raw("((is_deleted = false) AND (recreation_fee_sub_code IS NOT NULL))"))
+  @@unique([rec_resource_id, recreation_fee_code, recreation_fee_sub_code, monday_ind, tuesday_ind, wednesday_ind, thursday_ind, friday_ind, saturday_ind, sunday_ind], map: "recreation_fee_unique_idx", where: raw("((is_deleted = false) AND (recreation_fee_sub_code IS NOT NULL))"))
   @@index([rec_resource_id], map: "idx_recreation_fee_rec_resource_id")
   @@schema("rst")
 }

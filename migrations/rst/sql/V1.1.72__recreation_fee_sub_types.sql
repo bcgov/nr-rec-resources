@@ -38,6 +38,9 @@ values
 on conflict (recreation_fee_code, recreation_fee_sub_code)
     do update set description = excluded.description;
 
+-- Drop old unique index before code updates to avoid duplicate-key errors.
+drop index if exists rst.recreation_fee_unique_idx;
+
 -- Convert historical fee codes to the new top-level type + subtype taxonomy.
 update rst.recreation_fee
 set
@@ -81,12 +84,18 @@ add constraint recreation_fee_sub_code_fk
 foreign key (recreation_fee_code, recreation_fee_sub_code)
 references rst.recreation_fee_sub_code (recreation_fee_code, recreation_fee_sub_code);
 
-drop index if exists rst.recreation_fee_unique_idx;
 
 create unique index recreation_fee_unique_idx
 on rst.recreation_fee (
     rec_resource_id,
     recreation_fee_code,
-    recreation_fee_sub_code
+    recreation_fee_sub_code,
+    monday_ind,
+    tuesday_ind,
+    wednesday_ind,
+    thursday_ind,
+    friday_ind,
+    saturday_ind,
+    sunday_ind
 )
 where is_deleted = false and recreation_fee_sub_code is not null;

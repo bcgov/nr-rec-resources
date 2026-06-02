@@ -17,7 +17,7 @@ import { mapRecreationFee } from './helpers';
 export interface CreateFeeRequest {
   recResourceId: string;
   recreation_fee_code: string;
-  recreation_fee_sub_code?: string;
+  recreation_fee_sub_code: string;
   fee_amount?: number;
   fee_start_date?: string;
   fee_end_date?: string;

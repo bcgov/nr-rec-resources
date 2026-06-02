@@ -105,6 +105,14 @@ export class RecreationFeeDto {
   recreation_fee_code: string;
 
   @ApiProperty({
+    description:
+      'Fee sub-type code scoped to recreation_fee_code (for example O/C, A/P, T/SK)',
+    example: 'C',
+    required: false,
+  })
+  recreation_fee_sub_code?: string;
+
+  @ApiProperty({
     description: 'Recurring start date in MMDD format (month-day)',
     example: '06-15',
     required: false,

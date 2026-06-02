@@ -17,8 +17,8 @@ import { mapRecreationFee } from './helpers';
 export interface UpdateFeeRequest {
   recResourceId: string;
   feeId: number;
-  recreation_fee_code?: string;
-  recreation_fee_sub_code?: string;
+  recreation_fee_code: string;
+  recreation_fee_sub_code: string;
   fee_amount?: number | null;
   monday_ind?: string;
   tuesday_ind?: string;

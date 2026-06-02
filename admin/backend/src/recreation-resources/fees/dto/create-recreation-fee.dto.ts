@@ -32,7 +32,7 @@ export class CreateRecreationFeeDto {
       'recreation_fee_sub_code must be uppercase letters/underscores (1-30 chars)',
   })
   @IsOptional()
-  recreation_fee_sub_code?: string;
+  recreation_fee_sub_code: string;
 
   @ApiProperty({
     description: 'Amount charged for the recreation resource',

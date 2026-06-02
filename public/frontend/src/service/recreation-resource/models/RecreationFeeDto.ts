@@ -44,6 +44,12 @@ export interface RecreationFeeDto {
    */
   recreation_fee_code: string;
   /**
+   * Fee sub-type code scoped to recreation_fee_code
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  recreation_fee_sub_code?: string;
+  /**
    * Recurring start date in MMDD format (month-day)
    * @type {string}
    * @memberof RecreationFeeDto
@@ -157,6 +163,10 @@ export function RecreationFeeDtoFromJSONTyped(
     fee_start_date: new Date(json['fee_start_date']),
     fee_end_date: new Date(json['fee_end_date']),
     recreation_fee_code: json['recreation_fee_code'],
+    recreation_fee_sub_code:
+      json['recreation_fee_sub_code'] != null
+        ? json['recreation_fee_sub_code']
+        : undefined,
     recurring_start_mmdd:
       json['recurring_start_mmdd'] == null
         ? undefined
@@ -193,6 +203,7 @@ export function RecreationFeeDtoToJSONTyped(
     fee_start_date: value['fee_start_date'].toISOString(),
     fee_end_date: value['fee_end_date'].toISOString(),
     recreation_fee_code: value['recreation_fee_code'],
+    recreation_fee_sub_code: value['recreation_fee_sub_code'],
     recurring_start_mmdd: value['recurring_start_mmdd'],
     recurring_end_mmdd: value['recurring_end_mmdd'],
     recurring_ind: value['recurring_ind'],
