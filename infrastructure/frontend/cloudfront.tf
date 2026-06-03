@@ -86,9 +86,13 @@ provider "aws" {
   region = "us-east-1" # ACM certificates for CloudFront must be in us-east-1
 }
 
+# Looks up the cert by its primary domain "*.sitesandtrailsbc.ca". This string is
+# coupled to the cert's primary domain in both prod and the dev account multi-SAN cert
+# (see infrastructure/dns-env/main.tf). If the cert is ever recreated with a different
+# primary domain, update it here too.
 data "aws_acm_certificate" "primary_cert" {
   provider    = aws.cloudfront_cert
-  for_each    = var.app_env == "prod" ? { "primary_cert" = "*.sitesandtrailsbc.ca" } : {}
+  for_each    = length(var.custom_domains) > 0 ? { "primary_cert" = "*.sitesandtrailsbc.ca" } : {}
   domain      = each.value
   statuses    = ["ISSUED"]
   most_recent = true
@@ -102,12 +106,12 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   price_class         = "PriceClass_100"
   web_acl_id          = aws_wafv2_web_acl.waf_cloudfront.arn
 
-  aliases = var.app_env == "prod" ? var.custom_domains : []
+  aliases = length(var.custom_domains) > 0 ? var.custom_domains : []
   viewer_certificate {
-    acm_certificate_arn            = var.app_env == "prod" ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
+    acm_certificate_arn            = length(var.custom_domains) > 0 ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1.2_2021"
-    cloudfront_default_certificate = var.app_env != "prod"
+    cloudfront_default_certificate = length(var.custom_domains) == 0
   }
 
   origin {

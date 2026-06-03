@@ -9,6 +9,7 @@ generate "test_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "test"
+  custom_domains = ["staff.test.sitesandtrailsbc.ca"]
   csp_urls = {
       matomo_src = "https://iuqxrr50zl.execute-api.ca-central-1.amazonaws.com https://y09s3hx8j6.execute-api.ca-central-1.amazonaws.com"
   }

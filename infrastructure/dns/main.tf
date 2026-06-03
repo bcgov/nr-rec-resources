@@ -112,3 +112,35 @@ resource "aws_route53_record" "google_search_console_verification" {
   ttl     = 300
   records = [var.google_search_console_verification_txt]
 }
+
+# NS delegation to the dev child zone (managed in the dev account)
+resource "aws_route53_record" "dev_ns" {
+  count   = length(var.dev_zone_name_servers) > 0 ? 1 : 0
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "dev.${var.domain_name}"
+  type    = "NS"
+  ttl     = 300
+  records = var.dev_zone_name_servers
+}
+
+# NS delegation to the test child zone (managed in the dev account)
+resource "aws_route53_record" "test_ns" {
+  count   = length(var.test_zone_name_servers) > 0 ? 1 : 0
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "test.${var.domain_name}"
+  type    = "NS"
+  ttl     = 300
+  records = var.test_zone_name_servers
+}
+
+# Validation CNAME for the *.sitesandtrailsbc.ca SAN on the dev account multi-SAN cert.
+# This record was added manually during initial setup and must be imported into state after
+# first deployment:
+#   terragrunt import 'aws_route53_record.acm_dev_cert_validation' '<zone_id>_<cname_name>_CNAME'
+resource "aws_route53_record" "acm_dev_cert_validation" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = var.acm_dev_cert_validation_cname.name
+  type    = "CNAME"
+  ttl     = 300
+  records = [var.acm_dev_cert_validation_cname.value]
+}

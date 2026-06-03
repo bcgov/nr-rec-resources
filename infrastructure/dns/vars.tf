@@ -33,3 +33,23 @@ variable "google_search_console_verification_txt" {
   description = "TXT record value from Google Search Console for domain verification (e.g. google-site-verification=...). Creates a TXT record at the apex domain."
   type        = string
 }
+
+variable "dev_zone_name_servers" {
+  description = "Name servers for the dev.sitesandtrailsbc.ca child zone"
+  type        = list(string)
+  default     = []
+}
+
+variable "test_zone_name_servers" {
+  description = "Name servers for the test.sitesandtrailsbc.ca child zone"
+  type        = list(string)
+  default     = []
+}
+
+variable "acm_dev_cert_validation_cname" {
+  description = "ACM validation CNAME for *.sitesandtrailsbc.ca on the dev account multi-SAN cert"
+  type = object({
+    name  = string
+    value = string
+  })
+}
