@@ -84,6 +84,29 @@ add constraint recreation_fee_sub_code_fk
 foreign key (recreation_fee_code, recreation_fee_sub_code)
 references rst.recreation_fee_sub_code (recreation_fee_code, recreation_fee_sub_code);
 
+-- Soft-delete duplicate rows (keep the most recent one for each unique combination)
+-- This includes both active and already-deleted records to ensure uniqueness
+update rst.recreation_fee
+set
+    is_deleted = true,
+    deleted_at = now(),
+    deleted_by = 'MIGRATION'
+where fee_id in (
+    select rf.fee_id
+    from rst.recreation_fee rf
+    where rf.fee_id not in (
+        select max(fee_id)
+        from rst.recreation_fee
+        group by rec_resource_id, recreation_fee_code, recreation_fee_sub_code,
+                 monday_ind, tuesday_ind, wednesday_ind, thursday_ind,
+                 friday_ind, saturday_ind, sunday_ind
+    )
+)
+and is_deleted = false;
+
+-- Add unique index for query performance on active records
+-- The FTA migration now handles inserts/updates without relying on ON CONFLICT
+drop index if exists recreation_fee_unique_constraint;
 
 create unique index recreation_fee_unique_idx
 on rst.recreation_fee (
