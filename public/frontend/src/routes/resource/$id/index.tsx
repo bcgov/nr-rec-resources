@@ -10,6 +10,7 @@ import {
   buildOgMeta,
   getResourceMetaDescription,
 } from '@/utils/seo';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
 
 const OG_IMAGE_VARIANT_RE = /\/(original|pre|scr|thm)\.webp$/i;
 
@@ -29,7 +30,9 @@ export const Route = createFileRoute('/resource/$id/')({
       recResource?.description,
       recResource?.name,
     );
-    const pageTitle = ROUTE_TITLES.REC_RESOURCE(recResource?.name);
+    const pageTitle = ROUTE_TITLES.REC_RESOURCE(
+      capitalizeWords(recResource?.name),
+    );
     const resourceId =
       loaderData?.recResourceId ||
       recResource?.rec_resource_id ||

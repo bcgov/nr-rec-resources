@@ -171,6 +171,31 @@ export function usePresignedUpload<T extends GalleryFile>() {
             file_size_original: variantSizes['original'],
             consent,
           });
+
+          // Capture a blob URL for the preview variant. This becomes the
+          // previewUrl on the pending image entry below.
+          const previewBlob = imageData.variants.find(
+            (v) => v.sizeCode === 'pre',
+          )?.blob;
+          const blobUrl = previewBlob ? URL.createObjectURL(previewBlob) : '';
+
+          // Transition the pending image to uploadComplete instead of removing it.
+          // The entry stays in the gallery (using the local blob URL) while GuardDuty
+          // scans the S3 object.
+          // Its id is updated to the real server image_id so that further actions
+          // reference the correct server record. The entry is removed
+          // on navigation when resetRecResourceFileTransferStore is called, at that
+          // point GuardDuty has finished and the CloudFront URL is accessible.
+          updatePendingFile(tempId, {
+            id: presignResponse.image_id,
+            isUploading: false,
+            uploadComplete: true,
+            previewUrl: blobUrl,
+          } as unknown as Partial<T>);
+
+          addSuccessNotification(successMessage(fileName));
+          onSuccess?.();
+          return;
         } else {
           // Document upload
           const docData = processedData as DocUploadResult;

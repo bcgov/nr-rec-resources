@@ -10,6 +10,7 @@ import {
 import { FC } from 'react';
 import { Stack } from 'react-bootstrap';
 import './ResourceHeaderSection.scss';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
 
 interface ResourceHeaderSectionProps {
   recResource: RecreationResourceDetailUIModel;
@@ -32,7 +33,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
         >
           <div className="resource-header-section__title-wrapper">
             <ClampLines
-              text={recResource.name}
+              text={capitalizeWords(recResource.name)}
               as="h1"
               className="resource-header-section__title-text"
             />

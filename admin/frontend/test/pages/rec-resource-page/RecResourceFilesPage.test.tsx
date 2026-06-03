@@ -17,6 +17,11 @@ vi.mock('@/hooks/useAuthorizations', () => ({
 const mockUseRecResourceFileTransferState = vi.fn();
 const mockGetImageGeneralActionHandler = vi.fn();
 const mockGetDocumentGeneralActionHandler = vi.fn();
+const mockUseRecResource = vi.fn();
+
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
+  useRecResource: () => mockUseRecResource(),
+}));
 
 // Mock the useRecResourceFileTransferState hook
 vi.mock(
@@ -74,6 +79,11 @@ describe('RecResourceFilesPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseRecResource.mockReturnValue({
+      recResource: { rec_status_code: 'OP' },
+      isLoading: false,
+      error: null,
+    });
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
