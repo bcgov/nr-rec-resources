@@ -15,8 +15,8 @@ vi.mock('@/components/rec-resource/card/CardCarousel', () => ({
   default: () => <div data-testid="card-carousel-component" />,
 }));
 
-vi.mock('@/components/rec-resource/Status', () => ({
-  default: () => <div data-testid="status-component" />,
+vi.mock('@/components/rec-resource/card/AccessStatus', () => ({
+  default: () => <div data-testid="access-status-component" />,
 }));
 
 vi.mock('@/components/RSTSVGLogo/RSTSVGLogo', () => ({
@@ -34,10 +34,11 @@ describe('RecResourceCard', () => {
     recreation_activity: [{ id: '1', name: 'Hiking' }],
     closest_community: 'Test Community',
     recreation_status: {
-      status_code: 'OPEN',
+      status_code: 1,
       description: 'Open for public',
     },
     rec_resource_type: 'Park',
+    advisory_count: 0,
   } as unknown as RecreationResourceSearchModel;
 
   beforeEach(() => {
@@ -63,7 +64,7 @@ describe('RecResourceCard', () => {
     // Check if the required components are rendered
     expect(screen.getByTestId('card-carousel-component')).toBeInTheDocument();
     expect(screen.getByTestId('activities-component')).toBeInTheDocument();
-    expect(screen.getByTestId('status-component')).toBeInTheDocument();
+    expect(screen.getByTestId('access-status-component')).toBeInTheDocument();
 
     // SVG logo should not be rendered when images are available
     expect(screen.queryByTestId('rst-svg-logo')).not.toBeInTheDocument();

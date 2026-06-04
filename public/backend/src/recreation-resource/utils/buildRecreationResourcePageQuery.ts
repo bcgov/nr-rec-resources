@@ -36,26 +36,37 @@ export function buildRecreationResourcePageQuery({
   const orderBySql = buildFuzzySearchOrdering(searchText, hasLocation);
 
   return Prisma.sql`
-    select rec_resource_id,
-           name,
-           closest_community,
-           display_on_public_site,
-           recreation_resource_type,
-           recreation_resource_type_code,
-           recreation_activity,
-           recreation_status,
-           recreation_resource_images,
-           district_code,
-           district_description,
-           access_code,
-           access_description,
-           recreation_structure,
-           has_toilets,
-           has_tables,
-           count(*) over()::int AS total_count
+    select rrsv.rec_resource_id,
+           rrsv.name,
+           rrsv.closest_community,
+           rrsv.display_on_public_site,
+           rrsv.recreation_resource_type,
+           rrsv.recreation_resource_type_code,
+           rrsv.recreation_activity,
+           rrsv.recreation_status,
+           rrsv.recreation_resource_images,
+           rrsv.district_code,
+           rrsv.district_description,
+           rrsv.access_code,
+           rrsv.access_description,
+           rrsv.recreation_structure,
+           rrsv.has_toilets,
+           rrsv.has_tables,
+           count(*) over()::int AS total_count,
+           adv.advisory_count,
+           adv.top_access_status_grouplabel
            ${distanceSql}
            ${fuzzyScoreSql}
-    from recreation_resource_search_view ${whereClause} ${orderBySql}
+    from recreation_resource_search_view rrsv
+    left join lateral (
+      select
+        count(*)::int as advisory_count,
+        (array_agg(access_status_grouplabel order by access_status_precedence asc))[1] as top_access_status_grouplabel
+      from rst.act_advisories_flat
+      where rec_resource_id = rrsv.rec_resource_id
+        and published_at is not null
+    ) adv on true
+    ${whereClause} ${orderBySql}
     limit ${take}
     offset ${skip};
   `;

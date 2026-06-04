@@ -4,6 +4,7 @@ import {
   RecreationResourceDetailDto,
   RecreationResourceDistrictDto,
   RecreationResourceReservationInfoDto,
+  RecreationResourceSearchDto,
   RecreationStatusDto,
   RecreationStructureDto,
   SiteOperatorDto,
@@ -411,6 +412,37 @@ describe('Recreation DTOs', () => {
       expect(siteOperator.clientStatusCode).toBeNull();
       expect(siteOperator.clientTypeCode).toBeNull();
       expect(siteOperator.acronym).toBeNull();
+    });
+  });
+
+  describe('RecreationResourceSearchDto', () => {
+    it('should create a valid instance with advisory_count', () => {
+      const dto = new RecreationResourceSearchDto();
+      dto.advisory_count = 5;
+
+      expect(dto.advisory_count).toBe(5);
+    });
+
+    it('should allow advisory_count of zero', () => {
+      const dto = new RecreationResourceSearchDto();
+      dto.advisory_count = 0;
+
+      expect(dto.advisory_count).toBe(0);
+    });
+
+    it('should allow top_access_status_grouplabel to be set', () => {
+      const dto = new RecreationResourceSearchDto();
+      dto.advisory_count = 1;
+      dto.top_access_status_grouplabel = 'Closed';
+
+      expect(dto.top_access_status_grouplabel).toBe('Closed');
+    });
+
+    it('should allow top_access_status_grouplabel to be undefined', () => {
+      const dto = new RecreationResourceSearchDto();
+      dto.advisory_count = 0;
+
+      expect(dto.top_access_status_grouplabel).toBeUndefined();
     });
   });
 });

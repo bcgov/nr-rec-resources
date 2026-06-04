@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Activities from '@/components/rec-resource/card/Activities';
-import Status from '@/components/rec-resource/Status';
+import AccessStatus from '@/components/rec-resource/card/AccessStatus';
 import '@/components/rec-resource/card/RecResourceCard.scss';
 import { getImageList } from '@/components/rec-resource/card/helpers';
 import { RSTSVGLogo } from '@/components/RSTSVGLogo/RSTSVGLogo';
@@ -30,6 +30,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
     closest_community,
     recreation_status: { status_code, description: statusDescription },
     rec_resource_type,
+    advisory_count,
   } = recreationResource;
 
   // display only the first 6 images for layout purposes
@@ -93,7 +94,13 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
               </Link>
             )}
           </span>
-          <Status description={statusDescription} statusCode={status_code} />
+          <AccessStatus
+            statusCode={status_code}
+            statusDescription={statusDescription}
+            advisoryCount={advisory_count ?? 0}
+            slug={rec_resource_id}
+            hideComma
+          />
         </div>
       </div>
     </div>
