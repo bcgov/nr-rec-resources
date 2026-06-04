@@ -9,8 +9,11 @@ import campfire from '@/images/icons/campfires-safety.svg';
 import cash from '@/images/icons/cash.svg';
 import { forwardRef } from 'react';
 import InfoRow from '@/components/rec-resource/section/InfoRow';
+import { AdvisoryDto } from '@/service/recreation-resource';
+import AdvisoriesList from './AdvisoriesList';
 
 interface KnowBeforeYouGoProps {
+  advisories: AdvisoryDto[] | null;
   isAdditionalFeesAvailable: boolean;
   isCampingAvailable: boolean;
   isReservable: boolean;
@@ -29,7 +32,10 @@ const BringCashRow = () => (
 );
 
 const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
-  ({ isAdditionalFeesAvailable, isCampingAvailable, isReservable }, ref) => {
+  (
+    { isAdditionalFeesAvailable, isCampingAvailable, isReservable, advisories },
+    ref,
+  ) => {
     return (
       <section
         id={SectionIds.KNOW_BEFORE_YOU_GO}
@@ -38,6 +44,7 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
       >
         <h2 className="section-heading">{SectionTitles.KNOW_BEFORE_YOU_GO}</h2>
         <section className="mb-4">
+          {advisories && <AdvisoriesList advisories={advisories} />}
           {isReservable ? (
             <>
               <h3>Reservable</h3>

@@ -1,0 +1,90 @@
+@import '@/styles/variables.scss';
+
+.toggle-all-button {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0px;
+  color: $colorBlueMed;
+  --bs-btn-padding-x: 0px;
+}
+
+.toggle-all-arrow {
+  width: 22.5px;
+  height: 20px;
+  margin-left: 16px;
+}
+
+.advisory-item {
+  background-color: $colorBrownLight;
+  border-top: 1px solid $colorGreyMed;
+  overflow: hidden;
+}
+
+.advisory-item--last {
+  border-bottom: 1px solid $colorGreyMed;
+}
+
+.advisory-item p, 
+.advisory-item hr {
+  margin-top: 0;
+  margin-bottom: 0.25em;
+}
+
+.advisory-header {
+  display: flex;
+  flex-direction: row; 
+}
+
+.advisory-header.collapsed {
+    background-color: $colorWhite;
+}
+
+.advisory-icon {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  margin-top: 16px;
+  margin-left: 8px;
+  margin-bottom: 16px;
+}
+
+.advisory-title {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 25.6px;
+  letter-spacing: 0px;
+  vertical-align: middle;
+  margin-bottom: 0 !important;
+  padding-left: 8px;
+  padding-top: 16px;
+}
+
+.advisory-description {
+  display: inline-block;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  padding-left: 44px;
+}
+
+.advisory-date {
+  font-weight: 400;
+  font-size: 13.33px;
+  line-height: 21.3px;
+  letter-spacing: 0px;
+  color: $colorGreyMed;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  padding-left: 44px;
+}
+
+.advisory-arrow {
+  margin-left: auto;
+  padding-top: 16px;
+  margin-right: 16px;
+  width: 20px;
+  height: 20px;
+  color: $colorGreyMed;
+  cursor: pointer;
+}

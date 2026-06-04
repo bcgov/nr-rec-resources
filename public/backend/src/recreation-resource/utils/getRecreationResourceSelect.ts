@@ -163,5 +163,22 @@ export const getRecreationResourceSelect = () => ({
       access_status_precedence: true,
       event_type_precedence: true,
     },
+    orderBy: [
+      {
+        listing_rank: 'desc',
+      },
+      {
+        urgency_sequence: 'desc',
+      },
+      {
+        access_status_precedence: 'asc',
+      },
+      {
+        event_type_precedence: 'asc',
+      },
+      {
+        advisory_date: 'desc',
+      },
+    ] as const,
   },
 });

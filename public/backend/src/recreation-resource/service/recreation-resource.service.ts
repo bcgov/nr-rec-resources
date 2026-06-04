@@ -35,7 +35,7 @@ export class RecreationResourceService {
           display_on_public_site: true,
         },
       },
-      select: getRecreationResourceSelect(),
+      select: getRecreationResourceSelect() as any,
     });
 
     if (!recResource) {
@@ -49,7 +49,7 @@ export class RecreationResourceService {
       );
 
     return formatRecreationResourceDetailResults({
-      recResource,
+      recResource: recResource as any,
       spatialFeatureGeometry: recResourceSpatialGeometryResult,
       rstStorageCloudfrontUrl: this.appConfig.rstStorageCloudfrontUrl,
       imageSizeCodes,
@@ -60,7 +60,7 @@ export class RecreationResourceService {
     ids: string[],
     imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<RecreationResourceDetailDto[]> {
-    const result = await this.prisma.recreation_resource.findMany({
+    const result: any[] = await this.prisma.recreation_resource.findMany({
       where: {
         rec_resource_id: {
           in: ids,
@@ -69,7 +69,7 @@ export class RecreationResourceService {
           display_on_public_site: true,
         },
       },
-      select: getRecreationResourceSelect(),
+      select: getRecreationResourceSelect() as any,
     });
 
     const geometries = await this.getMultipleGeometry(ids);
@@ -77,7 +77,7 @@ export class RecreationResourceService {
     const response = result.map((rec) => {
       if (rec && geometries[rec.rec_resource_id]) {
         return formatRecreationResourceDetailResults({
-          recResource: rec,
+          recResource: rec as any,
           spatialFeatureGeometry: {
             site_point_geometry:
               geometries[rec.rec_resource_id].site_point_geometry,
