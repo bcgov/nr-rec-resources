@@ -2,14 +2,20 @@
   "name": "@rst/ops",
   "version": "1.0.0",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "sync-advisories": "tsx src/advisories/sync-advisories.ts"
+  },
   "dependencies": {
     "@aws-sdk/client-guardduty": "^3.992.0",
     "@aws-sdk/client-s3": "^3.992.0",
+    "axios": "^1.9.0",
+    "pg": "^8.11.0",
     "winston": "^3.17.0",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/pg": "^8.11.0",
     "@types/yargs": "^17.0.35",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
