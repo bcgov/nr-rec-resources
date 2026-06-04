@@ -3,10 +3,12 @@ import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Activities from '@/components/rec-resource/card/Activities';
 import AccessStatus from '@/components/rec-resource/card/AccessStatus';
 import '@/components/rec-resource/card/RecResourceCard.scss';
-import { getImageList } from '@/components/rec-resource/card/helpers';
+import {
+  getImageList,
+  RecResourceCardResource,
+} from '@/components/rec-resource/card/helpers';
 import { RSTSVGLogo } from '@/components/RSTSVGLogo/RSTSVGLogo';
 import CardCarousel from '@/components/rec-resource/card/CardCarousel';
-import { RecreationResourceSearchModel } from '@/service/custom-models';
 import {
   MAX_ACTIVITIES_TO_DISPLAY,
   MAX_PHOTOS_TO_DISPLAY,
@@ -15,7 +17,7 @@ import { Link } from '@tanstack/react-router';
 import { useReplaceHistoryWithMapFocus } from '@/components/search-map/hooks/useReplaceHistoryWithMapFocus';
 
 interface RecResourceCardProps {
-  recreationResource: RecreationResourceSearchModel;
+  recreationResource: RecResourceCardResource;
   className?: string;
 }
 

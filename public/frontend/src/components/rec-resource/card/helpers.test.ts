@@ -1,5 +1,7 @@
-import { getImageList } from '@/components/rec-resource/card/helpers';
-import { RecreationResourceSearchModel } from '@/service/custom-models';
+import {
+  getImageList,
+  RecResourceCardResource,
+} from '@/components/rec-resource/card/helpers';
 
 describe('getImageList', () => {
   it('should extract image URLs from url.pre', () => {
@@ -20,7 +22,7 @@ describe('getImageList', () => {
           },
         },
       ],
-    } as unknown as RecreationResourceSearchModel;
+    } as unknown as RecResourceCardResource;
 
     const result = getImageList(mockResource);
 
@@ -45,7 +47,7 @@ describe('getImageList', () => {
           },
         },
       ],
-    } as unknown as RecreationResourceSearchModel;
+    } as unknown as RecResourceCardResource;
 
     const result = getImageList(mockResource);
 
@@ -59,7 +61,7 @@ describe('getImageList', () => {
   it('should handle empty recreation_resource_images array', () => {
     const mockResource = {
       recreation_resource_images: [],
-    } as unknown as RecreationResourceSearchModel;
+    } as unknown as RecResourceCardResource;
 
     const result = getImageList(mockResource);
 
@@ -67,7 +69,7 @@ describe('getImageList', () => {
   });
 
   it('should handle undefined recreation_resource_images', () => {
-    const mockResource = {} as unknown as RecreationResourceSearchModel;
+    const mockResource = {} as unknown as RecResourceCardResource;
 
     const result = getImageList(mockResource);
 
