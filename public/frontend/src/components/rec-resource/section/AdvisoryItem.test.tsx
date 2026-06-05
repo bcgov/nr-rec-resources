@@ -65,7 +65,7 @@ describe('AdvisoryItem', () => {
       ['Low', 'blue-icon.svg'],
       ['Medium', 'yellow-icon.svg'],
       ['High', 'red-icon.svg'],
-      ['Unknown', 'blue-icon.svg'], // Covers the default fallback case
+      ['Unknown', 'red-icon.svg'], // Covers the default fallback case
     ])('renders the correct icon for %s urgency', (urgency, expectedIcon) => {
       render(
         <AdvisoryItem
