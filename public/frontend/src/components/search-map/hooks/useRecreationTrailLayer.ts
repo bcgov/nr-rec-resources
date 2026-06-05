@@ -4,7 +4,10 @@ import type VectorSource from 'ol/source/Vector';
 import { useLayer } from '@/components/search-map/hooks/useLayer';
 import { useViewportIdFetch } from '@/components/search-map/hooks/useViewportIdFetch';
 import { fetchBcgwFeaturesByIds } from '@/components/search-map/layers/bcgwFeatures';
-import { BCGW_PROXY_URL } from '@/components/search-map/constants';
+import {
+  BCGW_PROXY_URL,
+  BCGW_RECREATION_TRAIL_LAYER,
+} from '@/components/search-map/constants';
 import type {
   MapRef,
   UseLayerOptions,
@@ -36,7 +39,11 @@ export const useRecreationTrailLayer = (
 
   const fetchByIds = useCallback(
     (ids: string[]): Promise<Feature[]> =>
-      fetchBcgwFeaturesByIds({ url: BCGW_PROXY_URL, layer: '3', ids }),
+      fetchBcgwFeaturesByIds({
+        url: BCGW_PROXY_URL,
+        layer: BCGW_RECREATION_TRAIL_LAYER,
+        ids,
+      }),
     [],
   );
 
