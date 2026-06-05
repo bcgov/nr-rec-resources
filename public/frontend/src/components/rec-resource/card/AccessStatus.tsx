@@ -32,7 +32,7 @@ export default function AccessStatus({
       {statusDescription}
       {!hideComma && advisoryCount > 0 && ', '}
       {advisoryCount > 0 && (
-        <a href={`/resource/${slug}#advisories`}>
+        <a href={`/resource/${slug}#know-before-you-go`}>
           {hideComma ? 'C' : 'c'}heck advisories ({advisoryCount})
         </a>
       )}

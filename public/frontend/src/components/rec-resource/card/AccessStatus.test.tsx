@@ -96,7 +96,7 @@ describe('AccessStatus', () => {
 
     const link = screen.getByRole('link');
     expect(link).toHaveTextContent('check advisories (3)');
-    expect(link).toHaveAttribute('href', '/resource/REC123#advisories');
+    expect(link).toHaveAttribute('href', '/resource/REC123#know-before-you-go');
   });
 
   it('capitalises the advisory link text when hideComma is true', () => {
