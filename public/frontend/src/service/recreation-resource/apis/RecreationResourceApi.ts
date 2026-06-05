@@ -106,12 +106,15 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
+    let urlPath = `/api/v1/recreation-resource/{id}`;
+    urlPath = urlPath.replace(
+      `{${'id'}}`,
+      encodeURIComponent(String(requestParameters['id'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resource/{id}`.replace(
-          `{${'id'}}`,
-          encodeURIComponent(String(requestParameters['id'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -165,9 +168,11 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
+    let urlPath = `/api/v1/recreation-resource/alphabetical`;
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resource/alphabetical`,
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -211,9 +216,11 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
+    let urlPath = `/api/v1/recreation-resource/summary`;
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resource/summary`,
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -264,9 +271,11 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
+    let urlPath = `/api/v1/recreation-resource/suggestions`;
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resource/suggestions`,
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -315,9 +324,11 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     headerParameters['Content-Type'] = 'application/json';
 
+    let urlPath = `/api/v1/recreation-resource/geometry`;
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resource/geometry`,
+        path: urlPath,
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -364,12 +375,15 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
+    let urlPath = `/api/v1/recreation-resource/{id}/site-operator`;
+    urlPath = urlPath.replace(
+      `{${'id'}}`,
+      encodeURIComponent(String(requestParameters['id'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resource/{id}/site-operator`.replace(
-          `{${'id'}}`,
-          encodeURIComponent(String(requestParameters['id'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -456,9 +470,11 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
+    let urlPath = `/api/v1/recreation-resource/search`;
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resource/search`,
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,

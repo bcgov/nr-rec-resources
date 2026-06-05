@@ -29,9 +29,11 @@ export class SitemapApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
+    let urlPath = `/api/sitemap.xml`;
+
     const response = await this.request(
       {
-        path: `/api/sitemap.xml`,
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,

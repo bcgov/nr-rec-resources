@@ -1,8 +1,10 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './AdvisoryDto';
 export * from './AlphabeticalRecreationResourceDto';
 export * from './FilterDto';
 export * from './FilterOptionDto';
+export * from './GeospatialControllerGetBcgwLayerRequest';
 export * from './HealthControllerCheck200Response';
 export * from './HealthControllerCheck200ResponseInfoValue';
 export * from './HealthControllerCheck503Response';
