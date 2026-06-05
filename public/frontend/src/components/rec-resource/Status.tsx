@@ -30,7 +30,7 @@ const Status = ({ description, statusCode, advisoriesCount }: StatusProps) => {
       <span>{description}</span>
       {advisoriesCount > 0 && (
         <>
-          ,&nbsp;
+          {','}&nbsp;
           <a href="#know-before-you-go">check advisories ({advisoriesCount})</a>
         </>
       )}

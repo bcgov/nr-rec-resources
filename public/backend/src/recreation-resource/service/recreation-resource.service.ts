@@ -77,7 +77,7 @@ export class RecreationResourceService {
     const response = result.map((rec) => {
       if (rec && geometries[rec.rec_resource_id]) {
         return formatRecreationResourceDetailResults({
-          recResource: rec as any,
+          recResource: rec,
           spatialFeatureGeometry: {
             site_point_geometry:
               geometries[rec.rec_resource_id].site_point_geometry,
