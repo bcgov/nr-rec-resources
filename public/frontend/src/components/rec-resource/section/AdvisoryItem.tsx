@@ -37,7 +37,7 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
       <div
         className={`advisory-header ${isCollapsed ? 'collapsed' : ''}`}
         onClick={onToggle}
-        tabIndex={0}
+        role="button"
         onKeyUp={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             onToggle();
