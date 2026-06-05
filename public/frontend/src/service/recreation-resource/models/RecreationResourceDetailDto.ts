@@ -48,6 +48,13 @@ import {
   RecreationStatusDtoToJSON,
   RecreationStatusDtoToJSONTyped,
 } from './RecreationStatusDto';
+import type { AdvisoryDto } from './AdvisoryDto';
+import {
+  AdvisoryDtoFromJSON,
+  AdvisoryDtoFromJSONTyped,
+  AdvisoryDtoToJSON,
+  AdvisoryDtoToJSONTyped,
+} from './AdvisoryDto';
 import type { RecreationFeeDto } from './RecreationFeeDto';
 import {
   RecreationFeeDtoFromJSON,
@@ -202,6 +209,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   recreation_resource_reservation_info?: RecreationResourceReservationInfoDto;
+  /**
+   * Recreation resource reservation info
+   * @type {Array<AdvisoryDto>}
+   * @memberof RecreationResourceDetailDto
+   */
+  advisories?: Array<AdvisoryDto>;
 }
 
 /**
@@ -346,6 +359,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
         : RecreationResourceReservationInfoDtoFromJSON(
             json['recreation_resource_reservation_info'],
           ),
+    advisories:
+      json['advisories'] == null
+        ? undefined
+        : (json['advisories'] as Array<any>).map(AdvisoryDtoFromJSON),
   };
 }
 
@@ -413,5 +430,9 @@ export function RecreationResourceDetailDtoToJSONTyped(
       RecreationResourceReservationInfoDtoToJSON(
         value['recreation_resource_reservation_info'],
       ),
+    advisories:
+      value['advisories'] == null
+        ? undefined
+        : (value['advisories'] as Array<any>).map(AdvisoryDtoToJSON),
   };
 }

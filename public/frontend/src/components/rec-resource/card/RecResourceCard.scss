@@ -80,14 +80,38 @@
       }
     }
 
-    .icon-container {
-      width: 85px;
-    }
-
     @include media-breakpoint-up(sm) {
       flex-direction: row;
       align-items: center;
     }
+  }
+}
+
+.access-status-icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  color: $colorGrey;
+  margin-top: 8px;
+
+  a {
+    text-decoration: underline;
+
+    &:focus-visible {
+      color: $colorBlue;
+      border: $colorWhite solid 2px;
+      outline: $colorBlueMed solid 2px;
+      outline-offset: 0;
+      border-radius: 4px;
+    }
+  }
+
+  svg {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
   }
 }
 

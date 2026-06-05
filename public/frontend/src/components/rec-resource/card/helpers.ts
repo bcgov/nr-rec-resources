@@ -1,15 +1,21 @@
-import { RecreationResourceSearchModel } from '@/service/custom-models';
-import { RecreationResourceImageDto } from '@/service/recreation-resource';
+import {
+  RecreationActivityDto,
+  RecreationResourceImageDto,
+} from '@/service/recreation-resource';
 
-/**
- * Extracts image URLs from a recreation resource
- * Backend now returns url object with full variant URLs
- *
- * @param {RecreationResourceSearchModel} recreationResource - Resource containing image data
- * @returns {Array<{imageUrl: string}>} Array of image URL objects
- */
+export interface RecResourceCardResource {
+  rec_resource_id: string;
+  name: string;
+  recreation_activity: Array<RecreationActivityDto>;
+  closest_community: string;
+  recreation_status: { status_code: number; description: string };
+  rec_resource_type: string;
+  recreation_resource_images?: Array<RecreationResourceImageDto>;
+  advisory_count: number;
+}
+
 export const getImageList = (
-  recreationResource: RecreationResourceSearchModel,
+  recreationResource: RecResourceCardResource,
 ): Array<{ imageUrl: string }> => {
   return (
     recreationResource.recreation_resource_images
