@@ -42,7 +42,9 @@ select distinct on (
     rf.saturday_ind,
     rf.sunday_ind,
     rf.update_timestamp as updated_at,
-    rf.update_userid    as updated_by
+    rf.update_userid    as updated_by,
+    rf.entry_timestamp  as created_at,
+    rf.entry_userid     as created_by
 from fta.recreation_fee rf
 order by
     rf.forest_file_id,
@@ -125,21 +127,9 @@ select
     ft.recreation_fee_sub_code,
     ft.updated_at,
     ft.updated_by,
-    rf.entry_timestamp  as created_at,
-    rf.entry_userid     as created_by
+    ft.created_at,
+    ft.created_by
 from fta_transformed ft
-join fta.recreation_fee rf
-    on rf.forest_file_id = ft.rec_resource_id
-    and case rf.recreation_fee_code
-            when 'C' then 'O' when 'H' then 'O'
-            when 'D' then 'A' when 'P' then 'A'
-            when 'T' then 'T'
-        end = ft.recreation_fee_code
-    and case rf.recreation_fee_code
-            when 'C' then 'C' when 'H' then 'H'
-            when 'D' then 'D' when 'P' then 'P'
-            when 'T' then null
-        end is not distinct from ft.recreation_fee_sub_code
 where not exists (
     select 1
     from rst.recreation_fee rrf
