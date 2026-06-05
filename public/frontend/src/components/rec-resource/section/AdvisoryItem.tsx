@@ -22,7 +22,7 @@ const getIconForUrgency = (urgency: string) => {
     case 'High':
       return redIcon;
     default:
-      return blueIcon;
+      return redIcon;
   }
 };
 
@@ -32,22 +32,26 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
   isCollapsed,
   onToggle,
 }) => {
-  // const [collapsed, setCollapsed] = useState(isCollapsed);
-
-  // const toggleCollapse = () => {
-  //   setCollapsed(!collapsed);
-  // };
-
   return (
     <div className={`advisory-item ${isLast ? 'advisory-item--last' : ''}`}>
-      <div className={`advisory-header ${isCollapsed ? 'collapsed' : ''}`}>
+      <div
+        className={`advisory-header ${isCollapsed ? 'collapsed' : ''}`}
+        onClick={onToggle}
+        role="button"
+        tabIndex={0}
+        onKeyPress={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            onToggle();
+          }
+        }}
+      >
         <img
           src={getIconForUrgency(advisory.urgency)}
           alt="Advisory Icon"
           className="advisory-icon"
         />
         <span className="advisory-title">{advisory.title}</span>
-        <span className="advisory-arrow" onClick={onToggle}>
+        <span className="advisory-arrow">
           {isCollapsed ? (
             <FontAwesomeIcon icon={faChevronDown} />
           ) : (

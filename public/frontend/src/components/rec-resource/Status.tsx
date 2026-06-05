@@ -26,8 +26,8 @@ const Status = ({ description, statusCode, advisoriesCount }: StatusProps) => {
         src={statusIcon}
         height={24}
         width={24}
-      />{' '}
-      <span>{description}</span>{' '}
+      />
+      <span>{description}</span>
       {advisoriesCount > 0 && (
         <>
           ,&nbsp;
