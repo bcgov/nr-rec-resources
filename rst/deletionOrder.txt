@@ -54,6 +54,8 @@ recreation_agreement_holder
 recreation_activity_code_history
 recreation_access_code_history
 recreation_access_and_sub_access_code_history
+act_advisories_flat_history
+act_advisories_flat
 recreation_map_feature
 recreation_image_consent_form
 recreation_fee

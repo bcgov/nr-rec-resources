@@ -23,6 +23,8 @@ recreation_establishment_order_docs
 recreation_fee
 recreation_image_consent_form
 recreation_map_feature
+act_advisories_flat
+act_advisories_flat_history
 recreation_access_and_sub_access_code_history
 recreation_access_code_history
 recreation_activity_code_history
