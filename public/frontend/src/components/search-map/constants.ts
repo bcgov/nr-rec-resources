@@ -49,6 +49,10 @@ export const WILDFIRE_PERIMETER_LAYER =
 
 export const BCGW_PROXY_URL = `${getBasePath()}/api/v1/geospatial/bcgw`;
 
+export const BCGW_RECREATION_TRAIL_LAYER = '3';
+
+export const BCGW_RECREATION_BOUNDARY_LAYER = '5';
+
 export const BOUNDARY_LAYERS_MIN_ZOOM = 10;
 
 export enum SearchMapFocusModes {

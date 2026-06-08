@@ -116,6 +116,13 @@ describe('useClusteredRecreationFeatureLayer', () => {
     );
   });
 
+  it('exposes the inner pin source for viewport-based layers', () => {
+    const { result } = renderHook(() =>
+      useClusteredRecreationFeatureLayer(['1', '2'], mapRef),
+    );
+    expect(result.current.innerSource).toBe(mockVectorSource);
+  });
+
   it('creates cluster source and updates distance on zoom changes', () => {
     mockView.getZoom = vi.fn(() => 5);
     renderHook(() => useClusteredRecreationFeatureLayer(['1'], mapRef));

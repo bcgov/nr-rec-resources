@@ -1,86 +1,90 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useRecreationBoundaryLayer } from './useRecreationBoundaryLayer';
 import * as boundaryLayer from '@/components/search-map/layers/recreationBoundaryLayer';
+import * as bcgwFeatures from '@/components/search-map/layers/bcgwFeatures';
 import * as useLayerModule from './useLayer';
+import * as viewportIdFetchModule from './useViewportIdFetch';
 
 describe('useRecreationBoundaryLayer', () => {
-  it('calls useLayer with the correct layer and style factories', () => {
-    const mapRef = { current: {} } as any;
-    const useLayerSpy = vi
-      .spyOn(useLayerModule, 'useLayer')
-      .mockReturnValue({} as any);
+  const mapRef = { current: {} } as any;
+  const pinSource = { id: 'pin' } as any;
+  const source = { id: 'boundary-source' } as any;
+  const layer = { id: 'boundary-layer' } as any;
 
-    renderHook(() => useRecreationBoundaryLayer(mapRef, { filteredIds: [] }));
-
-    expect(useLayerSpy).toHaveBeenCalledWith(
-      mapRef,
-      expect.any(Function),
-      boundaryLayer.createRecreationBoundaryLayer,
-      boundaryLayer.createRecreationBoundaryStyle,
-      {},
+  beforeEach(() => {
+    vi.spyOn(useLayerModule, 'useLayer').mockReturnValue({ layer, source });
+    vi.spyOn(viewportIdFetchModule, 'useViewportIdFetch').mockReturnValue(
+      undefined as any,
     );
-
-    useLayerSpy.mockRestore();
   });
 
-  it('passes filteredIds to createRecreationBoundarySource via the memoized callback', () => {
-    const mapRef = { current: {} } as any;
-    const ids = ['AB001', 'AB002'];
-    const createSourceSpy = vi
-      .spyOn(boundaryLayer, 'createRecreationBoundarySource')
-      .mockReturnValue({} as any);
-    const useLayerSpy = vi
-      .spyOn(useLayerModule, 'useLayer')
-      .mockReturnValue({} as any);
-
-    renderHook(() => useRecreationBoundaryLayer(mapRef, { filteredIds: ids }));
-
-    const createSourceArg = vi.mocked(useLayerModule.useLayer).mock.calls[0][1];
-    createSourceArg();
-
-    expect(createSourceSpy).toHaveBeenCalledWith(ids);
-
-    createSourceSpy.mockRestore();
-    useLayerSpy.mockRestore();
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  it('returns whatever useLayer returns', () => {
-    const mapRef = { current: {} } as any;
-    const mockReturn = { layer: 'mock' } as any;
-    const useLayerSpy = vi
-      .spyOn(useLayerModule, 'useLayer')
-      .mockReturnValue(mockReturn);
-
-    const { result } = renderHook(() =>
-      useRecreationBoundaryLayer(mapRef, { filteredIds: [] }),
-    );
-
-    expect(result.current).toBe(mockReturn);
-    useLayerSpy.mockRestore();
-  });
-
-  it('excludes filteredIds from the layerOptions forwarded to useLayer', () => {
-    const mapRef = { current: {} } as any;
-    const useLayerSpy = vi
-      .spyOn(useLayerModule, 'useLayer')
-      .mockReturnValue({} as any);
-
+  it('calls useLayer with the source/layer/style factories and forwarded options', () => {
     renderHook(() =>
-      useRecreationBoundaryLayer(mapRef, {
-        filteredIds: ['AB001'],
-        hideBelowZoom: 10,
-      }),
+      useRecreationBoundaryLayer(mapRef, { pinSource, hideBelowZoom: 10 }),
     );
 
-    expect(useLayerSpy).toHaveBeenCalledWith(
+    expect(useLayerModule.useLayer).toHaveBeenCalledWith(
       mapRef,
-      expect.any(Function),
+      boundaryLayer.createRecreationBoundarySource,
       boundaryLayer.createRecreationBoundaryLayer,
       boundaryLayer.createRecreationBoundaryStyle,
       { hideBelowZoom: 10 },
     );
+  });
 
-    useLayerSpy.mockRestore();
+  it('excludes pinSource from the layerOptions forwarded to useLayer', () => {
+    renderHook(() =>
+      useRecreationBoundaryLayer(mapRef, { pinSource, hideBelowZoom: 10 }),
+    );
+
+    const layerOptions = vi.mocked(useLayerModule.useLayer).mock.calls[0][4];
+    expect(layerOptions).not.toHaveProperty('pinSource');
+  });
+
+  it('drives useViewportIdFetch with the pin source, layer source and zoom threshold', () => {
+    renderHook(() =>
+      useRecreationBoundaryLayer(mapRef, { pinSource, hideBelowZoom: 10 }),
+    );
+
+    expect(viewportIdFetchModule.useViewportIdFetch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mapRef,
+        pinSource,
+        source,
+        minZoom: 10,
+        fetchByIds: expect.any(Function),
+      }),
+    );
+  });
+
+  it('fetchByIds proxies to the BCGW boundary layer (layer 5)', () => {
+    const fetchSpy = vi
+      .spyOn(bcgwFeatures, 'fetchBcgwFeaturesByIds')
+      .mockResolvedValue([]);
+
+    renderHook(() =>
+      useRecreationBoundaryLayer(mapRef, { pinSource, hideBelowZoom: 10 }),
+    );
+
+    const { fetchByIds } = vi.mocked(viewportIdFetchModule.useViewportIdFetch)
+      .mock.calls[0][0];
+    fetchByIds(['AB001', 'AB002']);
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ layer: '5', ids: ['AB001', 'AB002'] }),
+    );
+  });
+
+  it('returns the layer from useLayer', () => {
+    const { result } = renderHook(() =>
+      useRecreationBoundaryLayer(mapRef, { pinSource, hideBelowZoom: 10 }),
+    );
+
+    expect(result.current).toEqual({ layer });
   });
 });
