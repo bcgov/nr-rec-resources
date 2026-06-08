@@ -89,6 +89,18 @@ export interface RecreationResourceSearchDto {
    * @memberof RecreationResourceSearchDto
    */
   recreation_resource_images?: Array<RecreationResourceImageDto>;
+  /**
+   * Number of active advisories for this resource
+   * @type {number}
+   * @memberof RecreationResourceSearchDto
+   */
+  advisory_count: number;
+  /**
+   * Group label of the highest-priority advisory access status
+   * @type {string}
+   * @memberof RecreationResourceSearchDto
+   */
+  top_access_status_grouplabel?: string;
 }
 
 /**
@@ -119,6 +131,8 @@ export function instanceOfRecreationResourceSearchDto(
     !('rec_resource_type' in value) ||
     value['rec_resource_type'] === undefined
   )
+    return false;
+  if (!('advisory_count' in value) || value['advisory_count'] === undefined)
     return false;
   return true;
 }
@@ -157,6 +171,11 @@ export function RecreationResourceSearchDtoFromJSONTyped(
         : (json['recreation_resource_images'] as Array<any>).map(
             RecreationResourceImageDtoFromJSON,
           ),
+    advisory_count: json['advisory_count'],
+    top_access_status_grouplabel:
+      json['top_access_status_grouplabel'] == null
+        ? undefined
+        : json['top_access_status_grouplabel'],
   };
 }
 
@@ -195,5 +214,7 @@ export function RecreationResourceSearchDtoToJSONTyped(
         : (value['recreation_resource_images'] as Array<any>).map(
             RecreationResourceImageDtoToJSON,
           ),
+    advisory_count: value['advisory_count'],
+    top_access_status_grouplabel: value['top_access_status_grouplabel'],
   };
 }

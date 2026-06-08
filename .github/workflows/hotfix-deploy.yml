@@ -1,0 +1,45 @@
+# Manually triggered workflow to hotfix deploy to AWS
+name: Hotfix Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag of the containers to deploy"
+        type: number
+        required: true
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+          - test
+          - prod
+
+concurrency:
+  # Do not interrupt previous workflows
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  validate-hotfix-branch:
+    name: Validate hotfix branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure dispatch is from a hotfix branch
+        run: |
+          if [[ "${{ github.ref_name }}" != hotfix-* ]]; then
+            echo "Branch must start with 'hotfix-'. Current branch: ${{ github.ref_name }}"
+            exit 1
+          fi
+
+  hotfix-deploy-to-aws:
+    name: Hotfix Deploy to AWS ${{ inputs.environment }}
+    needs: validate-hotfix-branch
+    uses: ./.github/workflows/.deploy-app.yml
+    with:
+      app_env: ${{ inputs.environment }}
+      command: apply
+      environment_name: ${{ inputs.environment }}
+      tag: ${{ inputs.tag }}
+    secrets: inherit

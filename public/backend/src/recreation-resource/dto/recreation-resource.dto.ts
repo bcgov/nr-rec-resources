@@ -585,7 +585,20 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
 /**
  * Limited DTO without spatial data - optimized for search operations
  */
-export class RecreationResourceSearchDto extends BaseRecreationResourceDto {}
+export class RecreationResourceSearchDto extends BaseRecreationResourceDto {
+  @ApiProperty({
+    description: 'Number of active advisories for this resource',
+    example: 2,
+  })
+  advisory_count: number;
+
+  @ApiProperty({
+    description: 'Group label of the highest-priority advisory access status',
+    example: 'Closed',
+    required: false,
+  })
+  top_access_status_grouplabel?: string;
+}
 
 /**
  * Base class containing common fields/properties for site operator

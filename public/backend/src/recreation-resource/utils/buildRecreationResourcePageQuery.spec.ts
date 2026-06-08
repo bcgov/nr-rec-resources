@@ -17,8 +17,11 @@ describe('buildRecreationResourcePageQuery', () => {
       });
       const queryStr = query.sql;
 
-      expect(queryStr).toContain('select rec_resource_id');
-      expect(queryStr).toContain('from recreation_resource_search_view');
+      expect(queryStr).toContain('rrsv.rec_resource_id');
+      expect(queryStr).toContain('from recreation_resource_search_view rrsv');
+      expect(queryStr).toContain('act_advisories_flat');
+      expect(queryStr).toContain('advisory_count');
+      expect(queryStr).toContain('top_access_status_grouplabel');
       expect(queryStr).toContain('where type =');
       expect(queryStr).toContain('order by name asc');
       expect(queryStr).toContain('limit');

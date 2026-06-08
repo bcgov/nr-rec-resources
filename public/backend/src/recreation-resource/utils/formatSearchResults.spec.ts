@@ -22,6 +22,8 @@ const response = [
     recreation_structure: [],
     has_toilets: true,
     has_tables: false,
+    advisory_count: null,
+    top_access_status_grouplabel: null,
   },
 ];
 
@@ -42,6 +44,8 @@ describe('formatSearchResults function', () => {
           status_code: 1,
         },
         recreation_resource_images: [],
+        advisory_count: 0,
+        top_access_status_grouplabel: null,
       },
     ]);
   });
@@ -68,5 +72,37 @@ describe('formatSearchResults function', () => {
       description: 'Open',
       status_code: 1,
     });
+  });
+
+  it('should return advisory_count as 0 when null', () => {
+    const results = formatSearchResults([
+      { ...response[0], advisory_count: null },
+    ]);
+
+    expect(results[0].advisory_count).toBe(0);
+  });
+
+  it('should pass through a non-zero advisory_count', () => {
+    const results = formatSearchResults([
+      { ...response[0], advisory_count: 3 },
+    ]);
+
+    expect(results[0].advisory_count).toBe(3);
+  });
+
+  it('should return top_access_status_grouplabel as null when null', () => {
+    const results = formatSearchResults([
+      { ...response[0], top_access_status_grouplabel: null },
+    ]);
+
+    expect(results[0].top_access_status_grouplabel).toBeNull();
+  });
+
+  it('should pass through a non-null top_access_status_grouplabel', () => {
+    const results = formatSearchResults([
+      { ...response[0], top_access_status_grouplabel: 'Closed' },
+    ]);
+
+    expect(results[0].top_access_status_grouplabel).toBe('Closed');
   });
 });

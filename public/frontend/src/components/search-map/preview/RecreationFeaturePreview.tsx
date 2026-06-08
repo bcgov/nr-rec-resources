@@ -16,16 +16,23 @@ const RecreationFeaturePreview: React.FC<RecreationFeaturePreviewProps> = ({
     imageSizeCodes: [IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD],
   });
 
+  const resourceForCard = recreationResource
+    ? {
+        ...recreationResource,
+        advisory_count: recreationResource.advisories?.length ?? 0,
+      }
+    : undefined;
+
   return (
     <div className="map-feature-preview">
-      {!recreationResource ? (
+      {!resourceForCard ? (
         <div className="map-feature-preview-spinner">
           <Spinner animation="border" role="output" className="mb-2" />
         </div>
       ) : (
         <RecResourceCard
           className="map-feature-preview-card rec-resource-card"
-          recreationResource={recreationResource}
+          recreationResource={resourceForCard}
         />
       )}
     </div>

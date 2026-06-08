@@ -1,6 +1,6 @@
 import {
-  BaseRecreationResourceDto,
   RecreationActivityDto,
+  RecreationResourceSearchDto,
   RecreationStatusDto,
   RecreationStructureDto,
 } from 'src/recreation-resource/dto/recreation-resource.dto';
@@ -26,13 +26,15 @@ export type RecreationResourceSearchView = {
   recreation_structure: RecreationStructureDto[];
   has_toilets: boolean;
   has_tables: boolean;
+  advisory_count: number | null;
+  top_access_status_grouplabel: string | null;
 };
 
-// Format search results to match the BaseRecreationResourceDto
+// Format search results to match the RecreationResourceSearchDto
 export const formatSearchResults = (
   recResources: RecreationResourceSearchView[],
   rstStorageCloudfrontUrl: string = '',
-): BaseRecreationResourceDto[] => {
+): RecreationResourceSearchDto[] => {
   return recResources?.map((resource) => {
     const recreation_resource_images: RecreationResourceImageDto[] =
       formatImageUrls({
@@ -62,6 +64,9 @@ export const formatSearchResults = (
           resource.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
       },
       recreation_resource_images,
+      advisory_count: resource.advisory_count ?? 0,
+      top_access_status_grouplabel:
+        resource.top_access_status_grouplabel ?? null,
     };
   });
 };
