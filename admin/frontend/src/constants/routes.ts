@@ -17,4 +17,5 @@ export const ROUTE_PATHS = {
   REC_RESOURCE_GEOSPATIAL_EDIT: '/rec-resource/$id/geospatial/edit',
   REC_RESOURCE_RESERVATION: '/rec-resource/$id/reservation',
   REC_RESOURCE_RESERVATION_EDIT: '/rec-resource/$id/reservation/edit',
+  REC_RESOURCE_ADVISORIES: '/rec-resource/$id/advisories',
 } as const satisfies Record<string, NavigateOptions['to']>;

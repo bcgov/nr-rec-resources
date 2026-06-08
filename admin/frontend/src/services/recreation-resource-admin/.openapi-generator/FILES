@@ -27,6 +27,7 @@ models/RecreationActivityDto.ts
 models/RecreationControlAccessDto.ts
 models/RecreationFeatureDto.ts
 models/RecreationFeeDto.ts
+models/RecreationResourceAdvisoryDto.ts
 models/RecreationResourceDetailDto.ts
 models/RecreationResourceDistrictDto.ts
 models/RecreationResourceDocDto.ts

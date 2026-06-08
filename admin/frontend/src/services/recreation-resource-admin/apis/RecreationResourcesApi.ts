@@ -30,6 +30,7 @@ import type {
   RecreationActivityDto,
   RecreationFeatureDto,
   RecreationFeeDto,
+  RecreationResourceAdvisoryDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
   RecreationResourceGeospatialDto,
@@ -79,6 +80,8 @@ import {
   RecreationFeatureDtoToJSON,
   RecreationFeeDtoFromJSON,
   RecreationFeeDtoToJSON,
+  RecreationResourceAdvisoryDtoFromJSON,
+  RecreationResourceAdvisoryDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
   RecreationResourceDocDtoFromJSON,
@@ -224,6 +227,10 @@ export interface GetOptionsByTypeRequest {
 
 export interface GetOptionsByTypesRequest {
   types: Array<GetOptionsByTypesTypesEnum>;
+}
+
+export interface GetRecreationResourceAdvisoriesRequest {
+  recResourceId: string;
 }
 
 export interface GetRecreationResourceByIdRequest {
@@ -913,6 +920,81 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceImageDto> {
     const response = await this.deleteImageResourceRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Marks an existing fee as deleted so it no longer appears in active admin or public responses
+   * Soft-delete an existing fee for a recreation resource
+   */
+  async deleteRecreationResourceFeeRaw(
+    requestParameters: DeleteRecreationResourceFeeRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationFeeDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling deleteRecreationResourceFee().',
+      );
+    }
+
+    if (requestParameters['feeId'] == null) {
+      throw new runtime.RequiredError(
+        'feeId',
+        'Required parameter "feeId" was null or undefined when calling deleteRecreationResourceFee().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'fee_id'}}`,
+      encodeURIComponent(String(requestParameters['feeId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationFeeDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Marks an existing fee as deleted so it no longer appears in active admin or public responses
+   * Soft-delete an existing fee for a recreation resource
+   */
+  async deleteRecreationResourceFee(
+    requestParameters: DeleteRecreationResourceFeeRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationFeeDto> {
+    const response = await this.deleteRecreationResourceFeeRaw(
       requestParameters,
       initOverrides,
     );
@@ -1920,6 +2002,70 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Returns a priority-sorted list of advisories and closures for a recreation resource
+   * Get advisories and closures for a recreation resource
+   */
+  async getRecreationResourceAdvisoriesRaw(
+    requestParameters: GetRecreationResourceAdvisoriesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationResourceAdvisoryDto>>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getRecreationResourceAdvisories().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/advisories`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationResourceAdvisoryDtoFromJSON),
+    );
+  }
+
+  /**
+   * Returns a priority-sorted list of advisories and closures for a recreation resource
+   * Get advisories and closures for a recreation resource
+   */
+  async getRecreationResourceAdvisories(
+    requestParameters: GetRecreationResourceAdvisoriesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationResourceAdvisoryDto>> {
+    const response = await this.getRecreationResourceAdvisoriesRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Find recreation resource by ID
    */
   async getRecreationResourceByIdRaw(
@@ -2039,81 +2185,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<RecreationFeeDto>> {
     const response = await this.getRecreationResourceFeesRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
-   * Marks an existing fee as deleted so it no longer appears in active admin or public responses
-   * Soft-delete an existing fee for a recreation resource
-   */
-  async deleteRecreationResourceFeeRaw(
-    requestParameters: DeleteRecreationResourceFeeRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationFeeDto>> {
-    if (requestParameters['recResourceId'] == null) {
-      throw new runtime.RequiredError(
-        'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling deleteRecreationResourceFee().',
-      );
-    }
-
-    if (requestParameters['feeId'] == null) {
-      throw new runtime.RequiredError(
-        'feeId',
-        'Required parameter "feeId" was null or undefined when calling deleteRecreationResourceFee().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'fee_id'}}`,
-      encodeURIComponent(String(requestParameters['feeId'])),
-    );
-
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'DELETE',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationFeeDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Marks an existing fee as deleted so it no longer appears in active admin or public responses
-   * Soft-delete an existing fee for a recreation resource
-   */
-  async deleteRecreationResourceFee(
-    requestParameters: DeleteRecreationResourceFeeRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationFeeDto> {
-    const response = await this.deleteRecreationResourceFeeRaw(
       requestParameters,
       initOverrides,
     );
