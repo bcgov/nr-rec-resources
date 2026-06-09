@@ -55,6 +55,12 @@ generate "tfvars" {
     region         = "${local.region}"
   }
   google_search_console_verification_txt = get_env("google_search_console_verification_txt", "")
+  dev_zone_name_servers  = jsondecode(get_env("dev_zone_name_servers", "[]"))
+  test_zone_name_servers = jsondecode(get_env("test_zone_name_servers", "[]"))
+  acm_dev_cert_validation_cname = {
+    name  = "_9560db82edfb03e47cbe6e9b2a6803c7.sitesandtrailsbc.ca."
+    value = "_2f237c901a4c542e46cb7f83077208d9.jkddzztszm.acm-validations.aws."
+  }
 EOF
 }
 

@@ -35,6 +35,16 @@ on:
         description: 'Optional input to pass in a different flyway migration image'
         required: false
         type: string
+      dev_zone_name_servers:
+        description: 'JSON array of name servers for the dev child zone'
+        required: false
+        type: string
+        default: '[]'
+      test_zone_name_servers:
+        description: 'JSON array of name servers for the test child zone'
+        required: false
+        type: string
+        default: '[]'
     outputs:
       API_GW_URL:
         value: ${{ jobs.infra.outputs.API_GW_URL }}
@@ -54,6 +64,8 @@ on:
         value: ${{ jobs.infra.outputs.CUSTOM_DOMAINS }}
       STORAGE_CONSENT_FORMS_BUCKET:
         value: ${{ jobs.infra.outputs.STORAGE_CONSENT_FORMS_BUCKET }}
+      ZONE_NAME_SERVERS:
+        value: ${{ jobs.infra.outputs.ZONE_NAME_SERVERS }}
 
 env:
   TG_VERSION: 0.55.2
@@ -76,6 +88,7 @@ jobs:
       STORAGE_PUBLIC_DOCUMENTS_BUCKET: ${{ steps.tg-outputs-storage.outputs.STORAGE_PUBLIC_DOCUMENTS_BUCKET }}
       CUSTOM_DOMAINS: ${{ steps.tg-outputs-frontend.outputs.CUSTOM_DOMAINS }}
       STORAGE_CONSENT_FORMS_BUCKET: ${{ steps.tg-outputs-storage.outputs.STORAGE_CONSENT_FORMS_BUCKET }}
+      ZONE_NAME_SERVERS: ${{ steps.tg-outputs-dns.outputs.ZONE_NAME_SERVERS }}
 
     steps:
       - name: Checkout
@@ -123,6 +136,8 @@ jobs:
           keycloak_client_id: ${{ secrets.KEYCLOAK_CLIENT_ID }}
           keycloak_issuer: ${{ secrets.KEYCLOAK_ISSUER }}
           google_search_console_verification_txt: ${{ secrets.GOOGLE_SEARCH_CONSOLE_VERIFICATION_TXT }}
+          dev_zone_name_servers: ${{ inputs.dev_zone_name_servers }}
+          test_zone_name_servers: ${{ inputs.test_zone_name_servers }}
         run: |
           terragrunt run-all ${{ inputs.command }} --terragrunt-non-interactive
 
@@ -183,3 +198,14 @@ jobs:
           echo "STORAGE_IMAGES_BUCKET=$(jq -r .images_bucket.value.name outputs.json)" >> $GITHUB_OUTPUT
           echo "STORAGE_PUBLIC_DOCUMENTS_BUCKET=$(jq -r .public_documents_bucket.value.name outputs.json)" >> $GITHUB_OUTPUT
           echo "STORAGE_CONSENT_FORMS_BUCKET=$(jq -r .consent_forms_bucket.value.name outputs.json)" >> $GITHUB_OUTPUT
+
+      - name: Terragrunt DNS Outputs
+        if: ${{ inputs.working_directory == 'dns' }}
+        working-directory: ${{ env.TG_WORKING_PATH }}
+        id: tg-outputs-dns
+        env:
+          target_env: ${{ inputs.environment_name }}
+          aws_license_plate: ${{ secrets.AWS_LZA_LICENSE_PLATE }}
+        run: |
+          terragrunt output -json > outputs.json
+          echo "ZONE_NAME_SERVERS=$(jq -c '.zone_name_servers.value // []' outputs.json)" >> $GITHUB_OUTPUT
