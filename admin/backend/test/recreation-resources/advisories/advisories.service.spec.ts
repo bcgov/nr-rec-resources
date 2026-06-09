@@ -136,8 +136,9 @@ describe('AdvisoriesService', () => {
             { listing_rank: 'desc' },
             { urgency_sequence: 'desc' },
             { access_status_precedence: 'asc' },
-            { event_type_precedence: 'asc' },
+            { updated_date: 'desc' },
             { advisory_date: 'desc' },
+            { event_type_precedence: 'asc' },
           ],
         }),
       );
