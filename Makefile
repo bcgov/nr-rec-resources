@@ -2,7 +2,7 @@ SHELL := /usr/bin/env bash
 
 include ./public/backend/.env
 
-PSQL=psql -h localhost -U ${POSTGRES_USER}
+PSQL=PGPASSWORD=$(POSTGRES_PASSWORD) psql -h localhost -U $(POSTGRES_USER)
 DB_NAME=${POSTGRES_DATABASE}
 DB_SCHEMA=${POSTGRES_SCHEMA}
 FLYWAY=flyway
@@ -38,7 +38,7 @@ clean:
 .PHONY: terminate_connections
 terminate_connections:
 	@echo "Terminating active connections to $(DB_NAME)..."
-	@$(PSQL) -d postgres -tc "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$(DB_NAME)' AND pid <> pg_backend_pid();"
+	@$(PSQL) -d template1 -tc "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$(DB_NAME)' AND pid <> pg_backend_pid();"
 
 .PHONY: reset_db
 reset_db: terminate_connections drop_db create_db migrate load_fixtures

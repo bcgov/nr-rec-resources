@@ -13,7 +13,7 @@ export const RecResourceAdvisoriesSection = ({
   advisories,
 }: RecResourceAdvisoriesSectionProps) => {
   const staffAdminUrl = import.meta.env.VITE_STAFF_ADMIN_URL ?? '';
-  const actToolHref = `${staffAdminUrl}/public-advisories`;
+  const actToolHref = `${staffAdminUrl}/public-advisories?idp=idir`;
 
   return (
     <Stack direction="vertical" gap={4}>

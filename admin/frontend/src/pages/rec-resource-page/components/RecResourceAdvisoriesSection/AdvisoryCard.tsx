@@ -3,12 +3,20 @@ import {
   faArrowUpRightFromSquare,
   faCalendar,
   faCircleExclamation,
-  faCircleInfo,
   faExclamationTriangle,
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, Col, Row, Stack } from 'react-bootstrap';
+import { CustomBadge } from '@/components/custom-badge';
+import {
+  COLOR_BLUE,
+  COLOR_BLUE_LIGHT,
+  COLOR_GOLD_DARK,
+  COLOR_GREEN_LIGHTEST,
+  COLOR_GREY_DARK,
+} from '@/styles/colors';
+import redAlertIcon from '@/assets/icons/red-alert.svg';
 import { RecreationResourceAdvisoryDto } from '@/services/recreation-resource-admin';
 import { formatDateFull, formatDateReadable } from '@shared/utils';
 
@@ -17,30 +25,57 @@ type AdvisoryCardProps = {
   staffAdminUrl: string;
 };
 
-const URGENCY_CONFIG: Record<
-  string,
-  { icon: typeof faCircleInfo; className: string }
-> = {
-  Low: { icon: faCircleInfo, className: 'text-primary' },
-  Medium: { icon: faExclamationTriangle, className: 'text-warning' },
-  High: { icon: faCircleExclamation, className: 'text-danger' },
+const getUrgencyIcon = (urgency: string) => {
+  switch (urgency) {
+    case 'High':
+      return (
+        <img
+          src={redAlertIcon}
+          alt=""
+          aria-hidden="true"
+          width={16}
+          height={16}
+        />
+      );
+    case 'Medium':
+      return (
+        <FontAwesomeIcon
+          icon={faExclamationTriangle}
+          style={{ color: COLOR_GOLD_DARK }}
+          aria-hidden="true"
+        />
+      );
+    default:
+      return (
+        <FontAwesomeIcon
+          icon={faCircleExclamation}
+          style={{ color: COLOR_BLUE }}
+          aria-hidden="true"
+        />
+      );
+  }
 };
-
-const getUrgencyConfig = (urgency: string) =>
-  URGENCY_CONFIG[urgency] ?? URGENCY_CONFIG.Low;
 
 export const AdvisoryCard = ({
   advisory,
   staffAdminUrl,
 }: AdvisoryCardProps) => {
-  const urgencyConfig = getUrgencyConfig(advisory.urgency);
-
   const eventDatesLabel = (() => {
     if (!advisory.is_effective_date_displayed) return null;
     const start = formatDateReadable(advisory.effective_date);
     if (!start) return null;
     if (advisory.is_end_date_displayed && advisory.end_date) {
       const end = formatDateReadable(advisory.end_date);
+      const startYear = new Date(
+        String(advisory.effective_date),
+      ).getUTCFullYear();
+      const endYear = new Date(advisory.end_date).getUTCFullYear();
+      if (startYear === endYear) {
+        const startNoYear = formatDateReadable(advisory.effective_date, {
+          year: undefined,
+        });
+        return `${startNoYear} – ${end}`;
+      }
       return `${start} – ${end}`;
     }
     return start;
@@ -56,16 +91,19 @@ export const AdvisoryCard = ({
             {advisory.event_type} - {advisory.access_status_name}
           </h3>
           <Stack direction="horizontal" gap={3} className="flex-wrap">
-            <span className="badge rounded-pill bg-light text-dark border">
-              {advisory.advisory_status}
-            </span>
+            <CustomBadge
+              label={advisory.advisory_status}
+              bgColor={
+                advisory.advisory_status === 'Published'
+                  ? COLOR_BLUE_LIGHT
+                  : COLOR_GREEN_LIGHTEST
+              }
+              textColor={COLOR_GREY_DARK}
+              fontWeight={700}
+            />
             <Stack direction="horizontal" gap={1}>
-              <FontAwesomeIcon
-                icon={urgencyConfig.icon}
-                className={urgencyConfig.className}
-                aria-hidden="true"
-              />
-              <span>{advisory.urgency}</span>
+              {getUrgencyIcon(advisory.urgency)}
+              <span className="fw-bold">{advisory.urgency}</span>
             </Stack>
             {eventDatesLabel && (
               <Stack direction="horizontal" gap={1}>
@@ -88,7 +126,7 @@ export const AdvisoryCard = ({
                 <FontAwesomeIcon icon={faCalendar} aria-hidden="true" />
                 <span className="fw-semibold">Posted</span>
               </div>
-              <div>{formatDateFull(advisory.advisory_date) ?? '-'}</div>
+              <div>{formatDateFull(advisory.published_at) ?? '-'}</div>
             </Stack>
           </Col>
           <Col xs={6} md={3}>
