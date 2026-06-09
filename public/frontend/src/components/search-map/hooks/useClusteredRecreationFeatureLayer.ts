@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import OLMap from 'ol/Map';
 import ClusterSource, { Options as ClusterOptions } from 'ol/source/Cluster';
+import type VectorSource from 'ol/source/Vector';
 import { createEmpty, extend } from 'ol/extent';
 import {
   createClusteredRecreationFeatureStyle,
@@ -32,6 +33,9 @@ export const useClusteredRecreationFeatureLayer = (
   const { applyHoverStyles = true } = options || {};
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
   const clusterSourceRef = useRef<ClusterSource | null>(null);
+  // The inner (un-clustered) pin source. Exposed so the boundary/trail layers
+  // can use it as an in-memory spatial index of the search results in view.
+  const [innerSource, setInnerSource] = useState<VectorSource | null>(null);
 
   const clusterLayer = useMemo(
     () =>
@@ -63,6 +67,7 @@ export const useClusteredRecreationFeatureLayer = (
 
     clusterLayer.setSource(clusterSource);
     clusterSourceRef.current = clusterSource;
+    setInnerSource(clusterSource.getSource());
 
     const handleZoomChange = () => {
       const zoom = view.getZoom();
@@ -165,5 +170,6 @@ export const useClusteredRecreationFeatureLayer = (
   return {
     layer: clusterLayer,
     style: createClusteredRecreationFeatureStyle,
+    innerSource,
   };
 };

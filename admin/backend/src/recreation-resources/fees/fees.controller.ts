@@ -106,7 +106,7 @@ export class FeesController {
   })
   @ApiResponse({
     status: 409,
-    description: 'Fee type already exists for this resource',
+    description: 'Fee type and sub-type already exists for this resource',
   })
   @ApiBadRequestResponse({
     description: 'Bad Request - validation errors',
@@ -159,7 +159,7 @@ export class FeesController {
   })
   @ApiResponse({
     status: 409,
-    description: 'Fee type already exists for this resource',
+    description: 'Fee type and sub-type already exists for this resource',
   })
   @ApiBadRequestResponse({
     description: 'Bad Request - validation errors',

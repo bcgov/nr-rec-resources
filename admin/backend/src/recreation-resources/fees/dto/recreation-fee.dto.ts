@@ -41,6 +41,20 @@ export class RecreationFeeDto {
   fee_type_description: string;
 
   @ApiProperty({
+    description: 'Subtype of fee represented by code',
+    example: 'CAMPING',
+    required: false,
+  })
+  recreation_fee_sub_code?: string;
+
+  @ApiProperty({
+    description: 'Description of the fee sub-type',
+    example: 'Camping',
+    required: false,
+  })
+  fee_sub_type_description?: string;
+
+  @ApiProperty({
     description: 'Indicates if the fee applies on Monday',
     example: 'Y',
     required: false,

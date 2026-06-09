@@ -14,7 +14,7 @@ describe('addFeeSchema', () => {
   describe('valid data', () => {
     it('validates a complete fee that applies always', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
@@ -37,7 +37,7 @@ describe('addFeeSchema', () => {
 
     it('validates a complete fee that applies to specific dates with all days selected', () => {
       const validData = {
-        recreation_fee_code: 'C',
+        fee_type_sub_type: 'C',
         fee_amount: 75.5,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         recurring_start_mmdd: '06-15',
@@ -62,7 +62,7 @@ describe('addFeeSchema', () => {
 
     it('validates a fee with only weekdays selected', () => {
       const validData = {
-        recreation_fee_code: 'P',
+        fee_type_sub_type: 'P',
         fee_amount: 25,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         recurring_start_mmdd: '01-01',
@@ -83,7 +83,7 @@ describe('addFeeSchema', () => {
 
     it('validates a fee with only weekends selected', () => {
       const validData = {
-        recreation_fee_code: 'G',
+        fee_type_sub_type: 'G',
         fee_amount: 40,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         recurring_start_mmdd: '03-01',
@@ -104,7 +104,7 @@ describe('addFeeSchema', () => {
 
     it('validates with default values when optional fields are not provided', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -118,10 +118,10 @@ describe('addFeeSchema', () => {
     });
   });
 
-  describe('invalid recreation_fee_code', () => {
-    it('rejects empty fee code', () => {
+  describe('invalid fee_type_sub_type', () => {
+    it('rejects empty fee type/subtype', () => {
       const invalidData = {
-        recreation_fee_code: '',
+        fee_type_sub_type: '',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -129,13 +129,14 @@ describe('addFeeSchema', () => {
       const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('required');
+        expect(result.error.issues[0].message).toContain(
+          'Fee type is required',
+        );
       }
     });
 
-    it('rejects fee code longer than 1 character', () => {
+    it('rejects missing fee type/subtype field', () => {
       const invalidData = {
-        recreation_fee_code: 'DAY',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -143,7 +144,7 @@ describe('addFeeSchema', () => {
       const result = editSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('single character');
+        expect(result.error.issues[0].path).toContain('fee_type_sub_type');
       }
     });
   });
@@ -151,7 +152,7 @@ describe('addFeeSchema', () => {
   describe('fee_amount validation', () => {
     it('rejects zero fee amount', () => {
       const invalidData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 0,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -169,7 +170,7 @@ describe('addFeeSchema', () => {
 
     it('rejects negative fee amount', () => {
       const invalidData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: -10,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -187,7 +188,7 @@ describe('addFeeSchema', () => {
 
     it('allows positive decimal fee amounts', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 25.5,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -203,7 +204,7 @@ describe('addFeeSchema', () => {
   describe('recurring date validation', () => {
     it('requires start date when fee applies to specific dates', () => {
       const invalidData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         is_recurring: true,
@@ -231,7 +232,7 @@ describe('addFeeSchema', () => {
 
     it('requires end date when fee applies to specific dates', () => {
       const invalidData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         is_recurring: true,
@@ -259,7 +260,7 @@ describe('addFeeSchema', () => {
 
     it('rejects invalid start date format', () => {
       const invalidData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         is_recurring: true,
@@ -287,7 +288,7 @@ describe('addFeeSchema', () => {
 
     it('rejects invalid end date format', () => {
       const invalidData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         is_recurring: true,
@@ -314,7 +315,7 @@ describe('addFeeSchema', () => {
     });
     it('skips recurring date validation when is_recurring is false for specific dates', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         is_recurring: false,
@@ -332,7 +333,7 @@ describe('addFeeSchema', () => {
     it('allows same month and day for start and end dates', () => {
       // This test verifies that a fee can have identical start and end dates (e.g., June 15 to June 15)
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         recurring_start_mmdd: '06-15',
@@ -352,7 +353,7 @@ describe('addFeeSchema', () => {
 
     it('allows same month with later day for end date', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         recurring_start_mmdd: '06-10',
@@ -374,7 +375,7 @@ describe('addFeeSchema', () => {
   describe('day selection validation', () => {
     it('requires at least one day when fee applies to specific dates', () => {
       const invalidData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         recurring_start_mmdd: '06-15',
@@ -401,7 +402,7 @@ describe('addFeeSchema', () => {
 
     it('allows no days selected when fee applies always', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         monday_ind: false,
@@ -419,7 +420,7 @@ describe('addFeeSchema', () => {
 
     it('validates a single day selection', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         recurring_start_mmdd: '06-15',
@@ -441,7 +442,7 @@ describe('addFeeSchema', () => {
   describe('day_preset validation', () => {
     it('validates all_days preset', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
@@ -456,7 +457,7 @@ describe('addFeeSchema', () => {
 
     it('validates weekends preset', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         day_preset: DAY_PRESET_OPTIONS.WEEKENDS,
@@ -471,7 +472,7 @@ describe('addFeeSchema', () => {
 
     it('validates custom preset', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         day_preset: DAY_PRESET_OPTIONS.CUSTOM,
@@ -486,7 +487,7 @@ describe('addFeeSchema', () => {
 
     it('uses default preset when not provided', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -500,7 +501,7 @@ describe('addFeeSchema', () => {
 
     it('rejects invalid preset', () => {
       const invalidData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         day_preset: 'invalid_preset' as any,
@@ -514,7 +515,7 @@ describe('addFeeSchema', () => {
   describe('fee_applies validation', () => {
     it('validates always option', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -528,7 +529,7 @@ describe('addFeeSchema', () => {
 
     it('validates specific_dates option', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         recurring_start_mmdd: '06-15',
@@ -547,7 +548,7 @@ describe('addFeeSchema', () => {
 
     it('rejects invalid fee_applies option', () => {
       const invalidData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: 'invalid_option' as any,
       };
@@ -560,7 +561,7 @@ describe('addFeeSchema', () => {
   describe('optional fields', () => {
     it('allows optional fee_start_date and fee_end_date fields', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         fee_start_date: '2025-01-01',
@@ -577,7 +578,7 @@ describe('addFeeSchema', () => {
 
     it('allows undefined optional fields', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -592,7 +593,7 @@ describe('addFeeSchema', () => {
 
     it('is_recurring defaults to false when not provided', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -606,7 +607,7 @@ describe('addFeeSchema', () => {
 
     it('fee_determination_letter_confirmed defaults to false when not provided', () => {
       const validData = {
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       };
@@ -622,7 +623,7 @@ describe('addFeeSchema', () => {
   describe('complex scenarios', () => {
     it('validates complete fee with all fields populated', () => {
       const validData = {
-        recreation_fee_code: 'C',
+        fee_type_sub_type: 'C',
         fee_amount: 100.99,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         fee_start_date: '2025-06-01',
@@ -651,7 +652,7 @@ describe('addFeeSchema', () => {
 
     it('validates year-round fee for specific dates', () => {
       const validData = {
-        recreation_fee_code: 'G',
+        fee_type_sub_type: 'G',
         fee_amount: 35,
         fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
         recurring_start_mmdd: '01-01',
@@ -672,7 +673,7 @@ describe('addFeeSchema', () => {
 
   describe('fee_determination_letter_confirmed', () => {
     const baseValid = {
-      recreation_fee_code: 'D',
+      fee_type_sub_type: 'D',
       fee_amount: 50,
       fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
     };

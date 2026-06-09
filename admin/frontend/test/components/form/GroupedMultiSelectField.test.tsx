@@ -1,5 +1,5 @@
 import { GroupedMultiSelectField } from '@/components/form';
-import type { GroupedOption, GroupedOptions } from '@/components/form';
+import type { GroupedOptions } from '@/components/form';
 import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -22,6 +22,17 @@ vi.mock('react-select', () => ({
       const flatOptions = options?.flatMap((group: any) =>
         group.options ? group.options : [group],
       );
+      const toOption = (val: any) =>
+        typeof val === 'string'
+          ? flatOptions?.find((o: any) => o.value === val)
+          : val;
+      const currentValues = isMulti
+        ? Array.isArray(value)
+          ? value.map(toOption).filter(Boolean)
+          : []
+        : value
+          ? [toOption(value)].filter(Boolean)
+          : [];
       return (
         <div data-testid="mock-multi-select" className={className}>
           <div data-testid="multi-select-info">
@@ -38,12 +49,21 @@ vi.mock('react-select', () => ({
             data-testid="multi-select-input"
           />
           <div data-testid="selected-values">
-            {Array.isArray(value) && value.length > 0
-              ? value.map((v: any) => v.label).join(', ')
+            {currentValues.length > 0
+              ? currentValues.map((v: any) => v.label).join(', ')
               : 'none'}
           </div>
           {!isDisabled && (
             <div data-testid="multi-select-options">
+              {!isMulti && (
+                <button
+                  type="button"
+                  onClick={() => onChange?.(null)}
+                  data-testid="clear-selection"
+                >
+                  Clear
+                </button>
+              )}
               {flatOptions?.length === 0 ? (
                 <div>No options available</div>
               ) : (
@@ -52,25 +72,27 @@ vi.mock('react-select', () => ({
                     key={opt.value}
                     type="button"
                     onClick={() => {
-                      const currentValues = Array.isArray(value) ? value : [];
-                      const isSelected = currentValues.some(
-                        (v: any) => v.value === opt.value,
-                      );
-                      if (isSelected) {
-                        onChange?.(
-                          currentValues.filter(
-                            (v: any) => v.value !== opt.value,
-                          ),
+                      if (isMulti) {
+                        const isSelected = currentValues.some(
+                          (v: any) => v.value === opt.value,
                         );
+                        if (isSelected) {
+                          onChange?.(
+                            currentValues.filter(
+                              (v: any) => v.value !== opt.value,
+                            ),
+                          );
+                        } else {
+                          onChange?.([...currentValues, opt]);
+                        }
                       } else {
-                        onChange?.([...currentValues, opt]);
+                        onChange?.(opt);
                       }
                     }}
                     data-testid={`option-${opt.value}`}
-                    data-selected={
-                      Array.isArray(value) &&
-                      value.some((v: any) => v.value === opt.value)
-                    }
+                    data-selected={currentValues.some(
+                      (v: any) => v.value === opt.value,
+                    )}
                   >
                     {opt.label}
                   </button>
@@ -184,14 +206,7 @@ describe('GroupedMultiSelectField', () => {
     });
 
     it('should render with pre-selected values', () => {
-      const preSelectedValues: GroupedOption[] = [
-        {
-          label: 'Option 1A',
-          value: '1a',
-          group: 'group1',
-          groupLabel: 'Group 1',
-        },
-      ];
+      const preSelectedValues = ['1a'];
       renderWithForm({}, { selected_access_options: preSelectedValues });
       expect(screen.getByTestId('selected-values')).toHaveTextContent(
         'Option 1A',
@@ -259,7 +274,15 @@ describe('GroupedMultiSelectField', () => {
             />
             <div data-testid="selected-labels">
               {Array.isArray(value)
-                ? value.map((v) => v.label).join(', ')
+                ? value
+                    .map(
+                      (v) =>
+                        mockOptions
+                          .flatMap((g) => g.options)
+                          .find((o) => o.value === v)?.label,
+                    )
+                    .filter(Boolean)
+                    .join(', ')
                 : 'none'}
             </div>
           </>
@@ -330,7 +353,18 @@ describe('GroupedMultiSelectField', () => {
             />
             <div data-testid="groups">
               {Array.isArray(value)
-                ? [...new Set(value.map((v) => v.group))].join(', ')
+                ? [
+                    ...new Set(
+                      value
+                        .map(
+                          (v) =>
+                            mockOptions
+                              .flatMap((g) => g.options)
+                              .find((o) => o.value === v)?.group,
+                        )
+                        .filter(Boolean),
+                    ),
+                  ].join(', ')
                 : 'none'}
             </div>
           </>
@@ -368,13 +402,9 @@ describe('GroupedMultiSelectField', () => {
   describe('Error Handling', () => {
     it('should display error message', () => {
       const TestComponent = () => {
-        const { control, formState } = useForm<EditResourceFormData>({
+        const { control } = useForm<EditResourceFormData>({
           defaultValues: {},
         });
-        formState.errors.selected_access_options = {
-          type: 'required',
-          message: 'Please select at least one option',
-        };
         return (
           <GroupedMultiSelectField
             name="selected_access_options"
@@ -382,7 +412,14 @@ describe('GroupedMultiSelectField', () => {
             options={mockOptions}
             placeholder="Select options"
             control={control}
-            errors={formState.errors}
+            errors={
+              {
+                selected_access_options: {
+                  type: 'required',
+                  message: 'Please select at least one option',
+                },
+              } as any
+            }
           />
         );
       };
@@ -395,13 +432,9 @@ describe('GroupedMultiSelectField', () => {
 
     it('should apply error class when error exists', () => {
       const TestComponent = () => {
-        const { control, formState } = useForm<EditResourceFormData>({
+        const { control } = useForm<EditResourceFormData>({
           defaultValues: {},
         });
-        formState.errors.selected_access_options = {
-          type: 'required',
-          message: 'Error',
-        };
         return (
           <GroupedMultiSelectField
             name="selected_access_options"
@@ -409,7 +442,14 @@ describe('GroupedMultiSelectField', () => {
             options={mockOptions}
             placeholder="Select options"
             control={control}
-            errors={formState.errors}
+            errors={
+              {
+                selected_access_options: {
+                  type: 'required',
+                  message: 'Error',
+                },
+              } as any
+            }
           />
         );
       };
@@ -611,7 +651,14 @@ describe('GroupedMultiSelectField', () => {
             />
             <div data-testid="metadata">
               {Array.isArray(value) && value.length > 0
-                ? `${value[0].value}|${value[0].group}|${value[0].groupLabel}`
+                ? (() => {
+                    const option = mockOptions
+                      .flatMap((g) => g.options)
+                      .find((o) => o.value === value[0]);
+                    return option
+                      ? `${option.value}|${option.group}|${option.groupLabel}`
+                      : 'none';
+                  })()
                 : 'none'}
             </div>
           </>
@@ -625,6 +672,72 @@ describe('GroupedMultiSelectField', () => {
       expect(screen.getByTestId('metadata')).toHaveTextContent(
         '1a|group1|Group 1',
       );
+    });
+  });
+
+  describe('Single Select Mode', () => {
+    const renderSingleWithForm = (
+      props = {},
+      defaultValues: { fee_type_sub_type?: unknown } = {},
+    ) => {
+      const TestComponent = () => {
+        const { control, formState, watch } = useForm<{
+          fee_type_sub_type: unknown;
+        }>({
+          defaultValues,
+        });
+        const value = watch('fee_type_sub_type');
+        return (
+          <>
+            <GroupedMultiSelectField
+              name={'fee_type_sub_type' as any}
+              label="Fee subtype"
+              options={mockOptions}
+              placeholder="Select a fee subtype"
+              control={control as any}
+              errors={formState.errors as any}
+              isMulti={false}
+              {...props}
+            />
+            <div data-testid="single-value">{String(value ?? '')}</div>
+          </>
+        );
+      };
+      return render(<TestComponent />);
+    };
+
+    it('hydrates selected option from a string value', () => {
+      renderSingleWithForm({}, { fee_type_sub_type: '1b' });
+      expect(screen.getByTestId('multi-select-info')).toHaveTextContent(
+        'Multi: false',
+      );
+      expect(screen.getByTestId('selected-values')).toHaveTextContent(
+        'Option 1B',
+      );
+    });
+
+    it('falls back to null selected option when value is not a string', () => {
+      renderSingleWithForm({}, { fee_type_sub_type: ['1a'] });
+      expect(screen.getByTestId('selected-values')).toHaveTextContent('none');
+    });
+
+    it('updates form value to selected option value and clears to empty string', async () => {
+      const user = userEvent.setup();
+      renderSingleWithForm();
+
+      await user.click(screen.getByTestId('option-2a'));
+      expect(screen.getByTestId('single-value')).toHaveTextContent('2a');
+
+      await user.click(screen.getByTestId('clear-selection'));
+      expect(screen.getByTestId('single-value')).toHaveTextContent('');
+    });
+
+    it('respects disabled state in single-select mode', () => {
+      renderSingleWithForm({ disabled: true });
+      expect(screen.getByRole('combobox')).toBeDisabled();
+      expect(
+        screen.queryByTestId('multi-select-options'),
+      ).not.toBeInTheDocument();
     });
   });
 

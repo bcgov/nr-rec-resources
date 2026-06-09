@@ -162,4 +162,101 @@ describe('useFeeOptions', () => {
 
     expect(result.current.options).toEqual(newOptions);
   });
+
+  it('builds groupedFeeOptions with parsed group and subtype labels', () => {
+    const mockOptions = [
+      { id: 'O|B', label: 'Overnight - Backcountry' },
+      { id: 'O|C', label: 'Overnight - Cabin - Rustic' },
+      { id: 'T|D', label: 'Trail use - Day use' },
+    ];
+
+    vi.mocked(useGetRecreationResourceOptions).mockReturnValue({
+      data: [
+        {
+          type: GetOptionsByTypesTypesEnum.FeeType,
+          options: mockOptions,
+        },
+      ],
+      isLoading: false,
+    } as any);
+
+    const { result } = renderHook(() => useFeeOptions(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current.groupedFeeOptions).toEqual([
+      {
+        label: 'Overnight',
+        options: [
+          {
+            value: 'O|B',
+            label: 'Backcountry',
+            group: 'O',
+            groupLabel: 'Overnight',
+          },
+          {
+            value: 'O|C',
+            label: 'Cabin - Rustic',
+            group: 'O',
+            groupLabel: 'Overnight',
+          },
+        ],
+      },
+      {
+        label: 'Trail use',
+        options: [
+          {
+            value: 'T|D',
+            label: 'Day use',
+            group: 'T',
+            groupLabel: 'Trail use',
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('skips malformed option ids and falls back group label to type code', () => {
+    const mockOptions = [
+      { id: 'INVALID', label: 'Ignored' },
+      { id: '|D', label: 'Ignored missing type' },
+      { id: 'A|', label: 'Ignored missing subtype' },
+      { id: 'T|X', label: '' },
+      { id: 'T|Y', label: ' - Day pass' },
+    ];
+
+    vi.mocked(useGetRecreationResourceOptions).mockReturnValue({
+      data: [
+        {
+          type: GetOptionsByTypesTypesEnum.FeeType,
+          options: mockOptions,
+        },
+      ],
+      isLoading: false,
+    } as any);
+
+    const { result } = renderHook(() => useFeeOptions(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current.groupedFeeOptions).toEqual([
+      {
+        label: 'T',
+        options: [
+          {
+            value: 'T|X',
+            label: '',
+            group: 'T',
+            groupLabel: 'T',
+          },
+          {
+            value: 'T|Y',
+            label: 'Day pass',
+            group: 'T',
+            groupLabel: 'T',
+          },
+        ],
+      },
+    ]);
+  });
 });

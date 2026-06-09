@@ -100,5 +100,5 @@ export function useLayer(
     layer.changed();
   }, [applyHoverStyles, createStyle, hoveredFeature, layer]);
 
-  return { layer };
+  return { layer, source };
 }

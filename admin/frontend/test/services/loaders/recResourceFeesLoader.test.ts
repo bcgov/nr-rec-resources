@@ -160,4 +160,57 @@ describe('recResourceFeesLoader', () => {
       recResource: MOCK_REC_RESOURCE,
     });
   });
+
+  it('returns empty fees when fees query fails', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    mockQueryClient.ensureQueryData.mockImplementation(
+      async ({ queryKey }: any) => {
+        if (queryKey[1] === 'fees') {
+          throw new Error('fees failed');
+        }
+        return MOCK_REC_RESOURCE;
+      },
+    );
+
+    const result = await recResourceFeesLoader(mockArgs);
+
+    expect(result).toEqual({ fees: [], recResource: MOCK_REC_RESOURCE });
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Failed to load recreation resource fees',
+      'fees failed',
+    );
+  });
+
+  it('returns null recResource when detail query fails', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    mockQueryClient.ensureQueryData.mockImplementation(
+      async ({ queryKey }: any) => {
+        if (queryKey[1] === 'fees') {
+          return [{ fee_amount: 5 }];
+        }
+        throw new Error('detail failed');
+      },
+    );
+
+    const result = await recResourceFeesLoader(mockArgs);
+
+    expect(result).toEqual({ fees: [{ fee_amount: 5 }], recResource: null });
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Failed to load recreation resource detail',
+      'detail failed',
+    );
+  });
+
+  it('returns defaults when both queries fail', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    mockQueryClient.ensureQueryData.mockRejectedValue(new Error('boom'));
+
+    const result = await recResourceFeesLoader(mockArgs);
+
+    expect(result).toEqual({ fees: [], recResource: null });
+    expect(errorSpy).toHaveBeenCalledTimes(2);
+  });
 });

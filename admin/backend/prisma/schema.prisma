@@ -134,35 +134,37 @@ model recreation_district_code {
 }
 
 model recreation_fee {
-  rec_resource_id        String                   @db.VarChar(200)
-  fee_amount             Int?
-  fee_start_date         DateTime?                @db.Date
-  fee_end_date           DateTime?                @db.Date
-  monday_ind             String?                  @default("N") @db.VarChar(1)
-  tuesday_ind            String?                  @default("N") @db.VarChar(1)
-  wednesday_ind          String?                  @default("N") @db.VarChar(1)
-  thursday_ind           String?                  @default("N") @db.VarChar(1)
-  friday_ind             String?                  @default("N") @db.VarChar(1)
-  saturday_ind           String?                  @default("N") @db.VarChar(1)
-  sunday_ind             String?                  @default("N") @db.VarChar(1)
-  recreation_fee_code    String                   @db.VarChar(1)
-  updated_at             DateTime?                @default(now()) @db.Timestamp(6)
-  updated_by             String?
-  created_at             DateTime?                @default(now()) @db.Timestamp(6)
-  created_by             String?
-  sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  fee_id                 Int                      @id @default(autoincrement())
-  recurring_ind          Boolean                  @default(false)
-  recurring_start_mmdd   String?
-  recurring_end_mmdd     String?
-  is_deleted             Boolean                  @default(false)
-  deleted_at             DateTime?                @db.Timestamp(6)
-  deleted_by             String?
-  recreation_resource    recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
-  with_description       recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_fee_fdl_log recreation_fee_fdl_log[]
+  rec_resource_id         String                   @db.VarChar(200)
+  fee_amount              Int?
+  fee_start_date          DateTime?                @db.Date
+  fee_end_date            DateTime?                @db.Date
+  monday_ind              String?                  @default("N") @db.VarChar(1)
+  tuesday_ind             String?                  @default("N") @db.VarChar(1)
+  wednesday_ind           String?                  @default("N") @db.VarChar(1)
+  thursday_ind            String?                  @default("N") @db.VarChar(1)
+  friday_ind              String?                  @default("N") @db.VarChar(1)
+  saturday_ind            String?                  @default("N") @db.VarChar(1)
+  sunday_ind              String?                  @default("N") @db.VarChar(1)
+  recreation_fee_code     String                   @db.VarChar(1)
+  updated_at              DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by              String?
+  created_at              DateTime?                @default(now()) @db.Timestamp(6)
+  created_by              String?
+  sys_period              Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  fee_id                  Int                      @id @default(autoincrement())
+  recurring_ind           Boolean                  @default(false)
+  recurring_start_mmdd    String?
+  recurring_end_mmdd      String?
+  is_deleted              Boolean                  @default(false)
+  deleted_at              DateTime?                @db.Timestamp(6)
+  deleted_by              String?
+  recreation_fee_sub_code String?                  @db.VarChar(30)
+  recreation_resource     recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  with_description        recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
+  with_sub_description    recreation_fee_sub_code? @relation("fee_with_sub_description", fields: [recreation_fee_code, recreation_fee_sub_code], references: [recreation_fee_code, recreation_fee_sub_code], onDelete: NoAction, onUpdate: NoAction, map: "recreation_fee_sub_code_fk")
+  recreation_fee_fdl_log  recreation_fee_fdl_log[]
 
-  @@unique([rec_resource_id, recreation_fee_code, monday_ind, tuesday_ind, wednesday_ind, thursday_ind, friday_ind, saturday_ind, sunday_ind], map: "recreation_fee_unique_idx", where: raw("(is_deleted = false)"))
+  @@unique([rec_resource_id, recreation_fee_code, recreation_fee_sub_code, monday_ind, tuesday_ind, wednesday_ind, thursday_ind, friday_ind, saturday_ind, sunday_ind], map: "recreation_fee_unique_idx", where: raw("((is_deleted = false) AND (recreation_fee_sub_code IS NOT NULL))"))
   @@index([rec_resource_id], map: "idx_recreation_fee_rec_resource_id")
   @@schema("rst")
 }
@@ -178,12 +180,26 @@ model recreation_fee_fdl_log {
 }
 
 model recreation_fee_code {
-  recreation_fee_code String                   @id @db.VarChar(1)
-  description         String                   @db.VarChar(120)
-  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
-  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  with_description    recreation_fee[]         @relation("fee_with_description")
+  recreation_fee_code String                    @id @db.VarChar(1)
+  description         String                    @db.VarChar(120)
+  updated_at          DateTime?                 @default(now()) @db.Timestamp(6)
+  sys_period          Unsupported("tstzrange")  @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  with_description    recreation_fee[]          @relation("fee_with_description")
+  sub_types           recreation_fee_sub_code[]
 
+  @@schema("rst")
+}
+
+model recreation_fee_sub_code {
+  recreation_fee_code     String                   @db.VarChar(1)
+  recreation_fee_sub_code String                   @db.VarChar(30)
+  description             String                   @db.VarChar(120)
+  updated_at              DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period              Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  with_sub_description    recreation_fee[]         @relation("fee_with_sub_description")
+  fee_type                recreation_fee_code      @relation(fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([recreation_fee_code, recreation_fee_sub_code])
   @@schema("rst")
 }
 
@@ -1358,6 +1374,18 @@ model act_advisories_flat_history {
   modified_date               DateTime                 @db.Timestamptz(6)
   published_at                DateTime?                @db.Timestamptz(6)
   sys_period                  Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_fee_sub_code_history {
+  recreation_fee_code     String                   @db.VarChar(1)
+  recreation_fee_sub_code String                   @db.VarChar(30)
+  description             String                   @db.VarChar(120)
+  updated_at              DateTime?                @db.Timestamp(6)
+  sys_period              Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")
