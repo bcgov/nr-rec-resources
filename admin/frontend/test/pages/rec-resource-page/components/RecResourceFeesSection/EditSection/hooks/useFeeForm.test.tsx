@@ -1,4 +1,7 @@
-import { useFeeForm } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeForm';
+import {
+  parseFeeTypeSubtypeValue,
+  useFeeForm,
+} from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeForm';
 import {
   FEE_APPLIES_OPTIONS,
   DAY_PRESET_OPTIONS,
@@ -173,7 +176,7 @@ describe('useFeeForm', () => {
     mockCreateMutateAsync.mockResolvedValueOnce(undefined);
 
     await result.current.onSubmit({
-      recreation_fee_code: 'D',
+      fee_type_sub_type: 'A|D',
       fee_amount: 15,
       fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
       is_recurring: true,
@@ -192,7 +195,8 @@ describe('useFeeForm', () => {
 
     expect(mockCreateMutateAsync).toHaveBeenCalledWith({
       recResourceId,
-      recreation_fee_code: 'D',
+      recreation_fee_code: 'A',
+      recreation_fee_sub_code: 'D',
       fee_amount: 15,
       recurring_ind: true,
       recurring_start_mmdd: '05-15',
@@ -235,7 +239,7 @@ describe('useFeeForm', () => {
     mockUpdateMutateAsync.mockResolvedValueOnce(undefined);
 
     await result.current.onSubmit({
-      recreation_fee_code: 'D',
+      fee_type_sub_type: 'A|D',
       fee_amount: undefined,
       fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       is_recurring: false,
@@ -257,7 +261,8 @@ describe('useFeeForm', () => {
     expect(mockUpdateMutateAsync).toHaveBeenCalledWith({
       recResourceId,
       feeId: 123,
-      recreation_fee_code: 'D',
+      recreation_fee_code: 'A',
+      recreation_fee_sub_code: 'D',
       fee_amount: null,
       fee_start_date: null,
       fee_end_date: null,
@@ -413,7 +418,7 @@ describe('useFeeForm', () => {
       );
 
       await result.current.onSubmit({
-        recreation_fee_code: 'D',
+        fee_type_sub_type: 'A|D',
         fee_amount: 50,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         is_recurring: false,
@@ -438,7 +443,7 @@ describe('useFeeForm', () => {
 
   describe('edit mode FDL validation in onSubmit', () => {
     const baseSubmitData = {
-      recreation_fee_code: 'D',
+      fee_type_sub_type: 'A|D',
       fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
       is_recurring: false,
       recurring_start_mmdd: undefined,
@@ -561,6 +566,232 @@ describe('useFeeForm', () => {
 
       expect(mockSetError).not.toHaveBeenCalled();
       expect(mockUpdateMutateAsync).toHaveBeenCalled();
+    });
+  });
+
+  describe('fee type/subtype validation', () => {
+    it('accepts legacy one-letter subtype values like O|B', async () => {
+      const recResourceId = 'REC123';
+      const onDone = vi.fn();
+
+      mockCreateMutateAsync.mockResolvedValueOnce(undefined);
+
+      const { result } = renderHook(() =>
+        useFeeForm({
+          recResourceId,
+          mode: 'create',
+          onDone,
+        }),
+      );
+
+      await result.current.onSubmit({
+        fee_type_sub_type: 'O|B',
+        fee_amount: 20,
+        fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+        is_recurring: false,
+        fee_start_date: undefined,
+        fee_end_date: undefined,
+        recurring_start_mmdd: undefined,
+        recurring_end_mmdd: undefined,
+        day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
+        monday_ind: true,
+        tuesday_ind: true,
+        wednesday_ind: true,
+        thursday_ind: true,
+        friday_ind: true,
+        saturday_ind: true,
+        sunday_ind: true,
+        fee_determination_letter_confirmed: true,
+      });
+
+      expect(mockSetError).not.toHaveBeenCalledWith('fee_type_sub_type', {
+        message: 'Please select a valid fee type',
+      });
+      expect(mockCreateMutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recResourceId,
+          recreation_fee_code: 'O',
+          recreation_fee_sub_code: 'B',
+        }),
+      );
+      expect(onDone).toHaveBeenCalled();
+    });
+
+    it('blocks submission when fee type code is invalid', async () => {
+      const { result } = renderHook(() =>
+        useFeeForm({ recResourceId: 'REC123', mode: 'create' }),
+      );
+
+      await result.current.onSubmit({
+        fee_type_sub_type: 'INVALID|B',
+        fee_amount: 20,
+        fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+        is_recurring: false,
+        fee_start_date: undefined,
+        fee_end_date: undefined,
+        recurring_start_mmdd: undefined,
+        recurring_end_mmdd: undefined,
+        day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
+        monday_ind: true,
+        tuesday_ind: true,
+        wednesday_ind: true,
+        thursday_ind: true,
+        friday_ind: true,
+        saturday_ind: true,
+        sunday_ind: true,
+        fee_determination_letter_confirmed: true,
+      });
+
+      expect(mockSetError).toHaveBeenCalledWith('fee_type_sub_type', {
+        message: 'Please select a valid fee type',
+      });
+      expect(mockCreateMutateAsync).not.toHaveBeenCalled();
+    });
+
+    it('blocks submission when fee subtype is missing or invalid', async () => {
+      const { result } = renderHook(() =>
+        useFeeForm({ recResourceId: 'REC123', mode: 'create' }),
+      );
+
+      await result.current.onSubmit({
+        fee_type_sub_type: 'O',
+        fee_amount: 20,
+        fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+        is_recurring: false,
+        fee_start_date: undefined,
+        fee_end_date: undefined,
+        recurring_start_mmdd: undefined,
+        recurring_end_mmdd: undefined,
+        day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
+        monday_ind: true,
+        tuesday_ind: true,
+        wednesday_ind: true,
+        thursday_ind: true,
+        friday_ind: true,
+        saturday_ind: true,
+        sunday_ind: true,
+        fee_determination_letter_confirmed: true,
+      });
+
+      expect(mockSetError).toHaveBeenCalledWith('fee_type_sub_type', {
+        message: 'Please select a valid fee subtype',
+      });
+      expect(mockCreateMutateAsync).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('parseFeeTypeSubtypeValue', () => {
+    it('returns empty parts when value is empty', () => {
+      expect(parseFeeTypeSubtypeValue('')).toEqual({
+        recreation_fee_code: '',
+        recreation_fee_sub_code: '',
+      });
+    });
+
+    it('normalizes lowercase and whitespace to uppercase parts', () => {
+      expect(parseFeeTypeSubtypeValue('  o|day_use  ')).toEqual({
+        recreation_fee_code: 'O',
+        recreation_fee_sub_code: 'DAY_USE',
+      });
+    });
+
+    it('treats values without delimiter as fee code only', () => {
+      expect(parseFeeTypeSubtypeValue('t')).toEqual({
+        recreation_fee_code: 'T',
+        recreation_fee_sub_code: '',
+      });
+    });
+  });
+
+  describe('default values and completion behavior', () => {
+    it('builds fee_type_sub_type and weekends preset from initial fee', () => {
+      renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC123',
+          mode: 'edit',
+          initialFee: {
+            fee_id: 7,
+            recreation_fee_code: 'o',
+            recreation_fee_sub_code: 'b',
+            recurring_ind: false,
+            monday_ind: 'N',
+            tuesday_ind: 'N',
+            wednesday_ind: 'N',
+            thursday_ind: 'N',
+            friday_ind: 'N',
+            saturday_ind: 'Y',
+            sunday_ind: 'Y',
+          } as any,
+        }),
+      );
+
+      const useFormArg = vi
+        .mocked(reactHookForm.useForm)
+        .mock.calls.at(-1)?.[0];
+      expect(useFormArg?.defaultValues?.fee_type_sub_type).toBe('O|B');
+      expect(useFormArg?.defaultValues?.day_preset).toBe(
+        DAY_PRESET_OPTIONS.WEEKENDS,
+      );
+    });
+
+    it('uses custom day preset when day pattern does not match predefined presets', () => {
+      renderHook(() =>
+        useFeeForm({
+          recResourceId: 'REC123',
+          mode: 'edit',
+          initialFee: {
+            fee_id: 8,
+            recurring_ind: false,
+            monday_ind: 'Y',
+            tuesday_ind: 'N',
+            wednesday_ind: 'Y',
+            thursday_ind: 'N',
+            friday_ind: 'Y',
+            saturday_ind: 'N',
+            sunday_ind: 'N',
+          } as any,
+        }),
+      );
+
+      const useFormArg = vi
+        .mocked(reactHookForm.useForm)
+        .mock.calls.at(-1)?.[0];
+      expect(useFormArg?.defaultValues?.day_preset).toBe(
+        DAY_PRESET_OPTIONS.CUSTOM,
+      );
+    });
+
+    it('navigates to fees route when onDone is not provided', async () => {
+      mockCreateMutateAsync.mockResolvedValueOnce(undefined);
+
+      const { result } = renderHook(() =>
+        useFeeForm({ recResourceId: 'REC123', mode: 'create' }),
+      );
+
+      await result.current.onSubmit({
+        fee_type_sub_type: 'A|D',
+        fee_amount: 12,
+        fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+        is_recurring: false,
+        fee_start_date: undefined,
+        fee_end_date: undefined,
+        recurring_start_mmdd: undefined,
+        recurring_end_mmdd: undefined,
+        day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
+        monday_ind: true,
+        tuesday_ind: true,
+        wednesday_ind: true,
+        thursday_ind: true,
+        friday_ind: true,
+        saturday_ind: true,
+        sunday_ind: true,
+        fee_determination_letter_confirmed: true,
+      });
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: '/rec-resource/$id/fees',
+        params: { id: 'REC123' },
+      });
     });
   });
 });

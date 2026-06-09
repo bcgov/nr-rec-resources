@@ -56,6 +56,18 @@ export interface RecreationFeeDto {
    */
   fee_type_description: string;
   /**
+   * Subtype of fee represented by code
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  recreation_fee_sub_code?: string;
+  /**
+   * Description of the fee sub-type
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  fee_sub_type_description?: string;
+  /**
    * Indicates if the fee applies on Monday
    * @type {string}
    * @memberof RecreationFeeDto
@@ -161,6 +173,14 @@ export function RecreationFeeDtoFromJSONTyped(
       json['fee_end_date'] == null ? undefined : new Date(json['fee_end_date']),
     recreation_fee_code: json['recreation_fee_code'],
     fee_type_description: json['fee_type_description'],
+    recreation_fee_sub_code:
+      json['recreation_fee_sub_code'] == null
+        ? undefined
+        : json['recreation_fee_sub_code'],
+    fee_sub_type_description:
+      json['fee_sub_type_description'] == null
+        ? undefined
+        : json['fee_sub_type_description'],
     monday_ind: json['monday_ind'] == null ? undefined : json['monday_ind'],
     tuesday_ind: json['tuesday_ind'] == null ? undefined : json['tuesday_ind'],
     wednesday_ind:
@@ -208,6 +228,8 @@ export function RecreationFeeDtoToJSONTyped(
         : value['fee_end_date'].toISOString(),
     recreation_fee_code: value['recreation_fee_code'],
     fee_type_description: value['fee_type_description'],
+    recreation_fee_sub_code: value['recreation_fee_sub_code'],
+    fee_sub_type_description: value['fee_sub_type_description'],
     monday_ind: value['monday_ind'],
     tuesday_ind: value['tuesday_ind'],
     wednesday_ind: value['wednesday_ind'],

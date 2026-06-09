@@ -168,7 +168,7 @@ describe('useUpdateFee', () => {
     });
 
     expect(addErrorNotification).toHaveBeenCalledWith(
-      'This fee type already exists for this resource',
+      'This fee type and sub-type already exists for this resource',
       'updateFee-conflict',
     );
   });

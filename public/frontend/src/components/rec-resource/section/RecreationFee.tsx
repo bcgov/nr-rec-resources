@@ -15,6 +15,7 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
   if (data.length === 0) {
     return <p>No fees available for this resource.</p>;
   }
+  console.log('data', data);
 
   return (
     <Stack direction="vertical" gap={5}>

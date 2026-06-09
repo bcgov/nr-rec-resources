@@ -1,6 +1,7 @@
 import {
   buildSelectFields,
   mapAccessOptions,
+  mapFeeTypeSubtypeOptions,
   mapResultToOptionDto,
   transformClosestCommunityOptions,
   transformResultsToOptionDtos,
@@ -191,6 +192,55 @@ describe('mapResultToOptionDto', () => {
     });
 
     expect(result.children).toEqual(children);
+  });
+
+  it('should default id and label when source fields are missing', () => {
+    const mapping: TableMapping = {
+      idField: 'code',
+      labelField: 'description',
+      prismaModel: 'test_model',
+    };
+
+    const result = mapResultToOptionDto(mapping, {});
+
+    expect(result).toEqual({
+      id: '',
+      label: '',
+    });
+  });
+});
+
+describe('mapFeeTypeSubtypeOptions', () => {
+  it('flattens and sorts by fee type order, then label', () => {
+    const mapped = [
+      { id: 'backcountry', label: 'Backcountry' },
+      { id: 'day', label: 'Day use' },
+      { id: 'parking', label: 'Parking' },
+      { id: 'boat', label: 'Boat launch' },
+    ];
+
+    const raw = [
+      { recreation_fee_code: 'T' },
+      { recreation_fee_code: 'O' },
+      { recreation_fee_code: 'X' },
+      { recreation_fee_code: 'A' },
+    ];
+
+    expect(mapFeeTypeSubtypeOptions(mapped, raw)).toEqual([
+      { id: 'O|day', label: 'Overnight - Day use' },
+      { id: 'T|backcountry', label: 'Trail use - Backcountry' },
+      { id: 'A|boat', label: 'Additional fees - Boat launch' },
+      { id: 'X|parking', label: 'X - Parking' },
+    ]);
+  });
+
+  it('handles missing fee code by using empty type prefix', () => {
+    const mapped = [{ id: 'misc', label: 'Misc fee' }];
+    const raw = [{}];
+
+    expect(mapFeeTypeSubtypeOptions(mapped, raw)).toEqual([
+      { id: '|misc', label: ' - Misc fee' },
+    ]);
   });
 });
 

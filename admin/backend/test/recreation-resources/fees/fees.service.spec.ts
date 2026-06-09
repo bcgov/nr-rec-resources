@@ -120,10 +120,18 @@ describe('FeesService', () => {
               description: true,
             },
           },
+          with_sub_description: {
+            select: {
+              description: true,
+            },
+          },
         },
         orderBy: [
           {
             recreation_fee_code: 'asc',
+          },
+          {
+            recreation_fee_sub_code: 'asc',
           },
           {
             fee_start_date: 'asc',
@@ -319,10 +327,6 @@ describe('FeesService', () => {
       ).mockResolvedValue({
         rec_resource_id: recId,
       });
-      vi.mocked(
-        prismaService.recreation_fee.findFirst as any,
-      ).mockResolvedValue(null);
-
       const createdRecord = {
         fee_id: 100,
         rec_resource_id: recId,
@@ -362,27 +366,14 @@ describe('FeesService', () => {
       expect(createCallArg.data.fee_end_date).toEqual(new Date('2024-09-30'));
       expect(createCallArg.data.recreation_fee_code).toBe('C');
       expect(createCallArg.data.rec_resource_id).toBe(recId);
-      expect(prismaService.recreation_fee.findFirst).toHaveBeenCalledWith({
-        where: {
-          rec_resource_id: recId,
-          recreation_fee_code: 'C',
-          is_deleted: false,
-          monday_ind: 'Y',
-          tuesday_ind: 'N',
-          wednesday_ind: 'N',
-          thursday_ind: 'N',
-          friday_ind: 'N',
-          saturday_ind: 'N',
-          sunday_ind: 'N',
-        },
-        select: { fee_id: true },
-      });
+      expect(prismaService.recreation_fee.findFirst).not.toHaveBeenCalled();
     });
 
     it('throws ConflictException when an active duplicate fee exists', async () => {
       const recId = 'REC123';
       const input: CreateRecreationFeeDto = {
         recreation_fee_code: 'C',
+        recreation_fee_sub_code: 'ST',
         monday_ind: 'Y',
       };
 
@@ -401,6 +392,15 @@ describe('FeesService', () => {
         ConflictException,
       );
 
+      expect(prismaService.recreation_fee.findFirst).toHaveBeenCalledWith({
+        where: {
+          rec_resource_id: recId,
+          recreation_fee_code: 'C',
+          recreation_fee_sub_code: 'ST',
+          is_deleted: false,
+        },
+        select: { fee_id: true },
+      });
       expect(prismaService.recreation_fee.create).not.toHaveBeenCalled();
     });
 
@@ -408,6 +408,7 @@ describe('FeesService', () => {
       const recId = 'REC123';
       const input: CreateRecreationFeeDto = {
         recreation_fee_code: 'C',
+        recreation_fee_sub_code: 'ST',
         monday_ind: 'Y',
       };
 
@@ -442,14 +443,8 @@ describe('FeesService', () => {
         where: {
           rec_resource_id: recId,
           recreation_fee_code: 'C',
+          recreation_fee_sub_code: 'ST',
           is_deleted: false,
-          monday_ind: 'Y',
-          tuesday_ind: 'N',
-          wednesday_ind: 'N',
-          thursday_ind: 'N',
-          friday_ind: 'N',
-          saturday_ind: 'N',
-          sunday_ind: 'N',
         },
         select: { fee_id: true },
       });
@@ -929,6 +924,104 @@ describe('FeesService', () => {
       expect(updateCallArg.data.friday_ind).toBe('Y');
       expect(updateCallArg.data.saturday_ind).toBe('Y');
       expect(updateCallArg.data.sunday_ind).toBe('Y');
+    });
+
+    it('throws ConflictException when update would duplicate an active fee subtype', async () => {
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValueOnce({
+        fee_id: 333,
+        rec_resource_id: 'REC1222',
+        fee_amount: 10,
+        recreation_fee_code: 'C',
+        recreation_fee_sub_code: 'DAY',
+      } as any);
+
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValueOnce({
+        fee_id: 333,
+        rec_resource_id: 'REC1222',
+        fee_amount: 10,
+        recreation_fee_code: 'C',
+        recreation_fee_sub_code: 'DAY',
+      } as any);
+
+      vi.mocked(prismaService.recreation_fee.findFirst).mockResolvedValue({
+        fee_id: 999,
+      } as any);
+
+      await expect(
+        service.update('REC1222', 333, {
+          recreation_fee_sub_code: 'DAY',
+        } as any),
+      ).rejects.toBeInstanceOf(ConflictException);
+
+      expect(prismaService.recreation_fee.findFirst).toHaveBeenCalledWith({
+        where: {
+          fee_id: { not: 333 },
+          rec_resource_id: 'REC1222',
+          recreation_fee_code: 'C',
+          recreation_fee_sub_code: 'DAY',
+          is_deleted: false,
+        },
+        select: { fee_id: true },
+      });
+      expect(prismaService.recreation_fee.update).not.toHaveBeenCalled();
+    });
+
+    it('updates when subtype duplicate check finds no conflict', async () => {
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValueOnce({
+        fee_id: 334,
+        rec_resource_id: 'REC1222',
+        fee_amount: 10,
+        recreation_fee_code: 'C',
+        recreation_fee_sub_code: 'DAY',
+      } as any);
+
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValueOnce({
+        fee_id: 334,
+        rec_resource_id: 'REC1222',
+        fee_amount: 10,
+        recreation_fee_code: 'C',
+        recreation_fee_sub_code: 'DAY',
+      } as any);
+
+      vi.mocked(prismaService.recreation_fee.findFirst).mockResolvedValue(null);
+
+      vi.mocked(prismaService.recreation_fee.update).mockResolvedValue({
+        fee_id: 334,
+        rec_resource_id: 'REC1222',
+        recreation_fee_code: 'C',
+        recreation_fee_sub_code: 'DAY',
+        fee_amount: 10,
+        fee_start_date: null,
+        fee_end_date: null,
+        recurring_ind: false,
+        recurring_start_mmdd: null,
+        recurring_end_mmdd: null,
+        monday_ind: 'N',
+        tuesday_ind: 'N',
+        wednesday_ind: 'N',
+        thursday_ind: 'N',
+        friday_ind: 'N',
+        saturday_ind: 'N',
+        sunday_ind: 'N',
+        with_description: { description: 'Camping' },
+        with_sub_description: { description: 'Day' },
+      } as any);
+
+      const result = await service.update('REC1222', 334, {
+        recreation_fee_sub_code: 'DAY',
+      } as any);
+
+      expect(prismaService.recreation_fee.findFirst).toHaveBeenCalledWith({
+        where: {
+          fee_id: { not: 334 },
+          rec_resource_id: 'REC1222',
+          recreation_fee_code: 'C',
+          recreation_fee_sub_code: 'DAY',
+          is_deleted: false,
+        },
+        select: { fee_id: true },
+      });
+      expect(result.fee_sub_type_description).toBe('Day');
     });
   });
 

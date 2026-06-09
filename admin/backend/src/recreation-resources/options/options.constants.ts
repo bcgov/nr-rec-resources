@@ -1,4 +1,5 @@
 import {
+  mapFeeTypeSubtypeOptions,
   mapAccessOptions,
   transformClosestCommunityOptions,
 } from './options.mapper';
@@ -35,9 +36,11 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     prismaModel: 'recreation_resource_type_code',
   },
   [OPTION_TYPES.FEE_TYPE]: {
-    idField: 'recreation_fee_code',
+    idField: 'recreation_fee_sub_code',
     labelField: 'description',
-    prismaModel: 'recreation_fee_code',
+    prismaModel: 'recreation_fee_sub_code',
+    middleware: mapFeeTypeSubtypeOptions,
+    additionalFields: ['recreation_fee_code'],
   },
   [OPTION_TYPES.FEATURE_CODE]: {
     idField: 'recreation_feature_code',

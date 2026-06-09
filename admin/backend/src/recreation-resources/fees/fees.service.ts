@@ -55,7 +55,6 @@ export class FeesService {
   async getAll(rec_resource_id: string): Promise<RecreationFeeDto[]> {
     this.logger.log(`Fetching fees for rec_resource_id: ${rec_resource_id}`);
 
-    // Fetch all fees from database with fee code description
     const fees = await this.prisma.recreation_fee.findMany({
       where: {
         rec_resource_id,
@@ -63,27 +62,22 @@ export class FeesService {
       } as any,
       include: {
         with_description: {
-          select: {
-            description: true,
-          },
+          select: { description: true },
+        },
+        with_sub_description: {
+          select: { description: true },
         },
       },
       orderBy: [
-        {
-          recreation_fee_code: 'asc',
-        },
-        {
-          fee_start_date: 'asc',
-        },
+        { recreation_fee_code: 'asc' },
+        { recreation_fee_sub_code: 'asc' },
+        { fee_start_date: 'asc' },
       ],
-    });
+    } as any);
 
-    // Map to DTO format
-    const feesDto: RecreationFeeDto[] = fees.map((fee) =>
+    return fees.map((fee) =>
       formatRecreationFeeResult(fee as FeeWithDescription),
     );
-
-    return feesDto;
   }
 
   /**
@@ -101,7 +95,6 @@ export class FeesService {
       `Creating fee for rec_resource_id: ${rec_resource_id}, fee_code: ${createFeeDto.recreation_fee_code}`,
     );
 
-    // Verify resource exists
     const resource = await this.prisma.recreation_resource.findUnique({
       where: { rec_resource_id },
       select: { rec_resource_id: true },
@@ -124,19 +117,21 @@ export class FeesService {
     };
     const isRecurring = createFeeDto.recurring_ind === true;
 
-    const existingActiveFee = await this.prisma.recreation_fee.findFirst({
-      where: {
-        rec_resource_id,
-        recreation_fee_code: createFeeDto.recreation_fee_code,
-        is_deleted: false,
-        ...normalizedDays,
-      },
-      select: { fee_id: true },
-    } as any);
+    const existingActiveFee = createFeeDto.recreation_fee_sub_code
+      ? await this.prisma.recreation_fee.findFirst({
+          where: {
+            rec_resource_id,
+            recreation_fee_code: createFeeDto.recreation_fee_code,
+            recreation_fee_sub_code: createFeeDto.recreation_fee_sub_code,
+            is_deleted: false,
+          },
+          select: { fee_id: true },
+        } as any)
+      : null;
 
     if (existingActiveFee) {
       throw new ConflictException(
-        'This fee type already exists for this resource',
+        'This fee type and sub-type already exists for this resource',
       );
     }
 
@@ -144,6 +139,7 @@ export class FeesService {
       data: {
         rec_resource_id,
         recreation_fee_code: createFeeDto.recreation_fee_code,
+        recreation_fee_sub_code: createFeeDto.recreation_fee_sub_code ?? null,
         fee_amount: createFeeDto.fee_amount ?? null,
         fee_start_date: createFeeDto.fee_start_date
           ? new Date(createFeeDto.fee_start_date)
@@ -162,12 +158,13 @@ export class FeesService {
       },
       include: {
         with_description: {
-          select: {
-            description: true,
-          },
+          select: { description: true },
+        },
+        with_sub_description: {
+          select: { description: true },
         },
       },
-    });
+    } as any);
 
     await this.prisma.recreation_fee_fdl_log.create({
       data: {
@@ -196,7 +193,35 @@ export class FeesService {
       `Updating fee ${fee_id} for rec_resource_id: ${rec_resource_id}`,
     );
 
-    await this.ensureFeeBelongsToResource(rec_resource_id, fee_id);
+    // Single DB call — replaces ensureFeeBelongsToResource + separate existingFee fetch
+    const existingFee = (await this.prisma.recreation_fee.findUnique({
+      where: { fee_id } as any,
+      select: {
+        fee_id: true,
+        rec_resource_id: true,
+        is_deleted: true,
+        fee_amount: true,
+        recreation_fee_code: true,
+        recreation_fee_sub_code: true,
+      },
+    } as any)) as {
+      fee_id: number;
+      rec_resource_id: string;
+      is_deleted: boolean;
+      fee_amount: number | null;
+      recreation_fee_code: string;
+      recreation_fee_sub_code: string | null;
+    } | null;
+
+    if (
+      !existingFee ||
+      existingFee.rec_resource_id !== rec_resource_id ||
+      existingFee.is_deleted
+    ) {
+      throw new NotFoundException(
+        `Fee with ID ${fee_id} not found for recreation resource ${rec_resource_id}`,
+      );
+    }
 
     const updateData: Record<string, unknown> = {};
 
@@ -205,6 +230,22 @@ export class FeesService {
         connect: { recreation_fee_code: updateFeeDto.recreation_fee_code },
       };
     }
+
+    if (updateFeeDto.recreation_fee_sub_code !== undefined) {
+      updateData.with_sub_description = updateFeeDto.recreation_fee_sub_code
+        ? {
+            connect: {
+              recreation_fee_code_recreation_fee_sub_code: {
+                recreation_fee_code:
+                  updateFeeDto.recreation_fee_code ??
+                  existingFee.recreation_fee_code,
+                recreation_fee_sub_code: updateFeeDto.recreation_fee_sub_code,
+              },
+            },
+          }
+        : { disconnect: true };
+    }
+
     if (updateFeeDto.fee_amount !== undefined) {
       updateData.fee_amount = updateFeeDto.fee_amount ?? null;
     }
@@ -219,6 +260,7 @@ export class FeesService {
     if (feeStartDate !== undefined) {
       updateData.fee_start_date = feeStartDate;
     }
+
     if (updateFeeDto.fee_end_date !== undefined) {
       updateData.fee_end_date = updateFeeDto.fee_end_date
         ? new Date(updateFeeDto.fee_end_date)
@@ -253,22 +295,43 @@ export class FeesService {
       }
     }
 
-    const existingFee = await this.prisma.recreation_fee.findUnique({
-      where: { fee_id } as any,
-      select: { fee_id: true, rec_resource_id: true, fee_amount: true },
-    });
+    const effectiveFeeCode =
+      updateFeeDto.recreation_fee_code ?? existingFee.recreation_fee_code;
+    const effectiveFeeSubCode =
+      updateFeeDto.recreation_fee_sub_code ??
+      existingFee.recreation_fee_sub_code;
+
+    if (effectiveFeeCode && effectiveFeeSubCode) {
+      const duplicate = await this.prisma.recreation_fee.findFirst({
+        where: {
+          fee_id: { not: fee_id },
+          rec_resource_id,
+          recreation_fee_code: effectiveFeeCode,
+          recreation_fee_sub_code: effectiveFeeSubCode,
+          is_deleted: false,
+        },
+        select: { fee_id: true },
+      } as any);
+
+      if (duplicate) {
+        throw new ConflictException(
+          'This fee type and sub-type already exists for this resource',
+        );
+      }
+    }
 
     const updatedFee = await this.prisma.recreation_fee.update({
       where: { fee_id },
       data: updateData as any,
       include: {
         with_description: { select: { description: true } },
+        with_sub_description: { select: { description: true } },
       },
-    });
+    } as any);
 
     const amountChanged =
       updateFeeDto.fee_amount !== undefined &&
-      updateFeeDto.fee_amount !== existingFee?.fee_amount;
+      updateFeeDto.fee_amount !== existingFee.fee_amount;
 
     if (amountChanged) {
       await this.prisma.recreation_fee_fdl_log.create({
@@ -307,11 +370,8 @@ export class FeesService {
         deleted_by: this.userContext.getIdentityProviderPrefixedUsername(),
       },
       include: {
-        with_description: {
-          select: {
-            description: true,
-          },
-        },
+        with_description: { select: { description: true } },
+        with_sub_description: { select: { description: true } },
       },
     } as any);
 
