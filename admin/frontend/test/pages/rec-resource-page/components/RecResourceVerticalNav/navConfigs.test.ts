@@ -44,6 +44,7 @@ describe('rec-resource-page navigation', () => {
         RecResourceNavKey.FEES,
         RecResourceNavKey.GEOSPATIAL,
         RecResourceNavKey.RESERVATION,
+        RecResourceNavKey.ADVISORIES,
       ]);
     });
 

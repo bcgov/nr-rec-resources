@@ -36,6 +36,7 @@ export class ContactPOM {
   async routeToResourceContact(resourceId: string) {
     const resourceContactUrl = `${BASE_URL}/resource/${resourceId}/contact`;
     await this.page.goto(resourceContactUrl);
+    await this.page.waitForLoadState('networkidle');
     await waitForImagesToLoad(this.page);
   }
 
