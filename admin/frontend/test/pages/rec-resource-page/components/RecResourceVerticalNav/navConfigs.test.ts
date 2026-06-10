@@ -48,6 +48,17 @@ describe('rec-resource-page navigation', () => {
       ]);
     });
 
+    it('has correct advisories tab configuration', () => {
+      const advisoriesTab =
+        REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.ADVISORIES];
+      expect(advisoriesTab.title).toBe('Advisories and closures');
+      expect(advisoriesTab.isFeatureFlagged).toBe(true);
+      expect(advisoriesTab.getNavigateOptions('123')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_ADVISORIES,
+        params: { id: '123' },
+      });
+    });
+
     it('getNavigateOptions functions work with different IDs', () => {
       const overviewTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.OVERVIEW];
