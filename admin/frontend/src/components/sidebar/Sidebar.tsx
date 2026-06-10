@@ -1,0 +1,145 @@
+import { useState } from 'react';
+import { Image } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowUpRightFromSquare } from '@fortawesome/pro-regular-svg-icons';
+import './Sidebar.scss';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { EXTERNAL_LINKS } from './SidebarLinks';
+import { Link } from '@tanstack/react-router';
+import SidebarTooltip from './SidebarToolTip';
+
+interface SidebarProps {
+  className?: string;
+}
+
+const menuLinks = [
+  {
+    url: '/',
+    text: 'Search',
+    icon: '/images/sidebar/search-icon.svg',
+    iconAlt: 'Search Icon',
+  },
+];
+
+const externalLinks = [
+  {
+    url: EXTERNAL_LINKS.ADVISORIES_TOOL,
+    text: 'Advisories & Closures',
+    icon: '/images/sidebar/advisories-icon.svg',
+    iconAlt: 'Advisories Icon',
+  },
+  {
+    url: EXTERNAL_LINKS.ONBOARDING,
+    text: 'Onboarding',
+    icon: '/images/sidebar/onboarding-icon.svg',
+    iconAlt: 'Onboarding Icon',
+  },
+  {
+    url: EXTERNAL_LINKS.FEEDBACK_FORM,
+    text: 'Feedback',
+    icon: '/images/sidebar/feedback-icon.svg',
+    iconAlt: 'Feedback Icon',
+  },
+];
+
+export const Sidebar = ({ className = '' }: SidebarProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  return (
+    <aside
+      className={`d-flex flex-column p-3 ${className} sidebar ${isCollapsed ? 'collapsed' : ''}`}
+      style={{ transition: 'width 0.2s ease-in-out' }}
+    >
+      {/* --- TOP NAVIGATION GROUP --- */}
+      <div className="d-flex flex-column gap-2">
+        {menuLinks.map((link) => {
+          return (
+            <SidebarTooltip
+              text={link.text}
+              isCollapsed={isCollapsed}
+              key={link.text}
+            >
+              <Link
+                to="/"
+                className="d-flex align-items-start text-decoration-none py-2 rounded hover-effect icon-container-wrapper"
+              >
+                <div className="sidebar-icon-container flex-shrink-0 mt-1">
+                  <Image
+                    src={link.icon}
+                    alt={link.iconAlt}
+                    width={20}
+                    height={20}
+                  />
+                </div>
+                {!isCollapsed && <>{link.text}</>}
+              </Link>
+            </SidebarTooltip>
+          );
+        })}
+      </div>
+
+      {/* --- COMBINED BOTTOM GROUP --- */}
+      <div className="d-flex flex-column mt-auto">
+        {isCollapsed ? (
+          <hr />
+        ) : (
+          <span className="text-nowrap fs-6 p-2 sub-title">
+            Quick Links{' '}
+            <FontAwesomeIcon icon={faArrowUpRightFromSquare as IconProp} />
+          </span>
+        )}
+        <div className="d-flex flex-column gap-2 mb-2">
+          {externalLinks.map((link) => {
+            return (
+              <SidebarTooltip
+                text={link.text}
+                isCollapsed={isCollapsed}
+                key={link.text}
+              >
+                <a
+                  href={link.url}
+                  target="_blank"
+                  className="d-flex align-items-start text-decoration-none py-2 rounded hover-effect icon-container-wrapper"
+                  rel="noreferrer"
+                >
+                  <div className="sidebar-quick-link-container flex-shrink-0 mt-1">
+                    <Image
+                      src={link.icon}
+                      alt={link.iconAlt}
+                      width={16}
+                      height={16}
+                    />
+                  </div>
+                  {!isCollapsed && (
+                    <span className="ms-2 test">{link.text}</span>
+                  )}
+                </a>
+              </SidebarTooltip>
+            );
+          })}
+        </div>
+        <button
+          className="btn btn-link w-100 d-flex align-items-right justify-content-end"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          type="button"
+        >
+          {isCollapsed ? (
+            <Image
+              src="/images/sidebar/expand-icon.svg"
+              alt="Expand Icon"
+              width={24}
+              height={24}
+            />
+          ) : (
+            <Image
+              src="/images/sidebar/collapse-icon.svg"
+              alt="Collapse Icon"
+              width={24}
+              height={24}
+            />
+          )}
+        </button>
+      </div>
+    </aside>
+  );
+};

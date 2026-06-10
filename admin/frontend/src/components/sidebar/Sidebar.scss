@@ -1,0 +1,45 @@
+@import '@/styles/variables.scss';
+
+.sidebar {
+  width: 241px;
+  background-color: $colorWhite;
+}
+
+.sidebar a {
+  color: $colorGrey;
+}
+
+.sidebar a:hover {
+  background-color: $colorIceBlue;
+}
+
+.collapsed {
+  width: 72px;
+}
+
+.sidebar-icon-container {
+  width: 38px;
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
+.sidebar-quick-link-container {
+  width: 30px;
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
+.title {
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 23.04px;
+}
+
+.sub-title {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 40px;
+  color: $colorGreyMed;
+}
