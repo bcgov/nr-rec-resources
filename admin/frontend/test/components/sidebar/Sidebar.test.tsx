@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Sidebar } from '@/components/sidebar/Sidebar';
-import { EXTERNAL_LINKS } from '@/components/sidebar/SidebarLinks';
+import { EXTERNAL_LINKS } from '@/constants/menu-options';
 
 // 1. Mock TanStack Router's Link component
 vi.mock('@tanstack/react-router', () => ({
@@ -27,73 +27,84 @@ vi.mock('./SidebarToolTip', () => ({
 }));
 
 describe('Sidebar Component', () => {
-  it('renders correctly in default expanded state and applies custom className', () => {
+  // --- FIXED: Updated test name and assertions to reflect initial collapsed state ---
+  it('renders correctly in default collapsed state and applies custom className', () => {
     render(<Sidebar className="custom-class" />);
 
-    // Check if the sidebar container has both default and custom classes
+    // Check if the sidebar container has both default, custom, and collapsed classes
     const asideElement = screen.getByRole('complementary'); // aside tag
-    expect(asideElement).toHaveClass('sidebar', 'custom-class');
-    expect(asideElement).not.toHaveClass('collapsed');
+    expect(asideElement).toHaveClass('sidebar', 'custom-class', 'collapsed');
 
-    // Check if the menu links and external links are rendering text
-    expect(screen.getByText('Search')).toBeInTheDocument();
-    expect(screen.getByText('Advisories & Closures')).toBeInTheDocument();
-    expect(screen.getByText('Onboarding')).toBeInTheDocument();
-    expect(screen.getByText('Feedback')).toBeInTheDocument();
+    // Due to {!isCollapsed && ...}, text should NOT be visible initially
+    expect(screen.queryByText('Search')).not.toBeInTheDocument();
+    expect(screen.queryByText('Advisories & Closures')).not.toBeInTheDocument();
+    expect(screen.queryByText('Onboarding')).not.toBeInTheDocument();
+    expect(screen.queryByText('FTA')).not.toBeInTheDocument();
 
-    // Check for "Quick Links" subtitle and FontAwesome icon container
-    expect(screen.getByText(/Quick Links/i)).toBeInTheDocument();
-    expect(screen.queryByRole('separator')).not.toBeInTheDocument(); // hr should not exist
+    // Verify "Quick Links" is replaced by an <hr /> separator in collapsed state
+    expect(screen.queryByText(/Quick Links/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('separator')).toBeInTheDocument(); // catches <hr />
 
-    // Check for default collapse icon
-    const toggleImg = screen.getByAltText('Collapse Icon');
+    // Check for default Expand Icon (since it's collapsed)
+    const toggleImg = screen.getByAltText('Expand Icon');
     expect(toggleImg).toBeInTheDocument();
-    expect(toggleImg).toHaveAttribute(
-      'src',
-      '/images/sidebar/collapse-icon.svg',
-    );
+    expect(toggleImg).toHaveAttribute('src', '/images/sidebar/expand-icon.svg');
   });
 
-  it('toggles to collapsed state when the collapse button is clicked', async () => {
+  // --- FIXED: Swapped click expectations to track expanding first, then collapsing ---
+  it('toggles to expanded state when the toggle button is clicked', async () => {
     const user = userEvent.setup();
     render(<Sidebar />);
 
     const asideElement = screen.getByRole('complementary');
     const toggleButton = screen.getByRole('button');
 
-    // Click to collapse
-    await user.click(toggleButton);
-
-    // Verify container class updates
+    // Initial state check
     expect(asideElement).toHaveClass('collapsed');
 
-    // Verify text labels are hidden (due to {!isCollapsed && ...})
-    expect(screen.queryByText('Search')).not.toBeInTheDocument();
-    expect(screen.queryByText('Advisories & Closures')).not.toBeInTheDocument();
-    expect(screen.queryByText('Onboarding')).not.toBeInTheDocument();
-    expect(screen.queryByText('Feedback')).not.toBeInTheDocument();
-
-    // Verify "Quick Links" is replaced by an <hr /> separator
-    expect(screen.queryByText(/Quick Links/i)).not.toBeInTheDocument();
-    expect(screen.getByRole('separator')).toBeInTheDocument(); // catches <hr />
-
-    // Verify the icon switches to the Expand Icon
-    const toggleImg = screen.getByAltText('Expand Icon');
-    expect(toggleImg).toBeInTheDocument();
-    expect(toggleImg).toHaveAttribute('src', '/images/sidebar/expand-icon.svg');
-
-    // Click again to uncollapse and verify it switches back (hits the state setter toggle path)
+    // Click to EXPAND
     await user.click(toggleButton);
+
+    // Verify container class updates (removes 'collapsed')
     expect(asideElement).not.toHaveClass('collapsed');
+
+    // Verify text labels are now visible
     expect(screen.getByText('Search')).toBeInTheDocument();
+    expect(screen.getByText('Advisories & Closures')).toBeInTheDocument();
+    expect(screen.getByText('Onboarding')).toBeInTheDocument();
+    expect(screen.getByText('FTA')).toBeInTheDocument();
+
+    // Check for "Quick Links" subtitle and that <hr /> is removed
+    expect(screen.getByText(/Quick Links/i)).toBeInTheDocument();
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument();
+
+    // Verify the icon switches to the Collapse Icon
+    const toggleImg = screen.getByAltText('Collapse Icon');
+    expect(toggleImg).toBeInTheDocument();
+    expect(toggleImg).toHaveAttribute(
+      'src',
+      '/images/sidebar/collapse-icon.svg',
+    );
+
+    // Click again to COLLAPSE and verify it switches back
+    await user.click(toggleButton);
+    expect(asideElement).toHaveClass('collapsed');
+    expect(screen.queryByText('Search')).not.toBeInTheDocument();
   });
 
   it('renders all external link href values correctly matching the data layer', () => {
     render(<Sidebar />);
 
-    const advisoriesLink = screen.getByRole('link', { name: /advisories/i });
-    const onboardingLink = screen.getByRole('link', { name: /onboarding/i });
-    const feedbackLink = screen.getByRole('link', { name: /feedback/i });
+    // Since the text is hidden under !isCollapsed, we search by role using hidden: true
+    const advisoriesLink = screen.getByRole('link', {
+      name: /advisories/i,
+      hidden: true,
+    });
+    const onboardingLink = screen.getByRole('link', {
+      name: /onboarding/i,
+      hidden: true,
+    });
+    const ftaLink = screen.getByRole('link', { name: /fta/i, hidden: true });
 
     // Assert against the actual data objects instead of hardcoded mock strings
     expect(advisoriesLink).toHaveAttribute(
@@ -101,7 +112,7 @@ describe('Sidebar Component', () => {
       EXTERNAL_LINKS.ADVISORIES_TOOL,
     );
     expect(onboardingLink).toHaveAttribute('href', EXTERNAL_LINKS.ONBOARDING);
-    expect(feedbackLink).toHaveAttribute('href', EXTERNAL_LINKS.FEEDBACK_FORM);
+    expect(ftaLink).toHaveAttribute('href', EXTERNAL_LINKS.FTA);
 
     expect(advisoriesLink).toHaveAttribute('target', '_blank');
     expect(advisoriesLink).toHaveAttribute('rel', 'noreferrer');

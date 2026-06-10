@@ -27,9 +27,30 @@ const SidebarTooltip: React.FC<SidebarTooltipProps> = ({
   return (
     <OverlayTrigger
       placement={placement}
+      container={() => document.body}
+      popperConfig={{
+        strategy: 'fixed',
+        modifiers: [
+          {
+            name: 'preventOverflow',
+            options: {
+              boundary: 'viewport', // Constrains calculations strictly to view boundaries
+              padding: 8, // Keeps the tooltip bubble 8px clear of viewport boundaries
+            },
+          },
+        ],
+      }}
       overlay={<Tooltip id={`tooltip-${placement}`}>{text}</Tooltip>}
     >
-      {children}
+      {({ ref, ...triggerHandler }) => (
+        <span
+          ref={ref}
+          {...triggerHandler}
+          className="d-flex w-100" // Maintains the flex layout size
+        >
+          {children}
+        </span>
+      )}
     </OverlayTrigger>
   );
 };

@@ -4,46 +4,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUpRightFromSquare } from '@fortawesome/pro-regular-svg-icons';
 import './Sidebar.scss';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { EXTERNAL_LINKS } from './SidebarLinks';
 import { Link } from '@tanstack/react-router';
 import SidebarTooltip from './SidebarToolTip';
+import { externalLinks, menuLinks } from '@/constants/menu-options';
 
 interface SidebarProps {
   className?: string;
 }
 
-const menuLinks = [
-  {
-    url: '/',
-    text: 'Search',
-    icon: '/images/sidebar/search-icon.svg',
-    iconAlt: 'Search Icon',
-  },
-];
-
-const externalLinks = [
-  {
-    url: EXTERNAL_LINKS.ADVISORIES_TOOL,
-    text: 'Advisories & Closures',
-    icon: '/images/sidebar/advisories-icon.svg',
-    iconAlt: 'Advisories Icon',
-  },
-  {
-    url: EXTERNAL_LINKS.ONBOARDING,
-    text: 'Onboarding',
-    icon: '/images/sidebar/onboarding-icon.svg',
-    iconAlt: 'Onboarding Icon',
-  },
-  {
-    url: EXTERNAL_LINKS.FEEDBACK_FORM,
-    text: 'Feedback',
-    icon: '/images/sidebar/feedback-icon.svg',
-    iconAlt: 'Feedback Icon',
-  },
-];
-
 export const Sidebar = ({ className = '' }: SidebarProps) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
     <aside

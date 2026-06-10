@@ -39,5 +39,30 @@
     &--title {
       color: $colorWhite !important;
     }
+
+    .bcds-header--container {
+      max-width: 100%;
+    }
+  }
+
+  .dropdown-item {
+    border-bottom: 1px solid $colorGreyLight;
+    display: flex;
+    align-items: center;
+  }
+
+  .dropdown-menu-item {
+    vertical-align: middle;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 0;
+    padding-left: 1em;
+    padding-bottom: 0.8em;
+    color: $colorBlue;
+  }
+
+  .dropdown-item-logout {
+    border-bottom: 0;
   }
 }

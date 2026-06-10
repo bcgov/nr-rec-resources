@@ -3,10 +3,13 @@
 .sidebar {
   width: 241px;
   background-color: $colorWhite;
+  contain: layout paint;
 }
 
 .sidebar a {
   color: $colorGrey;
+  width: 100%; /* Force a locked width */
+  box-sizing: border-box; /* Prevents padding changes from affecting width */
 }
 
 .sidebar a:hover {
@@ -42,4 +45,8 @@
   font-size: 16px;
   line-height: 40px;
   color: $colorGreyMed;
+}
+
+.tooltip {
+  pointer-events: none !important; /* Prevents the tooltip bubble from capturing mouse hover states */
 }

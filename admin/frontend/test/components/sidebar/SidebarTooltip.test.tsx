@@ -5,13 +5,21 @@ import SidebarTooltip from '@/components/sidebar/SidebarToolTip';
 // Mock React-Bootstrap to cleanly assert on our specific component logic
 vi.mock('react-bootstrap', () => {
   return {
-    OverlayTrigger: ({ children, overlay, placement }: any) => (
-      <div data-testid="mock-overlay-trigger" data-placement={placement}>
-        {/* Render the overlay inside the tree so we can verify its content and attributes */}
-        <div data-testid="mock-overlay-container">{overlay}</div>
-        {children}
-      </div>
-    ),
+    OverlayTrigger: ({ children, overlay, placement }: any) => {
+      // Resolve children if it is a render prop function
+      const renderedChildren =
+        typeof children === 'function'
+          ? children({ ref: null, onClick: vi.fn() })
+          : children;
+
+      return (
+        <div data-testid="mock-overlay-trigger" data-placement={placement}>
+          {/* Render the overlay inside the tree so we can verify its content and attributes */}
+          <div data-testid="mock-overlay-container">{overlay}</div>
+          {renderedChildren}
+        </div>
+      );
+    },
     Tooltip: ({ children, id }: any) => (
       <div role="tooltip" id={id}>
         {children}
