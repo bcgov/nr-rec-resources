@@ -7,6 +7,13 @@ export const AUTH_ROLES_KEY = 'roles';
 export enum RecreationResourceAuthRole {
   RST_ADMIN = 'rst-admin',
   RST_VIEWER = 'rst-viewer',
+  /**
+   * Service account role assigned (via CSS) to the Act integration client.
+   * Act authenticates using the OAuth2 Client Credentials grant flow,
+   * obtains a bearer token from CSS, and the token must carry this role
+   * to access the Act CUD advisory endpoints.
+   */
+  ACT_SERVICE = 'test-act',
   RST_SUPER_ADMIN = 'rst-super-admin',
 }
 
@@ -19,6 +26,19 @@ export const ROLE_MODE = {
 // Authentication strategies
 export const AUTH_STRATEGY = {
   KEYCLOAK: 'keycloak',
+  /**
+   * Passport strategy name used to authenticate the Act integration.
+   */
+  ACT_KEYCLOAK: 'act-keycloak',
+  /**
+   * Swagger security scheme key for the CSS (Common Hosted Single Sign-On)
+   * OAuth2 Client Credentials grant flow used by the Act integration.
+   * Tokens issued by CSS are still validated by the Keycloak Passport
+   * strategy at runtime - this constant only identifies the scheme in
+   * the generated OpenAPI document so Swagger UI can render the
+   * "Authorize" dialog with a Client ID / Client Secret form.
+   */
+  CSS_OAUTH2: 'css-oauth2',
 } as const;
 
 // Environment variable keys
@@ -56,4 +76,6 @@ export const ERROR_MESSAGES = {
 export const LOG_MESSAGES = {
   KEYCLOAK_INITIALIZED:
     'Keycloak authentication strategy initialized successfully',
+  ACT_KEYCLOAK_INITIALIZED:
+    'Act Keycloak authentication strategy initialized successfully',
 } as const;
