@@ -159,6 +159,14 @@ h4.fee-card-title {
   }
 }
 
+// "No fee" indicator shown when an overnight section has campsites but no
+// associated fees. Visually de-emphasised vs. the blue fee titles so it
+// reads as a status message rather than a fee category.
+h4.fee-card-title-no-fee {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
 // ...existing code...
 
 .fee-card-header {

@@ -87,7 +87,15 @@ const Fees = forwardRef<HTMLElement, FeesProps>(
       },
     ];
 
-    const visibleSections = sections.filter((s) => s.fees.length > 0);
+    // The overnight section should also appear when there are campsites
+    // (or huts / cabins) even if there are no associated fees, so the user
+    // still sees how many campsites are available with a "No fee" indicator.
+    const visibleSections = sections.filter((s) => {
+      if (s.key === 'overnight') {
+        return s.fees.length > 0 || (s.campsiteCount ?? 0) > 0;
+      }
+      return s.fees.length > 0;
+    });
 
     if (visibleSections.length === 0) {
       return null;

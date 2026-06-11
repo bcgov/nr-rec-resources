@@ -73,6 +73,38 @@ describe('RecreationFee', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders "No fee" with the Campsites column when there are no fees but campsites exist', () => {
+    render(<RecreationFee data={[]} campsite_count={23} />);
+
+    // The "No fees available" fallback should NOT show in this case.
+    expect(
+      screen.queryByText('No fees available for this resource.'),
+    ).not.toBeInTheDocument();
+
+    // The card title should announce that there is no fee.
+    expect(
+      screen.getByRole('heading', { level: 4, name: 'No fee' }),
+    ).toBeInTheDocument();
+
+    // The Campsites column should still show the count so visitors know
+    // how many sites are available even though no fee is charged.
+    expect(
+      screen.getByRole('heading', { level: 5, name: 'Campsites' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('23 campsites')).toBeInTheDocument();
+  });
+
+  it('still renders the empty fallback when there are no fees and no campsites', () => {
+    render(<RecreationFee data={[]} campsite_count={0} />);
+
+    expect(
+      screen.getByText('No fees available for this resource.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { level: 4, name: 'No fee' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('renders non-recurring fee information using the sub-type description', () => {
     render(
       <RecreationFee data={[mockFee] as unknown as RecreationFeeModel[]} />,
