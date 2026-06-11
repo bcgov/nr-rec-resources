@@ -66,6 +66,18 @@ const baseRecreationResourceSelect = {
       recreation_defined_campsite: true,
     },
   },
+  act_advisories_flat: {
+    orderBy: [
+      { listing_rank: 'desc' },
+      { urgency_sequence: 'desc' },
+      { access_status_precedence: 'asc' },
+      { updated_date: 'desc' },
+      { advisory_date: 'desc' },
+      { event_type_precedence: 'asc' },
+    ],
+    take: 1,
+    select: { access_status_grouplabel: true },
+  },
 } as const;
 
 export const adminSearchSelect = baseRecreationResourceSelect;

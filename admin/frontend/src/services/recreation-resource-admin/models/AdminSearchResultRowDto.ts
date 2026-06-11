@@ -109,6 +109,12 @@ export interface AdminSearchResultRowDto {
    * @memberof AdminSearchResultRowDto
    */
   campsite_count: number;
+  /**
+   * Public access status group label from ACT advisories
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
+   */
+  access_status_grouplabel?: string | null;
 }
 
 /**
@@ -190,6 +196,10 @@ export function AdminSearchResultRowDtoFromJSONTyped(
     established_date:
       json['established_date'] == null ? undefined : json['established_date'],
     campsite_count: json['campsite_count'],
+    access_status_grouplabel:
+      json['access_status_grouplabel'] == null
+        ? undefined
+        : json['access_status_grouplabel'],
   };
 }
 
@@ -223,5 +233,6 @@ export function AdminSearchResultRowDtoToJSONTyped(
     fee_indicators: value['fee_indicators'],
     established_date: value['established_date'],
     campsite_count: value['campsite_count'],
+    access_status_grouplabel: value['access_status_grouplabel'],
   };
 }

@@ -124,6 +124,7 @@ export function validateAdminSearch(
     access: getSearchFilterTokenList(search.access),
     established: getOptionalToken(search.established),
     closestCommunity: getSearchFilterTokenList(search.closestCommunity),
+    publicAccessStatus: getSearchFilterTokenList(search.publicAccessStatus),
   });
 }
 
@@ -149,6 +150,7 @@ export function resolveAdminSearchRouteState(
     status: searchFilterTokenList(search.status),
     access: searchFilterTokenList(search.access),
     closestCommunity: searchFilterTokenList(search.closestCommunity),
+    publicAccessStatus: searchFilterTokenList(search.publicAccessStatus),
   };
 }
 

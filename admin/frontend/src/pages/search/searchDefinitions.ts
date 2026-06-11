@@ -23,6 +23,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'district:desc',
   'display_on_public_site:asc',
   'display_on_public_site:desc',
+  'public_access_status:asc',
+  'public_access_status:desc',
 ] as const;
 
 export type AdminSearchSort = (typeof ADMIN_SEARCH_SORT_VALUES)[number];
@@ -52,6 +54,12 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
     label: 'District',
     resultKey: 'district',
     sortKey: 'district',
+  },
+  {
+    id: 'public_access_status',
+    label: 'Public access status',
+    resultKey: 'publicAccessStatus',
+    sortKey: 'public_access_status',
   },
   {
     id: 'closest_community',
@@ -103,6 +111,10 @@ export type AdminSearchColumnId =
 export const ADMIN_SEARCH_COLUMN_IDS = ADMIN_SEARCH_COLUMN_DEFINITIONS.map(
   ({ id }) => id,
 ) as AdminSearchColumnId[];
+
+export const FEATURE_FLAGGED_COLUMN_IDS = new Set<AdminSearchColumnId>([
+  'public_access_status',
+]);
 
 export const ADMIN_SEARCH_COLUMN_LABELS = Object.fromEntries(
   ADMIN_SEARCH_COLUMN_DEFINITIONS.map(({ id, label }) => [id, label]),

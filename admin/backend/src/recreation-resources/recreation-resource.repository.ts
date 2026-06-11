@@ -262,6 +262,27 @@ export class RecreationResourceRepository {
     };
   }
 
+  private buildPublicAccessStatusWhere(
+    publicAccessStatus?: string[],
+  ): Prisma.recreation_resourceWhereInput | null {
+    if (!publicAccessStatus?.length) return null;
+
+    const includesOpen = publicAccessStatus.includes('Open');
+    const conditions: Prisma.recreation_resourceWhereInput[] = [
+      {
+        act_advisories_flat: {
+          some: { access_status_grouplabel: { in: publicAccessStatus } },
+        },
+      },
+    ];
+
+    if (includesOpen) {
+      conditions.push({ act_advisories_flat: { none: {} } });
+    }
+
+    return { OR: conditions };
+  }
+
   private buildEstablishedWhere(
     established?: string,
   ): Prisma.recreation_resourceWhereInput | null {
@@ -328,6 +349,7 @@ export class RecreationResourceRepository {
       this.buildStatusWhere(query.status),
       this.buildEstablishmentDateWhere(query),
       this.buildEstablishedWhere(query.established),
+      this.buildPublicAccessStatusWhere(query.public_access_status),
     ].filter(
       (condition): condition is Prisma.recreation_resourceWhereInput =>
         condition !== null,

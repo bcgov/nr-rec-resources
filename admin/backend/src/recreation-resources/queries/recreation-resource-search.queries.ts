@@ -5,6 +5,15 @@ import {
 } from '../dtos/admin-search-query.dto';
 import { OPEN_STATUS } from '../recreation-resource.constants';
 
+const ADVISORY_ORDER_SQL = Prisma.sql`
+  af.listing_rank DESC,
+  af.urgency_sequence DESC,
+  af.access_status_precedence ASC,
+  af.updated_date DESC,
+  af.advisory_date DESC,
+  af.event_type_precedence ASC
+`;
+
 export const SORT_FIELD_MAP: Record<
   AdminSearchSort,
   Prisma.recreation_resourceOrderByWithRelationInput
@@ -49,6 +58,8 @@ export const SORT_FIELD_MAP: Record<
   'fee:desc': { name: 'desc' },
   'display_on_public_site:asc': { display_on_public_site: 'asc' },
   'display_on_public_site:desc': { display_on_public_site: 'desc' },
+  'public_access_status:asc': { name: 'asc' },
+  'public_access_status:desc': { name: 'desc' },
 };
 
 // These sorts depend on aggregated related data, so they use the raw SQL path
@@ -64,9 +75,17 @@ export const RAW_SQL_SORTS = new Set<AdminSearchSort>([
   'access:desc',
   'fee:asc',
   'fee:desc',
+  'public_access_status:asc',
+  'public_access_status:desc',
 ]);
 
-type DerivedSortField = 'status' | 'type' | 'activities' | 'access' | 'fee';
+type DerivedSortField =
+  | 'status'
+  | 'type'
+  | 'activities'
+  | 'access'
+  | 'fee'
+  | 'public_access_status';
 
 type DerivedSortQueryParts = {
   joinsSql: Prisma.Sql;
@@ -185,6 +204,20 @@ export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
     buildDateCondition(query.establishment_date_from, '>='),
     buildDateCondition(query.establishment_date_to, '<='),
     buildEstablishedCondition(query.established),
+    query.public_access_status?.length
+      ? Prisma.sql`
+        COALESCE(
+          (
+            SELECT af.access_status_grouplabel
+            FROM rst.act_advisories_flat af
+            WHERE af.rec_resource_id = rr.rec_resource_id
+            ORDER BY ${ADVISORY_ORDER_SQL}
+            LIMIT 1
+          ),
+          'Open'
+        ) IN (${Prisma.join(query.public_access_status)})
+      `
+      : null,
   ].filter((condition): condition is Prisma.Sql => condition !== null);
 
   if (conditions.length === 0) {
@@ -290,6 +323,24 @@ export function buildDerivedSortQueryParts(
           ) fee_agg ON TRUE
         `,
         orderBySql: Prisma.sql`COALESCE(fee_agg.fee_values, '') ${directionSql}`,
+      };
+    case 'public_access_status':
+      return {
+        joinsSql: Prisma.sql`
+          LEFT JOIN LATERAL (
+            SELECT COALESCE(
+              (
+                SELECT af.access_status_grouplabel
+                FROM rst.act_advisories_flat af
+                WHERE af.rec_resource_id = rr.rec_resource_id
+                ORDER BY ${ADVISORY_ORDER_SQL}
+                LIMIT 1
+              ),
+              'Open'
+            ) AS public_access_status
+          ) advisory_status ON TRUE
+        `,
+        orderBySql: Prisma.sql`advisory_status.public_access_status ${directionSql}`,
       };
   }
 }
