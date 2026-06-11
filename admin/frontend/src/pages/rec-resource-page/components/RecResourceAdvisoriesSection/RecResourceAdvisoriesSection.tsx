@@ -36,7 +36,10 @@ export const RecResourceAdvisoriesSection = ({
       </div>
 
       {advisories.length === 0 ? (
-        <div className="bg-light p-3 rounded text-muted">
+        <div
+          className="bg-light p-3 rounded border border-1 fw-bold"
+          style={{ borderColor: '#adb5bd' }}
+        >
           No active advisories or closures
         </div>
       ) : (

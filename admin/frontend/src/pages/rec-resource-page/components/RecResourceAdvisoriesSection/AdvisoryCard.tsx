@@ -126,7 +126,7 @@ export const AdvisoryCard = ({
                 <FontAwesomeIcon icon={faCalendar} aria-hidden="true" />
                 <span className="fw-semibold">Posted</span>
               </div>
-              <div>{formatDateFull(advisory.published_at) ?? '-'}</div>
+              <div>{formatDateFull(advisory.advisory_date) ?? '-'}</div>
             </Stack>
           </Col>
           <Col xs={6} md={3}>
