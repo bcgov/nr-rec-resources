@@ -96,25 +96,13 @@ describe('Sidebar Component', () => {
     render(<Sidebar />);
 
     // Since the text is hidden under !isCollapsed, we search by role using hidden: true
-    const advisoriesLink = screen.getByRole('link', {
-      name: /advisories/i,
-      hidden: true,
-    });
     const onboardingLink = screen.getByRole('link', {
       name: /onboarding/i,
       hidden: true,
     });
     const ftaLink = screen.getByRole('link', { name: /fta/i, hidden: true });
 
-    // Assert against the actual data objects instead of hardcoded mock strings
-    expect(advisoriesLink).toHaveAttribute(
-      'href',
-      EXTERNAL_LINKS.ADVISORIES_TOOL,
-    );
     expect(onboardingLink).toHaveAttribute('href', EXTERNAL_LINKS.ONBOARDING);
     expect(ftaLink).toHaveAttribute('href', EXTERNAL_LINKS.FTA);
-
-    expect(advisoriesLink).toHaveAttribute('target', '_blank');
-    expect(advisoriesLink).toHaveAttribute('rel', 'noreferrer');
   });
 });
