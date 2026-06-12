@@ -77,6 +77,12 @@
   }
 }
 
+.advisories-info {
+  a {
+    text-decoration: underline;
+  }
+}
+
 .rec-resource-content {
   padding: $pagePaddingLg;
   max-width: $pageMaxWidth;

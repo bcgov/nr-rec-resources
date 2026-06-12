@@ -20,7 +20,7 @@ const Status = ({ description, statusCode, advisoriesCount }: StatusProps) => {
   const statusIcon = getStatusIcon(String(statusCode));
   if (!statusIcon) return null;
   return (
-    <div className="icon-container">
+    <div className="icon-container advisories-info">
       <img
         alt={`Site ${description} status icon`}
         src={statusIcon}
@@ -31,7 +31,9 @@ const Status = ({ description, statusCode, advisoriesCount }: StatusProps) => {
       {advisoriesCount > 0 && (
         <>
           {','}&nbsp;
-          <a href="#know-before-you-go">check advisories ({advisoriesCount})</a>
+          <a href="#know-before-you-go">
+            check advisories ({advisoriesCount}).
+          </a>
         </>
       )}
     </div>

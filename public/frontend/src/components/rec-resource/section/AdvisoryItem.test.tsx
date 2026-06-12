@@ -46,7 +46,7 @@ describe('AdvisoryItem', () => {
     event_type: '',
     advisory_status: '',
     is_reservations_affected: false,
-    is_advisory_date_displayed: false,
+    is_advisory_date_displayed: true,
     is_effective_date_displayed: false,
     is_end_date_displayed: false,
     is_updated_date_displayed: false,
@@ -117,16 +117,17 @@ describe('AdvisoryItem', () => {
     it('handles missing advisory_date gracefully', () => {
       render(
         <AdvisoryItem
-          advisory={{ ...defaultAdvisory, advisory_date: undefined }}
+          advisory={{
+            ...defaultAdvisory,
+            is_advisory_date_displayed: false,
+          }}
           isCollapsed={false}
           onToggle={mockOnToggle}
         />,
       );
 
-      const dateText = screen.getByText(/Posted/i);
-      expect(dateText).toBeInTheDocument();
-      // The strong tag rendering the date string should not be present
-      expect(dateText.querySelector('strong')).not.toBeInTheDocument();
+      const dateText = screen.queryByText(/Posted/i);
+      expect(dateText).not.toBeInTheDocument();
     });
   });
 
@@ -160,7 +161,7 @@ describe('AdvisoryItem', () => {
     it('renders collapsed state correctly (isCollapsed = true)', () => {
       const { container } = render(
         <AdvisoryItem
-          advisory={defaultAdvisory}
+          advisory={{ ...defaultAdvisory, is_advisory_date_displayed: true }}
           isCollapsed={true}
           onToggle={mockOnToggle}
         />,

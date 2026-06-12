@@ -38,6 +38,8 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
         className={`advisory-header ${isCollapsed ? 'collapsed' : ''}`}
         onClick={onToggle}
         role="button"
+        tabIndex={0}
+        aria-expanded={!isCollapsed}
         onKeyUp={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             onToggle();
@@ -62,18 +64,20 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
         <div className="advisory-description">
           {advisory.description && <SafeHtml html={advisory.description} />}
         </div>
-        <p className="advisory-date">
-          Posted{' '}
-          {advisory.advisory_date && (
-            <strong>
-              {new Date(advisory.advisory_date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </strong>
-          )}
-        </p>
+        {advisory.is_advisory_date_displayed && (
+          <p className="advisory-date">
+            Posted{' '}
+            {advisory.advisory_date && (
+              <strong>
+                {new Date(advisory.advisory_date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </strong>
+            )}
+          </p>
+        )}
       </div>
     </div>
   );
