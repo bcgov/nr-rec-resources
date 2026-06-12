@@ -47,6 +47,54 @@ describe('Admin Search DTOs', () => {
 
       expect(errors.length).toBeGreaterThan(0);
     });
+
+    it('accepts public_access_status:asc and public_access_status:desc as valid sorts', async () => {
+      const dtoAsc = plainToInstance(AdminSearchQueryDto, {
+        sort: 'public_access_status:asc',
+      });
+      const dtoDesc = plainToInstance(AdminSearchQueryDto, {
+        sort: 'public_access_status:desc',
+      });
+
+      expect(await validate(dtoAsc)).toHaveLength(0);
+      expect(await validate(dtoDesc)).toHaveLength(0);
+    });
+
+    it('accepts and transforms public_access_status as an array of strings', async () => {
+      const dto = plainToInstance(AdminSearchQueryDto, {
+        public_access_status: ['Open', 'Closed'],
+      });
+
+      const errors = await validate(dto);
+
+      expect(errors).toHaveLength(0);
+      expect(dto.public_access_status).toEqual(['Open', 'Closed']);
+    });
+
+    it('accepts public_access_status as an underscore-delimited string', async () => {
+      const dto = plainToInstance(AdminSearchQueryDto, {
+        public_access_status: 'Open_Closed',
+      });
+
+      const errors = await validate(dto);
+
+      expect(errors).toHaveLength(0);
+      expect(dto.public_access_status).toEqual(['Open', 'Closed']);
+    });
+
+    it('omits public_access_status when not provided', async () => {
+      const dto = plainToInstance(AdminSearchQueryDto, {});
+
+      const errors = await validate(dto);
+
+      expect(errors).toHaveLength(0);
+      expect(dto.public_access_status).toBeUndefined();
+    });
+
+    it('includes public_access_status:asc and public_access_status:desc in ADMIN_SEARCH_SORT_VALUES', () => {
+      expect(ADMIN_SEARCH_SORT_VALUES).toContain('public_access_status:asc');
+      expect(ADMIN_SEARCH_SORT_VALUES).toContain('public_access_status:desc');
+    });
   });
 
   describe('AdminSearchResponseDto', () => {
@@ -77,6 +125,26 @@ describe('Admin Search DTOs', () => {
       expect(response.total).toBe(137);
       expect(response.page).toBe(1);
       expect(response.page_size).toBe(25);
+    });
+
+    it('assigns access_status_grouplabel on AdminSearchResultRowDto', () => {
+      const row = new AdminSearchResultRowDto();
+      row.access_status_grouplabel = 'Closed';
+
+      expect(row.access_status_grouplabel).toBe('Closed');
+    });
+
+    it('allows access_status_grouplabel to be null', () => {
+      const row = new AdminSearchResultRowDto();
+      row.access_status_grouplabel = null;
+
+      expect(row.access_status_grouplabel).toBeNull();
+    });
+
+    it('allows access_status_grouplabel to be undefined when not set', () => {
+      const row = new AdminSearchResultRowDto();
+
+      expect(row.access_status_grouplabel).toBeUndefined();
     });
   });
 });

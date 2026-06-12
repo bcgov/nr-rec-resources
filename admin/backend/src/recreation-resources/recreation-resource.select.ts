@@ -1,4 +1,13 @@
-const baseRecreationResourceSelect = {
+// Prisma 7 rejects readonly arrays in orderBy, but `as const` makes them readonly.
+// This strips readonly recursively so the selects stay compatible with Prisma query types.
+type DeepWritable<T> =
+  T extends ReadonlyArray<infer U>
+    ? DeepWritable<U>[]
+    : T extends object
+      ? { -readonly [K in keyof T]: DeepWritable<T[K]> }
+      : T;
+
+const _baseRecreationResourceSelect = {
   rec_resource_id: true,
   name: true,
   closest_community: true,
@@ -80,10 +89,13 @@ const baseRecreationResourceSelect = {
   },
 } as const;
 
-export const adminSearchSelect = baseRecreationResourceSelect;
+export const adminSearchSelect =
+  _baseRecreationResourceSelect as unknown as DeepWritable<
+    typeof _baseRecreationResourceSelect
+  >;
 
-export const recreationResourceSelect = {
-  ...baseRecreationResourceSelect,
+const _recreationResourceSelect = {
+  ..._baseRecreationResourceSelect,
   maintenance_standard_code: true,
   right_of_way: true,
   rec_status_code: true,
@@ -157,3 +169,8 @@ export const recreationResourceSelect = {
     },
   },
 } as const;
+
+export const recreationResourceSelect =
+  _recreationResourceSelect as unknown as DeepWritable<
+    typeof _recreationResourceSelect
+  >;

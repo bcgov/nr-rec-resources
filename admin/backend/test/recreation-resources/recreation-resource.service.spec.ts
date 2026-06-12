@@ -171,6 +171,7 @@ describe('RecreationResourceService', () => {
           fee_indicators: ['Reservable', 'Has fees'],
           established_date: '2024-06-10',
           campsite_count: 5,
+          access_status_grouplabel: null,
         },
       ],
       total: 1,
@@ -349,12 +350,131 @@ describe('RecreationResourceService', () => {
           rec_status_code: null,
           established_date: null,
           campsite_count: 0,
+          access_status_grouplabel: null,
         },
       ],
       total: 1,
       page: 1,
       page_size: 25,
     });
+  });
+
+  it('should map access_status_grouplabel from first advisory when present', async () => {
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC300',
+          name: 'Closure Lake',
+          closest_community: 'Hope',
+          project_established_date: null,
+          display_on_public_site: true,
+          rec_status_code: null,
+          recreation_activity: [],
+          recreation_access: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          recreation_status: null,
+          _count: { recreation_defined_campsite: 0 },
+          act_advisories_flat: [{ access_status_grouplabel: 'Closed' }],
+        },
+      ],
+    });
+
+    const result = await service.searchResources({});
+
+    expect(result.data[0]?.access_status_grouplabel).toBe('Closed');
+  });
+
+  it('should set access_status_grouplabel to null when act_advisories_flat is empty', async () => {
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC301',
+          name: 'Open Lake',
+          closest_community: 'Hope',
+          project_established_date: null,
+          display_on_public_site: true,
+          rec_status_code: null,
+          recreation_activity: [],
+          recreation_access: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          recreation_status: null,
+          _count: { recreation_defined_campsite: 0 },
+          act_advisories_flat: [],
+        },
+      ],
+    });
+
+    const result = await service.searchResources({});
+
+    expect(result.data[0]?.access_status_grouplabel).toBeNull();
+  });
+
+  it('should set access_status_grouplabel to null when act_advisories_flat is absent', async () => {
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC302',
+          name: 'No Advisory Lake',
+          closest_community: 'Hope',
+          project_established_date: null,
+          display_on_public_site: true,
+          rec_status_code: null,
+          recreation_activity: [],
+          recreation_access: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          recreation_status: null,
+          _count: { recreation_defined_campsite: 0 },
+        },
+      ],
+    });
+
+    const result = await service.searchResources({});
+
+    expect(result.data[0]?.access_status_grouplabel).toBeNull();
+  });
+
+  it('should use only the first advisory for access_status_grouplabel', async () => {
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC303',
+          name: 'Multi Advisory Lake',
+          closest_community: 'Hope',
+          project_established_date: null,
+          display_on_public_site: true,
+          rec_status_code: null,
+          recreation_activity: [],
+          recreation_access: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          recreation_status: null,
+          _count: { recreation_defined_campsite: 0 },
+          act_advisories_flat: [
+            { access_status_grouplabel: 'Caution' },
+            { access_status_grouplabel: 'Closed' },
+          ],
+        },
+      ],
+    });
+
+    const result = await service.searchResources({});
+
+    expect(result.data[0]?.access_status_grouplabel).toBe('Caution');
   });
 });
 

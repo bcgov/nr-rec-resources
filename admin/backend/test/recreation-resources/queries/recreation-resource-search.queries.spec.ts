@@ -108,6 +108,8 @@ describe('recreation-resource-search.queries', () => {
 
   it('maps raw SQL sorts and derived order clauses correctly', () => {
     expect(RAW_SQL_SORTS.has('type:asc')).toBe(true);
+    expect(RAW_SQL_SORTS.has('public_access_status:asc')).toBe(true);
+    expect(RAW_SQL_SORTS.has('public_access_status:desc')).toBe(true);
     expect(RAW_SQL_SORTS.has('name:asc' as any)).toBe(false);
     expect(SORT_FIELD_MAP['district:desc']).toEqual({
       recreation_district_code: {
@@ -168,5 +170,95 @@ describe('recreation-resource-search.queries', () => {
     expect(normalizedIdsSql).toContain('OFFSET ?');
     expect(idsQuery.values.at(-2)).toBe(25);
     expect(idsQuery.values.at(-1)).toBe(50);
+  });
+
+  it('builds public_access_status filter using advisory subquery', () => {
+    const whereSql = buildSearchWhereSql({
+      public_access_status: ['Closed', 'Caution'],
+    });
+
+    const normalized = normalizeSql(whereSql);
+
+    expect(normalized).toContain('COALESCE(');
+    expect(normalized).toContain('af.access_status_grouplabel');
+    expect(normalized).toContain('rst.act_advisories_flat af');
+    expect(normalized).toContain('af.rec_resource_id = rr.rec_resource_id');
+    expect(normalized).toContain('LIMIT 1');
+    expect(normalized).toContain("'Open'");
+    expect(normalized).toContain('IN (?,?)');
+    expect(whereSql.values).toContain('Closed');
+    expect(whereSql.values).toContain('Caution');
+  });
+
+  it('omits public_access_status condition when array is empty', () => {
+    const whereSql = buildSearchWhereSql({ public_access_status: [] });
+
+    expect(whereSql).toBe(Prisma.empty);
+  });
+
+  it('omits public_access_status condition when field is absent', () => {
+    const whereSql = buildSearchWhereSql({});
+
+    expect(whereSql).toBe(Prisma.empty);
+  });
+
+  it('builds public_access_status derived sort with lateral join and advisory ordering', () => {
+    const { joinsSql, orderBySql } = buildDerivedSortQueryParts(
+      'public_access_status:asc',
+    );
+
+    const normalizedJoin = normalizeSql(joinsSql);
+    expect(normalizedJoin).toContain('LEFT JOIN LATERAL');
+    expect(normalizedJoin).toContain('rst.act_advisories_flat af');
+    expect(normalizedJoin).toContain('af.rec_resource_id = rr.rec_resource_id');
+    expect(normalizedJoin).toContain('af.listing_rank DESC');
+    expect(normalizedJoin).toContain('LIMIT 1');
+    expect(normalizedJoin).toContain("'Open'");
+    expect(normalizedJoin).toContain('advisory_status ON TRUE');
+
+    expect(normalizeSql(orderBySql)).toContain(
+      'advisory_status.public_access_status ASC',
+    );
+  });
+
+  it('builds public_access_status derived sort descending correctly', () => {
+    const { orderBySql } = buildDerivedSortQueryParts(
+      'public_access_status:desc',
+    );
+
+    expect(normalizeSql(orderBySql)).toContain(
+      'advisory_status.public_access_status DESC',
+    );
+  });
+
+  it('builds ids query for public_access_status sort with lateral join', () => {
+    const whereSql = buildSearchWhereSql({ q: 'park' });
+    const sortParts = buildDerivedSortQueryParts('public_access_status:asc');
+    const idsQuery = buildDerivedSortIdsQuery({
+      whereSql,
+      joinsSql: sortParts.joinsSql,
+      orderBySql: sortParts.orderBySql,
+      pageSize: 25,
+      offset: 0,
+    });
+
+    const normalized = normalizeSql(idsQuery);
+
+    expect(normalized).toContain('LEFT JOIN LATERAL');
+    expect(normalized).toContain('advisory_status ON TRUE');
+    expect(normalized).toContain(
+      'ORDER BY advisory_status.public_access_status ASC, rr.rec_resource_id ASC',
+    );
+    expect(normalized).toContain('LIMIT ?');
+    expect(normalized).toContain('OFFSET ?');
+    expect(idsQuery.values.at(-2)).toBe(25);
+    expect(idsQuery.values.at(-1)).toBe(0);
+  });
+
+  it('SORT_FIELD_MAP has fallback name sort for public_access_status', () => {
+    expect(SORT_FIELD_MAP['public_access_status:asc']).toEqual({ name: 'asc' });
+    expect(SORT_FIELD_MAP['public_access_status:desc']).toEqual({
+      name: 'desc',
+    });
   });
 });

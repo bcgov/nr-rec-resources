@@ -17,7 +17,9 @@ function createPagination() {
     rowCount: 1,
     canPreviousPage: false,
     canNextPage: false,
+    pageSizeOptions: [25, 50, 100],
     setPageIndex: vi.fn(),
+    setPageSize: vi.fn(),
     previousPage: vi.fn(),
     nextPage: vi.fn(),
   };
@@ -37,6 +39,8 @@ describe('SearchResultsTable', () => {
       closestCommunity: 'Hope',
       status: 'Open',
       statusCode: 1,
+      visible: true,
+      publicAccessStatus: null,
     },
   ];
 
