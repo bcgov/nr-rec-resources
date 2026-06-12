@@ -1,9 +1,19 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ColumnVisibilityMenu } from '@/pages/search/components/ColumnVisibilityMenu';
 
+const mockUseAuthorizations = vi.fn();
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 describe('ColumnVisibilityMenu', () => {
+  beforeEach(() => {
+    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: false });
+  });
+
   it('stays open while toggling columns and closes on outside click', async () => {
     const user = userEvent.setup();
     const onToggle = vi.fn();
@@ -70,5 +80,40 @@ describe('ColumnVisibilityMenu', () => {
     expect(
       screen.queryByRole('button', { name: /rec #/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('hides the public access status column when canViewFeatureFlag is false', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ColumnVisibilityMenu
+        visibleColumns={['rec_resource_id', 'name']}
+        onToggle={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Columns' }));
+
+    expect(
+      screen.queryByRole('button', { name: /public access status/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the public access status column when canViewFeatureFlag is true', async () => {
+    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: true });
+    const user = userEvent.setup();
+
+    render(
+      <ColumnVisibilityMenu
+        visibleColumns={['rec_resource_id', 'name']}
+        onToggle={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Columns' }));
+
+    expect(
+      screen.getByRole('button', { name: /public access status/i }),
+    ).toBeInTheDocument();
   });
 });
