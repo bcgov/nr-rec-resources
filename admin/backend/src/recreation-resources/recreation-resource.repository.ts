@@ -60,7 +60,7 @@ export class RecreationResourceRepository {
     const pageSize = query.page_size ?? ADMIN_SEARCH_PAGE_SIZE_VALUES[0];
     const sort = query.sort ?? 'name:asc';
 
-    if (RAW_SQL_SORTS.has(sort)) {
+    if (RAW_SQL_SORTS.has(sort) || query.public_access_status?.length) {
       return this.searchResourcesWithDerivedSort(query, page, pageSize, sort);
     }
 
@@ -262,27 +262,6 @@ export class RecreationResourceRepository {
     };
   }
 
-  private buildPublicAccessStatusWhere(
-    publicAccessStatus?: string[],
-  ): Prisma.recreation_resourceWhereInput | null {
-    if (!publicAccessStatus?.length) return null;
-
-    const includesOpen = publicAccessStatus.includes('Open');
-    const conditions: Prisma.recreation_resourceWhereInput[] = [
-      {
-        act_advisories_flat: {
-          some: { access_status_grouplabel: { in: publicAccessStatus } },
-        },
-      },
-    ];
-
-    if (includesOpen) {
-      conditions.push({ act_advisories_flat: { none: {} } });
-    }
-
-    return { OR: conditions };
-  }
-
   private buildEstablishedWhere(
     established?: string,
   ): Prisma.recreation_resourceWhereInput | null {
@@ -349,7 +328,6 @@ export class RecreationResourceRepository {
       this.buildStatusWhere(query.status),
       this.buildEstablishmentDateWhere(query),
       this.buildEstablishedWhere(query.established),
-      this.buildPublicAccessStatusWhere(query.public_access_status),
     ].filter(
       (condition): condition is Prisma.recreation_resourceWhereInput =>
         condition !== null,

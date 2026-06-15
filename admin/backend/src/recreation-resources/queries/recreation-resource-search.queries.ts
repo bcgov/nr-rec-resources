@@ -80,6 +80,13 @@ export const RAW_SQL_SORTS = new Set<AdminSearchSort>([
 ]);
 
 type DerivedSortField =
+  | 'name'
+  | 'rec_resource_id'
+  | 'established_date'
+  | 'community'
+  | 'campsites'
+  | 'district'
+  | 'display_on_public_site'
   | 'status'
   | 'type'
   | 'activities'
@@ -237,6 +244,50 @@ export function buildDerivedSortQueryParts(
   const directionSql = direction === 'asc' ? Prisma.sql`ASC` : Prisma.sql`DESC`;
 
   switch (field) {
+    case 'name':
+      return {
+        joinsSql: Prisma.empty,
+        orderBySql: Prisma.sql`rr.name ${directionSql}`,
+      };
+    case 'rec_resource_id':
+      return {
+        joinsSql: Prisma.empty,
+        orderBySql: Prisma.sql`rr.rec_resource_id ${directionSql}`,
+      };
+    case 'established_date':
+      return {
+        joinsSql: Prisma.empty,
+        orderBySql: Prisma.sql`rr.project_established_date ${directionSql}`,
+      };
+    case 'community':
+      return {
+        joinsSql: Prisma.empty,
+        orderBySql: Prisma.sql`rr.closest_community ${directionSql}`,
+      };
+    case 'display_on_public_site':
+      return {
+        joinsSql: Prisma.empty,
+        orderBySql: Prisma.sql`rr.display_on_public_site ${directionSql}`,
+      };
+    case 'campsites':
+      return {
+        joinsSql: Prisma.sql`
+          LEFT JOIN LATERAL (
+            SELECT COUNT(*) AS campsite_count
+            FROM rst.recreation_defined_campsite rdc
+            WHERE rdc.rec_resource_id = rr.rec_resource_id
+          ) campsite_agg ON TRUE
+        `,
+        orderBySql: Prisma.sql`campsite_agg.campsite_count ${directionSql}`,
+      };
+    case 'district':
+      return {
+        joinsSql: Prisma.sql`
+          LEFT JOIN rst.recreation_district_code rdco
+            ON rdco.district_code = rr.district_code
+        `,
+        orderBySql: Prisma.sql`COALESCE(rdco.description, '') ${directionSql}`,
+      };
     case 'status':
       return {
         joinsSql: Prisma.sql`
