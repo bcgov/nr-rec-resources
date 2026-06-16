@@ -2,10 +2,7 @@ locals {
   rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
 }
 
-data "aws_kms_alias" "rds_key" {
-  name = "alias/aws/rds"
-}
-data "aws_caller_identity" "current" {}
+
 
 resource "random_password" "db_master_password" {
   length           = 12
@@ -97,7 +94,7 @@ module "aurora_postgresql_v2" {
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
 
   master_username = var.db_master_username
-  master_password = random_password.db_master_password.result
+  master_user_password = random_password.db_master_password.result
   manage_master_user_password = false
 
 
@@ -107,20 +104,8 @@ module "aurora_postgresql_v2" {
 
   apply_immediately   = false
   skip_final_snapshot = true
-  auto_minor_version_upgrade = false
 
   deletion_protection = contains(["dev", "test"], local.rds_app_env) ? false : true
-
-  performance_insights_enabled	= true
-  performance_insights_kms_key_id = data.aws_kms_alias.rds_key.arn
-
-  db_parameter_group_name         = aws_db_parameter_group.db_postgresql.id
-  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.db_postgresql.id
-
-  serverlessv2_scaling_configuration = {
-    min_capacity = var.min_capacity
-    max_capacity = var.max_capacity
-  }
 
   instance_class = "db.serverless"
   instances = var.ha_enabled ? {
