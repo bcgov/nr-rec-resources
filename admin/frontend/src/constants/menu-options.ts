@@ -1,6 +1,6 @@
 export const EXTERNAL_LINKS = {
   FTA: 'https://apps.nrs.gov.bc.ca/int/fta/',
-  ADVISORIES_TOOL: import.meta.env.VITE_ADVISORIES_TOOL_URL,
+  ADVISORIES_TOOL: import.meta.env.VITE_STAFF_ADMIN_URL,
   ONBOARDING:
     'https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/RecSpace+Onboarding',
 } as const;
