@@ -178,13 +178,7 @@ export function useFeeForm({
   const feeApplies = useWatch({ control, name: 'fee_applies' });
   const isRecurring = useWatch({ control, name: 'is_recurring' });
   const dayPreset = useWatch({ control, name: 'day_preset' });
-  const fdlChecked = useWatch({
-    control,
-    name: 'fee_determination_letter_confirmed',
-  });
   const hasInitializedDayPreset = useRef(false);
-
-  const amountLocked = mode === 'edit' && !fdlChecked;
 
   const isSubmittable =
     mode === 'edit'
@@ -314,8 +308,6 @@ export function useFeeForm({
     handleSubmit,
     errors,
     isSubmittable,
-    amountLocked,
-    fdlChecked,
     mutation,
     onSubmit,
     feeApplies,
