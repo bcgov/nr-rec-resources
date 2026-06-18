@@ -140,6 +140,8 @@ body {
   min-height: 100vh;
   min-width: 100%;
   margin: 0;
+  /* Prevents horizontal overflows from causing structural shrinking */
+  overflow-x: hidden;
 }
 
 body {

@@ -15,7 +15,11 @@ import {
   Image,
   Stack,
 } from 'react-bootstrap';
+import { externalLinks, menuLinks } from '@/constants/menu-options';
 import './Header.scss';
+import { faArrowUpRightFromSquare } from '@fortawesome/pro-regular-svg-icons';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { useNavigate } from '@tanstack/react-router';
 
 /**
  * A custom menu toggle component for the header dropdown.
@@ -78,6 +82,7 @@ const renderMenuToggle = (fullName: string) =>
  * dropdown on mobile.
  */
 export const Header = () => {
+  const navigate = useNavigate();
   const { user, authService } = useAuthContext();
   const fullName = authService.getUserFullName();
 
@@ -125,7 +130,43 @@ export const Header = () => {
                         Signed in as {user?.idir_username}
                       </DropdownItem>
                     )}
-                    <DropdownItem onClick={() => authService.logout()}>
+                    <div className="d-md-none">
+                      {menuLinks.map((link) => {
+                        return (
+                          <DropdownItem
+                            className="dropdown-menu-item"
+                            key={link.text}
+                            onClick={() => {
+                              navigate({ to: link.url });
+                            }}
+                          >
+                            {link.text}
+                          </DropdownItem>
+                        );
+                      })}
+                    </div>
+                    <div className="d-md-none">
+                      {externalLinks.map((link) => {
+                        return (
+                          <DropdownItem
+                            key={link.text}
+                            className="dropdown-menu-item new-tab"
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {link.text}{' '}
+                            <FontAwesomeIcon
+                              icon={faArrowUpRightFromSquare as IconProp}
+                            />
+                          </DropdownItem>
+                        );
+                      })}
+                    </div>
+                    <DropdownItem
+                      className="dropdown-item-logout"
+                      onClick={() => authService.logout()}
+                    >
                       Logout
                     </DropdownItem>
                   </DropdownMenu>
