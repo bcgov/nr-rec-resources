@@ -11,20 +11,16 @@ import {
 
 describe('feeTypeMap', () => {
   it('contains all expected fee type codes', () => {
-    expect(feeTypeMap['C']).toBe('Camping');
-    expect(feeTypeMap['D']).toBe('Day Use');
-    expect(feeTypeMap['H']).toBe('Hut');
-    expect(feeTypeMap['P']).toBe('Parking');
+    expect(feeTypeMap['O']).toBe('Overnight');
+    expect(feeTypeMap['A']).toBe('Additional');
     expect(feeTypeMap['T']).toBe('Trail Use');
   });
 });
 
 describe('getFeeTypeLabel', () => {
   it('returns correct label for known codes', () => {
-    expect(getFeeTypeLabel('C')).toBe('Camping');
-    expect(getFeeTypeLabel('D')).toBe('Day Use');
-    expect(getFeeTypeLabel('H')).toBe('Hut');
-    expect(getFeeTypeLabel('P')).toBe('Parking');
+    expect(getFeeTypeLabel('O')).toBe('Overnight');
+    expect(getFeeTypeLabel('A')).toBe('Additional');
     expect(getFeeTypeLabel('T')).toBe('Trail Use');
   });
 

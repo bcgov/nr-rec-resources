@@ -19,10 +19,17 @@
 .camp-icon-container {
   display: flex;
   align-items: flex-start;
+
+  img {
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
 }
 
 .info-icon {
   width: 24px;
   height: 24px;
+  margin-right: 10px;
+  flex-shrink: 0;
   color: $colorBlue;
 }

@@ -109,6 +109,12 @@ export interface RecreationFeeDto {
    * @memberof RecreationFeeDto
    */
   sunday_ind: string;
+  /**
+   * Description of the fee sub-type from the database
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  fee_sub_type_description?: string;
 }
 
 /**
@@ -183,6 +189,10 @@ export function RecreationFeeDtoFromJSONTyped(
     friday_ind: json['friday_ind'],
     saturday_ind: json['saturday_ind'],
     sunday_ind: json['sunday_ind'],
+    fee_sub_type_description:
+      json['fee_sub_type_description'] == null
+        ? undefined
+        : json['fee_sub_type_description'],
   };
 }
 
@@ -214,5 +224,6 @@ export function RecreationFeeDtoToJSONTyped(
     friday_ind: value['friday_ind'],
     saturday_ind: value['saturday_ind'],
     sunday_ind: value['sunday_ind'],
+    fee_sub_type_description: value['fee_sub_type_description'],
   };
 }

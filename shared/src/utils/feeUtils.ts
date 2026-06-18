@@ -4,10 +4,8 @@ import { formatDateReadable } from './dateUtils';
  * Fee type code to label mapping
  */
 export const feeTypeMap: Record<string, string> = {
-  C: 'Camping',
-  D: 'Day Use',
-  H: 'Hut',
-  P: 'Parking',
+  O: 'Overnight',
+  A: 'Additional',
   T: 'Trail Use',
 };
 

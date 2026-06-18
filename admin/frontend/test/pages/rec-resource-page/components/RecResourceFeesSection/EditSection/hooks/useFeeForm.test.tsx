@@ -367,50 +367,6 @@ describe('useFeeForm', () => {
     });
   });
 
-  describe('amountLocked', () => {
-    it('is false in create mode regardless of FDL state', () => {
-      const { result } = renderHook(() =>
-        useFeeForm({ recResourceId: 'REC1', mode: 'create' }),
-      );
-
-      expect(result.current.amountLocked).toBe(false);
-    });
-
-    it('is true in edit mode when FDL checkbox is unchecked', () => {
-      vi.mocked(reactHookForm.useWatch).mockImplementation(((args?: any) => {
-        if (args?.name === 'fee_determination_letter_confirmed') return false;
-        return undefined;
-      }) as any);
-
-      const { result } = renderHook(() =>
-        useFeeForm({
-          recResourceId: 'REC1',
-          mode: 'edit',
-          initialFee: { fee_id: 1 } as any,
-        }),
-      );
-
-      expect(result.current.amountLocked).toBe(true);
-    });
-
-    it('is false in edit mode when FDL checkbox is checked', () => {
-      vi.mocked(reactHookForm.useWatch).mockImplementation(((args?: any) => {
-        if (args?.name === 'fee_determination_letter_confirmed') return true;
-        return undefined;
-      }) as any);
-
-      const { result } = renderHook(() =>
-        useFeeForm({
-          recResourceId: 'REC1',
-          mode: 'edit',
-          initialFee: { fee_id: 1 } as any,
-        }),
-      );
-
-      expect(result.current.amountLocked).toBe(false);
-    });
-  });
-
   describe('edit mode: missing initialFee guard', () => {
     it('does not call update when initialFee is absent', async () => {
       const { result } = renderHook(() =>

@@ -3,8 +3,7 @@ import RecResourceReservation from './RecResourceReservation';
 import { ReservationType } from './RecReservationButton';
 import { vi } from 'vitest';
 import { RecreationResourceDetailDto } from '@/service/recreation-resource/models/RecreationResourceDetailDto';
-import { RecreationResourceReservationInfoDto } from '@/service/recreation-resource/models/RecreationResourceReservationInfo';
-
+import { RecreationResourceReservationInfoDto } from '@/service/recreation-resource';
 // Mock RecReservationButton so we can verify props easily
 vi.mock('./RecReservationButton', () => ({
   __esModule: true,
@@ -21,7 +20,7 @@ vi.mock('./RecReservationButton', () => ({
 describe('RecResourceReservation', () => {
   const mockFees = [
     {
-      recreation_fee_code: 'P',
+      recreation_fee_code: 'A',
       fee_amount: 10,
       monday_ind: '',
       tuesday_ind: '',
@@ -32,6 +31,24 @@ describe('RecResourceReservation', () => {
       sunday_ind: '',
       fee_start_date: new Date(),
       fee_end_date: new Date(),
+      recurring_ind: false,
+    },
+  ];
+  const mockOvernightFees = [
+    {
+      recreation_fee_code: 'O',
+      recreation_fee_sub_code: 'C',
+      fee_amount: 10,
+      monday_ind: '',
+      tuesday_ind: '',
+      wednesday_ind: '',
+      thursday_ind: '',
+      friday_ind: '',
+      saturday_ind: '',
+      sunday_ind: '',
+      fee_start_date: new Date(),
+      fee_end_date: new Date(),
+      recurring_ind: false,
     },
   ];
   const baseResource: RecreationResourceDetailDto = {
@@ -44,6 +61,8 @@ describe('RecResourceReservation', () => {
       {
         recreation_activity_code: 1,
         description: 'Activity Description',
+        details: '',
+        is_accessible: false,
       },
     ],
     recreation_status: {
@@ -78,7 +97,8 @@ describe('RecResourceReservation', () => {
     driving_directions: '',
     maintenance_standard_code: 'U',
     campsite_count: 0,
-    recreation_fee: mockFees,
+    recreation_fee: [],
+    overnight_fees: mockOvernightFees,
     additional_fees: mockFees,
     recreation_structure: {
       has_toilet: true,
@@ -115,7 +135,28 @@ describe('RecResourceReservation', () => {
     );
   });
 
-  it('renders first come first served with camping link when campsite_count > 0', () => {
+  it('renders first come first served with camping link when campsite_count > 0 with no fees', () => {
+    render(
+      <RecResourceReservation
+        recResource={{
+          ...baseResource,
+          campsite_count: 5,
+          overnight_fees: [],
+          additional_fees: [],
+          recreation_resource_reservation_info: undefined,
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByText(/This site is first come first served/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/No fees apply./i)).toBeInTheDocument();
+    const campingLink = screen.getByRole('link', { name: 'camping' });
+    expect(campingLink).toHaveAttribute('href', '/resource/REC123#camping');
+  });
+
+  it('renders first come first served with fees and facilities links when campsite_count > 0 with camping fees', () => {
     render(
       <RecResourceReservation
         recResource={{
@@ -129,27 +170,35 @@ describe('RecResourceReservation', () => {
     expect(
       screen.getByText(/This site is first come first served/i),
     ).toBeInTheDocument();
-    const campingLink = screen.getByRole('link', { name: 'camping' });
-    expect(campingLink).toHaveAttribute('href', '/resource/REC123#camping');
+    expect(
+      screen.getByText(/Fees apply when arriving on site./i),
+    ).toBeInTheDocument();
+    const feesLink = screen.getByRole('link', { name: 'fees' });
+    expect(feesLink).toHaveAttribute('href', '/resource/REC123#fees');
+    const facilitiesLink = screen.getByRole('link', { name: 'facilities' });
+    expect(facilitiesLink).toHaveAttribute(
+      'href',
+      '/resource/REC123#facilities',
+    );
   });
 
-  it('renders first come first served with additional fees link when no campsite_count or fee', () => {
+  it('renders day-use with fees link when no campsite_count but has fees', () => {
     render(
       <RecResourceReservation
         recResource={{
           ...baseResource,
-          recreation_fee: mockFees,
+          overnight_fees: mockOvernightFees,
           campsite_count: 0,
           recreation_resource_reservation_info: undefined,
         }}
       />,
     );
 
-    const feesLink = screen.getByRole('link', { name: 'additional fees' });
-    expect(feesLink).toHaveAttribute(
-      'href',
-      '/resource/REC123#additional-fees',
-    );
+    expect(
+      screen.getByText(/Fees apply when arriving on site./i),
+    ).toBeInTheDocument();
+    const feesLink = screen.getByRole('link', { name: 'fees' });
+    expect(feesLink).toHaveAttribute('href', '/resource/REC123#fees');
   });
 
   it('renders facilities link when facilities are available', () => {
@@ -210,7 +259,7 @@ describe('RecResourceReservation', () => {
           ...baseResource,
           campsite_count: 0,
           additional_fees: [],
-          recreation_fee: [],
+          overnight_fees: [],
           recreation_resource_reservation_info: undefined,
         }}
       />,
@@ -226,44 +275,12 @@ describe('RecResourceReservation', () => {
           ...baseResource,
           campsite_count: 1,
           additional_fees: [],
-          recreation_fee: [],
+          overnight_fees: [],
           recreation_resource_reservation_info: undefined,
         }}
       />,
     );
 
     expect(screen.getByText(/No fees apply./i)).toBeInTheDocument();
-  });
-
-  it('renders no fees apply when there is no camping and with fees and facilities', () => {
-    render(
-      <RecResourceReservation
-        recResource={{
-          ...baseResource,
-          campsite_count: 0,
-          recreation_fee: [],
-          recreation_resource_reservation_info: undefined,
-        }}
-      />,
-    );
-
-    expect(screen.getByText(/additional fees/i)).toBeInTheDocument();
-  });
-
-  it('renders no fees apply when there is no camping no fees and no facilities', () => {
-    render(
-      <RecResourceReservation
-        recResource={{
-          ...baseResource,
-          campsite_count: 0,
-          additional_fees: [],
-          recreation_fee: [],
-          recreation_structure: { has_toilet: false, has_table: false },
-          recreation_resource_reservation_info: undefined,
-        }}
-      />,
-    );
-
-    expect(screen.getByText(/No fees apply/i)).toBeInTheDocument();
   });
 });

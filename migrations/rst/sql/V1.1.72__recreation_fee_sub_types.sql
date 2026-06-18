@@ -27,8 +27,8 @@ do update set description = excluded.description;
 insert into rst.recreation_fee_sub_code (recreation_fee_code, recreation_fee_sub_code, description)
 values
     ('O', 'C', 'Camping'),
-    ('O', 'H', 'Huts'),
-    ('O', 'CA', 'Cabins'),
+    ('O', 'H', 'Hut'),
+    ('O', 'CA', 'Cabin'),
     ('T', 'SK', 'Skiing'),
     ('T', 'ST', 'Ski touring'),
     ('T', 'SM', 'Snowmobiling'),
