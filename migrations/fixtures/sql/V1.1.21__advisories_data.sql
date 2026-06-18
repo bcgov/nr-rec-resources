@@ -4,7 +4,7 @@ INSERT INTO rst.act_advisories_flat (
     event_type, urgency, advisory_status, is_reservations_affected,
     is_advisory_date_displayed, is_effective_date_displayed, is_end_date_displayed,
     is_updated_date_displayed, advisory_date, effective_date, end_date,
-    expiry_date, removal_date, updated_date, modified_date, published_at,
+    expiry_date, updated_date, published_at,
     listing_rank, urgency_sequence, access_status_precedence, event_type_precedence
 ) VALUES
 -- 1. Active Restricted Advisory (Matches your baseline API payload exactly)
@@ -13,7 +13,7 @@ INSERT INTO rst.act_advisories_flat (
  'Access restricted', 'High', 'Published', false,
  false, false, false, false,
  '2021-07-12 06:30:41+00', '2021-07-12 06:30:41+00', NULL,
- NULL, NULL, '2021-07-12 06:30:41+00', '2025-01-08 19:28:08+00', '2025-01-08 19:28:11+00',
+ NULL, '2021-07-12 06:30:41+00', '2025-01-08 19:28:11+00',
  0, 3, 40, 172),
 
 -- 2. Regular Trail Closure Notice
@@ -22,7 +22,7 @@ INSERT INTO rst.act_advisories_flat (
  'Trail closure', 'High', 'Published', false,
  true, true, false, true,
  '2026-05-15 08:00:00+00', '2026-05-15 08:00:00+00', NULL,
- NULL, NULL, '2026-05-16 14:22:10+00', '2026-05-16 14:22:10+00', '2026-05-16 14:25:00+00',
+ NULL, '2026-05-16 14:22:10+00', '2026-05-16 14:25:00+00',
  1, 3, 50, 180),
 
 -- 3. Low Urgency Informational Notice
@@ -31,7 +31,7 @@ INSERT INTO rst.act_advisories_flat (
  'Information', 'Low', 'Published', false,
  false, false, false, false,
  '2026-05-20 12:00:00+00', '2026-05-22 00:00:00+00', NULL,
- NULL, NULL, '2026-05-20 12:00:00+00', '2026-05-20 12:05:00+00', '2026-05-20 12:05:00+00',
+ NULL, '2026-05-20 12:00:00+00', '2026-05-20 12:05:00+00',
  5, 1, 20, 100),
 
 -- 4. Dynamic Reservation Impact Notice
@@ -40,7 +40,7 @@ INSERT INTO rst.act_advisories_flat (
  'Service disruption', 'Medium', 'Published', true,
  true, true, true, true,
  '2026-05-25 09:15:00+00', '2026-06-01 00:00:00+00', '2026-06-15 18:00:00+00',
- '2026-06-16 00:00:00+00', NULL, '2026-05-25 10:00:00+00', '2026-05-25 10:00:00+00', '2026-05-25 10:02:00+00',
+ '2026-06-16 00:00:00+00', '2026-05-25 10:00:00+00', '2026-05-25 10:02:00+00',
  2, 2, 10, 120),
 
 -- 5. Public Safety Advisory with No Status Description
@@ -49,7 +49,7 @@ INSERT INTO rst.act_advisories_flat (
  'Public safety', 'High', 'Published', false,
  true, true, false, false,
  '2026-05-28 17:30:00+00', '2026-05-28 17:30:00+00', NULL,
- NULL, NULL, '2026-05-28 17:45:00+00', '2026-05-28 17:45:00+00', '2026-05-28 17:46:00+00',
+ NULL, '2026-05-28 17:45:00+00', '2026-05-28 17:46:00+00',
  0, 3, 30, 190),
 
 -- 6. Draft Advisory (Demonstrates Null Published Status)
@@ -58,7 +58,7 @@ INSERT INTO rst.act_advisories_flat (
  'Fire Management', 'Low', 'Draft', false,
  false, false, false, false,
  '2026-05-30 11:00:00+00', '2026-06-10 07:00:00+00', NULL,
- NULL, NULL, '2026-05-30 11:00:00+00', '2026-05-30 11:30:00+00', NULL,
+ NULL, '2026-05-30 11:00:00+00', NULL,
  10, 1, 10, 105),
 
 -- 7. Complete Historic Record (With Populated Removal/End Dates)
@@ -67,7 +67,7 @@ INSERT INTO rst.act_advisories_flat (
  'Construction', 'Low', 'Archived', false,
  true, true, true, true,
  '2026-04-01 08:00:00+00', '2026-04-05 08:00:00+00', '2026-04-10 17:00:00+00',
- '2026-04-11 00:00:00+00', '2026-04-11 06:00:00+00', '2026-04-10 17:05:00+00', '2026-04-11 06:00:00+00', '2026-04-01 08:30:00+00',
+ '2026-04-11 00:00:00+00', '2026-04-10 17:05:00+00', '2026-04-01 08:30:00+00',
  99, 1, 0, 80),
 
 -- 8. Emergency Closure Triggered by Flash Floods
@@ -76,7 +76,7 @@ INSERT INTO rst.act_advisories_flat (
  'Natural Hazard', 'Extreme', 'Published', true,
  true, true, false, false,
  '2026-05-31 22:10:00+00', '2026-05-31 22:10:00+00', NULL,
- NULL, NULL, '2026-05-31 22:15:00+00', '2026-05-31 22:15:00+00', '2026-05-31 22:15:12+00',
+ NULL, '2026-05-31 22:15:00+00', '2026-05-31 22:15:12+00',
  0, 4, 100, 250),
 
 -- 9. Water Quality Alert affecting specific amenities
@@ -85,7 +85,7 @@ INSERT INTO rst.act_advisories_flat (
  'Health Advisory', 'Medium', 'Published', false,
  true, true, false, true,
  '2026-05-29 06:00:00+00', '2026-05-29 06:00:00+00', NULL,
- NULL, NULL, '2026-05-31 09:00:00+00', '2026-05-31 09:00:00+00', '2026-05-29 06:45:00+00',
+ NULL, '2026-05-31 09:00:00+00', '2026-05-29 06:45:00+00',
  3, 2, 35, 140),
 
 -- 10. Fire Ban Notification
@@ -94,5 +94,5 @@ INSERT INTO rst.act_advisories_flat (
  'Fire Ban', 'High', 'Published', false,
  true, true, false, false,
  '2026-06-01 12:00:00+00', '2026-06-01 12:00:00+00', NULL,
- NULL, NULL, '2026-06-01 12:00:00+00', '2026-06-01 12:00:00+00', '2026-06-01 12:01:15+00',
+ NULL, '2026-06-01 12:00:00+00', '2026-06-01 12:01:15+00',
  0, 3, 30, 200);

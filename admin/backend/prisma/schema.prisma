@@ -1323,24 +1323,23 @@ model act_advisories_flat {
   event_type                  String                   @db.VarChar(100)
   urgency                     String                   @db.VarChar(25)
   advisory_status             String                   @db.VarChar(100)
-  is_reservations_affected    Boolean
+  is_reservations_affected    Boolean?
   is_advisory_date_displayed  Boolean
   is_effective_date_displayed Boolean
   is_end_date_displayed       Boolean
-  is_updated_date_displayed   Boolean
+  is_updated_date_displayed   Boolean?
   advisory_date               DateTime                 @db.Timestamptz(6)
   effective_date              DateTime                 @db.Timestamptz(6)
   end_date                    DateTime?                @db.Timestamptz(6)
   expiry_date                 DateTime?                @db.Timestamptz(6)
-  removal_date                DateTime?                @db.Timestamptz(6)
   updated_date                DateTime                 @db.Timestamptz(6)
-  modified_date               DateTime                 @db.Timestamptz(6)
   published_at                DateTime?                @db.Timestamptz(6)
   sys_period                  Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   listing_rank                Int                      @default(0)
   urgency_sequence            Int                      @default(0)
   access_status_precedence    Int                      @default(0)
   event_type_precedence       Int                      @default(0)
+  updated_at                  DateTime?                @default(now()) @db.Timestamp(6)
   recreation_resource         recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([rec_resource_id, advisory_number])
@@ -1360,20 +1359,19 @@ model act_advisories_flat_history {
   event_type                  String                   @db.VarChar(100)
   urgency                     String                   @db.VarChar(25)
   advisory_status             String                   @db.VarChar(100)
-  is_reservations_affected    Boolean
+  is_reservations_affected    Boolean?
   is_advisory_date_displayed  Boolean
   is_effective_date_displayed Boolean
   is_end_date_displayed       Boolean
-  is_updated_date_displayed   Boolean
+  is_updated_date_displayed   Boolean?
   advisory_date               DateTime                 @db.Timestamptz(6)
   effective_date              DateTime                 @db.Timestamptz(6)
   end_date                    DateTime?                @db.Timestamptz(6)
   expiry_date                 DateTime?                @db.Timestamptz(6)
-  removal_date                DateTime?                @db.Timestamptz(6)
   updated_date                DateTime                 @db.Timestamptz(6)
-  modified_date               DateTime                 @db.Timestamptz(6)
   published_at                DateTime?                @db.Timestamptz(6)
   sys_period                  Unsupported("tstzrange")
+  updated_at                  DateTime?                @default(now()) @db.Timestamp(6)
 
   @@ignore
   @@schema("rst")

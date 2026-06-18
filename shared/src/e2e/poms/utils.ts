@@ -33,10 +33,19 @@ export class UtilsPOM {
       .locator(`a:has-text("${text}")`)
       .filter({ hasText: text, hasNotText: '', visible: true });
     const href = await link.getAttribute('href');
-    await link.click();
 
-    await this.page.waitForURL(`${this.baseUrl}${href}`);
-    expect(this.page.url()).toBe(`${this.baseUrl}${href}`);
+    if (!href) {
+      throw new Error(
+        `Link with text "${text}" does not have an href attribute`,
+      );
+    }
+
+    // Use glob pattern for waitForURL to match any query params or hash fragments
+    const urlPattern = `${this.baseUrl}${href}**`;
+
+    await Promise.all([this.page.waitForURL(urlPattern), link.click()]);
+
+    expect(this.page.url()).toContain(`${this.baseUrl}${href}`);
   }
 
   async accessibility() {
