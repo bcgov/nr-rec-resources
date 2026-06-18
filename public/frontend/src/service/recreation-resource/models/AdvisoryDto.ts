@@ -128,18 +128,6 @@ export interface AdvisoryDto {
    */
   end_date?: Date;
   /**
-   * Date and time when the advisory is to be removed
-   * @type {Date}
-   * @memberof AdvisoryDto
-   */
-  removal_date?: Date;
-  /**
-   * Date and time when the advisory was last modified
-   * @type {Date}
-   * @memberof AdvisoryDto
-   */
-  modified_date?: Date;
-  /**
    * Date and time when the advisory was published
    * @type {Date}
    * @memberof AdvisoryDto
@@ -290,12 +278,6 @@ export function AdvisoryDtoFromJSONTyped(
         ? undefined
         : new Date(json['effective_date']),
     end_date: json['end_date'] == null ? undefined : new Date(json['end_date']),
-    removal_date:
-      json['removal_date'] == null ? undefined : new Date(json['removal_date']),
-    modified_date:
-      json['modified_date'] == null
-        ? undefined
-        : new Date(json['modified_date']),
     published_at:
       json['published_at'] == null ? undefined : new Date(json['published_at']),
     updated_date:
@@ -347,14 +329,6 @@ export function AdvisoryDtoToJSONTyped(
         : value['effective_date'].toISOString(),
     end_date:
       value['end_date'] == null ? undefined : value['end_date'].toISOString(),
-    removal_date:
-      value['removal_date'] == null
-        ? undefined
-        : value['removal_date'].toISOString(),
-    modified_date:
-      value['modified_date'] == null
-        ? undefined
-        : value['modified_date'].toISOString(),
     published_at:
       value['published_at'] == null
         ? undefined
