@@ -24,8 +24,9 @@ export class LandingPOM {
   }
 
   async verifyLandingPageContent() {
-    expect(
-      this.page.getByText('Search by resource name or number'),
+    await expect(this.page.getByText('Welcome to RecSpace')).toBeVisible();
+    await expect(
+      this.page.getByRole('button', { name: /login/i }),
     ).toBeVisible();
   }
 
