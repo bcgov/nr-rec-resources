@@ -122,6 +122,8 @@ const RecResourcePage = () => {
     recreation_resource_reservation_info?.reservation_website
   );
   const isMd = useMediaQuery(`(min-width: ${BOOTSTRAP_BREAKPOINTS.md}px)`);
+
+  const advisories = recResource.advisories ?? null;
   // Create page sections for PageWithScrollMenu
   const pageSections: PageSection[] = [
     {
@@ -214,6 +216,7 @@ const RecResourcePage = () => {
                 <Status
                   description={statusDescription}
                   statusCode={statusCode}
+                  advisoriesCount={advisories ? advisories.length : 0}
                 />
               )}
               {isRecreationSite && recResource && (
@@ -317,6 +320,7 @@ const RecResourcePage = () => {
                     isReservable={isReservable}
                     isAdditionalFeesAvailable={isAdditionalFeesAvailable}
                     isCampingAvailable={isCampingAvailable}
+                    advisories={advisories}
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
