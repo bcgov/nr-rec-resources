@@ -359,20 +359,6 @@ export class AdvisoryDto {
   end_date?: Date;
 
   @ApiProperty({
-    description: 'Date and time when the advisory is to be removed',
-    example: '2024-12-31T23:59:00Z',
-    required: false,
-  })
-  removal_date?: Date;
-
-  @ApiProperty({
-    description: 'Date and time when the advisory was last modified',
-    example: '2024-06-15T15:30:00Z',
-    required: false,
-  })
-  modified_date: Date;
-
-  @ApiProperty({
     description: 'Date and time when the advisory was published',
     example: '2024-06-01T12:00:00Z',
     required: false,

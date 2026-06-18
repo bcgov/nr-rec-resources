@@ -68,8 +68,6 @@ describe('Recreation DTOs', () => {
       advisory.advisory_date = new Date('2024-06-01T12:00:00Z');
       advisory.effective_date = new Date('2024-06-01T12:00:00Z');
       advisory.end_date = new Date('2024-09-30T23:59:00Z');
-      advisory.removal_date = new Date('2024-12-31T23:59:00Z');
-      advisory.modified_date = new Date('2024-06-15T15:30:00Z');
       advisory.published_at = new Date('2024-06-01T12:00:00Z');
 
       expect(advisory.advisory_number).toBeDefined();
