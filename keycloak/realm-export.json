@@ -1,0 +1,66 @@
+{
+  "realm": "rst-local",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "clients": [
+    {
+      "clientId": "rst-admin-local",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:3001/*"],
+      "webOrigins": ["http://localhost:3001"],
+      "protocolMappers": [
+        {
+          "name": "client-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "client_roles",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "multivalued": "true",
+            "usermodel.clientRoleMapping.clientId": "rst-admin-local"
+          }
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "client": {
+      "rst-admin-local": [
+        { "name": "rst-admin", "clientRole": true },
+        { "name": "rst-viewer", "clientRole": true }
+      ]
+    }
+  },
+  "users": [
+    {
+      "username": "e2e-admin",
+      "enabled": true,
+      "credentials": [
+        { "type": "password", "value": "TestPass1!", "temporary": false }
+      ],
+      "clientRoles": {
+        "rst-admin-local": ["rst-admin", "rst-viewer"]
+      }
+    },
+    {
+      "username": "e2e-viewer",
+      "enabled": true,
+      "credentials": [
+        { "type": "password", "value": "TestPass1!", "temporary": false }
+      ],
+      "clientRoles": {
+        "rst-admin-local": ["rst-viewer"]
+      }
+    }
+  ]
+}
