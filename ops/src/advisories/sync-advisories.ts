@@ -194,41 +194,39 @@ class AdvisorySync {
           is_end_date_displayed, is_updated_date_displayed,
           advisory_date, effective_date, end_date, expiry_date,
           updated_date, published_at,
-          listing_rank, urgency_sequence, access_status_precedence, event_type_precedence,
-          created_by, updated_by
+          listing_rank, urgency_sequence, access_status_precedence, event_type_precedence
         ) VALUES (
                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-                   $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28
+                   $17, $18, $19, $20, $21, $22, $23, $24, $25, $26
                  )
           ON CONFLICT (rec_resource_id, advisory_number) DO UPDATE SET
-          title = EXCLUDED.title,
-                                                              description = EXCLUDED.description,
-                                                              submitted_by = EXCLUDED.submitted_by,
-                                                              access_status_name = EXCLUDED.access_status_name,
-                                                              access_status_grouplabel = EXCLUDED.access_status_grouplabel,
-                                                              access_status_description = EXCLUDED.access_status_description,
-                                                              event_type = EXCLUDED.event_type,
-                                                              urgency = EXCLUDED.urgency,
-                                                              advisory_status = EXCLUDED.advisory_status,
-                                                              is_reservations_affected = EXCLUDED.is_reservations_affected,
-                                                              is_advisory_date_displayed = EXCLUDED.is_advisory_date_displayed,
-                                                              is_effective_date_displayed = EXCLUDED.is_effective_date_displayed,
-                                                              is_end_date_displayed = EXCLUDED.is_end_date_displayed,
-                                                              is_updated_date_displayed = EXCLUDED.is_updated_date_displayed,
-                                                              advisory_date = EXCLUDED.advisory_date,
-                                                              effective_date = EXCLUDED.effective_date,
-                                                              end_date = EXCLUDED.end_date,
-                                                              expiry_date = EXCLUDED.expiry_date,
-                                                              updated_date = EXCLUDED.updated_date,
-                                                              published_at = EXCLUDED.published_at,
-                                                              listing_rank = EXCLUDED.listing_rank,
-                                                              urgency_sequence = EXCLUDED.urgency_sequence,
-                                                              access_status_precedence = EXCLUDED.access_status_precedence,
-                                                              event_type_precedence = EXCLUDED.event_type_precedence,
-                                                              updated_at = now(),
-                                                              updated_by = EXCLUDED.updated_by;
-        -- NOTE: created_at and created_by are intentionally NOT in the ON CONFLICT
-        -- UPDATE SET so the original insert metadata is preserved on re-syncs.
+            title = EXCLUDED.title,
+            description = EXCLUDED.description,
+            submitted_by = EXCLUDED.submitted_by,
+            access_status_name = EXCLUDED.access_status_name,
+            access_status_grouplabel = EXCLUDED.access_status_grouplabel,
+            access_status_description = EXCLUDED.access_status_description,
+            event_type = EXCLUDED.event_type,
+            urgency = EXCLUDED.urgency,
+            advisory_status = EXCLUDED.advisory_status,
+            is_reservations_affected = EXCLUDED.is_reservations_affected,
+            is_advisory_date_displayed = EXCLUDED.is_advisory_date_displayed,
+            is_effective_date_displayed = EXCLUDED.is_effective_date_displayed,
+            is_end_date_displayed = EXCLUDED.is_end_date_displayed,
+            is_updated_date_displayed = EXCLUDED.is_updated_date_displayed,
+            advisory_date = EXCLUDED.advisory_date,
+            effective_date = EXCLUDED.effective_date,
+            end_date = EXCLUDED.end_date,
+            expiry_date = EXCLUDED.expiry_date,
+            updated_date = EXCLUDED.updated_date,
+            published_at = EXCLUDED.published_at,
+            listing_rank = EXCLUDED.listing_rank,
+            urgency_sequence = EXCLUDED.urgency_sequence,
+            access_status_precedence = EXCLUDED.access_status_precedence,
+            event_type_precedence = EXCLUDED.event_type_precedence,
+            updated_at = now();
+          -- NOTE: created_at is intentionally NOT in the ON CONFLICT UPDATE SET
+          -- so the original insert timestamp is preserved on re-syncs.
       `;
 
       const values = [
@@ -258,8 +256,6 @@ class AdvisorySync {
         advisory.urgency?.sequence || 0,
         advisory.accessStatus?.precedence || 0,
         advisory.eventType?.precedence || 0,
-        SYNC_SOURCE, // created_by
-        SYNC_SOURCE, // updated_by
       ];
 
       // 🔴 ACTUAL DATABASE WRITE: Insert/update advisory record to rst.act_advisories_flat table
