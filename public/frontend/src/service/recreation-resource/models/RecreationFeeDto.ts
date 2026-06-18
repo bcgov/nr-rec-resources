@@ -44,7 +44,7 @@ export interface RecreationFeeDto {
    */
   recreation_fee_code: string;
   /**
-   * Fee sub-type code scoped to recreation_fee_code
+   * Fee sub-type code scoped to recreation_fee_code (for example O/C, A/P, T/SK)
    * @type {string}
    * @memberof RecreationFeeDto
    */
@@ -164,9 +164,9 @@ export function RecreationFeeDtoFromJSONTyped(
     fee_end_date: new Date(json['fee_end_date']),
     recreation_fee_code: json['recreation_fee_code'],
     recreation_fee_sub_code:
-      json['recreation_fee_sub_code'] != null
-        ? json['recreation_fee_sub_code']
-        : undefined,
+      json['recreation_fee_sub_code'] == null
+        ? undefined
+        : json['recreation_fee_sub_code'],
     recurring_start_mmdd:
       json['recurring_start_mmdd'] == null
         ? undefined
