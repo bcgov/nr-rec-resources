@@ -3420,6 +3420,7 @@ export const GetOptionsByTypesTypesEnum = {
   District: 'district',
   PhotographerType: 'photographerType',
   ClosestCommunity: 'closestCommunity',
+  RecStatusCode: 'recStatusCode',
 } as const;
 export type GetOptionsByTypesTypesEnum =
   (typeof GetOptionsByTypesTypesEnum)[keyof typeof GetOptionsByTypesTypesEnum];
@@ -3451,6 +3452,8 @@ export const SearchRecreationResourcesSortEnum = {
   DistrictDesc: 'district:desc',
   DisplayOnPublicSiteAsc: 'display_on_public_site:asc',
   DisplayOnPublicSiteDesc: 'display_on_public_site:desc',
+  FileStatusAsc: 'file_status:asc',
+  FileStatusDesc: 'file_status:desc',
   PublicAccessStatusAsc: 'public_access_status:asc',
   PublicAccessStatusDesc: 'public_access_status:desc',
 } as const;

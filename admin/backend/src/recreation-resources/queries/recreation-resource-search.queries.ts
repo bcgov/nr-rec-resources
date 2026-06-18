@@ -58,6 +58,8 @@ export const SORT_FIELD_MAP: Record<
   'fee:desc': { name: 'desc' },
   'display_on_public_site:asc': { display_on_public_site: 'asc' },
   'display_on_public_site:desc': { display_on_public_site: 'desc' },
+  'file_status:asc': { rec_status_code: 'asc' },
+  'file_status:desc': { rec_status_code: 'desc' },
   'public_access_status:asc': { name: 'asc' },
   'public_access_status:desc': { name: 'desc' },
 };

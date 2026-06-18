@@ -36,6 +36,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'district:desc',
   'display_on_public_site:asc',
   'display_on_public_site:desc',
+  'file_status:asc',
+  'file_status:desc',
   'public_access_status:asc',
   'public_access_status:desc',
 ] as const;

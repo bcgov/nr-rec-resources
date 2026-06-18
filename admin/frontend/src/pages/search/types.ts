@@ -44,6 +44,7 @@ export interface AdminSearchResultRow {
   status: string;
   statusCode: number;
   recStatusCode?: string | null;
+  recStatusDescription?: string | null;
   visible: boolean;
   publicAccessStatus: string | null;
 }
