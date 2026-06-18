@@ -44,7 +44,6 @@ export const RecResourceFeeForm = ({
     handleSubmit,
     errors,
     isSubmittable,
-    amountLocked,
     mutation,
     onSubmit,
     feeApplies,
@@ -226,7 +225,6 @@ export const RecResourceFeeForm = ({
               label="Amount"
               control={control}
               errors={errors}
-              disabled={amountLocked}
             />
           </Col>
         </Row>
