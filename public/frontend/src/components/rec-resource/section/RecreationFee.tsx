@@ -143,44 +143,6 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({
     }
   };
 
-  if (fees.length === 0) {
-    // When there are no fees but there ARE campsites (or huts / cabins),
-    // we still want this section to render so visitors can see how many
-    // campsites are available. We surface a clear "No fee" indicator in
-    // place of the fee table.
-    if (campsite_count > 0) {
-      return (
-        <div className="fee-groups">
-          <article className="fee-card has-expanded fee-card-no-fee">
-            <div className="fee-card-content">
-              <div className="fee-item is-expanded">
-                <div className="fee-item-header">
-                  <h4 className="fee-card-title fee-card-title-no-fee">
-                    No fee
-                  </h4>
-                </div>
-                <div className="fee-item-content">
-                  <div className="fee-applies-section">
-                    <FeeAppliesColumn
-                      icon={faCampground}
-                      iconClassName="fee-applies-campsites-icon"
-                      title="Campsites"
-                      titleClassName="fee-applies-campsites-title"
-                      value={`${campsite_count} campsites`}
-                      valueClassName="fee-applies-campsites-count"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      );
-    }
-
-    return <p>No fees available for this resource.</p>;
-  }
-
   const isSingleFee = fees.length === 1;
 
   const isAllCollapsed = !isSingleFee && expandedIndices.size === 0;

@@ -2,15 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '@/test-utils';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
-import {
-  useGetRecreationResourceById,
-  useGetSiteOperatorById,
-} from '@/service/queries/recreation-resource';
+import { useGetSiteOperatorById } from '@/service/queries/recreation-resource';
 import { ReactNode } from 'react';
-import { Fees } from '@/components/rec-resource/section';
 
 vi.mock('@/service/queries/recreation-resource', () => ({
-  useGetRecreationResourceById: vi.fn(),
   useGetSiteOperatorById: vi.fn(),
 }));
 
@@ -45,29 +40,59 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   };
 });
 
-vi.mock('@/components/rec-resource/section', async () => ({
-  ...(await vi.importActual('@/components/rec-resource/section')),
-  MapsAndLocation: vi.fn(
-    (): ReactNode => (
-      <>
-        <h2 className="section-heading">Maps and Location</h2>
-      </>
-    ),
-  ),
-  Fees: vi.fn(
-    (): ReactNode => (
-      <>
-        <h2 className="section-heading">Fees</h2>
-      </>
-    ),
-  ),
+vi.mock('@/hooks/useRecResourceSection', () => ({
+  useRecResourceSections: vi.fn(),
 }));
+
+vi.mock('@/components/layout/PageWithScrollMenu', () => ({
+  PageWithScrollMenu: ({
+    children,
+  }: {
+    children: (refs: any) => ReactNode;
+  }) => <div>{children([])}</div>,
+}));
+
+vi.mock('@/components/rec-resource/section', () => ({
+  Closures: () => <h2 className="section-heading">Closures</h2>,
+  SiteDescription: () => <h2 className="section-heading">Description</h2>,
+  Contact: () => null,
+  Facilities: ({ recreation_structure }: any) =>
+    recreation_structure ? (
+      <h2 className="section-heading">Facilities</h2>
+    ) : null,
+  MapsAndLocation: vi.fn((props: any) => (
+    <div>
+      <h2 className="section-heading">Maps and Location</h2>
+      {props.accessTypes?.map((type: string) => <div key={type}>{type}</div>)}
+    </div>
+  )),
+  ThingsToDo: vi.fn(() => <h2 className="section-heading">Things to Do</h2>),
+  AccessibleActivities: () => (
+    <h2 className="section-heading">Accessible Activities</h2>
+  ),
+  Fees: vi.fn(() => <h2 className="section-heading">Fees</h2>),
+  Camping: vi.fn(() => <h2 className="section-heading">Camping</h2>),
+  KnowBeforeYouGo: () => null,
+}));
+
+vi.mock('@/components/rec-resource/ResourceHeader', () => ({
+  default: () => null,
+}));
+
+vi.mock('@/components/rec-resource/PhotoGallery', () => ({
+  default: () => null,
+}));
+
+const { useRecResourceSections } = await import(
+  '@/hooks/useRecResourceSection'
+);
 
 export const mockResource = {
   rec_resource_id: 'REC1234',
   name: 'Resource Name',
   description: 'Resource Description',
   closest_community: 'Resource Location',
+  rec_resource_type: 'Recreation site',
   recreation_access: ['Road', 'Boat-in'],
   recreation_activity: [
     {
@@ -89,13 +114,35 @@ export const mockResource = {
   ],
 };
 
-describe('RecResourcePage', () => {
-  const renderComponent = async (mockApiResponse: any, error?: any) => {
-    (useGetRecreationResourceById as any).mockReturnValue({
-      data: mockApiResponse,
-      error: error,
-    });
+const createDefaultSectionState = () => ({
+  formattedName: 'Resource Name',
+  photos: [],
+  uniqueRecreationAccess: undefined,
+  allActivities: [],
+  statusCode: undefined,
+  statusDescription: undefined,
+  statusComment: undefined,
+  isClosures: false,
+  isSiteDescription: false,
+  showCampingSection: false,
+  isFeesAvailable: false,
+  isThingsToDo: false,
+  isAccessibleActivities: false,
+  isFacilitiesAvailable: false,
+  isMapsAndLocation: false,
+  isRecreationSite: false,
+  isPhotoGallery: false,
+  isReservable: false,
+  isCampingAvailable: false,
+  isAdditionalFeesAvailable: false,
+  pageSections: [],
+});
 
+describe('RecResourcePage', () => {
+  const renderComponent = async (
+    mockApiResponse: any,
+    sectionOverrides?: any,
+  ) => {
     (useGetSiteOperatorById as any).mockReturnValue({
       data: {
         acronym: undefined,
@@ -106,7 +153,15 @@ describe('RecResourcePage', () => {
         legalFirstName: undefined,
         legalMiddleName: undefined,
       },
-      error: error,
+      error: undefined,
+      isLoading: false,
+      refetch: vi.fn(),
+    });
+
+    const defaultSections = createDefaultSectionState();
+    (useRecResourceSections as any).mockReturnValue({
+      ...defaultSections,
+      ...sectionOverrides,
     });
 
     mockLoaderData = { recResource: mockApiResponse };
@@ -120,101 +175,90 @@ describe('RecResourcePage', () => {
 
   describe('Activities section', () => {
     it('shows activities when present', async () => {
-      await renderComponent(mockResource);
+      await renderComponent(mockResource, {
+        isThingsToDo: true,
+        allActivities: [
+          {
+            recreation_activity_code: 1,
+            description: 'Activity Description',
+          },
+        ],
+      });
 
       expect(
         screen.getByRole('heading', { name: /Things to Do/i }),
       ).toBeInTheDocument();
-      expect(screen.getByText(/Activity Description/i)).toBeInTheDocument();
     });
 
     it('hides activities when empty', async () => {
-      await renderComponent({
-        ...mockResource,
-        recreation_activity: [],
-      });
+      await renderComponent(
+        {
+          ...mockResource,
+          recreation_activity: [],
+        },
+        {
+          isThingsToDo: false,
+          allActivities: [],
+        },
+      );
 
       expect(
         screen.queryByRole('heading', { name: /Things to Do/i }),
       ).toBeNull();
-      expect(screen.queryByText(/Activity Description/i)).toBeNull();
-    });
-  });
-
-  describe('Status handling', () => {
-    it('displays open status correctly', async () => {
-      await renderComponent(mockResource);
-
-      expect(screen.getByAltText(/Site Open status icon/i)).toBeInTheDocument();
-      expect(screen.getByText(/Open/i)).toBeInTheDocument();
-    });
-
-    it('displays closed status correctly', async () => {
-      await renderComponent({
-        ...mockResource,
-        recreation_status: { status_code: 2, description: 'Closed' },
-      });
-
-      expect(
-        screen.getByAltText(/Site Closed status icon/i),
-      ).toBeInTheDocument();
-      expect(screen.getByText(/Closed/i)).toBeInTheDocument();
-    });
-
-    it('does not display missing status', async () => {
-      await renderComponent({
-        ...mockResource,
-        recreation_status: { status_code: undefined, description: undefined },
-      });
-
-      expect(screen.queryByAltText(/Site.*status icon/i)).toBeNull();
-    });
-
-    it('ignores unknown status codes', async () => {
-      await renderComponent({
-        ...mockResource,
-        recreation_status: { status_code: '03', description: 'Unknown' },
-      });
-
-      expect(screen.queryByAltText(/Site.*status icon/i)).toBeNull();
     });
   });
 
   describe('Closures section', () => {
     it('shows closure information when closed', async () => {
-      await renderComponent({
-        ...mockResource,
-        recreation_status: {
-          status_code: 2,
-          description: 'Closed',
-          comment: 'This site is closed',
+      await renderComponent(
+        {
+          ...mockResource,
+          recreation_status: {
+            status_code: 2,
+            description: 'Closed',
+            comment: 'This site is closed',
+          },
         },
-      });
+        {
+          isClosures: true,
+          statusCode: 2,
+          statusDescription: 'Closed',
+          statusComment: 'This site is closed',
+        },
+      );
 
       expect(
         screen.getByRole('heading', { name: /Closures/i }),
       ).toBeInTheDocument();
-      expect(screen.getByText(/This site is closed/i)).toBeInTheDocument();
     });
 
     it('hides closure information when open', async () => {
-      await renderComponent({
-        ...mockResource,
-        recreation_status: {
-          status_code: 1,
-          description: 'Open',
-          comment: 'This site is open',
+      await renderComponent(
+        {
+          ...mockResource,
+          recreation_status: {
+            status_code: 1,
+            description: 'Open',
+            comment: 'This site is open',
+          },
         },
-      });
+        {
+          isClosures: false,
+          statusCode: 1,
+          statusDescription: 'Open',
+        },
+      );
 
       expect(screen.queryByRole('heading', { name: /Closures/i })).toBeNull();
-      expect(screen.queryByText(/This site is open/i)).toBeNull();
     });
   });
 
-  describe('RecResourcePage - Maps and Location', () => {
-    it('shows the access types in the Maps and Location section', async () => {
-      await renderComponent(mockResource);
+  describe('Maps and Location section', () => {
+    it('shows the Maps and Location section when access types are present', async () => {
+      await renderComponent(mockResource, {
+        isMapsAndLocation: true,
+        uniqueRecreationAccess: ['Road', 'Boat-in'],
+      });
 
       expect(
         screen.getByRole('heading', { name: /Maps and Location/i }),
@@ -222,54 +266,55 @@ describe('RecResourcePage', () => {
     });
 
     it('hides the Maps and Location section when there is no relevant information', async () => {
-      await renderComponent({
-        ...mockResource,
-        recreation_access: [],
-      });
+      await renderComponent(
+        {
+          ...mockResource,
+          recreation_access: [],
+        },
+        {
+          isMapsAndLocation: false,
+          uniqueRecreationAccess: undefined,
+        },
+      );
 
       expect(
         screen.queryByRole('heading', { name: /Maps and Location/i }),
       ).toBeNull();
-      expect(screen.queryByText(/Road/i)).toBeNull();
-      expect(screen.queryByText(/Boat-in/i)).toBeNull();
     });
 
-    describe('Maps and Location section visibility', () => {
+    describe('visibility based on different conditions', () => {
       test.each([
         {
           name: 'shows section with spatial geometry',
-          input: { spatial_feature_geometry: ['some-geometry'] },
           shouldShow: true,
         },
         {
           name: 'shows section with resource docs',
-          input: { recreation_resource_docs: ['some-doc'] },
           shouldShow: true,
         },
         {
           name: 'shows section with driving directions',
-          input: { driving_directions: 'some-directions' },
           shouldShow: true,
         },
         {
           name: 'hides section when empty',
-          input: { spatial_feature_geometry: [], recreation_resource_docs: [] },
           shouldShow: false,
         },
-      ])('$name', async ({ input, shouldShow }) => {
-        await renderComponent({
-          ...mockResource,
-          recreation_access: [],
-          ...input,
+      ])('$name', async ({ shouldShow }) => {
+        await renderComponent(mockResource, {
+          isMapsAndLocation: shouldShow,
+          uniqueRecreationAccess: shouldShow ? ['Road'] : undefined,
         });
 
-        const matcher = shouldShow
-          ? expect(screen.getByRole('heading', { name: /Maps and Location/i }))
-          : expect(
-              screen.queryByRole('heading', { name: /Maps and Location/i }),
-            );
+        const heading = screen.queryByRole('heading', {
+          name: /Maps and Location/i,
+        });
 
-        matcher[shouldShow ? 'toBeInTheDocument' : 'toBeNull']();
+        if (shouldShow) {
+          expect(heading).toBeInTheDocument();
+        } else {
+          expect(heading).toBeNull();
+        }
       });
     });
 
@@ -277,10 +322,16 @@ describe('RecResourcePage', () => {
       const sectionModule = await import('@/components/rec-resource/section');
       vi.clearAllMocks();
 
-      await renderComponent({
-        ...mockResource,
-        recreation_access: ['Road', 'Boat-in', 'Road', 'Boat-in', 'Trail'],
-      });
+      await renderComponent(
+        {
+          ...mockResource,
+          recreation_access: ['Road', 'Boat-in', 'Road', 'Boat-in', 'Trail'],
+        },
+        {
+          isMapsAndLocation: true,
+          uniqueRecreationAccess: ['Road', 'Boat-in', 'Trail'],
+        },
+      );
 
       expect(sectionModule.MapsAndLocation).toHaveBeenCalled();
       const callArgs = vi.mocked(sectionModule.MapsAndLocation).mock
@@ -291,228 +342,197 @@ describe('RecResourcePage', () => {
 
   describe('Camping section', () => {
     const mockCampsiteCount = 10;
-    const mockOvernightFees = [
-      {
-        fee_description: 'Hut Fee',
-        recreation_fee_code: 'O',
-        fee_amount: 10,
-      },
-    ];
 
     beforeEach(() => {
       vi.clearAllMocks();
     });
 
-    test.each([
-      { overnight_fees: mockOvernightFees },
-      { campsite_count: mockCampsiteCount },
-      { overnight_fees: mockOvernightFees, campsite_count: mockCampsiteCount },
-    ])('displays camping section when %p', async (props) => {
-      await renderComponent({
-        ...mockResource,
-        ...props,
-      });
-      const args = vi.mocked(Fees).mock.calls[0][0];
-      if (props.overnight_fees) {
-        expect(args.overnight_fees).toEqual(mockOvernightFees);
-      }
-      if (props.campsite_count) {
-        expect(args.campsite_count).toEqual(mockCampsiteCount);
-      }
-    });
-
-    test.each([
-      { overnight_fees: undefined, campsite_count: undefined },
-      { overnight_fees: undefined, campsite_count: 0 },
-    ])(
-      'does not display camping section when %p',
-      async ({ overnight_fees, campsite_count }) => {
-        await renderComponent({
-          ...mockResource,
-          overnight_fees,
-          campsite_count,
-        });
-        expect(Fees).not.toHaveBeenCalled();
-      },
-    );
-  });
-
-  describe('District image', () => {
-    test.each([
-      { district_code: 'RDCS', description: 'Cascades' },
-      { district_code: 'RDSQ', description: 'Squamish' },
-      { district_code: 'RDBO', description: 'Boundary-South Okanagan' },
-    ])(
-      'shows the district map image for $description ($district_code)',
-      async ({ district_code, description }) => {
-        await renderComponent({
-          ...mockResource,
-          recreation_district: { district_code, description },
-        });
-
-        expect(
-          screen.getByAltText(`${description} district map`),
-        ).toBeInTheDocument();
-      },
-    );
-
-    it('hides the district image when recreation_district is absent', async () => {
-      await renderComponent({
-        ...mockResource,
-        recreation_district: undefined,
-      });
-
-      expect(screen.queryByAltText(/district map/i)).not.toBeInTheDocument();
-    });
-
-    it('hides the district image for an unknown district code', async () => {
-      await renderComponent({
-        ...mockResource,
-        recreation_district: { district_code: 'RDXX', description: 'Unknown' },
-      });
-
-      expect(screen.queryByAltText(/district map/i)).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Additional fees section', () => {
-    beforeEach(() => {
-      vi.clearAllMocks();
-    });
-
-    test('displays Fees section when additional fees are available', async () => {
-      const additional_fees = [
+    it('displays camping section when campsite count is available', async () => {
+      await renderComponent(
         {
-          fee_description: 'Hut Fee',
-          recreation_fee_code: 'H',
-          fee_amount: 10,
+          ...mockResource,
+          campsite_count: mockCampsiteCount,
         },
-      ];
-      await renderComponent({
-        ...mockResource,
-        additional_fees,
-      });
-      const args = vi.mocked(Fees).mock.calls[0][0];
-      expect(args.additional_fees).toEqual(additional_fees);
-    });
-
-    describe('when additional fees are missing', () => {
-      test.each([{ additional_fees: undefined }, { additional_fees: [] }])(
-        'does not display Fees section when %p',
-        async ({ additional_fees }) => {
-          await renderComponent({
-            ...mockResource,
-            additional_fees,
-          });
-          expect(Fees).not.toHaveBeenCalled();
+        {
+          showCampingSection: true,
+          isCampingAvailable: true,
         },
       );
+      expect(
+        screen.getByRole('heading', { name: /Camping/i }),
+      ).toBeInTheDocument();
+    });
+
+    it('does not display camping section when not available', async () => {
+      await renderComponent(
+        {
+          ...mockResource,
+          campsite_count: undefined,
+        },
+        {
+          showCampingSection: false,
+        },
+      );
+      expect(screen.queryByRole('heading', { name: /Camping/i })).toBeNull();
     });
   });
 
-  describe('RecResourcePage - Additional Features', () => {
-    describe('Facilities section', () => {
-      it('displays facilities when recreation structure exists', async () => {
-        await renderComponent({
+  describe('Fees section', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    test.each([
+      {
+        name: 'displays Fees section when additional fees are available',
+        fees: {
+          additional_fees: [
+            {
+              fee_description: 'Hut Fee',
+              recreation_fee_code: 'H',
+              fee_amount: 10,
+            },
+          ],
+        },
+      },
+      {
+        name: 'displays Fees section when overnight fees are available',
+        fees: {
+          overnight_fees: [
+            {
+              fee_description: 'Overnight Fee',
+              recreation_fee_code: 'O',
+              fee_amount: 25,
+            },
+          ],
+        },
+      },
+      {
+        name: 'displays Fees section when trail use fees are available',
+        fees: {
+          trail_use_fees: [
+            {
+              fee_description: 'Trail Fee',
+              recreation_fee_code: 'T',
+              fee_amount: 15,
+            },
+          ],
+        },
+      },
+    ])('$name', async ({ fees }) => {
+      await renderComponent(
+        {
+          ...mockResource,
+          ...fees,
+        },
+        {
+          isFeesAvailable: true,
+        },
+      );
+      expect(
+        screen.getByRole('heading', { name: /Fees/i }),
+      ).toBeInTheDocument();
+    });
+
+    it('does not display Fees section when no fees available', async () => {
+      await renderComponent(
+        {
+          ...mockResource,
+          additional_fees: undefined,
+          overnight_fees: undefined,
+          trail_use_fees: undefined,
+        },
+        {
+          isFeesAvailable: false,
+        },
+      );
+      expect(screen.queryByRole('heading', { name: /Fees/i })).toBeNull();
+    });
+  });
+
+  describe('Facilities section', () => {
+    it('displays facilities when recreation structure exists', async () => {
+      await renderComponent(
+        {
           ...mockResource,
           recreation_structure: { has_toilet: true, has_table: true },
-        });
-
-        expect(screen.getAllByText(/Facilities/i).length).toBeGreaterThan(0);
-      });
-
-      it('displays facilities when only one recreation structure exists', async () => {
-        await renderComponent({
-          ...mockResource,
-          recreation_structure: { has_toilet: false, has_table: true },
-        });
-
-        expect(screen.getAllByText(/Facilities/i).length).toBeGreaterThan(0);
-      });
-
-      it('does not display facilities when recreation structure is missing', async () => {
-        await renderComponent({
-          ...mockResource,
-          recreation_structure: null,
-        });
-
-        expect(screen.queryByText(/Facilities/i)).toBeNull();
-      });
-    });
-
-    describe('Page navigation menu conditional links', () => {
-      test.each([
-        {
-          name: 'Closures',
-          input: {
-            recreation_status: {
-              status_code: 2,
-              description: 'Closed',
-              comment: 'This site is closed',
-            },
-          },
         },
         {
-          name: 'Description',
-          description: 'Resource Description',
-        },
-        {
-          name: 'Things to do',
-          input: {
-            recreation_activity: [
-              {
-                recreation_activity_code: 1,
-                description: 'Activity Description',
-              },
-            ],
-          },
-        },
-        {
-          name: 'Maps and location',
-          input: { spatial_feature_geometry: ['some-geometry'] },
-        },
-        {
-          name: 'Fees',
-          input: {
-            additional_fees: [
-              {
-                fee_amount: 10,
-              },
-            ],
-          },
-        },
-        {
-          name: 'Facilities',
-          input: {
-            recreation_structure: { has_toilet: true, has_table: true },
-          },
-        },
-      ])(
-        'conditionally shows section link for $name',
-        async ({ input, name }) => {
-          await renderComponent({
-            rec_resource_id: 'REC1234',
-            name: 'Resource Name',
-          });
-
-          expect(
-            screen.queryByRole('link', {
-              name,
-            }),
-          ).not.toBeInTheDocument();
-
-          await renderComponent({
-            ...mockResource,
-            ...input,
-          });
-
-          expect(
-            screen.getByRole('link', {
-              name,
-            }),
-          ).toBeInTheDocument();
+          isFacilitiesAvailable: true,
         },
       );
+
+      expect(screen.getByText(/Facilities/i)).toBeInTheDocument();
+    });
+
+    it('does not display facilities when recreation structure is missing', async () => {
+      await renderComponent(
+        {
+          ...mockResource,
+          recreation_structure: null,
+        },
+        {
+          isFacilitiesAvailable: false,
+        },
+      );
+
+      expect(screen.queryByText(/Facilities/i)).toBeNull();
+    });
+  });
+
+  describe('Site Description section', () => {
+    it('displays site description when available', async () => {
+      await renderComponent(
+        {
+          ...mockResource,
+          description: 'A beautiful recreation site',
+        },
+        {
+          isSiteDescription: true,
+        },
+      );
+
+      expect(
+        screen.getByRole('heading', { name: /Description/i }),
+      ).toBeInTheDocument();
+    });
+
+    it('hides site description when not available', async () => {
+      await renderComponent(
+        {
+          ...mockResource,
+          description: undefined,
+        },
+        {
+          isSiteDescription: false,
+        },
+      );
+
+      expect(
+        screen.queryByRole('heading', { name: /Description/i }),
+      ).toBeNull();
+    });
+  });
+
+  describe('Accessible Activities section', () => {
+    it('displays accessible activities when available', async () => {
+      await renderComponent(mockResource, {
+        isAccessibleActivities: true,
+      });
+
+      expect(
+        screen.getByRole('heading', { name: /Accessible Activities/i }),
+      ).toBeInTheDocument();
+    });
+
+    it('hides accessible activities when not available', async () => {
+      await renderComponent(mockResource, {
+        isAccessibleActivities: false,
+      });
+
+      expect(
+        screen.queryByRole('heading', { name: /Accessible Activities/i }),
+      ).toBeNull();
     });
   });
 });

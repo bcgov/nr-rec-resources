@@ -8,6 +8,7 @@ export enum SectionTitles {
   CONTACT = 'Contact',
   KNOW_BEFORE_YOU_GO = 'Know before you go',
   FEES = 'Fees',
+  CAMPING = 'Camping',
 }
 
 export enum SectionIds {
@@ -20,4 +21,5 @@ export enum SectionIds {
   CONTACT = 'contact',
   KNOW_BEFORE_YOU_GO = 'know-before-you-go',
   FEES = 'fees',
+  CAMPING = 'camping',
 }

@@ -7,3 +7,4 @@ export { default as RecreationFee } from './RecreationFee';
 export { default as SiteDescription } from './SiteDescription';
 export { default as ThingsToDo } from './ThingsToDo';
 export { default as AccessibleActivities } from './AccessibleActivities';
+export { default as Camping } from './Camping';

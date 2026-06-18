@@ -5,8 +5,6 @@ import Fees from './Fees';
 import { RecreationFeeModel } from '@/service/custom-models';
 import { SectionTitles } from '@/components/rec-resource/enum';
 
-// Mock the heavy child so we can focus on Fees' own behaviour
-// (section visibility, bulk toggle, ref forwarding, prop wiring).
 vi.mock('./RecreationFee', () => ({
   default: vi.fn(
     ({
@@ -45,8 +43,6 @@ vi.mock('./RecreationFee', () => ({
   ),
 }));
 
-// Helper to fabricate fee objects. The mock above only inspects array
-// length and the props passed to it, so the actual shape isn't important.
 const makeFee = (overrides: Partial<RecreationFeeModel> = {}) =>
   ({
     recreation_fee_code: 'O',
@@ -87,33 +83,6 @@ describe('Fees', () => {
       />,
     );
     expect(container).toBeEmptyDOMElement();
-  });
-
-  it('renders the overnight section when there are campsites but no overnight fees', () => {
-    render(<Fees id="fees" campsite_count={23} overnight_fees={[]} />);
-
-    // Overnight section heading should be visible even though there are no
-    // fees, because campsites exist.
-    expect(
-      screen.getByRole('heading', { level: 3, name: 'Overnight fees' }),
-    ).toBeInTheDocument();
-
-    // RecreationFee should be invoked once with an empty fee list and the
-    // campsite count, so it can render the "No fee" + campsites layout.
-    const feeInstances = screen.getAllByTestId('recreation-fee');
-    expect(feeInstances).toHaveLength(1);
-    expect(within(feeInstances[0]).getByTestId('fee-count')).toHaveTextContent(
-      '0',
-    );
-    expect(
-      within(feeInstances[0]).getByTestId('fee-campsite-count'),
-    ).toHaveTextContent('23');
-
-    // No bulk expand/collapse toggle should appear since the section has
-    // zero fees.
-    expect(
-      screen.queryByRole('button', { name: /expand overnight fees/i }),
-    ).not.toBeInTheDocument();
   });
 
   it('renders the section heading, id and informational link when fees exist', () => {

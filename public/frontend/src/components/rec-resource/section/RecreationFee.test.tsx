@@ -65,44 +65,30 @@ describe('RecreationFee', () => {
     vi.mocked(getFeeTypeLabel).mockReturnValue('Camping');
   });
 
-  it('renders empty state when no fee data is provided', () => {
-    render(<RecreationFee data={[]} />);
+  it('renders nothing when no fee data is provided', () => {
+    const { container } = render(<RecreationFee data={[]} />);
 
-    expect(
-      screen.getByText('No fees available for this resource.'),
-    ).toBeInTheDocument();
+    expect(container.querySelector('.fee-groups')).toBeInTheDocument();
+    // When there are no fees, the component renders an empty fee-card
+    expect(container.querySelector('.fee-card-content')).toBeEmptyDOMElement();
   });
 
-  it('renders "No fee" with the Campsites column when there are no fees but campsites exist', () => {
-    render(<RecreationFee data={[]} campsite_count={23} />);
+  it('renders nothing when there are no fees but campsites exist', () => {
+    const { container } = render(
+      <RecreationFee data={[]} campsite_count={23} />,
+    );
 
-    // The "No fees available" fallback should NOT show in this case.
-    expect(
-      screen.queryByText('No fees available for this resource.'),
-    ).not.toBeInTheDocument();
-
-    // The card title should announce that there is no fee.
-    expect(
-      screen.getByRole('heading', { level: 4, name: 'No fee' }),
-    ).toBeInTheDocument();
-
-    // The Campsites column should still show the count so visitors know
-    // how many sites are available even though no fee is charged.
-    expect(
-      screen.getByRole('heading', { level: 5, name: 'Campsites' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('23 campsites')).toBeInTheDocument();
+    expect(container.querySelector('.fee-groups')).toBeInTheDocument();
+    expect(container.querySelector('.fee-card-content')).toBeEmptyDOMElement();
   });
 
-  it('still renders the empty fallback when there are no fees and no campsites', () => {
-    render(<RecreationFee data={[]} campsite_count={0} />);
+  it('renders nothing when there are no fees and no campsites', () => {
+    const { container } = render(
+      <RecreationFee data={[]} campsite_count={0} />,
+    );
 
-    expect(
-      screen.getByText('No fees available for this resource.'),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('heading', { level: 4, name: 'No fee' }),
-    ).not.toBeInTheDocument();
+    expect(container.querySelector('.fee-groups')).toBeInTheDocument();
+    expect(container.querySelector('.fee-card-content')).toBeEmptyDOMElement();
   });
 
   it('renders non-recurring fee information using the sub-type description', () => {

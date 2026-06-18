@@ -1,9 +1,5 @@
-import { useMemo } from 'react';
-import { RecreationResourceImageDto } from '@/service/recreation-resource';
 import { Breadcrumbs } from '@shared/components/breadcrumbs';
-import PhotoGallery, {
-  PhotoGalleryProps,
-} from '@/components/rec-resource/PhotoGallery';
+import PhotoGallery from '@/components/rec-resource/PhotoGallery';
 import {
   Closures,
   Contact,
@@ -13,239 +9,105 @@ import {
   ThingsToDo,
   AccessibleActivities,
   Fees,
+  Camping,
 } from '@/components/rec-resource/section';
 import { Route } from '@/routes/resource/$id';
-import Status from '@/components/rec-resource/Status';
-import {
-  PageSection,
-  PageWithScrollMenu,
-} from '@/components/layout/PageWithScrollMenu';
-import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
-import { districtImageMap } from '@/constants/districtImageMap';
+import { PageWithScrollMenu } from '@/components/layout/PageWithScrollMenu';
 import { BOOTSTRAP_BREAKPOINTS } from '@/constants/breakpoints';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import '@/components/rec-resource/RecResource.scss';
-import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { useGetSiteOperatorById } from '@/service/queries/recreation-resource';
-import RecResourceReservation from './RecResourceReservation';
 import KnowBeforeYouGo from './section/KnowBeforeYouGo';
-import { capitalizeWords } from '@shared/utils/capitalizeWords';
-const RECREATION_SITE = 'Recreation site';
+import ResourceHeader from './ResourceHeader';
+import { useRecResourceSections } from '@/hooks/useRecResourceSection';
+import { SectionIds } from '@/components/rec-resource/enum';
 
 const RecResourcePage = () => {
   const { recResource } = Route.useLoaderData();
 
-  // Fetch site operator client-side using rec_resource_id
   const {
     data: siteOperator,
     isLoading: isOperatorLoading,
     error: operatorError,
     refetch: refetchOperator,
-  } = useGetSiteOperatorById({
-    id: recResource.rec_resource_id,
-  });
+  } = useGetSiteOperatorById({ id: recResource.rec_resource_id });
 
-  const photos = useMemo<PhotoGalleryProps['photos']>(
-    () =>
-      recResource?.recreation_resource_images
-        ?.map((imageObj: RecreationResourceImageDto) => ({
-          previewUrl: imageObj.url?.pre ?? '',
-          fullResolutionUrl: imageObj.url?.original ?? '',
-        }))
-        .filter((img: any) => img.previewUrl !== '') ?? [],
-    [recResource],
-  );
+  const isMd = useMediaQuery(`(min-width: ${BOOTSTRAP_BREAKPOINTS.md}px)`);
+
+  const {
+    formattedName,
+    photos,
+    uniqueRecreationAccess,
+    allActivities,
+    statusCode,
+    statusDescription,
+    statusComment,
+    isClosures,
+    isSiteDescription,
+    showCampingSection,
+    isFeesAvailable,
+    isThingsToDo,
+    isAccessibleActivities,
+    isFacilitiesAvailable,
+    isMapsAndLocation,
+    isRecreationSite,
+    isPhotoGallery,
+    isReservable,
+    isCampingAvailable,
+    isAdditionalFeesAvailable,
+    pageSections,
+  } = useRecResourceSections(recResource);
+  console.log('recResource', recResource);
 
   const {
     additional_fees,
     campsite_count,
-    closest_community,
-    description,
-    driving_directions,
     maintenance_standard_code,
-    name,
+    description,
     rec_resource_id,
     rec_resource_type,
-    recreation_access,
-    recreation_activity,
     accessible_recreation_activity,
     overnight_fees,
     trail_use_fees,
     recreation_structure,
-    recreation_status: {
-      status_code: statusCode,
-      description: statusDescription,
-      comment: statusComment,
-    } = {},
-    site_point_geometry,
-    recreation_resource_docs,
-    spatial_feature_geometry,
-    recreation_resource_reservation_info,
+    closest_community,
     recreation_district,
-  } = recResource || {};
-
-  const formattedName = capitalizeWords(name);
-
-  // Deduplicate access types
-  const uniqueRecreationAccess = recreation_access
-    ? ([...new Set(recreation_access)] as string[])
-    : undefined;
-
-  const allActivities = [
-    ...(recreation_activity ?? []),
-    ...(accessible_recreation_activity ?? []),
-  ];
-  const isThingsToDo = allActivities.length > 0;
-  const isAccessibleActivities =
-    accessible_recreation_activity && accessible_recreation_activity.length > 0;
-  const isAccess = recreation_access && recreation_access.length > 0;
-  const isCampingAvailable =
-    Boolean(campsite_count) || Boolean(overnight_fees?.length);
-  const isTrailFeesAvailable = Boolean(trail_use_fees?.length);
-  const isAdditionalFeesAvailable =
-    additional_fees !== undefined && additional_fees.length > 0;
-  const isFeesAvailable =
-    isCampingAvailable || isTrailFeesAvailable || isAdditionalFeesAvailable;
-  const isSiteDescription = description || maintenance_standard_code;
-  const isRecreationSite = rec_resource_type === RECREATION_SITE;
-
-  const isFacilitiesAvailable =
-    recreation_structure?.has_toilet || recreation_structure?.has_table;
-  const isPhotoGallery = photos.length > 0;
-  const isClosures = statusComment && formattedName && statusCode === 2;
-  const isMapsAndLocation =
-    isAccess ||
-    site_point_geometry ||
-    Boolean(spatial_feature_geometry?.length) ||
-    Boolean(recreation_resource_docs?.length) ||
-    driving_directions;
-  const isReservable = !!(
-    recreation_resource_reservation_info?.reservation_email ||
-    recreation_resource_reservation_info?.reservation_phone_number ||
-    recreation_resource_reservation_info?.reservation_website
-  );
-  const isMd = useMediaQuery(`(min-width: ${BOOTSTRAP_BREAKPOINTS.md}px)`);
-
+  } = recResource;
   const advisories = recResource.advisories ?? null;
-  // Create page sections for PageWithScrollMenu
-  const pageSections: PageSection[] = [
-    {
-      id: SectionIds.CLOSURES,
-      href: `#${SectionIds.CLOSURES}`,
-      title: SectionTitles.CLOSURES,
-      isVisible: Boolean(isClosures),
-    },
-    {
-      id: SectionIds.SITE_DESCRIPTION,
-      href: `#${SectionIds.SITE_DESCRIPTION}`,
-      title: SectionTitles.SITE_DESCRIPTION,
-      isVisible: Boolean(isSiteDescription),
-    },
-    {
-      id: SectionIds.FEES,
-      href: `#${SectionIds.FEES}`,
-      title: 'Fees',
-      isVisible: Boolean(isFeesAvailable),
-    },
-    {
-      id: SectionIds.THINGS_TO_DO,
-      href: `#${SectionIds.THINGS_TO_DO}`,
-      title: SectionTitles.THINGS_TO_DO,
-      isVisible: Boolean(isThingsToDo),
-    },
-    {
-      id: SectionIds.ACCESSIBLE_RECREATION,
-      href: `#${SectionIds.ACCESSIBLE_RECREATION}`,
-      title: SectionTitles.ACCESSIBLE_RECREATION,
-      isVisible: Boolean(isAccessibleActivities),
-    },
-    {
-      id: SectionIds.FACILITIES,
-      href: `#${SectionIds.FACILITIES}`,
-      title: SectionTitles.FACILITIES,
-      isVisible: Boolean(isFacilitiesAvailable),
-    },
-    {
-      id: SectionIds.MAPS_AND_LOCATION,
-      href: `#${SectionIds.MAPS_AND_LOCATION}`,
-      title: SectionTitles.MAPS_AND_LOCATION,
-      isVisible: Boolean(isMapsAndLocation),
-    },
-    {
-      id: SectionIds.KNOW_BEFORE_YOU_GO,
-      href: `#${SectionIds.KNOW_BEFORE_YOU_GO}`,
-      title: SectionTitles.KNOW_BEFORE_YOU_GO,
-      isVisible: isRecreationSite,
-    },
-    {
-      id: SectionIds.CONTACT,
-      href: `#${SectionIds.CONTACT}`,
-      title: SectionTitles.CONTACT,
-      isVisible: true,
-    },
-  ];
 
   return (
     <div className="rec-resource-container">
       <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
         <div className="page">
           <Breadcrumbs className="mb-4" />
-          <section className="header-section">
-            <div className="header-content">
-              <div>
-                <h1>{formattedName}</h1>
-                <p className="bc-color-blue-dk mb-4">
-                  <span>{rec_resource_type} |</span> {rec_resource_id}
-                </p>
-              </div>
-              <div className="icon-container mb-4">
-                <img
-                  alt="Location dot icon"
-                  src={locationDot}
-                  height={24}
-                  width={24}
-                />{' '}
-                <span className="capitalize">
-                  {closest_community?.toLowerCase()}
-                </span>
-              </div>
-              {statusCode && statusDescription && (
-                <Status
-                  description={statusDescription}
-                  statusCode={statusCode}
-                  advisoriesCount={advisories ? advisories.length : 0}
-                />
-              )}
-              {isRecreationSite && recResource && (
-                <RecResourceReservation recResource={recResource} />
-              )}
-            </div>
-            {isMd &&
-              recreation_district?.district_code &&
-              districtImageMap[recreation_district.district_code] && (
-                <div className="district-image-container">
-                  <img
-                    alt={`${recreation_district.description} district map`}
-                    src={districtImageMap[recreation_district.district_code]}
-                    fetchPriority="high"
-                  />
-                </div>
-              )}
-          </section>
+          <ResourceHeader
+            formattedName={formattedName}
+            recResourceType={rec_resource_type}
+            recResourceId={rec_resource_id}
+            closestCommunity={closest_community}
+            statusCode={statusCode}
+            statusDescription={statusDescription}
+            isRecreationSite={isRecreationSite}
+            recResource={recResource}
+            isMd={isMd}
+            recreationDistrict={recreation_district}
+          />
         </div>
       </div>
+
       <div className="page">
         {isPhotoGallery && (
           <div className="photo-gallery-container">
             <PhotoGallery photos={photos} />
           </div>
         )}
+
         <PageWithScrollMenu
           sections={pageSections}
           className="rec-resource-main"
         >
           {(sectionRefs) => {
-            let refIndex = 0; // Track which ref to use for each visible section
+            let refIndex = 0;
             return (
               <div className="rec-content-container">
                 {isClosures && (
@@ -255,7 +117,6 @@ const RecResourcePage = () => {
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
-
                 {isSiteDescription && (
                   <SiteDescription
                     description={description}
@@ -263,7 +124,13 @@ const RecResourcePage = () => {
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
-
+                {showCampingSection && (
+                  <Camping
+                    id={SectionIds.CAMPING}
+                    campsite_count={campsite_count}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
                 {isFeesAvailable && (
                   <Fees
                     id={SectionIds.FEES}
@@ -274,14 +141,12 @@ const RecResourcePage = () => {
                     additional_fees={additional_fees}
                   />
                 )}
-
                 {isThingsToDo && (
                   <ThingsToDo
                     activities={allActivities}
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
-
                 {isAccessibleActivities && (
                   <AccessibleActivities
                     accessible_recreation_activity={
@@ -290,14 +155,12 @@ const RecResourcePage = () => {
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
-
                 {isFacilitiesAvailable && (
                   <Facilities
                     recreation_structure={recreation_structure}
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
-
                 {isMapsAndLocation && (
                   <MapsAndLocation
                     accessTypes={uniqueRecreationAccess}
@@ -305,7 +168,6 @@ const RecResourcePage = () => {
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
-
                 {isRecreationSite && (
                   <KnowBeforeYouGo
                     isReservable={isReservable}
@@ -315,7 +177,6 @@ const RecResourcePage = () => {
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
-
                 {rec_resource_id && (
                   <Contact
                     ref={sectionRefs[refIndex++]}
