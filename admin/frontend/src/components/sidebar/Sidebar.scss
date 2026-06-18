@@ -1,0 +1,52 @@
+@import '@/styles/variables.scss';
+
+.sidebar {
+  width: 241px;
+  background-color: $colorWhite;
+  contain: layout paint;
+}
+
+.sidebar a {
+  color: $colorGrey;
+  width: 100%; /* Force a locked width */
+  box-sizing: border-box; /* Prevents padding changes from affecting width */
+}
+
+.sidebar a:hover {
+  background-color: $colorIceBlue;
+}
+
+.collapsed {
+  width: 72px;
+}
+
+.sidebar-icon-container {
+  width: 38px;
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
+.sidebar-quick-link-container {
+  width: 30px;
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
+.title {
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 23.04px;
+}
+
+.sub-title {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 40px;
+  color: $colorGreyMed;
+}
+
+.tooltip {
+  pointer-events: none !important; /* Prevents the tooltip bubble from capturing mouse hover states */
+}
