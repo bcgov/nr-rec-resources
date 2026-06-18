@@ -174,6 +174,18 @@ export interface RecreationResourceDetailDto {
    */
   additional_fees: Array<RecreationFeeDto>;
   /**
+   * List of overnight fees for camping, cabins, huts, etc. (recreation fee code 'O')
+   * @type {Array<RecreationFeeDto>}
+   * @memberof RecreationResourceDetailDto
+   */
+  overnight_fees?: Array<RecreationFeeDto>;
+  /**
+   * List of trail use fees for skiing, snowmobiling, etc. (recreation fee code 'T')
+   * @type {Array<RecreationFeeDto>}
+   * @memberof RecreationResourceDetailDto
+   */
+  trail_use_fees?: Array<RecreationFeeDto>;
+  /**
    * Structure-related facilities available at the recreation resource (e.g., toilets, tables)
    * @type {RecreationStructureDto}
    * @memberof RecreationResourceDetailDto
@@ -332,6 +344,14 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     additional_fees: (json['additional_fees'] as Array<any>).map(
       RecreationFeeDtoFromJSON,
     ),
+    overnight_fees:
+      json['overnight_fees'] == null
+        ? undefined
+        : (json['overnight_fees'] as Array<any>).map(RecreationFeeDtoFromJSON),
+    trail_use_fees:
+      json['trail_use_fees'] == null
+        ? undefined
+        : (json['trail_use_fees'] as Array<any>).map(RecreationFeeDtoFromJSON),
     recreation_structure: RecreationStructureDtoFromJSON(
       json['recreation_structure'],
     ),
@@ -412,6 +432,14 @@ export function RecreationResourceDetailDtoToJSONTyped(
     additional_fees: (value['additional_fees'] as Array<any>).map(
       RecreationFeeDtoToJSON,
     ),
+    overnight_fees:
+      value['overnight_fees'] == null
+        ? undefined
+        : (value['overnight_fees'] as Array<any>).map(RecreationFeeDtoToJSON),
+    trail_use_fees:
+      value['trail_use_fees'] == null
+        ? undefined
+        : (value['trail_use_fees'] as Array<any>).map(RecreationFeeDtoToJSON),
     recreation_structure: RecreationStructureDtoToJSON(
       value['recreation_structure'],
     ),

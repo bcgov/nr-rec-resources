@@ -35,7 +35,7 @@ export async function recResourceFeesLoader({ context, params }: any) {
   } catch (err: any) {
     // Log and surface minimal info; the page can show an error message to the user.
     // Don't rethrow here to allow the breadcrumbs and layout to render.
-    // eslint-disable-next-line no-console
+
     console.error(
       'Failed to load recreation resource fees',
       err?.message ?? err,
@@ -56,7 +56,7 @@ export async function recResourceFeesLoader({ context, params }: any) {
   } catch (err: any) {
     // If the resource detail fails we should allow the route to render an error UI,
     // but avoid an uncaught exception here.
-    // eslint-disable-next-line no-console
+
     console.error(
       'Failed to load recreation resource detail',
       err?.message ?? err,

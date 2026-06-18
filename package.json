@@ -45,5 +45,8 @@
     "prettier": "^3.4.1",
     "vite-tsconfig-paths": "^6.0.0",
     "vitest": "^4.0.16"
+  },
+  "overrides": {
+    "@fortawesome/fontawesome-common-types": "7.2.0"
   }
 }

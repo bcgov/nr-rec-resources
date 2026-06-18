@@ -1,16 +1,13 @@
 import { forwardRef } from 'react';
-import RecreationFee from './RecreationFee';
 import { SectionHeading } from '@/components/landing-page/components';
-import { RecreationFeeModel } from '@/service/custom-models';
 
 interface CampingProps {
   id: string;
   campsite_count?: number;
-  fees?: RecreationFeeModel[];
 }
-
+//we can add Number of huts/cabings in this when we have
 const Camping = forwardRef<HTMLElement, CampingProps>(
-  ({ id, campsite_count = 0, fees = [] }, ref) => {
+  ({ id, campsite_count = 0 }, ref) => {
     return (
       <section id={id} ref={ref}>
         <SectionHeading>Camping</SectionHeading>
@@ -21,8 +18,6 @@ const Camping = forwardRef<HTMLElement, CampingProps>(
             <p>{campsite_count} campsites</p>
           </>
         ) : null}
-
-        {Boolean(fees.length) && <RecreationFee data={fees} />}
       </section>
     );
   },

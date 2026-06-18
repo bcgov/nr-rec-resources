@@ -1,25 +1,26 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import RecreationFee from './RecreationFee';
 import { RecreationFeeModel } from '@/service/custom-models';
 import {
-  formatFeeDays,
-  getFeeTypeLabel,
-  formatRecurringMonthDay,
   formatDateFull,
+  formatFeeDays,
+  formatRecurringMonthDay,
+  getFeeTypeLabel,
 } from '@shared/utils';
 
-// Mock the utility functions
 vi.mock('@shared/utils', () => ({
-  formatFeeDays: vi.fn(),
-  getFeeTypeLabel: vi.fn(),
-  formatRecurringMonthDay: vi.fn(),
   formatDateFull: vi.fn(),
+  formatFeeDays: vi.fn(),
+  formatRecurringMonthDay: vi.fn(),
+  getFeeTypeLabel: vi.fn(),
 }));
 
 describe('RecreationFee', () => {
   const mockFee = {
-    recreation_fee_code: 'CAMPING',
+    recreation_fee_code: 'O',
+    recreation_fee_sub_code: 'C',
+    fee_sub_type_description: 'Camping',
     fee_amount: 25.5,
     fee_start_date: '2025-06-01',
     fee_end_date: '2025-09-30',
@@ -27,21 +28,21 @@ describe('RecreationFee', () => {
   };
 
   const mockRecurringFee = {
-    recreation_fee_code: 'CAMPING',
-    fee_amount: 25.5,
+    recreation_fee_code: 'O',
+    recreation_fee_sub_code: 'CA',
+    fee_sub_type_description: 'Cabins',
+    fee_amount: 30,
     recurring_ind: true,
     recurring_start_mmdd: '06-01',
     recurring_end_mmdd: '09-30',
   };
 
   beforeEach(() => {
-    // Reset mock implementations
     vi.mocked(formatDateFull).mockImplementation((date) => {
       if (typeof date === 'string') return date;
-      return String(date);
+      return null;
     });
     vi.mocked(formatFeeDays).mockReturnValue('Monday - Sunday');
-    vi.mocked(getFeeTypeLabel).mockReturnValue('Camping');
     vi.mocked(formatRecurringMonthDay).mockImplementation((mmdd) => {
       if (!mmdd) return '';
       const [month, day] = mmdd.split('-');
@@ -59,87 +60,117 @@ describe('RecreationFee', () => {
         'Nov',
         'Dec',
       ];
-      return `${months[parseInt(month) - 1]} ${parseInt(day)}`;
+      return `${months[parseInt(month, 10) - 1]} ${parseInt(day, 10)}`;
     });
+    vi.mocked(getFeeTypeLabel).mockReturnValue('Camping');
   });
 
-  it('renders empty state when no data is provided', () => {
-    render(<RecreationFee data={[]} />);
+  it('renders nothing when no fee data is provided', () => {
+    const { container } = render(<RecreationFee data={[]} />);
+
+    expect(container.querySelector('.fee-groups')).toBeInTheDocument();
+    // When there are no fees, the component renders an empty fee-card
+    expect(container.querySelector('.fee-card-content')).toBeEmptyDOMElement();
+  });
+
+  it('renders nothing when there are no fees but campsites exist', () => {
+    const { container } = render(
+      <RecreationFee data={[]} campsite_count={23} />,
+    );
+
+    expect(container.querySelector('.fee-groups')).toBeInTheDocument();
+    expect(container.querySelector('.fee-card-content')).toBeEmptyDOMElement();
+  });
+
+  it('renders nothing when there are no fees and no campsites', () => {
+    const { container } = render(
+      <RecreationFee data={[]} campsite_count={0} />,
+    );
+
+    expect(container.querySelector('.fee-groups')).toBeInTheDocument();
+    expect(container.querySelector('.fee-card-content')).toBeEmptyDOMElement();
+  });
+
+  it('renders non-recurring fee information using the sub-type description', () => {
+    render(
+      <RecreationFee data={[mockFee] as unknown as RecreationFeeModel[]} />,
+    );
+
     expect(
-      screen.getByText('No fees available for this resource.'),
+      screen.getByRole('heading', { name: 'Camping fees' }),
     ).toBeInTheDocument();
-  });
-
-  it('renders non-recurring fee information correctly', () => {
-    const fees = [mockFee] as unknown as RecreationFeeModel[];
-    render(<RecreationFee data={fees} />);
-
-    // Check if utility functions were called with correct arguments
-    expect(getFeeTypeLabel).toHaveBeenCalledWith('CAMPING');
+    expect(
+      screen.getByRole('table', { name: 'Camping fee table' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('$25.50')).toBeInTheDocument();
+    expect(screen.getByText('2025-06-01 - 2025-09-30')).toBeInTheDocument();
+    expect(screen.getByText('Monday - Sunday')).toBeInTheDocument();
     expect(formatDateFull).toHaveBeenCalledWith('2025-06-01');
     expect(formatDateFull).toHaveBeenCalledWith('2025-09-30');
     expect(formatFeeDays).toHaveBeenCalledWith(mockFee);
-
-    // Verify rendered content
-    expect(screen.getByText('Camping fee')).toBeInTheDocument();
-    expect(screen.getByText('$25.50')).toBeInTheDocument();
-    expect(screen.getByText('Fee applies')).toBeInTheDocument();
-    expect(screen.getByText('Monday - Sunday')).toBeInTheDocument();
-    expect(screen.getByText('2025-06-01 - 2025-09-30')).toBeInTheDocument();
   });
 
-  it('renders recurring fee information correctly', () => {
-    const fees = [mockRecurringFee] as unknown as RecreationFeeModel[];
-    render(<RecreationFee data={fees} />);
+  it('renders recurring fee information using formatted month/day range', () => {
+    render(
+      <RecreationFee
+        data={[mockRecurringFee] as unknown as RecreationFeeModel[]}
+      />,
+    );
 
-    // Check if utility functions were called with correct arguments
-    expect(getFeeTypeLabel).toHaveBeenCalledWith('CAMPING');
+    expect(screen.getByText('Jun 1 - Sep 30')).toBeInTheDocument();
     expect(formatRecurringMonthDay).toHaveBeenCalledWith('06-01');
     expect(formatRecurringMonthDay).toHaveBeenCalledWith('09-30');
     expect(formatFeeDays).toHaveBeenCalledWith(mockRecurringFee);
-
-    // Verify rendered content
-    expect(screen.getByText('Camping fee')).toBeInTheDocument();
-    expect(screen.getByText('$25.50')).toBeInTheDocument();
-    expect(screen.getByText('Fee applies')).toBeInTheDocument();
-    expect(screen.getByText('Jun 1 - Sep 30')).toBeInTheDocument();
-    expect(screen.getByText('Monday - Sunday')).toBeInTheDocument();
   });
 
-  it('renders multiple fees correctly', () => {
-    const fees = [
-      mockFee,
-      {
-        ...mockFee,
-        recreation_fee_code: 'PARKING',
-        fee_amount: 10.0,
-      },
-    ] as unknown as RecreationFeeModel[];
+  it('falls back to recreation_fee_sub_code when fee_sub_type_description is missing', () => {
+    const feeWithoutSubTypeDescription = {
+      ...mockFee,
+      fee_sub_type_description: undefined,
+    };
 
-    vi.mocked(getFeeTypeLabel)
-      .mockReturnValueOnce('Camping')
-      .mockReturnValueOnce('Parking');
+    render(
+      <RecreationFee
+        data={[feeWithoutSubTypeDescription] as unknown as RecreationFeeModel[]}
+      />,
+    );
 
-    render(<RecreationFee data={fees} />);
-
-    expect(screen.getByText('Camping fee')).toBeInTheDocument();
-    expect(screen.getByText('$25.50')).toBeInTheDocument();
-    expect(screen.getByText('Parking fee')).toBeInTheDocument();
-    expect(screen.getByText('$10.00')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'C fees' })).toBeInTheDocument();
   });
 
-  it('renders mix of recurring and non-recurring fees', () => {
-    const fees = [mockFee, mockRecurringFee] as unknown as RecreationFeeModel[];
+  it('falls back to getFeeTypeLabel when both description and sub-code are missing', () => {
+    const feeWithoutSubCode = {
+      ...mockFee,
+      fee_sub_type_description: undefined,
+      recreation_fee_sub_code: undefined,
+      recreation_fee_code: 'C',
+    };
 
-    vi.mocked(getFeeTypeLabel)
-      .mockReturnValueOnce('Camping')
-      .mockReturnValueOnce('Camping');
+    render(
+      <RecreationFee
+        data={[feeWithoutSubCode] as unknown as RecreationFeeModel[]}
+      />,
+    );
 
-    render(<RecreationFee data={fees} />);
+    expect(getFeeTypeLabel).toHaveBeenCalledWith('C');
+    expect(
+      screen.getByRole('heading', { name: 'Camping fees' }),
+    ).toBeInTheDocument();
+  });
 
-    // Should render both fees
-    expect(screen.getAllByText('Camping fee')).toHaveLength(2);
-    expect(screen.getAllByText('$25.50')).toHaveLength(2);
-    expect(screen.getAllByText('Fee applies')).toHaveLength(2);
+  it('shows "Always" when start, end and recurring dates are all missing', () => {
+    const feeWithNoDateRange = {
+      ...mockFee,
+      fee_start_date: null,
+      fee_end_date: null,
+    };
+
+    render(
+      <RecreationFee
+        data={[feeWithNoDateRange] as unknown as RecreationFeeModel[]}
+      />,
+    );
+
+    expect(screen.getByText('Always')).toBeInTheDocument();
   });
 });

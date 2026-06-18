@@ -30,7 +30,7 @@ const baseResource: RecreationResourceMapData = {
   campsite_count: 10,
   recreation_fee: [
     {
-      recreation_fee_code: 'C',
+      recreation_fee_code: 'O',
       fee_amount: 15,
       fee_start_date: new Date('2024-05-01'),
       fee_end_date: new Date('2024-09-30'),
@@ -43,7 +43,7 @@ const baseResource: RecreationResourceMapData = {
       sunday_ind: 'Y',
     },
     {
-      recreation_fee_code: 'D',
+      recreation_fee_code: 'A',
       fee_amount: 5,
       fee_start_date: new Date('2024-06-01'),
       fee_end_date: new Date('2024-08-31'),
@@ -85,10 +85,10 @@ describe('RecResourceHTMLExportDescription', () => {
     expect(getByText('Driving directions')).toBeTruthy();
     expect(getByText('Take the main road and turn left.')).toBeTruthy();
     // Fees
-    expect(getByText('Camping Fee')).toBeTruthy();
+    expect(getByText('Overnight Fee')).toBeTruthy();
     expect(getByText('$15.00')).toBeTruthy();
     expect(getByText('All Days')).toBeTruthy();
-    expect(getByText('Day Use Fee')).toBeTruthy();
+    expect(getByText('Additional Fee')).toBeTruthy();
     expect(getByText('$5.00')).toBeTruthy();
     expect(getByText('Tuesday, Wednesday, Thursday, Friday')).toBeTruthy();
     // Things to do
