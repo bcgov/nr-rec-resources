@@ -189,4 +189,15 @@ export class AdminSearchQueryDto {
   @IsArray()
   @IsString({ each: true })
   public_access_status?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Resource file status codes (rec_status_code)',
+    type: [String],
+    example: ['HI', 'PE'],
+  })
+  @Transform(transformStringArrayQueryParam)
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  rec_status?: string[];
 }

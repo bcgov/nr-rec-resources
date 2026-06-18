@@ -37,6 +37,13 @@ vi.mock('@/services', async () => {
   };
 });
 
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => ({
+    canViewFeatureFlag: false,
+    canEditArchived: true,
+  }),
+}));
+
 describe('useAdminSearchController', () => {
   let queryClient: QueryClient;
 

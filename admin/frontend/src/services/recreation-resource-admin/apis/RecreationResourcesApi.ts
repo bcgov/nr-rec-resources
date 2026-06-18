@@ -282,6 +282,7 @@ export interface SearchRecreationResourcesRequest {
   establishmentDateTo?: string;
   established?: SearchRecreationResourcesEstablishedEnum;
   publicAccessStatus?: Array<string>;
+  recStatus?: Array<string>;
 }
 
 export interface UpdateActivitiesRequest {
@@ -2661,6 +2662,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     if (requestParameters['publicAccessStatus'] != null) {
       queryParameters['public_access_status'] =
         requestParameters['publicAccessStatus'];
+    }
+
+    if (requestParameters['recStatus'] != null) {
+      queryParameters['rec_status'] = requestParameters['recStatus'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};

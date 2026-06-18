@@ -10,24 +10,10 @@ import type { KeyboardEvent } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
   AdminStatusBadge,
-  CustomBadge,
+  FileStatusBadge,
   PublicAccessStatusBadge,
   VisibleOnWebsite,
 } from '@/components';
-import {
-  COLOR_BACKGROUND_GREY,
-  COLOR_BLUE_LIGHT,
-  COLOR_BLUE_MED,
-  COLOR_BROWN_DARK,
-  COLOR_BROWN_LIGHT,
-  COLOR_GOLD,
-  COLOR_GOLD_DARK,
-  COLOR_GREEN_DARKER,
-  COLOR_GREEN_LIGHTEST,
-  COLOR_GREY,
-  COLOR_RED,
-  COLOR_RED_LIGHT,
-} from '@/styles/colors';
 import { ROUTE_PATHS } from '@/constants/routes';
 import {
   ADMIN_SEARCH_COLUMN_IDS,
@@ -55,30 +41,6 @@ interface UseSearchResultsTableParams {
 }
 
 const getSortParts = (sort: AdminSearchRouteState['sort']) => sort.split(':');
-
-type BadgeColors = { bgColor: string; textColor: string };
-
-const DEFAULT_FILE_STATUS_COLORS: BadgeColors = {
-  bgColor: COLOR_BACKGROUND_GREY,
-  textColor: COLOR_GREY,
-};
-
-/**
- * Color coding for file status badge backgrounds.
- * Labels come from the API (rec_status_description) — not hardcoded here.
- */
-const REC_STATUS_COLOR_MAP: Record<string, BadgeColors> = {
-  AR: { bgColor: COLOR_RED_LIGHT, textColor: COLOR_RED },
-  HI: { bgColor: COLOR_GREEN_LIGHTEST, textColor: COLOR_GREEN_DARKER },
-  PE: { bgColor: COLOR_GOLD, textColor: COLOR_GOLD_DARK },
-  DD: { bgColor: COLOR_RED_LIGHT, textColor: COLOR_RED },
-  CL: { bgColor: COLOR_BACKGROUND_GREY, textColor: COLOR_GREY },
-  DE: { bgColor: COLOR_BACKGROUND_GREY, textColor: COLOR_GREY },
-  EE: { bgColor: COLOR_GREEN_LIGHTEST, textColor: COLOR_GREEN_DARKER },
-  HX: { bgColor: COLOR_BROWN_LIGHT, textColor: COLOR_BROWN_DARK },
-  NC: { bgColor: COLOR_BACKGROUND_GREY, textColor: COLOR_GREY },
-  PI: { bgColor: COLOR_BLUE_LIGHT, textColor: COLOR_BLUE_MED },
-};
 
 const buildColumnVisibility = (
   visibleColumns: AdminSearchColumnId[],
@@ -124,18 +86,12 @@ const buildColumns = (
     }
 
     if (id === 'file_status') {
-      column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => {
-        const code = row.original.recStatusCode;
-        if (!code) return null;
-        // Description comes from the API (rec_status_description joined from
-        // recreation_resource_status_code) — no labels are hardcoded here.
-        const label = row.original.recStatusDescription ?? code;
-        const { bgColor, textColor } =
-          REC_STATUS_COLOR_MAP[code] ?? DEFAULT_FILE_STATUS_COLORS;
-        return (
-          <CustomBadge label={label} bgColor={bgColor} textColor={textColor} />
-        );
-      };
+      column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => (
+        <FileStatusBadge
+          code={row.original.recStatusCode}
+          label={row.original.recStatusDescription}
+        />
+      );
     }
 
     if (id === 'display_on_public_site') {

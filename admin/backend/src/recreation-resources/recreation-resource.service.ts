@@ -87,33 +87,6 @@ export class RecreationResourceService {
         options,
       );
 
-    // Join the file status lookup table once for all results in this page
-    const uniqueStatusCodes = [
-      ...new Set(
-        data
-          .map((r) => r.rec_status_code)
-          .filter((c): c is string => c !== null && c !== undefined),
-      ),
-    ];
-    const statusCodeRows =
-      uniqueStatusCodes.length > 0
-        ? await this.prisma.recreation_resource_status_code.findMany({
-            where: {
-              recreation_resource_status_code: { in: uniqueStatusCodes },
-            },
-            select: {
-              recreation_resource_status_code: true,
-              description: true,
-            },
-          })
-        : [];
-    const statusDescriptionMap = new Map(
-      statusCodeRows.map((s) => [
-        s.recreation_resource_status_code,
-        s.description ?? null,
-      ]),
-    );
-
     const mappedRows = data.map(
       (resource): AdminSearchResultRowDto => ({
         rec_resource_id: resource.rec_resource_id,
@@ -133,9 +106,8 @@ export class RecreationResourceService {
         status_code:
           resource.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
         rec_status_code: resource.rec_status_code,
-        rec_status_description: resource.rec_status_code
-          ? (statusDescriptionMap.get(resource.rec_status_code) ?? null)
-          : null,
+        rec_status_description:
+          resource.recreation_resource_status_code_rel?.description ?? null,
         activities: this.getUniqueValues(
           resource.recreation_activity?.map(
             (activity) => activity.recreation_activity?.description ?? '',

@@ -1247,7 +1247,7 @@ model recreation_activity_code_trails {
   recreation_activity_code_trails_id                                                                          Int                      @id @default(autoincrement())
   recreation_activity_code                                                                                    Int
   rec_resource_id                                                                                             String                   @db.VarChar(20)
-  trail_type                                                                                                  trail_types
+  trail_type                                                                                                  trail_types?
   name                                                                                                        String                   @db.VarChar(120)
   description                                                                                                 String?
   updated_at                                                                                                  DateTime?                @default(now()) @db.Timestamp(6)
@@ -1262,7 +1262,7 @@ model recreation_activity_code_trails_history {
   recreation_activity_code_trails_id Int
   recreation_activity_code           Int
   rec_resource_id                    String                   @db.VarChar(20)
-  trail_type                         trail_types
+  trail_type                         trail_types?
   name                               String                   @db.VarChar(120)
   description                        String?
   updated_at                         DateTime?                @db.Timestamp(6)
@@ -1344,7 +1344,7 @@ model act_advisories_flat {
   effective_date              DateTime                 @db.Timestamptz(6)
   end_date                    DateTime?                @db.Timestamptz(6)
   expiry_date                 DateTime?                @db.Timestamptz(6)
-  updated_date                DateTime                 @db.Timestamptz(6)
+  updated_date                DateTime?                @db.Timestamptz(6)
   published_at                DateTime?                @db.Timestamptz(6)
   sys_period                  Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   listing_rank                Int                      @default(0)
@@ -1380,7 +1380,7 @@ model act_advisories_flat_history {
   effective_date              DateTime                 @db.Timestamptz(6)
   end_date                    DateTime?                @db.Timestamptz(6)
   expiry_date                 DateTime?                @db.Timestamptz(6)
-  updated_date                DateTime                 @db.Timestamptz(6)
+  updated_date                DateTime?                @db.Timestamptz(6)
   published_at                DateTime?                @db.Timestamptz(6)
   sys_period                  Unsupported("tstzrange")
   updated_at                  DateTime?                @default(now()) @db.Timestamp(6)
