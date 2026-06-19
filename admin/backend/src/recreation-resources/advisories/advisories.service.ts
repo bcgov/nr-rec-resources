@@ -61,7 +61,7 @@ export class AdvisoriesService {
       is_advisory_date_displayed: r.is_advisory_date_displayed,
       is_effective_date_displayed: r.is_effective_date_displayed,
       is_end_date_displayed: r.is_end_date_displayed,
-      is_updated_date_displayed: r.is_updated_date_displayed,
+      is_updated_date_displayed: r.is_updated_date_displayed ?? false,
     }));
   }
 }
