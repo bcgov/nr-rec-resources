@@ -12,12 +12,12 @@ interface AccessibleRecreationActivity {
     recreation_activity_trails?: {
       description: string;
       name: string;
-      trail_type: string;
+      trail_type: string | null;
     }[];
   }[];
 }
 
-const getIconForTrailType = (trailType: string) => {
+const getIconForTrailType = (trailType: string | null): string | null => {
   switch (trailType) {
     case 'GREEN':
       return greenIcon;
@@ -26,7 +26,7 @@ const getIconForTrailType = (trailType: string) => {
     case 'BLACK':
       return blackIcon;
     default:
-      return blueIcon;
+      return null;
   }
 };
 
@@ -49,24 +49,29 @@ const AccessibleActivities = forwardRef<
             <p>{activity.details}</p>
             {activity.recreation_activity_trails && (
               <div>
-                {activity.recreation_activity_trails.map((trail) => (
-                  <div className="row" key={trail.name}>
-                    <div className="col-sm-1">
-                      <img
-                        src={getIconForTrailType(trail.trail_type)}
-                        alt="Trail difficulty icon"
-                        height={48}
-                        width={48}
-                      />
+                {activity.recreation_activity_trails.map((trail) => {
+                  const icon = getIconForTrailType(trail.trail_type);
+                  return (
+                    <div className="row" key={trail.name}>
+                      <div className="col-sm-1">
+                        {icon && (
+                          <img
+                            src={icon}
+                            alt="Trail difficulty icon"
+                            height={48}
+                            width={48}
+                          />
+                        )}
+                      </div>
+                      <div className="col-sm d-flex flex-column">
+                        <span className="trail-title">{trail.name}</span>
+                        <span className="trail-description">
+                          {trail.description}
+                        </span>
+                      </div>
                     </div>
-                    <div className="col-sm d-flex flex-column">
-                      <span className="trail-title">{trail.name}</span>
-                      <span className="trail-description">
-                        {trail.description}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>

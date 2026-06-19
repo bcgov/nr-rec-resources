@@ -46,6 +46,7 @@ export interface OptionsByTypeDto {
  */
 export const OptionsByTypeDtoTypeEnum = {
   Activities: 'activities',
+  AccessibleActivities: 'accessibleActivities',
   Access: 'access',
   SubAccess: 'sub-access',
   Maintenance: 'maintenance',

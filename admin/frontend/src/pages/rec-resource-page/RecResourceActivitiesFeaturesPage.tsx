@@ -1,16 +1,40 @@
 import { RecResourceActivitiesSection } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection';
+import { RecResourceAdaptiveActivitiesSection } from '@/pages/rec-resource-page/components/RecResourceAdaptiveActivitiesSection';
 import { RecResourceFeatureSection } from '@/pages/rec-resource-page/components/RecResourceFeatureSection';
-import { useLoaderData } from '@tanstack/react-router';
+import { RecreationActivityDto } from '@/services/recreation-resource-admin/models';
+import { useLoaderData, useParams } from '@tanstack/react-router';
+import { useMemo } from 'react';
 import { Stack } from 'react-bootstrap';
 
 export const RecResourceActivitiesFeaturesPage = () => {
   const { activities, features } = useLoaderData({
     from: '/rec-resource/$id/activities-features/',
   });
+  const { id: rec_resource_id } = useParams({ from: '/rec-resource/$id' });
+
+  const regularActivities = useMemo(
+    () =>
+      (activities as RecreationActivityDto[] | undefined)?.filter(
+        (a) => !a.is_accessible,
+      ) ?? [],
+    [activities],
+  );
+
+  const adaptiveActivities = useMemo(
+    () =>
+      (activities as RecreationActivityDto[] | undefined)?.filter(
+        (a) => a.is_accessible,
+      ) ?? [],
+    [activities],
+  );
 
   return (
     <Stack direction="vertical" gap={5}>
-      <RecResourceActivitiesSection recreationActivities={activities} />
+      <RecResourceActivitiesSection recreationActivities={regularActivities} />
+      <RecResourceAdaptiveActivitiesSection
+        recResourceId={rec_resource_id}
+        recreationActivities={adaptiveActivities}
+      />
       <RecResourceFeatureSection recreationFeatures={features} />
     </Stack>
   );

@@ -21,6 +21,16 @@ export async function recResourceActivitiesFeaturesLoader(args: any) {
     }),
   );
 
+  const trails = await args.context.queryClient.ensureQueryData({
+    queryKey: RECREATION_RESOURCE_QUERY_KEYS.trails(args.params.id),
+    queryFn: async () => {
+      const response = await api.getTrailsByRecResourceId({
+        recResourceId: args.params.id,
+      });
+      return response;
+    },
+  });
+
   const activities = await args.context.queryClient.ensureQueryData({
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.activities(args.params.id),
     queryFn: async () => {
@@ -54,6 +64,15 @@ export async function recResourceActivitiesFeaturesLoader(args: any) {
     }),
     args.context.queryClient.ensureQueryData({
       queryKey: RECREATION_RESOURCE_QUERY_KEYS.options([
+        GetOptionsByTypesTypesEnum.AccessibleActivities,
+      ]),
+      queryFn: () =>
+        api.getOptionsByTypes({
+          types: [GetOptionsByTypesTypesEnum.AccessibleActivities],
+        }),
+    }),
+    args.context.queryClient.ensureQueryData({
+      queryKey: RECREATION_RESOURCE_QUERY_KEYS.options([
         GetOptionsByTypesTypesEnum.FeatureCode,
       ]),
       queryFn: () =>
@@ -67,5 +86,6 @@ export async function recResourceActivitiesFeaturesLoader(args: any) {
     ...parentData,
     activities,
     features,
+    trails,
   };
 }

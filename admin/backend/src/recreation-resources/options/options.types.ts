@@ -14,6 +14,7 @@ export type OptionTransformMiddleware = (
  */
 export const OPTION_TYPES = {
   ACTIVITIES: 'activities',
+  ACCESSIBLE_ACTIVITIES: 'accessibleActivities',
   ACCESS: 'access',
   SUB_ACCESS: 'sub-access',
   MAINTENANCE: 'maintenance',
@@ -55,4 +56,7 @@ export interface TableMapping {
 
   /** Optional additional database fields to include in select query. */
   additionalFields?: string[];
+
+  /** Optional Prisma where clause to filter results. */
+  whereClause?: Record<string, unknown>;
 }

@@ -23,3 +23,7 @@ export * from './useUpdateFeatures';
 export * from './useUpdateFee';
 export * from './useUpdateRecreationResource';
 export * from './useUploadEstablishmentOrderDoc';
+export * from './useGetTrails';
+export * from './useCreateTrail';
+export * from './useUpdateTrail';
+export * from './useDeleteTrail';

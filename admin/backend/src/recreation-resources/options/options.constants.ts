@@ -12,6 +12,13 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     idField: 'recreation_activity_code',
     labelField: 'description',
     prismaModel: 'recreation_activity_code',
+    whereClause: { is_accessible: false },
+  },
+  [OPTION_TYPES.ACCESSIBLE_ACTIVITIES]: {
+    idField: 'recreation_activity_code',
+    labelField: 'description',
+    prismaModel: 'recreation_activity_code',
+    whereClause: { is_accessible: true },
   },
   [OPTION_TYPES.ACCESS]: {
     idField: 'access_code',

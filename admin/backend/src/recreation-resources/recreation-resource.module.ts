@@ -15,6 +15,7 @@ import { FeesModule } from './fees/fees.module';
 import { GeospatialModule } from './geospatial/geospatial.module';
 import { ExportsModule } from './exports/exports.module';
 import { ReservationModule } from './reservation/reservation.module';
+import { TrailsModule } from './trails/trails.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ReservationModule } from './reservation/reservation.module';
     FeaturesModule,
     ExportsModule,
     ReservationModule,
+    TrailsModule,
   ],
   controllers: [RecreationResourceController],
   providers: [

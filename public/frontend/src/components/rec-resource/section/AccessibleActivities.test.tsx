@@ -92,9 +92,9 @@ describe('AccessibleActivities Component', () => {
     expect(screen.getByText('Black Trail')).toBeInTheDocument();
     expect(images[2].src).toContain('black-icon-url');
 
-    // Default Case (Purple trail type should map to blue icon)
+    // Unknown trail type — no icon rendered
     expect(screen.getByText('Default Trail')).toBeInTheDocument();
-    expect(images[3].src).toContain('blue-icon-url');
+    expect(images).toHaveLength(3);
   });
 
   it('does not render the trails div if recreation_activity_trails is missing', () => {

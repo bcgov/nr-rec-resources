@@ -83,6 +83,11 @@ describe('RECREATION_RESOURCE_QUERY_KEYS', () => {
       'reservation',
       'abc',
     ]);
+    expect(RECREATION_RESOURCE_QUERY_KEYS.trails('abc')).toEqual([
+      'recreation-resource-admin',
+      'trails',
+      'abc',
+    ]);
     expect(RECREATION_RESOURCE_QUERY_KEYS.all).toEqual([
       'recreation-resource-admin',
     ]);
