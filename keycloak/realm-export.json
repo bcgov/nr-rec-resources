@@ -29,6 +29,31 @@
             "multivalued": "true",
             "usermodel.clientRoleMapping.clientId": "rst-admin-local"
           }
+        },
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "rst-admin-local",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "idir_username",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "username",
+            "claim.name": "idir_username",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
         }
       ]
     }
@@ -45,6 +70,10 @@
     {
       "username": "e2e-admin",
       "enabled": true,
+      "email": "e2e-admin@example.com",
+      "emailVerified": true,
+      "firstName": "E2E",
+      "lastName": "Admin",
       "credentials": [
         { "type": "password", "value": "TestPass1!", "temporary": false }
       ],
@@ -55,6 +84,10 @@
     {
       "username": "e2e-viewer",
       "enabled": true,
+      "email": "e2e-viewer@example.com",
+      "emailVerified": true,
+      "firstName": "E2E",
+      "lastName": "Viewer",
       "credentials": [
         { "type": "password", "value": "TestPass1!", "temporary": false }
       ],

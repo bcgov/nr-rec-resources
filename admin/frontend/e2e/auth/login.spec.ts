@@ -8,12 +8,12 @@ test.describe('Authentication flow', () => {
   test('unauthenticated user sees login page', async ({ page }) => {
     await page.goto(BASE_URL);
     await expect(page.getByText('Welcome to RecSpace')).toBeVisible();
-    await expect(page.getByRole('button', { name: /log in/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /log\s*in/i })).toBeVisible();
   });
 
   test('rst-admin can log in and reach the search page', async ({ page }) => {
     await page.goto(BASE_URL);
-    await page.getByRole('button', { name: /log in/i }).click();
+    await page.getByRole('button', { name: /log\s*in/i }).click();
 
     const idirLink = page.getByRole('link', { name: /idir/i });
     const isIdirVisible = await idirLink
@@ -42,7 +42,7 @@ test.describe('Authentication flow', () => {
 
   test('rst-viewer can log in and reach the search page', async ({ page }) => {
     await page.goto(BASE_URL);
-    await page.getByRole('button', { name: /log in/i }).click();
+    await page.getByRole('button', { name: /log\s*in/i }).click();
 
     const idirLink = page.getByRole('link', { name: /idir/i });
     const isIdirVisible = await idirLink

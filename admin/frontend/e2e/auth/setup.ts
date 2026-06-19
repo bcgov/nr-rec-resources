@@ -8,7 +8,7 @@ async function loginAs(
   statePath: string,
 ) {
   await page.goto(BASE_URL);
-  await page.getByRole('button', { name: /log in/i }).click();
+  await page.getByRole('button', { name: /log\s*in/i }).click();
 
   // BCGov Keycloak shows an IDIR identity provider link.
   // Local Keycloak (docker-compose e2e) shows a plain username/password form.

@@ -63,7 +63,7 @@ services:
     ports: ['8080:8080']
     healthcheck:
       test:
-        ['CMD-SHELL', 'curl -sf http://localhost:9000/health/ready || exit 1']
+        ['CMD-SHELL', 'exec 3<>/dev/tcp/127.0.0.1/8080 2>/dev/null || exit 1']
       interval: 10s
       timeout: 5s
       retries: 12
@@ -99,7 +99,13 @@ services:
       AWS_SECRET_ACCESS_KEY: test
     ports: ['8001:8001']
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8001/api']
+      test:
+        [
+          'CMD',
+          '/nodejs/bin/node',
+          '-e',
+          "require('http').get({hostname:'::1',port:8001,path:'/api'},(r)=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -121,6 +127,10 @@ services:
     environment:
       # BACKEND_URL is read by Caddy at runtime to proxy /api* requests
       BACKEND_URL: http://admin-backend:8001
+      LOG_LEVEL: INFO
+      # No CloudFront locally, so Caddy enforces CSP. keycloak-js needs to frame
+      # and call the Keycloak origin (browser uses localhost:8080).
+      KEYCLOAK_CSP_ORIGIN: http://localhost:8080
       # These are written to /srv/config.js by entrypoint.sh and loaded by the browser.
       # Must use localhost:8080 — the browser connects from the host, not from inside Docker.
       VITE_KEYCLOAK_AUTH_SERVER_URL: http://localhost:8080
@@ -129,7 +139,11 @@ services:
     ports: ['3001:3001']
     healthcheck:
       # Health endpoint is on port 3002 per Caddyfile
-      test: ['CMD', 'curl', '-f', 'http://localhost:3002/health']
+      test:
+        [
+          'CMD-SHELL',
+          'wget -q -O /dev/null http://localhost:3002/health || exit 1',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
