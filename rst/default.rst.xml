@@ -22,24 +22,23 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="event_type" nullable="false" remarks="Type of event that triggered the advisory, such as a natural disaster, maintenance work, or safety concern." size="100" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="urgency" nullable="false" remarks="Level of urgency associated with the advisory, indicating how quickly users should respond to the information (e.g. Low, Medium, High)." size="25" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="advisory_status" nullable="false" remarks="Current status of the advisory, such as Active, Resolved, or Expired." size="100" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="is_reservations_affected" nullable="false" remarks="Indicates whether the advisory affects reservations for the resource, providing important information for users planning to visit." size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="is_reservations_affected" nullable="true" remarks="Indicates whether the advisory affects reservations for the resource, providing important information for users planning to visit." size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="is_advisory_date_displayed" nullable="false" remarks="Indicates whether the advisory date should be displayed to users, allowing for flexibility in how information is presented." size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="is_effective_date_displayed" nullable="false" remarks="Indicates whether the effective date of the advisory should be displayed to users, providing context about when the advisory takes effect." size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="is_end_date_displayed" nullable="false" remarks="Indicates whether the end date of the advisory should be displayed to users, providing information about when the advisory is expected to be resolved." size="1" type="bool" typeCode="-7"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="is_updated_date_displayed" nullable="false" remarks="Indicates whether the updated date of the advisory should be displayed to users, allowing for transparency about when information was last modified." size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="is_updated_date_displayed" nullable="true" remarks="Indicates whether the updated date of the advisory should be displayed to users, allowing for transparency about when information was last modified." size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="16" name="advisory_date" nullable="false" remarks="Date when the advisory was created or submitted, providing a timeline for the advisory." size="35" type="timestamptz" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="17" name="effective_date" nullable="false" remarks="Date when the advisory takes effect, indicating when users should start following the advisory information." size="35" type="timestamptz" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="18" name="end_date" nullable="true" remarks="Date when the advisory is expected to end or be resolved, providing users with an expectation for how long the advisory will be in place." size="35" type="timestamptz" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="19" name="expiry_date" nullable="true" remarks="Date when the advisory expires  and is no longer relevant, allowing for automatic cleanup of outdated advisories." size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="removal_date" nullable="true" remarks="Date when the advisory should  be removed from the system, providing a timeline for data retention and cleanup." size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="21" name="updated_date" nullable="false" remarks="Date when the advisory was last updated, allowing users to see how current the information is." size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="22" name="modified_date" nullable="false" remarks="Date when the advisory was last modified, providing a record of changes to the advisory information." size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="23" name="published_at" nullable="true" remarks="Date when the advisory was published and made visible to users, indicating when the information became available for public consumption." size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="24" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="25" name="listing_rank" nullable="false" remarks="Rank for ordering advisories in listings, calculated based on urgency, access status, and event type to ensure the most critical advisories are displayed prominently." size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="26" name="urgency_sequence" nullable="false" remarks="Sequence number for the urgency level associated with the advisory." size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="27" name="access_status_precedence" nullable="false" remarks="Precedence level for the access status associated with the advisory." size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="28" name="event_type_precedence" nullable="false" remarks="Precedence level for the event type associated with the advisory." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="updated_date" nullable="true" remarks="Date when the advisory was last updated, allowing users to see how current the information is." size="35" type="timestamptz" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="21" name="published_at" nullable="true" remarks="Date when the advisory was published and made visible to users, indicating when the information became available for public consumption." size="35" type="timestamptz" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="22" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="23" name="listing_rank" nullable="false" remarks="Rank for ordering advisories in listings, calculated based on urgency, access status, and event type to ensure the most critical advisories are displayed prominently." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="24" name="urgency_sequence" nullable="false" remarks="Sequence number for the urgency level associated with the advisory." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="25" name="access_status_precedence" nullable="false" remarks="Precedence level for the access status associated with the advisory." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="26" name="event_type_precedence" nullable="false" remarks="Precedence level for the event type associated with the advisory." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="27" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <primaryKey column="advisory_number" sequenceNumberInPK="2"/>
          <index name="act_advisories_flat_pkey" unique="true">
@@ -61,20 +60,19 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="event_type" nullable="false" remarks="" size="100" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="urgency" nullable="false" remarks="" size="25" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="advisory_status" nullable="false" remarks="" size="100" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="is_reservations_affected" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="is_reservations_affected" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="is_advisory_date_displayed" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="is_effective_date_displayed" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="is_end_date_displayed" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="is_updated_date_displayed" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="is_updated_date_displayed" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="16" name="advisory_date" nullable="false" remarks="" size="35" type="timestamptz" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="17" name="effective_date" nullable="false" remarks="" size="35" type="timestamptz" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="18" name="end_date" nullable="true" remarks="" size="35" type="timestamptz" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="19" name="expiry_date" nullable="true" remarks="" size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="removal_date" nullable="true" remarks="" size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="21" name="updated_date" nullable="false" remarks="" size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="22" name="modified_date" nullable="false" remarks="" size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="23" name="published_at" nullable="true" remarks="" size="35" type="timestamptz" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="24" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="updated_date" nullable="true" remarks="" size="35" type="timestamptz" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="21" name="published_at" nullable="true" remarks="" size="35" type="timestamptz" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="23" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
       </table>
       <table name="flyway_schema_history" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="installed_rank" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
@@ -290,7 +288,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="rec_resource_id" nullable="false" remarks="Identifier for the recreational resource (e.g. a specific trail or facility)." size="20" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="recreation_activity_code_trails_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="trail_type" nullable="false" remarks="Classification of the trail based on difficulty or accessibility (e.g. Blue, Green, Black)." size="2147483647" type="&quot;rst&quot;.&quot;trail_types&quot;" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="trail_type" nullable="true" remarks="Classification of the trail based on difficulty (Green, Blue, Black). Nullable — may be unset while difficulty ratings are pending policy confirmation." size="2147483647" type="&quot;rst&quot;.&quot;trail_types&quot;" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="name" nullable="false" remarks="Name of the accessible activity or trail." size="120" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="description" nullable="true" remarks="Detailed description of the accessible activity, including any specific accommodations or features that enhance accessibility." size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="6" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
@@ -308,7 +306,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="rec_resource_id" nullable="false" remarks="" size="20" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="trail_type" nullable="false" remarks="" size="2147483647" type="&quot;rst&quot;.&quot;trail_types&quot;" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="trail_type" nullable="true" remarks="" size="2147483647" type="&quot;rst&quot;.&quot;trail_types&quot;" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="name" nullable="false" remarks="" size="120" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="description" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="6" id="6" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
