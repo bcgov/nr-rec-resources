@@ -43,6 +43,7 @@ describe('rec-resource-page constants', () => {
         'fees',
         'geospatial',
         'reservation',
+        'advisories',
       ]);
     });
   });

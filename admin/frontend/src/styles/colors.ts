@@ -11,6 +11,7 @@ export const COLOR_BLUE_LIGHT = '#c7e3fd';
 export const COLOR_ICE_BLUE = '#ecf6ff';
 export const COLOR_ICE_BLUE_LIGHT = '#f7f9fc';
 export const COLOR_GREY = '#1a1a1a';
+export const COLOR_GREY_DARK = '#2d2d2d';
 export const COLOR_GREY_MED = '#656565';
 export const COLOR_GREY_LIGHT = '#c7c7c7';
 export const COLOR_BACKGROUND_GREY = '#f2f2f2';

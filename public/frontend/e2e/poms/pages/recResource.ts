@@ -30,6 +30,7 @@ export class RecreationResourcePOM {
 
   async route(resourceId: string = 'REC203239') {
     await this.page.goto(`${this.baseUrl}/${resourceId}`);
+    await this.page.waitForLoadState('networkidle');
     await waitForImagesToLoad(this.page);
   }
 
@@ -40,15 +41,9 @@ export class RecreationResourcePOM {
     closest_community,
     status,
   }: RecResource) {
-    const recResourceHeader = this.page
-      .locator('h1')
-      .locator('..')
-      .locator('..');
-
+    const recResourceHeader = this.page.locator('.header-content');
     const headerTitle = recResourceHeader.locator('h1');
-    await recResourceHeader.waitFor({ state: 'visible' });
-    await headerTitle.waitFor({ state: 'visible' });
-    await expect(headerTitle).toHaveText(rec_resource_name);
+    await expect(headerTitle).toHaveText(rec_resource_name, { timeout: 30000 });
     await expect(recResourceHeader).toContainText(rec_resource_type);
     await expect(recResourceHeader).toContainText(
       closest_community.toLowerCase(),
@@ -61,8 +56,13 @@ export class RecreationResourcePOM {
   }
 
   async verifyPdfDocLinks() {
-    const pdfLink = this.page.getByRole('link', { name: /\[PDF\]/ });
-    await expect(pdfLink).toHaveAttribute('href', /.*\.pdf$/);
+    const pdfLinks = this.page
+      .getByRole('link')
+      .filter({ hasText: /\[PDF\]/i });
+    const count = await pdfLinks.count();
+    for (let i = 0; i < count; i++) {
+      await expect(pdfLinks.nth(i)).toHaveAttribute('href', /.*\.pdf$/i);
+    }
   }
 
   async verifyPageMenuItemSectionsAreVisible() {

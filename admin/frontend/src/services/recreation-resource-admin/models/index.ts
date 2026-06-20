@@ -24,6 +24,7 @@ export * from './RecreationActivityDto';
 export * from './RecreationControlAccessDto';
 export * from './RecreationFeatureDto';
 export * from './RecreationFeeDto';
+export * from './RecreationResourceAdvisoryDto';
 export * from './RecreationResourceDetailDto';
 export * from './RecreationResourceDistrictDto';
 export * from './RecreationResourceDocDto';
