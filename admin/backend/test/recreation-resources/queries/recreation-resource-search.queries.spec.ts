@@ -261,4 +261,52 @@ describe('recreation-resource-search.queries', () => {
       name: 'desc',
     });
   });
+
+  // These column-only sorts reach buildDerivedSortQueryParts only when a
+  // public_access_status filter forces the derived-sort path. They emit no
+  // joins and order directly on a recreation_resource column.
+  it.each([
+    ['name:asc', 'rr.name ASC'],
+    ['name:desc', 'rr.name DESC'],
+    ['rec_resource_id:asc', 'rr.rec_resource_id ASC'],
+    ['established_date:asc', 'rr.project_established_date ASC'],
+    ['community:asc', 'rr.closest_community ASC'],
+    ['display_on_public_site:asc', 'rr.display_on_public_site ASC'],
+  ] as const)(
+    'builds column-only derived sort for %s without joins',
+    (sort, expectedOrderBy) => {
+      const { joinsSql, orderBySql } = buildDerivedSortQueryParts(sort);
+
+      expect(joinsSql).toBe(Prisma.empty);
+      expect(normalizeSql(orderBySql)).toBe(expectedOrderBy);
+    },
+  );
+
+  it('builds campsites derived sort with a campsite count lateral join', () => {
+    const { joinsSql, orderBySql } =
+      buildDerivedSortQueryParts('campsites:asc');
+
+    const normalizedJoin = normalizeSql(joinsSql);
+    expect(normalizedJoin).toContain('LEFT JOIN LATERAL');
+    expect(normalizedJoin).toContain('COUNT(*) AS campsite_count');
+    expect(normalizedJoin).toContain('rst.recreation_defined_campsite rdc');
+    expect(normalizedJoin).toContain(
+      'rdc.rec_resource_id = rr.rec_resource_id',
+    );
+    expect(normalizeSql(orderBySql)).toBe('campsite_agg.campsite_count ASC');
+  });
+
+  it('builds district derived sort with a district code join and COALESCE order', () => {
+    const { joinsSql, orderBySql } =
+      buildDerivedSortQueryParts('district:desc');
+
+    const normalizedJoin = normalizeSql(joinsSql);
+    expect(normalizedJoin).toContain(
+      'LEFT JOIN rst.recreation_district_code rdco',
+    );
+    expect(normalizedJoin).toContain('rdco.district_code = rr.district_code');
+    expect(normalizeSql(orderBySql)).toBe(
+      "COALESCE(rdco.description, '') DESC",
+    );
+  });
 });
