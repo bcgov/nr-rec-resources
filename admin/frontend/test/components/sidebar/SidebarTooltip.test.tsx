@@ -32,7 +32,7 @@ describe('SidebarTooltip Component', () => {
   const defaultProps = {
     text: 'Search Tooltip',
     isCollapsed: true,
-    isExternal: false, // Added to satisfy the required interface prop
+    isExternal: false,
   };
 
   const TestChild = () => (
