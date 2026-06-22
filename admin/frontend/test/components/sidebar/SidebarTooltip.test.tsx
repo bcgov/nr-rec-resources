@@ -32,6 +32,7 @@ describe('SidebarTooltip Component', () => {
   const defaultProps = {
     text: 'Search Tooltip',
     isCollapsed: true,
+    isExternal: false,
   };
 
   const TestChild = () => (
@@ -92,5 +93,40 @@ describe('SidebarTooltip Component', () => {
 
     const tooltipElement = screen.getByRole('tooltip');
     expect(tooltipElement).toHaveAttribute('id', 'tooltip-bottom');
+  });
+
+  // --- New Feature Tests: isExternal ---
+
+  it('renders the external link icon inside the tooltip when isExternal is true', () => {
+    const { container } = render(
+      <SidebarTooltip {...defaultProps} isExternal={true}>
+        <TestChild />
+      </SidebarTooltip>,
+    );
+
+    // Verify the text is still present
+    expect(screen.getByText('Search Tooltip')).toBeInTheDocument();
+
+    // Verify FontAwesome rendering behavior: search by svg selector or data attribute
+    const externalIcon = container.querySelector(
+      '[data-icon="arrow-up-right-from-square"]',
+    );
+    expect(externalIcon).toBeInTheDocument();
+  });
+
+  it('does not render the external link icon inside the tooltip when isExternal is false', () => {
+    const { container } = render(
+      <SidebarTooltip {...defaultProps} isExternal={false}>
+        <TestChild />
+      </SidebarTooltip>,
+    );
+
+    // Verify text is present, but icon is strictly absent
+    expect(screen.getByText('Search Tooltip')).toBeInTheDocument();
+
+    const externalIcon = container.querySelector(
+      '[data-icon="arrow-up-right-from-square"]',
+    );
+    expect(externalIcon).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,9 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowUpRightFromSquare } from '@fortawesome/pro-regular-svg-icons';
 import { ReactElement } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Placement } from 'react-bootstrap/types';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 interface SidebarTooltipProps {
   /** The Link component or element to trigger the tooltip */
@@ -9,6 +12,8 @@ interface SidebarTooltipProps {
   text: string;
   /** State determining if the sidebar is collapsed or open */
   isCollapsed: boolean;
+  /** State determining if the link is external */
+  isExternal: boolean;
   /** Optional direction of the tooltip. Defaults to 'right' */
   placement?: Placement;
 }
@@ -17,6 +22,7 @@ const SidebarTooltip: React.FC<SidebarTooltipProps> = ({
   children,
   text,
   isCollapsed,
+  isExternal,
   placement = 'right',
 }) => {
   // If the sidebar is NOT collapsed, we don't need to show the tooltip
@@ -40,7 +46,14 @@ const SidebarTooltip: React.FC<SidebarTooltipProps> = ({
           },
         ],
       }}
-      overlay={<Tooltip id={`tooltip-${placement}`}>{text}</Tooltip>}
+      overlay={
+        <Tooltip id={`tooltip-${placement}`}>
+          {text}{' '}
+          {isExternal && (
+            <FontAwesomeIcon icon={faArrowUpRightFromSquare as IconProp} />
+          )}
+        </Tooltip>
+      }
     >
       {({ ref, ...triggerHandler }) => (
         <span
