@@ -230,6 +230,35 @@ describe('RecreationResourceRepository', () => {
       );
     });
 
+    it('should use the derived-sort path when a public_access_status filter is set even for a non-derived sort', async () => {
+      prisma.$queryRaw
+        .mockResolvedValueOnce([{ total: 1n }])
+        .mockResolvedValueOnce([{ rec_resource_id: 'REC001' }]);
+      prisma.recreation_resource.findMany.mockResolvedValue([
+        { rec_resource_id: 'REC001' },
+      ]);
+
+      const result = await repo.searchResources({
+        sort: 'name:asc',
+        public_access_status: ['Closed'],
+      });
+
+      // name:asc is not a RAW_SQL_SORT, so only the filter forces the raw path.
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(2);
+
+      const countQuery = prisma.$queryRaw.mock.calls[0]?.[0] as Prisma.Sql;
+      expect(countQuery.sql.replace(/\s+/g, ' ').trim()).toContain(
+        'act_advisories_flat',
+      );
+      expect(countQuery.values).toContain('Closed');
+
+      expect(result).toEqual({
+        total: 1,
+        data: [{ rec_resource_id: 'REC001' }],
+      });
+    });
+
     it('should return an empty data array when the derived-sort ID query returns no rows', async () => {
       prisma.$queryRaw
         .mockResolvedValueOnce([{ total: 0n }])

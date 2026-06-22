@@ -25,5 +25,6 @@ export function mapAdminSearchResultRow(
     statusCode: row.status_code,
     recStatusCode: row.rec_status_code,
     visible: row.display_on_public_site,
+    publicAccessStatus: row.access_status_grouplabel ?? null,
   };
 }

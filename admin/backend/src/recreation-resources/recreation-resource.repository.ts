@@ -60,7 +60,7 @@ export class RecreationResourceRepository {
     const pageSize = query.page_size ?? ADMIN_SEARCH_PAGE_SIZE_VALUES[0];
     const sort = query.sort ?? 'name:asc';
 
-    if (RAW_SQL_SORTS.has(sort)) {
+    if (RAW_SQL_SORTS.has(sort) || query.public_access_status?.length) {
       return this.searchResourcesWithDerivedSort(query, page, pageSize, sort);
     }
 

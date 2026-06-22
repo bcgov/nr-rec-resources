@@ -17,7 +17,9 @@ function createPagination(pageIndex = 0) {
     rowCount: 55,
     canPreviousPage: pageIndex > 0,
     canNextPage: pageIndex < 2,
+    pageSizeOptions: [25, 50, 100],
     setPageIndex: vi.fn(),
+    setPageSize: vi.fn(),
     previousPage: vi.fn(),
     nextPage: vi.fn(),
   };
@@ -34,6 +36,10 @@ const rows: AdminSearchResultRow[] = [
     feeType: 'Reservable, Has fees',
     definedCampsites: '3',
     closestCommunity: 'Hope',
+    status: 'Open',
+    statusCode: 1,
+    visible: true,
+    publicAccessStatus: null,
   },
 ];
 
@@ -123,7 +129,7 @@ describe('useSearchResultsTable', () => {
     interactionProps.onKeyDown({
       key: 'Enter',
       preventDefault,
-    } as KeyboardEvent<HTMLTableRowElement>);
+    } as unknown as KeyboardEvent<HTMLTableRowElement>);
 
     expect(preventDefault).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledTimes(2);

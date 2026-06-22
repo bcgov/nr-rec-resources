@@ -11,7 +11,8 @@ type SerializedListFilterFields =
   | 'activities'
   | 'status'
   | 'access'
-  | 'closestCommunity';
+  | 'closestCommunity'
+  | 'publicAccessStatus';
 
 export type SerializedAdminSearchRouteState = Partial<
   Omit<AdminSearchRouteState, SerializedListFilterFields | 'sort'> & {
@@ -84,6 +85,10 @@ export const serializeAdminSearchRouteState = (
 
   if (state.established) {
     search.established = state.established;
+  }
+
+  if (state.publicAccessStatus.length > 0) {
+    search.publicAccessStatus = serializeListFilter(state.publicAccessStatus);
   }
 
   return search;
@@ -185,6 +190,11 @@ export const setAdminSearchEstablishedFilter = (
   setFilterState(state, {
     established: established || undefined,
   });
+
+export const setAdminSearchPublicAccessStatusFilter = (
+  state: AdminSearchRouteState,
+  publicAccessStatus: string[],
+): AdminSearchRouteState => setFilterState(state, { publicAccessStatus });
 
 export const clearAdminSearchState = (
   state: AdminSearchRouteState,

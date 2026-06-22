@@ -77,4 +77,43 @@ describe('validateAdminSearch', () => {
       ),
     ).toEqual(['rec_resource_id', 'name', 'recreation_resource_type']);
   });
+
+  it('parses publicAccessStatus token list in validateAdminSearch', () => {
+    expect(
+      validateAdminSearch({
+        publicAccessStatus: 'Open_Closed',
+      }),
+    ).toEqual({
+      publicAccessStatus: 'Open_Closed',
+    });
+  });
+
+  it('omits publicAccessStatus from validated state when absent', () => {
+    expect(validateAdminSearch({})).toEqual({});
+  });
+
+  it('resolves publicAccessStatus token list in resolveAdminSearchRouteState', () => {
+    expect(
+      resolveAdminSearchRouteState({
+        publicAccessStatus: 'Open_Closed',
+      }),
+    ).toMatchObject({
+      publicAccessStatus: ['Open', 'Closed'],
+    });
+  });
+
+  it('resolves empty publicAccessStatus when not present in route state', () => {
+    expect(resolveAdminSearchRouteState({})).toMatchObject({
+      publicAccessStatus: [],
+    });
+  });
+
+  it('accepts public_access_status:asc and public_access_status:desc sort values', () => {
+    expect(validateAdminSearch({ sort: 'public_access_status:asc' })).toEqual({
+      sort: 'public_access_status_asc',
+    });
+    expect(validateAdminSearch({ sort: 'public_access_status:desc' })).toEqual({
+      sort: 'public_access_status_desc',
+    });
+  });
 });

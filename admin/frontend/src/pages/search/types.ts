@@ -15,6 +15,7 @@ export interface AdminSearchFilters {
   establishment_date_to?: string;
   access: string[];
   established?: string;
+  publicAccessStatus: string[];
 }
 
 export interface AdminSearchRouteState extends AdminSearchFilters {
@@ -44,4 +45,5 @@ export interface AdminSearchResultRow {
   statusCode: number;
   recStatusCode?: string | null;
   visible: boolean;
+  publicAccessStatus: string | null;
 }

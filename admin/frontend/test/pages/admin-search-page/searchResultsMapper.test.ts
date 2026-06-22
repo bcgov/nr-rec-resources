@@ -64,4 +64,32 @@ describe('mapAdminSearchResultRow', () => {
       recStatusCode: 'AR',
     });
   });
+
+  it('maps publicAccessStatus from access_status_grouplabel', () => {
+    expect(
+      mapAdminSearchResultRow({
+        ...baseRow,
+        access_status_grouplabel: 'Closed',
+      }),
+    ).toMatchObject({
+      publicAccessStatus: 'Closed',
+    });
+  });
+
+  it('maps publicAccessStatus to null when access_status_grouplabel is null', () => {
+    expect(
+      mapAdminSearchResultRow({
+        ...baseRow,
+        access_status_grouplabel: null,
+      }),
+    ).toMatchObject({
+      publicAccessStatus: null,
+    });
+  });
+
+  it('maps publicAccessStatus to null when access_status_grouplabel is absent', () => {
+    expect(mapAdminSearchResultRow(baseRow)).toMatchObject({
+      publicAccessStatus: null,
+    });
+  });
 });

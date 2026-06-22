@@ -10,6 +10,12 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const mockUseAuthorizations = vi.fn();
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 function createPagination() {
   return {
     state: { pageIndex: 0, pageSize: 25 },
@@ -17,7 +23,9 @@ function createPagination() {
     rowCount: 1,
     canPreviousPage: false,
     canNextPage: false,
+    pageSizeOptions: [25, 50, 100],
     setPageIndex: vi.fn(),
+    setPageSize: vi.fn(),
     previousPage: vi.fn(),
     nextPage: vi.fn(),
   };
@@ -37,11 +45,69 @@ describe('SearchResultsTable', () => {
       closestCommunity: 'Hope',
       status: 'Open',
       statusCode: 1,
+      visible: true,
+      publicAccessStatus: null,
     },
   ];
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default to no feature-flag access, matching production behaviour with no
+    // AuthContext provider. The public access status column stays hidden.
+    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: false });
+  });
+
+  it('hides the public access status column without feature-flag access', () => {
+    render(
+      <SearchResultsTable
+        rows={rows}
+        visibleColumns={['rec_resource_id', 'public_access_status']}
+        sort="name:asc"
+        pagination={createPagination()}
+        isLoading={false}
+        onSortChange={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: /sort by public access status/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders the public access status as a badge when feature-flag access is granted', () => {
+    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: true });
+
+    render(
+      <SearchResultsTable
+        rows={[{ ...rows[0], publicAccessStatus: 'Closed' }]}
+        visibleColumns={['rec_resource_id', 'public_access_status']}
+        sort="name:asc"
+        pagination={createPagination()}
+        isLoading={false}
+        onSortChange={vi.fn()}
+      />,
+    );
+
+    const badge = screen.getByText('Closed');
+    expect(badge.tagName).toBe('SPAN');
+    expect(badge).toHaveClass('custom-badge');
+  });
+
+  it('falls back to an Open badge when the public access status is null', () => {
+    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: true });
+
+    render(
+      <SearchResultsTable
+        rows={[{ ...rows[0], publicAccessStatus: null }]}
+        visibleColumns={['rec_resource_id', 'public_access_status']}
+        sort="name:asc"
+        pagination={createPagination()}
+        isLoading={false}
+        onSortChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Open')).toBeInTheDocument();
   });
 
   it('renders only the visible columns', () => {

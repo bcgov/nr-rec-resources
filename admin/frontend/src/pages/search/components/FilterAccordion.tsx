@@ -12,6 +12,7 @@ import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchCon
 import { AdminSearchRouteState } from '@/pages/search/types';
 import './FilterAccordion.scss';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 type FilterAccordionControllerProps = Pick<
   ReturnType<typeof useAdminSearchController>,
@@ -25,6 +26,7 @@ type FilterAccordionControllerProps = Pick<
   | 'accessOptions'
   | 'closestCommunityOptions'
   | 'establishedOptions'
+  | 'publicAccessStatusOptions'
   | 'applyFilters'
   | 'resetFilters'
 >;
@@ -49,6 +51,7 @@ const getEditableFilters = (
   establishment_date_from: state.establishment_date_from,
   establishment_date_to: state.establishment_date_to,
   established: state.established,
+  publicAccessStatus: state.publicAccessStatus,
 });
 
 const toggleFilterValue = (currentValues: string[], value: string): string[] =>
@@ -61,6 +64,7 @@ export function FilterAccordion({
   controller,
   showTrigger = true,
 }: Readonly<FilterAccordionProps>) {
+  const { canViewFeatureFlag } = useAuthorizations();
   const {
     isFilterPanelOpen: isOpen,
     closeFilterPanel: onClose,
@@ -72,6 +76,7 @@ export function FilterAccordion({
     accessOptions,
     closestCommunityOptions,
     establishedOptions,
+    publicAccessStatusOptions,
     applyFilters: onApply,
     resetFilters: onReset,
   } = controller;
@@ -86,6 +91,7 @@ export function FilterAccordion({
       ...item,
       label: capitalizeWords(item.label),
     })),
+    publicAccessStatusOptions,
   };
   const searchFilters = getEditableFilters(search);
   const searchKey = JSON.stringify(searchFilters);
@@ -112,6 +118,13 @@ export function FilterAccordion({
         <div className="filters__panel mb-3">
           <Row className="g-3">
             {ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS.map((field) => {
+              if (
+                'isFeatureFlagged' in field &&
+                field.isFeatureFlagged &&
+                !canViewFeatureFlag
+              ) {
+                return null;
+              }
               const options =
                 filterOptionsByKey[
                   field.optionsKey as keyof typeof filterOptionsByKey
@@ -245,6 +258,7 @@ export function FilterAccordion({
                     establishment_date_from: draft.establishment_date_from,
                     establishment_date_to: draft.establishment_date_to,
                     established: draft.established,
+                    publicAccessStatus: draft.publicAccessStatus,
                   });
                 }}
               >

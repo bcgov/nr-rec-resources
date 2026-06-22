@@ -386,6 +386,7 @@ describe('useAdminSearchController', () => {
         establishment_date_from: undefined,
         establishment_date_to: undefined,
         established: 'yes',
+        publicAccessStatus: [],
       });
     });
 
@@ -467,5 +468,78 @@ describe('useAdminSearchController', () => {
       { id: 'yes', label: 'Yes' },
       { id: 'no', label: 'No' },
     ]);
+  });
+
+  it('provides publicAccessStatusOptions from constants', () => {
+    const { result } = renderHook(
+      () => useAdminSearchController(DEFAULT_ADMIN_SEARCH_STATE),
+      { wrapper: createWrapper() },
+    );
+
+    expect(result.current.publicAccessStatusOptions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'Open', label: 'Open' }),
+        expect.objectContaining({ id: 'Closed', label: 'Closed' }),
+      ]),
+    );
+    expect(result.current.publicAccessStatusOptions.length).toBeGreaterThan(0);
+  });
+
+  it('generates filter chip for publicAccessStatus and clears on chip action', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      publicAccessStatus: ['Closed', 'Restricted'],
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    const chips = result.current.appliedFilterChips.filter((chip) =>
+      chip.key.startsWith('publicAccessStatus:'),
+    );
+
+    expect(chips.map((chip) => chip.label)).toEqual(['Closed', 'Restricted']);
+
+    act(() => {
+      chips[0].onClear();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: { publicAccessStatus: 'Restricted' },
+      resetScroll: false,
+    });
+  });
+
+  it('detects publicAccessStatus filter as active filter', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      publicAccessStatus: ['Open'],
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.hasAppliedState).toBe(true);
+  });
+
+  it('clears publicAccessStatus filter via clearPublicAccessStatus', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      publicAccessStatus: ['Closed', 'Open'],
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.clearPublicAccessStatus('Closed');
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: { publicAccessStatus: 'Open' },
+      resetScroll: false,
+    });
   });
 });
