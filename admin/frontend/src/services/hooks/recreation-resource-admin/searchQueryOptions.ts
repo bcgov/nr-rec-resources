@@ -34,6 +34,9 @@ export function buildAdminSearchRequest(
     establishmentDateFrom: search.establishment_date_from,
     establishmentDateTo: search.establishment_date_to,
     established: search.established,
+    publicAccessStatus: search.publicAccessStatus.length
+      ? search.publicAccessStatus
+      : undefined,
   };
 }
 

@@ -5,6 +5,7 @@ import {
   ADMIN_SEARCH_PAGE_SIZE_OPTIONS,
   DEFAULT_ADMIN_SEARCH_STATE,
   EMPTY_ADMIN_SEARCH_FILTERS,
+  PUBLIC_ACCESS_STATUS_OPTIONS,
   type EditableAdminSearchFilters,
 } from '@/pages/search/constants';
 import {
@@ -31,6 +32,7 @@ import {
   setAdminSearchTypeFilter,
   submitAdminSearchQuery,
   setAdminSearchClosestCommunityFilter,
+  setAdminSearchPublicAccessStatusFilter,
 } from '@/pages/search/utils/urlState';
 import useGetRecreationResourceSearch from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSearch';
 import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
@@ -48,6 +50,7 @@ const hasActiveEditableFilters = (search: AdminSearchRouteState) =>
   search.status.length > 0 ||
   search.access.length > 0 ||
   search.closestCommunity.length > 0 ||
+  search.publicAccessStatus.length > 0 ||
   Boolean(search.establishment_date_from) ||
   Boolean(search.establishment_date_to) ||
   Boolean(search.established);
@@ -157,6 +160,10 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     ],
     [],
   );
+  const publicAccessStatusOptions = useMemo(
+    () => [...PUBLIC_ACCESS_STATUS_OPTIONS],
+    [],
+  );
   const updateSearch = (nextSearch: AdminSearchRouteState) =>
     navigate({
       to: ROUTE_PATHS.LANDING,
@@ -254,6 +261,13 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     updateSearch(setAdminSearchEstablishmentDateToFilter(search, undefined));
   const clearEstablished = () =>
     updateSearch(setAdminSearchEstablishedFilter(search, undefined));
+  const clearPublicAccessStatus = (value: string) =>
+    updateSearch(
+      setAdminSearchPublicAccessStatusFilter(
+        search,
+        search.publicAccessStatus.filter((entry) => entry !== value),
+      ),
+    );
   const appliedFilterChips: AdminAppliedFilterChip[] = [];
   appliedFilterChips.push(
     ...search.type.map((type) => ({
@@ -287,6 +301,11 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         getOptionLabel(closestCommunity, closestCommunityOptions),
       ),
       onClear: () => clearClosestCommunity(closestCommunity),
+    })),
+    ...search.publicAccessStatus.map((status) => ({
+      key: `publicAccessStatus:${status}`,
+      label: status,
+      onClear: () => clearPublicAccessStatus(status),
     })),
   );
 
@@ -326,6 +345,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         establishment_date_from: search.establishment_date_from,
         establishment_date_to: search.establishment_date_to,
         established: search.established,
+        publicAccessStatus: search.publicAccessStatus,
       }),
     [
       search.type,
@@ -337,6 +357,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       search.establishment_date_from,
       search.establishment_date_to,
       search.established,
+      search.publicAccessStatus,
     ],
   );
   const isFilterPanelOpen = hasActiveFilters
@@ -393,6 +414,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       });
       setFilterPanelOpen(false);
     },
+    publicAccessStatusOptions,
     clearQuery,
     clearType,
     clearDistrict,
@@ -404,5 +426,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     clearEstablishmentDateFrom,
     clearEstablishmentDateTo,
     clearEstablished,
+    clearPublicAccessStatus,
   };
 }

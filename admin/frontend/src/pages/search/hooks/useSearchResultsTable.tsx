@@ -8,7 +8,12 @@ import {
 } from '@tanstack/react-table';
 import type { KeyboardEvent } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { AdminStatusBadge, CustomBadge, VisibleOnWebsite } from '@/components';
+import {
+  AdminStatusBadge,
+  CustomBadge,
+  PublicAccessStatusBadge,
+  VisibleOnWebsite,
+} from '@/components';
 import { COLOR_RED, COLOR_RED_LIGHT } from '@/styles/colors';
 import { ROUTE_PATHS } from '@/constants/routes';
 import {
@@ -17,11 +22,15 @@ import {
 } from '@/pages/search/constants';
 import { SearchResultsTableSortableHeader } from '@/pages/search/components/SearchResultsTableSortableHeader';
 import type { SearchResultsPaginationModel } from '@/pages/search/hooks/useAdminSearchController';
-import { ADMIN_SEARCH_COLUMN_DEFINITIONS } from '@/pages/search/searchDefinitions';
+import {
+  ADMIN_SEARCH_COLUMN_DEFINITIONS,
+  FEATURE_FLAGGED_COLUMN_IDS,
+} from '@/pages/search/searchDefinitions';
 import type {
   AdminSearchResultRow,
   AdminSearchRouteState,
 } from '@/pages/search/types';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 interface UseSearchResultsTableParams {
   rows: AdminSearchResultRow[];
@@ -34,12 +43,17 @@ interface UseSearchResultsTableParams {
 
 const getSortParts = (sort: AdminSearchRouteState['sort']) => sort.split(':');
 
-const buildColumnVisibility = (visibleColumns: AdminSearchColumnId[]) =>
+const buildColumnVisibility = (
+  visibleColumns: AdminSearchColumnId[],
+  canViewFeatureFlag: boolean,
+) =>
   Object.fromEntries(
-    ADMIN_SEARCH_COLUMN_IDS.map((columnId) => [
-      columnId,
-      visibleColumns.includes(columnId),
-    ]),
+    ADMIN_SEARCH_COLUMN_IDS.map((columnId) => {
+      if (FEATURE_FLAGGED_COLUMN_IDS.has(columnId) && !canViewFeatureFlag) {
+        return [columnId, false];
+      }
+      return [columnId, visibleColumns.includes(columnId)];
+    }),
   ) as Record<AdminSearchColumnId, boolean>;
 
 const buildColumns = (
@@ -90,6 +104,12 @@ const buildColumns = (
       );
     }
 
+    if (id === 'public_access_status') {
+      column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => (
+        <PublicAccessStatusBadge label={row.original.publicAccessStatus} />
+      );
+    }
+
     return column;
   });
 
@@ -102,6 +122,7 @@ export function useSearchResultsTable({
   onSortChange,
 }: UseSearchResultsTableParams) {
   const navigate = useNavigate();
+  const { canViewFeatureFlag } = useAuthorizations();
   const [sortField, sortDirection] = getSortParts(sort);
 
   const navigateToResource = (recResourceId: string) =>
@@ -128,7 +149,10 @@ export function useSearchResultsTable({
     pageCount: pagination.pageCount,
     rowCount: pagination.rowCount,
     state: {
-      columnVisibility: buildColumnVisibility(visibleColumns),
+      columnVisibility: buildColumnVisibility(
+        visibleColumns,
+        canViewFeatureFlag,
+      ),
       pagination: pagination.state,
     },
     getRowId: (row) => row.recResourceId,

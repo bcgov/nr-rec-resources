@@ -19,6 +19,7 @@ export type EditableAdminSearchFilters = Pick<
   | 'establishment_date_from'
   | 'establishment_date_to'
   | 'established'
+  | 'publicAccessStatus'
 >;
 
 export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
@@ -35,6 +36,7 @@ export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
   access: [],
   established: undefined,
   closestCommunity: [],
+  publicAccessStatus: [],
 };
 
 export const ADMIN_SEARCH_PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
@@ -52,6 +54,7 @@ export const EMPTY_ADMIN_SEARCH_FILTERS: EditableAdminSearchFilters = {
   establishment_date_from: undefined,
   establishment_date_to: undefined,
   established: undefined,
+  publicAccessStatus: [],
 };
 
 export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
@@ -99,11 +102,27 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     controlId: 'admin-search-filter-closest-community',
     optionsKey: 'closestCommunityOptions',
   },
+  {
+    key: 'publicAccessStatus',
+    label: 'Public access status',
+    controlId: 'admin-search-filter-public-access-status',
+    optionsKey: 'publicAccessStatusOptions',
+    isFeatureFlagged: true,
+  },
 ] as const;
 
 export const ADMIN_SEARCH_ESTABLISHED_OPTIONS = [
   { id: 'yes', label: 'Yes' },
   { id: 'no', label: 'No' },
+] as const;
+
+export const PUBLIC_ACCESS_STATUS_OPTIONS = [
+  { id: 'Open', label: 'Open' },
+  { id: 'Seasonal restrictions', label: 'Seasonal restrictions' },
+  { id: 'Visit with caution', label: 'Visit with caution' },
+  { id: 'Limited access', label: 'Limited access' },
+  { id: 'Restricted', label: 'Restricted' },
+  { id: 'Closed', label: 'Closed' },
 ] as const;
 
 export const ADMIN_SEARCH_STORAGE_KEYS = {
