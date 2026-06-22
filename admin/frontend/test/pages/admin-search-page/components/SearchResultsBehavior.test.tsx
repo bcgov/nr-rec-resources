@@ -122,6 +122,7 @@ describe('FilterAccordion', () => {
           statusOptions: [],
           accessOptions: [{ id: 'W', label: 'Walk-in', is_archived: false }],
           establishedOptions,
+          publicAccessStatusOptions: [],
           applyFilters,
           resetFilters: vi.fn(),
         }}
@@ -152,6 +153,8 @@ describe('FilterAccordion', () => {
       closestCommunity: [],
       establishment_date_from: '2020-01-01',
       establishment_date_to: '2021-01-01',
+      established: undefined,
+      publicAccessStatus: [],
     });
   });
 
@@ -177,6 +180,7 @@ describe('FilterAccordion', () => {
           statusOptions: [],
           accessOptions: [],
           establishedOptions,
+          publicAccessStatusOptions: [],
           closestCommunityOptions: [],
           applyFilters: vi.fn(),
           resetFilters,
@@ -232,6 +236,7 @@ describe('FilterAccordion', () => {
           statusOptions: [],
           accessOptions: [],
           establishedOptions,
+          publicAccessStatusOptions: [],
           closestCommunityOptions: [],
           applyFilters: vi.fn(),
           resetFilters: vi.fn(),
@@ -266,6 +271,7 @@ describe('FilterAccordion', () => {
           statusOptions: [],
           accessOptions: [],
           establishedOptions,
+          publicAccessStatusOptions: [],
           closestCommunityOptions: [],
           applyFilters,
           resetFilters: vi.fn(),
@@ -292,6 +298,7 @@ describe('FilterAccordion', () => {
       establishment_date_from: undefined,
       establishment_date_to: undefined,
       established: 'yes',
+      publicAccessStatus: [],
     });
   });
 
@@ -315,6 +322,7 @@ describe('FilterAccordion', () => {
           statusOptions: [],
           accessOptions: [],
           establishedOptions,
+          publicAccessStatusOptions: [],
           closestCommunityOptions: [],
           applyFilters,
           resetFilters: vi.fn(),
@@ -341,6 +349,7 @@ describe('FilterAccordion', () => {
       establishment_date_from: undefined,
       establishment_date_to: undefined,
       established: undefined,
+      publicAccessStatus: [],
     });
   });
 
@@ -364,6 +373,7 @@ describe('FilterAccordion', () => {
           statusOptions: [],
           accessOptions: [],
           establishedOptions,
+          publicAccessStatusOptions: [],
           closestCommunityOptions: [],
           applyFilters: vi.fn(),
           resetFilters: vi.fn(),
@@ -399,6 +409,7 @@ describe('FilterAccordion', () => {
           statusOptions: [],
           accessOptions: [],
           establishedOptions,
+          publicAccessStatusOptions: [],
           closestCommunityOptions: [],
           applyFilters: vi.fn(),
           resetFilters,

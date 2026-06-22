@@ -36,6 +36,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'district:desc',
   'display_on_public_site:asc',
   'display_on_public_site:desc',
+  'public_access_status:asc',
+  'public_access_status:desc',
 ] as const;
 
 export const ADMIN_SEARCH_PAGE_SIZE_VALUES = [25, 50, 100] as const;
@@ -174,4 +176,15 @@ export class AdminSearchQueryDto {
   @IsOptional()
   @IsIn(['yes', 'no'])
   established?: string;
+
+  @ApiPropertyOptional({
+    description: 'Public access status group labels',
+    type: [String],
+    example: ['Open', 'Closed'],
+  })
+  @Transform(transformStringArrayQueryParam)
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  public_access_status?: string[];
 }

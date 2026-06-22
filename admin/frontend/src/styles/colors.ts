@@ -23,3 +23,4 @@ export const COLOR_GREEN = '#4b944d';
 export const COLOR_GREEN_DARKER = '#2e8540';
 export const COLOR_GREEN_LIGHT = '#4f8747';
 export const COLOR_GREEN_LIGHTEST = '#e0eddb';
+export const COLOR_YELLOW_ADVISORY_BG = 'rgba(241, 194, 27, 0.29)';

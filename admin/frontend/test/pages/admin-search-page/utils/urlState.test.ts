@@ -6,6 +6,7 @@ import {
   setAdminSearchEstablishmentDateToFilter,
   setAdminSearchEstablishedFilter,
   setAdminSearchPageSize,
+  setAdminSearchPublicAccessStatusFilter,
   setAdminSearchTypeFilter,
   submitAdminSearchQuery,
 } from '@/pages/search/utils/urlState';
@@ -165,6 +166,38 @@ describe('admin search urlState helpers', () => {
       }),
     ).toEqual({
       sort: 'rec_resource_id_desc',
+    });
+  });
+
+  it('serializes publicAccessStatus filter with underscore delimiter', () => {
+    expect(
+      serializeAdminSearchRouteState({
+        ...DEFAULT_ADMIN_SEARCH_STATE,
+        publicAccessStatus: ['Open', 'Closed'],
+      }),
+    ).toEqual({
+      publicAccessStatus: 'Open_Closed',
+    });
+  });
+
+  it('omits publicAccessStatus from serialized state when empty', () => {
+    expect(
+      serializeAdminSearchRouteState({
+        ...DEFAULT_ADMIN_SEARCH_STATE,
+        publicAccessStatus: [],
+      }),
+    ).toEqual({});
+  });
+
+  it('sets publicAccessStatus filter and resets page', () => {
+    expect(
+      setAdminSearchPublicAccessStatusFilter(baseState, [
+        'Closed',
+        'Restricted',
+      ]),
+    ).toMatchObject({
+      publicAccessStatus: ['Closed', 'Restricted'],
+      page: 1,
     });
   });
 

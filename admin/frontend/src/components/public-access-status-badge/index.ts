@@ -1,0 +1,1 @@
+export { PublicAccessStatusBadge } from './PublicAccessStatusBadge';

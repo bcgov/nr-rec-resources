@@ -50,3 +50,7 @@
 .tooltip {
   pointer-events: none !important; /* Prevents the tooltip bubble from capturing mouse hover states */
 }
+
+.link-text {
+  white-space: nowrap;
+}

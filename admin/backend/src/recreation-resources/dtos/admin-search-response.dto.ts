@@ -99,6 +99,15 @@ export class AdminSearchResultRowDto {
     example: 24,
   })
   campsite_count: number;
+
+  @ApiProperty({
+    description: 'Public access status group label from ACT advisories',
+    example: 'Open',
+    required: false,
+    nullable: true,
+    type: String,
+  })
+  access_status_grouplabel?: string | null;
 }
 
 export class AdminSearchResponseDto {

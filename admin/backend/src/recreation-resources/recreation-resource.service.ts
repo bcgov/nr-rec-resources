@@ -107,6 +107,8 @@ export class RecreationResourceService {
           ? resource.project_established_date.toISOString().slice(0, 10)
           : null,
         campsite_count: resource._count?.recreation_defined_campsite ?? 0,
+        access_status_grouplabel:
+          resource.act_advisories_flat?.[0]?.access_status_grouplabel ?? null,
       }),
     );
 
