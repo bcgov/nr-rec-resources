@@ -12,10 +12,14 @@ import { describe, expect, it } from 'vitest';
 const normalizeSql = (sql: Prisma.Sql) => sql.sql.replace(/\s+/g, ' ').trim();
 
 describe('recreation-resource-search.queries', () => {
-  it('returns Prisma.empty when no search filters are provided', () => {
+  it('returns only the archived exclusion filter when no other search filters are provided', () => {
     const whereSql = buildSearchWhereSql({});
 
-    expect(whereSql).toBe(Prisma.empty);
+    const normalizedSql = normalizeSql(whereSql);
+    expect(normalizedSql).toContain("rr.rec_status_code IS DISTINCT FROM 'AR'");
+    // No other conditions should be present
+    expect(normalizedSql).not.toContain('ILIKE');
+    expect(normalizedSql).not.toContain('project_established_date');
   });
 
   it('builds SQL conditions for all supported filters and sanitizes activities', () => {
@@ -91,7 +95,11 @@ describe('recreation-resource-search.queries', () => {
       established: 'invalid',
     });
 
-    expect(whereInvalid).toBe(Prisma.empty);
+    const normalizedSql = normalizeSql(whereInvalid);
+    // Invalid established value is ignored — no date condition
+    expect(normalizedSql).not.toContain('project_established_date');
+    // But the default archived exclusion filter is still applied
+    expect(normalizedSql).toContain("rr.rec_status_code IS DISTINCT FROM 'AR'");
   });
 
   it('ignores established filter when undefined or empty', () => {
@@ -102,8 +110,18 @@ describe('recreation-resource-search.queries', () => {
       established: '',
     });
 
-    expect(whereUndefined).toBe(Prisma.empty);
-    expect(whereEmpty).toBe(Prisma.empty);
+    // No date condition added for undefined/empty established
+    expect(normalizeSql(whereUndefined)).not.toContain(
+      'project_established_date',
+    );
+    expect(normalizeSql(whereEmpty)).not.toContain('project_established_date');
+    // Default archived exclusion filter is still applied
+    expect(normalizeSql(whereUndefined)).toContain(
+      "rr.rec_status_code IS DISTINCT FROM 'AR'",
+    );
+    expect(normalizeSql(whereEmpty)).toContain(
+      "rr.rec_status_code IS DISTINCT FROM 'AR'",
+    );
   });
 
   it('maps raw SQL sorts and derived order clauses correctly', () => {
@@ -193,13 +211,21 @@ describe('recreation-resource-search.queries', () => {
   it('omits public_access_status condition when array is empty', () => {
     const whereSql = buildSearchWhereSql({ public_access_status: [] });
 
-    expect(whereSql).toBe(Prisma.empty);
+    const normalized = normalizeSql(whereSql);
+    expect(normalized).not.toContain('access_status_grouplabel');
+    expect(normalized).not.toContain('act_advisories_flat');
+    // The archived exclusion filter is still present
+    expect(normalized).toContain("rr.rec_status_code IS DISTINCT FROM 'AR'");
   });
 
   it('omits public_access_status condition when field is absent', () => {
     const whereSql = buildSearchWhereSql({});
 
-    expect(whereSql).toBe(Prisma.empty);
+    const normalized = normalizeSql(whereSql);
+    expect(normalized).not.toContain('access_status_grouplabel');
+    expect(normalized).not.toContain('act_advisories_flat');
+    // The archived exclusion filter is still present
+    expect(normalized).toContain("rr.rec_status_code IS DISTINCT FROM 'AR'");
   });
 
   it('builds public_access_status derived sort with lateral join and advisory ordering', () => {

@@ -67,7 +67,7 @@ export class RecreationResourceController {
    * When a text query is active, only super-admins see archived resources.
    *
    * @param query - Search / filter parameters
-   * @param isSuperAdmin - Resolved by @IsSuperAdmin() from the JWT token
+   * @param req - The HTTP request (used to resolve super-admin status from JWT roles)
    */
   @AuthRoles(
     [
@@ -107,7 +107,7 @@ export class RecreationResourceController {
    * Archived resources are only suggested to super-admins.
    *
    * @param query - Contains the search_term
-   * @param isSuperAdmin - Resolved by @IsSuperAdmin() from the JWT token
+   * @param req - The HTTP request (used to resolve super-admin status from JWT roles)
    */
   @AuthRoles(
     [
@@ -196,7 +196,7 @@ export class RecreationResourceController {
    *
    * @param rec_resource_id - The ID of the recreation resource
    * @param updateData - The data to update
-   * @param isSuperAdmin - Resolved by @IsSuperAdmin() from the JWT token
+   * @param isSuperAdmin
    * @returns The updated recreation resource detail DTO
    * @throws ForbiddenException if a non-super-admin tries to edit an archived resource
    * @throws NotFoundException if resource not found

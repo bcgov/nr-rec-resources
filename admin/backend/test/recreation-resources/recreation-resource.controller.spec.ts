@@ -9,13 +9,6 @@ import { ForbiddenException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Helper to build a mock request with optional roles
-const mockReq = (roles: string[] = []) =>
-  ({ user: { client_roles: roles } }) as any;
-
-const SUPER_ADMIN_ROLES = ['rst-super-admin'];
-const ADMIN_ROLES = ['rst-admin'];
-
 describe('RecreationResourceController', () => {
   let controller: RecreationResourceController;
   let service: RecreationResourceService;
@@ -76,7 +69,7 @@ describe('RecreationResourceController', () => {
       const query: AdminSearchQueryDto = { page: 1, page_size: 25 };
       (service.searchResources as any).mockResolvedValue(mockResponse);
 
-      await controller.searchResources(query, mockReq(ADMIN_ROLES));
+      await controller.searchResources(query, false);
 
       expect(service.searchResources).toHaveBeenCalledWith(query, {
         includeArchived: true,
@@ -87,7 +80,7 @@ describe('RecreationResourceController', () => {
       const query: AdminSearchQueryDto = { q: '   ', page: 1, page_size: 25 };
       (service.searchResources as any).mockResolvedValue(mockResponse);
 
-      await controller.searchResources(query, mockReq(ADMIN_ROLES));
+      await controller.searchResources(query, false);
       expect(service.searchResources).toHaveBeenCalledWith(query, {
         includeArchived: true,
       });
@@ -102,10 +95,7 @@ describe('RecreationResourceController', () => {
       };
       (service.searchResources as any).mockResolvedValue(mockResponse);
 
-      const result = await controller.searchResources(
-        query,
-        mockReq(ADMIN_ROLES),
-      );
+      const result = await controller.searchResources(query, false);
 
       expect(service.searchResources).toHaveBeenCalledWith(query, {
         includeArchived: false,
@@ -122,7 +112,7 @@ describe('RecreationResourceController', () => {
       };
       (service.searchResources as any).mockResolvedValue(mockResponse);
 
-      await controller.searchResources(query, mockReq(SUPER_ADMIN_ROLES));
+      await controller.searchResources(query, true);
 
       expect(service.searchResources).toHaveBeenCalledWith(query, {
         includeArchived: true,
@@ -150,10 +140,7 @@ describe('RecreationResourceController', () => {
       (service.getSuggestions as any).mockResolvedValue(mockResponse);
 
       const query: SuggestionsQueryDto = { search_term: 'Test' };
-      const result = await controller.getSuggestions(
-        query,
-        mockReq(ADMIN_ROLES),
-      );
+      const result = await controller.getSuggestions(query, false);
 
       expect(service.getSuggestions).toHaveBeenCalledWith('Test', {
         includeArchived: false,
@@ -165,7 +152,7 @@ describe('RecreationResourceController', () => {
       (service.getSuggestions as any).mockResolvedValue(mockResponse);
 
       const query: SuggestionsQueryDto = { search_term: 'Test' };
-      await controller.getSuggestions(query, mockReq(SUPER_ADMIN_ROLES));
+      await controller.getSuggestions(query, true);
 
       expect(service.getSuggestions).toHaveBeenCalledWith('Test', {
         includeArchived: true,
@@ -240,11 +227,7 @@ describe('RecreationResourceController', () => {
       });
       (service.update as any).mockResolvedValue(mockUpdatedResource);
 
-      const result = await controller.update(
-        'REC123',
-        updateData,
-        mockReq(ADMIN_ROLES),
-      );
+      const result = await controller.update('REC123', updateData, false);
 
       expect(service.update).toHaveBeenCalledWith('REC123', updateData);
       expect(result).toEqual(mockUpdatedResource);
@@ -256,11 +239,7 @@ describe('RecreationResourceController', () => {
       });
       (service.update as any).mockResolvedValue(mockUpdatedResource);
 
-      const result = await controller.update(
-        'REC123',
-        updateData,
-        mockReq(SUPER_ADMIN_ROLES),
-      );
+      const result = await controller.update('REC123', updateData, true);
 
       // findOneById is NOT called for super-admin (fast path)
       expect(repo.findOneById).not.toHaveBeenCalled();
@@ -274,7 +253,7 @@ describe('RecreationResourceController', () => {
       });
 
       await expect(
-        controller.update('REC123', updateData, mockReq(ADMIN_ROLES)),
+        controller.update('REC123', updateData, false),
       ).rejects.toThrow(ForbiddenException);
 
       expect(service.update).not.toHaveBeenCalled();
@@ -289,7 +268,7 @@ describe('RecreationResourceController', () => {
       (service.update as any).mockRejectedValue(error);
 
       await expect(
-        controller.update('NOT_FOUND', updateData, mockReq(ADMIN_ROLES)),
+        controller.update('NOT_FOUND', updateData, false),
       ).rejects.toThrow("Recreation resource with ID 'NOT_FOUND' not found");
     });
 
@@ -302,11 +281,7 @@ describe('RecreationResourceController', () => {
       (service.update as any).mockRejectedValue(error);
 
       await expect(
-        controller.update(
-          'REC123',
-          { control_access_code: 'INVALID' },
-          mockReq(ADMIN_ROLES),
-        ),
+        controller.update('REC123', { control_access_code: 'INVALID' }, false),
       ).rejects.toThrow(
         'Invalid reference: control_access_code does not exist',
       );

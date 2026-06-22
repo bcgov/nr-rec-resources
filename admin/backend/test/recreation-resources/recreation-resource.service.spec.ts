@@ -210,12 +210,15 @@ describe('RecreationResourceService', () => {
 
     const result = await service.searchResources(query);
 
-    expect(repo.searchResources).toHaveBeenCalledWith({
-      ...query,
-      page: 1,
-      page_size: 50,
-      sort: 'name:asc',
-    });
+    expect(repo.searchResources).toHaveBeenCalledWith(
+      {
+        ...query,
+        page: 1,
+        page_size: 50,
+        sort: 'name:asc',
+      },
+      undefined,
+    );
     expect(result).toEqual({
       data: [
         {
@@ -390,11 +393,14 @@ describe('RecreationResourceService', () => {
 
     const result = await service.searchResources({});
 
-    expect(repo.searchResources).toHaveBeenCalledWith({
-      page: 1,
-      page_size: 25,
-      sort: 'name:asc',
-    });
+    expect(repo.searchResources).toHaveBeenCalledWith(
+      {
+        page: 1,
+        page_size: 25,
+        sort: 'name:asc',
+      },
+      undefined,
+    );
     expect(result).toEqual({
       data: [
         {
