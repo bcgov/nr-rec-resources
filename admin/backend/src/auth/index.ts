@@ -4,3 +4,5 @@ export * from './auth.types';
 export * from './auth-roles.guard';
 export * from './auth-roles.decorator';
 export * from './auth-papssport-keycloak-strategy.service';
+export * from './is-super-admin.decorator';
+export * from './super-admin.guard';

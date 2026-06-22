@@ -175,7 +175,10 @@ function buildMultiValueExistsCondition({
   `;
 }
 
-export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
+export function buildSearchWhereSql(
+  query: AdminSearchQueryDto,
+  includeArchived = false,
+): Prisma.Sql {
   const conditions = [
     buildSearchTextCondition(query.q),
     buildMultiValueExistsCondition({
@@ -224,6 +227,10 @@ export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
           'Open'
         ) IN (${Prisma.join(query.public_access_status)})
       `
+      : null,
+    // Exclude archived resources unless the caller explicitly includes them (super-admin)
+    !includeArchived
+      ? Prisma.sql`(rr.rec_status_code IS DISTINCT FROM 'AR')`
       : null,
   ].filter((condition): condition is Prisma.Sql => condition !== null);
 

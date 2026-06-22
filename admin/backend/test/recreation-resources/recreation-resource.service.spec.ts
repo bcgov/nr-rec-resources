@@ -81,6 +81,69 @@ describe('RecreationResourceService', () => {
     expect(result.suggestions.length).toBe(0);
   });
 
+  it('should filter out archived suggestions when includeArchived is false (default)', async () => {
+    const mockData = [
+      {
+        name: 'Active Resource',
+        rec_resource_id: 'REC125',
+        recreation_resource_type: 'RR',
+        recreation_resource_type_code: 'RR',
+        district_description: 'District',
+        rec_status_code: null,
+      },
+      {
+        name: 'Archived Resource',
+        rec_resource_id: 'REC126',
+        recreation_resource_type: 'RR',
+        recreation_resource_type_code: 'RR',
+        district_description: 'District',
+        rec_status_code: 'AR',
+      },
+    ];
+    (repo.findSuggestions as any).mockResolvedValue({
+      total: 2,
+      data: mockData,
+    });
+
+    const result = await service.getSuggestions('Test');
+    expect(result.total).toBe(1);
+    expect(result.suggestions.length).toBe(1);
+    expect(result.suggestions[0]?.rec_resource_id).toBe('REC125');
+  });
+
+  it('should include archived suggestions when includeArchived is true (super admin)', async () => {
+    const mockData = [
+      {
+        name: 'Active Resource',
+        rec_resource_id: 'REC125',
+        recreation_resource_type: 'RR',
+        recreation_resource_type_code: 'RR',
+        district_description: 'District',
+        rec_status_code: null,
+      },
+      {
+        name: 'Archived Resource',
+        rec_resource_id: 'REC126',
+        recreation_resource_type: 'RR',
+        recreation_resource_type_code: 'RR',
+        district_description: 'District',
+        rec_status_code: 'AR',
+      },
+    ];
+    (repo.findSuggestions as any).mockResolvedValue({
+      total: 2,
+      data: mockData,
+    });
+
+    const result = await service.getSuggestions('Test', {
+      includeArchived: true,
+    });
+    expect(result.total).toBe(2);
+    expect(result.suggestions.length).toBe(2);
+    expect(result.suggestions[0]?.rec_resource_id).toBe('REC125');
+    expect(result.suggestions[1]?.rec_resource_id).toBe('REC126');
+  });
+
   it('should map admin search results into response DTO shape', async () => {
     const query: AdminSearchQueryDto = {
       q: 'lake',

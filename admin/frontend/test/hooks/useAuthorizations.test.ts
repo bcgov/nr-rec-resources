@@ -12,6 +12,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: false,
+      canEditArchived: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
     });
@@ -25,6 +26,21 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
+      canEditArchived: false,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
+    });
+  });
+
+  it('super-admin role', () => {
+    const { result } = renderHook(() => useAuthorizations(), {
+      wrapper: createAuthWrapper(['rst-super-admin']),
+    });
+
+    expect(result.current).toEqual({
+      canView: true,
+      canEdit: true,
+      canEditArchived: true,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
     });
@@ -38,6 +54,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: false,
       canEdit: false,
+      canEditArchived: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
     });
@@ -51,6 +68,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: false,
+      canEditArchived: false,
       canViewFeatureFlag: true,
       canEditFeatureFlag: false,
     });
@@ -64,6 +82,21 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
+      canEditArchived: false,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
+    });
+  });
+
+  it('super-admin + developer roles', () => {
+    const { result } = renderHook(() => useAuthorizations(), {
+      wrapper: createAuthWrapper(['rst-super-admin', 'rst-developer']),
+    });
+
+    expect(result.current).toEqual({
+      canView: true,
+      canEdit: true,
+      canEditArchived: true,
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
     });

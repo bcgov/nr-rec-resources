@@ -3,7 +3,6 @@ import { EditableGuard } from '@/components/auth';
 import { RecResourceFeesTable } from '@/pages/rec-resource-page/components/RecResourceFeesSection/RecResourceFeesTable';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { RecreationFeeUIModel } from '@/services';
-import { ROLES } from '@/hooks/useAuthorizations';
 import { Link } from '@tanstack/react-router';
 
 export const RecResourceFeesContent = ({
@@ -20,7 +19,7 @@ export const RecResourceFeesContent = ({
       <div className="d-flex justify-content-between align-items-center">
         <h2>Fees</h2>
         <Stack direction="horizontal" gap={2}>
-          <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
+          <EditableGuard isArchived={isArchived}>
             {recResourceId ? (
               <Link
                 to={ROUTE_PATHS.REC_RESOURCE_FEES_ADD.replace(
