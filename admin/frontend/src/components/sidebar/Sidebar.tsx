@@ -28,6 +28,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
               text={link.text}
               isCollapsed={isCollapsed}
               key={link.text}
+              isExternal={false}
             >
               <Link
                 to="/"
@@ -65,6 +66,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
                 text={link.text}
                 isCollapsed={isCollapsed}
                 key={link.text}
+                isExternal={true}
               >
                 <a
                   href={link.url}
@@ -81,7 +83,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
                     />
                   </div>
                   {!isCollapsed && (
-                    <span className="ms-2 test">{link.text}</span>
+                    <span className="ms-2 link-text">{link.text}</span>
                   )}
                 </a>
               </SidebarTooltip>
