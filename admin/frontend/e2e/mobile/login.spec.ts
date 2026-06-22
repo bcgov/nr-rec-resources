@@ -4,8 +4,13 @@ import { LandingPOM, UtilsPOM } from 'e2e/poms';
 
 initHappo();
 
+// Explicitly unauthenticated — this is the public landing page. Without clearing
+// storageState the test inherits the authenticated project's admin session, and
+// keycloak-js silently logs in and redirects away from the landing page (flaky
+// across browsers; deterministically fails on Edge where silent SSO succeeds).
 test.use({
   ...devices['iPhone 14'],
+  storageState: { cookies: [], origins: [] },
 });
 
 test.describe('RecSpace landing page (Mobile)', () => {
