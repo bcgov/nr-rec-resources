@@ -52,19 +52,29 @@ export class RecreationResourceRepository {
     return { total: data.length, data };
   }
 
-  async searchResources(query: AdminSearchQueryDto): Promise<{
+  async searchResources(
+    query: AdminSearchQueryDto,
+    options?: { includeArchived?: boolean },
+  ): Promise<{
     total: number;
     data: AdminSearchRecreationResourceGetPayload[];
   }> {
     const page = query.page ?? 1;
     const pageSize = query.page_size ?? ADMIN_SEARCH_PAGE_SIZE_VALUES[0];
     const sort = query.sort ?? 'name:asc';
+    const includeArchived = options?.includeArchived ?? false;
 
     if (RAW_SQL_SORTS.has(sort) || query.public_access_status?.length) {
-      return this.searchResourcesWithDerivedSort(query, page, pageSize, sort);
+      return this.searchResourcesWithDerivedSort(
+        query,
+        page,
+        pageSize,
+        sort,
+        includeArchived,
+      );
     }
 
-    const where = this.buildSearchWhere(query);
+    const where = this.buildSearchWhere(query, includeArchived);
 
     const [total, data] = await this.prisma.$transaction([
       this.prisma.recreation_resource.count({ where }),
@@ -85,11 +95,12 @@ export class RecreationResourceRepository {
     page: number,
     pageSize: number,
     sort: AdminSearchSort,
+    includeArchived = false,
   ): Promise<{
     total: number;
     data: AdminSearchRecreationResourceGetPayload[];
   }> {
-    const whereSql = buildSearchWhereSql(query);
+    const whereSql = buildSearchWhereSql(query, includeArchived);
     const { joinsSql, orderBySql } = buildDerivedSortQueryParts(sort);
     const offset = (page - 1) * pageSize;
 
@@ -291,6 +302,7 @@ export class RecreationResourceRepository {
 
   private buildSearchWhere(
     query: AdminSearchQueryDto,
+    includeArchived = false,
   ): Prisma.recreation_resourceWhereInput {
     const and = [
       this.buildSearchTextWhere(query.q),
@@ -328,6 +340,12 @@ export class RecreationResourceRepository {
       this.buildStatusWhere(query.status),
       this.buildEstablishmentDateWhere(query),
       this.buildEstablishedWhere(query.established),
+      // Exclude archived resources unless super-admin explicitly includes them
+      !includeArchived
+        ? {
+            OR: [{ rec_status_code: null }, { rec_status_code: { not: 'AR' } }],
+          }
+        : null,
     ].filter(
       (condition): condition is Prisma.recreation_resourceWhereInput =>
         condition !== null,

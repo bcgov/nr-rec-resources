@@ -167,10 +167,10 @@ export class AuthService {
 
   /**
    * Check if the user is authorized to access the application
-   * Requires at least 'rst-viewer' or 'rst-admin' role
+   * Requires at least 'rst-viewer', 'rst-admin', or 'rst-super-admin' role
    */
   isAuthorized(): boolean {
-    return this.hasRequiredRole(['rst-viewer', 'rst-admin']);
+    return this.hasRequiredRole(['rst-viewer', 'rst-admin', 'rst-super-admin']);
   }
 
   /**

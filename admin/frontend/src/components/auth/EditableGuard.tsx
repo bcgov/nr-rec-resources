@@ -1,32 +1,29 @@
-import { Role } from '@/hooks/useAuthorizations';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { ReactNode } from 'react';
-import { ArchiveGuard } from './ArchiveGuard';
-import { RoleGuard } from './RoleGuard';
 
 export interface EditableGuardProps {
   readonly isArchived?: boolean;
-  readonly requireAll?: readonly Role[];
-  readonly requireAny?: readonly Role[];
   readonly fallback?: ReactNode;
   readonly children: ReactNode;
 }
 
+/**
+ * Guards edit actions behind role and archive status checks.
+ *
+ * - `rst-admin`: can edit non-archived resources only.
+ * - `rst-super-admin`: can edit all resources, including archived ones.
+ * - All other roles: editing is always hidden.
+ */
 export function EditableGuard({
   isArchived = false,
-  requireAll,
-  requireAny,
   fallback = null,
   children,
 }: Readonly<EditableGuardProps>) {
-  return (
-    <RoleGuard
-      requireAll={requireAll}
-      requireAny={requireAny}
-      fallback={fallback}
-    >
-      <ArchiveGuard isArchived={isArchived} fallback={fallback}>
-        {children}
-      </ArchiveGuard>
-    </RoleGuard>
-  );
+  const { canEdit, canEditArchived } = useAuthorizations();
+
+  const hasAccess = canEdit && (!isArchived || canEditArchived);
+
+  if (!hasAccess) return <>{fallback}</>;
+
+  return <>{children}</>;
 }

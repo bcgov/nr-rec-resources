@@ -1,6 +1,5 @@
 import { CustomButton } from '@/components';
 import { EditableGuard } from '@/components/auth';
-import { ROLES } from '@/hooks/useAuthorizations';
 import { RecResourceFileSection } from '@/pages/rec-resource-page/components/RecResourceFileSection';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
@@ -73,7 +72,7 @@ const ActionButtonsSection = ({ isArchived }: { isArchived: boolean }) => {
     >
       <h2 className="mb-0">Files</h2>
 
-      <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
+      <EditableGuard isArchived={isArchived}>
         <>
           {/* Responsive actions: dropdown on mobile, buttons on desktop */}
           {/* Mobile: show dropdown */}
@@ -145,7 +144,7 @@ export const RecResourceFilesPage = () => {
   return (
     <Stack direction="vertical" gap={4}>
       <ActionButtonsSection isArchived={isArchived} />
-      <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
+      <EditableGuard isArchived={isArchived}>
         <InfoBanner />
       </EditableGuard>
       <RecResourceFileSection isArchived={isArchived} />

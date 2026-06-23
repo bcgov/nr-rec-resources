@@ -42,12 +42,9 @@ vi.mock('@/components/auth', () => ({
 
     return <>{children}</>;
   },
-  EditableGuard: ({ children, requireAll, isArchived }: any) => {
+  EditableGuard: ({ children, isArchived }: any) => {
     const auth = mockUseAuthorizations();
-    const isAdminGuard =
-      Array.isArray(requireAll) && requireAll.includes('rst-admin');
-
-    if ((isAdminGuard && !auth.canEdit) || isArchived) {
+    if (!auth.canEdit || isArchived) {
       return null;
     }
 

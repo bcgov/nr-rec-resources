@@ -23,7 +23,7 @@ export const RecResourceFeesTable = ({
   recResourceId,
   isArchived = false,
 }: RecResourceFeesTableProps) => {
-  const { canEdit } = useAuthorizations();
+  const { canEdit, canEditArchived } = useAuthorizations();
   const deleteFee = useDeleteFee();
   const [selectedFee, setSelectedFee] = useState<RecreationFeeUIModel>();
 
@@ -104,7 +104,8 @@ export const RecResourceFeesTable = ({
     {
       header: 'Actions',
       render: (fee: RecreationFeeUIModel) => {
-        if (!canEdit || isArchived || !recResourceId) return <span>--</span>;
+        if (!canEdit || (isArchived && !canEditArchived) || !recResourceId)
+          return <span>--</span>;
         return (
           <div className="d-flex align-items-center gap-3">
             <Link

@@ -2,6 +2,7 @@ import {
   AUTH_STRATEGY,
   AuthRoles,
   AuthRolesGuard,
+  IsSuperAdmin,
   RecreationResourceAuthRole,
   ROLE_MODE,
 } from '@/auth';
@@ -9,6 +10,7 @@ import { BadRequestResponseDto } from '@/common/dtos/bad-request-response.dto';
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpException,
   Param,
@@ -34,6 +36,7 @@ import { SuggestionsQueryDto } from './dtos/suggestions-query.dto';
 import { SuggestionsResponseDto } from './dtos/suggestions-response.dto';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { RecreationResourceService } from './recreation-resource.service';
+import { RecreationResourceRepository } from './recreation-resource.repository';
 
 /**
  * Controller for recreation resource endpoints.
@@ -43,25 +46,34 @@ import { RecreationResourceService } from './recreation-resource.service';
 @ApiTags('recreation-resources')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
+@AuthRoles(
+  [
+    RecreationResourceAuthRole.RST_ADMIN,
+    RecreationResourceAuthRole.RST_SUPER_ADMIN,
+  ],
+  ROLE_MODE.ANY,
+)
 export class RecreationResourceController {
   constructor(
     private readonly recreationResourceService: RecreationResourceService,
+    private readonly recreationResourceRepository: RecreationResourceRepository,
   ) {}
 
   /**
-   * GET /recreation-resource/suggestions
+   * GET /recreation-resources/search
    *
-   * Returns recreation resource suggestions based on a search term.
-   * Only accessible to users with the 'rst-viewer' role.
+   * Returns paginated search results.
+   * Archived resources are always visible when browsing (no text query).
+   * When a text query is active, only super-admins see archived resources.
    *
-   * @param query - Query parameters containing the searchTerm
-   * @returns SuggestionsResponseDto containing total and data array
+   * @param query - Search / filter parameters
+   * @param req - The HTTP request (used to resolve super-admin status from JWT roles)
    */
   @AuthRoles(
     [
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
     ROLE_MODE.ANY,
   )
@@ -76,14 +88,32 @@ export class RecreationResourceController {
   })
   async searchResources(
     @Query() query: AdminSearchQueryDto,
+    @IsSuperAdmin() isSuperAdmin: boolean,
   ): Promise<AdminSearchResponseDto> {
-    return await this.recreationResourceService.searchResources(query);
+    // Show archived resources when browsing the table (no text query) so all
+    // admin users can see them.  When an active text search is applied, only
+    // super-admins see archived results.
+    const isTextSearch = Boolean(query.q?.trim());
+    const includeArchived = !isTextSearch || isSuperAdmin;
+    return await this.recreationResourceService.searchResources(query, {
+      includeArchived,
+    });
   }
 
+  /**
+   * GET /recreation-resources/suggestions
+   *
+   * Returns typeahead suggestions.
+   * Archived resources are only suggested to super-admins.
+   *
+   * @param query - Contains the search_term
+   * @param req - The HTTP request (used to resolve super-admin status from JWT roles)
+   */
   @AuthRoles(
     [
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
     ROLE_MODE.ANY,
   )
@@ -103,14 +133,16 @@ export class RecreationResourceController {
   })
   async getSuggestions(
     @Query() query: SuggestionsQueryDto,
+    @IsSuperAdmin() isSuperAdmin: boolean,
   ): Promise<SuggestionsResponseDto> {
     return await this.recreationResourceService.getSuggestions(
       query.search_term,
+      { includeArchived: isSuperAdmin },
     );
   }
 
   /**
-   * GET /recreation-resource/:id
+   * GET /recreation-resources/:rec_resource_id
    *
    * Returns a recreation resource by its ID.
    *
@@ -121,6 +153,7 @@ export class RecreationResourceController {
     [
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
     ROLE_MODE.ANY,
   )
@@ -156,14 +189,16 @@ export class RecreationResourceController {
   }
 
   /**
-   * PUT /recreation-resource/:id
+   * PUT /recreation-resources/:rec_resource_id
    *
-   * Updates a recreation resource by its ID. Intelligently handles both
-   * direct table fields and related table fields based on request content.
+   * Updates a recreation resource by its ID.
+   * Mirrors the frontend EditableGuard: only super-admins may edit archived resources.
    *
    * @param rec_resource_id - The ID of the recreation resource
    * @param updateData - The data to update
+   * @param isSuperAdmin
    * @returns The updated recreation resource detail DTO
+   * @throws ForbiddenException if a non-super-admin tries to edit an archived resource
    * @throws NotFoundException if resource not found
    * @throws BadRequestException if update data is invalid
    */
@@ -197,7 +232,17 @@ export class RecreationResourceController {
   async update(
     @Param('rec_resource_id') rec_resource_id: string,
     @Body() updateData: UpdateRecreationResourceDto,
+    @IsSuperAdmin() isSuperAdmin: boolean,
   ): Promise<RecreationResourceDetailDto> {
+    if (!isSuperAdmin) {
+      const resource =
+        await this.recreationResourceRepository.findOneById(rec_resource_id);
+      if (resource?.rec_status_code === 'AR') {
+        throw new ForbiddenException(
+          'Only super-admins can edit archived resources.',
+        );
+      }
+    }
     // Service layer will throw appropriate exceptions (NotFoundException, BadRequestException)
     // Controller just passes through - let NestJS exception filters handle HTTP responses
     return await this.recreationResourceService.update(

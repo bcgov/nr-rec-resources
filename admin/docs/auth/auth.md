@@ -89,21 +89,28 @@ validates it; invalid or expired tokens get 401.
 
 ## Role Combinations
 
-RecSpace uses three roles:
+RecSpace uses four roles:
 
 - `rst-viewer`
 - `rst-admin`
+- `rst-super-admin`
 - `rst-developer`
 
 `rst-developer` does not grant access on its own. Instead, it unlocks the
-feature flags when paired with either `rst-viewer` or `rst-admin`.
+feature flags when paired with either `rst-viewer`, `rst-admin`, or
+`rst-super-admin`.
 
-| Role combination               | Access level | Typical use                                                      |
-| ------------------------------ | ------------ | ---------------------------------------------------------------- |
-| `rst-viewer`                   | View only    | Can read/view content and use read-only routes. No edit actions. |
-| `rst-admin`                    | View + edit  | Can view content and use edit/update actions.                    |
-| `rst-viewer` + `rst-developer` | View only    | Can view content including feature flags                         |
-| `rst-admin` + `rst-developer`  | View + edit  | Can view and use edit/update actions including feature flags     |
+`rst-super-admin` is a distinct elevated role that extends `rst-admin`
+privileges with the ability to edit and view **Archived** resources.
+
+| Role combination                    | Access level      | Typical use                                                                     |
+| ----------------------------------- | ----------------- | ------------------------------------------------------------------------------- |
+| `rst-viewer`                        | View only         | Can read/view content and use read-only routes. No edit actions.                |
+| `rst-admin`                         | View + edit       | Can view content and use edit/update actions. Archived resources are read-only. |
+| `rst-super-admin`                   | View + edit (all) | Elevated admin; can view, search, and edit resources including Archived status. |
+| `rst-viewer` + `rst-developer`      | View only         | Can view content including feature flags                                        |
+| `rst-admin` + `rst-developer`       | View + edit       | Can view and use edit/update actions including feature flags                    |
+| `rst-super-admin` + `rst-developer` | View + edit (all) | Full elevated access including feature flags and Archived resource editing      |
 
 ## Environment
 

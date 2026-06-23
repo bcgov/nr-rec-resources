@@ -33,4 +33,14 @@ describe('ArchiveGuard', () => {
     expect(screen.queryByText('Editable content')).not.toBeInTheDocument();
     expect(screen.getByText('Read-only')).toBeInTheDocument();
   });
+
+  it('renders children when archived but bypass is true (super-admin)', () => {
+    render(
+      <ArchiveGuard isArchived bypass>
+        <div>Editable content</div>
+      </ArchiveGuard>,
+    );
+
+    expect(screen.getByText('Editable content')).toBeInTheDocument();
+  });
 });
