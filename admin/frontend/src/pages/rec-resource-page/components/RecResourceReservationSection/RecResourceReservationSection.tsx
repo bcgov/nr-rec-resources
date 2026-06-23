@@ -11,7 +11,6 @@ import {
   getReservationMethod,
 } from '@/pages/rec-resource-page/components/RecResourceReservationSection/helpers';
 import './RecResourceReservationSection.scss';
-import { ROLES } from '@/hooks/useAuthorizations';
 
 type RecResourceReservationSectionProps = {
   reservationInfo: RecreationResourceReservationInfoDto | null;
@@ -63,7 +62,7 @@ export const RecResourceReservationSection = (
       <div className="reservation-section__header d-flex justify-content-between align-items-center">
         <h2 className="mb-0">Reservations</h2>
 
-        <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
+        <EditableGuard isArchived={isArchived}>
           <Link
             to={ROUTE_PATHS.REC_RESOURCE_RESERVATION_EDIT.replace(
               '$id',

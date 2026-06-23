@@ -35,8 +35,8 @@ export const RecResourceFileSection = ({
 }: {
   isArchived?: boolean;
 }) => {
-  const { canEdit } = useAuthorizations();
-  const canModifyFiles = canEdit && !isArchived;
+  const { canEdit, canEditArchived } = useAuthorizations();
+  const canModifyFiles = canEdit && (!isArchived || canEditArchived);
   const {
     getDocumentFileActionHandler,
     getDocumentGeneralActionHandler,

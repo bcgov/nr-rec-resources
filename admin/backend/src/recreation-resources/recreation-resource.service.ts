@@ -33,34 +33,46 @@ export class RecreationResourceService {
   /**
    * Retrieves recreation resource suggestions based on a search term.
    * @param searchTerm - Alphanumeric search term (min 3 characters)
+   * @param options - Optional flags (e.g. includeArchived for super-admins)
    * @returns SuggestionsResponseDto with total and data array
    */
-  async getSuggestions(searchTerm: string): Promise<SuggestionsResponseDto> {
+  async getSuggestions(
+    searchTerm: string,
+    options?: { includeArchived?: boolean },
+  ): Promise<SuggestionsResponseDto> {
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-    const { total, data } =
+    const { data } =
       await this.recreationResourceRepository.findSuggestions(
         normalizedSearchTerm,
       );
 
+    const includeArchived = options?.includeArchived ?? false;
+    const filteredData = includeArchived
+      ? data
+      : data.filter((item) => item.rec_status_code !== 'AR');
+
+    const validSuggestions = filteredData.filter(this.isValidSuggestion).map(
+      (item): SuggestionDto => ({
+        name: item.name,
+        rec_resource_id: item.rec_resource_id,
+        recreation_resource_type: item.recreation_resource_type,
+        recreation_resource_type_code: item.recreation_resource_type_code,
+        district_description: item.district_description,
+        display_on_public_site: item.display_on_public_site,
+        closest_community: item.closest_community,
+        rec_status_code: item.rec_status_code,
+      }),
+    );
+
     return {
-      total,
-      suggestions: data.filter(this.isValidSuggestion).map(
-        (item): SuggestionDto => ({
-          name: item.name,
-          rec_resource_id: item.rec_resource_id,
-          recreation_resource_type: item.recreation_resource_type,
-          recreation_resource_type_code: item.recreation_resource_type_code,
-          district_description: item.district_description,
-          display_on_public_site: item.display_on_public_site,
-          closest_community: item.closest_community,
-          rec_status_code: item.rec_status_code,
-        }),
-      ),
+      total: validSuggestions.length,
+      suggestions: validSuggestions,
     };
   }
 
   async searchResources(
     query: AdminSearchQueryDto,
+    options?: { includeArchived?: boolean },
   ): Promise<AdminSearchResponseDto> {
     const defaultPageSize = ADMIN_SEARCH_PAGE_SIZE_VALUES[0];
     const normalizedQuery = {
@@ -70,7 +82,10 @@ export class RecreationResourceService {
       sort: query.sort ?? 'name:asc',
     };
     const { total, data } =
-      await this.recreationResourceRepository.searchResources(normalizedQuery);
+      await this.recreationResourceRepository.searchResources(
+        normalizedQuery,
+        options,
+      );
 
     const mappedRows = data.map(
       (resource): AdminSearchResultRowDto => ({

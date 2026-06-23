@@ -4,6 +4,7 @@ import { AuthContext } from '@/contexts/AuthContext';
 export const ROLES = {
   VIEWER: 'rst-viewer',
   ADMIN: 'rst-admin',
+  SUPER_ADMIN: 'rst-super-admin',
   DEVELOPER: 'rst-developer',
 } as const;
 
@@ -29,6 +30,7 @@ export const useUserRoles = () => {
 export type AuthorizationKey =
   | 'canView'
   | 'canEdit'
+  | 'canEditArchived'
   | 'canViewFeatureFlag'
   | 'canEditFeatureFlag';
 
@@ -37,13 +39,19 @@ export const useAuthorizations = () => {
 
   return useMemo(() => {
     const roles = getUserRoles(context);
-    const canView = hasAnyRole(roles, [ROLES.VIEWER, ROLES.ADMIN]);
-    const canEdit = hasAnyRole(roles, [ROLES.ADMIN]);
+    const canView = hasAnyRole(roles, [
+      ROLES.VIEWER,
+      ROLES.ADMIN,
+      ROLES.SUPER_ADMIN,
+    ]);
+    const canEdit = hasAnyRole(roles, [ROLES.ADMIN, ROLES.SUPER_ADMIN]);
+    const canEditArchived = hasAnyRole(roles, [ROLES.SUPER_ADMIN]);
     const hasDeveloperAccess = hasAnyRole(roles, [ROLES.DEVELOPER]);
 
     return {
       canView,
       canEdit,
+      canEditArchived,
       canViewFeatureFlag: hasDeveloperAccess && canView,
       canEditFeatureFlag: hasDeveloperAccess && canEdit,
     };
