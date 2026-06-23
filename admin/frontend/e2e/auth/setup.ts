@@ -1,5 +1,6 @@
 import { test as setup, Page } from '@playwright/test';
-import { ADMIN_STATE, VIEWER_STATE, BASE_URL } from 'e2e/constants';
+import { ADMIN_STATE, VIEWER_STATE } from 'e2e/constants';
+import { performLogin } from 'e2e/auth/loginFlow';
 
 async function loginAs(
   page: Page,
@@ -7,26 +8,7 @@ async function loginAs(
   password: string,
   statePath: string,
 ) {
-  await page.goto(BASE_URL);
-  await page.getByRole('button', { name: /log\s*in/i }).click();
-
-  // BCGov Keycloak shows an IDIR identity provider link.
-  // Local Keycloak (docker-compose e2e) shows a plain username/password form.
-  const idirLink = page.getByRole('link', { name: /idir/i });
-  const isIdirVisible = await idirLink
-    .isVisible({ timeout: 5000 })
-    .catch(() => false);
-
-  if (isIdirVisible) {
-    await idirLink.click();
-    await page.locator('input[name="user"]').fill(username);
-    await page.locator('input[name="password"]').fill(password);
-    await page.locator('input[type="submit"]').click();
-  } else {
-    await page.locator('#username').fill(username);
-    await page.locator('#password').fill(password);
-    await page.locator('#kc-login').click();
-  }
+  await performLogin(page, username, password);
 
   await page
     .getByRole('heading', { name: 'Search', level: 1 })

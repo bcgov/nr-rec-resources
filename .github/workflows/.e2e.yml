@@ -90,6 +90,7 @@ jobs:
             inputs.local && inputs.app != 'admin' && 'http://localhost:3000' ||
             secrets.E2E_BASE_URL
           }}"
+        E2E_TARGET: ${{ inputs.local && 'local' || 'deployed' }}
         E2E_ADMIN_USERNAME: ${{ secrets.E2E_ADMIN_USERNAME }}
         E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
         E2E_VIEWER_USERNAME: ${{ secrets.E2E_VIEWER_USERNAME }}
