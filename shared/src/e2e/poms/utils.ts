@@ -48,8 +48,8 @@ export class UtilsPOM {
     expect(this.page.url()).toContain(`${this.baseUrl}${href}`);
   }
 
-  async accessibility() {
-    await analyzeAccessibility(this.page);
+  async accessibility(disabledRules: string[] = []) {
+    await analyzeAccessibility(this.page, disabledRules);
   }
 
   async screenshot(component: string, variant: string) {

@@ -1,0 +1,11 @@
+# Build context is the repo root for all image builds (see docker-compose files).
+# Keep local dev config/secrets out of images so builds match CI, where these
+# files are absent (.env is gitignored). Notably prevents Vite from baking a
+# local VITE_API_BASE_URL into the frontend bundles.
+**/.env
+**/.env.*
+!**/.env.example
+
+# Never copy local dependencies or VCS metadata into the build.
+**/node_modules
+.git

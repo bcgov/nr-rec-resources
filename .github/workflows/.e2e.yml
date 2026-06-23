@@ -23,8 +23,8 @@ on:
 
 jobs:
   playwright-e2e:
-    # Remove this once admin e2e tests are implemented
-    if: ${{ inputs.app == 'public' }}
+    # Skip admin e2e when not local — requires a Canadian IP runner or additional secrets
+    if: ${{ !(inputs.app == 'admin' && !inputs.local) }}
     name: Playwright e2e
     timeout-minutes: 60
     runs-on: ubuntu-24.04
@@ -37,6 +37,8 @@ jobs:
         BACKEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/backend:${{ inputs.tag }}
         FLYWAY_IMAGE: ghcr.io/bcgov/nr-rec-resources/migrations/rst:${{ inputs.tag }}
         FRONTEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/frontend:${{ inputs.tag }}
+        ADMIN_BACKEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/admin/backend:${{ inputs.tag }}
+        ADMIN_FRONTEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/admin/frontend:${{ inputs.tag }}
         FRONTEND_PORT: "${{ inputs.app == 'admin' && '3001' || '3000' }}"
         KEYCLOAK_AUTH_SERVER_URL: ${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
         KEYCLOAK_REALM: ${{ secrets.KEYCLOAK_REALM }}
@@ -45,7 +47,12 @@ jobs:
         RST_STORAGE_CLOUDFRONT_URL: ${{ secrets.RST_STORAGE_CLOUDFRONT_URL }}
         FOREST_CLIENT_API_URL: ${{ secrets.FOREST_CLIENT_API_URL }}
         FOREST_CLIENT_API_KEY: ${{ secrets.FOREST_CLIENT_API_KEY }}
-      run: docker compose up -d --wait
+      run: |
+        if [ "${{ inputs.app }}" = "admin" ]; then
+          docker compose -f docker-compose.admin.e2e.yml up -d --wait
+        else
+          docker compose up -d --wait
+        fi
       continue-on-error: true
     - name: Dump docker logs for debugging
       if: ${{ inputs.local }}
@@ -58,7 +65,7 @@ jobs:
           ~/.cache/ms-playwright
         key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
     - name: Fix permissions
-      run: sudo chown -R $USER:$USER public/frontend
+      run: sudo chown -R $USER:$USER ${{ inputs.app }}/frontend
     - name: Setup node
       uses: actions/setup-node@v6
       with:
@@ -83,15 +90,11 @@ jobs:
             inputs.local && inputs.app != 'admin' && 'http://localhost:3000' ||
             secrets.E2E_BASE_URL
           }}"
+        E2E_TARGET: ${{ inputs.local && 'local' || 'deployed' }}
+        E2E_ADMIN_USERNAME: ${{ secrets.E2E_ADMIN_USERNAME }}
+        E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+        E2E_VIEWER_USERNAME: ${{ secrets.E2E_VIEWER_USERNAME }}
+        E2E_VIEWER_PASSWORD: ${{ secrets.E2E_VIEWER_PASSWORD }}
     - name: Dump docker logs on failure
       if: failure() && ${{ inputs.local }}
       uses: jwalton/gh-docker-logs@v2
-
-  # Remove this job once admin e2e tests are implemented
-  admin:
-    if: ${{ inputs.app == 'admin' }}
-    name: Skip Playwright e2e
-    runs-on: ubuntu-24.04
-    steps:
-    - name: Skip Playwright e2e
-      run: echo "Skipping Playwright e2e tests for admin app"

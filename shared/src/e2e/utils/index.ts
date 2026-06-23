@@ -13,10 +13,13 @@ export const initHappo = async () => {
   });
 };
 
-export const analyzeAccessibility = async (page: Page) => {
-  const accessibilityScanResults = await new AxeBuilder({
-    page,
-  }).analyze();
+export const analyzeAccessibility = async (
+  page: Page,
+  disabledRules: string[] = [],
+) => {
+  let builder = new AxeBuilder({ page });
+  if (disabledRules.length) builder = builder.disableRules(disabledRules);
+  const accessibilityScanResults = await builder.analyze();
 
   expect(accessibilityScanResults.violations).toEqual([]);
 };

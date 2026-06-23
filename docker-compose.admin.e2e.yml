@@ -1,0 +1,159 @@
+x-var:
+  - &POSTGRES_USER postgres
+  - &POSTGRES_PASSWORD default
+  - &POSTGRES_DATABASE postgres
+  - &POSTGRES_SCHEMA rst
+
+x-postgres-vars: &postgres-vars
+  POSTGRES_HOST: database
+  POSTGRES_USER: *POSTGRES_USER
+  POSTGRES_PASSWORD: *POSTGRES_PASSWORD
+  POSTGRES_DATABASE: *POSTGRES_DATABASE
+  POSTGRES_SCHEMA: *POSTGRES_SCHEMA
+
+services:
+  database:
+    image: postgis/postgis:17-3.4
+    container_name: database
+    environment:
+      <<: *postgres-vars
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', *POSTGRES_USER]
+    ports: ['5432:5432']
+
+  migrations:
+    image: ${FLYWAY_IMAGE:-flyway/flyway:11-alpine}
+    container_name: migrations
+    command: info migrate info
+    volumes: ['./migrations/rst/sql:/flyway/sql:ro']
+    environment:
+      FLYWAY_URL: jdbc:postgresql://database:5432/postgres
+      FLYWAY_USER: *POSTGRES_USER
+      FLYWAY_PASSWORD: *POSTGRES_PASSWORD
+      FLYWAY_BASELINE_ON_MIGRATE: true
+      FLYWAY_DEFAULT_SCHEMA: rst
+    depends_on:
+      database:
+        condition: service_healthy
+
+  fixtures:
+    image: ${FLYWAY_FIXTURES_IMAGE:-flyway/flyway:11-alpine}
+    container_name: fixtures
+    command: info migrate info
+    volumes: ['./migrations/fixtures/sql:/flyway/sql:ro']
+    environment:
+      FLYWAY_URL: jdbc:postgresql://database:5432/postgres
+      FLYWAY_USER: *POSTGRES_USER
+      FLYWAY_PASSWORD: *POSTGRES_PASSWORD
+      FLYWAY_BASELINE_ON_MIGRATE: true
+      FLYWAY_DEFAULT_SCHEMA: migration
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2.5
+    container_name: keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    ports: ['8080:8080']
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'exec 3<>/dev/tcp/127.0.0.1/8080 2>/dev/null || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  admin-backend:
+    image: ${ADMIN_BACKEND_IMAGE:-admin-backend-e2e}
+    build:
+      context: .
+      dockerfile: admin/backend/Dockerfile
+      secrets:
+        - font_awesome_pro_token
+    container_name: admin-backend
+    environment:
+      <<: *postgres-vars
+      NODE_ENV: production
+      APP_ENV: local
+      # KEYCLOAK_AUTH_SERVER_URL uses Docker-internal hostname for JWKS fetch.
+      # KEYCLOAK_ISSUER uses localhost because the JWT iss claim is set by Keycloak
+      # based on the URL the browser used — http://localhost:8080.
+      KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: rst-local
+      KEYCLOAK_CLIENT_ID: rst-admin-local
+      KEYCLOAK_ISSUER: http://localhost:8080/realms/rst-local
+      # S3 vars required by config validation; not exercised by auth/search e2e tests
+      ESTABLISHMENT_ORDER_DOCS_BUCKET: rst-local-establishment-order-docs
+      RST_STORAGE_IMAGES_BUCKET: rst-local-images
+      RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET: rst-local-public-documents
+      RST_STORAGE_CONSENT_FORMS_BUCKET: rst-local-consent-forms
+      AWS_REGION: ca-central-1
+      RST_STORAGE_CLOUDFRONT_URL: http://localhost:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+    ports: ['8001:8001']
+    healthcheck:
+      test:
+        [
+          'CMD',
+          '/nodejs/bin/node',
+          '-e',
+          "require('http').get({hostname:'::1',port:8001,path:'/api'},(r)=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      keycloak:
+        condition: service_healthy
+
+  admin-frontend:
+    image: ${ADMIN_FRONTEND_IMAGE:-admin-frontend-e2e}
+    build:
+      context: .
+      dockerfile: admin/frontend/Dockerfile
+      secrets:
+        - font_awesome_pro_token
+    container_name: admin-frontend
+    environment:
+      # BACKEND_URL is read by Caddy at runtime to proxy /api* requests
+      BACKEND_URL: http://admin-backend:8001
+      LOG_LEVEL: INFO
+      # No CloudFront locally, so Caddy enforces CSP. keycloak-js needs to frame
+      # and call the Keycloak origin (browser uses localhost:8080).
+      KEYCLOAK_CSP_ORIGIN: http://localhost:8080
+      # These are written to /srv/config.js by entrypoint.sh and loaded by the browser.
+      # Must use localhost:8080 — the browser connects from the host, not from inside Docker.
+      VITE_KEYCLOAK_AUTH_SERVER_URL: http://localhost:8080
+      VITE_KEYCLOAK_REALM: rst-local
+      VITE_KEYCLOAK_CLIENT_ID: rst-admin-local
+    ports: ['3001:3001']
+    healthcheck:
+      # Health endpoint is on port 3002 per Caddyfile
+      test:
+        [
+          'CMD-SHELL',
+          'wget -q -O /dev/null http://localhost:3002/health || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      admin-backend:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+secrets:
+  font_awesome_pro_token:
+    environment: FONT_AWESOME_PRO_TOKEN
