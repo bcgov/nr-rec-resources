@@ -6,6 +6,15 @@ import { FilterAccordion } from '@/pages/search/components/FilterAccordion';
 import { SearchResultsPagination } from '@/pages/search/components/SearchResultsPagination';
 import { SearchResultsSummary } from '@/pages/search/components/SearchResultsSummary';
 
+// Treat all tests in this file as super-admin so the implicit "Issued (HI)"
+// default is not injected, keeping assertions clean and focused.
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => ({
+    canViewFeatureFlag: false,
+    canEditArchived: true,
+  }),
+}));
+
 const establishedOptions = [
   { id: 'yes', label: 'Yes' },
   { id: 'no', label: 'No' },
@@ -123,6 +132,7 @@ describe('FilterAccordion', () => {
           accessOptions: [{ id: 'W', label: 'Walk-in', is_archived: false }],
           establishedOptions,
           publicAccessStatusOptions: [],
+          recStatusOptions: [],
           applyFilters,
           resetFilters: vi.fn(),
         }}
@@ -155,6 +165,7 @@ describe('FilterAccordion', () => {
       establishment_date_to: '2021-01-01',
       established: undefined,
       publicAccessStatus: [],
+      recStatus: [],
     });
   });
 
@@ -273,6 +284,7 @@ describe('FilterAccordion', () => {
           establishedOptions,
           publicAccessStatusOptions: [],
           closestCommunityOptions: [],
+          recStatusOptions: [],
           applyFilters,
           resetFilters: vi.fn(),
         }}
@@ -299,6 +311,7 @@ describe('FilterAccordion', () => {
       establishment_date_to: undefined,
       established: 'yes',
       publicAccessStatus: [],
+      recStatus: [],
     });
   });
 
@@ -324,6 +337,7 @@ describe('FilterAccordion', () => {
           establishedOptions,
           publicAccessStatusOptions: [],
           closestCommunityOptions: [],
+          recStatusOptions: [],
           applyFilters,
           resetFilters: vi.fn(),
         }}
@@ -350,6 +364,7 @@ describe('FilterAccordion', () => {
       establishment_date_to: undefined,
       established: undefined,
       publicAccessStatus: [],
+      recStatus: [],
     });
   });
 

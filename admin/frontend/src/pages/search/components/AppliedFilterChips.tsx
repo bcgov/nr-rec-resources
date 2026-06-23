@@ -17,18 +17,24 @@ export function AppliedFilterChips({
 
   return (
     <div className="chip-list">
-      {chips.map((chip) => (
-        <Button
-          key={chip.label}
-          type="button"
-          className="chip"
-          onClick={chip.onClear}
-          aria-label={`Clear ${chip.label}`}
-        >
-          {chip.label}
-          <FontAwesomeIcon icon={faCircleXmark} className="close-icon" />
-        </Button>
-      ))}
+      {chips.map((chip) =>
+        chip.isDefault ? (
+          <div key={chip.key} className="chip chip--default">
+            {chip.label}
+          </div>
+        ) : (
+          <Button
+            key={chip.key}
+            type="button"
+            className="chip"
+            onClick={chip.onClear}
+            aria-label={`Clear ${chip.label}`}
+          >
+            {chip.label}
+            <FontAwesomeIcon icon={faCircleXmark} className="close-icon" />
+          </Button>
+        ),
+      )}
     </div>
   );
 }

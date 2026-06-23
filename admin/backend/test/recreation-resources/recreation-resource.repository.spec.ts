@@ -425,6 +425,31 @@ describe('RecreationResourceRepository', () => {
       expect(prisma.$transaction).toHaveBeenCalled();
     });
 
+    it('should normalize empty control_access_code to null when updating main resource fields', async () => {
+      const recId = 'res-control-access';
+      const updateData = {
+        control_access_code: '',
+      } as any;
+
+      let capturedTx: ReturnType<typeof createBaseTx>;
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockImplementation(async (cb: any) => {
+        capturedTx = createBaseTx();
+        capturedTx.recreation_resource.findUnique.mockResolvedValue({
+          id: recId,
+        });
+        return cb(capturedTx);
+      });
+
+      await repo.update(recId, updateData);
+
+      expect(capturedTx!.recreation_resource.update).toHaveBeenCalledWith({
+        where: { rec_resource_id: recId },
+        data: { control_access_code: null },
+      });
+    });
+
     it('should call syncManyToManyComposite with correct parameters for access_codes', async () => {
       const recId = 'res2';
       const updateData = {

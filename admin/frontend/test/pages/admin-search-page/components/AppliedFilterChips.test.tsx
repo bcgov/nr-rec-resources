@@ -43,6 +43,24 @@ describe('AppliedFilterChips', () => {
     expect(onClearQuery).toHaveBeenCalledTimes(1);
   });
 
+  it('renders default chips as static labels without a clear button', () => {
+    render(
+      <AppliedFilterChips
+        chips={[
+          {
+            key: 'recStatus:HI:default',
+            label: 'Issued',
+            onClear: vi.fn(),
+            isDefault: true,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('Issued')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Clear Issued' })).toBeNull();
+  });
+
   it('renders nothing when no chips are active', () => {
     const { container } = render(<AppliedFilterChips chips={[]} />);
 

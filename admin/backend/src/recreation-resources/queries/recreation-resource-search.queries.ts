@@ -58,6 +58,8 @@ export const SORT_FIELD_MAP: Record<
   'fee:desc': { name: 'desc' },
   'display_on_public_site:asc': { display_on_public_site: 'asc' },
   'display_on_public_site:desc': { display_on_public_site: 'desc' },
+  'file_status:asc': { rec_status_code: 'asc' },
+  'file_status:desc': { rec_status_code: 'desc' },
   'public_access_status:asc': { name: 'asc' },
   'public_access_status:desc': { name: 'desc' },
 };
@@ -228,10 +230,13 @@ export function buildSearchWhereSql(
         ) IN (${Prisma.join(query.public_access_status)})
       `
       : null,
-    // Exclude archived resources unless the caller explicitly includes them (super-admin)
-    !includeArchived
-      ? Prisma.sql`(rr.rec_status_code IS DISTINCT FROM 'AR')`
-      : null,
+    // If an explicit rec_status filter is provided, apply it directly.
+    // Otherwise, exclude archived resources unless the caller explicitly includes them (super-admin).
+    query.rec_status?.length
+      ? Prisma.sql`rr.rec_status_code IN (${Prisma.join(query.rec_status)})`
+      : !includeArchived
+        ? Prisma.sql`(rr.rec_status_code IS DISTINCT FROM 'AR')`
+        : null,
   ].filter((condition): condition is Prisma.Sql => condition !== null);
 
   if (conditions.length === 0) {

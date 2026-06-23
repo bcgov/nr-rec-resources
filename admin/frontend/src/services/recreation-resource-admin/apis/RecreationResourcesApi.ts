@@ -282,6 +282,7 @@ export interface SearchRecreationResourcesRequest {
   establishmentDateTo?: string;
   established?: SearchRecreationResourcesEstablishedEnum;
   publicAccessStatus?: Array<string>;
+  recStatus?: Array<string>;
 }
 
 export interface UpdateActivitiesRequest {
@@ -2663,6 +2664,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         requestParameters['publicAccessStatus'];
     }
 
+    if (requestParameters['recStatus'] != null) {
+      queryParameters['rec_status'] = requestParameters['recStatus'];
+    }
+
     const headerParameters: runtime.HTTPHeaders = {};
 
     if (this.configuration && this.configuration.accessToken) {
@@ -3420,6 +3425,7 @@ export const GetOptionsByTypesTypesEnum = {
   District: 'district',
   PhotographerType: 'photographerType',
   ClosestCommunity: 'closestCommunity',
+  RecStatusCode: 'recStatusCode',
 } as const;
 export type GetOptionsByTypesTypesEnum =
   (typeof GetOptionsByTypesTypesEnum)[keyof typeof GetOptionsByTypesTypesEnum];
@@ -3451,6 +3457,8 @@ export const SearchRecreationResourcesSortEnum = {
   DistrictDesc: 'district:desc',
   DisplayOnPublicSiteAsc: 'display_on_public_site:asc',
   DisplayOnPublicSiteDesc: 'display_on_public_site:desc',
+  FileStatusAsc: 'file_status:asc',
+  FileStatusDesc: 'file_status:desc',
   PublicAccessStatusAsc: 'public_access_status:asc',
   PublicAccessStatusDesc: 'public_access_status:desc',
 } as const;

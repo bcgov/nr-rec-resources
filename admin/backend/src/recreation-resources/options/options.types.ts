@@ -28,6 +28,7 @@ export const OPTION_TYPES = {
   DISTRICT: 'district',
   PHOTOGRAPHER_TYPE: 'photographerType',
   CLOSEST_COMMUNITY: 'closestCommunity',
+  REC_STATUS_CODE: 'recStatusCode',
 } as const;
 
 /**

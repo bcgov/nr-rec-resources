@@ -34,6 +34,20 @@
   }
 }
 
+.chip--default {
+  display: inline-flex;
+  align-items: center;
+  height: fit-content;
+  border: 1px solid $colorBlue;
+  background-color: $colorBlue;
+  color: $colorWhite;
+  border-radius: 32px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  cursor: default;
+}
+
 @media (max-width: $lgBreakpoint) {
   .chip-list {
     justify-content: flex-start;

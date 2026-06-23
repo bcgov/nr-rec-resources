@@ -36,6 +36,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'district:desc',
   'display_on_public_site:asc',
   'display_on_public_site:desc',
+  'file_status:asc',
+  'file_status:desc',
   'public_access_status:asc',
   'public_access_status:desc',
 ] as const;
@@ -187,4 +189,15 @@ export class AdminSearchQueryDto {
   @IsArray()
   @IsString({ each: true })
   public_access_status?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Resource file status codes (rec_status_code)',
+    type: [String],
+    example: ['HI', 'PE'],
+  })
+  @Transform(transformStringArrayQueryParam)
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  rec_status?: string[];
 }

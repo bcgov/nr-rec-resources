@@ -10,11 +10,10 @@ import type { KeyboardEvent } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
   AdminStatusBadge,
-  CustomBadge,
+  FileStatusBadge,
   PublicAccessStatusBadge,
   VisibleOnWebsite,
 } from '@/components';
-import { COLOR_RED, COLOR_RED_LIGHT } from '@/styles/colors';
 import { ROUTE_PATHS } from '@/constants/routes';
 import {
   ADMIN_SEARCH_COLUMN_IDS,
@@ -78,24 +77,21 @@ const buildColumns = (
     };
 
     if (id === 'status') {
-      column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => {
-        const isArchived = row.original.recStatusCode === 'AR';
-        if (isArchived) {
-          return (
-            <CustomBadge
-              label="Archived"
-              bgColor={COLOR_RED_LIGHT}
-              textColor={COLOR_RED}
-            />
-          );
-        }
-        return (
-          <AdminStatusBadge
-            label={row.original.status}
-            statusCode={row.original.statusCode}
-          />
-        );
-      };
+      column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => (
+        <AdminStatusBadge
+          label={row.original.status}
+          statusCode={row.original.statusCode}
+        />
+      );
+    }
+
+    if (id === 'file_status') {
+      column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => (
+        <FileStatusBadge
+          code={row.original.recStatusCode}
+          label={row.original.recStatusDescription}
+        />
+      );
     }
 
     if (id === 'display_on_public_site') {

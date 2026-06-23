@@ -20,6 +20,7 @@ export type EditableAdminSearchFilters = Pick<
   | 'establishment_date_to'
   | 'established'
   | 'publicAccessStatus'
+  | 'recStatus'
 >;
 
 export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
@@ -37,6 +38,7 @@ export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
   established: undefined,
   closestCommunity: [],
   publicAccessStatus: [],
+  recStatus: [],
 };
 
 export const ADMIN_SEARCH_PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
@@ -55,6 +57,7 @@ export const EMPTY_ADMIN_SEARCH_FILTERS: EditableAdminSearchFilters = {
   establishment_date_to: undefined,
   established: undefined,
   publicAccessStatus: [],
+  recStatus: [],
 };
 
 export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
@@ -108,6 +111,12 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     controlId: 'admin-search-filter-public-access-status',
     optionsKey: 'publicAccessStatusOptions',
     isFeatureFlagged: true,
+  },
+  {
+    key: 'recStatus',
+    label: 'File status',
+    controlId: 'admin-search-filter-rec-status',
+    optionsKey: 'recStatusOptions',
   },
 ] as const;
 

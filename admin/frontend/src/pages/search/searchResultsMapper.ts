@@ -24,6 +24,7 @@ export function mapAdminSearchResultRow(
     status: row.status,
     statusCode: row.status_code,
     recStatusCode: row.rec_status_code,
+    recStatusDescription: row.rec_status_description,
     visible: row.display_on_public_site,
     publicAccessStatus: row.access_status_grouplabel ?? null,
   };

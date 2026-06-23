@@ -37,6 +37,7 @@ export function buildAdminSearchRequest(
     publicAccessStatus: search.publicAccessStatus.length
       ? search.publicAccessStatus
       : undefined,
+    recStatus: search.recStatus.length ? search.recStatus : undefined,
   };
 }
 

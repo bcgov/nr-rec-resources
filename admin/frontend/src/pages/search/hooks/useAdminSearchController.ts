@@ -33,6 +33,7 @@ import {
   submitAdminSearchQuery,
   setAdminSearchClosestCommunityFilter,
   setAdminSearchPublicAccessStatusFilter,
+  setAdminSearchRecStatusFilter,
 } from '@/pages/search/utils/urlState';
 import useGetRecreationResourceSearch from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSearch';
 import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
@@ -42,6 +43,7 @@ import {
 } from '@/services';
 import type { PaginationState } from '@tanstack/react-table';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 const hasActiveEditableFilters = (search: AdminSearchRouteState) =>
   search.type.length > 0 ||
@@ -51,6 +53,7 @@ const hasActiveEditableFilters = (search: AdminSearchRouteState) =>
   search.access.length > 0 ||
   search.closestCommunity.length > 0 ||
   search.publicAccessStatus.length > 0 ||
+  search.recStatus.length > 0 ||
   Boolean(search.establishment_date_from) ||
   Boolean(search.establishment_date_to) ||
   Boolean(search.established);
@@ -84,6 +87,9 @@ export interface SearchResultsPaginationModel {
 
 export function useAdminSearchController(search: AdminSearchRouteState) {
   const navigate = useNavigate();
+  const { canEditArchived } = useAuthorizations();
+  const [isRecStatusDefaultSuppressed, setIsRecStatusDefaultSuppressed] =
+    useState(false);
   const hasActiveFilters = hasActiveEditableFilters(search);
   const [isFilterPanelPreferredOpen, setIsFilterPanelPreferredOpen] = useState(
     () => readAdminSearchFilterPanelOpen(),
@@ -91,7 +97,17 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
   const [dismissedFilterPanelState, setDismissedFilterPanelState] = useState<
     string | null
   >(null);
-  const resultsQuery = useGetRecreationResourceSearch(search);
+  // Default to Issued (HI) for non-super-admins only until the user clears/resets that default.
+  const shouldApplyDefaultRecStatus =
+    !canEditArchived &&
+    search.recStatus.length === 0 &&
+    !isRecStatusDefaultSuppressed;
+  const effectiveSearch = useMemo(
+    () =>
+      shouldApplyDefaultRecStatus ? { ...search, recStatus: ['HI'] } : search,
+    [search, shouldApplyDefaultRecStatus],
+  );
+  const resultsQuery = useGetRecreationResourceSearch(effectiveSearch);
   const { data: filterOptionsData, isLoading: isFilterOptionsLoading } =
     useGetRecreationResourceOptions([
       GetOptionsByTypesTypesEnum.Activities,
@@ -100,6 +116,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       GetOptionsByTypesTypesEnum.Access,
       GetOptionsByTypesTypesEnum.District,
       GetOptionsByTypesTypesEnum.ClosestCommunity,
+      GetOptionsByTypesTypesEnum.RecStatusCode,
     ]);
   const [
     activityOptionsByType,
@@ -108,6 +125,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     accessOptionsByType,
     districtOptionsByType,
     closestCommunityOptionsByType,
+    recStatusOptionsByType,
   ] = filterOptionsData ?? [];
   const results = useMemo(
     () => (resultsQuery.data?.data ?? []).map(mapAdminSearchResultRow),
@@ -163,6 +181,10 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
   const publicAccessStatusOptions = useMemo(
     () => [...PUBLIC_ACCESS_STATUS_OPTIONS],
     [],
+  );
+  const recStatusOptions = useMemo(
+    () => sortOptionsByLabel(recStatusOptionsByType?.options ?? []),
+    [recStatusOptionsByType],
   );
   const updateSearch = (nextSearch: AdminSearchRouteState) =>
     navigate({
@@ -268,7 +290,21 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         search.publicAccessStatus.filter((entry) => entry !== value),
       ),
     );
+  const clearRecStatus = (value: string) => {
+    const nextRecStatus = search.recStatus.filter((entry) => entry !== value);
+    if (nextRecStatus.length === 0) {
+      setIsRecStatusDefaultSuppressed(true);
+    }
+    updateSearch(setAdminSearchRecStatusFilter(search, nextRecStatus));
+  };
   const appliedFilterChips: AdminAppliedFilterChip[] = [];
+  if (shouldApplyDefaultRecStatus) {
+    appliedFilterChips.push({
+      key: 'recStatus:HI:default',
+      label: 'Issued',
+      onClear: () => setIsRecStatusDefaultSuppressed(true),
+    });
+  }
   appliedFilterChips.push(
     ...search.type.map((type) => ({
       key: `type:${type}`,
@@ -306,6 +342,12 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       key: `publicAccessStatus:${status}`,
       label: status,
       onClear: () => clearPublicAccessStatus(status),
+    })),
+    ...search.recStatus.map((code) => ({
+      key: `recStatus:${code}`,
+      // Show the human-readable description (e.g. "Archived") instead of the code (e.g. "AR")
+      label: getOptionLabel(code, recStatusOptions),
+      onClear: () => clearRecStatus(code),
     })),
   );
 
@@ -346,6 +388,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         establishment_date_to: search.establishment_date_to,
         established: search.established,
         publicAccessStatus: search.publicAccessStatus,
+        recStatus: search.recStatus,
       }),
     [
       search.type,
@@ -358,6 +401,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       search.establishment_date_to,
       search.established,
       search.publicAccessStatus,
+      search.recStatus,
     ],
   );
   const isFilterPanelOpen = hasActiveFilters
@@ -373,6 +417,12 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     setIsFilterPanelPreferredOpen(nextState);
     writeAdminSearchFilterPanelOpen(nextState);
   };
+
+  const effectiveRecStatusSelection = shouldApplyDefaultRecStatus
+    ? ['HI']
+    : search.recStatus;
+  const hasAppliedState =
+    hasAppliedSearchState(search) || shouldApplyDefaultRecStatus;
 
   return {
     results,
@@ -392,7 +442,8 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     closestCommunityOptions,
     establishedOptions,
     appliedFilterChips,
-    hasAppliedState: hasAppliedSearchState(search),
+    hasAppliedState,
+    effectiveRecStatusSelection,
     isFilterPanelOpen,
     toggleFilterPanel: () => setFilterPanelOpen(!isFilterPanelOpen),
     closeFilterPanel: () => setFilterPanelOpen(false),
@@ -400,13 +451,16 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       updateSearch(submitAdminSearchQuery(search, query)),
     setSort: (sort: AdminSearchRouteState['sort']) =>
       updateSearch(setAdminSearchSort(search, sort)),
-    applyFilters: (filters: EditableAdminSearchFilters) =>
+    applyFilters: (filters: EditableAdminSearchFilters) => {
+      setIsRecStatusDefaultSuppressed((filters.recStatus?.length ?? 0) === 0);
       updateSearch({
         ...search,
         ...filters,
         page: DEFAULT_ADMIN_SEARCH_STATE.page,
-      }),
+      });
+    },
     resetFilters: () => {
+      setIsRecStatusDefaultSuppressed(true);
       updateSearch({
         ...search,
         ...EMPTY_ADMIN_SEARCH_FILTERS,
@@ -415,6 +469,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       setFilterPanelOpen(false);
     },
     publicAccessStatusOptions,
+    recStatusOptions,
     clearQuery,
     clearType,
     clearDistrict,
@@ -427,5 +482,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     clearEstablishmentDateTo,
     clearEstablished,
     clearPublicAccessStatus,
+    clearRecStatus,
   };
 }

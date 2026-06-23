@@ -27,9 +27,12 @@ type FilterAccordionControllerProps = Pick<
   | 'closestCommunityOptions'
   | 'establishedOptions'
   | 'publicAccessStatusOptions'
+  | 'recStatusOptions'
   | 'applyFilters'
   | 'resetFilters'
->;
+> & {
+  effectiveRecStatusSelection?: string[];
+};
 
 interface FilterAccordionProps {
   search: AdminSearchRouteState;
@@ -52,6 +55,7 @@ const getEditableFilters = (
   establishment_date_to: state.establishment_date_to,
   established: state.established,
   publicAccessStatus: state.publicAccessStatus,
+  recStatus: state.recStatus,
 });
 
 const toggleFilterValue = (currentValues: string[], value: string): string[] =>
@@ -77,6 +81,8 @@ export function FilterAccordion({
     closestCommunityOptions,
     establishedOptions,
     publicAccessStatusOptions,
+    recStatusOptions,
+    effectiveRecStatusSelection,
     applyFilters: onApply,
     resetFilters: onReset,
   } = controller;
@@ -92,10 +98,18 @@ export function FilterAccordion({
       label: capitalizeWords(item.label),
     })),
     publicAccessStatusOptions,
+    recStatusOptions,
   };
   const searchFilters = getEditableFilters(search);
-  const searchKey = JSON.stringify(searchFilters);
-  const [draft, setDraft] = useState<FilterDraftState>(searchFilters);
+  const effectiveSearchFilters = useMemo(
+    () => ({
+      ...searchFilters,
+      recStatus: effectiveRecStatusSelection ?? searchFilters.recStatus,
+    }),
+    [searchFilters, effectiveRecStatusSelection],
+  );
+  const searchKey = JSON.stringify(effectiveSearchFilters);
+  const [draft, setDraft] = useState<FilterDraftState>(effectiveSearchFilters);
   const updateDraft = (
     updater: (current: FilterDraftState) => FilterDraftState,
   ) => {
@@ -259,6 +273,7 @@ export function FilterAccordion({
                     establishment_date_to: draft.establishment_date_to,
                     established: draft.established,
                     publicAccessStatus: draft.publicAccessStatus,
+                    recStatus: draft.recStatus,
                   });
                 }}
               >
@@ -268,7 +283,7 @@ export function FilterAccordion({
                 variant="outline-primary"
                 className="control-button"
                 onClick={() => {
-                  setDraft(searchFilters);
+                  setDraft(effectiveSearchFilters);
                   onClose();
                 }}
               >
