@@ -4,5 +4,5 @@
 import './PageLayout.scss';
 
 export const PageLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <div className="page-layout__container py-4">{children}</div>
+  <div className="page-layout__container">{children}</div>
 );

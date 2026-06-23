@@ -32,9 +32,7 @@ const baseResource = {
 describe('ResourceHeaderSection', () => {
   it('renders resource name, id, and type', () => {
     render(<ResourceHeaderSection recResource={baseResource} />);
-    expect(screen.getByTestId('clamp-lines')).toHaveTextContent(
-      'Test Resource',
-    );
+    expect(screen.getByText('Test Resource')).toBeInTheDocument();
     expect(screen.getByTestId('custom-badge')).toHaveTextContent('123');
     expect(screen.getByText('Park')).toBeInTheDocument();
   });
