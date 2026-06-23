@@ -21,7 +21,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
       style={{ transition: 'width 0.2s ease-in-out' }}
     >
       {/* --- TOP NAVIGATION GROUP --- */}
-      <div className="d-flex flex-column gap-2">
+      <div className="d-flex flex-column gap-2 top-menu">
         {menuLinks.map((link) => {
           return (
             <SidebarTooltip

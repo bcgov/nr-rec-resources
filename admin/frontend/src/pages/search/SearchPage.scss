@@ -1,6 +1,7 @@
 @import '@/styles/variables.scss';
 
 .search-page {
+  padding-top: 5px;
   .control-button.btn {
     color: $colorBlue;
     // override bootstrap focus styles
