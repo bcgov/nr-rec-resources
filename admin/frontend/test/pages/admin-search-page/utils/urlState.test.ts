@@ -7,6 +7,7 @@ import {
   setAdminSearchEstablishedFilter,
   setAdminSearchPageSize,
   setAdminSearchPublicAccessStatusFilter,
+  setAdminSearchRecStatusFilter,
   setAdminSearchTypeFilter,
   submitAdminSearchQuery,
 } from '@/pages/search/utils/urlState';
@@ -189,6 +190,17 @@ describe('admin search urlState helpers', () => {
     ).toEqual({});
   });
 
+  it('serializes recStatus filter with underscore delimiter', () => {
+    expect(
+      serializeAdminSearchRouteState({
+        ...DEFAULT_ADMIN_SEARCH_STATE,
+        recStatus: ['HI', 'AR'],
+      }),
+    ).toEqual({
+      recStatus: 'HI_AR',
+    });
+  });
+
   it('sets publicAccessStatus filter and resets page', () => {
     expect(
       setAdminSearchPublicAccessStatusFilter(baseState, [
@@ -197,6 +209,15 @@ describe('admin search urlState helpers', () => {
       ]),
     ).toMatchObject({
       publicAccessStatus: ['Closed', 'Restricted'],
+      page: 1,
+    });
+  });
+
+  it('sets recStatus filter and resets page', () => {
+    expect(
+      setAdminSearchRecStatusFilter(baseState, ['HI', 'AR']),
+    ).toMatchObject({
+      recStatus: ['HI', 'AR'],
       page: 1,
     });
   });

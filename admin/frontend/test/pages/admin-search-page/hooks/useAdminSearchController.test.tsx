@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mockNavigate = vi.fn();
 const mockUseGetRecreationResourceSearch = vi.fn();
 const mockUseGetRecreationResourceOptions = vi.fn();
+const mockUseAuthorizations = vi.fn();
 
 vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual<object>('@tanstack/react-router');
@@ -38,10 +39,7 @@ vi.mock('@/services', async () => {
 });
 
 vi.mock('@/hooks/useAuthorizations', () => ({
-  useAuthorizations: () => ({
-    canViewFeatureFlag: false,
-    canEditArchived: true,
-  }),
+  useAuthorizations: () => mockUseAuthorizations(),
 }));
 
 describe('useAdminSearchController', () => {
@@ -65,6 +63,11 @@ describe('useAdminSearchController', () => {
     mockNavigate.mockReset();
     mockUseGetRecreationResourceSearch.mockReset();
     mockUseGetRecreationResourceOptions.mockReset();
+    mockUseAuthorizations.mockReset();
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
+      canEditArchived: true,
+    });
 
     mockUseGetRecreationResourceSearch.mockReturnValue({
       data: {
@@ -96,6 +99,7 @@ describe('useAdminSearchController', () => {
             { id: 'C', label: 'Alpha District', is_archived: false },
           ],
         },
+        { type: 'recStatusCode', options: [] },
       ],
       isLoading: false,
     });
@@ -121,6 +125,27 @@ describe('useAdminSearchController', () => {
     expect(mockNavigate).toHaveBeenCalledWith({
       to: '/',
       search: { page_size: 100 },
+      resetScroll: false,
+    });
+  });
+
+  it('falls back to the default page size when an unsupported size is selected', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      page: 4,
+      page_size: 50,
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.pagination.setPageSize(999);
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: {},
       resetScroll: false,
     });
   });
@@ -394,6 +419,7 @@ describe('useAdminSearchController', () => {
         establishment_date_to: undefined,
         established: 'yes',
         publicAccessStatus: [],
+        recStatus: [],
       });
     });
 
@@ -516,6 +542,117 @@ describe('useAdminSearchController', () => {
       search: { publicAccessStatus: 'Restricted' },
       resetScroll: false,
     });
+  });
+
+  it('applies the default issued recStatus for users who cannot edit archived resources and lets them suppress it', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
+      canEditArchived: false,
+    });
+    mockUseGetRecreationResourceOptions.mockReturnValue({
+      data: [
+        { type: 'activities', options: [] },
+        { type: 'resourceType', options: [] },
+        { type: 'recreationStatus', options: [] },
+        { type: 'access', options: [] },
+        { type: 'district', options: [] },
+        { type: 'closestCommunity', options: [] },
+        {
+          type: 'recStatusCode',
+          options: [{ id: 'HI', label: 'Issued', is_archived: false }],
+        },
+      ],
+      isLoading: false,
+    });
+
+    const { result } = renderHook(
+      () => useAdminSearchController(DEFAULT_ADMIN_SEARCH_STATE),
+      {
+        wrapper: createWrapper(),
+      },
+    );
+
+    expect(mockUseGetRecreationResourceSearch).toHaveBeenCalledWith({
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      recStatus: ['HI'],
+    });
+    expect(result.current.effectiveRecStatusSelection).toEqual(['HI']);
+    expect(result.current.hasAppliedState).toBe(true);
+    expect(result.current.appliedFilterChips).toContainEqual(
+      expect.objectContaining({
+        key: 'recStatus:HI:default',
+        label: 'Issued',
+      }),
+    );
+
+    act(() => {
+      result.current.appliedFilterChips
+        .find((chip) => chip.key === 'recStatus:HI:default')
+        ?.onClear();
+    });
+
+    expect(result.current.effectiveRecStatusSelection).toEqual([]);
+    expect(result.current.hasAppliedState).toBe(false);
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('uses recStatus option labels and suppresses the default when the last explicit recStatus is cleared', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
+      canEditArchived: false,
+    });
+    mockUseGetRecreationResourceOptions.mockReturnValue({
+      data: [
+        { type: 'activities', options: [] },
+        { type: 'resourceType', options: [] },
+        { type: 'recreationStatus', options: [] },
+        { type: 'access', options: [] },
+        { type: 'district', options: [] },
+        { type: 'closestCommunity', options: [] },
+        {
+          type: 'recStatusCode',
+          options: [{ id: 'AR', label: 'Archived', is_archived: false }],
+        },
+      ],
+      isLoading: false,
+    });
+
+    const { result, rerender } = renderHook(
+      ({ search }) => useAdminSearchController(search),
+      {
+        initialProps: {
+          search: {
+            ...DEFAULT_ADMIN_SEARCH_STATE,
+            recStatus: ['AR'],
+          },
+        },
+        wrapper: createWrapper(),
+      },
+    );
+
+    expect(
+      result.current.appliedFilterChips.find(
+        (chip) => chip.key === 'recStatus:AR',
+      )?.label,
+    ).toBe('Archived');
+
+    act(() => {
+      result.current.clearRecStatus('AR');
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: {},
+      resetScroll: false,
+    });
+
+    rerender({ search: DEFAULT_ADMIN_SEARCH_STATE });
+
+    expect(result.current.effectiveRecStatusSelection).toEqual([]);
+    expect(result.current.hasAppliedState).toBe(false);
+    expect(mockUseGetRecreationResourceSearch).toHaveBeenLastCalledWith(
+      DEFAULT_ADMIN_SEARCH_STATE,
+    );
   });
 
   it('detects publicAccessStatus filter as active filter', () => {
