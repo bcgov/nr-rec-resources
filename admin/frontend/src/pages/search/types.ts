@@ -16,6 +16,7 @@ export interface AdminSearchFilters {
   access: string[];
   established?: string;
   publicAccessStatus: string[];
+  recStatus: string[];
 }
 
 export interface AdminSearchRouteState extends AdminSearchFilters {
@@ -29,6 +30,8 @@ export interface AdminAppliedFilterChip {
   key: string;
   label: string;
   onClear: () => void;
+  /** When true the chip represents a default/implicit filter and is displayed without a clear button */
+  isDefault?: boolean;
 }
 
 export interface AdminSearchResultRow {
@@ -44,6 +47,7 @@ export interface AdminSearchResultRow {
   status: string;
   statusCode: number;
   recStatusCode?: string | null;
+  recStatusDescription?: string | null;
   visible: boolean;
   publicAccessStatus: string | null;
 }

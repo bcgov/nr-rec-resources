@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest';
-import { buildAdminSearchRequest } from '@/services/hooks/recreation-resource-admin/searchQueryOptions';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  buildAdminSearchRequest,
+  getAdminSearchQueryOptions,
+} from '@/services/hooks/recreation-resource-admin/searchQueryOptions';
 import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
 
 describe('buildAdminSearchRequest', () => {
@@ -13,6 +16,7 @@ describe('buildAdminSearchRequest', () => {
     expect(result.access).toBeUndefined();
     expect(result.closestCommunity).toBeUndefined();
     expect(result.publicAccessStatus).toBeUndefined();
+    expect(result.recStatus).toBeUndefined();
   });
 
   it('passes publicAccessStatus array when non-empty', () => {
@@ -31,6 +35,15 @@ describe('buildAdminSearchRequest', () => {
     });
 
     expect(result.publicAccessStatus).toBeUndefined();
+  });
+
+  it('passes recStatus array when non-empty', () => {
+    const result = buildAdminSearchRequest({
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      recStatus: ['HI', 'AR'],
+    });
+
+    expect(result.recStatus).toEqual(['HI', 'AR']);
   });
 
   it('maps q, sort, page, pageSize from search state', () => {
@@ -87,5 +100,64 @@ describe('buildAdminSearchRequest', () => {
     expect(result.established).toBe('yes');
     expect(result.establishmentDateFrom).toBe('2020-01-01');
     expect(result.establishmentDateTo).toBe('2021-12-31');
+  });
+
+  it('builds query options that call the admin search API with the mapped request', async () => {
+    const apiClient = {
+      searchRecreationResources: vi
+        .fn()
+        .mockResolvedValue({ data: [], total: 0 }),
+    };
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      q: 'lake',
+      recStatus: ['HI'],
+    };
+
+    const options = getAdminSearchQueryOptions(apiClient as any, search);
+    const result = await options.queryFn();
+
+    expect(options.queryKey).toEqual([
+      'recreation-resource-admin',
+      'search',
+      {
+        q: 'lake',
+        sort: 'name:asc',
+        page: 1,
+        pageSize: 25,
+        type: undefined,
+        district: undefined,
+        activities: undefined,
+        status: undefined,
+        access: undefined,
+        closestCommunity: undefined,
+        establishmentDateFrom: undefined,
+        establishmentDateTo: undefined,
+        established: undefined,
+        publicAccessStatus: undefined,
+        recStatus: ['HI'],
+      },
+    ]);
+    expect(apiClient.searchRecreationResources).toHaveBeenCalledWith({
+      q: 'lake',
+      sort: 'name:asc',
+      page: 1,
+      pageSize: 25,
+      type: undefined,
+      district: undefined,
+      activities: undefined,
+      status: undefined,
+      access: undefined,
+      closestCommunity: undefined,
+      establishmentDateFrom: undefined,
+      establishmentDateTo: undefined,
+      established: undefined,
+      publicAccessStatus: undefined,
+      recStatus: ['HI'],
+    });
+    expect(result).toEqual({ data: [], total: 0 });
+    expect(options.staleTime).toBe(30_000);
+    expect(options.retry(0, { response: { status: 500 } } as any)).toBe(true);
+    expect(options.retry(2, { response: { status: 500 } } as any)).toBe(false);
   });
 });

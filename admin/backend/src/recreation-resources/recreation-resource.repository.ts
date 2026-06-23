@@ -340,12 +340,18 @@ export class RecreationResourceRepository {
       this.buildStatusWhere(query.status),
       this.buildEstablishmentDateWhere(query),
       this.buildEstablishedWhere(query.established),
-      // Exclude archived resources unless super-admin explicitly includes them
-      !includeArchived
-        ? {
-            OR: [{ rec_status_code: null }, { rec_status_code: { not: 'AR' } }],
-          }
-        : null,
+      // If an explicit rec_status filter is provided, apply it directly.
+      // Otherwise, exclude archived resources unless super-admin explicitly includes them.
+      query.rec_status?.length
+        ? { rec_status_code: { in: query.rec_status } }
+        : !includeArchived
+          ? {
+              OR: [
+                { rec_status_code: null },
+                { rec_status_code: { not: 'AR' } },
+              ],
+            }
+          : null,
     ].filter(
       (condition): condition is Prisma.recreation_resourceWhereInput =>
         condition !== null,

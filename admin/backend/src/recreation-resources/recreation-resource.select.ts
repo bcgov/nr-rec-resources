@@ -14,6 +14,11 @@ const _baseRecreationResourceSelect = {
   project_established_date: true,
   display_on_public_site: true,
   rec_status_code: true,
+  recreation_resource_status_code_rel: {
+    select: {
+      description: true,
+    },
+  },
   recreation_resource_type_view_admin: {
     select: {
       rec_resource_type_code: true,

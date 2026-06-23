@@ -46,12 +46,13 @@ export class RecreationResourceAdvisoryDto {
   })
   expiry_date: Date | null;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Last updated date',
     type: String,
     format: 'date-time',
+    nullable: true,
   })
-  updated_date: Date;
+  updated_date: Date | null;
 
   @ApiPropertyOptional({
     description: 'Published at date',

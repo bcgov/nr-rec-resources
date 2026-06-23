@@ -32,6 +32,7 @@ export function SearchPage() {
     establishment_date_to: search.establishment_date_to,
     established: search.established,
     publicAccessStatus: search.publicAccessStatus,
+    recStatus: search.recStatus,
   });
 
   const addCommunityFilter = (communityId: string) => {

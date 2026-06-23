@@ -91,6 +91,11 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     prismaModel: 'recreation_resource',
     middleware: transformClosestCommunityOptions,
   },
+  [OPTION_TYPES.REC_STATUS_CODE]: {
+    idField: 'recreation_resource_status_code',
+    labelField: 'description',
+    prismaModel: 'recreation_resource_status_code',
+  },
 };
 
 export const VALID_OPTION_TYPES = Object.values(OPTION_TYPES);

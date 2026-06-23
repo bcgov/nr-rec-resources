@@ -22,6 +22,13 @@ describe('recreation-resource-search.queries', () => {
     expect(normalizedSql).not.toContain('project_established_date');
   });
 
+  it('returns Prisma.empty when no filters are provided and archived resources are included', () => {
+    const whereSql = buildSearchWhereSql({}, true);
+
+    expect(whereSql).toBe(Prisma.empty);
+    expect(normalizeSql(whereSql)).toBe('');
+  });
+
   it('builds SQL conditions for all supported filters and sanitizes activities', () => {
     const whereSql = buildSearchWhereSql({
       q: '  lake  ',
@@ -62,6 +69,17 @@ describe('recreation-resource-search.queries', () => {
       new Date('2020-01-01'),
       new Date('2024-12-31'),
     ]);
+  });
+
+  it('normalizes closest community values to uppercase in SQL filtering', () => {
+    const whereSql = buildSearchWhereSql({
+      closestCommunity: ['kamloops', 'Prince George'],
+    });
+
+    const normalizedSql = normalizeSql(whereSql);
+    expect(normalizedSql).toContain('UPPER(rr.closest_community) IN (?,?)');
+    expect(whereSql.values).toContain('KAMLOOPS');
+    expect(whereSql.values).toContain('PRINCE GEORGE');
   });
 
   it('ignores invalid activity filters', () => {
