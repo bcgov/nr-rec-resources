@@ -21,7 +21,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
       style={{ transition: 'width 0.2s ease-in-out' }}
     >
       {/* --- TOP NAVIGATION GROUP --- */}
-      <div className="d-flex flex-column gap-2">
+      <div className="d-flex flex-column gap-2 top-menu">
         {menuLinks.map((link) => {
           return (
             <SidebarTooltip
@@ -32,7 +32,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
             >
               <Link
                 to="/"
-                className="d-flex align-items-start text-decoration-none py-2 rounded hover-effect icon-container-wrapper"
+                className={`d-flex align-items-start ${isCollapsed && 'justify-content-center'} text-decoration-none py-2 rounded hover-effect icon-container-wrapper`}
               >
                 <div className="sidebar-icon-container flex-shrink-0 mt-1">
                   <Image
@@ -71,7 +71,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
                 <a
                   href={link.url}
                   target="_blank"
-                  className="d-flex align-items-start text-decoration-none py-2 rounded hover-effect icon-container-wrapper"
+                  className={`d-flex align-items-start ${isCollapsed && 'justify-content-center'} text-decoration-none py-2 rounded hover-effect icon-container-wrapper`}
                   rel="noreferrer"
                 >
                   <div className="sidebar-quick-link-container flex-shrink-0 mt-1">
@@ -91,7 +91,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
           })}
         </div>
         <button
-          className="btn btn-link w-100 d-flex align-items-right justify-content-end"
+          className={`btn btn-link w-100 d-flex align-items-right justify-content-end ${isCollapsed && 'justify-content-center'}`}
           onClick={() => setIsCollapsed(!isCollapsed)}
           type="button"
         >

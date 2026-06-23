@@ -20,18 +20,22 @@
   width: 72px;
 }
 
+.top-menu {
+  padding-top: 8px;
+}
+
 .sidebar-icon-container {
   width: 38px;
   display: flex;
   justify-content: flex-start;
-  padding-left: 8px;
+  justify-content: center;
 }
 
 .sidebar-quick-link-container {
   width: 30px;
   display: flex;
   justify-content: flex-start;
-  padding-left: 8px;
+  justify-content: center;
 }
 
 .title {

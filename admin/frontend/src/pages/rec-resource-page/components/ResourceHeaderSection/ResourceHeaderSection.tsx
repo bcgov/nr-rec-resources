@@ -1,5 +1,4 @@
 import { AdminStatusBadge, CustomBadge } from '@/components';
-import { ClampLines } from '@/components/clamp-lines';
 import { RecreationResourceDetailUIModel } from '@/services';
 import {
   COLOR_BLUE,
@@ -32,11 +31,9 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
           className="flex-wrap align-items-end"
         >
           <div className="resource-header-section__title-wrapper">
-            <ClampLines
-              text={capitalizeWords(recResource.name)}
-              as="h1"
-              className="resource-header-section__title-text"
-            />
+            <h1 className="resource-header-section__title-text">
+              {capitalizeWords(recResource.name)}
+            </h1>
           </div>
           <CustomBadge
             label={recResource.rec_resource_id}
