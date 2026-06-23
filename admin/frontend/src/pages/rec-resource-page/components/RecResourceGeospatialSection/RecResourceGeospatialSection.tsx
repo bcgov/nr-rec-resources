@@ -7,7 +7,6 @@ import { Route } from '@/routes/rec-resource/$id/geospatial';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
-import { ROLES } from '@/hooks/useAuthorizations';
 import { Link } from '@tanstack/react-router';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
@@ -94,7 +93,7 @@ export function RecResourceGeospatialSection() {
       <div className="d-flex justify-content-between align-items-center">
         <h2>Geospatial</h2>
 
-        <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
+        <EditableGuard isArchived={isArchived}>
           {hasGeometryData && (
             <Link
               to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(

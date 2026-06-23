@@ -7,6 +7,7 @@ export const AUTH_ROLES_KEY = 'roles';
 export enum RecreationResourceAuthRole {
   RST_ADMIN = 'rst-admin',
   RST_VIEWER = 'rst-viewer',
+  RST_SUPER_ADMIN = 'rst-super-admin',
 }
 
 // Role validation modes

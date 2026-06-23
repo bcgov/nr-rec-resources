@@ -1,6 +1,5 @@
 import { ROUTE_PATHS } from '@/constants/routes';
 import { EditableGuard } from '@/components/auth';
-import { ROLES } from '@/hooks/useAuthorizations';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { Link } from '@tanstack/react-router';
 import { Col, Row, Stack } from 'react-bootstrap';
@@ -62,7 +61,7 @@ export const RecResourceOverviewSection = (
       <div className="d-flex justify-content-between align-items-center">
         <h2>Overview</h2>
 
-        <EditableGuard requireAll={[ROLES.ADMIN]} isArchived={isArchived}>
+        <EditableGuard isArchived={isArchived}>
           <Link
             to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
               '$id',
