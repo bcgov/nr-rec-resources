@@ -726,4 +726,18 @@ values
         null,
         null,
         'HI'
+    ),
+    (
+        'REC0019',
+        'Allison Pool',
+        'Small campsite on the Chilliwack River',
+        'CHILLIWACK',
+        true,
+        'RDCK',
+        'M',
+        null,
+        null,
+        null,
+        null,
+        'HI'
     );

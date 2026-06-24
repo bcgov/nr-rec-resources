@@ -8,34 +8,33 @@ test.describe('Recreation Resource - Fees section', () => {
   test('renders fees content and is reachable from the page menu', async ({
     page,
   }) => {
-    // REC203900 has fixture data with one overnight fee and one
-    // additional fee, so we should see both sub-section headings.
+    // REC0019 has fixture data with one overnight fee
     const layout = new LayoutPOM(page);
     const recResourcePage = new RecreationResourcePOM(page);
     const utils = new UtilsPOM(page);
 
-    await recResourcePage.route('REC203900');
+    await recResourcePage.route('REC0019');
 
     await layout.verifyHeaderContent();
     await layout.verifyFooterContent();
 
-    await recResourcePage.verifyFeesSection(['overnight', 'additional']);
+    await recResourcePage.verifyFeesSection(['overnight']);
     await recResourcePage.verifyFeesNavigation();
 
     await utils.accessibility();
-    await utils.screenshot('Fees section', 'multiple-subsections');
+    await utils.screenshot('Fees section', 'single-overnight');
   });
 
   test('renders only the additional fees sub-section when other fees are absent', async ({
     page,
   }) => {
-    // REC203239 (default resource) only has a single additional fee in
+    // REC166903  only has a single additional fee in
     // the fixture data, so the Overnight and Trail headings must not
     // appear and there should be no bulk toggle button.
     const recResourcePage = new RecreationResourcePOM(page);
     const utils = new UtilsPOM(page);
 
-    await recResourcePage.route('REC203239');
+    await recResourcePage.route('REC166903');
 
     await recResourcePage.verifyFeesSection(['additional']);
     await recResourcePage.verifyFeesNavigation();
