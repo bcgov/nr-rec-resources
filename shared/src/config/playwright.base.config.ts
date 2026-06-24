@@ -9,10 +9,14 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  // Limit to 1 worker in CI to prevent overwhelming the Docker-hosted server
+  // and avoid "Premature close" asset-fetch errors under memory/CPU pressure.
+  workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['line'],
     ['list', { printSteps: true }],
-    ['html', { open: 'always' }],
+    // Never auto-open the HTML report in CI — it blocks the process.
+    ['html', { open: process.env.CI ? 'never' : 'always' }],
   ],
   use: {
     bypassCSP: true,
