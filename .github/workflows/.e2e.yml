@@ -78,13 +78,15 @@ jobs:
         HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
         HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
         HAPPO_PROJECT: "${{ inputs.local && secrets.HAPPO_PROJECT_LOCAL || secrets.HAPPO_PROJECT }}"
+        # Use 127.0.0.1 explicitly — on Ubuntu 24.04 `localhost` can resolve to
+        # ::1 (IPv6), causing "Premature close" errors against IPv4 Docker containers.
         E2E_BASE_URL: "${{
-            inputs.local && inputs.app == 'admin' && 'http://localhost:3001' ||
-            inputs.local && inputs.app != 'admin' && 'http://localhost:3000' ||
+            inputs.local && inputs.app == 'admin' && 'http://127.0.0.1:3001' ||
+            inputs.local && inputs.app != 'admin' && 'http://127.0.0.1:3000' ||
             secrets.E2E_BASE_URL
           }}"
     - name: Dump docker logs on failure
-      if: failure() && ${{ inputs.local }}
+      if: failure() && inputs.local
       uses: jwalton/gh-docker-logs@v2
 
   # Remove this job once admin e2e tests are implemented

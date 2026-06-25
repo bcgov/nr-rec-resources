@@ -21,7 +21,6 @@ import {
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { OPEN_STATUS } from './recreation-resource.constants';
 import { RecreationResourceRepository } from './recreation-resource.repository';
-import { AdminSearchRecreationResourceGetPayload } from './recreation-resource.types';
 import { formatRecreationResourceDetailResults } from './utils';
 
 @Injectable()
@@ -107,7 +106,13 @@ export class RecreationResourceService {
         status_code:
           resource.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
         rec_status_code: resource.rec_status_code,
-        rec_status_description: this.getRecStatusDescription(resource),
+        rec_status_description: this.getRecStatusDescription(
+          resource as {
+            recreation_resource_status_code_rel?: {
+              description?: string | null;
+            } | null;
+          },
+        ),
         activities: this.getUniqueValues(
           resource.recreation_activity?.map(
             (activity) => activity.recreation_activity?.description ?? '',
@@ -246,17 +251,11 @@ export class RecreationResourceService {
     return feeTypes;
   }
 
-  private getRecStatusDescription(
-    resource: AdminSearchRecreationResourceGetPayload,
-  ): string | null {
-    const fileStatusRel = (
-      resource as {
-        recreation_resource_status_code_rel?: {
-          description?: string | null;
-        } | null;
-      }
-    ).recreation_resource_status_code_rel;
-
-    return fileStatusRel?.description ?? null;
+  private getRecStatusDescription(resource: {
+    recreation_resource_status_code_rel?: {
+      description?: string | null;
+    } | null;
+  }): string | null {
+    return resource.recreation_resource_status_code_rel?.description ?? null;
   }
 }
