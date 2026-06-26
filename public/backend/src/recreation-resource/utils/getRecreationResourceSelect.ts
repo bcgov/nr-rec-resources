@@ -42,11 +42,6 @@ export const getRecreationResourceSelect = () => {
           notIn: EXCLUDED_ACTIVITY_CODES,
         },
       },
-      with_sub_description: {
-        select: {
-          description: true,
-        },
-      },
     },
     recreation_activity_code_trails: {
       select: {
