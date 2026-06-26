@@ -20,6 +20,7 @@ interface ResourceHeaderProps {
   recResource: RecreationResourceDetailDto;
   isMd: boolean;
   recreationDistrict?: RecreationDistrict;
+  advisoriesCount: number;
 }
 
 const ResourceHeader = ({
@@ -33,6 +34,7 @@ const ResourceHeader = ({
   recResource,
   isMd,
   recreationDistrict,
+  advisoriesCount,
 }: ResourceHeaderProps) => {
   const districtImage =
     recreationDistrict?.district_code &&
@@ -57,7 +59,11 @@ const ResourceHeader = ({
           <span className="capitalize">{closestCommunity?.toLowerCase()}</span>
         </div>
         {statusCode && statusDescription && (
-          <Status description={statusDescription} statusCode={statusCode} />
+          <Status
+            description={statusDescription}
+            statusCode={statusCode}
+            advisoriesCount={advisoriesCount}
+          />
         )}
         {isRecreationSite && recResource && (
           <RecResourceReservation recResource={recResource} />
