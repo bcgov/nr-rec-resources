@@ -23,6 +23,7 @@ export default defineConfig({
       KEYCLOAK_CLIENT_ID: 'test-client',
       KEYCLOAK_ISSUER:
         'https://test-keycloak.example.com/auth/realms/test-realm',
+      ACT_CSS_CLIENT_ID: 'test-act-css-client',
       ESTABLISHMENT_ORDER_DOCS_BUCKET: 'rst-lza-establishment-order-docs-dev',
       RST_STORAGE_IMAGES_BUCKET: 'rst-lza-rec-resource-images-dev',
       RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET: 'rst-lza-rec-resource-docs-dev',

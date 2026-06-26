@@ -2,6 +2,7 @@ import { AppController } from '@/app.controller';
 import { AppModule } from '@/app.module';
 import { AppService } from '@/app.service';
 import { AuthModule } from '@/auth';
+import { ActModule } from '@/act/act.module';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -51,11 +52,12 @@ describe('AppModule', () => {
       const moduleFixture = AppModule;
       const metadata = Reflect.getMetadata('imports', moduleFixture);
 
-      expect(metadata).toHaveLength(8);
+      expect(metadata).toHaveLength(9);
       expect(metadata).toEqual(
         expect.arrayContaining([
           PassportModule,
           AuthModule,
+          ActModule,
           expect.any(Function), // ClsModule.forRoot() returns a DynamicModule
           expect.any(Object), // AppConfigModule
           expect.any(Object), // UserContextModule
