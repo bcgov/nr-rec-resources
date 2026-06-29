@@ -123,6 +123,12 @@ export function useRecResourceSections(recResource: any) {
         isVisible: isSiteDescription,
       },
       {
+        id: SectionIds.KNOW_BEFORE_YOU_GO,
+        href: `#${SectionIds.KNOW_BEFORE_YOU_GO}`,
+        title: SectionTitles.KNOW_BEFORE_YOU_GO,
+        isVisible: isRecreationSite,
+      },
+      {
         id: SectionIds.CAMPING,
         href: `#${SectionIds.CAMPING}`,
         title: SectionTitles.CAMPING,
@@ -157,12 +163,6 @@ export function useRecResourceSections(recResource: any) {
         href: `#${SectionIds.MAPS_AND_LOCATION}`,
         title: SectionTitles.MAPS_AND_LOCATION,
         isVisible: isMapsAndLocation,
-      },
-      {
-        id: SectionIds.KNOW_BEFORE_YOU_GO,
-        href: `#${SectionIds.KNOW_BEFORE_YOU_GO}`,
-        title: SectionTitles.KNOW_BEFORE_YOU_GO,
-        isVisible: isRecreationSite,
       },
       {
         id: SectionIds.CONTACT,

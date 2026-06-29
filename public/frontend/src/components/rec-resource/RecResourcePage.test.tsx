@@ -72,7 +72,9 @@ vi.mock('@/components/rec-resource/section', () => ({
   ),
   Fees: vi.fn(() => <h2 className="section-heading">Fees</h2>),
   Camping: vi.fn(() => <h2 className="section-heading">Camping</h2>),
-  KnowBeforeYouGo: () => null,
+  KnowBeforeYouGo: () => (
+    <h2 className="section-heading">Know before you go</h2>
+  ),
 }));
 
 vi.mock('@/components/rec-resource/ResourceHeader', () => ({
@@ -495,6 +497,22 @@ describe('RecResourcePage', () => {
       expect(
         screen.getByRole('heading', { name: /Description/i }),
       ).toBeInTheDocument();
+    });
+
+    it('renders Know before you go immediately after Description', async () => {
+      await renderComponent(mockResource, {
+        isSiteDescription: true,
+        isRecreationSite: true,
+      });
+
+      const description = screen.getByRole('heading', { name: /Description/i });
+      const knowBeforeYouGo = screen.getByRole('heading', {
+        name: /Know before you go/i,
+      });
+
+      expect(description.compareDocumentPosition(knowBeforeYouGo)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
     });
 
     it('hides site description when not available', async () => {
