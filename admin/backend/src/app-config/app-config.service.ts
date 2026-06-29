@@ -56,6 +56,23 @@ export class AppConfigService {
     return this.configService.get('KEYCLOAK_ISSUER', { infer: true })!;
   }
 
+  /**
+   * CSS (Common Hosted Single Sign-On) OAuth2 token endpoint used by the
+   * Act integration for the Client Credentials grant flow.
+   * Derived from the required KEYCLOAK_ISSUER env var.
+   */
+  get cssTokenUrl(): string {
+    return `${this.keycloakIssuer.replace(/\/+$/, '')}/protocol/openid-connect/token`;
+  }
+
+  /**
+   * CSS Client ID provisioned for the Act integration. Used by the
+   * Act-only Keycloak Passport strategy as the expected `aud` claim.
+   */
+  get actCssClientId(): string {
+    return this.configService.get('ACT_CSS_CLIENT_ID', { infer: true })!;
+  }
+
   // AWS S3 Configuration
   get establishmentOrderDocsBucket(): string {
     return this.configService.get('ESTABLISHMENT_ORDER_DOCS_BUCKET', {
