@@ -135,6 +135,7 @@ jobs:
           keycloak_realm: ${{ secrets.KEYCLOAK_REALM }}
           keycloak_client_id: ${{ secrets.KEYCLOAK_CLIENT_ID }}
           keycloak_issuer: ${{ secrets.KEYCLOAK_ISSUER }}
+          act_css_client_id: ${{ secrets.ACT_CSS_CLIENT_ID }}
           google_search_console_verification_txt: ${{ secrets.GOOGLE_SEARCH_CONSOLE_VERIFICATION_TXT }}
           dev_zone_name_servers: ${{ inputs.dev_zone_name_servers }}
           test_zone_name_servers: ${{ inputs.test_zone_name_servers }}
@@ -159,6 +160,7 @@ jobs:
           keycloak_realm: ${{ secrets.KEYCLOAK_REALM }}
           keycloak_client_id: ${{ secrets.KEYCLOAK_CLIENT_ID }}
           keycloak_issuer: ${{ secrets.KEYCLOAK_ISSUER }}
+          act_css_client_id: ${{ secrets.ACT_CSS_CLIENT_ID }}
         run: |
           terragrunt output -json > outputs.json
           cat outputs.json
