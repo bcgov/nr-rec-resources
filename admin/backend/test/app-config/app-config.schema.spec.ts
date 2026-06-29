@@ -23,6 +23,7 @@ describe('AppConfigSchema', () => {
     KEYCLOAK_REALM: 'test-realm',
     KEYCLOAK_CLIENT_ID: 'test-client',
     KEYCLOAK_ISSUER: 'http://localhost:8080/auth/realms/test-realm',
+    ACT_CSS_CLIENT_ID: 'test-act-css-client',
     ESTABLISHMENT_ORDER_DOCS_BUCKET: 'test-establishment-order-docs-bucket',
     RST_STORAGE_IMAGES_BUCKET: 'test-rec-resource-images-bucket',
     RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET: 'test-rec-resource-docs-bucket',
