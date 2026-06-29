@@ -37,12 +37,7 @@ export class ActAdvisoriesRepository {
    */
   async exists(key: ActAdvisoryKey): Promise<boolean> {
     const existing = await this.prisma.act_advisories_flat.findUnique({
-      where: {
-        rec_resource_id_advisory_number: {
-          rec_resource_id: key.rec_resource_id,
-          advisory_number: key.advisory_number,
-        },
-      },
+      where: this.toCompositeWhereInput(key),
       select: { rec_resource_id: true },
     });
     return existing !== null;
@@ -62,12 +57,7 @@ export class ActAdvisoriesRepository {
     const created = !(await this.exists({ rec_resource_id, advisory_number }));
 
     const advisory = await this.prisma.act_advisories_flat.upsert({
-      where: {
-        rec_resource_id_advisory_number: {
-          rec_resource_id,
-          advisory_number,
-        },
-      },
+      where: this.toCompositeWhereInput({ rec_resource_id, advisory_number }),
       create: this.toCreateInput(payload),
       update: this.toUpdateInput(payload),
     });
@@ -88,12 +78,7 @@ export class ActAdvisoriesRepository {
     payload: ActAdvisoryUpdateDto,
   ): Promise<Prisma.act_advisories_flatGetPayload<true>> {
     return this.prisma.act_advisories_flat.update({
-      where: {
-        rec_resource_id_advisory_number: {
-          rec_resource_id: key.rec_resource_id,
-          advisory_number: key.advisory_number,
-        },
-      },
+      where: this.toCompositeWhereInput(key),
       data: this.toPartialUpdateInput(payload),
     });
   }
@@ -103,13 +88,59 @@ export class ActAdvisoriesRepository {
    */
   async delete(key: ActAdvisoryKey): Promise<void> {
     await this.prisma.act_advisories_flat.delete({
-      where: {
-        rec_resource_id_advisory_number: {
-          rec_resource_id: key.rec_resource_id,
-          advisory_number: key.advisory_number,
-        },
-      },
+      where: this.toCompositeWhereInput(key),
     });
+  }
+
+  /**
+   * Builds the Prisma `where` object for the advisory composite natural key.
+   */
+  private toCompositeWhereInput(
+    key: ActAdvisoryKey,
+  ): Prisma.act_advisories_flatWhereUniqueInput {
+    return {
+      rec_resource_id_advisory_number: {
+        rec_resource_id: key.rec_resource_id,
+        advisory_number: key.advisory_number,
+      },
+    };
+  }
+
+  /**
+   * Shared normalized payload used by both create and full update operations.
+   */
+  private toWriteInput(
+    payload: ActAdvisoryUpsertDto,
+  ): Omit<
+    Prisma.act_advisories_flatUncheckedCreateInput,
+    'rec_resource_id' | 'advisory_number'
+  > {
+    return {
+      title: payload.title,
+      description: payload.description ?? null,
+      submitted_by: payload.submitted_by,
+      access_status_name: payload.access_status_name,
+      access_status_grouplabel: payload.access_status_grouplabel,
+      access_status_description: payload.access_status_description ?? null,
+      event_type: payload.event_type,
+      urgency: payload.urgency,
+      advisory_status: payload.advisory_status,
+      is_reservations_affected: payload.is_reservations_affected,
+      is_advisory_date_displayed: payload.is_advisory_date_displayed,
+      is_effective_date_displayed: payload.is_effective_date_displayed,
+      is_end_date_displayed: payload.is_end_date_displayed,
+      is_updated_date_displayed: payload.is_updated_date_displayed,
+      advisory_date: payload.advisory_date,
+      effective_date: payload.effective_date,
+      end_date: payload.end_date ?? null,
+      expiry_date: payload.expiry_date ?? null,
+      updated_date: payload.updated_date,
+      published_at: payload.published_at ?? null,
+      listing_rank: payload.listing_rank ?? 0,
+      urgency_sequence: payload.urgency_sequence ?? 0,
+      access_status_precedence: payload.access_status_precedence ?? 0,
+      event_type_precedence: payload.event_type_precedence ?? 0,
+    };
   }
 
   /**
@@ -121,30 +152,7 @@ export class ActAdvisoriesRepository {
     return {
       rec_resource_id: payload.rec_resource_id,
       advisory_number: payload.advisory_number,
-      title: payload.title,
-      description: payload.description ?? null,
-      submitted_by: payload.submitted_by,
-      access_status_name: payload.access_status_name,
-      access_status_grouplabel: payload.access_status_grouplabel,
-      access_status_description: payload.access_status_description ?? null,
-      event_type: payload.event_type,
-      urgency: payload.urgency,
-      advisory_status: payload.advisory_status,
-      is_reservations_affected: payload.is_reservations_affected,
-      is_advisory_date_displayed: payload.is_advisory_date_displayed,
-      is_effective_date_displayed: payload.is_effective_date_displayed,
-      is_end_date_displayed: payload.is_end_date_displayed,
-      is_updated_date_displayed: payload.is_updated_date_displayed,
-      advisory_date: payload.advisory_date,
-      effective_date: payload.effective_date,
-      end_date: payload.end_date ?? null,
-      expiry_date: payload.expiry_date ?? null,
-      updated_date: payload.updated_date,
-      published_at: payload.published_at ?? null,
-      listing_rank: payload.listing_rank ?? 0,
-      urgency_sequence: payload.urgency_sequence ?? 0,
-      access_status_precedence: payload.access_status_precedence ?? 0,
-      event_type_precedence: payload.event_type_precedence ?? 0,
+      ...this.toWriteInput(payload),
     };
   }
 
@@ -156,32 +164,7 @@ export class ActAdvisoriesRepository {
   private toUpdateInput(
     payload: ActAdvisoryUpsertDto,
   ): Prisma.act_advisories_flatUncheckedUpdateInput {
-    return {
-      title: payload.title,
-      description: payload.description ?? null,
-      submitted_by: payload.submitted_by,
-      access_status_name: payload.access_status_name,
-      access_status_grouplabel: payload.access_status_grouplabel,
-      access_status_description: payload.access_status_description ?? null,
-      event_type: payload.event_type,
-      urgency: payload.urgency,
-      advisory_status: payload.advisory_status,
-      is_reservations_affected: payload.is_reservations_affected,
-      is_advisory_date_displayed: payload.is_advisory_date_displayed,
-      is_effective_date_displayed: payload.is_effective_date_displayed,
-      is_end_date_displayed: payload.is_end_date_displayed,
-      is_updated_date_displayed: payload.is_updated_date_displayed,
-      advisory_date: payload.advisory_date,
-      effective_date: payload.effective_date,
-      end_date: payload.end_date ?? null,
-      expiry_date: payload.expiry_date ?? null,
-      updated_date: payload.updated_date,
-      published_at: payload.published_at ?? null,
-      listing_rank: payload.listing_rank ?? 0,
-      urgency_sequence: payload.urgency_sequence ?? 0,
-      access_status_precedence: payload.access_status_precedence ?? 0,
-      event_type_precedence: payload.event_type_precedence ?? 0,
-    };
+    return this.toWriteInput(payload);
   }
 
   /**
@@ -193,43 +176,47 @@ export class ActAdvisoriesRepository {
     payload: ActAdvisoryUpdateDto,
   ): Prisma.act_advisories_flatUncheckedUpdateInput {
     const data: Prisma.act_advisories_flatUncheckedUpdateInput = {};
+    const source = payload as Record<string, unknown>;
 
     const setIfPresent = <K extends keyof ActAdvisoryUpdateDto>(
       key: K,
     ): void => {
       if (Object.prototype.hasOwnProperty.call(payload, key)) {
-        (data as Record<string, unknown>)[key as string] = payload[
-          key
-        ] as unknown;
+        (data as Record<string, unknown>)[key as string] =
+          source[key as string];
       }
     };
 
-    setIfPresent('title');
-    setIfPresent('description');
-    setIfPresent('submitted_by');
-    setIfPresent('access_status_name');
-    setIfPresent('access_status_grouplabel');
-    setIfPresent('access_status_description');
-    setIfPresent('event_type');
-    setIfPresent('urgency');
-    setIfPresent('advisory_status');
-    setIfPresent('is_reservations_affected');
-    setIfPresent('is_advisory_date_displayed');
-    setIfPresent('is_effective_date_displayed');
-    setIfPresent('is_end_date_displayed');
-    setIfPresent('is_updated_date_displayed');
-    setIfPresent('advisory_date');
-    setIfPresent('effective_date');
-    setIfPresent('end_date');
-    setIfPresent('expiry_date');
-    setIfPresent('removal_date');
-    setIfPresent('updated_date');
-    setIfPresent('modified_date');
-    setIfPresent('published_at');
-    setIfPresent('listing_rank');
-    setIfPresent('urgency_sequence');
-    setIfPresent('access_status_precedence');
-    setIfPresent('event_type_precedence');
+    const updatableFields: Array<keyof ActAdvisoryUpdateDto> = [
+      'title',
+      'description',
+      'submitted_by',
+      'access_status_name',
+      'access_status_grouplabel',
+      'access_status_description',
+      'event_type',
+      'urgency',
+      'advisory_status',
+      'is_reservations_affected',
+      'is_advisory_date_displayed',
+      'is_effective_date_displayed',
+      'is_end_date_displayed',
+      'is_updated_date_displayed',
+      'advisory_date',
+      'effective_date',
+      'end_date',
+      'expiry_date',
+      'removal_date',
+      'updated_date',
+      'modified_date',
+      'published_at',
+      'listing_rank',
+      'urgency_sequence',
+      'access_status_precedence',
+      'event_type_precedence',
+    ];
+
+    updatableFields.forEach(setIfPresent);
 
     return data;
   }

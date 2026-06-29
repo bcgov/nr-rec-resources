@@ -3,7 +3,7 @@ import { AppConfigService } from '@/app-config/app-config.service';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import 'reflect-metadata';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('AppConfigService', () => {
   let service: AppConfigService;
@@ -21,6 +21,10 @@ describe('AppConfigService', () => {
     }).compile();
 
     service = module.get<AppConfigService>(AppConfigService);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('should be defined', () => {
@@ -78,8 +82,6 @@ describe('AppConfigService', () => {
       const expectedUrl =
         'postgresql://test_user:test%40pass%23123@localhost:5432/test_db?schema=test_schema&connection_limit=10';
       expect(serviceWithSpecialPass.databaseUrl).toBe(expectedUrl);
-
-      vi.unstubAllEnvs();
     });
   });
 
@@ -102,6 +104,30 @@ describe('AppConfigService', () => {
       expect(service.keycloakIssuer).toBe(
         'https://test-keycloak.example.com/auth/realms/test-realm',
       );
+    });
+
+    it('should build css token URL from issuer and strip trailing slashes', async () => {
+      vi.stubEnv('KEYCLOAK_ISSUER', 'https://issuer.example.com/realms/dev///');
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      const envService = module.get<AppConfigService>(AppConfigService);
+      expect(envService.cssTokenUrl).toBe(
+        'https://issuer.example.com/realms/dev/protocol/openid-connect/token',
+      );
+    });
+
+    it('should return Act CSS client ID', () => {
+      expect(service.actCssClientId).toBe('test-act-css-client');
     });
   });
 });
