@@ -19,7 +19,7 @@ jobs:
     name: Pre-Commit Validation
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: install eslint packages
@@ -42,7 +42,7 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: wagoid/commitlint-github-action@v6
         with:
           configFile: '.commitlintrc.yml'

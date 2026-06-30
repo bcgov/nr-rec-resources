@@ -16,7 +16,7 @@ jobs:
     name: Release
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: main
@@ -33,7 +33,7 @@ jobs:
           git-push: false
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3
         if: ${{ steps.changelog.outputs.tag != '' }}
         continue-on-error: true
         env:

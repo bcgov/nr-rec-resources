@@ -96,7 +96,7 @@ jobs:
     if: ${{ inputs.command == 'apply' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: setup node
         uses: actions/setup-node@v6
@@ -105,7 +105,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6
         with:
             role-to-assume: ${{ secrets.AWS_LZA_DEPLOY_ROLE_ARN }}
             aws-region: ${{ env.AWS_REGION }}
