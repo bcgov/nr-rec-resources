@@ -125,6 +125,16 @@ const RecResourcePage = () => {
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
+
+                {isRecreationSite && (
+                  <KnowBeforeYouGo
+                    isReservable={isReservable}
+                    isAdditionalFeesAvailable={isAdditionalFeesAvailable}
+                    isCampingAvailable={isCampingAvailable}
+                    advisories={advisories}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
                 {showCampingSection && (
                   <Camping
                     id={SectionIds.CAMPING}
@@ -166,15 +176,6 @@ const RecResourcePage = () => {
                   <MapsAndLocation
                     accessTypes={uniqueRecreationAccess}
                     recResource={recResource}
-                    ref={sectionRefs[refIndex++]}
-                  />
-                )}
-                {isRecreationSite && (
-                  <KnowBeforeYouGo
-                    isReservable={isReservable}
-                    isAdditionalFeesAvailable={isAdditionalFeesAvailable}
-                    isCampingAvailable={isCampingAvailable}
-                    advisories={advisories}
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
