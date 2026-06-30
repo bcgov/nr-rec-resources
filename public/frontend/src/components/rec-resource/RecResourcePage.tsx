@@ -91,6 +91,7 @@ const RecResourcePage = () => {
             recResource={recResource}
             isMd={isMd}
             recreationDistrict={recreation_district}
+            advisoriesCount={advisories ? advisories.length : 0}
           />
         </div>
       </div>
