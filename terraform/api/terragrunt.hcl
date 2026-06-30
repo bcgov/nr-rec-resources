@@ -32,6 +32,7 @@ locals {
   api_image                    = get_env("api_image")
   forest_client_api_key        = get_env("forest_client_api_key")
   forest_client_api_url        = get_env("forest_client_api_url")
+  act_css_client_id            = get_env("act_css_client_id", "")
   alarm_alert_email_recipients = get_env("alarm_alert_email_recipients")
   app_name = local.app == "public" ? "node-api-${local.app_env}" : "node-api-${local.app}-${local.app_env}"
   keycloak_config = jsonencode({
@@ -67,6 +68,7 @@ generate "tfvars" {
   contents          = <<-EOF
   forest_client_api_key="${local.forest_client_api_key}"
   forest_client_api_url="${local.forest_client_api_url}"
+  act_css_client_id="${local.act_css_client_id}"
   alarm_alert_email_recipients="${local.alarm_alert_email_recipients}"
   app_env="${local.app_env}"
   app="${local.app}"

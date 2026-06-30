@@ -195,6 +195,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = var.keycloak_config.issuer
         },
         {
+          name  = "ACT_CSS_CLIENT_ID"
+          value = var.act_css_client_id
+        },
+        {
           name  = "ESTABLISHMENT_ORDER_DOCS_BUCKET"
           value = var.app == "admin" ? aws_s3_bucket.establishment_order_docs[0].id : ""
         },
