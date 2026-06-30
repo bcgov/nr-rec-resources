@@ -91,6 +91,7 @@ const RecResourcePage = () => {
             recResource={recResource}
             isMd={isMd}
             recreationDistrict={recreation_district}
+            advisoriesCount={advisories ? advisories.length : 0}
           />
         </div>
       </div>
@@ -121,6 +122,16 @@ const RecResourcePage = () => {
                   <SiteDescription
                     description={description}
                     maintenanceCode={maintenance_standard_code}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
+
+                {isRecreationSite && (
+                  <KnowBeforeYouGo
+                    isReservable={isReservable}
+                    isAdditionalFeesAvailable={isAdditionalFeesAvailable}
+                    isCampingAvailable={isCampingAvailable}
+                    advisories={advisories}
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
@@ -165,15 +176,6 @@ const RecResourcePage = () => {
                   <MapsAndLocation
                     accessTypes={uniqueRecreationAccess}
                     recResource={recResource}
-                    ref={sectionRefs[refIndex++]}
-                  />
-                )}
-                {isRecreationSite && (
-                  <KnowBeforeYouGo
-                    isReservable={isReservable}
-                    isAdditionalFeesAvailable={isAdditionalFeesAvailable}
-                    isCampingAvailable={isCampingAvailable}
-                    advisories={advisories}
                     ref={sectionRefs[refIndex++]}
                   />
                 )}

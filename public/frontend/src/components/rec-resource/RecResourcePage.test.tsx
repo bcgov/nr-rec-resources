@@ -72,7 +72,9 @@ vi.mock('@/components/rec-resource/section', () => ({
   ),
   Fees: vi.fn(() => <h2 className="section-heading">Fees</h2>),
   Camping: vi.fn(() => <h2 className="section-heading">Camping</h2>),
-  KnowBeforeYouGo: () => null,
+  KnowBeforeYouGo: () => (
+    <h2 className="section-heading">Know before you go</h2>
+  ),
 }));
 
 vi.mock('@/components/rec-resource/ResourceHeader', () => ({
