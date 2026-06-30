@@ -13,7 +13,9 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
       <Header />
       <ViewOnlyBanner />
 
-      <div className="auth-layout">{children}</div>
+      <div className="auth-layout" role="main">
+        {children}
+      </div>
     </div>
   );
 };

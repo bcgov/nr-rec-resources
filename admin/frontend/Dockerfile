@@ -43,7 +43,10 @@ RUN apk add --no-cache ca-certificates
 
 COPY --from=build /app/admin/frontend/dist /srv
 COPY admin/frontend/Caddyfile /etc/caddy/Caddyfile
-RUN caddy fmt /etc/caddy/Caddyfile
+COPY admin/frontend/entrypoint.sh /entrypoint.sh
+RUN caddy fmt /etc/caddy/Caddyfile && chmod +x /entrypoint.sh
 
 EXPOSE 3001 3002
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3001/health
+
+ENTRYPOINT ["/entrypoint.sh"]
