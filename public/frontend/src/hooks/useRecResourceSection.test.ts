@@ -106,16 +106,18 @@ describe('useRecResourceSections', () => {
       expect(Array.isArray(result.current.pageSections)).toBe(true);
 
       const sectionIds = result.current.pageSections.map((s) => s.id);
-      expect(sectionIds).toContain(SectionIds.CLOSURES);
-      expect(sectionIds).toContain(SectionIds.SITE_DESCRIPTION);
-      expect(sectionIds).toContain(SectionIds.CAMPING);
-      expect(sectionIds).toContain(SectionIds.FEES);
-      expect(sectionIds).toContain(SectionIds.THINGS_TO_DO);
-      expect(sectionIds).toContain(SectionIds.ACCESSIBLE_RECREATION);
-      expect(sectionIds).toContain(SectionIds.FACILITIES);
-      expect(sectionIds).toContain(SectionIds.MAPS_AND_LOCATION);
-      expect(sectionIds).toContain(SectionIds.KNOW_BEFORE_YOU_GO);
-      expect(sectionIds).toContain(SectionIds.CONTACT);
+      expect(sectionIds).toEqual([
+        SectionIds.CLOSURES,
+        SectionIds.SITE_DESCRIPTION,
+        SectionIds.KNOW_BEFORE_YOU_GO,
+        SectionIds.CAMPING,
+        SectionIds.FEES,
+        SectionIds.THINGS_TO_DO,
+        SectionIds.ACCESSIBLE_RECREATION,
+        SectionIds.FACILITIES,
+        SectionIds.MAPS_AND_LOCATION,
+        SectionIds.CONTACT,
+      ]);
     });
 
     it('should show only visible sections', () => {
