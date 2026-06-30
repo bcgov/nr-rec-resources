@@ -193,7 +193,7 @@ export class FeesService {
       `Updating fee ${fee_id} for rec_resource_id: ${rec_resource_id}`,
     );
 
-    // Single DB call — replaces ensureFeeBelongsToResource + separate existingFee fetch
+    // Single DB call - replaces ensureFeeBelongsToResource + separate existingFee fetch
     const existingFee = (await this.prisma.recreation_fee.findUnique({
       where: { fee_id } as any,
       select: {

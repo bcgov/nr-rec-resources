@@ -161,6 +161,13 @@ variable "forest_client_api_url" {
   type        = string
 }
 
+variable "act_css_client_id" {
+  description = "ACT CSS client ID used by admin backend"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "alarm_alert_email_recipients" {
   description = "List of emails to notify for CloudWatch alarms"
   type        = string
