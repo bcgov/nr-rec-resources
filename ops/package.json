@@ -21,6 +21,6 @@
     "typescript": "^5.7.2"
   },
   "overrides": {
-    "fast-xml-parser": "5.3.6"
+    "fast-xml-parser": "5.9.3"
   }
 }
