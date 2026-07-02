@@ -3,9 +3,16 @@ name: Hotfix Deploy
 on:
   workflow_dispatch:
     inputs:
+      app:
+        description: 'Application to deploy'
+        required: true
+        type: choice
+        options:
+          - admin
+          - public
       tag:
-        description: "The tag of the containers to deploy"
-        type: number
+        description: "Container image tag to deploy (use the build tag, usually commit SHA)"
+        type: string
         required: true
       environment:
         description: 'Environment to deploy to'
@@ -38,6 +45,7 @@ jobs:
     needs: validate-hotfix-branch
     uses: ./.github/workflows/.deploy-app.yml
     with:
+      app: ${{ inputs.app }}
       app_env: ${{ inputs.environment }}
       command: apply
       environment_name: ${{ inputs.environment }}
