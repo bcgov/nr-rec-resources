@@ -22,7 +22,6 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiExtraModels,
@@ -61,8 +60,7 @@ import { ACT_ADVISORIES_PATH, ACT_API_TAG } from './act.constants';
   ActAdvisoryUpdateDto,
   ActAdvisoryResponseDto,
 )
-@ApiBearerAuth(AUTH_STRATEGY.ACT_KEYCLOAK)
-@ApiOAuth2([], AUTH_STRATEGY.CSS_OAUTH2)
+@ApiOAuth2([], AUTH_STRATEGY.ACT_KEYCLOAK)
 @ApiUnauthorizedResponse({
   description:
     'Unauthorized - missing, malformed, or expired bearer token. ' +
