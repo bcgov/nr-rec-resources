@@ -57,7 +57,6 @@ const RecResourcePage = () => {
     isAdditionalFeesAvailable,
     pageSections,
   } = useRecResourceSections(recResource);
-  console.log('recResource', recResource);
 
   const {
     additional_fees,
