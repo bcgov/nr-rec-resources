@@ -3,11 +3,10 @@ import { globalValidationPipe } from '@/config/global-validation-pipe.config';
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { Request, Response } from 'express';
-import { text as readStreamText } from 'node:stream/consumers';
 import helmet from 'helmet';
 import { AppConfigService } from './app-config/app-config.service';
 import { AppModule } from './app.module';
+import { createSwaggerActTokenProxyHandler } from './config/swagger-act-token-proxy.config';
 import { setupAdminSwagger } from './config/swagger.config';
 import { customLogger } from './common/logger.config';
 
@@ -56,51 +55,7 @@ export async function bootstrap() {
   // exchange, so Swagger UI can call it without hitting CSS's CORS/CSP rules.
   app.use(
     SWAGGER_ACT_TOKEN_PROXY_PATH,
-    async (req: Request, res: Response): Promise<void> => {
-      if (req.method === 'OPTIONS') return void res.sendStatus(204);
-      if (req.method !== 'POST')
-        return void res.status(405).json({ error: 'method_not_allowed' });
-
-      const contentType = req.header('content-type') ?? '';
-      if (!contentType.includes('application/x-www-form-urlencoded'))
-        return void res.status(415).json({ error: 'unsupported_media_type' });
-
-      // req.body is normally already parsed to an object by Nest's built-in
-      // body parser. The raw-stream re-read below is a fallback only —
-      // remove it if you've confirmed the body parser always runs first.
-      const params = new URLSearchParams(
-        typeof req.body === 'string'
-          ? req.body
-          : req.body && typeof req.body === 'object'
-            ? (req.body as Record<string, string>)
-            : await readStreamText(req),
-      );
-
-      if (params.get('grant_type') !== 'client_credentials')
-        return void res.status(400).json({ error: 'unsupported_grant_type' });
-
-      const authorization = req.header('authorization');
-
-      try {
-        const upstream = await fetch(cssTokenUrl, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/x-www-form-urlencoded',
-            ...(authorization && { authorization }),
-          },
-          body: params.toString(),
-        });
-
-        const upstreamContentType = upstream.headers.get('content-type');
-        if (upstreamContentType) {
-          res.setHeader('content-type', upstreamContentType);
-        }
-
-        res.status(upstream.status).send(await upstream.text());
-      } catch {
-        res.status(502).json({ error: 'token_exchange_failed' });
-      }
-    },
+    createSwaggerActTokenProxyHandler(cssTokenUrl),
   );
 
   setupAdminSwagger(app, cssTokenUrl, SWAGGER_ACT_TOKEN_PROXY_PATH);
