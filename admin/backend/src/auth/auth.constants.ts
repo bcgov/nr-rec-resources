@@ -23,22 +23,17 @@ export const ROLE_MODE = {
   ALL: 'all',
 } as const;
 
-// Authentication strategies
+// Authentication strategies and Swagger security scheme identifiers
 export const AUTH_STRATEGY = {
   KEYCLOAK: 'keycloak',
   /**
    * Passport strategy name used to authenticate the Act integration.
+   *
+   * The generated OpenAPI document also reuses this key for the Act OAuth2
+   * Client Credentials security scheme so the Swagger auth option lines up
+   * with the runtime `AuthGuard(AUTH_STRATEGY.ACT_KEYCLOAK)` strategy name.
    */
   ACT_KEYCLOAK: 'act-keycloak',
-  /**
-   * Swagger security scheme key for the CSS (Common Hosted Single Sign-On)
-   * OAuth2 Client Credentials grant flow used by the Act integration.
-   * Tokens issued by CSS are still validated by the Keycloak Passport
-   * strategy at runtime - this constant only identifies the scheme in
-   * the generated OpenAPI document so Swagger UI can render the
-   * "Authorize" dialog with a Client ID / Client Secret form.
-   */
-  CSS_OAUTH2: 'css-oauth2',
 } as const;
 
 // Environment variable keys
