@@ -1,12 +1,22 @@
-import { BlueStatusIcon, RedStatusIcon } from './StatusIcons';
+import { BlueStatusIcon, RedStatusIcon, YellowStatusIcon } from './StatusIcons';
 
-const STATUS_ICONS: Record<number, React.ReactElement> = {
-  1: <BlueStatusIcon />,
-  2: <RedStatusIcon />,
-};
+const YELLOW_GROUPLABELS = new Set([
+  'seasonal restrictions',
+  'visit with caution',
+  'limited access',
+]);
+const RED_GROUPLABELS = new Set(['closed', 'restricted']);
+
+function getStatusIcon(grouplabel?: string | null): React.ReactElement {
+  if (!grouplabel) return <BlueStatusIcon />;
+  const lower = grouplabel.toLowerCase();
+  if (RED_GROUPLABELS.has(lower)) return <RedStatusIcon />;
+  if (YELLOW_GROUPLABELS.has(lower)) return <YellowStatusIcon />;
+  return <BlueStatusIcon />;
+}
 
 interface AccessStatusProps {
-  statusCode: number;
+  grouplabel?: string | null;
   statusDescription: string;
   advisoryCount: number;
   slug: string;
@@ -15,16 +25,14 @@ interface AccessStatusProps {
 }
 
 export default function AccessStatus({
-  statusCode,
+  grouplabel,
   statusDescription,
   advisoryCount,
   slug,
   hideComma = false,
   punctuation,
 }: AccessStatusProps) {
-  const icon = STATUS_ICONS[statusCode];
-
-  if (!icon) return null;
+  const icon = getStatusIcon(grouplabel);
 
   return (
     <div className="access-status-icon">

@@ -50,6 +50,11 @@ export class EnvironmentVariables {
   @Transform(({ value }) => parseInt(value, 10) || 8000)
   @IsOptional()
   PORT?: number;
+
+  // Feature flags
+  @IsString()
+  @IsOptional()
+  FEATURE_ADVISORY_STATUS?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

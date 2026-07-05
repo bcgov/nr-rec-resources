@@ -20,6 +20,8 @@ const RecreationFeaturePreview: React.FC<RecreationFeaturePreviewProps> = ({
     ? {
         ...recreationResource,
         advisory_count: recreationResource.advisories?.length ?? 0,
+        top_access_status_grouplabel:
+          recreationResource.top_access_status_grouplabel ?? null,
       }
     : undefined;
 

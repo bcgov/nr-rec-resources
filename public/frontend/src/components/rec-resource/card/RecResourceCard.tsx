@@ -30,10 +30,12 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
     name,
     recreation_activity: activities,
     closest_community,
-    recreation_status: { status_code, description: statusDescription },
+    top_access_status_grouplabel,
     rec_resource_type,
     advisory_count,
   } = recreationResource;
+
+  const statusDescription = top_access_status_grouplabel ?? 'Open';
 
   // display only the first 6 images for layout purposes
   const imageList = getImageList(recreationResource).splice(
@@ -97,7 +99,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
             )}
           </span>
           <AccessStatus
-            statusCode={status_code}
+            grouplabel={top_access_status_grouplabel}
             statusDescription={statusDescription}
             advisoryCount={advisory_count ?? 0}
             slug={rec_resource_id}

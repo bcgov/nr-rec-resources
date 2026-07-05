@@ -1,32 +1,36 @@
-import blueStatus from '@/images/icons/blue-status.svg';
-import redStatus from '@/images/icons/red-status.svg';
+import {
+  BlueStatusIcon,
+  RedStatusIcon,
+  YellowStatusIcon,
+} from '@/components/rec-resource/card/StatusIcons';
+
+const YELLOW_GROUPLABELS = new Set([
+  'seasonal restrictions',
+  'visit with caution',
+  'limited access',
+]);
+const RED_GROUPLABELS = new Set(['closed', 'restricted']);
+
+function getStatusIcon(grouplabel?: string | null): React.ReactElement {
+  if (!grouplabel) return <BlueStatusIcon />;
+  const lower = grouplabel.toLowerCase();
+  if (RED_GROUPLABELS.has(lower)) return <RedStatusIcon />;
+  if (YELLOW_GROUPLABELS.has(lower)) return <YellowStatusIcon />;
+  return <BlueStatusIcon />;
+}
 
 interface StatusProps {
+  grouplabel?: string | null;
   description: string;
-  statusCode: number;
   advisoriesCount: number;
 }
 
-const Status = ({ description, statusCode, advisoriesCount }: StatusProps) => {
-  const getStatusIcon = (statusCode: string) => {
-    switch (statusCode) {
-      case '1':
-        return blueStatus;
-      case '2':
-        return redStatus;
-    }
-  };
+const Status = ({ grouplabel, description, advisoriesCount }: StatusProps) => {
+  const icon = getStatusIcon(grouplabel);
 
-  const statusIcon = getStatusIcon(String(statusCode));
-  if (!statusIcon) return null;
   return (
     <div className="icon-container advisories-info">
-      <img
-        alt={`Site ${description} status icon`}
-        src={statusIcon}
-        height={24}
-        width={24}
-      />
+      {icon}
       <span>{description}</span>
       {advisoriesCount > 0 && (
         <div data-testid="advisories-info-link">

@@ -34,6 +34,7 @@ export type RecreationResourceSearchView = {
 export const formatSearchResults = (
   recResources: RecreationResourceSearchView[],
   rstStorageCloudfrontUrl: string = '',
+  useAdvisoryStatus: boolean = false,
 ): RecreationResourceSearchDto[] => {
   return recResources?.map((resource) => {
     const recreation_resource_images: RecreationResourceImageDto[] =
@@ -43,6 +44,12 @@ export const formatSearchResults = (
         baseUrl: rstStorageCloudfrontUrl,
         imageSizeCodes: [IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD],
       });
+
+    const top_access_status_grouplabel = useAdvisoryStatus
+      ? (resource.top_access_status_grouplabel ?? null)
+      : resource.recreation_status?.status_code === 2
+        ? 'Closed'
+        : 'Open';
 
     return {
       rec_resource_id: resource.rec_resource_id,
@@ -65,8 +72,7 @@ export const formatSearchResults = (
       },
       recreation_resource_images,
       advisory_count: resource.advisory_count ?? 0,
-      top_access_status_grouplabel:
-        resource.top_access_status_grouplabel ?? null,
+      top_access_status_grouplabel,
     };
   });
 };
