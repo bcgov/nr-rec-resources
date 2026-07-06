@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { getBcgwRecreationResources } from '@prisma-generated-sql/getBcgwRecreationResources';
+import { getBcgwClosuresShort } from '@prisma-generated-sql/getBcgwClosuresShort';
 import {
   BcgwFeatureCollectionDto,
   BcgwFeatureDto,
   BcgwRecreationResourceDto,
 } from './dto/bcgw-recreation-resource.dto';
+import {
+  BcgwClosuresShortDto,
+  BcgwClosuresShortFeatureCollectionDto,
+  BcgwClosuresShortFeatureDto,
+} from './dto/bcgw-closures-short.dto';
 
 @Injectable()
 export class BcgwService {
@@ -34,6 +40,62 @@ export class BcgwService {
         totalPages,
         pageSize: BcgwService.PAGE_SIZE,
       },
+    };
+  }
+
+  async findAllShort(
+    page: number = 1,
+  ): Promise<BcgwClosuresShortFeatureCollectionDto> {
+    const currentPage = Math.max(page, 1);
+    const offset = (currentPage - 1) * BcgwService.PAGE_SIZE;
+
+    const rows: getBcgwClosuresShort.Result[] =
+      await this.prisma.$queryRawTyped(
+        getBcgwClosuresShort(BcgwService.PAGE_SIZE, offset),
+      );
+
+    const total = rows.length > 0 ? (rows[0].total_count ?? 0) : 0;
+    const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
+
+    return {
+      type: 'FeatureCollection',
+      features: rows.map((r) => this.toClosuresShortFeature(r)),
+      meta: {
+        total,
+        page: currentPage,
+        totalPages,
+        pageSize: BcgwService.PAGE_SIZE,
+      },
+    };
+  }
+
+  private toClosuresShortFeature(
+    row: getBcgwClosuresShort.Result,
+  ): BcgwClosuresShortFeatureDto {
+    const properties: BcgwClosuresShortDto = {
+      forest_file_id: row.forest_file_id,
+      project_name: row.project_name,
+      project_type: row.project_type,
+      closure_ind: row.closure_ind,
+      closure_date: row.closure_date,
+      closure_type: row.closure_type,
+      site_location: row.site_location,
+      defined_campsites: Number(row.defined_campsites),
+      recreation_district_code: row.recreation_district_code,
+      recreation_district_name: row.recreation_district_name,
+      org_unit_name: row.org_unit_name,
+      closure_comment: row.closure_comment,
+      site_description: row.site_description,
+      driving_directions: row.driving_directions,
+      latitude: row.latitude,
+      longitude: row.longitude,
+      shape: row.shape,
+    };
+
+    return {
+      type: 'Feature',
+      geometry: row.shape ? JSON.parse(row.shape) : null,
+      properties,
     };
   }
 
