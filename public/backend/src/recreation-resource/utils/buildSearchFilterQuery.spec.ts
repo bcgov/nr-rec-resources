@@ -190,7 +190,7 @@ describe('buildSearchFilterQuery', () => {
     const queryString = getQueryString(result);
     expect(queryString).toContain('act_advisories_flat');
     expect(queryString).toContain('array_agg');
-    expect(queryString).toContain('Closed');
+    expect(result.values).toContain('Closed');
   });
 
   it('should use legacy status_code filter for open when useAdvisoryStatus is false', () => {
