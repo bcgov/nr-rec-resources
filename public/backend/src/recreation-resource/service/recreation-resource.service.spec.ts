@@ -419,6 +419,7 @@ describe('RecreationResourceService', () => {
           ],
           site_point_geometry:
             '{"type":"Point","coordinates":[1517313.7088,514447.53]}',
+          top_access_status_grouplabel: 'Open',
           recreation_district: {
             description: 'Boundary-South Okanagan',
             district_code: 'RDBO',

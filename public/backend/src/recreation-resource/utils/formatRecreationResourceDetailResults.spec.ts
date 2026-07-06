@@ -350,6 +350,7 @@ export const mockResults = {
   },
   site_point_geometry: 'Point',
   spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
+  top_access_status_grouplabel: 'Closed',
   recreation_district: {
     description: 'Merritt',
     district_code: 'MERRITT',

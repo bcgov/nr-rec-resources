@@ -84,8 +84,8 @@ describe('buildSearchFilterQuery', () => {
   it('should add status filter correctly', () => {
     const result = buildSearchFilterQuery({ status: 'open_closed' });
     const queryString = getQueryString(result);
-    expect(queryString).toContain('recreation_status');
-    expect(result.values).toEqual(['open', 'closed']);
+    expect(queryString).toContain("recreation_status->>'status_code'");
+    expect(result.values).toEqual([]);
   });
 
   it('should handle all filters combined', () => {
@@ -111,7 +111,7 @@ describe('buildSearchFilterQuery', () => {
     );
     expect(queryString).toContain('jsonb_array_elements(recreation_structure)');
     expect(queryString).toContain(
-      "recreation_status IS NULL OR recreation_status->>'description' IS NULL",
+      "(recreation_status->>'status_code')::int != 2",
     );
 
     const expectedValues = [
@@ -136,7 +136,6 @@ describe('buildSearchFilterQuery', () => {
       2,
       '%F1%',
       '%F2%',
-      'open',
     ];
     expect(result.values).toEqual(expectedValues);
   });
