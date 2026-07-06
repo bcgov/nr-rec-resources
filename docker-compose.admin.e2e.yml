@@ -63,13 +63,10 @@ services:
     ports: ['8080:8080']
     healthcheck:
       test:
-        [
-          'CMD-SHELL',
-          'curl -fsS http://127.0.0.1:8080/realms/rst-local || exit 1',
-        ]
+        ['CMD-SHELL', 'exec 3<>/dev/tcp/127.0.0.1/8080 2>/dev/null || exit 1']
       interval: 10s
       timeout: 5s
-      retries: 18
+      retries: 12
       start_period: 40s
 
   admin-backend:
