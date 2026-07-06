@@ -543,4 +543,39 @@ describe('formatRecreationResourceDetailResults function', () => {
     });
     expect(results.recreation_district).toBeUndefined();
   });
+
+  it('should return Open for top_access_status_grouplabel when useAdvisoryStatus is false and status_code is 1', () => {
+    const results = formatRecreationResourceDetailResults({
+      recResource: {
+        ...mockResponse,
+        recreation_status: {
+          recreation_status_code: { description: 'Open' },
+          comment: null,
+          status_code: 1,
+        },
+      },
+      spatialFeatureGeometry: mockSpatialResponse,
+      useAdvisoryStatus: false,
+    });
+    expect(results.top_access_status_grouplabel).toBe('Open');
+  });
+
+  it('should return the first advisory grouplabel when useAdvisoryStatus is true', () => {
+    // mockResponse.act_advisories_flat[0] has access_status_grouplabel 'Restricted'
+    const results = formatRecreationResourceDetailResults({
+      recResource: mockResponse,
+      spatialFeatureGeometry: mockSpatialResponse,
+      useAdvisoryStatus: true,
+    });
+    expect(results.top_access_status_grouplabel).toBe('Restricted');
+  });
+
+  it('should return null for top_access_status_grouplabel when useAdvisoryStatus is true and no advisories', () => {
+    const results = formatRecreationResourceDetailResults({
+      recResource: { ...mockResponse, act_advisories_flat: [] },
+      spatialFeatureGeometry: mockSpatialResponse,
+      useAdvisoryStatus: true,
+    });
+    expect(results.top_access_status_grouplabel).toBeNull();
+  });
 });

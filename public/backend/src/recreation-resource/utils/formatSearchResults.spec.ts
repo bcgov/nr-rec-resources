@@ -109,4 +109,19 @@ describe('formatSearchResults function', () => {
 
     expect(results[0].top_access_status_grouplabel).toBe('Closed');
   });
+
+  it('should return top_access_status_grouplabel as Closed when status_code is 2 in legacy mode', () => {
+    const results = formatSearchResults([
+      {
+        ...response[0],
+        recreation_status: {
+          status_code: 2,
+          description: 'Closed',
+          comment: null,
+        },
+      },
+    ]);
+
+    expect(results[0].top_access_status_grouplabel).toBe('Closed');
+  });
 });
