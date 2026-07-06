@@ -88,6 +88,8 @@ services:
       KEYCLOAK_REALM: rst-local
       KEYCLOAK_CLIENT_ID: rst-admin-local
       KEYCLOAK_ISSUER: http://localhost:8080/realms/rst-local
+      # ACT_CSS_CLIENT_ID required by config validation; not exercised by e2e tests
+      ACT_CSS_CLIENT_ID: rst-admin-local-act
       # S3 vars required by config validation; not exercised by auth/search e2e tests
       ESTABLISHMENT_ORDER_DOCS_BUCKET: rst-local-establishment-order-docs
       RST_STORAGE_IMAGES_BUCKET: rst-local-images
