@@ -12,8 +12,8 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["http://localhost:3001/*"],
-      "webOrigins": ["http://localhost:3001"],
+      "redirectUris": ["http://localhost:3001/*", "http://127.0.0.1:3001/*"],
+      "webOrigins": ["http://localhost:3001", "http://127.0.0.1:3001"],
       "protocolMappers": [
         {
           "name": "client-roles",
