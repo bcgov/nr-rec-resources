@@ -5,6 +5,13 @@ import { ACT_API_TAG } from '@/act/act.constants';
 
 const helmetMiddleware = vi.fn();
 const helmetMock = vi.fn(() => helmetMiddleware);
+(
+  helmetMock as unknown as {
+    contentSecurityPolicy: { getDefaultDirectives: () => unknown };
+  }
+).contentSecurityPolicy = {
+  getDefaultDirectives: vi.fn(() => ({ defaultSrc: ["'self'"] })),
+};
 
 const appMock = {
   use: vi.fn(),
@@ -113,6 +120,10 @@ describe('bootstrap', () => {
 
     expect(helmetMock).toHaveBeenCalledTimes(1);
     expect(appMock.use).toHaveBeenCalledWith(helmetMiddleware);
+    expect(appMock.use).toHaveBeenCalledWith(
+      '/api/docs/oauth2/token',
+      expect.any(Function),
+    );
     expect(appMock.enableCors).toHaveBeenCalledTimes(1);
     expect(appMock.set).toHaveBeenCalledWith('trust proxy', 1);
     expect(appMock.enableShutdownHooks).toHaveBeenCalledTimes(1);
@@ -145,10 +156,6 @@ describe('bootstrap', () => {
       expect.any(Object),
       AUTH_STRATEGY.KEYCLOAK,
     );
-    expect(builderMocks.addBearerAuth).toHaveBeenCalledWith(
-      expect.any(Object),
-      AUTH_STRATEGY.ACT_KEYCLOAK,
-    );
 
     expect(createDocumentMock).toHaveBeenCalledWith(
       appMock,
@@ -157,7 +164,31 @@ describe('bootstrap', () => {
     expect(setupSwaggerMock).toHaveBeenCalledWith(
       '/api/docs',
       appMock,
-      { openapi: '3.0.0' },
+      expect.objectContaining({
+        components: expect.objectContaining({
+          securitySchemes: expect.objectContaining({
+            [AUTH_STRATEGY.ACT_KEYCLOAK]: expect.objectContaining({
+              flows: expect.objectContaining({
+                clientCredentials: expect.objectContaining({
+                  tokenUrl: '/api/docs/oauth2/token',
+                }),
+              }),
+            }),
+          }),
+        }),
+      }),
+      {
+        swaggerOptions: {
+          persistAuthorization: true,
+          tagsSorter: 'alpha',
+          operationsSorter: 'alpha',
+        },
+      },
+    );
+    expect(setupSwaggerMock).toHaveBeenCalledWith(
+      '/api/docs',
+      appMock,
+      expect.any(Object),
       {
         swaggerOptions: {
           persistAuthorization: true,
