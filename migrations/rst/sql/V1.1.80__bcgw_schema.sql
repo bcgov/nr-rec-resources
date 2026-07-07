@@ -1,8 +1,13 @@
--- Create bcgw_recreation_resource_view for BCGW ingestion of recreation resources.
--- Columns description_date, driving_directions_date, arch_impact_assess_ind were added
--- to RST by V1.1.79 and V1.1.80 and are populated from FTA by V1.0.2, V1.1.15, V1.1.16.
+-- Create the bcgw schema to expose a stable read interface for BCGW ingestion.
+-- The bcgw service account is granted read-only access to this schema only.
+--
+-- bcgw.resource_details_and_closures  — materialized view; the expensive query runs here
+-- bcgw.closures_full        — all 37 columns; backs FTEN_REC_DTAILS_CLOSURES_FA_SV
+-- bcgw.closures_short       — 20-column subset; backs FTEN_REC_DTAILS_CLOSURES_SP
 
-CREATE MATERIALIZED VIEW rst.bcgw_recreation_resource_view AS
+CREATE SCHEMA bcgw;
+
+CREATE MATERIALIZED VIEW bcgw.resource_details_and_closures AS
 WITH
 point_wgs84 AS (
   SELECT
@@ -112,4 +117,34 @@ FROM rst.recreation_resource rr
   LEFT JOIN closure c
     ON rr.rec_resource_id = c.rec_resource_id;
 
-CREATE UNIQUE INDEX ON rst.bcgw_recreation_resource_view (forest_file_id);
+CREATE UNIQUE INDEX ON bcgw.resource_details_and_closures (forest_file_id);
+
+-- BCGW-facing views — thin lenses over the materialized view above.
+-- Adding a new layer means adding a new view here; the mat view does not change.
+
+CREATE VIEW bcgw.closures_full AS
+SELECT * FROM bcgw.resource_details_and_closures;
+
+CREATE VIEW bcgw.closures_short AS
+SELECT
+  NULL::integer                AS ften_rpd_sysid,
+  forest_file_id,
+  project_name,
+  project_type_code            AS project_type,
+  closure_ind,
+  closure_date,
+  closure_type,
+  site_location,
+  defined_campsites,
+  recreation_district_code,
+  recreation_district_name,
+  org_unit_name,
+  closure_comment,
+  site_description,
+  driving_directions,
+  latitude,
+  longitude,
+  shape,
+  NULL::integer                AS objectid,
+  NULL::bytea                  AS se_anno_cad_data
+FROM bcgw.resource_details_and_closures;

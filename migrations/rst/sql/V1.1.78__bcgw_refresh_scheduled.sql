@@ -1,4 +1,4 @@
--- Update pg_cron schedule to include bcgw_recreation_resource_view.
+-- Update pg_cron schedule to include bcgw.resource_details_and_closures.
 -- cron.schedule with the same job name performs an upsert, replacing the prior command.
 
 DO $$
@@ -27,7 +27,7 @@ BEGIN
             REFRESH MATERIALIZED VIEW rst.recreation_resource_district_count_view;
             REFRESH MATERIALIZED VIEW rst.recreation_resource_type_count_view;
             REFRESH MATERIALIZED VIEW rst.recreation_resource_search_view;
-            REFRESH MATERIALIZED VIEW CONCURRENTLY rst.bcgw_recreation_resource_view;
+            REFRESH MATERIALIZED VIEW CONCURRENTLY bcgw.resource_details_and_closures;
         $sql$
     );
 END;

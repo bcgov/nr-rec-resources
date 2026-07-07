@@ -9,7 +9,7 @@ import * as $runtime from '@prisma/client/runtime/client';
  * @param offset
  */
 export const getBcgwClosuresShort = $runtime.makeTypedQueryFactory(
-  'SELECT\n  forest_file_id,\n  project_name,\n  project_type,\n  closure_ind,\n  closure_date,\n  closure_type,\n  site_location,\n  defined_campsites,\n  recreation_district_code,\n  recreation_district_name,\n  org_unit_name,\n  closure_comment,\n  site_description,\n  driving_directions,\n  latitude,\n  longitude,\n  shape,\n  COUNT(*) OVER ()::int AS total_count\nFROM rst.bcgw_closures_short_view\nORDER BY forest_file_id ASC\nLIMIT $1\nOFFSET $2;',
+  'SELECT\n  forest_file_id,\n  project_name,\n  project_type,\n  closure_ind,\n  closure_date,\n  closure_type,\n  site_location,\n  defined_campsites,\n  recreation_district_code,\n  recreation_district_name,\n  org_unit_name,\n  closure_comment,\n  site_description,\n  driving_directions,\n  latitude,\n  longitude,\n  shape,\n  COUNT(*) OVER ()::int AS total_count\nFROM bcgw.closures_short\nORDER BY forest_file_id ASC\nLIMIT $1\nOFFSET $2;',
 ) as (
   limit: number,
   offset: number,

@@ -36,7 +36,7 @@ SELECT
   longitude,
   shape,
   COUNT(*) OVER ()::int AS total_count
-FROM rst.bcgw_recreation_resource_view
+FROM bcgw.resource_details_and_closures
 ORDER BY forest_file_id ASC
 LIMIT $1
 OFFSET $2;

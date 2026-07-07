@@ -19,7 +19,7 @@ SELECT
   longitude,
   shape,
   COUNT(*) OVER ()::int AS total_count
-FROM rst.bcgw_closures_short_view
+FROM bcgw.closures_short
 ORDER BY forest_file_id ASC
 LIMIT $1
 OFFSET $2;
