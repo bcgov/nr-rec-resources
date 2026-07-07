@@ -1,6 +1,8 @@
 export const EXTERNAL_LINKS = {
+  // FEEDBACK_FORM:
+  //   'https://helpshapebc.gov.bc.ca/recreation-sites-and-trails-bc/surveys/share-feedback',
   FEEDBACK_FORM:
-    'https://helpshapebc.gov.bc.ca/recreation-sites-and-trails-bc/surveys/share-feedback',
+    'https://forms.cloud.microsoft/pages/responsepage.aspx?id=AFLbbw09ikqwNtNoXjWa3Bmjuqfb6jJOjudKJJN7U2NUNUlHSDdRSk1ZQzZSTkZXUlBZTlhHN1BDNy4u&route=shorturl',
   LEGACY_SITE: 'https://www.sitesandtrailsbc.ca/',
   RST_GOV_BC_INFO:
     'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/description',
