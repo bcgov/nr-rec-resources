@@ -27,7 +27,7 @@ SELECT
   rmf.amendment_id,
   CASE
     WHEN rmf.retirement_date IS NOT NULL THEN 'RETIRED'
-    WHEN rmf.amend_status_code = 'PE'   THEN 'PENDING'
+    WHEN rr.rec_status_code = 'PE'       THEN 'PENDING'
     ELSE 'ACTIVE'
   END                                                            AS life_cycle_status_code,
   rr.name                                                        AS project_name,
