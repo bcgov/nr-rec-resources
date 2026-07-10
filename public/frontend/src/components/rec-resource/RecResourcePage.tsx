@@ -39,8 +39,6 @@ const RecResourcePage = () => {
     photos,
     uniqueRecreationAccess,
     allActivities,
-    statusCode,
-    statusDescription,
     statusComment,
     isClosures,
     isSiteDescription,
@@ -73,6 +71,8 @@ const RecResourcePage = () => {
     recreation_district,
   } = recResource;
   const advisories = recResource.advisories ?? null;
+  const topAdvisoryGrouplabel =
+    recResource.top_access_status_grouplabel ?? null;
 
   return (
     <div className="rec-resource-container">
@@ -84,8 +84,7 @@ const RecResourcePage = () => {
             recResourceType={rec_resource_type}
             recResourceId={rec_resource_id}
             closestCommunity={closest_community}
-            statusCode={statusCode}
-            statusDescription={statusDescription}
+            topAdvisoryGrouplabel={topAdvisoryGrouplabel}
             isRecreationSite={isRecreationSite}
             recResource={recResource}
             isMd={isMd}

@@ -123,6 +123,7 @@ describe('RecreationResourceSearchService', () => {
           { id: 2, name: 'Resource 2', total_count: 10 },
         ],
         'https://test-cloudfront.example.com',
+        false,
       );
       expect(buildFilterMenu).toHaveBeenCalledWith([
         { filter_type: 'type', filter_value: 'park', count: 5 },
@@ -175,6 +176,7 @@ describe('RecreationResourceSearchService', () => {
           { id: 2, name: 'Resource 2', total_count: 10 },
         ],
         'https://test-cloudfront.example.com',
+        false,
       );
       expect(buildFilterMenu).toHaveBeenCalledWith([
         { filter_type: 'type', filter_value: 'park', count: 5 },
@@ -198,6 +200,7 @@ describe('RecreationResourceSearchService', () => {
       expect(formatSearchResults).toHaveBeenCalledWith(
         [],
         'https://test-cloudfront.example.com',
+        false,
       );
       expect(buildFilterMenu).toHaveBeenCalledWith([]);
     });

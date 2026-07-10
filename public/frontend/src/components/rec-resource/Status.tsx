@@ -1,32 +1,17 @@
-import blueStatus from '@/images/icons/blue-status.svg';
-import redStatus from '@/images/icons/red-status.svg';
+import { getStatusIcon } from '@/components/rec-resource/card/getStatusIcon';
 
 interface StatusProps {
+  grouplabel?: string | null;
   description: string;
-  statusCode: number;
   advisoriesCount: number;
 }
 
-const Status = ({ description, statusCode, advisoriesCount }: StatusProps) => {
-  const getStatusIcon = (statusCode: string) => {
-    switch (statusCode) {
-      case '1':
-        return blueStatus;
-      case '2':
-        return redStatus;
-    }
-  };
+const Status = ({ grouplabel, description, advisoriesCount }: StatusProps) => {
+  const icon = getStatusIcon(grouplabel);
 
-  const statusIcon = getStatusIcon(String(statusCode));
-  if (!statusIcon) return null;
   return (
     <div className="icon-container advisories-info">
-      <img
-        alt={`Site ${description} status icon`}
-        src={statusIcon}
-        height={24}
-        width={24}
-      />
+      {icon}
       <span>{description}</span>
       {advisoriesCount > 0 && (
         <div data-testid="advisories-info-link">

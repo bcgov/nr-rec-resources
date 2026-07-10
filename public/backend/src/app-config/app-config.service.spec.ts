@@ -118,4 +118,50 @@ describe('AppConfigService', () => {
       expect(service.port).toBe(3000);
     });
   });
+
+  describe('feature flags', () => {
+    it('should return false for advisoryStatusEnabled when flag is not set', () => {
+      expect(service.advisoryStatusEnabled).toBe(false);
+    });
+
+    it('should return true for advisoryStatusEnabled when FEATURE_ADVISORY_STATUS is "true"', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          AppConfigService,
+          {
+            provide: ConfigService,
+            useValue: {
+              get: (key: string) =>
+                key === 'FEATURE_ADVISORY_STATUS'
+                  ? 'true'
+                  : mockConfig[key as keyof typeof mockConfig],
+            },
+          },
+        ],
+      }).compile();
+      expect(
+        module.get<AppConfigService>(AppConfigService).advisoryStatusEnabled,
+      ).toBe(true);
+    });
+
+    it('should return false for advisoryStatusEnabled when FEATURE_ADVISORY_STATUS is "false"', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          AppConfigService,
+          {
+            provide: ConfigService,
+            useValue: {
+              get: (key: string) =>
+                key === 'FEATURE_ADVISORY_STATUS'
+                  ? 'false'
+                  : mockConfig[key as keyof typeof mockConfig],
+            },
+          },
+        ],
+      }).compile();
+      expect(
+        module.get<AppConfigService>(AppConfigService).advisoryStatusEnabled,
+      ).toBe(false);
+    });
+  });
 });

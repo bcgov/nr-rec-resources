@@ -59,6 +59,8 @@ export class RecreationResourceSearchService {
     }
 
     // Build the where clause for filtering
+    const useAdvisoryStatus = this.appConfig.advisoryStatusEnabled;
+
     const filterOptions = {
       searchText,
       activities,
@@ -70,6 +72,7 @@ export class RecreationResourceSearchService {
       fees,
       lat,
       lon,
+      useAdvisoryStatus,
     };
 
     const whereClause = buildSearchFilterQuery(filterOptions);
@@ -100,6 +103,7 @@ export class RecreationResourceSearchService {
       filterTypes,
       lat,
       lon,
+      useAdvisoryStatus,
     });
 
     const [recreationResources, filterResults] = await Promise.all([
@@ -125,6 +129,7 @@ export class RecreationResourceSearchService {
       take,
       unpaginatedIds,
       extentGeoJson,
+      useAdvisoryStatus,
     );
   }
 
@@ -154,11 +159,13 @@ export class RecreationResourceSearchService {
     limit?: number,
     unpaginatedIds: string[] = [],
     extent?: string | null,
+    useAdvisoryStatus: boolean = false,
   ): PaginatedRecreationResourceDto {
     return {
       data: formatSearchResults(
         recreationResources,
         this.appConfig.rstStorageCloudfrontUrl,
+        useAdvisoryStatus,
       ),
       page,
       limit,

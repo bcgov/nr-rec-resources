@@ -142,6 +142,53 @@ describe('buildFilterOptionCountsQuery', () => {
     expect(query.sql).toContain('COUNT(dfr.district_code)::INT');
   });
 
+  it('should use advisory subqueries for status counts when useAdvisoryStatus is true', () => {
+    const whereClause = Prisma.sql`WHERE 1=1`;
+    const query = buildFilterOptionCountsQuery({
+      whereClause,
+      whereClauseExcludingType: whereClause,
+      whereClauseExcludingDistrict: whereClause,
+      useAdvisoryStatus: true,
+    });
+
+    expect(query.sql).toContain('act_advisories_flat');
+    expect(query.sql).toContain('array_agg');
+    expect(query.sql).not.toContain("recreation_status->>'status_code'");
+  });
+
+  it('should use advisory subqueries in isOnlyStatusFilter branch when useAdvisoryStatus is true', () => {
+    const whereClause = Prisma.sql`WHERE 1=1`;
+    const query = buildFilterOptionCountsQuery({
+      whereClause,
+      whereClauseExcludingType: whereClause,
+      whereClauseExcludingDistrict: whereClause,
+      useAdvisoryStatus: true,
+      filterTypes: {
+        isOnlyStatusFilter: true,
+        isOnlyDistrictFilter: false,
+        isOnlyAccessFilter: false,
+        isOnlyTypeFilter: false,
+        isOnlyFeesFilter: false,
+      },
+    });
+
+    expect(query.sql).toContain('act_advisories_flat');
+    expect(query.sql).toContain('array_agg');
+  });
+
+  it('should use legacy status_code logic for status counts when useAdvisoryStatus is false', () => {
+    const whereClause = Prisma.sql`WHERE 1=1`;
+    const query = buildFilterOptionCountsQuery({
+      whereClause,
+      whereClauseExcludingType: whereClause,
+      whereClauseExcludingDistrict: whereClause,
+      useAdvisoryStatus: false,
+    });
+
+    expect(query.sql).toContain("recreation_status->>'status_code'");
+    expect(query.sql).not.toContain('act_advisories_flat');
+  });
+
   it('should work with all parameters provided', () => {
     const whereClause = Prisma.sql`WHERE access_code = ${'AC2'}`;
     const whereClauseExcludingType = Prisma.sql`WHERE access_code = ${'AC2'}`;
