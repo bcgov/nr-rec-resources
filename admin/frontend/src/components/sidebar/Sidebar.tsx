@@ -31,7 +31,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
               isExternal={false}
             >
               <Link
-                to="/"
+                to={link.url}
                 className={`d-flex align-items-start ${isCollapsed && 'justify-content-center'} text-decoration-none py-2 rounded hover-effect icon-container-wrapper`}
               >
                 <div className="sidebar-icon-container flex-shrink-0 mt-1">

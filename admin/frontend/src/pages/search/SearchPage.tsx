@@ -64,17 +64,6 @@ export function SearchPage() {
                 gap={3}
                 className="justify-content-end flex-wrap"
               >
-                <Link
-                  className="control-button btn btn-outline-primary d-inline-flex align-items-center gap-2"
-                  to={ROUTE_PATHS.EXPORTS}
-                >
-                  <FontAwesomeIcon
-                    icon={faFile}
-                    className="d-none d-sm-inline"
-                    aria-hidden="true"
-                  />
-                  Data export
-                </Link>
                 <ColumnVisibilityMenu
                   visibleColumns={columns.visibleColumns}
                   onToggle={columns.toggleColumn}
