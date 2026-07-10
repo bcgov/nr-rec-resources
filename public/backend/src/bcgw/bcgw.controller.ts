@@ -15,10 +15,10 @@ import { BcgwClosuresShortFeatureCollectionDto } from './dto/bcgw-closures-short
 export class BcgwController {
   constructor(private readonly bcgwService: BcgwService) {}
 
-  @Get('recreation-resources')
+  @Get('closures-fully-attributed')
   @ApiOperation({
     summary: 'Get all recreation resources for BCGW ingestion',
-    operationId: 'getBcgwRecreationResources',
+    operationId: 'getBcgwClosuresFullyAttributed',
     description:
       'Returns a paginated GeoJSON FeatureCollection of recreation resources ' +
       'intended for ingestion by the BC Geographic Warehouse (BCGW) into the ' +
@@ -49,7 +49,7 @@ export class BcgwController {
     description:
       'Returns a paginated GeoJSON FeatureCollection of recreation resources ' +
       'intended for ingestion by the BC Geographic Warehouse (BCGW) into the ' +
-      'WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_SP layer. ' +
+      'WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_SV layer. ' +
       'A 20-column subset of the fully attributed closures layer.',
   })
   @ApiQuery({
