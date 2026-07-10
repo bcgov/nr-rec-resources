@@ -117,8 +117,14 @@ export class BcgwService {
       defined_campsites: Number(row.defined_campsites),
       site_description_brief: row.site_description_brief,
       arch_impact_assess_ind: row.arch_impact_assess_ind,
-      tenure_app_total_area: row.tenure_app_total_area,
-      tenure_app_total_length: row.tenure_app_total_length,
+      tenure_app_total_area:
+        row.tenure_app_total_area != null
+          ? Number(row.tenure_app_total_area)
+          : null,
+      tenure_app_total_length:
+        row.tenure_app_total_length != null
+          ? Number(row.tenure_app_total_length)
+          : null,
       site_description: row.site_description,
       site_description_date: row.site_description_date,
       driving_directions: row.driving_directions,

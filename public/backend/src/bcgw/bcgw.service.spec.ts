@@ -134,6 +134,35 @@ describe('BcgwService', () => {
       expect(features[0].properties.defined_campsites).toBe(42);
     });
 
+    it('converts string tenure totals to numbers', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeRow({
+          tenure_app_total_area: '5.8969',
+          tenure_app_total_length: '1.1118',
+        }),
+      ]);
+
+      const { features } = await service.findAll(1);
+      const { properties } = features[0];
+
+      expect(typeof properties.tenure_app_total_area).toBe('number');
+      expect(properties.tenure_app_total_area).toBe(5.8969);
+      expect(typeof properties.tenure_app_total_length).toBe('number');
+      expect(properties.tenure_app_total_length).toBe(1.1118);
+    });
+
+    it('preserves null tenure totals', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeRow({ tenure_app_total_area: null, tenure_app_total_length: null }),
+      ]);
+
+      const { features } = await service.findAll(1);
+      const { properties } = features[0];
+
+      expect(properties.tenure_app_total_area).toBeNull();
+      expect(properties.tenure_app_total_length).toBeNull();
+    });
+
     it('parses shape JSON into geometry object', async () => {
       prisma.$queryRawTyped.mockResolvedValue([makeRow()]);
 
