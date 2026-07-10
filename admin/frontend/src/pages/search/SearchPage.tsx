@@ -1,8 +1,6 @@
 import { Button, Card, Stack } from 'react-bootstrap';
-import { Link } from '@tanstack/react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFile, faFilter } from '@fortawesome/free-solid-svg-icons';
-import { ROUTE_PATHS } from '@/constants/routes';
+import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { PageLayout } from '@/components/page-layout';
 import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchController';
 import { useAdminSearchColumns } from '@/pages/search/hooks/useAdminSearchColumns';
