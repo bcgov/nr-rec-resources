@@ -314,13 +314,13 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="recreation_fee.recreation_fee_code references recreation_fee_code.recreation_fee_code via recreation_fee_recreation_fee_code_fkey"><a href='recreation_fee_code.html'>recreation_fee_code</a><span class='relatedKey'>.recreation_fee_code</span></td>
-                                                <td class="constraint detail">recreation_fee_recreation_fee_code_fkey</td>
+                                                <td title="recreation_fee.[recreation_fee_code, recreation_fee_sub_code] references recreation_fee_sub_code.[recreation_fee_code, recreation_fee_sub_code] via recreation_fee_sub_code_fk"><a href='recreation_fee_sub_code.html'>recreation_fee_sub_code</a><span class='relatedKey'>.recreation_fee_code</span></td>
+                                                <td class="constraint detail">recreation_fee_sub_code_fk</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="recreation_fee.[recreation_fee_code, recreation_fee_sub_code] references recreation_fee_sub_code.[recreation_fee_code, recreation_fee_sub_code] via recreation_fee_sub_code_fk"><a href='recreation_fee_sub_code.html'>recreation_fee_sub_code</a><span class='relatedKey'>.recreation_fee_code</span></td>
-                                                <td class="constraint detail">recreation_fee_sub_code_fk</td>
+                                                <td title="recreation_fee.recreation_fee_code references recreation_fee_code.recreation_fee_code via recreation_fee_recreation_fee_code_fkey"><a href='recreation_fee_code.html'>recreation_fee_code</a><span class='relatedKey'>.recreation_fee_code</span></td>
+                                                <td class="constraint detail">recreation_fee_recreation_fee_code_fkey</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                         </table>
