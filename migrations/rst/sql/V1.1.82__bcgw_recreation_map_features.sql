@@ -5,9 +5,10 @@
 -- bcgw.recreation_polygons      — thin view; backs FTEN_RECREATION_POLY_SVW
 --
 -- geometry_type_code values in rst.recreation_map_feature_geom: 'L' (line), 'P' (polygon)
--- Feature measurements: FTA/RST stores feature_area in hectares, feature_length in kilometres.
--- BCGW FEATURE_LENGTH is also in kilometres (FEATURE_LENGTH_M is the metres equivalent).
--- feature_area is converted ha → m² (* 10000) for the polygon layer.
+-- Feature measurements: FTA/RST stores feature_area in hectares, feature_length/feature_perimeter
+-- in kilometres. BCGW FEATURE_LENGTH (lines) and FEATURE_PERIMETER (polygons) are in kilometres;
+-- their _M counterparts are in metres. BCGW FEATURE_AREA (polygons) is in hectares;
+-- FEATURE_AREA_SQM is the m² equivalent.
 -- DISTRICT_NAME on the line layer is VARCHAR2(6) in BCGW — confirmed from actual data to hold
 -- the district code (e.g. 'DCC'), not the full org unit name.
 
@@ -47,9 +48,9 @@ SELECT
   rmfg.geometry_type_code,
   rmfg.feature_length                                             AS feature_length,
   rmfg.feature_length * 1000                                     AS feature_length_m,
-  rmfg.feature_area * 10000                                      AS feature_area,
+  rmfg.feature_area                                              AS feature_area_ha,
   rmfg.feature_area * 10000                                      AS feature_area_sqm,
-  rmfg.feature_perimeter * 1000                                  AS feature_perimeter,
+  rmfg.feature_perimeter                                         AS feature_perimeter_km,
   ST_AsGeoJSON(ST_Transform(ST_SetSRID(rmfg.geometry, 3005), 4326)) AS geometry
 FROM rst.recreation_map_feature rmf
 LEFT JOIN rst.recreation_map_feature_geom rmfg
@@ -127,10 +128,10 @@ SELECT
   district_code                        AS geographic_district_code,
   district_name                        AS geographic_district_name,
   NULL::integer                        AS feature_class_skey,
-  feature_area,
-  feature_perimeter,
+  feature_area_ha                      AS feature_area,
+  feature_perimeter_km                 AS feature_perimeter,
   feature_area_sqm,
-  feature_length_m,
+  feature_perimeter_km * 1000          AS feature_length_m,
   geometry,
   NULL::integer                        AS objectid,
   NULL::bytea                          AS se_anno_cad_data

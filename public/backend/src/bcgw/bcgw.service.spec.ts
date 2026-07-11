@@ -35,6 +35,40 @@ const makeLineRow = (
   ...overrides,
 });
 
+const makePolyRow = (
+  overrides: Partial<Record<string, unknown>> = {},
+): Record<string, unknown> => ({
+  rmf_skey: 2001,
+  forest_file_id: 'REC0054',
+  section_id: null,
+  recreation_map_feature_code: 'SIT',
+  project_type: 'Recreation Site',
+  retirement_date: null,
+  amendment_id: 1,
+  map_label: 'REC0054',
+  project_name: 'CHILLIWACK LAKE',
+  recreation_feature_code: 'E5',
+  resource_feature_ind: 'N',
+  arch_impact_assess_ind: 'Y',
+  site_location: 'CHILLIWACK',
+  project_established_date: new Date('2001-03-15'),
+  recreation_view_ind: 'Y',
+  recreation_district_code: 'RDCC',
+  defined_campsites: BigInt(0),
+  life_cycle_status_code: 'ACTIVE',
+  file_status_code: 'HI',
+  geographic_district_code: 'DCC',
+  geographic_district_name: 'Chilliwack Natural Resource District',
+  feature_area: '2.9634',
+  feature_perimeter: '1.0079',
+  feature_area_sqm: '29634.357175518',
+  feature_length_m: '1007.9',
+  geometry:
+    '{"type":"Polygon","coordinates":[[[-121.9,49.6],[-121.85,49.6],[-121.85,49.65],[-121.9,49.65],[-121.9,49.6]]]}',
+  total_count: 1,
+  ...overrides,
+});
+
 const makeRow = (
   overrides: Partial<Record<string, unknown>> = {},
 ): Record<string, unknown> => ({
@@ -325,6 +359,137 @@ describe('BcgwService', () => {
       expect(properties.life_cycle_status_code).toBe('ACTIVE');
       expect(properties.district_code).toBe('DCC');
       expect(properties.district_name).toBe('DCC');
+    });
+  });
+
+  describe('findAllPolygons', () => {
+    it('returns a GeoJSON FeatureCollection', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makePolyRow()]);
+
+      const result = await service.findAllPolygons(1);
+
+      expect(result.type).toBe('FeatureCollection');
+      expect(result.features).toHaveLength(1);
+      expect(result.meta).toEqual({
+        total: 1,
+        page: 1,
+        totalPages: 1,
+        pageSize: BcgwService.PAGE_SIZE,
+      });
+    });
+
+    it('returns empty FeatureCollection when no rows', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([]);
+
+      const result = await service.findAllPolygons(1);
+
+      expect(result.features).toHaveLength(0);
+      expect(result.meta.total).toBe(0);
+    });
+
+    it('converts string numeric fields to numbers', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makePolyRow({
+          feature_area: '2.9634',
+          feature_perimeter: '1.0079',
+          feature_length_m: '1007.9',
+        }),
+      ]);
+
+      const { features } = await service.findAllPolygons(1);
+      const { properties } = features[0];
+
+      expect(typeof properties.feature_area).toBe('number');
+      expect(properties.feature_area).toBe(2.9634);
+      expect(typeof properties.feature_perimeter).toBe('number');
+      expect(properties.feature_perimeter).toBe(1.0079);
+      expect(typeof properties.feature_length_m).toBe('number');
+      expect(properties.feature_length_m).toBe(1007.9);
+    });
+
+    it('preserves null numeric fields', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makePolyRow({
+          feature_area: null,
+          feature_perimeter: null,
+          feature_length_m: null,
+        }),
+      ]);
+
+      const { features } = await service.findAllPolygons(1);
+      const { properties } = features[0];
+
+      expect(properties.feature_area).toBeNull();
+      expect(properties.feature_perimeter).toBeNull();
+      expect(properties.feature_length_m).toBeNull();
+    });
+
+    it('passes feature_area_sqm through as a string', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makePolyRow({ feature_area_sqm: '29634.357175518' }),
+      ]);
+
+      const { features } = await service.findAllPolygons(1);
+      const { properties } = features[0];
+
+      expect(typeof properties.feature_area_sqm).toBe('string');
+      expect(properties.feature_area_sqm).toBe('29634.357175518');
+    });
+
+    it('converts bigint defined_campsites to number', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makePolyRow({ defined_campsites: BigInt(5) }),
+      ]);
+
+      const { features } = await service.findAllPolygons(1);
+
+      expect(typeof features[0].properties.defined_campsites).toBe('number');
+      expect(features[0].properties.defined_campsites).toBe(5);
+    });
+
+    it('parses geometry JSON into geometry object', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makePolyRow()]);
+
+      const { features } = await service.findAllPolygons(1);
+
+      expect(features[0].geometry).toEqual({
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-121.9, 49.6],
+            [-121.85, 49.6],
+            [-121.85, 49.65],
+            [-121.9, 49.65],
+            [-121.9, 49.6],
+          ],
+        ],
+      });
+    });
+
+    it('sets geometry to null when geometry is null', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makePolyRow({ geometry: null }),
+      ]);
+
+      const { features } = await service.findAllPolygons(1);
+
+      expect(features[0].geometry).toBeNull();
+    });
+
+    it('maps all properties correctly', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makePolyRow()]);
+
+      const { features } = await service.findAllPolygons(1);
+      const { properties } = features[0];
+
+      expect(properties.rmf_skey).toBe(2001);
+      expect(properties.forest_file_id).toBe('REC0054');
+      expect(properties.map_label).toBe('REC0054');
+      expect(properties.life_cycle_status_code).toBe('ACTIVE');
+      expect(properties.geographic_district_code).toBe('DCC');
+      expect(properties.geographic_district_name).toBe(
+        'Chilliwack Natural Resource District',
+      );
     });
   });
 

@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma.service';
 import { getBcgwRecreationResources } from '@prisma-generated-sql/getBcgwRecreationResources';
 import { getBcgwClosuresShort } from '@prisma-generated-sql/getBcgwClosuresShort';
 import { getBcgwRecreationLines } from '@prisma-generated-sql/getBcgwRecreationLines';
+import { getBcgwRecreationPolygons } from '@prisma-generated-sql/getBcgwRecreationPolygons';
 import {
   BcgwFeatureCollectionDto,
   BcgwFeatureDto,
@@ -18,6 +19,11 @@ import {
   BcgwRecreationLinesFeatureCollectionDto,
   BcgwRecreationLinesFeatureDto,
 } from './dto/bcgw-recreation-lines.dto';
+import {
+  BcgwRecreationPolygonsDto,
+  BcgwRecreationPolygonsFeatureCollectionDto,
+  BcgwRecreationPolygonsFeatureDto,
+} from './dto/bcgw-recreation-polygons.dto';
 
 @Injectable()
 export class BcgwService {
@@ -98,6 +104,72 @@ export class BcgwService {
         totalPages,
         pageSize: BcgwService.PAGE_SIZE,
       },
+    };
+  }
+
+  async findAllPolygons(
+    page: number = 1,
+  ): Promise<BcgwRecreationPolygonsFeatureCollectionDto> {
+    const currentPage = Math.max(page, 1);
+    const offset = (currentPage - 1) * BcgwService.PAGE_SIZE;
+
+    const rows: getBcgwRecreationPolygons.Result[] =
+      await this.prisma.$queryRawTyped(
+        getBcgwRecreationPolygons(BcgwService.PAGE_SIZE, offset),
+      );
+
+    const total = rows.length > 0 ? (rows[0].total_count ?? 0) : 0;
+    const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
+
+    return {
+      type: 'FeatureCollection',
+      features: rows.map((r) => this.toRecreationPolygonsFeature(r)),
+      meta: {
+        total,
+        page: currentPage,
+        totalPages,
+        pageSize: BcgwService.PAGE_SIZE,
+      },
+    };
+  }
+
+  private toRecreationPolygonsFeature(
+    row: getBcgwRecreationPolygons.Result,
+  ): BcgwRecreationPolygonsFeatureDto {
+    const properties: BcgwRecreationPolygonsDto = {
+      rmf_skey: row.rmf_skey,
+      forest_file_id: row.forest_file_id,
+      section_id: row.section_id,
+      recreation_map_feature_code: row.recreation_map_feature_code,
+      project_type: row.project_type,
+      retirement_date: row.retirement_date,
+      amendment_id: row.amendment_id,
+      map_label: row.map_label,
+      project_name: row.project_name,
+      recreation_feature_code: row.recreation_feature_code,
+      resource_feature_ind: row.resource_feature_ind,
+      arch_impact_assess_ind: row.arch_impact_assess_ind,
+      site_location: row.site_location,
+      project_established_date: row.project_established_date,
+      recreation_view_ind: row.recreation_view_ind,
+      recreation_district_code: row.recreation_district_code,
+      defined_campsites: Number(row.defined_campsites),
+      life_cycle_status_code: row.life_cycle_status_code,
+      file_status_code: row.file_status_code,
+      geographic_district_code: row.geographic_district_code,
+      geographic_district_name: row.geographic_district_name,
+      feature_area: row.feature_area != null ? Number(row.feature_area) : null,
+      feature_perimeter:
+        row.feature_perimeter != null ? Number(row.feature_perimeter) : null,
+      feature_area_sqm: row.feature_area_sqm,
+      feature_length_m:
+        row.feature_length_m != null ? Number(row.feature_length_m) : null,
+    };
+
+    return {
+      type: 'Feature',
+      geometry: row.geometry ? JSON.parse(row.geometry) : null,
+      properties,
     };
   }
 
