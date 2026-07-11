@@ -9,6 +9,7 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BcgwService } from './bcgw.service';
 import { BcgwFeatureCollectionDto } from './dto/bcgw-recreation-resource.dto';
 import { BcgwClosuresShortFeatureCollectionDto } from './dto/bcgw-closures-short.dto';
+import { BcgwRecreationLinesFeatureCollectionDto } from './dto/bcgw-recreation-lines.dto';
 
 @ApiTags('bcgw')
 @Controller({ path: 'bcgw', version: '1' })
@@ -40,6 +41,33 @@ export class BcgwController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
   ): Promise<BcgwFeatureCollectionDto> {
     return this.bcgwService.findAll(page);
+  }
+
+  @Get('recreation-lines')
+  @ApiOperation({
+    summary: 'Get recreation line features for BCGW ingestion',
+    operationId: 'getBcgwRecreationLines',
+    description:
+      'Returns a paginated GeoJSON FeatureCollection of recreation trail/line features ' +
+      'intended for ingestion by the BC Geographic Warehouse (BCGW) into the ' +
+      'WHSE_FOREST_TENURE.FTEN_RECREATION_LINES_SVW layer. ' +
+      'Data is sourced from a pre-computed materialized view refreshed every 5 minutes.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: `Page number (1-indexed). Each page returns up to ${BcgwService.PAGE_SIZE} features.`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'GeoJSON FeatureCollection of recreation line features',
+    type: BcgwRecreationLinesFeatureCollectionDto,
+  })
+  async getRecreationLines(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ): Promise<BcgwRecreationLinesFeatureCollectionDto> {
+    return this.bcgwService.findAllLines(page);
   }
 
   @Get('closures-short')

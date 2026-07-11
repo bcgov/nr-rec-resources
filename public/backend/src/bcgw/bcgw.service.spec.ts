@@ -2,6 +2,39 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BcgwService } from './bcgw.service';
 import { PrismaService } from 'src/prisma.service';
 
+const makeLineRow = (
+  overrides: Partial<Record<string, unknown>> = {},
+): Record<string, unknown> => ({
+  rmf_skey: 1001,
+  forest_file_id: 'REC4531',
+  section_id: '15',
+  recreation_map_feature_code: 'RTR',
+  project_type: 'Recreation Trail',
+  retirement_date: null,
+  amendment_id: 2,
+  map_label: 'REC4531 15',
+  project_name: 'OKEOVER TRAILS',
+  recreation_feature_code: 'H3',
+  resource_feature_ind: 'N',
+  right_of_way: '10.0',
+  arch_impact_assess_ind: 'Y',
+  site_location: 'POWELL RIVER',
+  project_established_date: new Date('2005-06-01'),
+  recreation_view_ind: 'Y',
+  recreation_district_code: 'RDPW',
+  defined_campsites: BigInt(0),
+  life_cycle_status_code: 'ACTIVE',
+  file_status_code: 'HI',
+  district_code: 'DCC',
+  district_name: 'DCC',
+  feature_length: '0.3338',
+  feature_length_m: '333.8',
+  geometry:
+    '{"type":"LineString","coordinates":[[-123.0935,55.3237],[-123.1,55.33]]}',
+  total_count: 1,
+  ...overrides,
+});
+
 const makeRow = (
   overrides: Partial<Record<string, unknown>> = {},
 ): Record<string, unknown> => ({
@@ -181,7 +214,121 @@ describe('BcgwService', () => {
 
       expect(features[0].geometry).toBeNull();
     });
+  });
 
+  describe('findAllLines', () => {
+    it('returns a GeoJSON FeatureCollection', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makeLineRow()]);
+
+      const result = await service.findAllLines(1);
+
+      expect(result.type).toBe('FeatureCollection');
+      expect(result.features).toHaveLength(1);
+      expect(result.meta).toEqual({
+        total: 1,
+        page: 1,
+        totalPages: 1,
+        pageSize: BcgwService.PAGE_SIZE,
+      });
+    });
+
+    it('returns empty FeatureCollection when no rows', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([]);
+
+      const result = await service.findAllLines(1);
+
+      expect(result.features).toHaveLength(0);
+      expect(result.meta.total).toBe(0);
+    });
+
+    it('converts string numeric fields to numbers', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeLineRow({
+          right_of_way: '10.0',
+          feature_length: '0.3338',
+          feature_length_m: '333.8',
+        }),
+      ]);
+
+      const { features } = await service.findAllLines(1);
+      const { properties } = features[0];
+
+      expect(typeof properties.right_of_way).toBe('number');
+      expect(properties.right_of_way).toBe(10.0);
+      expect(typeof properties.feature_length).toBe('number');
+      expect(properties.feature_length).toBe(0.3338);
+      expect(typeof properties.feature_length_m).toBe('number');
+      expect(properties.feature_length_m).toBe(333.8);
+    });
+
+    it('preserves null numeric fields', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeLineRow({
+          right_of_way: null,
+          feature_length: null,
+          feature_length_m: null,
+        }),
+      ]);
+
+      const { features } = await service.findAllLines(1);
+      const { properties } = features[0];
+
+      expect(properties.right_of_way).toBeNull();
+      expect(properties.feature_length).toBeNull();
+      expect(properties.feature_length_m).toBeNull();
+    });
+
+    it('converts bigint defined_campsites to number', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeLineRow({ defined_campsites: BigInt(3) }),
+      ]);
+
+      const { features } = await service.findAllLines(1);
+
+      expect(typeof features[0].properties.defined_campsites).toBe('number');
+      expect(features[0].properties.defined_campsites).toBe(3);
+    });
+
+    it('parses geometry JSON into geometry object', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makeLineRow()]);
+
+      const { features } = await service.findAllLines(1);
+
+      expect(features[0].geometry).toEqual({
+        type: 'LineString',
+        coordinates: [
+          [-123.0935, 55.3237],
+          [-123.1, 55.33],
+        ],
+      });
+    });
+
+    it('sets geometry to null when geometry is null', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeLineRow({ geometry: null }),
+      ]);
+
+      const { features } = await service.findAllLines(1);
+
+      expect(features[0].geometry).toBeNull();
+    });
+
+    it('maps all properties correctly', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makeLineRow()]);
+
+      const { features } = await service.findAllLines(1);
+      const { properties } = features[0];
+
+      expect(properties.rmf_skey).toBe(1001);
+      expect(properties.forest_file_id).toBe('REC4531');
+      expect(properties.map_label).toBe('REC4531 15');
+      expect(properties.life_cycle_status_code).toBe('ACTIVE');
+      expect(properties.district_code).toBe('DCC');
+      expect(properties.district_name).toBe('DCC');
+    });
+  });
+
+  describe('toFeature (via findAll)', () => {
     it('sets closure_ind to N when no closure', async () => {
       prisma.$queryRawTyped.mockResolvedValue([
         makeRow({ closure_ind: 'N', closure_date: null, closure_type: null }),

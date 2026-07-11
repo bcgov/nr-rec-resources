@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { getBcgwRecreationResources } from '@prisma-generated-sql/getBcgwRecreationResources';
 import { getBcgwClosuresShort } from '@prisma-generated-sql/getBcgwClosuresShort';
+import { getBcgwRecreationLines } from '@prisma-generated-sql/getBcgwRecreationLines';
 import {
   BcgwFeatureCollectionDto,
   BcgwFeatureDto,
@@ -12,6 +13,11 @@ import {
   BcgwClosuresShortFeatureCollectionDto,
   BcgwClosuresShortFeatureDto,
 } from './dto/bcgw-closures-short.dto';
+import {
+  BcgwRecreationLinesDto,
+  BcgwRecreationLinesFeatureCollectionDto,
+  BcgwRecreationLinesFeatureDto,
+} from './dto/bcgw-recreation-lines.dto';
 
 @Injectable()
 export class BcgwService {
@@ -66,6 +72,71 @@ export class BcgwService {
         totalPages,
         pageSize: BcgwService.PAGE_SIZE,
       },
+    };
+  }
+
+  async findAllLines(
+    page: number = 1,
+  ): Promise<BcgwRecreationLinesFeatureCollectionDto> {
+    const currentPage = Math.max(page, 1);
+    const offset = (currentPage - 1) * BcgwService.PAGE_SIZE;
+
+    const rows: getBcgwRecreationLines.Result[] =
+      await this.prisma.$queryRawTyped(
+        getBcgwRecreationLines(BcgwService.PAGE_SIZE, offset),
+      );
+
+    const total = rows.length > 0 ? (rows[0].total_count ?? 0) : 0;
+    const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
+
+    return {
+      type: 'FeatureCollection',
+      features: rows.map((r) => this.toRecreationLinesFeature(r)),
+      meta: {
+        total,
+        page: currentPage,
+        totalPages,
+        pageSize: BcgwService.PAGE_SIZE,
+      },
+    };
+  }
+
+  private toRecreationLinesFeature(
+    row: getBcgwRecreationLines.Result,
+  ): BcgwRecreationLinesFeatureDto {
+    const properties: BcgwRecreationLinesDto = {
+      rmf_skey: row.rmf_skey,
+      forest_file_id: row.forest_file_id,
+      section_id: row.section_id,
+      recreation_map_feature_code: row.recreation_map_feature_code,
+      project_type: row.project_type,
+      retirement_date: row.retirement_date,
+      amendment_id: row.amendment_id,
+      map_label: row.map_label,
+      project_name: row.project_name,
+      recreation_feature_code: row.recreation_feature_code,
+      resource_feature_ind: row.resource_feature_ind,
+      right_of_way: row.right_of_way != null ? Number(row.right_of_way) : null,
+      arch_impact_assess_ind: row.arch_impact_assess_ind,
+      site_location: row.site_location,
+      project_established_date: row.project_established_date,
+      recreation_view_ind: row.recreation_view_ind,
+      recreation_district_code: row.recreation_district_code,
+      defined_campsites: Number(row.defined_campsites),
+      life_cycle_status_code: row.life_cycle_status_code,
+      file_status_code: row.file_status_code,
+      district_code: row.district_code,
+      district_name: row.district_name,
+      feature_length:
+        row.feature_length != null ? Number(row.feature_length) : null,
+      feature_length_m:
+        row.feature_length_m != null ? Number(row.feature_length_m) : null,
+    };
+
+    return {
+      type: 'Feature',
+      geometry: row.geometry ? JSON.parse(row.geometry) : null,
+      properties,
     };
   }
 

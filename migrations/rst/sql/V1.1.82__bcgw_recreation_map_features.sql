@@ -5,8 +5,9 @@
 -- bcgw.recreation_polygons      — thin view; backs FTEN_RECREATION_POLY_SVW
 --
 -- geometry_type_code values in rst.recreation_map_feature_geom: 'L' (line), 'P' (polygon)
--- Feature measurements: FTA/RST stores feature_area in hectares, lengths in kilometres.
--- The BCGW line/polygon layers expect square metres and metres, so unit conversions are applied.
+-- Feature measurements: FTA/RST stores feature_area in hectares, feature_length in kilometres.
+-- BCGW FEATURE_LENGTH is also in kilometres (FEATURE_LENGTH_M is the metres equivalent).
+-- feature_area is converted ha → m² (* 10000) for the polygon layer.
 -- DISTRICT_NAME on the line layer is VARCHAR2(6) in BCGW — confirmed from actual data to hold
 -- the district code (e.g. 'DCC'), not the full org unit name.
 
@@ -44,7 +45,7 @@ SELECT
   nrou.district_code,
   nrou.org_unit_name                                             AS district_name,
   rmfg.geometry_type_code,
-  rmfg.feature_length * 1000                                     AS feature_length,
+  rmfg.feature_length                                             AS feature_length,
   rmfg.feature_length * 1000                                     AS feature_length_m,
   rmfg.feature_area * 10000                                      AS feature_area,
   rmfg.feature_area * 10000                                      AS feature_area_sqm,
@@ -78,7 +79,7 @@ SELECT
   project_type,
   retirement_date,
   amendment_id,
-  forest_file_id || ' ' || section_id  AS map_label,
+  COALESCE(forest_file_id || ' ' || section_id, forest_file_id) AS map_label,
   project_name,
   recreation_feature_code,
   resource_feature_ind,
