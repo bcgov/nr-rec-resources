@@ -3,3 +3,4 @@ refresh materialized view rst.recreation_resource_district_count_view;
 refresh materialized view rst.recreation_resource_type_count_view;
 refresh materialized view rst.recreation_resource_search_view;
 refresh materialized view bcgw.resource_details_and_closures;
+refresh materialized view bcgw.recreation_map_features;
