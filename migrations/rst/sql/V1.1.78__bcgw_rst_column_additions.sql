@@ -1,5 +1,5 @@
--- Add columns that were missing from the original FTA→RST migrations for BCGW fields.
--- Populated by FTA migrations V1.1.22, V1.1.23, and V1.1.24.
+-- Add columns to RST tables needed by the BCGW views.
+-- Populated by FTA migrations V1.1.22–V1.1.24.
 
 ALTER TABLE rst.recreation_site_description
   ADD COLUMN IF NOT EXISTS description_date date;
@@ -20,3 +20,9 @@ ALTER TABLE rst.recreation_resource
 
 COMMENT ON COLUMN rst.recreation_resource.arch_impact_assess_ind IS
   'Indicates if an archaeological impact assessment has been performed. Y or N. Sourced from fta.recreation_project.arch_impact_assess_ind.';
+
+ALTER TABLE rst.recreation_resource
+  ADD COLUMN IF NOT EXISTS resource_feature_ind varchar(1) DEFAULT 'N';
+
+COMMENT ON COLUMN rst.recreation_resource.resource_feature_ind IS
+  'Indicates whether this is a resource feature established under the Government Action Regulation.';
