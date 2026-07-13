@@ -157,7 +157,7 @@ describe('BcgwService', () => {
       prisma.$queryRawTyped.mockResolvedValue([]);
       await service.findAll(2);
 
-      const [typedQuery] = prisma.$queryRawTyped.mock.calls[0];
+      const [typedQuery] = prisma.$queryRawTyped.mock.calls[0]!;
       expect(typedQuery.values).toEqual([
         BcgwService.PAGE_SIZE,
         BcgwService.PAGE_SIZE,
@@ -179,7 +179,7 @@ describe('BcgwService', () => {
       prisma.$queryRawTyped.mockResolvedValue([makeRow()]);
 
       const { features } = await service.findAll(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(properties.forest_file_id).toBe('REC204117');
       expect(properties.defined_campsites).toBe(5);
@@ -197,8 +197,8 @@ describe('BcgwService', () => {
 
       const { features } = await service.findAll(1);
 
-      expect(typeof features[0].properties.defined_campsites).toBe('number');
-      expect(features[0].properties.defined_campsites).toBe(42);
+      expect(typeof features[0]!.properties.defined_campsites).toBe('number');
+      expect(features[0]!.properties.defined_campsites).toBe(42);
     });
 
     it('converts string tenure totals to numbers', async () => {
@@ -210,7 +210,7 @@ describe('BcgwService', () => {
       ]);
 
       const { features } = await service.findAll(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(typeof properties.tenure_app_total_area).toBe('number');
       expect(properties.tenure_app_total_area).toBe(5.8969);
@@ -224,7 +224,7 @@ describe('BcgwService', () => {
       ]);
 
       const { features } = await service.findAll(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(properties.tenure_app_total_area).toBeNull();
       expect(properties.tenure_app_total_length).toBeNull();
@@ -235,7 +235,7 @@ describe('BcgwService', () => {
 
       const { features } = await service.findAll(1);
 
-      expect(features[0].geometry).toEqual({
+      expect(features[0]!.geometry).toEqual({
         type: 'Point',
         coordinates: [-123.456, 54.123],
       });
@@ -246,7 +246,7 @@ describe('BcgwService', () => {
 
       const { features } = await service.findAll(1);
 
-      expect(features[0].geometry).toBeNull();
+      expect(features[0]!.geometry).toBeNull();
     });
   });
 
@@ -285,7 +285,7 @@ describe('BcgwService', () => {
       ]);
 
       const { features } = await service.findAllLines(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(typeof properties.right_of_way).toBe('number');
       expect(properties.right_of_way).toBe(10.0);
@@ -305,7 +305,7 @@ describe('BcgwService', () => {
       ]);
 
       const { features } = await service.findAllLines(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(properties.right_of_way).toBeNull();
       expect(properties.feature_length).toBeNull();
@@ -319,8 +319,8 @@ describe('BcgwService', () => {
 
       const { features } = await service.findAllLines(1);
 
-      expect(typeof features[0].properties.defined_campsites).toBe('number');
-      expect(features[0].properties.defined_campsites).toBe(3);
+      expect(typeof features[0]!.properties.defined_campsites).toBe('number');
+      expect(features[0]!.properties.defined_campsites).toBe(3);
     });
 
     it('parses geometry JSON into geometry object', async () => {
@@ -328,7 +328,7 @@ describe('BcgwService', () => {
 
       const { features } = await service.findAllLines(1);
 
-      expect(features[0].geometry).toEqual({
+      expect(features[0]!.geometry).toEqual({
         type: 'LineString',
         coordinates: [
           [-123.0935, 55.3237],
@@ -344,14 +344,14 @@ describe('BcgwService', () => {
 
       const { features } = await service.findAllLines(1);
 
-      expect(features[0].geometry).toBeNull();
+      expect(features[0]!.geometry).toBeNull();
     });
 
     it('maps all properties correctly', async () => {
       prisma.$queryRawTyped.mockResolvedValue([makeLineRow()]);
 
       const { features } = await service.findAllLines(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(properties.rmf_skey).toBe(1001);
       expect(properties.forest_file_id).toBe('REC4531');
@@ -397,7 +397,7 @@ describe('BcgwService', () => {
       ]);
 
       const { features } = await service.findAllPolygons(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(typeof properties.feature_area).toBe('number');
       expect(properties.feature_area).toBe(2.9634);
@@ -417,7 +417,7 @@ describe('BcgwService', () => {
       ]);
 
       const { features } = await service.findAllPolygons(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(properties.feature_area).toBeNull();
       expect(properties.feature_perimeter).toBeNull();
@@ -430,7 +430,7 @@ describe('BcgwService', () => {
       ]);
 
       const { features } = await service.findAllPolygons(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(typeof properties.feature_area_sqm).toBe('string');
       expect(properties.feature_area_sqm).toBe('29634.357175518');
@@ -443,8 +443,8 @@ describe('BcgwService', () => {
 
       const { features } = await service.findAllPolygons(1);
 
-      expect(typeof features[0].properties.defined_campsites).toBe('number');
-      expect(features[0].properties.defined_campsites).toBe(5);
+      expect(typeof features[0]!.properties.defined_campsites).toBe('number');
+      expect(features[0]!.properties.defined_campsites).toBe(5);
     });
 
     it('parses geometry JSON into geometry object', async () => {
@@ -452,7 +452,7 @@ describe('BcgwService', () => {
 
       const { features } = await service.findAllPolygons(1);
 
-      expect(features[0].geometry).toEqual({
+      expect(features[0]!.geometry).toEqual({
         type: 'Polygon',
         coordinates: [
           [
@@ -473,14 +473,14 @@ describe('BcgwService', () => {
 
       const { features } = await service.findAllPolygons(1);
 
-      expect(features[0].geometry).toBeNull();
+      expect(features[0]!.geometry).toBeNull();
     });
 
     it('maps all properties correctly', async () => {
       prisma.$queryRawTyped.mockResolvedValue([makePolyRow()]);
 
       const { features } = await service.findAllPolygons(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(properties.rmf_skey).toBe(2001);
       expect(properties.forest_file_id).toBe('REC0054');
@@ -500,7 +500,7 @@ describe('BcgwService', () => {
       ]);
 
       const { features } = await service.findAll(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(properties.closure_ind).toBe('N');
       expect(properties.closure_date).toBeNull();
@@ -518,7 +518,7 @@ describe('BcgwService', () => {
       ]);
 
       const { features } = await service.findAll(1);
-      const { properties } = features[0];
+      const { properties } = features[0]!;
 
       expect(properties.closure_ind).toBe('Y');
       expect(properties.closure_date).toEqual(new Date('2024-07-01'));

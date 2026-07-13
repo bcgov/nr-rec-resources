@@ -53,9 +53,13 @@ export class EnvironmentVariables {
   // bearer strategy validates against. Act-issued tokens will be rejected
   // by the (RST admin) global strategy because the audience differs - and
   // vice-versa - which is exactly the isolation we want.
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  ACT_CSS_CLIENT_ID: string;
+  ACT_CSS_CLIENT_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  BCGW_CSS_CLIENT_ID?: string;
 
   // AWS S3 configuration
   @IsString()

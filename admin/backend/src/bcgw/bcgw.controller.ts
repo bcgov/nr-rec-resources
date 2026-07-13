@@ -4,8 +4,18 @@ import {
   Get,
   ParseIntPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { AUTH_STRATEGY } from '@/auth/auth.constants';
 import { BcgwService } from './bcgw.service';
 import { BcgwFeatureCollectionDto } from './dto/bcgw-recreation-resource.dto';
 import { BcgwClosuresShortFeatureCollectionDto } from './dto/bcgw-closures-short.dto';
@@ -18,6 +28,13 @@ export class BcgwController {
   constructor(private readonly bcgwService: BcgwService) {}
 
   @Get('closures-fully-attributed')
+  @UseGuards(AuthGuard(AUTH_STRATEGY.BCGW_KEYCLOAK))
+  @ApiBearerAuth(AUTH_STRATEGY.BCGW_KEYCLOAK)
+  @ApiUnauthorizedResponse({
+    description:
+      'Unauthorized — missing, malformed, or expired bearer token. ' +
+      'Obtain a token from CSS using the OAuth2 Client Credentials flow.',
+  })
   @ApiOperation({
     summary: 'Get all recreation resources for BCGW ingestion',
     operationId: 'getBcgwClosuresFullyAttributed',

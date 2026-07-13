@@ -13,6 +13,7 @@ import { clsConfig } from './common/cls.config';
 import { UserContextModule } from './common/modules/user-context/user-context.module';
 import { HealthController } from './health.controller';
 import { ActModule } from './act/act.module';
+import { BcgwModule } from './bcgw/bcgw.module';
 import { PrismaService } from './prisma.service';
 
 @Module({
@@ -24,6 +25,7 @@ import { PrismaService } from './prisma.service';
     TerminusModule,
     RecreationResourceModule,
     ActModule,
+    BcgwModule,
     UserContextModule,
     ApiMetricsModule.forRoot({
       namespacePrefix: ADMIN_METRIC_NAMESPACE_NAME_PREFIX,

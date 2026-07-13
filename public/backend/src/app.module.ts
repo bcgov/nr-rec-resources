@@ -15,7 +15,6 @@ import { PUBLIC_METRIC_NAMESPACE_NAME_PREFIX } from '@shared/api/api-metrics/api
 import { SitemapModule } from './sitemap/sitemap.module';
 import { AppConfigModule } from './app-config/app-config.module';
 import { GeospatialModule } from './geospatial/geospatial.module';
-import { BcgwModule } from './bcgw/bcgw.module';
 
 @Module({
   imports: [
@@ -25,7 +24,6 @@ import { BcgwModule } from './bcgw/bcgw.module';
     RecreationResourceModule,
     SitemapModule,
     GeospatialModule,
-    BcgwModule,
     ApiMetricsModule.forRoot({
       namespacePrefix: PUBLIC_METRIC_NAMESPACE_NAME_PREFIX,
     }),

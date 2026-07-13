@@ -40,7 +40,7 @@ export class BcgwService {
         getBcgwRecreationResources(BcgwService.PAGE_SIZE, offset),
       );
 
-    const total = rows.length > 0 ? (rows[0].total_count ?? 0) : 0;
+    const total = rows.length > 0 ? (rows[0]!.total_count ?? 0) : 0;
     const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
 
     return {
@@ -66,7 +66,7 @@ export class BcgwService {
         getBcgwClosuresShort(BcgwService.PAGE_SIZE, offset),
       );
 
-    const total = rows.length > 0 ? (rows[0].total_count ?? 0) : 0;
+    const total = rows.length > 0 ? (rows[0]!.total_count ?? 0) : 0;
     const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
 
     return {
@@ -92,7 +92,7 @@ export class BcgwService {
         getBcgwRecreationLines(BcgwService.PAGE_SIZE, offset),
       );
 
-    const total = rows.length > 0 ? (rows[0].total_count ?? 0) : 0;
+    const total = rows.length > 0 ? (rows[0]!.total_count ?? 0) : 0;
     const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
 
     return {
@@ -118,7 +118,7 @@ export class BcgwService {
         getBcgwRecreationPolygons(BcgwService.PAGE_SIZE, offset),
       );
 
-    const total = rows.length > 0 ? (rows[0].total_count ?? 0) : 0;
+    const total = rows.length > 0 ? (rows[0]!.total_count ?? 0) : 0;
     const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
 
     return {
