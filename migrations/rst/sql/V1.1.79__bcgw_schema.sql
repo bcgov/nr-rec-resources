@@ -50,7 +50,7 @@ closure AS (
     regexp_replace(description, '<[^>]+>', '', 'g')         AS closure_comment
   FROM rst.act_advisories_flat
   WHERE advisory_status = 'Published'
-  ORDER BY rec_resource_id, listing_rank ASC
+  ORDER BY rec_resource_id, listing_rank DESC, urgency_sequence DESC, access_status_precedence ASC, updated_date DESC, advisory_date DESC, event_type_precedence ASC
 )
 SELECT
   rr.rec_resource_id                                                    AS forest_file_id,
