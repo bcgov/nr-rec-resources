@@ -7,6 +7,7 @@ import { getBcgwRecreationPolygons } from '@prisma-generated-sql/getBcgwRecreati
 import {
   BcgwFeatureCollectionDto,
   BcgwFeatureDto,
+  BcgwPaginationMetaDto,
   BcgwRecreationResourceDto,
 } from './dto/bcgw-recreation-resource.dto';
 import {
@@ -32,102 +33,77 @@ export class BcgwService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(page: number = 1): Promise<BcgwFeatureCollectionDto> {
-    const currentPage = Math.max(page, 1);
-    const offset = (currentPage - 1) * BcgwService.PAGE_SIZE;
-
-    const rows: getBcgwRecreationResources.Result[] =
-      await this.prisma.$queryRawTyped(
-        getBcgwRecreationResources(BcgwService.PAGE_SIZE, offset),
-      );
-
-    const total = rows.length > 0 ? (rows[0]!.total_count ?? 0) : 0;
-    const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
-
-    return {
-      type: 'FeatureCollection',
-      features: rows.map((r) => this.toFeature(r)),
-      meta: {
-        total,
-        page: currentPage,
-        totalPages,
-        pageSize: BcgwService.PAGE_SIZE,
-      },
-    };
+    const { currentPage, offset } = this.paginationParams(page);
+    const rows = await this.prisma.$queryRawTyped(
+      getBcgwRecreationResources(BcgwService.PAGE_SIZE, offset),
+    );
+    return this.buildCollection(rows, currentPage, (r) => this.toFeature(r));
   }
 
   async findAllShort(
     page: number = 1,
   ): Promise<BcgwClosuresShortFeatureCollectionDto> {
-    const currentPage = Math.max(page, 1);
-    const offset = (currentPage - 1) * BcgwService.PAGE_SIZE;
-
-    const rows: getBcgwClosuresShort.Result[] =
-      await this.prisma.$queryRawTyped(
-        getBcgwClosuresShort(BcgwService.PAGE_SIZE, offset),
-      );
-
-    const total = rows.length > 0 ? (rows[0]!.total_count ?? 0) : 0;
-    const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
-
-    return {
-      type: 'FeatureCollection',
-      features: rows.map((r) => this.toClosuresShortFeature(r)),
-      meta: {
-        total,
-        page: currentPage,
-        totalPages,
-        pageSize: BcgwService.PAGE_SIZE,
-      },
-    };
+    const { currentPage, offset } = this.paginationParams(page);
+    const rows = await this.prisma.$queryRawTyped(
+      getBcgwClosuresShort(BcgwService.PAGE_SIZE, offset),
+    );
+    return this.buildCollection(rows, currentPage, (r) =>
+      this.toClosuresShortFeature(r),
+    );
   }
 
   async findAllLines(
     page: number = 1,
   ): Promise<BcgwRecreationLinesFeatureCollectionDto> {
-    const currentPage = Math.max(page, 1);
-    const offset = (currentPage - 1) * BcgwService.PAGE_SIZE;
-
-    const rows: getBcgwRecreationLines.Result[] =
-      await this.prisma.$queryRawTyped(
-        getBcgwRecreationLines(BcgwService.PAGE_SIZE, offset),
-      );
-
-    const total = rows.length > 0 ? (rows[0]!.total_count ?? 0) : 0;
-    const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
-
-    return {
-      type: 'FeatureCollection',
-      features: rows.map((r) => this.toRecreationLinesFeature(r)),
-      meta: {
-        total,
-        page: currentPage,
-        totalPages,
-        pageSize: BcgwService.PAGE_SIZE,
-      },
-    };
+    const { currentPage, offset } = this.paginationParams(page);
+    const rows = await this.prisma.$queryRawTyped(
+      getBcgwRecreationLines(BcgwService.PAGE_SIZE, offset),
+    );
+    return this.buildCollection(rows, currentPage, (r) =>
+      this.toRecreationLinesFeature(r),
+    );
   }
 
   async findAllPolygons(
     page: number = 1,
   ): Promise<BcgwRecreationPolygonsFeatureCollectionDto> {
+    const { currentPage, offset } = this.paginationParams(page);
+    const rows = await this.prisma.$queryRawTyped(
+      getBcgwRecreationPolygons(BcgwService.PAGE_SIZE, offset),
+    );
+    return this.buildCollection(rows, currentPage, (r) =>
+      this.toRecreationPolygonsFeature(r),
+    );
+  }
+
+  private paginationParams(page: number): {
+    currentPage: number;
+    offset: number;
+  } {
     const currentPage = Math.max(page, 1);
-    const offset = (currentPage - 1) * BcgwService.PAGE_SIZE;
+    return { currentPage, offset: (currentPage - 1) * BcgwService.PAGE_SIZE };
+  }
 
-    const rows: getBcgwRecreationPolygons.Result[] =
-      await this.prisma.$queryRawTyped(
-        getBcgwRecreationPolygons(BcgwService.PAGE_SIZE, offset),
-      );
-
+  private buildCollection<
+    TRow extends { total_count: number | null },
+    TFeature,
+  >(
+    rows: TRow[],
+    currentPage: number,
+    mapper: (row: TRow) => TFeature,
+  ): {
+    type: 'FeatureCollection';
+    features: TFeature[];
+    meta: BcgwPaginationMetaDto;
+  } {
     const total = rows.length > 0 ? (rows[0]!.total_count ?? 0) : 0;
-    const totalPages = Math.ceil(total / BcgwService.PAGE_SIZE);
-
     return {
       type: 'FeatureCollection',
-      features: rows.map((r) => this.toRecreationPolygonsFeature(r)),
+      features: rows.map(mapper),
       meta: {
         total,
         page: currentPage,
-        totalPages,
+        totalPages: Math.ceil(total / BcgwService.PAGE_SIZE),
         pageSize: BcgwService.PAGE_SIZE,
       },
     };

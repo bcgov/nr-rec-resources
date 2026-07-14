@@ -1,6 +1,30 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { BcgwService } from './bcgw.service';
-import { PrismaService } from 'src/prisma.service';
+import { BcgwService } from '@/bcgw/bcgw.service';
+import { PrismaService } from '@/prisma.service';
+
+const makeShortRow = (
+  overrides: Partial<Record<string, unknown>> = {},
+): Record<string, unknown> => ({
+  forest_file_id: 'REC204117',
+  project_name: 'Aileen Lake',
+  project_type: 'SIT - Recreation site',
+  closure_ind: 'N',
+  closure_date: null,
+  closure_type: null,
+  site_location: 'PEMBERTON',
+  defined_campsites: BigInt(5),
+  recreation_district_code: 'RDPG',
+  recreation_district_name: 'Prince George-Mackenzie',
+  org_unit_name: 'Prince George Natural Resource District',
+  closure_comment: null,
+  site_description: 'A beautiful lake site.',
+  driving_directions: 'Turn left at the fork.',
+  latitude: 54.123,
+  longitude: -123.456,
+  shape: '{"type":"Point","coordinates":[-123.456,54.123]}',
+  total_count: 1,
+  ...overrides,
+});
 
 const makeLineRow = (
   overrides: Partial<Record<string, unknown>> = {},
@@ -65,30 +89,6 @@ const makePolyRow = (
   feature_length_m: '1007.9',
   geometry:
     '{"type":"Polygon","coordinates":[[[-121.9,49.6],[-121.85,49.6],[-121.85,49.65],[-121.9,49.65],[-121.9,49.6]]]}',
-  total_count: 1,
-  ...overrides,
-});
-
-const makeShortRow = (
-  overrides: Partial<Record<string, unknown>> = {},
-): Record<string, unknown> => ({
-  forest_file_id: 'REC204117',
-  project_name: 'Aileen Lake',
-  project_type: 'SIT - Recreation site',
-  closure_ind: 'N',
-  closure_date: null,
-  closure_type: null,
-  site_location: 'PEMBERTON',
-  defined_campsites: BigInt(5),
-  recreation_district_code: 'RDPG',
-  recreation_district_name: 'Prince George-Mackenzie',
-  org_unit_name: 'Prince George Natural Resource District',
-  closure_comment: null,
-  site_description: 'A beautiful lake site.',
-  driving_directions: 'Turn left at the fork.',
-  latitude: 54.123,
-  longitude: -123.456,
-  shape: '{"type":"Point","coordinates":[-123.456,54.123]}',
   total_count: 1,
   ...overrides,
 });
@@ -271,6 +271,217 @@ describe('BcgwService', () => {
       const { features } = await service.findAll(1);
 
       expect(features[0]!.geometry).toBeNull();
+    });
+
+    it('sets closure_ind to N when resource is open', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeRow({ closure_ind: 'N', closure_date: null, closure_type: null }),
+      ]);
+
+      const { features } = await service.findAll(1);
+      const { properties } = features[0]!;
+
+      expect(properties.closure_ind).toBe('N');
+      expect(properties.closure_date).toBeNull();
+      expect(properties.closure_type).toBeNull();
+    });
+
+    it('maps closure fields when resource is closed', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeRow({
+          closure_ind: 'Y',
+          closure_date: new Date('2024-07-01'),
+          closure_type: 'Wildfire',
+          closure_comment: 'Closed due to wildfire activity.',
+        }),
+      ]);
+
+      const { features } = await service.findAll(1);
+      const { properties } = features[0]!;
+
+      expect(properties.closure_ind).toBe('Y');
+      expect(properties.closure_date).toEqual(new Date('2024-07-01'));
+      expect(properties.closure_type).toBe('Wildfire');
+      expect(properties.closure_comment).toBe(
+        'Closed due to wildfire activity.',
+      );
+    });
+  });
+
+  describe('findAllShort', () => {
+    it('returns a GeoJSON FeatureCollection', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makeShortRow()]);
+
+      const result = await service.findAllShort(1);
+
+      expect(result.type).toBe('FeatureCollection');
+      expect(result.features).toHaveLength(1);
+      expect(result.meta).toEqual({
+        total: 1,
+        page: 1,
+        totalPages: 1,
+        pageSize: BcgwService.PAGE_SIZE,
+      });
+    });
+
+    it('returns empty FeatureCollection when no rows', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([]);
+
+      const result = await service.findAllShort(1);
+
+      expect(result.features).toHaveLength(0);
+      expect(result.meta.total).toBe(0);
+      expect(result.meta.totalPages).toBe(0);
+    });
+
+    it('clamps page to minimum 1', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makeShortRow()]);
+
+      const result = await service.findAllShort(0);
+
+      expect(result.meta.page).toBe(1);
+    });
+
+    it('computes correct offset for page 2', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([]);
+      await service.findAllShort(2);
+
+      const [typedQuery] = prisma.$queryRawTyped.mock.calls[0]!;
+      expect(typedQuery.values).toEqual([
+        BcgwService.PAGE_SIZE,
+        BcgwService.PAGE_SIZE,
+      ]);
+    });
+
+    it('calculates totalPages correctly across multiple pages', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeShortRow({ total_count: 2500 }),
+      ]);
+
+      const result = await service.findAllShort(1);
+
+      expect(result.meta.totalPages).toBe(3);
+    });
+  });
+
+  describe('toClosuresShortFeature (via findAllShort)', () => {
+    it('maps all properties correctly', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makeShortRow()]);
+
+      const { features } = await service.findAllShort(1);
+      const { properties } = features[0]!;
+
+      expect(properties.forest_file_id).toBe('REC204117');
+      expect(properties.project_name).toBe('Aileen Lake');
+      expect(properties.project_type).toBe('SIT - Recreation site');
+      expect(properties.site_location).toBe('PEMBERTON');
+      expect(properties.recreation_district_code).toBe('RDPG');
+      expect(properties.recreation_district_name).toBe(
+        'Prince George-Mackenzie',
+      );
+      expect(properties.org_unit_name).toBe(
+        'Prince George Natural Resource District',
+      );
+      expect(properties.site_description).toBe('A beautiful lake site.');
+      expect(properties.driving_directions).toBe('Turn left at the fork.');
+      expect(properties.latitude).toBe(54.123);
+      expect(properties.longitude).toBe(-123.456);
+    });
+
+    it('converts bigint defined_campsites to number', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeShortRow({ defined_campsites: BigInt(12) }),
+      ]);
+
+      const { features } = await service.findAllShort(1);
+
+      expect(typeof features[0]!.properties.defined_campsites).toBe('number');
+      expect(features[0]!.properties.defined_campsites).toBe(12);
+    });
+
+    it('parses shape JSON into geometry object', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makeShortRow()]);
+
+      const { features } = await service.findAllShort(1);
+
+      expect(features[0]!.geometry).toEqual({
+        type: 'Point',
+        coordinates: [-123.456, 54.123],
+      });
+    });
+
+    it('sets geometry to null when shape is null', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([makeShortRow({ shape: null })]);
+
+      const { features } = await service.findAllShort(1);
+
+      expect(features[0]!.geometry).toBeNull();
+    });
+
+    it('sets closure_ind to N when resource is open', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeShortRow({
+          closure_ind: 'N',
+          closure_date: null,
+          closure_type: null,
+        }),
+      ]);
+
+      const { features } = await service.findAllShort(1);
+      const { properties } = features[0]!;
+
+      expect(properties.closure_ind).toBe('N');
+      expect(properties.closure_date).toBeNull();
+      expect(properties.closure_type).toBeNull();
+    });
+
+    it('maps closure fields when resource is closed', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeShortRow({
+          closure_ind: 'Y',
+          closure_date: new Date('2024-07-01'),
+          closure_type: 'Wildfire',
+          closure_comment: 'Closed due to wildfire.',
+        }),
+      ]);
+
+      const { features } = await service.findAllShort(1);
+      const { properties } = features[0]!;
+
+      expect(properties.closure_ind).toBe('Y');
+      expect(properties.closure_date).toEqual(new Date('2024-07-01'));
+      expect(properties.closure_type).toBe('Wildfire');
+      expect(properties.closure_comment).toBe('Closed due to wildfire.');
+    });
+
+    it('preserves null optional text fields', async () => {
+      prisma.$queryRawTyped.mockResolvedValue([
+        makeShortRow({
+          project_name: null,
+          project_type: null,
+          site_location: null,
+          recreation_district_code: null,
+          recreation_district_name: null,
+          org_unit_name: null,
+          site_description: null,
+          driving_directions: null,
+          latitude: null,
+          longitude: null,
+        }),
+      ]);
+
+      const { features } = await service.findAllShort(1);
+      const { properties } = features[0]!;
+
+      expect(properties.project_name).toBeNull();
+      expect(properties.project_type).toBeNull();
+      expect(properties.site_location).toBeNull();
+      expect(properties.recreation_district_code).toBeNull();
+      expect(properties.org_unit_name).toBeNull();
+      expect(properties.site_description).toBeNull();
+      expect(properties.driving_directions).toBeNull();
+      expect(properties.latitude).toBeNull();
+      expect(properties.longitude).toBeNull();
     });
   });
 
@@ -513,219 +724,6 @@ describe('BcgwService', () => {
       expect(properties.geographic_district_code).toBe('DCC');
       expect(properties.geographic_district_name).toBe(
         'Chilliwack Natural Resource District',
-      );
-    });
-  });
-
-  describe('findAllShort', () => {
-    it('returns a GeoJSON FeatureCollection', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([makeShortRow()]);
-
-      const result = await service.findAllShort(1);
-
-      expect(result.type).toBe('FeatureCollection');
-      expect(result.features).toHaveLength(1);
-      expect(result.meta).toEqual({
-        total: 1,
-        page: 1,
-        totalPages: 1,
-        pageSize: BcgwService.PAGE_SIZE,
-      });
-    });
-
-    it('returns empty FeatureCollection when no rows', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([]);
-
-      const result = await service.findAllShort(1);
-
-      expect(result.features).toHaveLength(0);
-      expect(result.meta.total).toBe(0);
-      expect(result.meta.totalPages).toBe(0);
-    });
-
-    it('clamps page to minimum 1', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([makeShortRow()]);
-
-      const result = await service.findAllShort(0);
-
-      expect(result.meta.page).toBe(1);
-    });
-
-    it('computes correct offset for page 2', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([]);
-      await service.findAllShort(2);
-
-      const [typedQuery] = prisma.$queryRawTyped.mock.calls[0]!;
-      expect(typedQuery.values).toEqual([
-        BcgwService.PAGE_SIZE,
-        BcgwService.PAGE_SIZE,
-      ]);
-    });
-
-    it('calculates totalPages correctly across multiple pages', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([
-        makeShortRow({ total_count: 2500 }),
-      ]);
-
-      const result = await service.findAllShort(1);
-
-      expect(result.meta.totalPages).toBe(3);
-    });
-  });
-
-  describe('toClosuresShortFeature (via findAllShort)', () => {
-    it('maps all properties correctly', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([makeShortRow()]);
-
-      const { features } = await service.findAllShort(1);
-      const { properties } = features[0]!;
-
-      expect(properties.forest_file_id).toBe('REC204117');
-      expect(properties.project_name).toBe('Aileen Lake');
-      expect(properties.project_type).toBe('SIT - Recreation site');
-      expect(properties.site_location).toBe('PEMBERTON');
-      expect(properties.recreation_district_code).toBe('RDPG');
-      expect(properties.recreation_district_name).toBe(
-        'Prince George-Mackenzie',
-      );
-      expect(properties.org_unit_name).toBe(
-        'Prince George Natural Resource District',
-      );
-      expect(properties.site_description).toBe('A beautiful lake site.');
-      expect(properties.driving_directions).toBe('Turn left at the fork.');
-      expect(properties.latitude).toBe(54.123);
-      expect(properties.longitude).toBe(-123.456);
-    });
-
-    it('converts bigint defined_campsites to number', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([
-        makeShortRow({ defined_campsites: BigInt(12) }),
-      ]);
-
-      const { features } = await service.findAllShort(1);
-
-      expect(typeof features[0]!.properties.defined_campsites).toBe('number');
-      expect(features[0]!.properties.defined_campsites).toBe(12);
-    });
-
-    it('parses shape JSON into geometry object', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([makeShortRow()]);
-
-      const { features } = await service.findAllShort(1);
-
-      expect(features[0]!.geometry).toEqual({
-        type: 'Point',
-        coordinates: [-123.456, 54.123],
-      });
-    });
-
-    it('sets geometry to null when shape is null', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([makeShortRow({ shape: null })]);
-
-      const { features } = await service.findAllShort(1);
-
-      expect(features[0]!.geometry).toBeNull();
-    });
-
-    it('sets closure_ind to N when resource is open', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([
-        makeShortRow({
-          closure_ind: 'N',
-          closure_date: null,
-          closure_type: null,
-        }),
-      ]);
-
-      const { features } = await service.findAllShort(1);
-      const { properties } = features[0]!;
-
-      expect(properties.closure_ind).toBe('N');
-      expect(properties.closure_date).toBeNull();
-      expect(properties.closure_type).toBeNull();
-    });
-
-    it('maps closure fields when resource is closed', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([
-        makeShortRow({
-          closure_ind: 'Y',
-          closure_date: new Date('2024-07-01'),
-          closure_type: 'Wildfire',
-          closure_comment: 'Closed due to wildfire.',
-        }),
-      ]);
-
-      const { features } = await service.findAllShort(1);
-      const { properties } = features[0]!;
-
-      expect(properties.closure_ind).toBe('Y');
-      expect(properties.closure_date).toEqual(new Date('2024-07-01'));
-      expect(properties.closure_type).toBe('Wildfire');
-      expect(properties.closure_comment).toBe('Closed due to wildfire.');
-    });
-
-    it('preserves null optional fields', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([
-        makeShortRow({
-          project_name: null,
-          project_type: null,
-          site_location: null,
-          recreation_district_code: null,
-          recreation_district_name: null,
-          org_unit_name: null,
-          site_description: null,
-          driving_directions: null,
-          latitude: null,
-          longitude: null,
-        }),
-      ]);
-
-      const { features } = await service.findAllShort(1);
-      const { properties } = features[0]!;
-
-      expect(properties.project_name).toBeNull();
-      expect(properties.project_type).toBeNull();
-      expect(properties.site_location).toBeNull();
-      expect(properties.recreation_district_code).toBeNull();
-      expect(properties.org_unit_name).toBeNull();
-      expect(properties.site_description).toBeNull();
-      expect(properties.driving_directions).toBeNull();
-      expect(properties.latitude).toBeNull();
-      expect(properties.longitude).toBeNull();
-    });
-  });
-
-  describe('toFeature (via findAll) — closure indicators', () => {
-    it('sets closure_ind to N when no closure', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([
-        makeRow({ closure_ind: 'N', closure_date: null, closure_type: null }),
-      ]);
-
-      const { features } = await service.findAll(1);
-      const { properties } = features[0]!;
-
-      expect(properties.closure_ind).toBe('N');
-      expect(properties.closure_date).toBeNull();
-      expect(properties.closure_type).toBeNull();
-    });
-
-    it('maps closure fields when resource is closed', async () => {
-      prisma.$queryRawTyped.mockResolvedValue([
-        makeRow({
-          closure_ind: 'Y',
-          closure_date: new Date('2024-07-01'),
-          closure_type: 'Wildfire',
-          closure_comment: 'Closed due to wildfire activity.',
-        }),
-      ]);
-
-      const { features } = await service.findAll(1);
-      const { properties } = features[0]!;
-
-      expect(properties.closure_ind).toBe('Y');
-      expect(properties.closure_date).toEqual(new Date('2024-07-01'));
-      expect(properties.closure_type).toBe('Wildfire');
-      expect(properties.closure_comment).toBe(
-        'Closed due to wildfire activity.',
       );
     });
   });

@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { BcgwController } from './bcgw.controller';
-import { BcgwService } from './bcgw.service';
-import { BcgwFeatureCollectionDto } from './dto/bcgw-recreation-resource.dto';
-import { BcgwClosuresShortFeatureCollectionDto } from './dto/bcgw-closures-short.dto';
-import { BcgwRecreationLinesFeatureCollectionDto } from './dto/bcgw-recreation-lines.dto';
-import { BcgwRecreationPolygonsFeatureCollectionDto } from './dto/bcgw-recreation-polygons.dto';
+import { BcgwController } from '@/bcgw/bcgw.controller';
+import { BcgwService } from '@/bcgw/bcgw.service';
+import { BcgwFeatureCollectionDto } from '@/bcgw/dto/bcgw-recreation-resource.dto';
+import { BcgwClosuresShortFeatureCollectionDto } from '@/bcgw/dto/bcgw-closures-short.dto';
+import { BcgwRecreationLinesFeatureCollectionDto } from '@/bcgw/dto/bcgw-recreation-lines.dto';
+import { BcgwRecreationPolygonsFeatureCollectionDto } from '@/bcgw/dto/bcgw-recreation-polygons.dto';
 
 const emptyMeta = { total: 0, page: 1, totalPages: 0, pageSize: 1000 };
 
