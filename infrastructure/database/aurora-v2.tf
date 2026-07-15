@@ -29,7 +29,8 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 data "aws_rds_engine_version" "postgresql" {
   engine  = "aurora-postgresql"
-  version = "16.4"
+  version = "16"
+  latest  = true
 }
 
 resource "aws_db_parameter_group" "db_postgresql" {
