@@ -1,8 +1,6 @@
 import { Button, Card, Stack } from 'react-bootstrap';
-import { Link } from '@tanstack/react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFile, faFilter } from '@fortawesome/free-solid-svg-icons';
-import { ROUTE_PATHS } from '@/constants/routes';
+import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { PageLayout } from '@/components/page-layout';
 import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchController';
 import { useAdminSearchColumns } from '@/pages/search/hooks/useAdminSearchColumns';
@@ -64,17 +62,6 @@ export function SearchPage() {
                 gap={3}
                 className="justify-content-end flex-wrap"
               >
-                <Link
-                  className="control-button btn btn-outline-primary d-inline-flex align-items-center gap-2"
-                  to={ROUTE_PATHS.EXPORTS}
-                >
-                  <FontAwesomeIcon
-                    icon={faFile}
-                    className="d-none d-sm-inline"
-                    aria-hidden="true"
-                  />
-                  Data export
-                </Link>
                 <ColumnVisibilityMenu
                   visibleColumns={columns.visibleColumns}
                   onToggle={columns.toggleColumn}

@@ -12,6 +12,12 @@ export const menuLinks = [
     icon: '/images/sidebar/search-icon.svg',
     iconAlt: 'Search Icon',
   },
+  {
+    url: '/exports',
+    text: 'Export',
+    icon: '/images/sidebar/export-icon.svg',
+    iconAlt: 'Export Icon',
+  },
 ];
 
 export const externalLinks = [
