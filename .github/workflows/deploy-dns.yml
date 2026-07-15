@@ -1,0 +1,67 @@
+# Standalone, gated DNS deploy.
+#
+# The DNS Terraform (Route 53 child zones for dev/test + NS delegation in the
+# prod parent zone) is decoupled from the main app-deploy pipeline so it is not
+# blocked by the app deploy's approval gates.
+#
+# It runs only when a merge to main changes the DNS Terraform (see `paths`
+# below), or when triggered manually from the Actions tab via "Run workflow".
+# In either case nothing is applied to AWS until the `review-dns-deployment`
+# gate is approved by a required reviewer.
+#
+# Ordering matters: the dev and test child zones must be created first so their
+# name servers can be fed into the prod parent zone to create the NS delegation
+# records.
+
+name: Deploy DNS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'infrastructure/dns/**'
+      - 'infrastructure/dns-env/**'
+      - 'terraform/dns/**'
+      - '.github/workflows/deploy-dns.yml'
+
+jobs:
+  review-dns-deployment:
+    name: Review DNS deployment
+    runs-on: ubuntu-24.04
+    environment: review-dns-deployment
+    steps:
+      - name: Review DNS Deployment
+        run: echo "Reviewing DNS Deployment"
+
+  deploy-dns-dev:
+    name: Deploy DNS to dev
+    needs: [review-dns-deployment]
+    uses: ./.github/workflows/.aws-deployer.yml
+    with:
+      environment_name: dev
+      command: apply
+      working_directory: dns
+    secrets: inherit
+
+  deploy-dns-test:
+    name: Deploy DNS to test
+    needs: [deploy-dns-dev]
+    uses: ./.github/workflows/.aws-deployer.yml
+    with:
+      environment_name: test
+      command: apply
+      working_directory: dns
+    secrets: inherit
+
+  deploy-dns-prod:
+    name: Deploy DNS to prod
+    needs: [deploy-dns-dev, deploy-dns-test]
+    uses: ./.github/workflows/.aws-deployer.yml
+    with:
+      environment_name: prod
+      command: apply
+      working_directory: dns
+      dev_zone_name_servers: ${{ needs.deploy-dns-dev.outputs.ZONE_NAME_SERVERS }}
+      test_zone_name_servers: ${{ needs.deploy-dns-test.outputs.ZONE_NAME_SERVERS }}
+    secrets: inherit
