@@ -82,7 +82,7 @@ describe('RecResourceAdvisoriesSection', () => {
       });
       expect(link).toHaveAttribute(
         'href',
-        'https://alpha-test-staff.bcparks.ca/public-advisories?idp=idir',
+        'https://alpha-test-staff.bcparks.ca/?idp=idir',
       );
     });
 
@@ -92,7 +92,7 @@ describe('RecResourceAdvisoriesSection', () => {
       const link = screen.getByRole('link', {
         name: /advisories and closures tool/i,
       });
-      expect(link).toHaveAttribute('href', '/public-advisories?idp=idir');
+      expect(link).toHaveAttribute('href', '/?idp=idir');
     });
 
     it('opens ACT Tool link in a new tab', () => {
