@@ -18,6 +18,7 @@ interface FormatRecreationResourceDetailResultsOptions {
     | RecreationResourceGeometry;
   rstStorageCloudfrontUrl?: string;
   imageSizeCodes?: RecreationResourceImageSize[];
+  useAdvisoryStatus?: boolean;
 }
 
 // Top-level recreation fee codes. Sub-categorization (e.g. camping vs cabin
@@ -100,6 +101,7 @@ export const formatRecreationResourceDetailResults = ({
     RecreationResourceImageSize.ORIGINAL,
     RecreationResourceImageSize.PREVIEW,
   ],
+  useAdvisoryStatus = false,
 }: FormatRecreationResourceDetailResultsOptions): RecreationResourceDetailDto => {
   const { recreation_district_code, ...result } = recResource;
   const RST_STORAGE_CLOUDFRONT_URL = rstStorageCloudfrontUrl;
@@ -198,5 +200,10 @@ export const formatRecreationResourceDetailResults = ({
     recreation_resource_reservation_info:
       result.recreation_resource_reservation_info,
     advisories: result.act_advisories_flat?.map((advisory) => advisory),
+    top_access_status_grouplabel: useAdvisoryStatus
+      ? (result.act_advisories_flat?.[0]?.access_status_grouplabel ?? null)
+      : result.recreation_status?.status_code === 2
+        ? 'Closed'
+        : 'Open',
   };
 };

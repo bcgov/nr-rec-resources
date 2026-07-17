@@ -45,7 +45,7 @@ describe('formatSearchResults function', () => {
         },
         recreation_resource_images: [],
         advisory_count: 0,
-        top_access_status_grouplabel: null,
+        top_access_status_grouplabel: 'Open',
       },
     ]);
   });
@@ -90,17 +90,36 @@ describe('formatSearchResults function', () => {
     expect(results[0].advisory_count).toBe(3);
   });
 
-  it('should return top_access_status_grouplabel as null when null', () => {
-    const results = formatSearchResults([
-      { ...response[0], top_access_status_grouplabel: null },
-    ]);
+  it('should return top_access_status_grouplabel as null when null with advisory status enabled', () => {
+    const results = formatSearchResults(
+      [{ ...response[0], top_access_status_grouplabel: null }],
+      '',
+      true,
+    );
 
     expect(results[0].top_access_status_grouplabel).toBeNull();
   });
 
-  it('should pass through a non-null top_access_status_grouplabel', () => {
+  it('should pass through a non-null top_access_status_grouplabel with advisory status enabled', () => {
+    const results = formatSearchResults(
+      [{ ...response[0], top_access_status_grouplabel: 'Closed' }],
+      '',
+      true,
+    );
+
+    expect(results[0].top_access_status_grouplabel).toBe('Closed');
+  });
+
+  it('should return top_access_status_grouplabel as Closed when status_code is 2 in legacy mode', () => {
     const results = formatSearchResults([
-      { ...response[0], top_access_status_grouplabel: 'Closed' },
+      {
+        ...response[0],
+        recreation_status: {
+          status_code: 2,
+          description: 'Closed',
+          comment: null,
+        },
+      },
     ]);
 
     expect(results[0].top_access_status_grouplabel).toBe('Closed');

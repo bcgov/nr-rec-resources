@@ -616,6 +616,15 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     required: false,
   })
   advisories?: AdvisoryDto[];
+
+  @ApiProperty({
+    description:
+      'Group label of the highest-priority advisory access status, or status derived from recreation_status when advisory system is disabled',
+    example: 'Closed',
+    required: false,
+    nullable: true,
+  })
+  top_access_status_grouplabel?: string | null;
 }
 
 /**

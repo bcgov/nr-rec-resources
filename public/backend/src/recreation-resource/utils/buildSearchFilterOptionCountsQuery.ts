@@ -10,6 +10,7 @@ export interface BuildFilterOptionCountsQueryOptions {
   filterTypes?: FilterTypes;
   lat?: number;
   lon?: number;
+  useAdvisoryStatus?: boolean;
 }
 
 export function buildFilterOptionCountsQuery({
@@ -20,6 +21,7 @@ export function buildFilterOptionCountsQuery({
   filterTypes,
   lat,
   lon,
+  useAdvisoryStatus = false,
 }: BuildFilterOptionCountsQueryOptions): Prisma.Sql {
   const textSearchCondition = searchText
     ? Prisma.sql` AND (name ilike ${'%' + searchText + '%'} or closest_community ilike ${'%' + searchText + '%'})`
@@ -40,7 +42,7 @@ export function buildFilterOptionCountsQuery({
     SELECT rec_resource_id, district_code, access_code,
            recreation_resource_type_code, has_toilets, has_tables,
            recreation_status, is_fees, is_reservable
-    FROM recreation_resource_search_view
+    FROM recreation_resource_search_view rrsv
     ${whereClause}
     LIMIT 5000
   ),
@@ -56,13 +58,13 @@ export function buildFilterOptionCountsQuery({
   ),
   type_filter_resources AS (
     SELECT rec_resource_id, recreation_resource_type_code
-    FROM recreation_resource_search_view
+    FROM recreation_resource_search_view rrsv
     ${whereClauseExcludingType}
     LIMIT 5000
   ),
   district_filter_resources AS (
     SELECT rec_resource_id, district_code
-    FROM recreation_resource_search_view
+    FROM recreation_resource_search_view rrsv
     ${whereClauseExcludingDistrict}
     LIMIT 5000
   ),
@@ -116,26 +118,77 @@ export function buildFilterOptionCountsQuery({
     ORDER BY acv.rec_resource_type_code DESC
   ),
   status_counts AS (
-    WITH status_values AS (
-      SELECT DISTINCT
-        COALESCE(recreation_status->>'description', 'Open') AS status_desc
-      FROM recreation_resource_search_view
-      WHERE display_on_public_site = true
-    )
     SELECT
-      LOWER(sv.status_desc) AS code,
-      sv.status_desc AS description,
+      'open' AS code,
+      'Open' AS description,
       CASE
         WHEN ${filterTypes?.isOnlyStatusFilter ?? false} THEN (
-          SELECT COUNT(*) FROM recreation_resource_search_view
-          WHERE COALESCE(recreation_status->>'description', 'Open') = sv.status_desc ${extraFilters}
+          SELECT COUNT(*) FROM recreation_resource_search_view rrsv
+          WHERE ${
+            useAdvisoryStatus
+              ? Prisma.sql`(
+                NOT EXISTS (
+                  SELECT 1 FROM rst.act_advisories_flat aaf
+                  WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
+                )
+                OR (
+                  SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
+                  FROM rst.act_advisories_flat aaf
+                  WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
+                ) = ANY(ARRAY['Open', 'Seasonal restrictions', 'Visit with caution', 'Limited access'])
+              )`
+              : Prisma.sql`((recreation_status->>'status_code')::int != 2 OR recreation_status IS NULL)`
+          } ${extraFilters}
         )::INT
-        ELSE COUNT(CASE WHEN fr.rec_resource_id IS NOT NULL AND COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc THEN 1 END)::INT
+        ELSE (
+          SELECT COUNT(*) FROM filtered_resources fr
+          WHERE ${
+            useAdvisoryStatus
+              ? Prisma.sql`(
+                NOT EXISTS (
+                  SELECT 1 FROM rst.act_advisories_flat aaf
+                  WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
+                )
+                OR (
+                  SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
+                  FROM rst.act_advisories_flat aaf
+                  WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
+                ) = ANY(ARRAY['Open', 'Seasonal restrictions', 'Visit with caution', 'Limited access'])
+              )`
+              : Prisma.sql`((fr.recreation_status->>'status_code')::int != 2 OR fr.recreation_status IS NULL)`
+          }
+        )::INT
       END AS count
-    FROM status_values sv
-    LEFT JOIN filtered_resources fr ON COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc
-    GROUP BY sv.status_desc
-    ORDER BY code
+    UNION ALL
+    SELECT
+      'closed' AS code,
+      'Closed' AS description,
+      CASE
+        WHEN ${filterTypes?.isOnlyStatusFilter ?? false} THEN (
+          SELECT COUNT(*) FROM recreation_resource_search_view rrsv
+          WHERE ${
+            useAdvisoryStatus
+              ? Prisma.sql`(
+                SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
+                FROM rst.act_advisories_flat aaf
+                WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
+              ) = ANY(ARRAY['Closed', 'Restricted'])`
+              : Prisma.sql`(recreation_status->>'status_code')::int = 2`
+          } ${extraFilters}
+        )::INT
+        ELSE (
+          SELECT COUNT(*) FROM filtered_resources fr
+          WHERE ${
+            useAdvisoryStatus
+              ? Prisma.sql`(
+                SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
+                FROM rst.act_advisories_flat aaf
+                WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
+              ) = ANY(ARRAY['Closed', 'Restricted'])`
+              : Prisma.sql`(fr.recreation_status->>'status_code')::int = 2`
+          }
+        )::INT
+      END AS count
   ),
   fees_counts AS (
     SELECT
@@ -165,7 +218,7 @@ export function buildFilterOptionCountsQuery({
   extent_calc AS (
     SELECT
       public.ST_Extent(recreation_site_point) AS extent_geom
-    FROM recreation_resource_search_view
+    FROM recreation_resource_search_view rrsv
     ${whereClause}
   )
   SELECT

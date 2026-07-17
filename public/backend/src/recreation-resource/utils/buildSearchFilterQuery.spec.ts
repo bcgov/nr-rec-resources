@@ -84,8 +84,8 @@ describe('buildSearchFilterQuery', () => {
   it('should add status filter correctly', () => {
     const result = buildSearchFilterQuery({ status: 'open_closed' });
     const queryString = getQueryString(result);
-    expect(queryString).toContain('recreation_status');
-    expect(result.values).toEqual(['open', 'closed']);
+    expect(queryString).toContain("recreation_status->>'status_code'");
+    expect(result.values).toEqual([]);
   });
 
   it('should handle all filters combined', () => {
@@ -111,7 +111,7 @@ describe('buildSearchFilterQuery', () => {
     );
     expect(queryString).toContain('jsonb_array_elements(recreation_structure)');
     expect(queryString).toContain(
-      "recreation_status IS NULL OR recreation_status->>'description' IS NULL",
+      "(recreation_status->>'status_code')::int != 2",
     );
 
     const expectedValues = [
@@ -136,7 +136,6 @@ describe('buildSearchFilterQuery', () => {
       2,
       '%F1%',
       '%F2%',
-      'open',
     ];
     expect(result.values).toEqual(expectedValues);
   });
@@ -170,5 +169,51 @@ describe('buildSearchFilterQuery', () => {
     expect(queryString).toContain('is_reservable = true');
     expect(queryString).toContain('is_fees = true');
     expect(queryString).toContain('(is_fees = false OR is_fees IS NULL)');
+  });
+
+  it('should use advisory correlated subquery for open status when useAdvisoryStatus is true', () => {
+    const result = buildSearchFilterQuery({
+      status: 'open',
+      useAdvisoryStatus: true,
+    });
+    const queryString = getQueryString(result);
+    expect(queryString).toContain('act_advisories_flat');
+    expect(queryString).toContain('NOT EXISTS');
+    expect(queryString).toContain('array_agg');
+  });
+
+  it('should use advisory correlated subquery for closed status when useAdvisoryStatus is true', () => {
+    const result = buildSearchFilterQuery({
+      status: 'closed',
+      useAdvisoryStatus: true,
+    });
+    const queryString = getQueryString(result);
+    expect(queryString).toContain('act_advisories_flat');
+    expect(queryString).toContain('array_agg');
+    expect(result.values).toContain('Closed');
+  });
+
+  it('should use legacy status_code filter for open when useAdvisoryStatus is false', () => {
+    const result = buildSearchFilterQuery({
+      status: 'open',
+      useAdvisoryStatus: false,
+    });
+    const queryString = getQueryString(result);
+    expect(queryString).toContain(
+      "(recreation_status->>'status_code')::int != 2",
+    );
+    expect(queryString).not.toContain('act_advisories_flat');
+  });
+
+  it('should use legacy status_code filter for closed when useAdvisoryStatus is false', () => {
+    const result = buildSearchFilterQuery({
+      status: 'closed',
+      useAdvisoryStatus: false,
+    });
+    const queryString = getQueryString(result);
+    expect(queryString).toContain(
+      "(recreation_status->>'status_code')::int = 2",
+    );
+    expect(queryString).not.toContain('act_advisories_flat');
   });
 });

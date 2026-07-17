@@ -227,6 +227,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   advisories?: Array<AdvisoryDto>;
+  /**
+   * Group label of the highest-priority advisory access status, or status derived from recreation_status when advisory system is disabled
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
+   */
+  top_access_status_grouplabel?: string | null;
 }
 
 /**
@@ -383,6 +389,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['advisories'] == null
         ? undefined
         : (json['advisories'] as Array<any>).map(AdvisoryDtoFromJSON),
+    top_access_status_grouplabel:
+      json['top_access_status_grouplabel'] == null
+        ? undefined
+        : json['top_access_status_grouplabel'],
   };
 }
 
@@ -462,5 +472,9 @@ export function RecreationResourceDetailDtoToJSONTyped(
       value['advisories'] == null
         ? undefined
         : (value['advisories'] as Array<any>).map(AdvisoryDtoToJSON),
+    top_access_status_grouplabel:
+      value['top_access_status_grouplabel'] == null
+        ? undefined
+        : value['top_access_status_grouplabel'],
   };
 }

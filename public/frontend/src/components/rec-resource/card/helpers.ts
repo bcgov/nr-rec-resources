@@ -8,7 +8,7 @@ export interface RecResourceCardResource {
   name: string;
   recreation_activity: Array<RecreationActivityDto>;
   closest_community: string;
-  recreation_status: { status_code: number; description: string };
+  top_access_status_grouplabel?: string | null;
   rec_resource_type: string;
   recreation_resource_images?: Array<RecreationResourceImageDto>;
   advisory_count: number;

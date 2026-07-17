@@ -14,8 +14,7 @@ interface ResourceHeaderProps {
   recResourceType: string;
   recResourceId: string;
   closestCommunity?: string;
-  statusCode?: number;
-  statusDescription?: string;
+  topAdvisoryGrouplabel?: string | null;
   isRecreationSite: boolean;
   recResource: RecreationResourceDetailDto;
   isMd: boolean;
@@ -28,14 +27,14 @@ const ResourceHeader = ({
   recResourceType,
   recResourceId,
   closestCommunity,
-  statusCode,
-  statusDescription,
+  topAdvisoryGrouplabel,
   isRecreationSite,
   recResource,
   isMd,
   recreationDistrict,
   advisoriesCount,
 }: ResourceHeaderProps) => {
+  const statusDescription = topAdvisoryGrouplabel ?? 'Open';
   const districtImage =
     recreationDistrict?.district_code &&
     districtImageMap[recreationDistrict.district_code];
@@ -58,13 +57,11 @@ const ResourceHeader = ({
           />{' '}
           <span className="capitalize">{closestCommunity?.toLowerCase()}</span>
         </div>
-        {statusCode && statusDescription && (
-          <Status
-            description={statusDescription}
-            statusCode={statusCode}
-            advisoriesCount={advisoriesCount}
-          />
-        )}
+        <Status
+          grouplabel={topAdvisoryGrouplabel}
+          description={statusDescription}
+          advisoriesCount={advisoriesCount}
+        />
         {isRecreationSite && recResource && (
           <RecResourceReservation recResource={recResource} />
         )}

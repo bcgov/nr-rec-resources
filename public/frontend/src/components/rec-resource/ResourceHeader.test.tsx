@@ -56,6 +56,7 @@ describe('ResourceHeader', () => {
         isRecreationSite={false}
         recResource={mockRecreationResource}
         isMd={false}
+        advisoriesCount={0}
       />,
     );
 
@@ -64,37 +65,37 @@ describe('ResourceHeader', () => {
     expect(screen.getByText('kelowna')).toBeInTheDocument();
   });
 
-  it('should render Status component when statusCode and statusDescription provided', () => {
+  it('should always render the Status component', () => {
     render(
       <ResourceHeader
         formattedName="Test Resource"
         recResourceType="Campground"
         recResourceId="RES-123"
-        statusCode={1}
-        statusDescription="Temporarily Closed"
         isRecreationSite={false}
         recResource={mockRecreationResource}
         isMd={false}
+        advisoriesCount={0}
       />,
     );
 
     expect(screen.getByTestId('status-component')).toBeInTheDocument();
   });
 
-  it('should not render Status component without both statusCode and statusDescription', () => {
+  it('should pass topAdvisoryGrouplabel to Status component', () => {
     render(
       <ResourceHeader
         formattedName="Test Resource"
         recResourceType="Campground"
         recResourceId="RES-123"
-        statusCode={1}
+        topAdvisoryGrouplabel="Seasonal restrictions"
         isRecreationSite={false}
         recResource={mockRecreationResource}
         isMd={false}
+        advisoriesCount={2}
       />,
     );
 
-    expect(screen.queryByTestId('status-component')).not.toBeInTheDocument();
+    expect(screen.getByTestId('status-component')).toBeInTheDocument();
   });
 
   it('should render RecResourceReservation when isRecreationSite is true', () => {
@@ -106,6 +107,7 @@ describe('ResourceHeader', () => {
         isRecreationSite={true}
         recResource={mockRecreationResource}
         isMd={false}
+        advisoriesCount={0}
       />,
     );
 
@@ -121,6 +123,7 @@ describe('ResourceHeader', () => {
         isRecreationSite={false}
         recResource={mockRecreationResource}
         isMd={false}
+        advisoriesCount={0}
       />,
     );
 
@@ -139,6 +142,7 @@ describe('ResourceHeader', () => {
         recResource={mockRecreationResource}
         isMd={true}
         recreationDistrict={mockRecreationDistrict}
+        advisoriesCount={0}
       />,
     );
 
@@ -158,6 +162,7 @@ describe('ResourceHeader', () => {
         recResource={mockRecreationResource}
         isMd={false}
         recreationDistrict={mockRecreationDistrict}
+        advisoriesCount={0}
       />,
     );
 
@@ -176,6 +181,7 @@ describe('ResourceHeader', () => {
         isRecreationSite={false}
         recResource={mockRecreationResource}
         isMd={true}
+        advisoriesCount={0}
       />,
     );
 
@@ -192,12 +198,12 @@ describe('ResourceHeader', () => {
         recResourceType="Campground"
         recResourceId="RES-999"
         closestCommunity="Vancouver"
-        statusCode={1}
-        statusDescription="Temporarily Closed"
+        topAdvisoryGrouplabel="Closed"
         isRecreationSite={true}
         recResource={mockRecreationResource}
         isMd={true}
         recreationDistrict={mockRecreationDistrict}
+        advisoriesCount={3}
       />,
     );
 

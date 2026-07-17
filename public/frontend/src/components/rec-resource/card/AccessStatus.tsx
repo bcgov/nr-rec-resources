@@ -1,12 +1,7 @@
-import { BlueStatusIcon, RedStatusIcon } from './StatusIcons';
-
-const STATUS_ICONS: Record<number, React.ReactElement> = {
-  1: <BlueStatusIcon />,
-  2: <RedStatusIcon />,
-};
+import { getStatusIcon } from './getStatusIcon';
 
 interface AccessStatusProps {
-  statusCode: number;
+  grouplabel?: string | null;
   statusDescription: string;
   advisoryCount: number;
   slug: string;
@@ -15,16 +10,14 @@ interface AccessStatusProps {
 }
 
 export default function AccessStatus({
-  statusCode,
+  grouplabel,
   statusDescription,
   advisoryCount,
   slug,
   hideComma = false,
   punctuation,
 }: AccessStatusProps) {
-  const icon = STATUS_ICONS[statusCode];
-
-  if (!icon) return null;
+  const icon = getStatusIcon(grouplabel);
 
   return (
     <div className="access-status-icon">
