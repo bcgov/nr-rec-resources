@@ -82,12 +82,14 @@ services:
       NODE_ENV: production
       APP_ENV: local
       # KEYCLOAK_AUTH_SERVER_URL uses Docker-internal hostname for JWKS fetch.
-      # KEYCLOAK_ISSUER uses localhost because the JWT iss claim is set by Keycloak
-      # based on the URL the browser used — http://localhost:8080.
+      # KEYCLOAK_ISSUER must match the JWT iss claim, which Keycloak sets from the
+      # URL the browser used — http://127.0.0.1:8080. It must stay same-site with
+      # the app origin (127.0.0.1:3001) so keycloak-js's session-status iframe is
+      # not treated as a blocked third-party context.
       KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: rst-local
       KEYCLOAK_CLIENT_ID: rst-admin-local
-      KEYCLOAK_ISSUER: http://localhost:8080/realms/rst-local
+      KEYCLOAK_ISSUER: http://127.0.0.1:8080/realms/rst-local
       # ACT_CSS_CLIENT_ID required by config validation; not exercised by e2e tests
       ACT_CSS_CLIENT_ID: rst-admin-local-act
       # S3 vars required by config validation; not exercised by auth/search e2e tests
@@ -131,11 +133,17 @@ services:
       BACKEND_URL: http://admin-backend:8001
       LOG_LEVEL: INFO
       # No CloudFront locally, so Caddy enforces CSP. keycloak-js needs to frame
-      # and call the Keycloak origin (browser uses localhost:8080).
-      KEYCLOAK_CSP_ORIGIN: http://localhost:8080
+      # and call the Keycloak origin (browser uses 127.0.0.1:8080).
+      KEYCLOAK_CSP_ORIGIN: http://127.0.0.1:8080
       # These are written to /srv/config.js by entrypoint.sh and loaded by the browser.
-      # Must use localhost:8080 — the browser connects from the host, not from inside Docker.
-      VITE_KEYCLOAK_AUTH_SERVER_URL: http://localhost:8080
+      # Must use 127.0.0.1:8080 (not localhost) so it is same-site with the app
+      # origin (the e2e runner serves/visits the app at 127.0.0.1:3001). keycloak-js's
+      # session-status iframe (checkLoginIframe) posts a message to this origin and
+      # waits — with no timeout — for a reply; a cross-site (localhost vs 127.0.0.1)
+      # iframe is blocked as a third-party context by Chrome, so init() would hang
+      # forever on the loading spinner. The browser reaches this from the host, where
+      # 127.0.0.1:8080 is the mapped port.
+      VITE_KEYCLOAK_AUTH_SERVER_URL: http://127.0.0.1:8080
       VITE_KEYCLOAK_REALM: rst-local
       VITE_KEYCLOAK_CLIENT_ID: rst-admin-local
     ports: ['3001:3001']
