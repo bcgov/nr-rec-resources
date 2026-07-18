@@ -8,12 +8,13 @@ export const buildActUrl = (
   const normalizedPath = normalizePath(path);
   const queryString = new URLSearchParams(query).toString();
 
-  if (!baseUrl) {
+  let url: URL;
+  try {
+    url = new URL(baseUrl);
+  } catch {
     const relativePath = normalizedPath ? `/${normalizedPath}` : '/';
     return queryString ? `${relativePath}?${queryString}` : relativePath;
   }
-
-  const url = new URL(baseUrl);
 
   if (normalizedPath) {
     const basePath = url.pathname.replace(/\/$/, '');
