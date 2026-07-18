@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Playwright storageState files — contain session tokens, never commit
+e2e/auth/.admin.storageState.json
+e2e/auth/.viewer.storageState.json
+
+# Local e2e credentials — never commit
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

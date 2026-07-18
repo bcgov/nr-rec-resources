@@ -20,9 +20,9 @@ export const LoginPage = () => {
       {/* Left Panel - Information */}
       <div className="login-info bg-white overflow-auto d-flex flex-column">
         <div className="login-info__welcome mb-5">
-          <h5 className="login-info__page-header mb-5 fw-bold">
+          <p className="login-info__page-header mb-5 fw-bold">
             Recreation Sites and Trails Staff Tool
-          </h5>
+          </p>
           <h1 className="fs-2 fw-bold text-primary mb-5">
             Welcome to RecSpace
           </h1>
@@ -54,9 +54,9 @@ export const LoginPage = () => {
 
         <div className="login-info__contact d-flex flex-column shadow-sm rounded">
           <div className="login-info__contact-header d-flex align-items-center px-3 rounded-top">
-            <h3 className="fs-5 fw-semibold text-dark mb-0">
+            <h2 className="fs-5 fw-semibold text-dark mb-0">
               Contact Information
-            </h3>
+            </h2>
           </div>
           <div className="login-info__contact-content d-flex flex-column bg-white p-4 rounded-bottom">
             <p className="text-dark mb-0 lh-base mb-4">

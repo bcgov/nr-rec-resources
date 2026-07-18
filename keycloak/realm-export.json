@@ -1,0 +1,99 @@
+{
+  "realm": "rst-local",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "clients": [
+    {
+      "clientId": "rst-admin-local",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:3001/*", "http://127.0.0.1:3001/*"],
+      "webOrigins": ["http://localhost:3001", "http://127.0.0.1:3001"],
+      "protocolMappers": [
+        {
+          "name": "client-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "client_roles",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "multivalued": "true",
+            "usermodel.clientRoleMapping.clientId": "rst-admin-local"
+          }
+        },
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "rst-admin-local",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "idir_username",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "username",
+            "claim.name": "idir_username",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "client": {
+      "rst-admin-local": [
+        { "name": "rst-admin", "clientRole": true },
+        { "name": "rst-viewer", "clientRole": true }
+      ]
+    }
+  },
+  "users": [
+    {
+      "username": "e2e-admin",
+      "enabled": true,
+      "email": "e2e-admin@example.com",
+      "emailVerified": true,
+      "firstName": "E2E",
+      "lastName": "Admin",
+      "credentials": [
+        { "type": "password", "value": "TestPass1!", "temporary": false }
+      ],
+      "clientRoles": {
+        "rst-admin-local": ["rst-admin", "rst-viewer"]
+      }
+    },
+    {
+      "username": "e2e-viewer",
+      "enabled": true,
+      "email": "e2e-viewer@example.com",
+      "emailVerified": true,
+      "firstName": "E2E",
+      "lastName": "Viewer",
+      "credentials": [
+        { "type": "password", "value": "TestPass1!", "temporary": false }
+      ],
+      "clientRoles": {
+        "rst-admin-local": ["rst-viewer"]
+      }
+    }
+  ]
+}
