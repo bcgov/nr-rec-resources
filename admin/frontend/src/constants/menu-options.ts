@@ -1,6 +1,8 @@
+import { buildActLoginUrl } from '@/utils/actUrls';
+
 export const EXTERNAL_LINKS = {
   FTA: 'https://apps.nrs.gov.bc.ca/int/fta/',
-  ADVISORIES_TOOL: import.meta.env.VITE_STAFF_ADMIN_URL,
+  ADVISORIES_TOOL: buildActLoginUrl(import.meta.env.VITE_STAFF_ADMIN_URL),
   ONBOARDING:
     'https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/RecSpace+Onboarding',
 } as const;
@@ -11,6 +13,12 @@ export const menuLinks = [
     text: 'Search',
     icon: '/images/sidebar/search-icon.svg',
     iconAlt: 'Search Icon',
+  },
+  {
+    url: '/exports',
+    text: 'Export',
+    icon: '/images/sidebar/export-icon.svg',
+    iconAlt: 'Export Icon',
   },
 ];
 

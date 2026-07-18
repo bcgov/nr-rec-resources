@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Stack } from 'react-bootstrap';
 import { RecreationResourceAdvisoryDto } from '@/services/recreation-resource-admin';
 import { AdvisoryCard } from './AdvisoryCard';
+import { buildActLoginUrl } from '@/utils/actUrls';
 import './RecResourceAdvisoriesSection.scss';
 
 type RecResourceAdvisoriesSectionProps = {
@@ -13,7 +14,7 @@ export const RecResourceAdvisoriesSection = ({
   advisories,
 }: RecResourceAdvisoriesSectionProps) => {
   const staffAdminUrl = import.meta.env.VITE_STAFF_ADMIN_URL ?? '';
-  const actToolHref = `${staffAdminUrl}/public-advisories?idp=idir`;
+  const actToolHref = buildActLoginUrl(staffAdminUrl);
 
   return (
     <Stack direction="vertical" gap={4}>

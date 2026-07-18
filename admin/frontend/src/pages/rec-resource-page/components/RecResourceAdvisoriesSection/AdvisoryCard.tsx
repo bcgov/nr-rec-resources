@@ -19,6 +19,7 @@ import {
 import redAlertIcon from '@/assets/icons/red-alert.svg';
 import { RecreationResourceAdvisoryDto } from '@/services/recreation-resource-admin';
 import { formatDateFull, formatDateReadable } from '@shared/utils';
+import { buildActAdvisoryEditUrl } from '@/utils/actUrls';
 
 type AdvisoryCardProps = {
   advisory: RecreationResourceAdvisoryDto;
@@ -81,7 +82,10 @@ export const AdvisoryCard = ({
     return start;
   })();
 
-  const editHref = `${staffAdminUrl}/advisory-link/${advisory.advisory_number}?idp=idir`;
+  const editHref = buildActAdvisoryEditUrl(
+    staffAdminUrl,
+    advisory.advisory_number,
+  );
 
   return (
     <Card className="border">
