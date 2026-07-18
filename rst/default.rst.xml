@@ -576,8 +576,8 @@
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="9" name="saturday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="10" name="sunday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="recreation_fee_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12">
-            <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
             <parent column="recreation_fee_code" foreignKey="recreation_fee_recreation_fee_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_code"/>
+            <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
          </column>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="12" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
