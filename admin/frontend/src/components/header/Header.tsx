@@ -101,7 +101,7 @@ export const Header = () => {
 
             <Image
               src="/images/RST_nav_logo.svg"
-              alt="Recreation Sites and Trails BC Logo mobile"
+              alt="Recreation Sites and Trails BC Logo"
               className="d-none d-lg-block header__logo"
             />
           </>

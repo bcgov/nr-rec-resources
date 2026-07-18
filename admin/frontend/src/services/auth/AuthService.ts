@@ -22,10 +22,19 @@ export class AuthService {
   private readonly keycloak: Keycloak;
 
   private constructor() {
+    const runtimeConfig = (
+      window as Window & { __CONFIG__?: Record<string, string> }
+    ).__CONFIG__;
+
     const keycloakConfig = {
-      url: import.meta.env.VITE_KEYCLOAK_AUTH_SERVER_URL,
-      realm: import.meta.env.VITE_KEYCLOAK_REALM,
-      clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
+      url:
+        runtimeConfig?.keycloakUrl ||
+        import.meta.env.VITE_KEYCLOAK_AUTH_SERVER_URL,
+      realm:
+        runtimeConfig?.keycloakRealm || import.meta.env.VITE_KEYCLOAK_REALM,
+      clientId:
+        runtimeConfig?.keycloakClientId ||
+        import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
     };
 
     if (
