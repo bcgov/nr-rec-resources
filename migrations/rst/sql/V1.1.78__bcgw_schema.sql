@@ -38,19 +38,18 @@ campsite_counts AS (
   FROM rst.recreation_defined_campsite
   GROUP BY rec_resource_id
 ),
+-- Closure attributes sourced from FTA via rst.recreation_status (populated from
+-- fta.recreation_comment where rec_comment_type_code = 'CLOS'). Mirrors the BCGW
+-- FTEN_RECREATION_CMMTS_FLAT_MV: the closure comment/date are surfaced only when
+-- the site is closed (closure_ind = 'Y', i.e. status_code = 2). FTA has no closure
+-- "type", so closure_type is emitted as NULL below (matching the BCGW source).
 closure AS (
-  SELECT DISTINCT ON (rec_resource_id)
-    rec_resource_id,
-    CASE
-      WHEN access_status_grouplabel IN ('Closed', 'Restricted') THEN 'Y'
-      ELSE 'N'
-    END                                                     AS closure_ind,
-    advisory_date::date                                     AS closure_date,
-    event_type                                              AS closure_type,
-    regexp_replace(description, '<[^>]+>', '', 'g')         AS closure_comment
-  FROM rst.act_advisories_flat
-  WHERE advisory_status = 'Published'
-  ORDER BY rec_resource_id, listing_rank DESC, urgency_sequence DESC, access_status_precedence ASC, updated_date DESC, advisory_date DESC, event_type_precedence ASC
+  SELECT
+    rs.rec_resource_id,
+    CASE WHEN rs.status_code = 2 THEN 'Y' ELSE 'N' END      AS closure_ind,
+    CASE WHEN rs.status_code = 2 THEN rs.comment_date END   AS closure_date,
+    CASE WHEN rs.status_code = 2 THEN rs.comment END        AS closure_comment
+  FROM rst.recreation_status rs
 )
 SELECT
   rr.rec_resource_id                                                    AS forest_file_id,
@@ -60,7 +59,7 @@ SELECT
   rr.project_established_date,
   COALESCE(c.closure_ind, 'N')                                          AS closure_ind,
   c.closure_date,
-  c.closure_type,
+  NULL::varchar(100)                                                    AS closure_type,
   c.closure_comment,
   CASE WHEN rr.display_on_public_site THEN 'Y' ELSE 'N' END            AS recreation_view_ind,
   rr.rec_status_code                                                    AS file_status_st,

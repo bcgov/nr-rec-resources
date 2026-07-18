@@ -13,6 +13,12 @@ ALTER TABLE rst.recreation_driving_direction
 COMMENT ON COLUMN rst.recreation_driving_direction.driving_directions_date IS
   'Date on which the driving directions comment was entered. Sourced from fta.recreation_comment.comment_date (rec_comment_type_code = ''DRIV'').';
 
+ALTER TABLE rst.recreation_status
+  ADD COLUMN IF NOT EXISTS comment_date date;
+
+COMMENT ON COLUMN rst.recreation_status.comment_date IS
+  'Date on which the closure comment was entered. Sourced from fta.recreation_comment.comment_date (rec_comment_type_code = ''CLOS'').';
+
 -- Stored as varchar(1) to match the BCGW field type (VARCHAR2(1)); FTA source is varchar(20)
 -- but values are Y/N indicators so truncation via LEFT() is safe.
 ALTER TABLE rst.recreation_resource
