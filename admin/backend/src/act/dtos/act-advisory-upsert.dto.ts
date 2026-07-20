@@ -10,6 +10,7 @@ import {
   IsString,
   MaxLength,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
 /**
@@ -59,6 +60,7 @@ export class ActAdvisoryUpsertDto {
     description: 'Long-form advisory description / body.',
     example:
       'A black bear has been spotted near the main campground. Please use bear-safe storage.',
+    type: String,
     nullable: true,
   })
   @IsOptional()
@@ -99,6 +101,7 @@ export class ActAdvisoryUpsertDto {
   @ApiPropertyOptional({
     description: 'Access status description.',
     example: 'The site is open but some trails are closed.',
+    type: String,
     nullable: true,
   })
   @IsOptional()
@@ -138,9 +141,12 @@ export class ActAdvisoryUpsertDto {
   @ApiProperty({
     description: 'Whether the advisory affects reservations.',
     example: false,
+    type: Boolean,
+    nullable: true,
   })
+  @ValidateIf((_, value) => value !== null)
   @IsBoolean()
-  is_reservations_affected: boolean;
+  is_reservations_affected: boolean | null;
 
   @ApiProperty({
     description: 'Whether the advisory_date should be displayed publicly.',
@@ -166,9 +172,12 @@ export class ActAdvisoryUpsertDto {
   @ApiProperty({
     description: 'Whether the updated_date should be displayed publicly.',
     example: true,
+    type: Boolean,
+    nullable: true,
   })
+  @ValidateIf((_, value) => value !== null)
   @IsBoolean()
-  is_updated_date_displayed: boolean;
+  is_updated_date_displayed: boolean | null;
 
   @ApiProperty({
     description: 'Date the advisory was created in Act (ISO 8601).',
@@ -196,6 +205,7 @@ export class ActAdvisoryUpsertDto {
   })
   @IsOptional()
   @Type(() => Date)
+  @ValidateIf((_, value) => value !== null)
   @IsDate()
   end_date?: Date | null;
 
@@ -207,6 +217,7 @@ export class ActAdvisoryUpsertDto {
   })
   @IsOptional()
   @Type(() => Date)
+  @ValidateIf((_, value) => value !== null)
   @IsDate()
   expiry_date?: Date | null;
 
@@ -240,15 +251,31 @@ export class ActAdvisoryUpsertDto {
   modified_date: Date;
 
   @ApiPropertyOptional({
-    description: 'Date the advisory was published, if applicable.',
+    description:
+      'Deprecated alias for `published_date`. Still accepted for backward compatibility; when both fields are provided, `published_date` takes precedence.',
+    example: '2026-06-02T00:00:00.000Z',
+    type: String,
+    nullable: true,
+    deprecated: true,
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @ValidateIf((_, value) => value !== null)
+  @IsDate()
+  published_at?: Date | null;
+
+  @ApiPropertyOptional({
+    description:
+      'Date the advisory was published, if applicable. Preferred ACT field name; mapped internally to the existing `published_at` storage column.',
     example: '2026-06-02T00:00:00.000Z',
     type: String,
     nullable: true,
   })
   @IsOptional()
   @Type(() => Date)
+  @ValidateIf((_, value) => value !== null)
   @IsDate()
-  published_at?: Date | null;
+  published_date?: Date | null;
 
   @ApiPropertyOptional({
     description: 'Listing rank used to order advisories in UIs.',

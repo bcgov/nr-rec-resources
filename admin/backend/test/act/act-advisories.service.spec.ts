@@ -106,6 +106,67 @@ describe('ActAdvisoriesService', () => {
     );
   });
 
+  it('bulk upserts the same advisory across multiple resource IDs', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-29T12:04:00.000Z'));
+
+    mockPrisma.recreation_resource.findUnique
+      .mockResolvedValueOnce({ rec_resource_id: 'REC0002' })
+      .mockResolvedValueOnce({ rec_resource_id: 'REC0042' });
+    mockRepository.upsert
+      .mockResolvedValueOnce({ created: true, advisory: {} })
+      .mockResolvedValueOnce({ created: false, advisory: {} });
+
+    const result = await service.bulkUpsert({
+      ...upsertPayload,
+      rec_resource_ids: ['REC0002', 'REC0042'],
+      published_date: new Date('2026-06-02T00:00:00.000Z'),
+    });
+
+    expect(mockRepository.upsert).toHaveBeenNthCalledWith(1, {
+      ...upsertPayload,
+      rec_resource_id: 'REC0002',
+      published_date: new Date('2026-06-02T00:00:00.000Z'),
+    });
+    expect(mockRepository.upsert).toHaveBeenNthCalledWith(2, {
+      ...upsertPayload,
+      rec_resource_id: 'REC0042',
+      published_date: new Date('2026-06-02T00:00:00.000Z'),
+    });
+    expect(result).toEqual({
+      count: 2,
+      results: [
+        {
+          rec_resource_id: 'REC0002',
+          advisory_number: 3791,
+          action: 'created',
+          timestamp: '2026-06-29T12:04:00.000Z',
+        },
+        {
+          rec_resource_id: 'REC0042',
+          advisory_number: 3791,
+          action: 'updated',
+          timestamp: '2026-06-29T12:04:00.000Z',
+        },
+      ],
+    });
+
+    vi.useRealTimers();
+  });
+
+  it('throws NotFoundException when any bulk rec_resource_ids are missing', async () => {
+    mockPrisma.recreation_resource.findUnique
+      .mockResolvedValueOnce({ rec_resource_id: 'REC0002' })
+      .mockResolvedValueOnce(null);
+
+    await expect(
+      service.bulkUpsert({
+        ...upsertPayload,
+        rec_resource_ids: ['REC0002', 'REC0042'],
+      }),
+    ).rejects.toThrow(`${ACT_ERROR_MESSAGES.REC_RESOURCE_NOT_FOUND}: REC0042`);
+  });
+
   it('throws NotFoundException when update target advisory does not exist', async () => {
     mockRepository.exists.mockResolvedValue(false);
 

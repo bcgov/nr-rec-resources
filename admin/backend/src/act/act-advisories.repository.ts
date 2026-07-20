@@ -22,6 +22,11 @@ export interface ActAdvisoryUpsertResult {
   advisory: Prisma.act_advisories_flatGetPayload<true>;
 }
 
+type ActPublishedDatePayload = {
+  published_at?: Date | null;
+  published_date?: Date | null;
+};
+
 /**
  * Repository for managing rows in the `rst.act_advisories_flat` table
  * that originate from the Act integration.
@@ -135,7 +140,7 @@ export class ActAdvisoriesRepository {
       end_date: payload.end_date ?? null,
       expiry_date: payload.expiry_date ?? null,
       updated_date: payload.updated_date,
-      published_at: payload.published_at ?? null,
+      published_at: this.resolvePublishedAt(payload) ?? null,
       listing_rank: payload.listing_rank ?? 0,
       urgency_sequence: payload.urgency_sequence ?? 0,
       access_status_precedence: payload.access_status_precedence ?? 0,
@@ -209,7 +214,6 @@ export class ActAdvisoriesRepository {
       'removal_date',
       'updated_date',
       'modified_date',
-      'published_at',
       'listing_rank',
       'urgency_sequence',
       'access_status_precedence',
@@ -218,6 +222,23 @@ export class ActAdvisoriesRepository {
 
     updatableFields.forEach(setIfPresent);
 
+    if (
+      Object.prototype.hasOwnProperty.call(payload, 'published_date') ||
+      Object.prototype.hasOwnProperty.call(payload, 'published_at')
+    ) {
+      data.published_at = this.resolvePublishedAt(payload);
+    }
+
     return data;
+  }
+
+  private resolvePublishedAt(
+    payload: ActPublishedDatePayload,
+  ): Date | null | undefined {
+    if (Object.prototype.hasOwnProperty.call(payload, 'published_date')) {
+      return payload.published_date;
+    }
+
+    return payload.published_at;
   }
 }

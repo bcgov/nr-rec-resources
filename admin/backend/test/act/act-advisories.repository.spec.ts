@@ -154,6 +154,33 @@ describe('ActAdvisoriesRepository', () => {
     );
   });
 
+  it('maps published_date to published_at for create/update writes', async () => {
+    const publishedDate = new Date('2026-06-03T00:00:00.000Z');
+
+    mockPrismaService.act_advisories_flat.findUnique.mockResolvedValue(null);
+    mockPrismaService.act_advisories_flat.upsert.mockResolvedValue({
+      rec_resource_id: 'REC0002',
+      advisory_number: 3791,
+    });
+
+    await repository.upsert({
+      ...basePayload,
+      published_date: publishedDate,
+      published_at: new Date('2026-06-01T00:00:00.000Z'),
+    } as ActAdvisoryUpsertDto);
+
+    expect(mockPrismaService.act_advisories_flat.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          published_at: publishedDate,
+        }),
+        update: expect.objectContaining({
+          published_at: publishedDate,
+        }),
+      }),
+    );
+  });
+
   it('updates using only fields present in partial payload', async () => {
     const payload: ActAdvisoryUpdateDto = {
       title: 'Updated title',
@@ -188,6 +215,26 @@ describe('ActAdvisoriesRepository', () => {
     expect(mockPrismaService.act_advisories_flat.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: { title: undefined },
+      }),
+    );
+  });
+
+  it('maps published_date to published_at in partial updates', async () => {
+    const publishedDate = new Date('2026-06-03T00:00:00.000Z');
+
+    await repository.update(
+      { rec_resource_id: 'REC0002', advisory_number: 3791 },
+      {
+        published_date: publishedDate,
+        published_at: new Date('2026-06-01T00:00:00.000Z'),
+      },
+    );
+
+    expect(mockPrismaService.act_advisories_flat.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          published_at: publishedDate,
+        },
       }),
     );
   });
