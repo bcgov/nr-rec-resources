@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "sync-advisories": "tsx src/advisories/sync-advisories.ts"
+    "sync-advisories": "tsx src/advisories/sync-advisories.ts",
+    "export-closed-resources": "tsx src/closures/export-closed-resources.ts"
   },
   "dependencies": {
     "@aws-sdk/client-guardduty": "^3.992.0",
