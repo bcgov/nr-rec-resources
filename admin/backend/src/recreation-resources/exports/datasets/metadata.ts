@@ -16,7 +16,9 @@ export type ExportDatasetId =
   | 'activities-list'
   | 'activities-list-fta'
   | 'site-inspection'
-  | 'site-inspection-fta';
+  | 'site-inspection-fta'
+  | 'closure-list'
+  | 'closure-list-fta';
 
 export type ExportDatasetSource = 'RST' | 'FTA';
 
@@ -142,6 +144,12 @@ export const ALL_EXPORT_DATASETS: ExportDatasetDefinition[] = [
     label: 'Site inspection',
     source: 'FTA',
     info: MISSING_FTA_SITE_INSPECTION_METADATA_INFO,
+  },
+  {
+    id: 'closure-list-fta',
+    label: 'Closure list',
+    source: 'FTA',
+    info: 'Includes only non-archived resources that are closed and have closure comment text.',
   },
 ];
 
