@@ -21,6 +21,7 @@ export const closureListFtaDataset: ExportDatasetBuilder = {
         Prisma.sql`rp.recreation_view_ind`,
       )} AS "VISIBLE_ON_PUBLIC_SITE",
       rc.project_comment AS "CLOSURE_COMMENT",
+      TO_CHAR(rc.comment_date, 'YYYY-MM-DD') AS "CLOSURE_DATE",
       ${sql.formatTimestamp(
         Prisma.sql`COALESCE(GREATEST(rp.update_timestamp::timestamp, rc.update_timestamp), rc.update_timestamp, rp.update_timestamp::timestamp)`,
       )} AS "UPDATE_TIMESTAMP"
