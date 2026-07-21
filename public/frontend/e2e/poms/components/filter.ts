@@ -10,7 +10,6 @@ import {
   typeFilterOptions,
 } from 'e2e/data/filters';
 import { FilterEnum, FilterGroup } from 'e2e/enum/filter';
-import { BASE_URL } from 'e2e/constants';
 
 export class FilterPOM {
   readonly page: Page;
@@ -165,11 +164,13 @@ export class FilterPOM {
    * requiring hardcoded label lists.
    */
   async getDistrictOptionsFromApi(): Promise<{ label: string }[]> {
-    const response = await this.page.request.get(
-      `${BASE_URL}/api/v1/recreation-resource/search?limit=1`,
-    );
-    expect(response.ok()).toBeTruthy();
-    const json = await response.json();
+    const json = await this.page.evaluate(async () => {
+      const res = await fetch('/api/v1/recreation-resource/search?limit=1');
+      if (!res.ok) {
+        throw new Error(`API request failed with status ${res.status}`);
+      }
+      return res.json();
+    });
     const districtFilter = (
       json.filters as Array<{
         type: string;
