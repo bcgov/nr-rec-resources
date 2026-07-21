@@ -13,6 +13,7 @@ rtv.rec_resource_type_code,
   rs.status_code,
   rsc.description as status_description,
   rs.comment as closure_comment,
+  rs.comment_date as comment_date,
   public.st_asgeojson(rsp.geometry)::text as site_point_geometry,
   count(*) over()::int as total_count
 from rst.recreation_resource rr
