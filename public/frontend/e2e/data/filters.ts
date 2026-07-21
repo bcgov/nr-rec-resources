@@ -1,26 +1,3 @@
-export const districtFilterOptions = [
-  { label: 'Boundary-South Okanagan' },
-  { label: 'Cascades' },
-  { label: 'Chilliwack' },
-  { label: 'Columbia-Shuswap' },
-  { label: 'Discovery Coast' },
-  { label: 'Haida Gwaii' },
-  { label: 'Headwaters' },
-  { label: 'Kamloops' },
-  { label: 'Kootenay-Boundary' },
-  { label: 'Nadina-Skeena' },
-  { label: 'North Coast-Kalum-Cassiar' },
-  { label: 'North Okanagan' },
-  { label: 'Peace-Ft. Nelson' },
-  { label: 'Prince George-Mackenzie' },
-  { label: 'Quesnel-Central Cariboo' },
-  { label: 'Rocky Mountain North' },
-  { label: 'Rocky Mountain South' },
-  { label: 'Squamish' },
-  { label: 'Sunshine Coast/South Island' },
-  { label: 'Vanderhoof-Ft. St. James' },
-];
-
 export const typeFilterOptions = [
   { label: 'Recreation Trail' },
   { label: 'Recreation Site' },
