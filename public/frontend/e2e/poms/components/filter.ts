@@ -3,7 +3,6 @@
 import { expect, Locator, Page } from '@playwright/test';
 import {
   accessTypeFilterOptions,
-  districtFilterOptions,
   facilitiesFilterOptions,
   feesFilterOptions,
   statusFilterOptions,
@@ -11,6 +10,7 @@ import {
   typeFilterOptions,
 } from 'e2e/data/filters';
 import { FilterEnum, FilterGroup } from 'e2e/enum/filter';
+import { BASE_URL } from 'e2e/constants';
 
 export class FilterPOM {
   readonly page: Page;
@@ -159,8 +159,31 @@ export class FilterPOM {
     }
   }
 
+  /**
+   * Fetches district filter options dynamically from the API so the e2e test
+   * stays in sync with the database (e.g. after FTA sync migrations) without
+   * requiring hardcoded label lists.
+   */
+  async getDistrictOptionsFromApi(): Promise<{ label: string }[]> {
+    const response = await this.page.request.get(
+      `${BASE_URL}/api/v1/recreation-resource/search?limit=1`,
+    );
+    expect(response.ok()).toBeTruthy();
+    const json = await response.json();
+    const districtFilter = (
+      json.filters as Array<{
+        type: string;
+        options: Array<{ description: string }>;
+      }>
+    ).find((f) => f.type === 'district');
+    return (districtFilter?.options ?? []).map((o) => ({
+      label: o.description,
+    }));
+  }
+
   async verifyDistrictFilterGroup() {
-    await this.verifyFilterGroup(this.districtFilters, districtFilterOptions);
+    const districtOptions = await this.getDistrictOptionsFromApi();
+    await this.verifyFilterGroup(this.districtFilters, districtOptions);
   }
 
   async verifyTypeFilterGroup() {
