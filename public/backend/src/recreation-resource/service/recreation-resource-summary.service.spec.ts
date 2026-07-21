@@ -27,6 +27,7 @@ const createMockDbRow = (
   status_code: 2,
   status_description: 'Closed',
   closure_comment: 'Closed due to wildfire activity in the area',
+  comment_date: new Date('2024-06-15'),
   site_point_geometry: MOCK_GEOJSON,
   total_count: 1,
   ...overrides,
@@ -45,6 +46,7 @@ const expectedDto = {
   status_code: 2,
   status: 'Closed',
   closure_comment: 'Closed due to wildfire activity in the area',
+  comment_date: '2024-06-15',
   site_point_geometry: MOCK_GEOJSON,
 };
 
@@ -133,6 +135,7 @@ describe('RecreationResourceSummaryService', () => {
         status_code: null,
         status_description: null,
         closure_comment: null,
+        comment_date: null,
       }),
     ]);
 
@@ -141,6 +144,27 @@ describe('RecreationResourceSummaryService', () => {
     expect(result.data[0].status_code).toBeNull();
     expect(result.data[0].status).toBeNull();
     expect(result.data[0].closure_comment).toBeNull();
+    expect(result.data[0].comment_date).toBeNull();
+  });
+
+  it('should format comment_date as ISO date string (YYYY-MM-DD)', async () => {
+    vi.mocked(prismaService.$queryRawTyped).mockResolvedValueOnce([
+      createMockDbRow('REC204117', { comment_date: new Date('2024-06-15') }),
+    ]);
+
+    const result = await service.findAll();
+
+    expect(result.data[0].comment_date).toBe('2024-06-15');
+  });
+
+  it('should return null comment_date when not present', async () => {
+    vi.mocked(prismaService.$queryRawTyped).mockResolvedValueOnce([
+      createMockDbRow('REC204117', { comment_date: null }),
+    ]);
+
+    const result = await service.findAll();
+
+    expect(result.data[0].comment_date).toBeNull();
   });
 
   it('should fall back to empty strings when district, type, name, and display are null', async () => {
