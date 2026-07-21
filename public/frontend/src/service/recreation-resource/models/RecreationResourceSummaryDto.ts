@@ -92,6 +92,12 @@ export interface RecreationResourceSummaryDto {
    */
   closure_comment: object | null;
   /**
+   * Date the closure comment was entered
+   * @type {string}
+   * @memberof RecreationResourceSummaryDto
+   */
+  comment_date: string | null;
+  /**
    * GeoJSON geometry data for the point location of the recreation resource
    * @type {object}
    * @memberof RecreationResourceSummaryDto
@@ -141,6 +147,8 @@ export function instanceOfRecreationResourceSummaryDto(
   if (!('status' in value) || value['status'] === undefined) return false;
   if (!('closure_comment' in value) || value['closure_comment'] === undefined)
     return false;
+  if (!('comment_date' in value) || value['comment_date'] === undefined)
+    return false;
   if (
     !('site_point_geometry' in value) ||
     value['site_point_geometry'] === undefined
@@ -175,6 +183,7 @@ export function RecreationResourceSummaryDtoFromJSONTyped(
     status_code: json['status_code'],
     status: json['status'],
     closure_comment: json['closure_comment'],
+    comment_date: json['comment_date'] ?? null,
     site_point_geometry: json['site_point_geometry'],
   };
 }
@@ -206,6 +215,7 @@ export function RecreationResourceSummaryDtoToJSONTyped(
     status_code: value['status_code'],
     status: value['status'],
     closure_comment: value['closure_comment'],
+    comment_date: value['comment_date'],
     site_point_geometry: value['site_point_geometry'],
   };
 }

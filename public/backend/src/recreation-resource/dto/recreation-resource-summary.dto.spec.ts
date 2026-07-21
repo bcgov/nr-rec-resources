@@ -16,6 +16,7 @@ describe('RecreationResourceSummaryDto', () => {
     dto.status_code = 2;
     dto.status = 'Closed';
     dto.closure_comment = 'Closed due to wildfire activity in the area';
+    dto.comment_date = '2024-06-15';
     dto.site_point_geometry =
       '{"type":"Point","coordinates":[1292239.7691,1133870.4011]}';
 
@@ -36,6 +37,7 @@ describe('RecreationResourceSummaryDto', () => {
     expect(dto.closure_comment).toBe(
       'Closed due to wildfire activity in the area',
     );
+    expect(dto.comment_date).toBe('2024-06-15');
     expect(dto.site_point_geometry).toBe(
       '{"type":"Point","coordinates":[1292239.7691,1133870.4011]}',
     );

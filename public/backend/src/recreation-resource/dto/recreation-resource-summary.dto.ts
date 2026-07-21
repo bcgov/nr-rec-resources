@@ -82,6 +82,15 @@ export class RecreationResourceSummaryDto {
   closure_comment: string | null;
 
   @ApiProperty({
+    description: 'Date the closure comment was entered (from FTA comment_date)',
+    example: '2024-06-15',
+    type: String,
+    format: 'date',
+    nullable: true,
+  })
+  comment_date: string | null;
+
+  @ApiProperty({
     description:
       'GeoJSON geometry data for the point location of the recreation resource',
     example: '{"type":"Point","coordinates":[1292239.7691,1133870.4011]}',
