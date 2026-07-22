@@ -45,6 +45,7 @@ jobs:
     name: Review ${{ inputs.app }} test deployment
     needs: tests-e2e-dev-environment
     runs-on: ubuntu-24.04
+    if: ${{ always() && (needs.tests-e2e-dev-environment.result == 'success' || (needs.tests-e2e-dev-environment.result == 'skipped' && inputs.app == 'admin')) }}
     environment: review-${{ inputs.app}}-test-deployment
     steps:
       - name: Review Test Deployment

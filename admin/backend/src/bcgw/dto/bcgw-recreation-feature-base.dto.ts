@@ -63,6 +63,7 @@ export class BcgwRecreationFeatureBaseDto {
   life_cycle_status_code: string | null;
 
   @ApiProperty({
+    type: String,
     description:
       'The current status of the recreation tenure, e.g., AR (archived), HI (issued), PI (pending issuance).',
     example: 'HI',

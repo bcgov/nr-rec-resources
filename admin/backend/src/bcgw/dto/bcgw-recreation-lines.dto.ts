@@ -17,6 +17,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   forest_file_id: string;
 
   @ApiProperty({
+    type: String,
     description:
       'An identifier assigned to a section of a recreation trail, e.g., 1, 10, A, B, EATON LAKE.',
     example: '1',
@@ -25,6 +26,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   section_id: string | null;
 
   @ApiProperty({
+    type: String,
     description:
       'Code that identifies the type of recreation feature, e.g., IF, RTR.',
     example: 'RTR',
@@ -33,6 +35,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   recreation_map_feature_code: string | null;
 
   @ApiProperty({
+    type: String,
     description:
       'Description of the type of recreation feature, e.g., Interpretative Forest, Recreation Trail.',
     example: 'Recreation Trail',
@@ -41,6 +44,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   project_type: string | null;
 
   @ApiProperty({
+    type: Number,
     description:
       'The number of times a feature has been amended over its lifetime.',
     example: 2,
@@ -49,6 +53,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   amendment_id: number | null;
 
   @ApiProperty({
+    type: String,
     description:
       'The default label used when displaying the feature on a map, consisting of the FOREST FILE ID and SECTION ID separated by a space.',
     example: 'REC4531 15',
@@ -57,6 +62,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   map_label: string | null;
 
   @ApiProperty({
+    type: String,
     description:
       'The name of the area or trail network, usually a geographic name, e.g., OKEOVER TRAILS.',
     example: 'OKEOVER TRAILS',
@@ -65,6 +71,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   project_name: string | null;
 
   @ApiProperty({
+    type: String,
     description:
       'Code describing the type of natural or man-made recreation feature, e.g., H3 (Historic Route).',
     example: 'H3',
@@ -73,6 +80,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   recreation_feature_code: string | null;
 
   @ApiProperty({
+    type: Number,
     description: 'The entire width of the Right of Way for the linear feature.',
     example: 10,
     nullable: true,
@@ -80,6 +88,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   right_of_way: number | null;
 
   @ApiProperty({
+    type: String,
     description:
       'The closest town or city to the recreation feature, e.g., KELOWNA, BELLA COOLA.',
     example: 'KELOWNA',
@@ -88,6 +97,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   site_location: string | null;
 
   @ApiProperty({
+    type: String,
     description:
       'A comma-separated list of codes relating to the recreation districts that the feature is within, e.g., RDCO,RDKB,RDOS.',
     example: 'RDCO',
@@ -96,6 +106,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   recreation_district_code: string | null;
 
   @ApiProperty({
+    type: String,
     description:
       'The code of the natural resource district associated with this feature.',
     example: 'DCC',
@@ -104,6 +115,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   district_code: string | null;
 
   @ApiProperty({
+    type: String,
     description:
       'The code of the natural resource district associated with this feature (VARCHAR2(6) in BCGW; holds the district code, not the full name).',
     example: 'DCC',
@@ -112,6 +124,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   district_name: string | null;
 
   @ApiProperty({
+    type: Number,
     description:
       'Spatial length in kilometres. Calculated in the source system.',
     example: 0.3338,
@@ -120,6 +133,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   feature_length: number | null;
 
   @ApiProperty({
+    type: Number,
     description: 'System-calculated length of the geometry in metres.',
     example: 333.8,
     nullable: true,
