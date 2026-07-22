@@ -1,10 +1,12 @@
 insert into rst.recreation_site_description (
     rec_resource_id,
-    description
+    description,
+    description_date
 )
 select
     rp.forest_file_id as rec_resource_id,
-    rc.project_comment as description
+    rc.project_comment as description,
+    rc.comment_date as description_date
 from
     fta.recreation_project rp
 left join
@@ -16,4 +18,5 @@ where
     rc.project_comment is not null
 on conflict (rec_resource_id) do update
 set
-    description = excluded.description;
+    description = excluded.description,
+    description_date = excluded.description_date;

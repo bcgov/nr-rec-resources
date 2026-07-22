@@ -14,7 +14,9 @@ insert into rst.recreation_resource (
     control_access_code,
     risk_rating_code,
     right_of_way,
-    rec_status_code
+    rec_status_code,
+    arch_impact_assess_ind,
+    resource_feature_ind
 )
 select
     rp.forest_file_id as rec_resource_id,
@@ -35,7 +37,9 @@ select
     rp.recreation_control_access_code as control_access_code,
     rp.recreation_risk_rating_code as risk_rating_code,
     rp.right_of_way as right_of_way,
-    ssc.file_status_st as rec_status_code
+    ssc.file_status_st as rec_status_code,
+    left(rp.arch_impact_assess_ind, 1) as arch_impact_assess_ind,
+    rp.resource_feature_ind
 from
     fta.recreation_project rp
 left join
@@ -68,4 +72,6 @@ set
     control_access_code = excluded.control_access_code,
     risk_rating_code = excluded.risk_rating_code,
     right_of_way = excluded.right_of_way,
-    rec_status_code = excluded.rec_status_code;
+    rec_status_code = excluded.rec_status_code,
+    arch_impact_assess_ind = excluded.arch_impact_assess_ind,
+    resource_feature_ind = excluded.resource_feature_ind;

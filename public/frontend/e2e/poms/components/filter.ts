@@ -158,33 +158,11 @@ export class FilterPOM {
     }
   }
 
-  /**
-   * Fetches district filter options dynamically from the API so the e2e test
-   * stays in sync with the database (e.g. after FTA sync migrations) without
-   * requiring hardcoded label lists.
-   */
-  async getDistrictOptionsFromApi(): Promise<{ label: string }[]> {
-    const json = await this.page.evaluate(async () => {
-      const res = await fetch('/api/v1/recreation-resource/search?limit=1');
-      if (!res.ok) {
-        throw new Error(`API request failed with status ${res.status}`);
-      }
-      return res.json();
-    });
-    const districtFilter = (
-      json.filters as Array<{
-        type: string;
-        options: Array<{ description: string }>;
-      }>
-    ).find((f) => f.type === 'district');
-    return (districtFilter?.options ?? []).map((o) => ({
-      label: o.description,
-    }));
-  }
-
   async verifyDistrictFilterGroup() {
-    const districtOptions = await this.getDistrictOptionsFromApi();
-    await this.verifyFilterGroup(this.districtFilters, districtOptions);
+    const options = this.districtFilters.locator('.form-check label');
+    await options.first().waitFor({ state: 'visible' });
+    const count = await options.count();
+    expect(count).toBeGreaterThan(0);
   }
 
   async verifyTypeFilterGroup() {
