@@ -38,6 +38,7 @@ interface ClosedResourceExport {
   rec_resource_id: string;
   rec_resource_type_code: string | null;
   closure_comment: string | null;
+  comment_date: string | null;
   entry_userid: string | null;
   entry_timestamp: string | null;
   update_userid: string | null;
@@ -52,7 +53,8 @@ const EXPORT_QUERY = `
     rs.created_by       as entry_userid,
     rs.created_at       as entry_timestamp,
     rs.updated_by       as update_userid,
-    rs.updated_at       as update_timestamp
+    rs.updated_at       as update_timestamp,
+  rs.comment_date as comment_date
   from rst.recreation_status rs
   left join rst.recreation_resource_type_view_admin rrtv
     on rrtv.rec_resource_id = rs.rec_resource_id
@@ -102,6 +104,9 @@ async function main(): Promise<void> {
       rec_resource_id: row.rec_resource_id,
       rec_resource_type_code: row.rec_resource_type_code ?? null,
       closure_comment: row.closure_comment ?? null,
+      comment_date: row.comment_date
+        ? new Date(row.comment_date).toISOString().slice(0, 10)
+        : null,
       entry_userid: row.entry_userid ?? null,
       entry_timestamp: toIsoOrNull(row.entry_timestamp),
       update_userid: row.update_userid ?? null,

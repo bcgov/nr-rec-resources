@@ -13,6 +13,7 @@ audit fields:
 | Export field       | rst.recreation_status column |
 | ------------------ | ---------------------------- |
 | `closure_comment`  | `comment`                    |
+| `comment_date`     | `comment_date`               |
 | `entry_userid`     | `created_by`                 |
 | `entry_timestamp`  | `created_at`                 |
 | `update_userid`    | `updated_by`                 |
@@ -45,9 +46,10 @@ Options:
     "rec_resource_id": "REC0002",
     "rec_resource_type_code": "SIT",
     "closure_comment": "Site is closed due to flooding",
-    "entry_userid": "mjolund",
+    "comment_date": "2026-07-08",
+    "entry_userid": "testuser",
     "entry_timestamp": "2026-07-08T15:30:00.000Z",
-    "update_userid": "mjolund",
+    "update_userid": "testuser",
     "update_timestamp": "2026-07-08T15:30:00.000Z"
   }
 ]
