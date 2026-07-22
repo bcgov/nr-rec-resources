@@ -44,6 +44,7 @@ jobs:
   review-test-deployment:
     name: Review ${{ inputs.app }} test deployment
     needs: tests-e2e-dev-environment
+    if: ${{ always() && (needs.tests-e2e-dev-environment.result == 'success' || (needs.tests-e2e-dev-environment.result == 'skipped' && inputs.app == 'admin')) }}
     runs-on: ubuntu-24.04
     environment: review-${{ inputs.app}}-test-deployment
     steps:
@@ -83,6 +84,7 @@ jobs:
   review-prod-deployment:
     name: Review ${{ inputs.app }} prod deployment
     needs: tests-e2e-test-environment
+    if: ${{ always() && (needs.tests-e2e-test-environment.result == 'success' || (needs.tests-e2e-test-environment.result == 'skipped' && inputs.app == 'admin')) }}
     runs-on: ubuntu-24.04
     environment: review-${{inputs.app}}-prod-deployment
     steps:
