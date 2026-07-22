@@ -130,6 +130,7 @@ export class RecreationResourceService {
         campsite_count: resource._count?.recreation_defined_campsite ?? 0,
         access_status_grouplabel:
           resource.act_advisories_flat?.[0]?.access_status_grouplabel ?? null,
+        updated_at: resource.updated_at?.toISOString().slice(0, 10) ?? null,
       }),
     );
 

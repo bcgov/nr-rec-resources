@@ -125,7 +125,7 @@ export class ActApi extends runtime.BaseAPI {
     );
     return await response.value();
   }
-
+  
   /**
    * Removes the advisory row in `rst.act_advisories_flat` for the given natural key. This is invoked by Act when the advisory is deleted on their side.
    * Delete an advisory pushed from Act.

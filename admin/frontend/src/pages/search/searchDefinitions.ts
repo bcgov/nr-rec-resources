@@ -27,6 +27,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'file_status:desc',
   'public_access_status:asc',
   'public_access_status:desc',
+  'updated_at:asc',
+  'updated_at:desc',
 ] as const;
 
 export type AdminSearchSort = (typeof ADMIN_SEARCH_SORT_VALUES)[number];
@@ -64,6 +66,42 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
     sortKey: 'public_access_status',
   },
   {
+    id: 'display_on_public_site',
+    label: 'Website',
+    resultKey: 'visible',
+    sortKey: 'display_on_public_site',
+  },
+  {
+    id: 'fee_indicators',
+    label: 'Fee indicators',
+    resultKey: 'feeType',
+    sortKey: 'fee',
+  },
+  {
+    id: 'project_established_date',
+    label: 'Est Date',
+    resultKey: 'establishmentDate',
+    sortKey: 'established_date',
+  },
+  {
+    id: 'updated_at',
+    label: 'Last Updated',
+    resultKey: 'updatedAt',
+    sortKey: 'updated_at',
+  },
+  {
+    id: 'access_types',
+    label: 'Access',
+    resultKey: 'accessType',
+    sortKey: 'access',
+  },
+  {
+    id: 'file_status',
+    label: 'File Status',
+    resultKey: 'recStatusCode',
+    sortKey: 'file_status',
+  },
+  {
     id: 'closest_community',
     label: 'Closest community',
     resultKey: 'closestCommunity',
@@ -76,40 +114,10 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
     sortKey: 'status',
   },
   {
-    id: 'project_established_date',
-    label: 'Est Date',
-    resultKey: 'establishmentDate',
-    sortKey: 'established_date',
-  },
-  {
-    id: 'access_types',
-    label: 'Access',
-    resultKey: 'accessType',
-    sortKey: 'access',
-  },
-  {
-    id: 'fee_indicators',
-    label: 'Fee indicators',
-    resultKey: 'feeType',
-    sortKey: 'fee',
-  },
-  {
     id: 'defined_campsites',
     label: 'Defined campsites',
     resultKey: 'definedCampsites',
     sortKey: 'campsites',
-  },
-  {
-    id: 'display_on_public_site',
-    label: 'Website',
-    resultKey: 'visible',
-    sortKey: 'display_on_public_site',
-  },
-  {
-    id: 'file_status',
-    label: 'File Status',
-    resultKey: 'recStatusCode',
-    sortKey: 'file_status',
   },
 ] as const;
 
