@@ -70,7 +70,11 @@ export class AppConfigService {
    * Act-only Keycloak Passport strategy as the expected `aud` claim.
    */
   get actCssClientId(): string {
-    return this.configService.get('ACT_CSS_CLIENT_ID', { infer: true })!;
+    return this.configService.get('ACT_CSS_CLIENT_ID', { infer: true }) ?? '';
+  }
+
+  get bcgwCssClientId(): string {
+    return this.configService.get('BCGW_CSS_CLIENT_ID', { infer: true }) ?? '';
   }
 
   // AWS S3 Configuration

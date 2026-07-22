@@ -34,6 +34,12 @@ export const AUTH_STRATEGY = {
    * with the runtime `AuthGuard(AUTH_STRATEGY.ACT_KEYCLOAK)` strategy name.
    */
   ACT_KEYCLOAK: 'act-keycloak',
+  /**
+   * Passport strategy name used to authenticate the BCGW integration.
+   * Tokens are issued via the OAuth2 Client Credentials grant flow from the
+   * CSS client provisioned for the BC Geographic Warehouse ingestion system.
+   */
+  BCGW_KEYCLOAK: 'bcgw-keycloak',
 } as const;
 
 // Environment variable keys
