@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BcgwRecreationFeatureBaseDto } from './bcgw-recreation-feature-base.dto';
+import {
+  nullableNumberProperty,
+  nullableStringProperty,
+} from './bcgw-nullable-property.helpers';
 import { BcgwPaginationMetaDto } from './bcgw-recreation-resource.dto';
 
 export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
@@ -16,114 +20,100 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   })
   forest_file_id: string;
 
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'An identifier assigned to a section of a recreation trail, e.g., 1, 10, A, B, EATON LAKE.',
-    example: '1',
-    nullable: true,
-  })
+      '1',
+    ),
+  )
   section_id: string | null;
 
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'Code that identifies the type of recreation feature, e.g., IF, RTR.',
-    example: 'RTR',
-    nullable: true,
-  })
+      'RTR',
+    ),
+  )
   recreation_map_feature_code: string | null;
 
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'Description of the type of recreation feature, e.g., Interpretative Forest, Recreation Trail.',
-    example: 'Recreation Trail',
-    nullable: true,
-  })
+      'Recreation Trail',
+    ),
+  )
   project_type: string | null;
 
-  @ApiProperty({
-    description:
-      'The number of times a feature has been amended over its lifetime.',
-    example: 2,
-    nullable: true,
-  })
-  amendment_id: number | null;
-
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'The default label used when displaying the feature on a map, consisting of the FOREST FILE ID and SECTION ID separated by a space.',
-    example: 'REC4531 15',
-    nullable: true,
-  })
+      'REC4531 15',
+    ),
+  )
   map_label: string | null;
 
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'The name of the area or trail network, usually a geographic name, e.g., OKEOVER TRAILS.',
-    example: 'OKEOVER TRAILS',
-    nullable: true,
-  })
+      'OKEOVER TRAILS',
+    ),
+  )
   project_name: string | null;
 
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'Code describing the type of natural or man-made recreation feature, e.g., H3 (Historic Route).',
-    example: 'H3',
-    nullable: true,
-  })
+      'H3',
+    ),
+  )
   recreation_feature_code: string | null;
 
-  @ApiProperty({
-    description: 'The entire width of the Right of Way for the linear feature.',
-    example: 10,
-    nullable: true,
-  })
+  @ApiProperty(
+    nullableNumberProperty(
+      'The entire width of the Right of Way for the linear feature.',
+      10,
+    ),
+  )
   right_of_way: number | null;
 
-  @ApiProperty({
-    description:
-      'The closest town or city to the recreation feature, e.g., KELOWNA, BELLA COOLA.',
-    example: 'KELOWNA',
-    nullable: true,
-  })
-  site_location: string | null;
-
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'A comma-separated list of codes relating to the recreation districts that the feature is within, e.g., RDCO,RDKB,RDOS.',
-    example: 'RDCO',
-    nullable: true,
-  })
+      'RDCO',
+    ),
+  )
   recreation_district_code: string | null;
 
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'The code of the natural resource district associated with this feature.',
-    example: 'DCC',
-    nullable: true,
-  })
+      'DCC',
+    ),
+  )
   district_code: string | null;
 
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'The code of the natural resource district associated with this feature (VARCHAR2(6) in BCGW; holds the district code, not the full name).',
-    example: 'DCC',
-    nullable: true,
-  })
+      'DCC',
+    ),
+  )
   district_name: string | null;
 
-  @ApiProperty({
-    description:
+  @ApiProperty(
+    nullableNumberProperty(
       'Spatial length in kilometres. Calculated in the source system.',
-    example: 0.3338,
-    nullable: true,
-  })
+      0.3338,
+    ),
+  )
   feature_length: number | null;
 
-  @ApiProperty({
-    description: 'System-calculated length of the geometry in metres.',
-    example: 333.8,
-    nullable: true,
-  })
+  @ApiProperty(
+    nullableNumberProperty(
+      'System-calculated length of the geometry in metres.',
+      333.8,
+    ),
+  )
   feature_length_m: number | null;
 }
 
