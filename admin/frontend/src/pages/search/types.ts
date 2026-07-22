@@ -50,4 +50,5 @@ export interface AdminSearchResultRow {
   recStatusDescription?: string | null;
   visible: boolean;
   publicAccessStatus: string | null;
+  updatedAt?: string | null;
 }
