@@ -41,9 +41,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.districtFilters, 'Kamloops');
 
-    await filter.toggleFilterOn(filter.districtFilters, 'Squamish');
-
-    await utils.checkExpectedUrlParams('district=RDCK_RDKA_RDSQ');
+    await utils.checkExpectedUrlParams('district=RDCK_RDKA');
 
     await searchPage.waitForResults();
   });

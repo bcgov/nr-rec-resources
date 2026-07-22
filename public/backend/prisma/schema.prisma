@@ -89,6 +89,7 @@ model recreation_status {
   rec_resource_id        String                   @id @db.VarChar(200)
   status_code            Int
   comment                String                   @db.VarChar(5000)
+  comment_date           DateTime?                @db.Date
   updated_at             DateTime?                @default(now()) @db.Timestamp(6)
   updated_by             String?
   created_at             DateTime?                @default(now()) @db.Timestamp(6)

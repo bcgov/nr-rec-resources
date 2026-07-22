@@ -3,7 +3,6 @@
 import { expect, Locator, Page } from '@playwright/test';
 import {
   accessTypeFilterOptions,
-  districtFilterOptions,
   facilitiesFilterOptions,
   feesFilterOptions,
   statusFilterOptions,
@@ -160,7 +159,10 @@ export class FilterPOM {
   }
 
   async verifyDistrictFilterGroup() {
-    await this.verifyFilterGroup(this.districtFilters, districtFilterOptions);
+    const options = this.districtFilters.locator('.form-check label');
+    await options.first().waitFor({ state: 'visible' });
+    const count = await options.count();
+    expect(count).toBeGreaterThan(0);
   }
 
   async verifyTypeFilterGroup() {

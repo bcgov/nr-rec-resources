@@ -9,7 +9,7 @@ import * as $runtime from '@prisma/client/runtime/client';
  * @param offset
  */
 export const getRecreationResourceSummary = $runtime.makeTypedQueryFactory(
-  'select\nrr.rec_resource_id,\nrr.name,\nrr.closest_community,\nrr.display_on_public_site,\nnrou.org_unit_name as natural_resource_district,\nrdc.district_code,\nrdc.description as district_description,\nrtv.rec_resource_type_code,\nrtv.description as rec_resource_type_description,\nrs.status_code,\nrsc.description as status_description,\nrs.comment as closure_comment,\npublic.st_asgeojson(rsp.geometry)::text as site_point_geometry,\ncount(*) over()::int as total_count\nfrom rst.recreation_resource rr\ninner join rst.recreation_resource_type_view_admin rtv\non rr.rec_resource_id = rtv.rec_resource_id\nand rtv.rec_resource_type_code is not null\nleft join rst.natural_resource_org_unit nrou\non rr.rec_resource_id = nrou.rec_resource_id\nleft join rst.recreation_district_code rdc\non rr.district_code = rdc.district_code\nleft join rst.recreation_status rs\non rr.rec_resource_id = rs.rec_resource_id\nleft join rst.recreation_status_code rsc\non rs.status_code = rsc.status_code\nleft join rst.recreation_site_point rsp\non rr.rec_resource_id = rsp.rec_resource_id\norder by rr.rec_resource_id asc\nlimit $1\noffset $2;',
+  'select\nrr.rec_resource_id,\nrr.name,\nrr.closest_community,\nrr.display_on_public_site,\nnrou.org_unit_name as natural_resource_district,\nrdc.district_code,\nrdc.description as district_description,\nrtv.rec_resource_type_code,\nrtv.description as rec_resource_type_description,\nrs.status_code,\nrsc.description as status_description,\nrs.comment as closure_comment,\nrs.comment_date as comment_date,\npublic.st_asgeojson(rsp.geometry)::text as site_point_geometry,\ncount(*) over()::int as total_count\nfrom rst.recreation_resource rr\ninner join rst.recreation_resource_type_view_admin rtv\non rr.rec_resource_id = rtv.rec_resource_id\nand rtv.rec_resource_type_code is not null\nleft join rst.natural_resource_org_unit nrou\non rr.rec_resource_id = nrou.rec_resource_id\nleft join rst.recreation_district_code rdc\non rr.district_code = rdc.district_code\nleft join rst.recreation_status rs\non rr.rec_resource_id = rs.rec_resource_id\nleft join rst.recreation_status_code rsc\non rs.status_code = rsc.status_code\nleft join rst.recreation_site_point rsp\non rr.rec_resource_id = rsp.rec_resource_id\norder by rr.rec_resource_id asc\nlimit $1\noffset $2;',
 ) as (
   limit: number,
   offset: number,
@@ -33,6 +33,7 @@ export namespace getRecreationResourceSummary {
     status_code: number;
     status_description: string;
     closure_comment: string;
+    comment_date: Date | null;
     site_point_geometry: string | null;
     total_count: number | null;
   };

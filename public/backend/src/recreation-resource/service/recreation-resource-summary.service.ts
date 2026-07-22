@@ -51,6 +51,9 @@ export class RecreationResourceSummaryService {
       status_code: row.status_code ?? null,
       status: row.status_description ?? null,
       closure_comment: row.closure_comment ?? null,
+      comment_date: row.comment_date
+        ? row.comment_date.toISOString().split('T')[0]
+        : null,
       site_point_geometry: row.site_point_geometry ?? null,
     };
   }
