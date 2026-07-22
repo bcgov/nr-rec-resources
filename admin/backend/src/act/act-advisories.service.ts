@@ -1,5 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/prisma.service';
+import { ActAdvisoryBulkResponseDto } from './dtos/act-advisory-bulk-response.dto';
+import { ActAdvisoryBulkUpsertDto } from './dtos/act-advisory-bulk-upsert.dto';
 import { ActAdvisoryResponseDto } from './dtos/act-advisory-response.dto';
 import { ActAdvisoryUpdateDto } from './dtos/act-advisory-update.dto';
 import { ActAdvisoryUpsertDto } from './dtos/act-advisory-upsert.dto';
@@ -46,6 +48,48 @@ export class ActAdvisoriesService {
       advisory_number: payload.advisory_number,
       action: created ? 'created' : 'updated',
       timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Bulk upsert an advisory across multiple recreation resources.
+   *
+   * This is the chosen fan-out approach for multi-resource advisory writes
+   * while keeping the existing single-resource PUT / DELETE routes unchanged.
+   */
+  async bulkUpsert(
+    payload: ActAdvisoryBulkUpsertDto,
+  ): Promise<ActAdvisoryBulkResponseDto> {
+    this.logger.log(
+      `${ACT_LOG_MESSAGES.UPSERT_RECEIVED} (rec_resource_ids=${payload.rec_resource_ids.join(',')}, advisory_number=${payload.advisory_number}, bulk=true)`,
+    );
+
+    await this.assertRecResourcesExist(payload.rec_resource_ids);
+
+    const { rec_resource_ids, ...sharedPayload } = payload;
+    const timestamp = new Date().toISOString();
+
+    const results = await Promise.all(
+      rec_resource_ids.map(async (rec_resource_id) => {
+        const { created } = await this.repository.upsert({
+          ...sharedPayload,
+          rec_resource_id,
+        });
+
+        return {
+          rec_resource_id,
+          advisory_number: payload.advisory_number,
+          action: created ? 'created' : 'updated',
+          timestamp,
+        } as const;
+      }),
+    );
+
+    this.logger.log(ACT_LOG_MESSAGES.UPSERT_SUCCESS);
+
+    return {
+      count: results.length,
+      results,
     };
   }
 
@@ -110,13 +154,29 @@ export class ActAdvisoriesService {
   private async assertRecResourceExists(
     rec_resource_id: string,
   ): Promise<void> {
-    const resource = await this.prisma.recreation_resource.findUnique({
-      where: { rec_resource_id },
-      select: { rec_resource_id: true },
-    });
-    if (!resource) {
+    await this.assertRecResourcesExist([rec_resource_id]);
+  }
+
+  private async assertRecResourcesExist(
+    rec_resource_ids: string[],
+  ): Promise<void> {
+    const existenceChecks = await Promise.all(
+      rec_resource_ids.map(async (rec_resource_id) => ({
+        rec_resource_id,
+        resource: await this.prisma.recreation_resource.findUnique({
+          where: { rec_resource_id },
+          select: { rec_resource_id: true },
+        }),
+      })),
+    );
+
+    const missingIds = existenceChecks
+      .filter(({ resource }) => !resource)
+      .map(({ rec_resource_id }) => rec_resource_id);
+
+    if (missingIds.length > 0) {
       throw new NotFoundException(
-        `${ACT_ERROR_MESSAGES.REC_RESOURCE_NOT_FOUND}: ${rec_resource_id}`,
+        `${ACT_ERROR_MESSAGES.REC_RESOURCE_NOT_FOUND}: ${missingIds.join(', ')}`,
       );
     }
   }

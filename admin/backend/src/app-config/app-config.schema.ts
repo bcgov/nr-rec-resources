@@ -57,6 +57,10 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   ACT_CSS_CLIENT_ID: string;
 
+  @IsOptional()
+  @IsString()
+  BCGW_CSS_CLIENT_ID?: string;
+
   // AWS S3 configuration
   @IsString()
   @IsNotEmpty()

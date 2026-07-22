@@ -1,4 +1,5 @@
 import { type ExportDatasetBuilderContext } from '@/recreation-resources/exports/datasets/types';
+import { closureListFtaDataset } from '@/recreation-resources/exports/datasets/closure-list-fta.dataset';
 import { feeListFtaDataset } from '@/recreation-resources/exports/datasets/fee-list-fta.dataset';
 import { fileDetailsDataset } from '@/recreation-resources/exports/datasets/file-details.dataset';
 import { siteInspectionFtaDataset } from '@/recreation-resources/exports/datasets/site-inspection-fta.dataset';
@@ -111,5 +112,26 @@ describe('export dataset builders', () => {
     );
     expect(sql).toContain('LEFT JOIN fta.recreation_file_type_code rftc');
     expect(sql).toContain('ORDER BY rir.forest_file_id, rir.inspection_id');
+  });
+
+  it('builds the closure list FTA query with closure and archive filters', () => {
+    const sql = normalizeDatasetSql(
+      closureListFtaDataset.buildQuery,
+      createBuilderContext({
+        dataset: 'closure-list-fta',
+      }),
+    );
+
+    expect(sql).toContain('FROM fta.recreation_comment rc');
+    expect(sql).toContain("rc.rec_comment_type_code = 'CLOS'");
+    expect(sql).toContain("rc.closure_ind = 'Y'");
+    expect(sql).toContain("NULLIF(TRIM(rc.project_comment), '') IS NOT NULL");
+    expect(sql).toContain("COALESCE(pfu.file_status_st, '') <> 'AR'");
+    expect(sql).toContain('"CLOSURE_COMMENT"');
+    expect(sql).toContain('"CLOSEST_COMMUNITY"');
+    expect(sql).toContain('"VISIBLE_ON_PUBLIC_SITE"');
+    expect(sql).toContain('"DISTRICT"');
+    expect(sql).toContain('"PROJECT_TYPE"');
+    expect(sql).toContain('ORDER BY rp.forest_file_id');
   });
 });

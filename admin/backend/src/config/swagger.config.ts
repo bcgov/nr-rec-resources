@@ -67,6 +67,20 @@ export function setupAdminSwagger(
     },
   };
 
+  document.components.securitySchemes[AUTH_STRATEGY.BCGW_KEYCLOAK] = {
+    type: 'oauth2',
+    description:
+      'BCGW integration OAuth2 Client Credentials flow via CSS. ' +
+      'Used to authenticate the BC Geographic Warehouse ingestion system ' +
+      'against the closures-fully-attributed endpoint.',
+    flows: {
+      clientCredentials: {
+        tokenUrl: actTokenProxyPath,
+        scopes: {},
+      },
+    },
+  };
+
   SwaggerModule.setup('/api/docs', app, document, {
     swaggerOptions: {
       // Persist the "Authorize" dialog selection across page reloads so the
