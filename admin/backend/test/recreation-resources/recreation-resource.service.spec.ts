@@ -158,6 +158,7 @@ describe('RecreationResourceService', () => {
           closest_community: 'Hope',
           project_established_date: new Date('2024-06-10T00:00:00.000Z'),
           display_on_public_site: true,
+          updated_at: new Date('2024-06-10T00:00:00.000Z'),
           recreation_activity: [
             {
               recreation_activity: {
@@ -237,6 +238,7 @@ describe('RecreationResourceService', () => {
           access_types: ['Walk in'],
           fee_indicators: ['Reservable', 'Has fees'],
           established_date: '2024-06-10',
+          updated_at: '2024-06-10',
           campsite_count: 5,
           access_status_grouplabel: null,
         },
@@ -351,6 +353,7 @@ describe('RecreationResourceService', () => {
           name: null,
           closest_community: null,
           project_established_date: null,
+          updated_at: null,
           display_on_public_site: null,
           rec_status_code: null,
           recreation_activity: [
@@ -420,6 +423,7 @@ describe('RecreationResourceService', () => {
           rec_status_code: null,
           rec_status_description: null,
           established_date: null,
+          updated_at: null,
           campsite_count: 0,
           access_status_grouplabel: null,
         },
