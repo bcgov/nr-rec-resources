@@ -1,4 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  nullableNumberProperty,
+  nullableStringProperty,
+} from './bcgw-nullable-property.helpers';
 
 /**
  * Properties shared identically by BCGW recreation line and polygon features.
@@ -8,6 +12,22 @@ import { ApiProperty } from '@nestjs/swagger';
  * subclasses.
  */
 export class BcgwRecreationFeatureBaseDto {
+  @ApiProperty(
+    nullableNumberProperty(
+      'The number of times a feature has been amended over its lifetime.',
+      1,
+    ),
+  )
+  amendment_id: number | null;
+
+  @ApiProperty(
+    nullableStringProperty(
+      'The closest town or city to the recreation feature, e.g., KELOWNA, BELLA COOLA.',
+      'KELOWNA',
+    ),
+  )
+  site_location: string | null;
+
   @ApiProperty({
     description:
       'For a retired recreation feature, the date and time the feature was retired.',

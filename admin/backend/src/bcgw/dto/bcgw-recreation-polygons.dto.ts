@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BcgwRecreationFeatureBaseDto } from './bcgw-recreation-feature-base.dto';
+import {
+  nullableNumberProperty,
+  nullableStringProperty,
+} from './bcgw-nullable-property.helpers';
 import { BcgwPaginationMetaDto } from './bcgw-recreation-resource.dto';
 
 export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
@@ -16,138 +20,108 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
   })
   forest_file_id: string;
 
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'An identifier assigned to a section of a recreation feature. Not used for polygon features.',
-    example: null,
-    nullable: true,
-  })
+      null,
+    ),
+  )
   section_id: string | null;
 
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'Code that identifies the type of recreation feature, e.g., IF (interpretive forest), RR (recreation reserve), SIT (recreation site).',
-    example: 'SIT',
-    nullable: true,
-  })
+      'SIT',
+    ),
+  )
   recreation_map_feature_code: string | null;
 
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'Description of the type of recreation feature, e.g., Interpretative Forest, Recreation Reserve.',
-    example: 'Recreation Site',
-    nullable: true,
-  })
+      'Recreation Site',
+    ),
+  )
   project_type: string | null;
 
-  @ApiProperty({
-    type: Number,
-    description:
-      'The number of times a feature has been amended over its lifetime.',
-    example: 1,
-    nullable: true,
-  })
-  amendment_id: number | null;
-
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'The default label used when displaying the feature on a map, consisting of the FOREST FILE ID only, e.g., REC230971.',
-    example: 'REC230971',
-    nullable: true,
-  })
+      'REC230971',
+    ),
+  )
   map_label: string | null;
 
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'The name of the recreation project, e.g., KASLO INTERPRETIVE FOREST.',
-    example: 'KASLO INTERPRETIVE FOREST',
-    nullable: true,
-  })
+      'KASLO INTERPRETIVE FOREST',
+    ),
+  )
   project_name: string | null;
 
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'Code describing the type of natural or man-made recreation feature, e.g., E5 (mixed forest), H3 (historic site).',
-    example: 'E5',
-    nullable: true,
-  })
+      'E5',
+    ),
+  )
   recreation_feature_code: string | null;
 
-  @ApiProperty({
-    type: String,
-    description:
-      'The closest town or city to the recreation feature, e.g., KELOWNA, BELLA COOLA.',
-    example: 'KASLO',
-    nullable: true,
-  })
-  site_location: string | null;
-
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'A comma-separated list of codes relating to the recreation districts that the feature is within, e.g., RDCC,RDCS.',
-    example: 'RDCC',
-    nullable: true,
-  })
+      'RDCC',
+    ),
+  )
   recreation_district_code: string | null;
 
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'The code of the natural resource district associated with this feature.',
-    example: 'DCC',
-    nullable: true,
-  })
+      'DCC',
+    ),
+  )
   geographic_district_code: string | null;
 
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'The name of the natural resource district associated with this feature.',
-    example: 'Chilliwack Natural Resource District',
-    nullable: true,
-  })
+      'Chilliwack Natural Resource District',
+    ),
+  )
   geographic_district_name: string | null;
 
-  @ApiProperty({
-    type: Number,
-    description:
+  @ApiProperty(
+    nullableNumberProperty(
       'Spatial feature area in hectares. Calculated in the source system.',
-    example: 2.9634,
-    nullable: true,
-  })
+      2.9634,
+    ),
+  )
   feature_area: number | null;
 
-  @ApiProperty({
-    type: Number,
-    description:
+  @ApiProperty(
+    nullableNumberProperty(
       'Spatial perimeter length in kilometres. Calculated in the source system.',
-    example: 1.0079,
-    nullable: true,
-  })
+      1.0079,
+    ),
+  )
   feature_perimeter: number | null;
 
-  @ApiProperty({
-    type: String,
-    description:
+  @ApiProperty(
+    nullableStringProperty(
       'The system-calculated area of the polygon in square metres (returned as a string, matching BCGW VARCHAR2 type).',
-    example: '29634.357175518',
-    nullable: true,
-  })
+      '29634.357175518',
+    ),
+  )
   feature_area_sqm: string | null;
 
-  @ApiProperty({
-    type: Number,
-    description: 'The system-calculated perimeter of the polygon in metres.',
-    example: 1007.9,
-    nullable: true,
-  })
+  @ApiProperty(
+    nullableNumberProperty(
+      'The system-calculated perimeter of the polygon in metres.',
+      1007.9,
+    ),
+  )
   feature_length_m: number | null;
 }
 
