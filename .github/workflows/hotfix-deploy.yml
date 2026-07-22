@@ -10,10 +10,6 @@ on:
         options:
           - admin
           - public
-      tag:
-        description: "Container image tag to deploy (use the build tag, usually commit SHA)"
-        type: string
-        required: true
       environment:
         description: 'Environment to deploy to'
         required: true
@@ -40,14 +36,20 @@ jobs:
             exit 1
           fi
 
+  build-hotfix-image:
+    name: Build Hotfix Image
+    needs: validate-hotfix-branch
+    uses: ./.github/workflows/.build.yml
+    secrets: inherit
+
   hotfix-deploy-to-aws:
     name: Hotfix Deploy to AWS ${{ inputs.environment }}
-    needs: validate-hotfix-branch
+    needs: build-hotfix-image
     uses: ./.github/workflows/.deploy-app.yml
     with:
       app: ${{ inputs.app }}
       app_env: ${{ inputs.environment }}
       command: apply
       environment_name: ${{ inputs.environment }}
-      tag: ${{ inputs.tag }}
+      tag: ${{ github.sha }}
     secrets: inherit
