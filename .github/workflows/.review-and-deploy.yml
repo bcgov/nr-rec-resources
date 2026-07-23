@@ -30,6 +30,7 @@ jobs:
   tests-e2e-dev-environment:
     name: Run e2e tests on dev env
     needs: deploy-to-aws-dev
+    if: ${{ inputs.app != 'admin' }}
     uses: ./.github/workflows/.e2e.yml
     concurrency:
       group: e2e-tests-${{ inputs.app }}-dev
@@ -43,8 +44,8 @@ jobs:
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-test-deployment:
     name: Review ${{ inputs.app }} test deployment
-    needs: tests-e2e-dev-environment
-    if: ${{ always() && (needs.tests-e2e-dev-environment.result == 'success' || (needs.tests-e2e-dev-environment.result == 'skipped' && inputs.app == 'admin')) }}
+    needs: [deploy-to-aws-dev, tests-e2e-dev-environment]
+    if: ${{ always() && needs.deploy-to-aws-dev.result == 'success' && (inputs.app == 'admin' || needs.tests-e2e-dev-environment.result == 'success') }}
     runs-on: ubuntu-24.04
     environment: review-${{ inputs.app}}-test-deployment
     steps:
@@ -70,6 +71,7 @@ jobs:
   tests-e2e-test-environment:
     name: Run e2e tests on test env
     needs: deploy-to-aws-test
+    if: ${{ inputs.app != 'admin' }}
     uses: ./.github/workflows/.e2e.yml
     concurrency:
       group: e2e-tests-${{ inputs.app }}-test
@@ -83,8 +85,8 @@ jobs:
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-prod-deployment:
     name: Review ${{ inputs.app }} prod deployment
-    needs: tests-e2e-test-environment
-    if: ${{ always() && (needs.tests-e2e-test-environment.result == 'success' || (needs.tests-e2e-test-environment.result == 'skipped' && inputs.app == 'admin')) }}
+    needs: [deploy-to-aws-test, tests-e2e-test-environment]
+    if: ${{ always() && needs.deploy-to-aws-test.result == 'success' && (inputs.app == 'admin' || needs.tests-e2e-test-environment.result == 'success') }}
     runs-on: ubuntu-24.04
     environment: review-${{inputs.app}}-prod-deployment
     steps:
