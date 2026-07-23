@@ -47,6 +47,6 @@
     "vitest": "^4.0.16"
   },
   "overrides": {
-    "@fortawesome/fontawesome-common-types": "7.2.0"
+    "@fortawesome/fontawesome-common-types": "7.3.1"
   }
 }
