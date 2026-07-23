@@ -65,7 +65,7 @@ jobs:
       continue-on-error: true
     - name: Dump docker logs for debugging
       if: ${{ inputs.local }}
-      uses: jwalton/gh-docker-logs@v2
+      uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2
     - name: Cache Playwright Browsers
       uses: actions/cache@v5
       id: playwright-cache
@@ -108,4 +108,4 @@ jobs:
         E2E_VIEWER_PASSWORD: ${{ secrets.E2E_VIEWER_PASSWORD }}
     - name: Dump docker logs on failure
       if: failure() && inputs.local
-      uses: jwalton/gh-docker-logs@v2
+      uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2

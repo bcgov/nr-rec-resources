@@ -22,7 +22,7 @@ jobs:
           ref: main
 
       - name: Conventional Changelog Update
-        uses: TriPSs/conventional-changelog-action@v6
+        uses: TriPSs/conventional-changelog-action@ee43def3241429afddab215ba89090cbf64fb45c # v6
         id: changelog
         continue-on-error: true
         with:
@@ -33,7 +33,7 @@ jobs:
           git-push: false
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         if: ${{ steps.changelog.outputs.tag != '' }}
         continue-on-error: true
         env:
