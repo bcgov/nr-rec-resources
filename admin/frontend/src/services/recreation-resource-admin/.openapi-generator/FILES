@@ -1,8 +1,12 @@
+apis/ActApi.ts
 apis/AppApi.ts
 apis/HealthApi.ts
 apis/RecreationResourcesApi.ts
 apis/index.ts
 index.ts
+models/ActAdvisoryResponseDto.ts
+models/ActAdvisoryUpdateDto.ts
+models/ActAdvisoryUpsertDto.ts
 models/AdminSearchResponseDto.ts
 models/AdminSearchResultRowDto.ts
 models/BadRequestResponseDto.ts
@@ -13,6 +17,7 @@ models/EstablishmentOrderDocDto.ts
 models/ExportDatasetDto.ts
 models/ExportPreviewResponseDto.ts
 models/FinalizeDocUploadRequestDto.ts
+models/GenericErrorResponseDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts

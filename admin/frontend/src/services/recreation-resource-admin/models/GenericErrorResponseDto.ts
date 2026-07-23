@@ -13,93 +13,82 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ValidationErrorDetailDto } from './ValidationErrorDetailDto';
-import {
-  ValidationErrorDetailDtoFromJSON,
-  ValidationErrorDetailDtoFromJSONTyped,
-  ValidationErrorDetailDtoToJSON,
-  ValidationErrorDetailDtoToJSONTyped,
-} from './ValidationErrorDetailDto';
-
 /**
  *
  * @export
- * @interface BadRequestResponseDto
+ * @interface GenericErrorResponseDto
  */
-export interface BadRequestResponseDto {
+export interface GenericErrorResponseDto {
   /**
    * The HTTP status code of the error response.
    * @type {number}
-   * @memberof BadRequestResponseDto
+   * @memberof GenericErrorResponseDto
    */
-  statusCode: BadRequestResponseDtoStatusCodeEnum;
+  statusCode: GenericErrorResponseDtoStatusCodeEnum;
   /**
    * A general message describing the error.
    * @type {string}
-   * @memberof BadRequestResponseDto
+   * @memberof GenericErrorResponseDto
    */
   message: string;
   /**
    * The error type or short description of the HTTP status.
    * @type {string}
-   * @memberof BadRequestResponseDto
+   * @memberof GenericErrorResponseDto
    */
   error: string;
   /**
    * The timestamp of when the error occurred (ISO 8601 format).
    * @type {string}
-   * @memberof BadRequestResponseDto
+   * @memberof GenericErrorResponseDto
    */
   timestamp: string;
   /**
    * The request path that caused the error.
    * @type {string}
-   * @memberof BadRequestResponseDto
+   * @memberof GenericErrorResponseDto
    */
   path: string;
-  /**
-   * An array of detailed validation errors specific to this bad request.
-   * @type {Array<ValidationErrorDetailDto>}
-   * @memberof BadRequestResponseDto
-   */
-  details: Array<ValidationErrorDetailDto>;
 }
 
 /**
  * @export
  */
-export const BadRequestResponseDtoStatusCodeEnum = {
+export const GenericErrorResponseDtoStatusCodeEnum = {
   NUMBER_400: 400,
+  NUMBER_401: 401,
+  NUMBER_403: 403,
+  NUMBER_404: 404,
+  NUMBER_500: 500,
 } as const;
-export type BadRequestResponseDtoStatusCodeEnum =
-  (typeof BadRequestResponseDtoStatusCodeEnum)[keyof typeof BadRequestResponseDtoStatusCodeEnum];
+export type GenericErrorResponseDtoStatusCodeEnum =
+  (typeof GenericErrorResponseDtoStatusCodeEnum)[keyof typeof GenericErrorResponseDtoStatusCodeEnum];
 
 /**
- * Check if a given object implements the BadRequestResponseDto interface.
+ * Check if a given object implements the GenericErrorResponseDto interface.
  */
-export function instanceOfBadRequestResponseDto(
+export function instanceOfGenericErrorResponseDto(
   value: object,
-): value is BadRequestResponseDto {
+): value is GenericErrorResponseDto {
   if (!('statusCode' in value) || value['statusCode'] === undefined)
     return false;
   if (!('message' in value) || value['message'] === undefined) return false;
   if (!('error' in value) || value['error'] === undefined) return false;
   if (!('timestamp' in value) || value['timestamp'] === undefined) return false;
   if (!('path' in value) || value['path'] === undefined) return false;
-  if (!('details' in value) || value['details'] === undefined) return false;
   return true;
 }
 
-export function BadRequestResponseDtoFromJSON(
+export function GenericErrorResponseDtoFromJSON(
   json: any,
-): BadRequestResponseDto {
-  return BadRequestResponseDtoFromJSONTyped(json, false);
+): GenericErrorResponseDto {
+  return GenericErrorResponseDtoFromJSONTyped(json, false);
 }
 
-export function BadRequestResponseDtoFromJSONTyped(
+export function GenericErrorResponseDtoFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean,
-): BadRequestResponseDto {
+): GenericErrorResponseDto {
   if (json == null) {
     return json;
   }
@@ -109,18 +98,17 @@ export function BadRequestResponseDtoFromJSONTyped(
     error: json['error'],
     timestamp: json['timestamp'],
     path: json['path'],
-    details: (json['details'] as Array<any>).map(
-      ValidationErrorDetailDtoFromJSON,
-    ),
   };
 }
 
-export function BadRequestResponseDtoToJSON(json: any): BadRequestResponseDto {
-  return BadRequestResponseDtoToJSONTyped(json, false);
+export function GenericErrorResponseDtoToJSON(
+  json: any,
+): GenericErrorResponseDto {
+  return GenericErrorResponseDtoToJSONTyped(json, false);
 }
 
-export function BadRequestResponseDtoToJSONTyped(
-  value?: BadRequestResponseDto | null,
+export function GenericErrorResponseDtoToJSONTyped(
+  value?: GenericErrorResponseDto | null,
   ignoreDiscriminator: boolean = false,
 ): any {
   if (value == null) {
@@ -133,8 +121,5 @@ export function BadRequestResponseDtoToJSONTyped(
     error: value['error'],
     timestamp: value['timestamp'],
     path: value['path'],
-    details: (value['details'] as Array<any>).map(
-      ValidationErrorDetailDtoToJSON,
-    ),
   };
 }

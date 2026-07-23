@@ -314,6 +314,7 @@ describe('recreation-resource-search.queries', () => {
     ['name:desc', 'rr.name DESC'],
     ['rec_resource_id:asc', 'rr.rec_resource_id ASC'],
     ['established_date:asc', 'rr.project_established_date ASC'],
+    ['updated_at:asc', 'rr.updated_at ASC'],
     ['community:asc', 'rr.closest_community ASC'],
     ['display_on_public_site:asc', 'rr.display_on_public_site ASC'],
   ] as const)(

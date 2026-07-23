@@ -1,5 +1,8 @@
 /* tslint:disable */
-
+/* eslint-disable */
+export * from './ActAdvisoryResponseDto';
+export * from './ActAdvisoryUpdateDto';
+export * from './ActAdvisoryUpsertDto';
 export * from './AdminSearchResponseDto';
 export * from './AdminSearchResultRowDto';
 export * from './BadRequestResponseDto';
@@ -10,6 +13,7 @@ export * from './EstablishmentOrderDocDto';
 export * from './ExportDatasetDto';
 export * from './ExportPreviewResponseDto';
 export * from './FinalizeDocUploadRequestDto';
+export * from './GenericErrorResponseDto';
 export * from './HealthControllerCheck200Response';
 export * from './HealthControllerCheck200ResponseInfoValue';
 export * from './HealthControllerCheck503Response';
