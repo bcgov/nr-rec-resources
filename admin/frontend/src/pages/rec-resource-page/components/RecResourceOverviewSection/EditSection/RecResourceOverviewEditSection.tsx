@@ -15,10 +15,12 @@ import { Controller, useWatch } from 'react-hook-form';
 import {
   EDIT_RESOURCE_FIELD_LABEL_MAP,
   CLOSEST_COMMUNITY_MAX_LENGTH,
+  NAME_MAX_LENGTH,
 } from './constants';
 import { useEditResourceForm, useResourceOptions } from './hooks';
 import { EditResourceFormData } from './schemas';
 import { FormErrorBanner } from '../../shared/FormErrorBanner';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 /**
  * Edit section for recreation resource overview
@@ -49,6 +51,8 @@ export const RecResourceOverviewEditSection = () => {
     updateMutation,
     onSubmit,
   } = useEditResourceForm(recResource, districtOptions);
+
+  const { isSuperAdmin } = useAuthorizations();
 
   // Watch the district_code field to check if selected option is archived
   const selectedDistrictCode = useWatch({
@@ -120,18 +124,20 @@ export const RecResourceOverviewEditSection = () => {
             </Col>
           </Row>
 
-          <Row className="mb-3">
-            <Col xs={12}>
-              <RichTextEditor
-                name="site_description"
-                label="Site Description"
-                control={control}
+          <Row className="gy-3">
+            {/* Name */}
+            <Col xs={12} md={6}>
+              <TextField
+                name="name"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.name}
+                placeholder="Enter the resource name..."
+                register={register}
                 errors={errors}
+                maxLength={NAME_MAX_LENGTH}
+                disabled={!isSuperAdmin}
               />
             </Col>
-          </Row>
 
-          <Row className="gy-3">
             {/* Closest Community */}
             <Col xs={12} md={6}>
               <TextField
@@ -227,6 +233,17 @@ export const RecResourceOverviewEditSection = () => {
             </Col>
           </Row>
         </Stack>
+
+        <Row className="mb-3">
+          <Col xs={12}>
+            <RichTextEditor
+              name="site_description"
+              label="Site Description"
+              control={control}
+              errors={errors}
+            />
+          </Col>
+        </Row>
 
         <Row className="my-3">
           <Col xs={12}>

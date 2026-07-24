@@ -15,6 +15,7 @@ export const TextField = ({
   rows,
   required = false,
   maxLength,
+  disabled = false,
 }: {
   name: keyof EditResourceFormData;
   label: string;
@@ -25,6 +26,7 @@ export const TextField = ({
   rows?: number;
   required?: boolean;
   maxLength?: number;
+  disabled?: boolean;
 }) => (
   <Form.Group controlId={name}>
     <Form.Label>
@@ -32,6 +34,7 @@ export const TextField = ({
       {required && ' *'}
     </Form.Label>
     <Form.Control
+      disabled={disabled}
       as={as}
       rows={rows}
       placeholder={placeholder}
