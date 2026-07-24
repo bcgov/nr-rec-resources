@@ -30,6 +30,7 @@ describe('AppConfigSchema', () => {
     RST_STORAGE_CONSENT_FORMS_BUCKET: 'test-consent-forms-bucket',
     RST_STORAGE_CLOUDFRONT_URL: 'https://test-cdn.example.com',
     AWS_REGION: 'ca-central-1',
+    EXHIBIT_A_DOCS_BUCKET: 'test-exhibit-a-docs-bucket',
   };
 
   describe('validate function', () => {

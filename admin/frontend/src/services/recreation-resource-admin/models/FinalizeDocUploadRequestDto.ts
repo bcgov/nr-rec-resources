@@ -43,6 +43,12 @@ export interface FinalizeDocUploadRequestDto {
    * @memberof FinalizeDocUploadRequestDto
    */
   file_size: number;
+  /**
+   * Document type code (e.g. 'RM' for Recreation Map, 'EA' for Exhibit A). Defaults to 'RM'.
+   * @type {string}
+   * @memberof FinalizeDocUploadRequestDto
+   */
+  doc_code?: string;
 }
 
 /**
@@ -99,5 +105,6 @@ export function FinalizeDocUploadRequestDtoToJSONTyped(
     file_name: value['file_name'],
     extension: value['extension'],
     file_size: value['file_size'],
+    doc_code: value['doc_code'],
   };
 }

@@ -34,6 +34,7 @@ export interface FinalizeDocUploadParams {
   file_name: string;
   extension: string;
   file_size: number;
+  doc_code?: string;
 }
 
 /**

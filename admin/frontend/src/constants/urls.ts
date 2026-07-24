@@ -4,3 +4,6 @@ export const CONSENT_INFORMATION_URL =
   'https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/Consent+and+release';
 export const CONSENT_FORM_URL =
   'https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/services-policies-for-government/service-experience-digital-delivery/web-standards-and-guides/consent_and_release_fillable_pdf.pdf';
+
+// iMapBC – BC Government's interactive mapping application
+export const IMAP_URL = 'https://maps.gov.bc.ca/ess/hm/imap4m/';
