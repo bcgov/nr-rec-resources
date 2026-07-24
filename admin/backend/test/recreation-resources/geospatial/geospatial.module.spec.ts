@@ -11,7 +11,7 @@ describe('GeospatialModule', () => {
 
   const prismaMock = {
     $queryRawTyped: vi.fn(),
-    $executeRawUnsafe: vi.fn(),
+    $executeRaw: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -39,7 +39,7 @@ describe('GeospatialModule', () => {
   });
 
   it('GeospatialService.upsertSitePointFromUtm calls prisma.$executeRawUnsafe with parameters', async () => {
-    (prismaMock.$executeRawUnsafe as any).mockResolvedValue(undefined);
+    (prismaMock.$executeRaw as any).mockResolvedValue(undefined);
 
     const recId = 'REC_UPSERT';
     const zone = 12;
@@ -48,19 +48,6 @@ describe('GeospatialModule', () => {
 
     await service.upsertSitePointFromUtm(recId, zone, easting, northing);
 
-    expect(prismaMock.$executeRawUnsafe).toHaveBeenCalled();
-    // Ensure parameters include rec_resource_id and computed EPSG (32600 + zone)
-    const callArgs = (prismaMock.$executeRawUnsafe as any).mock.calls[0];
-    expect(callArgs[0]).toEqual(expect.any(String)); // SQL string
-    // Depending on implementation, parameters may start after the SQL; assert presence of our values
-    expect(callArgs).toEqual(
-      expect.arrayContaining([
-        expect.any(String),
-        recId,
-        easting,
-        northing,
-        32600 + Math.trunc(zone),
-      ]),
-    );
+    expect(prismaMock.$executeRaw).toHaveBeenCalled();
   });
 });

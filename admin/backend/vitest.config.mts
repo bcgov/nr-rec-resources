@@ -30,6 +30,7 @@ export default defineConfig({
       RST_STORAGE_CONSENT_FORMS_BUCKET: 'rst-storage-consent-forms-dev',
       RST_STORAGE_CLOUDFRONT_URL: 'https://test-cdn.example.com',
       AWS_REGION: 'ca-central-1',
+      EXHIBIT_A_DOCS_BUCKET: 'rst-lza-exhibit-a-docs-dev',
     },
     coverage: {
       provider: 'v8',

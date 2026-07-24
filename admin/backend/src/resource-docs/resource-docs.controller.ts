@@ -24,7 +24,6 @@ import {
   ApiQuery,
   ApiResponse,
   ApiTags,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import {
   FinalizeDocUploadRequestDto,
@@ -63,10 +62,7 @@ export class ResourceDocsController {
   @ApiResponse({
     status: 200,
     description: 'Documents Found',
-    schema: {
-      type: 'array',
-      items: { $ref: getSchemaPath(RecreationResourceDocDto) },
-    },
+    type: [RecreationResourceDocDto],
   })
   async getAll(
     @Param('rec_resource_id') rec_resource_id: string,

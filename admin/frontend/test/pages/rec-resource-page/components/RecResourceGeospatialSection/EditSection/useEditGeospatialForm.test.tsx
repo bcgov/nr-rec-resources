@@ -31,8 +31,21 @@ vi.mock('@/services/utils/errorHandler', () => ({
 import useEditGeospatialForm from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/hooks/useEditGeospatialForm';
 import { ROUTE_PATHS } from '@/constants/routes';
 
+const mockValidateUtm = vi.fn();
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/utils/validateUtmAgainstSpatialFeatures',
+  () => ({
+    validateUtmAgainstSpatialFeatures: (...args: any[]) =>
+      mockValidateUtm(...args),
+    utmToAlbers: vi.fn(),
+    utmToWgs84: vi.fn(),
+    utmToSitePointGeometry: vi.fn(),
+  }),
+);
+
 beforeEach(() => {
   vi.clearAllMocks();
+  mockValidateUtm.mockReturnValue(true); // default: validation passes
 });
 
 describe('useEditGeospatialForm', () => {
@@ -109,5 +122,31 @@ describe('useEditGeospatialForm', () => {
 
     expect(mockHandleApiError).toHaveBeenCalledWith(error);
     expect(mockAddErrorNotification).toHaveBeenCalled();
+  });
+
+  it('sets root error and returns undefined when UTM spatial validation fails', async () => {
+    mockValidateUtm.mockReturnValue(false);
+
+    function Expose() {
+      const form = useEditGeospatialForm(
+        {
+          spatial_feature_geometry: ['{"type":"Point","coordinates":[0,0]}'],
+        } as any,
+        'REC123',
+      );
+      (globalThis as any).__onSubmit = form.onSubmit;
+      return null;
+    }
+
+    render(<Expose />);
+
+    const result = await (globalThis as any).__onSubmit({
+      utm_zone: 10,
+      utm_easting: 500000,
+      utm_northing: 5480000,
+    });
+
+    expect(result).toBeUndefined();
+    expect(mockMutateAsync).not.toHaveBeenCalled();
   });
 });

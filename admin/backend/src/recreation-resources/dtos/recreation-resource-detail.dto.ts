@@ -284,6 +284,15 @@ export abstract class BaseRecreationResourceDto {
     example: 'IF',
   })
   rec_resource_type: string;
+
+  @ApiProperty({
+    description:
+      'Code identifying the type of recreation resource (e.g. SIT for site, TRL for trail)',
+    example: 'SIT',
+    required: false,
+    nullable: true,
+  })
+  rec_resource_type_code?: string | null;
 }
 
 export class RecreationControlAccessDto {
