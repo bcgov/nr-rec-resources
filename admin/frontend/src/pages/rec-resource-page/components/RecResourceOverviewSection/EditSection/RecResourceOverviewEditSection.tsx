@@ -126,17 +126,18 @@ export const RecResourceOverviewEditSection = () => {
 
           <Row className="gy-3">
             {/* Name */}
-            <Col xs={12} md={6}>
-              <TextField
-                name="name"
-                label={EDIT_RESOURCE_FIELD_LABEL_MAP.name}
-                placeholder="Enter the resource name..."
-                register={register}
-                errors={errors}
-                maxLength={NAME_MAX_LENGTH}
-                disabled={!isSuperAdmin}
-              />
-            </Col>
+            {isSuperAdmin && (
+              <Col xs={12} md={6}>
+                <TextField
+                  name="name"
+                  label={EDIT_RESOURCE_FIELD_LABEL_MAP.name}
+                  placeholder="Enter the resource name..."
+                  register={register}
+                  errors={errors}
+                  maxLength={NAME_MAX_LENGTH}
+                />
+              </Col>
+            )}
 
             {/* Closest Community */}
             <Col xs={12} md={6}>

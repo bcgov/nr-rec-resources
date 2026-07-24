@@ -75,6 +75,7 @@ describe('RecResourceOverviewSection', () => {
 
   const recResource = {
     rec_resource_id: '00000000-0000-0000-0000-000000000000',
+    name: 'Test Resource name',
     rec_status_code: 'OP',
     description: '<b>Test Description</b>',
     closest_community: 'Test Community',
@@ -116,6 +117,7 @@ describe('RecResourceOverviewSection', () => {
     expect(screen.getByText('Project Established Date')).toBeInTheDocument();
     expect(screen.getByText('Risk Rating')).toBeInTheDocument();
     expect(screen.getByText('Test Community')).toBeInTheDocument();
+    expect(screen.getByText('Test Resource name')).toBeInTheDocument();
     expect(
       screen.getByText('Test Natural Resource District'),
     ).toBeInTheDocument();

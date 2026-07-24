@@ -20,11 +20,6 @@ export const RecResourceOverviewSection = (
 
   const overviewItems = [
     {
-      key: 'name',
-      label: 'Name',
-      value: recResource.name,
-    },
-    {
       key: 'closest-community',
       label: 'Closest Community',
       value: recResource.closest_community,

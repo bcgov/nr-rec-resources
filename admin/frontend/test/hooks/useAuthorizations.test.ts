@@ -15,6 +15,7 @@ describe('useAuthorizations', () => {
       canEditArchived: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
+      isSuperAdmin: false,
     });
   });
 
@@ -29,6 +30,7 @@ describe('useAuthorizations', () => {
       canEditArchived: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
+      isSuperAdmin: false,
     });
   });
 
@@ -43,6 +45,7 @@ describe('useAuthorizations', () => {
       canEditArchived: true,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
+      isSuperAdmin: true,
     });
   });
 
@@ -57,6 +60,7 @@ describe('useAuthorizations', () => {
       canEditArchived: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
+      isSuperAdmin: false,
     });
   });
 
@@ -71,6 +75,7 @@ describe('useAuthorizations', () => {
       canEditArchived: false,
       canViewFeatureFlag: true,
       canEditFeatureFlag: false,
+      isSuperAdmin: false,
     });
   });
 
@@ -85,6 +90,7 @@ describe('useAuthorizations', () => {
       canEditArchived: false,
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
+      isSuperAdmin: false,
     });
   });
 
@@ -99,6 +105,7 @@ describe('useAuthorizations', () => {
       canEditArchived: true,
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
+      isSuperAdmin: true,
     });
   });
 });
