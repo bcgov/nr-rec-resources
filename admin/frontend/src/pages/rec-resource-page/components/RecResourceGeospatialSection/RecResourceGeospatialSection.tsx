@@ -1,5 +1,6 @@
 import { Col, Row, Stack } from 'react-bootstrap';
 import { EditableGuard } from '@/components/auth';
+import { HelpIcon } from '@/components/help-icon';
 import { CopyButton } from '@shared/components/copy-button';
 import { FieldItem } from '../shared/FieldItem';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
@@ -8,11 +9,34 @@ import { ROUTE_PATHS } from '@/constants/routes';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
 import { Link } from '@tanstack/react-router';
+import { ExhibitASection } from './ExhibitASection/ExhibitASection';
+import { IMAP_URL } from '@/constants/urls';
+import { UTM_HELP } from '@/constants/geospatial';
+import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
+import './RecResourceGeospatialSection.scss';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
   maximumFractionDigits: 4,
 };
+
+/** Renders a label string with an optional inline help icon */
+function FieldLabel({
+  label,
+  helpText,
+  helpId,
+}: {
+  label: string;
+  helpText?: string;
+  helpId?: string;
+}) {
+  return (
+    <span className="d-inline-flex align-items-center gap-1">
+      {label}
+      {helpText && helpId && <HelpIcon text={helpText} id={helpId} />}
+    </span>
+  );
+}
 
 export function RecResourceGeospatialSection() {
   const params = Route.useParams();
@@ -39,17 +63,35 @@ export function RecResourceGeospatialSection() {
   const geospatialItems = [
     {
       key: 'utm-zone',
-      label: 'UTM zone',
+      label: (
+        <FieldLabel
+          label="UTM zone"
+          helpText={UTM_HELP.zone}
+          helpId="utm-zone"
+        />
+      ),
       value: utm_zone?.toString(),
     },
     {
       key: 'utm-easting',
-      label: 'UTM easting',
+      label: (
+        <FieldLabel
+          label="UTM easting"
+          helpText={UTM_HELP.easting}
+          helpId="utm-easting"
+        />
+      ),
       value: utm_easting?.toString(),
     },
     {
       key: 'utm-northing',
-      label: 'UTM northing',
+      label: (
+        <FieldLabel
+          label="UTM northing"
+          helpText={UTM_HELP.northing}
+          helpId="utm-northing"
+        />
+      ),
       value: utm_northing?.toString(),
     },
     {
@@ -88,40 +130,69 @@ export function RecResourceGeospatialSection() {
     },
   ];
 
+  const recResourceWithGeometry = recResource
+    ? {
+        ...recResource,
+        site_point_geometry:
+          geospatialData?.site_point_geometry ??
+          recResource.site_point_geometry,
+        spatial_feature_geometry:
+          geospatialData?.spatial_feature_geometry ??
+          recResource.spatial_feature_geometry,
+      }
+    : undefined;
+
+  const imapUrl =
+    latitude != null && longitude != null
+      ? buildImapUrlFromLatLng(latitude, longitude)
+      : utm_zone != null && utm_easting != null && utm_northing != null
+        ? buildImapUrlFromUtm(utm_easting, utm_northing, utm_zone)
+        : IMAP_URL;
+
   return (
     <Stack direction="vertical" gap={4}>
-      <div className="d-flex justify-content-between align-items-center">
-        <h2>Geospatial</h2>
+      {/* ── Geospatial fields card ── */}
+      <div className="geospatial-section__card">
+        <div className="geospatial-section__card-header d-flex justify-content-between align-items-center">
+          <h2 className="geospatial-section__card-title">Geospatial</h2>
+          <EditableGuard isArchived={isArchived}>
+            {hasGeometryData && (
+              <Link
+                to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
+                  '$id',
+                  recResourceId,
+                )}
+                className="btn btn-outline-primary btn-sm"
+              >
+                Edit
+              </Link>
+            )}
+          </EditableGuard>
+        </div>
 
-        <EditableGuard isArchived={isArchived}>
-          {hasGeometryData && (
-            <Link
-              to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
-                '$id',
-                recResourceId,
-              )}
-              className="btn btn-outline-primary"
-            >
-              Edit
-            </Link>
-          )}
-        </EditableGuard>
+        <div className="geospatial-section__card-body">
+          <Row className="gy-3">
+            {geospatialItems.map((item) => (
+              <Col key={item.key} xs={12} md={6} lg={4}>
+                <FieldItem label={item.label} value={item.value} />
+              </Col>
+            ))}
+          </Row>
+        </div>
       </div>
 
-      <div className="rec-resource-geospatial-section__body">
-        <Row className="gy-3">
-          {geospatialItems.map((item) => (
-            <Col key={item.key} xs={12} md={6} lg={4}>
-              <FieldItem label={item.label} value={item.value} />
-            </Col>
-          ))}
-        </Row>
+      {/* ── Map + action buttons ── */}
+      {recResourceWithGeometry && (
+        <RecResourceLocationSection
+          recResource={recResourceWithGeometry}
+          showHeading={false}
+          imapUrl={imapUrl}
+        />
+      )}
 
-        {recResource && (
-          <div className="mt-4">
-            <RecResourceLocationSection recResource={recResource} />
-          </div>
-        )}
+      {/* ── Exhibit A ── */}
+      <div className="geospatial-section__card">
+        <ExhibitASection recResourceId={recResourceId} />
       </div>
     </Stack>
   );

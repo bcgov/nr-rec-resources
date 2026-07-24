@@ -31,6 +31,32 @@ describe('editResourceGeospatial schema', () => {
     }
   });
 
+  it('rejects utm_zone below 1', () => {
+    const parsed = schema.safeParse({
+      utm_zone: 0,
+      utm_easting: 500000,
+      utm_northing: 5480000,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      const err = parsed.error.issues.find((e) => e.path[0] === 'utm_zone');
+      expect(err?.message).toContain('between 1 and 60');
+    }
+  });
+
+  it('rejects utm_zone above 60', () => {
+    const parsed = schema.safeParse({
+      utm_zone: 61,
+      utm_easting: 500000,
+      utm_northing: 5480000,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      const err = parsed.error.issues.find((e) => e.path[0] === 'utm_zone');
+      expect(err?.message).toContain('between 1 and 60');
+    }
+  });
+
   it('rejects NaN utm_easting', () => {
     const payload = {
       utm_zone: 10,
@@ -44,6 +70,58 @@ describe('editResourceGeospatial schema', () => {
         (e) => e.path[0] === 'utm_easting',
       );
       expect(eastingError).toBeDefined();
+    }
+  });
+
+  it('rejects utm_easting below 100 000', () => {
+    const parsed = schema.safeParse({
+      utm_zone: 10,
+      utm_easting: 99999,
+      utm_northing: 5480000,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      const err = parsed.error.issues.find((e) => e.path[0] === 'utm_easting');
+      expect(err?.message).toContain('100 000');
+    }
+  });
+
+  it('rejects utm_easting above 999 999', () => {
+    const parsed = schema.safeParse({
+      utm_zone: 10,
+      utm_easting: 1000000,
+      utm_northing: 5480000,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      const err = parsed.error.issues.find((e) => e.path[0] === 'utm_easting');
+      expect(err?.message).toContain('999 999');
+    }
+  });
+
+  it('rejects utm_northing above 9 999 999', () => {
+    const parsed = schema.safeParse({
+      utm_zone: 10,
+      utm_easting: 500000,
+      utm_northing: 10000000,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      const err = parsed.error.issues.find((e) => e.path[0] === 'utm_northing');
+      expect(err?.message).toContain('9 999 999');
+    }
+  });
+
+  it('rejects negative utm_northing', () => {
+    const parsed = schema.safeParse({
+      utm_zone: 10,
+      utm_easting: 500000,
+      utm_northing: -1,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      const err = parsed.error.issues.find((e) => e.path[0] === 'utm_northing');
+      expect(err).toBeDefined();
     }
   });
 });

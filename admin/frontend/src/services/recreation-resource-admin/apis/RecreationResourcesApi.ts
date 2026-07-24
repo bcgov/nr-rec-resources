@@ -1628,9 +1628,160 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns the datasets currently available for the admin CSV export workflow
-   * List CSV export datasets
+   * Get all Exhibit A documents related to the resource
    */
+  async getExhibitADocsByRecResourceIdRaw(
+    requestParameters: GetDocumentsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationResourceDocDto>>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getExhibitADocsByRecResourceId().',
+      );
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/exhibit-a-docs`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: {},
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationResourceDocDtoFromJSON),
+    );
+  }
+
+  /**
+   * Get all Exhibit A documents related to the resource
+   */
+  async getExhibitADocsByRecResourceId(
+    requestParameters: GetDocumentsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationResourceDocDto>> {
+    const response = await this.getExhibitADocsByRecResourceIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  async presignExhibitAUpload(
+    requestParameters: { recResourceId: string; fileName: string },
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<{ document_id: string; key: string; url: string }> {
+    const queryParameters: any = { fileName: requestParameters.fileName };
+    const headerParameters: runtime.HTTPHeaders = {};
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+      if (tokenString)
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+    }
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/exhibit-a-docs/presign`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters.recResourceId)),
+    );
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+    return new runtime.JSONApiResponse(response).value();
+  }
+
+  async finalizeExhibitAUpload(
+    requestParameters: {
+      recResourceId: string;
+      document_id: string;
+      file_name: string;
+      extension: string;
+      file_size: number;
+    },
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceDocDto> {
+    const { recResourceId, ...body } = requestParameters;
+    const headerParameters: runtime.HTTPHeaders = {
+      'Content-Type': 'application/json',
+    };
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+      if (tokenString)
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+    }
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/exhibit-a-docs/finalize`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(recResourceId)),
+    );
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: {},
+        body: body,
+      },
+      initOverrides,
+    );
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceDocDtoFromJSON(jsonValue),
+    ).value();
+  }
+
+  async deleteExhibitADoc(
+    requestParameters: { recResourceId: string; documentId: string },
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    const headerParameters: runtime.HTTPHeaders = {};
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+      if (tokenString)
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+    }
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/exhibit-a-docs/{document_id}`;
+    urlPath = urlPath
+      .replace(
+        `{${'rec_resource_id'}}`,
+        encodeURIComponent(String(requestParameters.recResourceId)),
+      )
+      .replace(
+        `{${'document_id'}}`,
+        encodeURIComponent(String(requestParameters.documentId)),
+      );
+    await this.request(
+      { path: urlPath, method: 'DELETE', headers: headerParameters, query: {} },
+      initOverrides,
+    );
+  }
+
   async getExportDatasetsRaw(
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<ListExportDatasetsResponseDto>> {
