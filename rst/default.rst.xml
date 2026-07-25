@@ -458,6 +458,7 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="4" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="6" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="driving_directions_date" nullable="true" remarks="Date on which the driving directions comment was entered. Sourced from fta.recreation_comment.comment_date (rec_comment_type_code = 'DRIV')." size="13" type="date" typeCode="91"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_driving_direction_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
@@ -998,6 +999,8 @@
          </column>
          <column autoUpdated="false" defaultValue="null" digits="1" id="15" name="right_of_way" nullable="true" remarks="Identifies the Right of Way width for a linear feature. Sourced from fta.recreation_project.right_of_way." size="7" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="rec_status_code" nullable="true" remarks="Site status value for a recreation resource. Sourced from fta.recreation_file_status_code.file_status_st." size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="arch_impact_assess_ind" nullable="true" remarks="Indicates if an archaeological impact assessment has been performed. Y or N. Sourced from fta.recreation_project.arch_impact_assess_ind." size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="18" name="resource_feature_ind" nullable="true" remarks="Indicates whether this is a resource feature established under the Government Action Regulation." size="1" type="varchar" typeCode="12"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_resource_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
@@ -1350,6 +1353,7 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="4" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="6" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="description_date" nullable="true" remarks="Date on which the site description comment was entered. Sourced from fta.recreation_comment.comment_date (rec_comment_type_code = 'DESC')." size="13" type="date" typeCode="91"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_site_description_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
@@ -1404,6 +1408,7 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="comment_date" nullable="true" remarks="Date on which the closure comment was entered. Sourced from fta.recreation_comment.comment_date (rec_comment_type_code = 'CLOS')." size="13" type="date" typeCode="91"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_status_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
@@ -1447,6 +1452,7 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="comment_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
       </table>
       <table name="recreation_structure" remarks="Information relating to a recreation site improvement in a recreational tenure. All improvements are human-made." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="Identification manually assigned to a Recreation Resource" size="20" type="varchar" typeCode="12">
