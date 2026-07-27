@@ -25,6 +25,7 @@ const baseResource = {
   recreation_maintenance_standard_code: { description: 'Standard A' },
   recreation_resource_type_view_admin: [{ description: 'Campground' }],
   rec_status_code: 'AR',
+  recreation_resource_status_code_rel: { description: 'Archived' },
   recreation_access: [
     {
       recreation_access_code: { access_code: 'ROAD', description: 'Road' },
@@ -166,6 +167,7 @@ describe('formatRecreationResourceDetailResults', () => {
 
     // rec_status_code mapping
     expect(result.rec_status_code).toBe('AR');
+    expect(result.rec_status_description).toBe('Archived');
   });
 
   it('should handle missing optional fields and use OPEN_STATUS defaults', () => {
@@ -208,6 +210,7 @@ describe('formatRecreationResourceDetailResults', () => {
     expect(result.risk_rating).toBeUndefined();
     expect(result.right_of_way).toBeUndefined();
     expect(result.rec_status_code).toBeUndefined();
+    expect(result.rec_status_description).toBeNull();
   });
 
   it('should group subAccessCodes by access code and sort accessCodes by code', () => {
