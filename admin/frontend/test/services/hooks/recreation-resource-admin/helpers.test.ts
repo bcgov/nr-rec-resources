@@ -14,6 +14,7 @@ describe('mapRecreationResourceDetail', () => {
   it('should map descriptions correctly for maintained resource', () => {
     const input = {
       rec_resource_id: '1',
+      rec_resource_type: 'Trail',
       maintenance_standard: {
         maintenance_standard_code: 'U',
         description: 'Maintained',
@@ -27,6 +28,7 @@ describe('mapRecreationResourceDetail', () => {
     expect(result.recreation_district_description).toBe('District A');
     expect(result.recreation_status_description).toBe('Open');
     expect(result.risk_rating_description).toBe('High');
+    expect(result.rec_resource_type_description).toBe('Trail');
   });
 
   it('should map descriptions correctly for user maintained resource', () => {

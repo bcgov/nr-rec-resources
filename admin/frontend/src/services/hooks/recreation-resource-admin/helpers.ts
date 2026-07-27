@@ -31,6 +31,7 @@ export function mapRecreationResourceDetail(
     recreation_district_description: data.recreation_district?.description,
     recreation_status_code: data.recreation_status?.status_code,
     recreation_status_description: data.recreation_status?.description,
+    rec_resource_type_description: data.rec_resource_type,
     control_access_code:
       data.recreation_control_access_code?.recreation_control_access_code,
     control_access_code_description:

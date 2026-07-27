@@ -19,6 +19,7 @@ export interface RecreationResourceDetailUIModel
   risk_rating_code?: string;
   risk_rating_description?: string;
   rec_resource_type_code?: string;
+  rec_resource_type_description?: string;
 }
 
 /**
