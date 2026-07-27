@@ -4,12 +4,20 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/components', () => ({
-  AdminStatusBadge: ({ label }: any) => (
-    <span data-testid="custom-badge">{label}</span>
-  ),
   CustomBadge: ({ label }: any) => (
     <span data-testid="custom-badge">{label}</span>
   ),
+  AdminStatusBadge: ({ label }: any) => (
+    <span data-testid="admin-status-badge">{label}</span>
+  ),
+  FileStatusBadge: ({ code, label }: any) => {
+    if (!code) return null;
+    return (
+      <span data-testid="file-status-badge" data-code={code}>
+        {label ?? code}
+      </span>
+    );
+  },
 }));
 
 vi.mock('@/components/clamp-lines', () => ({
@@ -37,99 +45,58 @@ describe('ResourceHeaderSection', () => {
     expect(screen.getByText('Park')).toBeInTheDocument();
   });
 
-  it('renders recreation status description when provided', () => {
+  it('renders file status badge with description when rec_status_description is provided', () => {
     const resourceWithStatus = {
       ...baseResource,
-      recreation_status_description: 'Currently Open',
+      rec_status_code: 'HI',
+      rec_status_description: 'Issued',
     } as unknown as RecreationResourceDetailUIModel;
 
     render(<ResourceHeaderSection recResource={resourceWithStatus} />);
 
-    const badges = screen.getAllByTestId('custom-badge');
-    expect(badges).toHaveLength(2); // ID badge and status badge
-    expect(badges[1]).toHaveTextContent('Currently Open');
+    expect(screen.getByTestId('file-status-badge')).toHaveTextContent('Issued');
+    expect(screen.getByTestId('file-status-badge')).toHaveAttribute(
+      'data-code',
+      'HI',
+    );
   });
 
-  it('does not render recreation status badge when description is not provided', () => {
+  it('renders admin status badge when recreation_status_description is provided', () => {
+    const resourceWithAdminStatus = {
+      ...baseResource,
+      recreation_status_description: 'Currently Open',
+      recreation_status_code: 1,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resourceWithAdminStatus} />);
+
+    expect(screen.getByTestId('admin-status-badge')).toHaveTextContent(
+      'Currently Open',
+    );
+  });
+
+  it('falls back to status code when description is not provided', () => {
     const resourceWithoutStatus = {
       ...baseResource,
+      rec_status_code: 'PE',
       recreation_status_description: null,
     } as unknown as RecreationResourceDetailUIModel;
 
     render(<ResourceHeaderSection recResource={resourceWithoutStatus} />);
 
-    const badges = screen.getAllByTestId('custom-badge');
-    expect(badges).toHaveLength(1); // Only ID badge
+    expect(screen.getByTestId('file-status-badge')).toHaveTextContent('PE');
   });
 
-  it('uses green color when recreation_status_code is 1 (active)', () => {
-    const resourceWithActiveStatus = {
+  it('does not render status badge when rec status code is missing', () => {
+    const resourceWithoutCode = {
       ...baseResource,
-      recreation_status_description: 'Active',
-      recreation_status_code: 1,
-    } as unknown as RecreationResourceDetailUIModel;
-
-    render(<ResourceHeaderSection recResource={resourceWithActiveStatus} />);
-
-    const badges = screen.getAllByTestId('custom-badge');
-    expect(badges).toHaveLength(2); // ID badge and status badge
-    expect(badges[1]).toHaveTextContent('Active');
-  });
-
-  it('uses red color when recreation_status_code is not 1 (inactive)', () => {
-    const resourceWithInactiveStatus = {
-      ...baseResource,
-      recreation_status_description: 'Inactive',
-      recreation_status_code: 0,
-    } as unknown as RecreationResourceDetailUIModel;
-
-    render(<ResourceHeaderSection recResource={resourceWithInactiveStatus} />);
-
-    const badges = screen.getAllByTestId('custom-badge');
-    expect(badges).toHaveLength(2); // ID badge and status badge
-    expect(badges[1]).toHaveTextContent('Inactive');
-  });
-
-  it('renders archived badge when rec_status_code is AR', () => {
-    const archivedResource = {
-      ...baseResource,
-      rec_status_code: 'AR',
-      recreation_status_description: 'Currently Open',
-      recreation_status_code: 1,
-    } as unknown as RecreationResourceDetailUIModel;
-
-    render(<ResourceHeaderSection recResource={archivedResource} />);
-
-    const badges = screen.getAllByTestId('custom-badge');
-    expect(badges).toHaveLength(2); // ID badge and archived badge
-    expect(badges[1]).toHaveTextContent('Archived');
-  });
-
-  it('renders recreation status badge when not archived', () => {
-    const activeResource = {
-      ...baseResource,
-      rec_status_code: 'AC',
-      recreation_status_description: 'Currently Open',
-      recreation_status_code: 1,
-    } as unknown as RecreationResourceDetailUIModel;
-
-    render(<ResourceHeaderSection recResource={activeResource} />);
-
-    const badges = screen.getAllByTestId('custom-badge');
-    expect(badges).toHaveLength(2); // ID badge and status badge
-    expect(badges[1]).toHaveTextContent('Currently Open');
-  });
-
-  it('does not render archived or status badge when not archived and no status description', () => {
-    const resourceNoStatus = {
-      ...baseResource,
-      rec_status_code: 'AC',
       recreation_status_description: null,
     } as unknown as RecreationResourceDetailUIModel;
 
-    render(<ResourceHeaderSection recResource={resourceNoStatus} />);
+    render(<ResourceHeaderSection recResource={resourceWithoutCode} />);
 
+    expect(screen.queryByTestId('file-status-badge')).not.toBeInTheDocument();
     const badges = screen.getAllByTestId('custom-badge');
-    expect(badges).toHaveLength(1); // Only ID badge
+    expect(badges).toHaveLength(1);
   });
 });

@@ -142,6 +142,8 @@ export function formatRecreationResourceDetailResults(
     right_of_way:
       result.right_of_way != null ? Number(result.right_of_way) : undefined,
     rec_status_code: result.rec_status_code,
+    rec_status_description:
+      result.recreation_resource_status_code_rel?.description ?? null,
     natural_resource_org_unit_name: naturalresource?.org_unit_name ?? undefined,
   };
 }
