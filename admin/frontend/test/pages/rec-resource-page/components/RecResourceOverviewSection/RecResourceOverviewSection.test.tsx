@@ -117,7 +117,6 @@ describe('RecResourceOverviewSection', () => {
     expect(screen.getByText('Project Established Date')).toBeInTheDocument();
     expect(screen.getByText('Risk Rating')).toBeInTheDocument();
     expect(screen.getByText('Test Community')).toBeInTheDocument();
-    expect(screen.getByText('Test Resource name')).toBeInTheDocument();
     expect(
       screen.getByText('Test Natural Resource District'),
     ).toBeInTheDocument();

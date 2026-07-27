@@ -87,7 +87,7 @@ export interface SearchResultsPaginationModel {
 
 export function useAdminSearchController(search: AdminSearchRouteState) {
   const navigate = useNavigate();
-  const { canEditArchived } = useAuthorizations();
+  const { isSuperAdmin } = useAuthorizations();
   const [isRecStatusDefaultSuppressed, setIsRecStatusDefaultSuppressed] =
     useState(false);
   const hasActiveFilters = hasActiveEditableFilters(search);
@@ -99,7 +99,7 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
   >(null);
   // Default to Issued (HI) for non-super-admins only until the user clears/resets that default.
   const shouldApplyDefaultRecStatus =
-    !canEditArchived &&
+    !isSuperAdmin &&
     search.recStatus.length === 0 &&
     !isRecStatusDefaultSuppressed;
   const effectiveSearch = useMemo(
