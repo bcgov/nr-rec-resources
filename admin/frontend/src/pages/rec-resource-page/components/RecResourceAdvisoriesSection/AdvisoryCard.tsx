@@ -63,6 +63,7 @@ export const AdvisoryCard = ({
 }: AdvisoryCardProps) => {
   const eventDatesLabel = (() => {
     if (!advisory.is_effective_date_displayed) return null;
+    if (!advisory.effective_date) return null;
     const start = formatDateReadable(advisory.effective_date);
     if (!start) return null;
     if (advisory.is_end_date_displayed && advisory.end_date) {

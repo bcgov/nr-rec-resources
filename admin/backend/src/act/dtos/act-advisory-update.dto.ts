@@ -151,11 +151,13 @@ export class ActAdvisoryUpdateDto {
   @ApiPropertyOptional({
     description: 'Date the advisory becomes effective (ISO 8601).',
     type: String,
+    nullable: true,
   })
   @IsOptional()
   @Type(() => Date)
+  @ValidateIf((_, value) => value !== null)
   @IsDate()
-  effective_date?: Date;
+  effective_date?: Date | null;
 
   @ApiPropertyOptional({
     description: 'Date the advisory ends, if applicable (ISO 8601).',
@@ -193,11 +195,13 @@ export class ActAdvisoryUpdateDto {
   @ApiPropertyOptional({
     description: 'Date the advisory record was last updated in Act.',
     type: String,
+    nullable: true,
   })
   @IsOptional()
   @Type(() => Date)
+  @ValidateIf((_, value) => value !== null)
   @IsDate()
-  updated_date?: Date;
+  updated_date?: Date | null;
 
   @ApiPropertyOptional({
     description: 'Date the advisory was last content-modified in Act.',
