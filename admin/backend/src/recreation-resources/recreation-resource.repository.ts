@@ -179,11 +179,15 @@ export class RecreationResourceRepository {
       return null;
     }
 
+    // Replace one or more spaces with the Postgres ILIKE wildcard '%'
+    // "Nice Lake" becomes "Nice%Lake"
+    const wildcardQuery = trimmedQuery.replace(/\s+/g, '%');
+
     return {
       OR: [
         {
           name: {
-            contains: trimmedQuery,
+            contains: wildcardQuery,
             mode: 'insensitive',
           },
         },

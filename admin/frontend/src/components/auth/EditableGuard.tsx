@@ -19,9 +19,9 @@ export function EditableGuard({
   fallback = null,
   children,
 }: Readonly<EditableGuardProps>) {
-  const { canEdit, canEditArchived } = useAuthorizations();
+  const { canEdit, isSuperAdmin } = useAuthorizations();
 
-  const hasAccess = canEdit && (!isArchived || canEditArchived);
+  const hasAccess = canEdit && (!isArchived || isSuperAdmin);
 
   if (!hasAccess) return <>{fallback}</>;
 

@@ -76,6 +76,27 @@ describe('createEditReservationSchema', () => {
     expect(valid.success).toBe(true);
   });
 
+  it('rejects phone numbers that do not match NNN-NNN-NNNN format', () => {
+    const formats = [
+      '(250) 555-1234', // parentheses format
+      '250 555 1234', // spaces instead of dashes
+      '+12505551234', // E.164 format (legacy - must be normalised before submit)
+      '2505551234', // no separators
+      '1-250-555-1234', // leading country code
+      '250-555-12345', // too many digits
+      '250-55-1234', // too few digits in middle segment
+    ];
+
+    for (const contact of formats) {
+      const result = schema.safeParse({
+        has_reservation: true,
+        reservation_method: 'reservation_phone_number',
+        reservation_contact: contact,
+      });
+      expect(result.success, `Expected "${contact}" to be invalid`).toBe(false);
+    }
+  });
+
   it('validates email reservation contact format', () => {
     const invalid = schema.safeParse({
       has_reservation: true,

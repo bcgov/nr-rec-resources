@@ -7,7 +7,7 @@ import './ArchivedNotice.scss';
 
 export const ARCHIVED_TITLE = 'Recreation resource archived';
 export const ARCHIVED_MESSAGE =
-  "This recreation resource is kept for reference and can't be edited.";
+  'Recreation resource can be edited by super admins';
 
 export function ArchivedNotice() {
   return (
