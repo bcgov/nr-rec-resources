@@ -1,5 +1,10 @@
 locals {
   rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
+  default_instance_config = {
+      auto_minor_version_upgrade      = false
+      performance_insights_enabled    = true
+      performance_insights_kms_key_id = data.aws_kms_alias.rds_key.arn
+    }
 }
 
 data "aws_kms_alias" "rds_key" {
@@ -122,22 +127,10 @@ module "aurora_postgresql_v2" {
 
   cluster_instance_class = "db.serverless"
   instances = var.ha_enabled ? {
-    one = {
-      auto_minor_version_upgrade      = false
-      performance_insights_enabled    = true
-      performance_insights_kms_key_id = data.aws_kms_alias.rds_key.arn
-    }
-    two = {
-      auto_minor_version_upgrade      = false
-      performance_insights_enabled    = true
-      performance_insights_kms_key_id = data.aws_kms_alias.rds_key.arn
-    }
+    one = local.default_instance_config
+    two = local.default_instance_config
   } : {
-    one = {
-      auto_minor_version_upgrade      = false
-      performance_insights_enabled    = true
-      performance_insights_kms_key_id = data.aws_kms_alias.rds_key.arn
-    }
+    one = local.default_instance_config
   }
 
   tags = {
