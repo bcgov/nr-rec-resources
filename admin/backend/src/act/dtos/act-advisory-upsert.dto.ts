@@ -192,10 +192,12 @@ export class ActAdvisoryUpsertDto {
     description: 'Date the advisory becomes effective (ISO 8601).',
     example: '2026-06-02T00:00:00.000Z',
     type: String,
+    nullable: true,
   })
+  @ValidateIf((_, value) => value !== null)
   @Type(() => Date)
   @IsDate()
-  effective_date: Date;
+  effective_date: Date | null;
 
   @ApiPropertyOptional({
     description: 'Date the advisory ends, if applicable (ISO 8601).',
@@ -236,10 +238,12 @@ export class ActAdvisoryUpsertDto {
     description: 'Date the advisory record was last updated in Act.',
     example: '2026-06-05T08:30:00.000Z',
     type: String,
+    nullable: true,
   })
+  @ValidateIf((_, value) => value !== null)
   @Type(() => Date)
   @IsDate()
-  updated_date: Date;
+  updated_date: Date | null;
 
   @ApiProperty({
     description: 'Date the advisory was last content-modified in Act.',

@@ -1342,7 +1342,7 @@ model act_advisories_flat {
   is_end_date_displayed       Boolean
   is_updated_date_displayed   Boolean?
   advisory_date               DateTime                 @db.Timestamptz(6)
-  effective_date              DateTime                 @db.Timestamptz(6)
+  effective_date              DateTime?                @db.Timestamptz(6)
   end_date                    DateTime?                @db.Timestamptz(6)
   expiry_date                 DateTime?                @db.Timestamptz(6)
   updated_date                DateTime?                @db.Timestamptz(6)
@@ -1378,7 +1378,7 @@ model act_advisories_flat_history {
   is_end_date_displayed       Boolean
   is_updated_date_displayed   Boolean?
   advisory_date               DateTime                 @db.Timestamptz(6)
-  effective_date              DateTime                 @db.Timestamptz(6)
+  effective_date              DateTime?                @db.Timestamptz(6)
   end_date                    DateTime?                @db.Timestamptz(6)
   expiry_date                 DateTime?                @db.Timestamptz(6)
   updated_date                DateTime?                @db.Timestamptz(6)
