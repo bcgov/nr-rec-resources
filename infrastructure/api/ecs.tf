@@ -224,7 +224,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
         },
         {
           name  = "FEATURE_ADVISORY_STATUS"
-          value = var.feature_advisory_status
+          value = var.app == "public" ? var.feature_advisory_status : ""
         }
       ]
       portMappings = [
