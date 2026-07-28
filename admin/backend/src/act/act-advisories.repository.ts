@@ -61,10 +61,15 @@ export class ActAdvisoriesRepository {
 
     const created = !(await this.exists({ rec_resource_id, advisory_number }));
 
+    const writeInput = this.toWriteInput(payload);
     const advisory = await this.prisma.act_advisories_flat.upsert({
       where: this.toCompositeWhereInput({ rec_resource_id, advisory_number }),
-      create: this.toCreateInput(payload),
-      update: this.toUpdateInput(payload),
+      create: {
+        rec_resource_id,
+        advisory_number,
+        ...writeInput,
+      },
+      update: writeInput,
     });
 
     this.logger.log(
@@ -146,30 +151,6 @@ export class ActAdvisoriesRepository {
       access_status_precedence: payload.access_status_precedence ?? 0,
       event_type_precedence: payload.event_type_precedence ?? 0,
     };
-  }
-
-  /**
-   * Builds a Prisma create input from a full upsert payload.
-   */
-  private toCreateInput(
-    payload: ActAdvisoryUpsertDto,
-  ): Prisma.act_advisories_flatUncheckedCreateInput {
-    return {
-      rec_resource_id: payload.rec_resource_id,
-      advisory_number: payload.advisory_number,
-      ...this.toWriteInput(payload),
-    };
-  }
-
-  /**
-   * Builds a Prisma update input from a full upsert payload.
-   * The composite key columns are intentionally omitted because they
-   * are matched in the `where` clause.
-   */
-  private toUpdateInput(
-    payload: ActAdvisoryUpsertDto,
-  ): Prisma.act_advisories_flatUncheckedUpdateInput {
-    return this.toWriteInput(payload);
   }
 
   /**

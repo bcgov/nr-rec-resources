@@ -60,7 +60,7 @@ export interface RecreationResourceAdvisoryDto {
    * @type {Date}
    * @memberof RecreationResourceAdvisoryDto
    */
-  effective_date: Date;
+  effective_date?: Date | null;
   /**
    * End date (event end)
    * @type {Date}
@@ -137,7 +137,8 @@ export function instanceOfRecreationResourceAdvisoryDto(
   if (!('urgency' in value) || value['urgency'] === undefined) return false;
   if (!('advisory_date' in value) || value['advisory_date'] === undefined)
     return false;
-  if (!('effective_date' in value) || value['effective_date'] === undefined)
+  if (!('effective_date' in value)) return false;
+  if (!('updated_date' in value) || value['updated_date'] === undefined)
     return false;
   if (!('submitted_by' in value) || value['submitted_by'] === undefined)
     return false;
@@ -184,7 +185,10 @@ export function RecreationResourceAdvisoryDtoFromJSONTyped(
     advisory_status: json['advisory_status'],
     urgency: json['urgency'],
     advisory_date: new Date(json['advisory_date']),
-    effective_date: new Date(json['effective_date']),
+    effective_date:
+      json['effective_date'] == null
+        ? undefined
+        : new Date(json['effective_date']),
     end_date: json['end_date'] == null ? undefined : new Date(json['end_date']),
     expiry_date:
       json['expiry_date'] == null ? undefined : new Date(json['expiry_date']),
@@ -221,7 +225,10 @@ export function RecreationResourceAdvisoryDtoToJSONTyped(
     advisory_status: value['advisory_status'],
     urgency: value['urgency'],
     advisory_date: value['advisory_date'].toISOString(),
-    effective_date: value['effective_date'].toISOString(),
+    effective_date:
+      value['effective_date'] === null
+        ? null
+        : (value['effective_date'] as any)?.toISOString(),
     end_date:
       value['end_date'] === null
         ? null
