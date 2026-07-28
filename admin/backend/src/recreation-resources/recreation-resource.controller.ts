@@ -235,6 +235,7 @@ export class RecreationResourceController {
     @IsSuperAdmin() isSuperAdmin: boolean,
   ): Promise<RecreationResourceDetailDto> {
     if (!isSuperAdmin) {
+      delete updateData.name; // Non-super-admins cannot change this field
       const resource =
         await this.recreationResourceRepository.findOneById(rec_resource_id);
       if (resource?.rec_status_code === 'AR') {
@@ -243,6 +244,7 @@ export class RecreationResourceController {
         );
       }
     }
+
     // Service layer will throw appropriate exceptions (NotFoundException, BadRequestException)
     // Controller just passes through - let NestJS exception filters handle HTTP responses
     return await this.recreationResourceService.update(

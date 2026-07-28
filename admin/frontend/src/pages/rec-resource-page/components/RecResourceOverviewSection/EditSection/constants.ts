@@ -1,6 +1,7 @@
 import { EditResourceFormData } from './schemas';
 
 export const CLOSEST_COMMUNITY_MAX_LENGTH = 200;
+export const NAME_MAX_LENGTH = 200;
 
 /**
  * Map of form field names to human-readable labels for error messages.
@@ -10,6 +11,7 @@ export const EDIT_RESOURCE_FIELD_LABEL_MAP: Record<
   string
 > = {
   closest_community: 'Closest Community',
+  name: 'Name',
   status_code: 'Status',
   maintenance_standard_code: 'Maintenance Standard',
   control_access_code: 'Controlled Access Type',
@@ -18,4 +20,6 @@ export const EDIT_RESOURCE_FIELD_LABEL_MAP: Record<
   project_established_date: 'Project Established Date',
   selected_access_options: 'Access and Sub-Access',
   display_on_public_site: 'Displayed on public site',
+  site_description: 'Site Description',
+  driving_directions: 'Driving Directions',
 } as const;

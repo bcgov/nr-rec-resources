@@ -12,9 +12,9 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: false,
-      canEditArchived: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
+      isSuperAdmin: false,
     });
   });
 
@@ -26,9 +26,9 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
-      canEditArchived: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
+      isSuperAdmin: false,
     });
   });
 
@@ -40,9 +40,9 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
-      canEditArchived: true,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
+      isSuperAdmin: true,
     });
   });
 
@@ -54,9 +54,9 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: false,
       canEdit: false,
-      canEditArchived: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
+      isSuperAdmin: false,
     });
   });
 
@@ -68,9 +68,9 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: false,
-      canEditArchived: false,
       canViewFeatureFlag: true,
       canEditFeatureFlag: false,
+      isSuperAdmin: false,
     });
   });
 
@@ -82,9 +82,9 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
-      canEditArchived: false,
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
+      isSuperAdmin: false,
     });
   });
 
@@ -96,9 +96,9 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
-      canEditArchived: true,
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
+      isSuperAdmin: true,
     });
   });
 });

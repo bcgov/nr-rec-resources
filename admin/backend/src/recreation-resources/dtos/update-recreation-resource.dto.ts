@@ -155,4 +155,16 @@ export class UpdateRecreationResourceDto {
   @IsOptional()
   @IsString()
   driving_directions?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Name of the recreation resource',
+    example: 'Port Hardy Recreation Area',
+    nullable: true,
+    type: String,
+    maxLength: 200,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  name?: string | null;
 }

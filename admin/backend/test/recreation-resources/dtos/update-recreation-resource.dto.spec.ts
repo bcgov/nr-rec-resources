@@ -45,6 +45,7 @@ describe('Update Recreation Resource DTOs', () => {
       dto.driving_directions =
         '<p>Take Highway 1 east, then turn left at Main St.</p>';
       dto.closest_community = 'Nearby Town';
+      dto.name = 'Port Hardy Recreation Area';
 
       expect(dto.maintenance_standard_code).toBe('1');
       expect(dto.control_access_code).toBe('G');
@@ -63,6 +64,7 @@ describe('Update Recreation Resource DTOs', () => {
         '<p>Take Highway 1 east, then turn left at Main St.</p>',
       );
       expect(dto.closest_community).toBe('Nearby Town');
+      expect(dto.name).toBe('Port Hardy Recreation Area');
     });
 
     it('should create a valid DTO with only maintenance_standard_code', () => {

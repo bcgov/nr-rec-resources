@@ -20,8 +20,8 @@ export const RecResourceEstablishmentOrderSection = ({
   recResourceId,
   isArchived = false,
 }: RecResourceEstablishmentOrderSectionProps) => {
-  const { canEdit, canEditArchived } = useAuthorizations();
-  const canModifyFiles = canEdit && (!isArchived || canEditArchived);
+  const { canEdit, isSuperAdmin } = useAuthorizations();
+  const canModifyFiles = canEdit && (!isArchived || isSuperAdmin);
   const {
     galleryFiles,
     isLoading,
