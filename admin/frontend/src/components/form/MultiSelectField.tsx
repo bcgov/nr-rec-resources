@@ -9,6 +9,7 @@ import {
   Path,
 } from 'react-hook-form';
 import Select, { MultiValue } from 'react-select';
+import { HelpIcon } from '@/components';
 
 interface MultiSelectFieldProps<TFieldValues extends FieldValues> {
   name: Path<TFieldValues>;
@@ -19,6 +20,8 @@ interface MultiSelectFieldProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
   errors: FieldErrors<TFieldValues>;
   disabled?: boolean;
+  helpText?: string;
+  helperText?: string;
 }
 
 /**
@@ -35,6 +38,8 @@ function MultiSelectFieldComponent<TFieldValues extends FieldValues>({
   errors,
   disabled = false,
   hideLabel = false,
+  helpText,
+  helperText,
 }: MultiSelectFieldProps<TFieldValues>) {
   return (
     <Controller<TFieldValues>
@@ -51,11 +56,18 @@ function MultiSelectFieldComponent<TFieldValues extends FieldValues>({
 
         return (
           <Form.Group controlId={name as string}>
-            <Form.Label className={hideLabel ? 'visually-hidden' : ''}>
-              {label}
+            <Form.Label>
+              <span className={hideLabel ? 'visually-hidden' : ''}>
+                {label}
+              </span>
+              {helpText && <HelpIcon id={`${name}-help`} text={helpText} />}
             </Form.Label>
             <Select<RecreationResourceOptionUIModel, true>
               id={`${name as string}-select`}
+              inputId={`${name as string}-input`}
+              aria-describedby={
+                helperText ? `${name as string}-helper` : undefined
+              }
               isMulti
               options={options}
               placeholder={placeholder}
@@ -84,6 +96,12 @@ function MultiSelectFieldComponent<TFieldValues extends FieldValues>({
               getOptionLabel={(option) => option.label}
               getOptionValue={(option) => option.id || ''}
             />
+            {helperText && (
+              <Form.Text id={`${name as string}-helper`} muted>
+                {helperText}
+              </Form.Text>
+            )}
+
             {(errors as Record<string, any>)[name as string] && (
               <Form.Control.Feedback type="invalid" className="d-block">
                 {

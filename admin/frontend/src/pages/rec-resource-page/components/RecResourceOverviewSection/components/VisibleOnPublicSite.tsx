@@ -2,6 +2,8 @@ import { Card, Form, Stack } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import './VisibleOnPublicSite.scss';
+import { HelpIcon } from '@/components';
+import { DISPLAY_ON_PUBLIC_SITE_TEXT } from '@/utils/helperText';
 
 type VisibleOnPublicSiteProps = {
   isEditMode?: boolean;
@@ -34,6 +36,7 @@ export const VisibleOnPublicSite = ({
                 className="me-2"
               />
               Displayed on public site
+              <HelpIcon text={DISPLAY_ON_PUBLIC_SITE_TEXT} id={''} />
             </span>
             <span className={`pill pill__${value ? 'visible' : 'hidden'}`}>
               {value
