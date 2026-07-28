@@ -325,6 +325,56 @@ describe('RecreationResourceRepository', () => {
       );
     });
 
+    it('should replace single/multiple spaces with PostgreSQL ILIKE wildcard (%) in search clause', async () => {
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([5, []]);
+
+      // Act
+      await repo.searchResources({
+        q: 'Nice   Lake', // Input with multiple spaces
+        page: 2,
+        page_size: 25,
+      });
+
+      expect(prisma.recreation_resource.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            AND: expect.arrayContaining([
+              {
+                OR: [
+                  {
+                    name: {
+                      contains: 'Nice%Lake', // <-- Verifies 'Nice   Lake' was converted to 'Nice%Lake'
+                      mode: 'insensitive',
+                    },
+                  },
+                  {
+                    rec_resource_id: {
+                      contains: 'Nice   Lake',
+                      mode: 'insensitive',
+                    },
+                  },
+                  {
+                    closest_community: {
+                      contains: 'Nice   Lake',
+                      mode: 'insensitive',
+                    },
+                  },
+                ],
+              },
+              {
+                OR: [
+                  { rec_status_code: null },
+                  { rec_status_code: { not: 'AR' } },
+                ],
+              },
+            ]),
+          },
+        }),
+      );
+    });
+
     it('should ignore established filter when value is invalid', async () => {
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
