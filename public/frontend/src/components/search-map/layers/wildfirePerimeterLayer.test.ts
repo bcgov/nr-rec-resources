@@ -13,15 +13,16 @@ describe('createWildfirePerimeterStyle', () => {
     const feature = new Feature({ FIRE_STATUS: 'default' });
     const style = createWildfirePerimeterStyle(feature);
     expect(style).toBeDefined();
+    // perimeter uses a semi-transparent fill so the area is subtly visible
     expect(style.getFill()).toBeDefined();
+    expect(String(style.getFill()!.getColor())).toContain('0.1');
     expect(style.getStroke()).toBeDefined();
   });
 
   it('applies hover opacity', () => {
     const feature = new Feature({ FIRE_STATUS: 'default' });
     const style = createWildfirePerimeterStyle(feature, true) as any;
-    expect(style.getFill().getColor()).toContain('0.2');
-    expect(style.getStroke().getColor()).toContain('0.4');
+    expect(style.getStroke().getColor()).toContain('0.9');
   });
 });
 

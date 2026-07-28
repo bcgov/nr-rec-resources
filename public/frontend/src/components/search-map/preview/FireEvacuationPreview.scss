@@ -1,0 +1,184 @@
+@import '@shared/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/breakpoints';
+
+.map-feature-preview-card.evacuation-preview-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // required so max-height on parent clips flex children
+
+  @include media-breakpoint-up(sm) {
+    flex-direction: row;
+    min-height: 220px;
+    height: auto;
+    min-width: 580px;
+    max-width: 580px;
+
+    p {
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  .evacuation-preview-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    color: $colorWhite;
+    background-color: $colorEvacuationOrder;
+    font-weight: 700;
+    font-size: 1rem;
+    width: 100%;
+    flex-shrink: 0;
+
+    // Status-based background colours
+    &.status-order {
+      background-color: $colorEvacuationOrder;
+    }
+    &.status-tactical {
+      background-color: $colorEvacuationTactical;
+    }
+    &.status-alert {
+      background-color: $colorEvacuationAlert;
+    }
+    &.status-all-clear {
+      background-color: $colorEvacuationAllClear;
+    }
+
+    > span:first-of-type {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .evacuation-header-text {
+      display: flex;
+      flex-direction: column;
+      color: $colorWhite;
+      white-space: nowrap;
+    }
+
+    .evacuation-header-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      img {
+        width: 28px;
+        height: 28px;
+
+        @include media-breakpoint-up(sm) {
+          width: 39px;
+          height: 39px;
+        }
+      }
+
+      svg {
+        display: block;
+      }
+    }
+
+    .preview-close-btn {
+      background: none;
+      border: none;
+      color: $colorWhite;
+      padding: 0.25rem 0.5rem;
+
+      &:focus {
+        opacity: 0.8;
+      }
+    }
+
+    @include media-breakpoint-up(sm) {
+      width: 180px;
+      font-size: 1.1rem;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 1.75rem;
+      text-align: center;
+
+      > span:first-of-type {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        text-align: center;
+      }
+    }
+  }
+
+  .evacuation-preview-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    flex: 1;
+    min-width: 0;
+    min-height: 0; // allows flex child to shrink below content size
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    @include media-breakpoint-up(sm) {
+      padding: 1rem 1.75rem;
+    }
+
+    p {
+      margin-bottom: 0.75rem;
+    }
+
+    a {
+      color: $colorBlueMed;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      svg {
+        margin-left: 0.25rem;
+        color: $colorBlueMed;
+      }
+    }
+
+    svg {
+      color: $colorBlue;
+    }
+
+    .evacuation-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+
+      @include media-breakpoint-up(sm) {
+        font-size: 1.2rem;
+        margin-bottom: 0;
+      }
+    }
+
+    .evacuation-info-btn {
+      color: $colorWhite;
+
+      svg {
+        color: $colorWhite;
+      }
+    }
+
+    .evacuation-footer-text {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: $colorGreyDark;
+      border-top: 1px solid $colorBorderLight;
+      padding-top: 0.5rem;
+
+      a {
+        color: $colorBlueMed;
+        font-weight: 600;
+      }
+    }
+  }
+}

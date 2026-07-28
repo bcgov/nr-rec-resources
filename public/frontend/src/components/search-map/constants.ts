@@ -47,6 +47,12 @@ export const WILDFIRE_LOCATION_LAYER =
 export const WILDFIRE_PERIMETER_LAYER =
   'https://services6.arcgis.com/ubm4tcTYICKBpist/arcgis/rest/services/BCWS_FirePerimeters_PublicView/FeatureServer/0';
 
+export const FIRE_EVACUATION_LAYER =
+  'https://services6.arcgis.com/ubm4tcTYICKBpist/arcgis/rest/services/Evacuation_Orders_and_Alerts/FeatureServer/0';
+
+export const WILDFIRE_AREA_RESTRICTION_LAYER =
+  'https://services6.arcgis.com/ubm4tcTYICKBpist/arcgis/rest/services/British_Columbia_Area_Restrictions_-_View/FeatureServer/13';
+
 export const BCGW_PROXY_URL = `${getBasePath()}/api/v1/geospatial/bcgw`;
 
 export const BCGW_RECREATION_TRAIL_LAYER = '3';

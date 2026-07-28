@@ -56,6 +56,7 @@ export const createWildfireLocationSource = () =>
         `&outFields=${WILDFIRE_FIELDS.join(',')}` +
         `&geometry=${geometry}` +
         `&geometryType=esriGeometryEnvelope` +
+        `&inSR=102100` +
         `&spatialRel=esriSpatialRelIntersects` +
         `&outSR=102100`
       );

@@ -23,6 +23,7 @@ describe('useLayer', () => {
       setStyle,
       changed,
       set: vi.fn(),
+      get: vi.fn(() => undefined),
       getSource: vi.fn(() => currentSource),
       setSource: vi.fn((src: any) => {
         currentSource = src;
@@ -218,7 +219,7 @@ describe('useLayer', () => {
 
     const { rerender } = renderHook(
       ({ cs }: { cs: () => any }) =>
-        useLayer(mapRefMock, cs, localCreateLayer, createStyle),
+        useLayer(mapRefMock, cs, localCreateLayer as any, createStyle),
       { initialProps: { cs: cs1 } },
     );
 
@@ -344,5 +345,62 @@ describe('useLayer', () => {
 
     // hoveredFeature starts null; fakeFeature !== null → isHovered = false
     expect(createStyle).toHaveBeenCalledWith(fakeFeature, false);
+  });
+
+  it('sets layer invisible when initiallyVisible=false and no hideBelowZoom', () => {
+    renderHook(() =>
+      useLayer(mapRefMock, createSource, createLayer, createStyle, {
+        initiallyVisible: false,
+      }),
+    );
+    expect(createLayer.mock.results[0].value.setVisible).toHaveBeenCalledWith(
+      false,
+    );
+  });
+
+  it('layer stays invisible on moveend when _userEnabled=false', () => {
+    createLayer = vi.fn(() => ({
+      setVisible: vi.fn(),
+      setStyle: vi.fn(),
+      changed: vi.fn(),
+      set: vi.fn(),
+      get: vi.fn((key: string) => (key === '_userEnabled' ? false : undefined)),
+      getSource: vi.fn(() => null),
+      setSource: vi.fn(),
+    }));
+    createSource = vi.fn(() => ({}));
+
+    renderHook(() =>
+      useLayer(mapRefMock, createSource, createLayer, createStyle, {
+        hideBelowZoom: 5,
+      }),
+    );
+
+    const layer = createLayer.mock.results[0].value;
+
+    // trigger moveend
+    act(() => {
+      mapMock.__triggerEvent('moveend');
+    });
+
+    // setVisible(false) called at least once (initial), never called with true
+    expect(layer.setVisible).not.toHaveBeenCalledWith(true);
+  });
+
+  it('pointermove listener removed on unmount when applyHoverStyles is true', () => {
+    mapMock.getTargetElement = vi.fn(() => ({ style: { cursor: '' } }));
+
+    const { unmount } = renderHook(() =>
+      useLayer(mapRefMock, createSource, createLayer, createStyle, {
+        applyHoverStyles: true,
+      }),
+    );
+
+    unmount();
+
+    expect(mapMock.un).toHaveBeenCalledWith(
+      'pointermove',
+      expect.any(Function),
+    );
   });
 });

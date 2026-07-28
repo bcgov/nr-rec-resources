@@ -6,12 +6,14 @@
 .map-feature-preview-card.wildfire-preview-card {
   display: flex;
   flex-direction: column;
+  overflow: hidden; // required so max-height on parent clips flex children
 
   @include media-breakpoint-up(sm) {
     flex-direction: row;
-    height: 200px;
-    min-width: 540px;
-    max-width: 540px;
+    min-height: 200px;
+    height: auto;
+    min-width: 600px;
+    max-width: 600px;
 
     p {
       margin-bottom: 0.25rem;
@@ -23,22 +25,47 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     color: $colorRed;
     background-color: $colorRedLight;
     font-weight: 700;
-    font-size: 1.4rem;
+    font-size: 1.1rem;
+    width: 100%;
+    flex-shrink: 0;
+
+    @include media-breakpoint-up(sm) {
+      width: 180px;
+      font-size: 1.4rem;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: center;
+      padding: 1rem 1.75rem;
+    }
+
+    > span {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
 
     img {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       margin-right: 0.5rem;
+
+      @include media-breakpoint-up(sm) {
+        width: 32px;
+        height: 32px;
+      }
     }
 
     .preview-close-btn {
       background: none;
       border: none;
       color: inherit;
+      padding: 0.25rem 0.5rem;
 
       &:focus {
         opacity: 0.8;
@@ -50,9 +77,16 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 1rem;
-    width: 100%;
-    max-width: 340px;
+    padding: 0.75rem 1rem;
+    flex: 1;
+    min-width: 0;
+    min-height: 0; // allows flex child to shrink below content size
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    @include media-breakpoint-up(sm) {
+      padding: 1rem 1.75rem;
+    }
 
     p {
       margin-bottom: 0.5rem;
@@ -77,15 +111,16 @@
     }
 
     .fire-number {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 700;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
 
       svg {
         margin-left: 0.25rem;
       }
 
       @include media-breakpoint-up(sm) {
+        font-size: 1.2rem;
         margin-bottom: 0;
       }
     }
