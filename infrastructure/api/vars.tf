@@ -151,6 +151,12 @@ variable "fta_dataload_bucket" {
   default     = "rst-fta-lza-dataload-oracle"
 }
 
+variable "feature_advisory_status" {
+  description = "Enable the advisory status feature"
+  type        = string
+  default     = "true"
+}
+
 variable "forest_client_api_key" {
   description = "The API key for the Forest client"
   type        = string
