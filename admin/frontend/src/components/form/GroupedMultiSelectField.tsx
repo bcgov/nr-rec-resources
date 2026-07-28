@@ -1,3 +1,4 @@
+import { HelpIcon } from '@/components/help-icon';
 import { Form } from 'react-bootstrap';
 import {
   Control,
@@ -29,6 +30,7 @@ interface BaseProps<TFieldValues extends FieldValues> {
   errors: FieldErrors<TFieldValues>;
   disabled?: boolean;
   helperText?: string;
+  helpText?: string;
 }
 
 interface SingleSelectProps<TFieldValues extends FieldValues>
@@ -57,6 +59,7 @@ export function GroupedMultiSelectField<TFieldValues extends FieldValues>({
   errors,
   disabled = false,
   helperText,
+  helpText,
   isMulti = true,
 }: GroupedSelectFieldProps<TFieldValues>) {
   const allOptions = flattenOptions(options);
@@ -77,7 +80,12 @@ export function GroupedMultiSelectField<TFieldValues extends FieldValues>({
 
           return (
             <Form.Group controlId={name as string}>
-              <Form.Label>{label}</Form.Label>
+              <Form.Label>
+                {label}
+                {helpText && (
+                  <HelpIcon id={`${name as string}-help`} text={helpText} />
+                )}
+              </Form.Label>
               <Select<GroupedOption, true>
                 id={`${name as string}-select`}
                 isMulti
@@ -113,7 +121,15 @@ export function GroupedMultiSelectField<TFieldValues extends FieldValues>({
 
         return (
           <Form.Group controlId={name as string}>
-            <Form.Label>{label}</Form.Label>
+            <Form.Label>
+              {label}
+              {helpText && (
+                <HelpIcon
+                  id={`${name as string}-single-help`}
+                  text={helpText}
+                />
+              )}
+            </Form.Label>
             <Select<GroupedOption, false>
               id={`${name as string}-select`}
               isMulti={false}

@@ -14,3 +14,4 @@ export * from './notification-bar';
 export * from './page-layout';
 export * from './table';
 export * from './IconButton';
+export * from './help-icon';

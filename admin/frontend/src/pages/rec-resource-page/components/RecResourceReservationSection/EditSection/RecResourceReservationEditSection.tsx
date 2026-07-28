@@ -146,6 +146,14 @@ export const RecResourceReservationEditSection = () => {
                         {...register('reservation_contact')}
                         isInvalid={!!errors.reservation_contact}
                       />
+                      <Form.Text muted>
+                        {reservationMethod === 'reservation_website' &&
+                          'Enter the full URL including https://.'}
+                        {reservationMethod === 'reservation_phone_number' &&
+                          'Enter a valid phone number, e.g. 250-555-1234.'}
+                        {reservationMethod === 'reservation_email' &&
+                          'Enter a valid email address, e.g. name@example.com.'}
+                      </Form.Text>
                       <Form.Control.Feedback type="invalid">
                         {errors.reservation_contact?.message}
                       </Form.Control.Feedback>
