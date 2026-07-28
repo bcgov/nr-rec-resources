@@ -1,8 +1,26 @@
 /* tslint:disable */
-
+/* eslint-disable */
+export * from './ActAdvisoryBulkResponseDto';
+export * from './ActAdvisoryBulkUpsertDto';
+export * from './ActAdvisoryResponseDto';
+export * from './ActAdvisoryUpdateDto';
+export * from './ActAdvisoryUpsertDto';
 export * from './AdminSearchResponseDto';
 export * from './AdminSearchResultRowDto';
 export * from './BadRequestResponseDto';
+export * from './BcgwClosuresShortDto';
+export * from './BcgwClosuresShortFeatureCollectionDto';
+export * from './BcgwClosuresShortFeatureDto';
+export * from './BcgwFeatureCollectionDto';
+export * from './BcgwFeatureDto';
+export * from './BcgwPaginationMetaDto';
+export * from './BcgwRecreationLinesDto';
+export * from './BcgwRecreationLinesFeatureCollectionDto';
+export * from './BcgwRecreationLinesFeatureDto';
+export * from './BcgwRecreationPolygonsDto';
+export * from './BcgwRecreationPolygonsFeatureCollectionDto';
+export * from './BcgwRecreationPolygonsFeatureDto';
+export * from './BcgwRecreationResourceDto';
 export * from './ConsentFormDownloadResponseDto';
 export * from './CreateRecreationFeeDto';
 export * from './CreateTrailDto';
@@ -10,6 +28,7 @@ export * from './EstablishmentOrderDocDto';
 export * from './ExportDatasetDto';
 export * from './ExportPreviewResponseDto';
 export * from './FinalizeDocUploadRequestDto';
+export * from './GenericErrorResponseDto';
 export * from './HealthControllerCheck200Response';
 export * from './HealthControllerCheck200ResponseInfoValue';
 export * from './HealthControllerCheck503Response';

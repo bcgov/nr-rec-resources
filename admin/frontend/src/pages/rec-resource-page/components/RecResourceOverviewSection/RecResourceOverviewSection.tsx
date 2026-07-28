@@ -82,16 +82,6 @@ export const RecResourceOverviewSection = (
         </Col>
       </Row>
 
-      <Row>
-        <Col xs={12}>
-          <FieldItem
-            label="Description"
-            value={recResource.description}
-            isHtml
-          />
-        </Col>
-      </Row>
-
       <Row className="gy-3">
         {overviewItems.map((item) => (
           <Col key={item.key} xs={12} md={6} lg={4}>
@@ -105,6 +95,16 @@ export const RecResourceOverviewSection = (
           <FieldItem
             label="Access Type"
             value={<RecreationResourceAccessRow recResource={recResource} />}
+          />
+        </Col>
+      </Row>
+
+      <Row>
+        <Col xs={12}>
+          <FieldItem
+            label="Description"
+            value={recResource.description}
+            isHtml
           />
         </Col>
       </Row>

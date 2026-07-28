@@ -88,7 +88,7 @@ describe('useEditResourceForm', () => {
         sub_access_codes: [{ code: 'SUB3', description: 'Sub Access 3' }],
       },
     ],
-  } as RecreationResourceDetailUIModel;
+  } as unknown as RecreationResourceDetailUIModel;
 
   const mockUpdateMutation = {
     mutateAsync: mockMutateAsync,
@@ -270,6 +270,7 @@ describe('useEditResourceForm', () => {
         district_code: null,
         display_on_public_site: false,
         site_description: null,
+        name: null,
         driving_directions: null,
         closest_community: null,
         access_codes: [
@@ -327,6 +328,7 @@ describe('useEditResourceForm', () => {
         district_code: null,
         display_on_public_site: false,
         site_description: null,
+        name: null,
         driving_directions: null,
         closest_community: null,
         access_codes: [
@@ -371,6 +373,7 @@ describe('useEditResourceForm', () => {
         district_code: null,
         display_on_public_site: false,
         site_description: null,
+        name: null,
         driving_directions: null,
         closest_community: null,
         access_codes: [],
@@ -413,6 +416,7 @@ describe('useEditResourceForm', () => {
         district_code: expected,
         display_on_public_site: false,
         site_description: null,
+        name: null,
         driving_directions: null,
         closest_community: null,
         access_codes: [],
@@ -435,6 +439,7 @@ describe('useEditResourceForm', () => {
         district_code: null,
         display_on_public_site: false,
         site_description: null,
+        name: null,
         driving_directions: null,
         closest_community: null,
         access_codes: [],
@@ -478,6 +483,7 @@ describe('useEditResourceForm', () => {
         district_code: expected,
         display_on_public_site: false,
         site_description: null,
+        name: null,
         driving_directions: null,
         closest_community: null,
         access_codes: [],
@@ -500,6 +506,7 @@ describe('useEditResourceForm', () => {
         district_code: null,
         display_on_public_site: false,
         site_description: null,
+        name: null,
         driving_directions: null,
         closest_community: null,
         access_codes: [],
@@ -615,6 +622,7 @@ describe('useEditResourceForm', () => {
           district_code: expected,
           display_on_public_site: false,
           site_description: null,
+          name: null,
           driving_directions: null,
           closest_community: null,
           access_codes: [],
