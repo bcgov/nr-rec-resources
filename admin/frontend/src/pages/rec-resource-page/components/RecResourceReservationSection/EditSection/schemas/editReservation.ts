@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import validator from 'validator';
 import { RESERVATION_METHOD_OPTIONS } from '@/pages/rec-resource-page/components/RecResourceReservationSection/EditSection/constants';
 
 const RESERVATION_METHOD_VALUES = RESERVATION_METHOD_OPTIONS.map(
@@ -55,7 +54,8 @@ export const createEditReservationSchema = () => {
       }
 
       if (data.reservation_method === 'reservation_phone_number') {
-        if (!validator.isMobilePhone(data.reservation_contact)) {
+        const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
+        if (!phoneRegex.test(data.reservation_contact.trim())) {
           ctx.addIssue({
             code: 'custom',
             path: ['reservation_contact'],
