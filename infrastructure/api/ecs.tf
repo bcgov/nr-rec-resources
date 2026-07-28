@@ -221,6 +221,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "RST_STORAGE_CONSENT_FORMS_BUCKET"
           value = var.app == "admin" ? local.storage_consent_forms_bucket : ""
+        },
+        {
+          name  = "FEATURE_ADVISORY_STATUS"
+          value = var.app == "public" ? var.feature_advisory_status : ""
         }
       ]
       portMappings = [
