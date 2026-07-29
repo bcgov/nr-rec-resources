@@ -422,6 +422,14 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   rec_status_code?: string | null;
 
   @ApiProperty({
+    description: 'Description of the recreation resource status code',
+    example: 'Issued',
+    type: String,
+    nullable: true,
+  })
+  rec_status_description?: string | null;
+
+  @ApiProperty({
     description: 'Full descriptive name of the organization unit',
     example: 'Selkirk Natural Resource District',
     type: String,

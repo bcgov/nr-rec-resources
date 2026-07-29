@@ -62,6 +62,7 @@ export const createEditResourceSchema = (
     site_description: z.string().optional().nullable(),
     driving_directions: z.string().optional().nullable(),
     closest_community: z.string().max(200).optional().nullable(),
+    name: z.string().max(200).optional().nullable(),
   });
 };
 

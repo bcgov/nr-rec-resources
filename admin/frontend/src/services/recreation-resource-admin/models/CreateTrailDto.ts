@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Recreation Sites and Trails BC Admin API
- * RST Admin API documentation
+ * RST Admin API documentation.  ## Act integration Endpoints tagged **act** are the secure CUD (Create / Update / Delete) API consumed by the external Act system to push real-time advisory changes into `rst.act_advisories_flat`.  **Authentication:** OAuth2 *Client Credentials* grant flow via CSS (Common Hosted Single Sign-On).  1. The Act team retrieves their Client ID / Client Secret from the CSS dashboard. 2. They exchange those credentials at the CSS token endpoint to receive a short-lived bearer token (`https://dev.loginproxy.gov.bc.ca/auth/realms/standard/protocol/openid-connect/token`). 3. They include the token on every request as `Authorization: Bearer <token>`. 4. Tokens must carry the `act-service` client role. Missing, malformed, or expired tokens are rejected with **401**; tokens without the role are rejected with **403**.
  *
  * The version of the OpenAPI document: 1.0
  *
@@ -30,7 +30,7 @@ export interface CreateTrailDto {
    * @type {string}
    * @memberof CreateTrailDto
    */
-  trail_type: CreateTrailDtoTrailTypeEnum;
+  trail_type?: CreateTrailDtoTrailTypeEnum | null;
   /**
    * Name of the trail
    * @type {string}
@@ -67,8 +67,6 @@ export function instanceOfCreateTrailDto(
     value['recreation_activity_code'] === undefined
   )
     return false;
-  if (!('trail_type' in value) || value['trail_type'] === undefined)
-    return false;
   if (!('name' in value) || value['name'] === undefined) return false;
   return true;
 }
@@ -86,7 +84,7 @@ export function CreateTrailDtoFromJSONTyped(
   }
   return {
     recreation_activity_code: json['recreation_activity_code'],
-    trail_type: json['trail_type'],
+    trail_type: json['trail_type'] == null ? undefined : json['trail_type'],
     name: json['name'],
     description: json['description'] == null ? undefined : json['description'],
   };

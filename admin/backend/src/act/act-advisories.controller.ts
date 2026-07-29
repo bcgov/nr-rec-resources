@@ -74,6 +74,8 @@ const ADVISORY_NULLABLE_EXAMPLE = {
   access_status_description: null,
   is_reservations_affected: null,
   is_updated_date_displayed: null,
+  effective_date: null,
+  updated_date: null,
   end_date: null,
   expiry_date: null,
   removal_date: null,

@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Recreation Sites and Trails BC Admin API
- * RST Admin API documentation
+ * RST Admin API documentation.  ## Act integration Endpoints tagged **act** are the secure CUD (Create / Update / Delete) API consumed by the external Act system to push real-time advisory changes into `rst.act_advisories_flat`.  **Authentication:** OAuth2 *Client Credentials* grant flow via CSS (Common Hosted Single Sign-On).  1. The Act team retrieves their Client ID / Client Secret from the CSS dashboard. 2. They exchange those credentials at the CSS token endpoint to receive a short-lived bearer token (`https://dev.loginproxy.gov.bc.ca/auth/realms/standard/protocol/openid-connect/token`). 3. They include the token on every request as `Authorization: Bearer <token>`. 4. Tokens must carry the `act-service` client role. Missing, malformed, or expired tokens are rejected with **401**; tokens without the role are rejected with **403**.
  *
  * The version of the OpenAPI document: 1.0
  *
@@ -1876,7 +1876,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity, recStatusCode
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -1925,7 +1925,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity, recStatusCode
    * List all options for a type
    */
   async getOptionsByType(
@@ -3405,6 +3405,7 @@ export const GetOptionsByTypeTypeEnum = {
   District: 'district',
   PhotographerType: 'photographerType',
   ClosestCommunity: 'closestCommunity',
+  RecStatusCode: 'recStatusCode',
 } as const;
 export type GetOptionsByTypeTypeEnum =
   (typeof GetOptionsByTypeTypeEnum)[keyof typeof GetOptionsByTypeTypeEnum];

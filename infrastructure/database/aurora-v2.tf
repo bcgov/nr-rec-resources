@@ -1,5 +1,10 @@
 locals {
   rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
+  default_instance_config = {
+      auto_minor_version_upgrade      = false
+      performance_insights_enabled    = true
+      performance_insights_kms_key_id = data.aws_kms_alias.rds_key.arn
+    }
 }
 
 data "aws_kms_alias" "rds_key" {
@@ -80,9 +85,10 @@ resource "aws_secretsmanager_secret_version" "db_mastercreds_secret_version" {
    }
 EOF
 }
+
 module "aurora_postgresql_v2" {
   source = "terraform-aws-modules/rds-aurora/aws"
-  version = "9.15.0"
+  version = "~> 10.0"
 
   name              = var.db_cluster_name
   engine            = data.aws_rds_engine_version.postgresql.engine
@@ -97,10 +103,10 @@ module "aurora_postgresql_v2" {
   vpc_security_group_ids = [data.aws_security_group.data.id]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
 
-  master_username = var.db_master_username
-  master_password = random_password.db_master_password.result
+  master_username             = var.db_master_username
+  master_password_wo          = random_password.db_master_password.result
+  master_password_wo_version  = 1
   manage_master_user_password = false
-
 
   create_security_group  = false
   create_db_subnet_group = false
@@ -108,26 +114,24 @@ module "aurora_postgresql_v2" {
 
   apply_immediately   = false
   skip_final_snapshot = true
-  auto_minor_version_upgrade = false
 
   deletion_protection = contains(["dev", "test"], local.rds_app_env) ? false : true
 
-  performance_insights_enabled	= true
-  performance_insights_kms_key_id = data.aws_kms_alias.rds_key.arn
-
-  db_parameter_group_name         = aws_db_parameter_group.db_postgresql.id
-  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.db_postgresql.id
+  cluster_parameter_group_name             = aws_rds_cluster_parameter_group.db_postgresql.id
+  cluster_db_instance_parameter_group_name = aws_db_parameter_group.db_postgresql.id
 
   serverlessv2_scaling_configuration = {
     min_capacity = var.min_capacity
     max_capacity = var.max_capacity
   }
 
-  instance_class = "db.serverless"
+  cluster_instance_class = "db.serverless"
   instances = var.ha_enabled ? {
-    one = {}
-    two = {}
-  }: {one = {}}
+    one = local.default_instance_config
+    two = local.default_instance_config
+  } : {
+    one = local.default_instance_config
+  }
 
   tags = {
     managed-by = "terraform"

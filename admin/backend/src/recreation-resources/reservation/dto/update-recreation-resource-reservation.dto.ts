@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsOptional, IsPhoneNumber, IsUrl } from 'class-validator';
+import { IsEmail, IsOptional, IsUrl, Matches } from 'class-validator';
 
 /**
  * DTO used to update reservation information for a recreation resource.
@@ -17,19 +17,14 @@ export class UpdateRecreationResourceReservationDto {
   reservation_website?: string;
   @ApiProperty({
     description: 'Reservation phone number of designed resource',
-    example: '(999)999-9999',
+    example: '250-555-1234',
     required: false,
   })
-  @Transform(({ value }) => {
-    if (!value || value === '') return undefined;
-
-    // normalize to E.164 for validation
-    // assumes CA/US numbers
-    const digits = value.replace(/\D/g, '');
-    return digits.length === 10 ? `+1${digits}` : value;
-  })
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsOptional()
-  @IsPhoneNumber('CA')
+  @Matches(/^\d{3}-\d{3}-\d{4}$/, {
+    message: 'Invalid phone number format. Example: 250-555-1234.',
+  })
   reservation_phone_number?: string;
   @ApiProperty({
     description: 'Reservation email of designed resource',

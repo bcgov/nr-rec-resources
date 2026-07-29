@@ -11,7 +11,7 @@ import { SearchResultsSummary } from '@/pages/search/components/SearchResultsSum
 vi.mock('@/hooks/useAuthorizations', () => ({
   useAuthorizations: () => ({
     canViewFeatureFlag: false,
-    canEditArchived: true,
+    isSuperAdmin: true,
   }),
 }));
 
@@ -193,6 +193,7 @@ describe('FilterAccordion', () => {
           establishedOptions,
           publicAccessStatusOptions: [],
           closestCommunityOptions: [],
+          recStatusOptions: [],
           applyFilters: vi.fn(),
           resetFilters,
         }}
@@ -249,6 +250,7 @@ describe('FilterAccordion', () => {
           establishedOptions,
           publicAccessStatusOptions: [],
           closestCommunityOptions: [],
+          recStatusOptions: [],
           applyFilters: vi.fn(),
           resetFilters: vi.fn(),
         }}
@@ -390,6 +392,7 @@ describe('FilterAccordion', () => {
           establishedOptions,
           publicAccessStatusOptions: [],
           closestCommunityOptions: [],
+          recStatusOptions: [],
           applyFilters: vi.fn(),
           resetFilters: vi.fn(),
         }}
@@ -426,6 +429,7 @@ describe('FilterAccordion', () => {
           establishedOptions,
           publicAccessStatusOptions: [],
           closestCommunityOptions: [],
+          recStatusOptions: [],
           applyFilters: vi.fn(),
           resetFilters,
         }}

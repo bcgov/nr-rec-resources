@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Recreation Sites and Trails BC Admin API
- * RST Admin API documentation
+ * RST Admin API documentation.  ## Act integration Endpoints tagged **act** are the secure CUD (Create / Update / Delete) API consumed by the external Act system to push real-time advisory changes into `rst.act_advisories_flat`.  **Authentication:** OAuth2 *Client Credentials* grant flow via CSS (Common Hosted Single Sign-On).  1. The Act team retrieves their Client ID / Client Secret from the CSS dashboard. 2. They exchange those credentials at the CSS token endpoint to receive a short-lived bearer token (`https://dev.loginproxy.gov.bc.ca/auth/realms/standard/protocol/openid-connect/token`). 3. They include the token on every request as `Authorization: Bearer <token>`. 4. Tokens must carry the `act-service` client role. Missing, malformed, or expired tokens are rejected with **401**; tokens without the role are rejected with **403**.
  *
  * The version of the OpenAPI document: 1.0
  *
@@ -195,6 +195,14 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   rec_status_code: string | null;
+
+  /**
+   * Recreation resource status description (Archived, Issued)
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
+   */
+
+  rec_status_description?: string | null;
   /**
    * Full descriptive name of the organization unit
    * @type {string}
@@ -338,6 +346,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     right_of_way:
       json['right_of_way'] == null ? undefined : json['right_of_way'],
     rec_status_code: json['rec_status_code'],
+    rec_status_description:
+      json['rec_status_description'] == null
+        ? undefined
+        : json['rec_status_description'],
     natural_resource_org_unit_name: json['natural_resource_org_unit_name'],
   };
 }
@@ -391,6 +403,7 @@ export function RecreationResourceDetailDtoToJSONTyped(
     display_on_public_site: value['display_on_public_site'],
     right_of_way: value['right_of_way'],
     rec_status_code: value['rec_status_code'],
+    rec_status_description: value['rec_status_description'],
     natural_resource_org_unit_name: value['natural_resource_org_unit_name'],
   };
 }

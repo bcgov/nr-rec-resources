@@ -69,6 +69,7 @@ export const useEditResourceForm = (
       closest_community: recResource.closest_community || null,
       site_description: recResource.description || '',
       driving_directions: recResource.driving_directions || '',
+      name: recResource.name || '',
     };
   }, [recResource]);
 
@@ -128,6 +129,7 @@ export const useEditResourceForm = (
       closest_community: data.closest_community?.trim() ?? null,
       site_description: data.site_description?.trim() ?? null,
       driving_directions: data.driving_directions?.trim() ?? null,
+      name: data.name?.trim() ?? null,
     };
 
     // Submit the update using mutateAsync for cleaner async handling

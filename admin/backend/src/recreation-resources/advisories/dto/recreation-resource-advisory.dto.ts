@@ -23,12 +23,13 @@ export class RecreationResourceAdvisoryDto {
   })
   advisory_date: Date;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Effective date (event start)',
     type: String,
     format: 'date-time',
+    nullable: true,
   })
-  effective_date: Date;
+  effective_date: Date | null;
 
   @ApiPropertyOptional({
     description: 'End date (event end)',

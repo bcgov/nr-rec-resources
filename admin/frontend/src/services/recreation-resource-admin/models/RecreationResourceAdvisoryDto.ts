@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Recreation Sites and Trails BC Admin API
- * RST Admin API documentation
+ * RST Admin API documentation.  ## Act integration Endpoints tagged **act** are the secure CUD (Create / Update / Delete) API consumed by the external Act system to push real-time advisory changes into `rst.act_advisories_flat`.  **Authentication:** OAuth2 *Client Credentials* grant flow via CSS (Common Hosted Single Sign-On).  1. The Act team retrieves their Client ID / Client Secret from the CSS dashboard. 2. They exchange those credentials at the CSS token endpoint to receive a short-lived bearer token (`https://dev.loginproxy.gov.bc.ca/auth/realms/standard/protocol/openid-connect/token`). 3. They include the token on every request as `Authorization: Bearer <token>`. 4. Tokens must carry the `act-service` client role. Missing, malformed, or expired tokens are rejected with **401**; tokens without the role are rejected with **403**.
  *
  * The version of the OpenAPI document: 1.0
  *
@@ -60,7 +60,7 @@ export interface RecreationResourceAdvisoryDto {
    * @type {Date}
    * @memberof RecreationResourceAdvisoryDto
    */
-  effective_date: Date;
+  effective_date?: Date | null;
   /**
    * End date (event end)
    * @type {Date}
@@ -78,7 +78,7 @@ export interface RecreationResourceAdvisoryDto {
    * @type {Date}
    * @memberof RecreationResourceAdvisoryDto
    */
-  updated_date: Date;
+  updated_date?: Date | null;
   /**
    * Published at date
    * @type {Date}
@@ -137,8 +137,7 @@ export function instanceOfRecreationResourceAdvisoryDto(
   if (!('urgency' in value) || value['urgency'] === undefined) return false;
   if (!('advisory_date' in value) || value['advisory_date'] === undefined)
     return false;
-  if (!('effective_date' in value) || value['effective_date'] === undefined)
-    return false;
+  if (!('effective_date' in value)) return false;
   if (!('updated_date' in value) || value['updated_date'] === undefined)
     return false;
   if (!('submitted_by' in value) || value['submitted_by'] === undefined)
@@ -186,11 +185,15 @@ export function RecreationResourceAdvisoryDtoFromJSONTyped(
     advisory_status: json['advisory_status'],
     urgency: json['urgency'],
     advisory_date: new Date(json['advisory_date']),
-    effective_date: new Date(json['effective_date']),
+    effective_date:
+      json['effective_date'] == null
+        ? undefined
+        : new Date(json['effective_date']),
     end_date: json['end_date'] == null ? undefined : new Date(json['end_date']),
     expiry_date:
       json['expiry_date'] == null ? undefined : new Date(json['expiry_date']),
-    updated_date: new Date(json['updated_date']),
+    updated_date:
+      json['updated_date'] == null ? undefined : new Date(json['updated_date']),
     published_at:
       json['published_at'] == null ? undefined : new Date(json['published_at']),
     submitted_by: json['submitted_by'],
@@ -222,7 +225,10 @@ export function RecreationResourceAdvisoryDtoToJSONTyped(
     advisory_status: value['advisory_status'],
     urgency: value['urgency'],
     advisory_date: value['advisory_date'].toISOString(),
-    effective_date: value['effective_date'].toISOString(),
+    effective_date:
+      value['effective_date'] === null
+        ? null
+        : (value['effective_date'] as any)?.toISOString(),
     end_date:
       value['end_date'] === null
         ? null
@@ -231,7 +237,10 @@ export function RecreationResourceAdvisoryDtoToJSONTyped(
       value['expiry_date'] === null
         ? null
         : (value['expiry_date'] as any)?.toISOString(),
-    updated_date: value['updated_date'].toISOString(),
+    updated_date:
+      value['updated_date'] === null
+        ? null
+        : (value['updated_date'] as any)?.toISOString(),
     published_at:
       value['published_at'] === null
         ? null
