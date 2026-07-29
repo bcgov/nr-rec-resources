@@ -67,6 +67,9 @@ on:
       ZONE_NAME_SERVERS:
         value: ${{ jobs.infra.outputs.ZONE_NAME_SERVERS }}
 
+permissions:
+  id-token: write # This is required for requesting the JWT
+
 env:
   TG_VERSION: 0.55.2
   TF_VERSION: 1.11.1
