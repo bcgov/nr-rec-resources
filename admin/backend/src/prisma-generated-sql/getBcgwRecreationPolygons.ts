@@ -9,7 +9,7 @@ import * as $runtime from '@prisma/client/runtime/client';
  * @param offset
  */
 export const getBcgwRecreationPolygons = $runtime.makeTypedQueryFactory(
-  'SELECT\n  rmf_skey,\n  forest_file_id,\n  section_id,\n  recreation_map_feature_code,\n  project_type,\n  retirement_date,\n  amendment_id,\n  map_label,\n  project_name,\n  recreation_feature_code,\n  resource_feature_ind,\n  arch_impact_assess_ind,\n  site_location,\n  project_established_date,\n  recreation_view_ind,\n  recreation_district_code,\n  defined_campsites,\n  life_cycle_status_code,\n  file_status_code,\n  geographic_district_code,\n  geographic_district_name,\n  feature_area,\n  feature_perimeter,\n  feature_area_sqm,\n  feature_length_m,\n  geometry,\n  COUNT(*) OVER ()::int AS total_count\nFROM bcgw.recreation_polygons\nORDER BY rmf_skey ASC\nLIMIT $1\nOFFSET $2;',
+  'SELECT\nrmf_skey,\nforest_file_id,\nsection_id,\nrecreation_map_feature_code,\nproject_type,\nretirement_date,\namendment_id,\nmap_label,\nproject_name,\nrecreation_feature_code,\nresource_feature_ind,\narch_impact_assess_ind,\nsite_location,\nproject_established_date,\nrecreation_view_ind,\nrecreation_district_code,\ndefined_campsites,\nlife_cycle_status_code,\nfile_status_code,\ngeographic_district_code,\ngeographic_district_name,\nfeature_area,\nfeature_perimeter,\nfeature_area_sqm,\nfeature_length_m,\ngeometry,\nCOUNT(*) OVER ()::int AS total_count\nFROM bcgw.recreation_polygons\nORDER BY rmf_skey ASC\nLIMIT $1\nOFFSET $2;',
 ) as (
   limit: number,
   offset: number,
@@ -21,8 +21,8 @@ export const getBcgwRecreationPolygons = $runtime.makeTypedQueryFactory(
 export namespace getBcgwRecreationPolygons {
   export type Parameters = [limit: number, offset: number];
   export type Result = {
-    rmf_skey: number;
-    forest_file_id: string;
+    rmf_skey: number | null;
+    forest_file_id: string | null;
     section_id: string | null;
     recreation_map_feature_code: string | null;
     project_type: string | null;
@@ -37,15 +37,15 @@ export namespace getBcgwRecreationPolygons {
     project_established_date: Date | null;
     recreation_view_ind: string | null;
     recreation_district_code: string | null;
-    defined_campsites: bigint;
+    defined_campsites: bigint | null;
     life_cycle_status_code: string | null;
     file_status_code: string | null;
     geographic_district_code: string | null;
     geographic_district_name: string | null;
-    feature_area: number | null;
-    feature_perimeter: number | null;
-    feature_area_sqm: string | null;
-    feature_length_m: number | null;
+    feature_area: $runtime.Decimal | null;
+    feature_perimeter: $runtime.Decimal | null;
+    feature_area_sqm: $runtime.Decimal | null;
+    feature_length_m: $runtime.Decimal | null;
     geometry: string | null;
     total_count: number | null;
   };

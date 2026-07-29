@@ -9,7 +9,7 @@ import * as $runtime from '@prisma/client/runtime/client';
  * @param offset
  */
 export const getBcgwClosuresShort = $runtime.makeTypedQueryFactory(
-  'SELECT\n  forest_file_id,\n  project_name,\n  project_type,\n  closure_ind,\n  closure_date,\n  closure_type,\n  site_location,\n  defined_campsites,\n  recreation_district_code,\n  recreation_district_name,\n  org_unit_name,\n  closure_comment,\n  site_description,\n  driving_directions,\n  latitude,\n  longitude,\n  shape,\n  COUNT(*) OVER ()::int AS total_count\nFROM bcgw.closures_short\nORDER BY forest_file_id ASC\nLIMIT $1\nOFFSET $2;',
+  'SELECT\nforest_file_id,\nproject_name,\nproject_type,\nclosure_ind,\nclosure_date,\nclosure_type,\nsite_location,\ndefined_campsites,\nrecreation_district_code,\nrecreation_district_name,\norg_unit_name,\nclosure_comment,\nsite_description,\ndriving_directions,\nlatitude,\nlongitude,\nshape,\nCOUNT(*) OVER ()::int AS total_count\nFROM bcgw.closures_short\nORDER BY forest_file_id ASC\nLIMIT $1\nOFFSET $2;',
 ) as (
   limit: number,
   offset: number,
@@ -21,14 +21,14 @@ export const getBcgwClosuresShort = $runtime.makeTypedQueryFactory(
 export namespace getBcgwClosuresShort {
   export type Parameters = [limit: number, offset: number];
   export type Result = {
-    forest_file_id: string;
+    forest_file_id: string | null;
     project_name: string | null;
     project_type: string | null;
-    closure_ind: string;
+    closure_ind: string | null;
     closure_date: Date | null;
     closure_type: string | null;
     site_location: string | null;
-    defined_campsites: bigint;
+    defined_campsites: bigint | null;
     recreation_district_code: string | null;
     recreation_district_name: string | null;
     org_unit_name: string | null;

@@ -86,7 +86,7 @@ export const SuggestionListItem: FC<SearchItemData> = ({
           <Badge
             className={`rec-id-badge px-3 py-2 rounded-pill ${rec_status_code === RESOURCE_STATUS_TYPE.AR ? 'disabled-badge' : ''} ${IS_RESERVE(recreation_resource_type_code) ? 'reserve-badge' : ''}`}
           >
-            {rec_resource_id}
+            <Highlighter search={searchTerm}>{rec_resource_id}</Highlighter>
           </Badge>
         </Col>
       </Row>
