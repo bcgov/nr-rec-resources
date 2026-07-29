@@ -95,10 +95,11 @@ jobs:
     steps:
       - run: echo "Docs-only change, no code to scan."
 
-  happo:
-    name: Happo
-    needs: check-docs-only
-    if: needs.check-docs-only.outputs.docs_only == 'true'
-    runs-on: ubuntu-24.04
-    steps:
-      - run: echo "Docs-only change, no visual diff to check."
+  # Deliberately no "Happo" job here: Happo's own GitHub App finalizes a
+  # check run it expects to own for this commit. A same-named job here,
+  # even when skipped, registers a check run under the default GitHub
+  # Actions app first and blocks Happo's own finalize call with a 403
+  # ("check run can only be modified by the GitHub App that created it").
+  # A genuinely docs-only PR will still leave "Happo" stuck on Required -
+  # that has to be handled separately (e.g. dropping it from required
+  # checks, or an admin merge override), not mirrored here.
