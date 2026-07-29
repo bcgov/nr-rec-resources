@@ -30,12 +30,12 @@ describe('SuggestionListItem', () => {
     expect(screen.getByTestId('icon')).toBeInTheDocument();
 
     const highlighters = screen.getAllByTestId('highlighter');
-    expect(highlighters.length).toBe(1);
+    expect(highlighters.length).toBe(2);
     expect(highlighters[0]).toHaveTextContent('riverfront park');
 
     expect(screen.getByText('Urban Park • Downtown')).toBeInTheDocument();
 
-    const badges = screen.getAllByText('R-1234');
+    const badges = screen.getAllByTestId('R-1234');
     expect(badges.length).toBe(2);
     badges.forEach((badge) =>
       expect(badge.className).toContain('rec-id-badge'),
@@ -52,7 +52,7 @@ describe('SuggestionListItem', () => {
 
   it('renders mobile and desktop badge locations', () => {
     render(<SuggestionListItem {...defaultProps} />);
-    const badges = screen.getAllByText('R-1234');
+    const badges = screen.getAllByTestId('R-1234');
     expect(badges.length).toBe(2);
     // First badge is mobile, second is desktop
     expect(badges[0].className).toContain('rec-id-badge');
@@ -62,7 +62,7 @@ describe('SuggestionListItem', () => {
   it('renders Highlighter with correct children and search term', () => {
     render(<SuggestionListItem {...defaultProps} />);
     const marks = screen.getAllByTestId('highlighter');
-    expect(marks.length).toBe(1);
+    expect(marks.length).toBe(2);
     expect(marks[0]).toHaveTextContent('riverfront park');
   });
 
@@ -86,7 +86,7 @@ describe('SuggestionListItem', () => {
     expect(screen.getByTestId('icon2')).toBeInTheDocument();
 
     const highlighters = screen.getAllByTestId('highlighter');
-    expect(highlighters.length).toBe(1);
+    expect(highlighters.length).toBe(2);
     expect(highlighters[0]).toHaveTextContent('crystal lake');
 
     expect(screen.getByText('Lake • Northside')).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('SuggestionListItem', () => {
       recreation_resource_type_code: 'RR',
     };
     render(<SuggestionListItem {...props} />);
-    expect(screen.getAllByText('R-9999')[1].className).toContain(
+    expect(screen.getAllByTestId('R-9999')[1].className).toContain(
       'reserve-badge',
     );
   });
@@ -124,7 +124,7 @@ describe('SuggestionListItem', () => {
       rec_status_code: 'AR',
     };
     render(<SuggestionListItem {...props} />);
-    expect(screen.getAllByText('R-9999')[1].className).toContain(
+    expect(screen.getAllByTestId('R-9999')[1].className).toContain(
       'disabled-badge',
     );
   });
