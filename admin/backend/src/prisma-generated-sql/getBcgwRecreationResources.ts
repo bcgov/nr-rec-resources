@@ -9,7 +9,7 @@ import * as $runtime from '@prisma/client/runtime/client';
  * @param offset
  */
 export const getBcgwRecreationResources = $runtime.makeTypedQueryFactory(
-  'SELECT\nforest_file_id,\nproject_name,\nproject_type_code,\nproject_type,\nproject_established_date,\nclosure_ind,\nclosure_date,\nclosure_type,\nclosure_comment,\nrecreation_view_ind,\nfile_status_st,\nstatus_description,\nsite_location,\ndefined_campsites,\nsite_description_brief,\narch_impact_assess_ind,\ntenure_app_total_area,\ntenure_app_total_length,\nsite_description,\nsite_description_date,\ndriving_directions,\ndriving_directions_date,\nrec_feature_code,\nrec_feature_description,\nrecreation_district_code,\nrecreation_district_name,\norg_unit_code,\norg_unit_name,\nutm_zone,\nutm_easting,\nutm_northing,\nlatitude,\nlongitude,\nshape,\nCOUNT(*) OVER ()::int AS total_count\nFROM bcgw.resource_details_and_closures\nORDER BY forest_file_id ASC\nLIMIT $1\nOFFSET $2;',
+  'SELECT\n  forest_file_id,\n  project_name,\n  project_type_code,\n  project_type,\n  project_established_date,\n  closure_ind,\n  closure_date,\n  closure_type,\n  closure_comment,\n  recreation_view_ind,\n  file_status_st,\n  status_description,\n  site_location,\n  defined_campsites,\n  site_description_brief,\n  arch_impact_assess_ind,\n  tenure_app_total_area,\n  tenure_app_total_length,\n  site_description,\n  site_description_date,\n  driving_directions,\n  driving_directions_date,\n  rec_feature_code,\n  rec_feature_description,\n  recreation_district_code,\n  recreation_district_name,\n  org_unit_code,\n  org_unit_name,\n  utm_zone,\n  utm_easting,\n  utm_northing,\n  latitude,\n  longitude,\n  shape,\n  COUNT(*) OVER ()::int AS total_count\nFROM bcgw.resource_details_and_closures\nORDER BY forest_file_id ASC\nLIMIT $1\nOFFSET $2;',
 ) as (
   limit: number,
   offset: number,
@@ -21,24 +21,24 @@ export const getBcgwRecreationResources = $runtime.makeTypedQueryFactory(
 export namespace getBcgwRecreationResources {
   export type Parameters = [limit: number, offset: number];
   export type Result = {
-    forest_file_id: string | null;
+    forest_file_id: string;
     project_name: string | null;
     project_type_code: string | null;
     project_type: string | null;
     project_established_date: Date | null;
-    closure_ind: string | null;
+    closure_ind: string;
     closure_date: Date | null;
     closure_type: string | null;
     closure_comment: string | null;
-    recreation_view_ind: string | null;
+    recreation_view_ind: string;
     file_status_st: string | null;
     status_description: string | null;
     site_location: string | null;
-    defined_campsites: bigint | null;
+    defined_campsites: bigint;
     site_description_brief: string | null;
     arch_impact_assess_ind: string | null;
-    tenure_app_total_area: $runtime.Decimal | null;
-    tenure_app_total_length: $runtime.Decimal | null;
+    tenure_app_total_area: number | null;
+    tenure_app_total_length: number | null;
     site_description: string | null;
     site_description_date: Date | null;
     driving_directions: string | null;

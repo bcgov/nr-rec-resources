@@ -9,7 +9,7 @@ import * as $runtime from '@prisma/client/runtime/client';
  * @param offset
  */
 export const getBcgwRecreationLines = $runtime.makeTypedQueryFactory(
-  'SELECT\nrmf_skey,\nforest_file_id,\nsection_id,\nrecreation_map_feature_code,\nproject_type,\nretirement_date,\namendment_id,\nmap_label,\nproject_name,\nrecreation_feature_code,\nresource_feature_ind,\nright_of_way,\narch_impact_assess_ind,\nsite_location,\nproject_established_date,\nrecreation_view_ind,\nrecreation_district_code,\ndefined_campsites,\nlife_cycle_status_code,\nfile_status_code,\ndistrict_code,\ndistrict_name,\nfeature_length,\nfeature_length_m,\ngeometry,\nCOUNT(*) OVER ()::int AS total_count\nFROM bcgw.recreation_lines\nORDER BY rmf_skey ASC\nLIMIT $1\nOFFSET $2;',
+  'SELECT\n  rmf_skey,\n  forest_file_id,\n  section_id,\n  recreation_map_feature_code,\n  project_type,\n  retirement_date,\n  amendment_id,\n  map_label,\n  project_name,\n  recreation_feature_code,\n  resource_feature_ind,\n  right_of_way,\n  arch_impact_assess_ind,\n  site_location,\n  project_established_date,\n  recreation_view_ind,\n  recreation_district_code,\n  defined_campsites,\n  life_cycle_status_code,\n  file_status_code,\n  district_code,\n  district_name,\n  feature_length,\n  feature_length_m,\n  geometry,\n  COUNT(*) OVER ()::int AS total_count\nFROM bcgw.recreation_lines\nORDER BY rmf_skey ASC\nLIMIT $1\nOFFSET $2;',
 ) as (
   limit: number,
   offset: number,
@@ -21,8 +21,8 @@ export const getBcgwRecreationLines = $runtime.makeTypedQueryFactory(
 export namespace getBcgwRecreationLines {
   export type Parameters = [limit: number, offset: number];
   export type Result = {
-    rmf_skey: number | null;
-    forest_file_id: string | null;
+    rmf_skey: number;
+    forest_file_id: string;
     section_id: string | null;
     recreation_map_feature_code: string | null;
     project_type: string | null;
@@ -32,19 +32,19 @@ export namespace getBcgwRecreationLines {
     project_name: string | null;
     recreation_feature_code: string | null;
     resource_feature_ind: string | null;
-    right_of_way: $runtime.Decimal | null;
+    right_of_way: number | null;
     arch_impact_assess_ind: string | null;
     site_location: string | null;
     project_established_date: Date | null;
     recreation_view_ind: string | null;
     recreation_district_code: string | null;
-    defined_campsites: bigint | null;
+    defined_campsites: bigint;
     life_cycle_status_code: string | null;
     file_status_code: string | null;
     district_code: string | null;
     district_name: string | null;
-    feature_length: $runtime.Decimal | null;
-    feature_length_m: $runtime.Decimal | null;
+    feature_length: number | null;
+    feature_length_m: number | null;
     geometry: string | null;
     total_count: number | null;
   };
