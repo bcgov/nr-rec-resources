@@ -13,6 +13,7 @@ const _baseRecreationResourceSelect = {
   closest_community: true,
   project_established_date: true,
   display_on_public_site: true,
+  updated_at: true,
   rec_status_code: true,
   recreation_resource_status_code_rel: {
     select: {
