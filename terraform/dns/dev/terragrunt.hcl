@@ -46,6 +46,10 @@ generate "tfvars" {
     dynamodb_table = "${local.statelock_table_name}"
     region         = "${local.region}"
   }
+  acm_cert_validation_cname = {
+    name  = "_4ea5f28a5328a6e01275743a11de22d9.dev.sitesandtrailsbc.ca."
+    value = "_a85ac25fb2130201aff132910e30de77.jkddzztszm.acm-validations.aws."
+  }
   EOF
 }
 
