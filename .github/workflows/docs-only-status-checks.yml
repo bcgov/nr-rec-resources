@@ -1,0 +1,105 @@
+# Companion to main.yml's `paths-ignore: docs/**`. When a push/PR only
+# touches docs/**, main.yml never runs, so its checks never report a
+# status - and GitHub leaves any of them configured as "Required" stuck
+# forever on "Expected". This workflow triggers on the same paths main.yml
+# ignores and posts a passing check under each of those exact names, so
+# docs-only changes can still satisfy required status checks.
+#
+# If a change touches both docs/** and other files, main.yml already runs
+# and reports real results for these same names, so the jobs below are
+# skipped instead of asserting a false "success".
+#
+# Keep the job `name:` values below in sync with whatever is configured as
+# required in the branch protection rule.
+
+name: Docs-only status checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/**
+  pull_request:
+    paths:
+      - docs/**
+
+jobs:
+  check-docs-only:
+    name: Check docs-only
+    runs-on: ubuntu-24.04
+    outputs:
+      docs_only: ${{ steps.check.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          changed=$(git diff --name-only "$base" "${{ github.sha }}")
+          if echo "$changed" | grep -qv '^docs/'; then
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "docs_only=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  sonarcloud-admin-backend:
+    name: "[nr-rec-resources-admin-backend] SonarCloud Code Analysis"
+    needs: check-docs-only
+    if: needs.check-docs-only.outputs.docs_only == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "Docs-only change, no code to analyse."
+
+  sonarcloud-admin-frontend:
+    name: "[nr-rec-resources-admin-frontend] SonarCloud Code Analysis"
+    needs: check-docs-only
+    if: needs.check-docs-only.outputs.docs_only == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "Docs-only change, no code to analyse."
+
+  sonarcloud-backend:
+    name: "[nr-rec-resources-backend] SonarCloud Code Analysis"
+    needs: check-docs-only
+    if: needs.check-docs-only.outputs.docs_only == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "Docs-only change, no code to analyse."
+
+  sonarcloud-frontend:
+    name: "[nr-rec-resources-frontend] SonarCloud Code Analysis"
+    needs: check-docs-only
+    if: needs.check-docs-only.outputs.docs_only == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "Docs-only change, no code to analyse."
+
+  analysis-results:
+    name: Analysis Results
+    needs: check-docs-only
+    if: needs.check-docs-only.outputs.docs_only == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "Docs-only change, nothing to analyse."
+
+  codeql:
+    name: CodeQL
+    needs: check-docs-only
+    if: needs.check-docs-only.outputs.docs_only == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "Docs-only change, no code to scan."
+
+  # Deliberately no "Happo" job here: Happo's own GitHub App finalizes a
+  # check run it expects to own for this commit. A same-named job here,
+  # even when skipped, registers a check run under the default GitHub
+  # Actions app first and blocks Happo's own finalize call with a 403
+  # ("check run can only be modified by the GitHub App that created it").
+  # A genuinely docs-only PR will still leave "Happo" stuck on Required -
+  # that has to be handled separately (e.g. dropping it from required
+  # checks, or an admin merge override), not mirrored here.
