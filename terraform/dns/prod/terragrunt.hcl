@@ -68,7 +68,7 @@ generate "provider" {
   path      = "provider.tf"
   if_exists = "overwrite"
   contents  = <<EOF
-  terraform {
+terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
