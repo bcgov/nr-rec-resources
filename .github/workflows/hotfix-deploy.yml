@@ -42,9 +42,22 @@ jobs:
     uses: ./.github/workflows/.build.yml
     secrets: inherit
 
+  # Review gate for prod only — skipped automatically when deploying to test
+  review-prod-deployment:
+    name: Review hotfix deployment to prod
+    needs: build-hotfix-image
+    if: ${{ inputs.environment == 'prod' }}
+    runs-on: ubuntu-24.04
+    environment: review-${{ inputs.app }}-prod-deployment
+    steps:
+      - name: Confirm deployment
+        run: echo "Deploying hotfix branch '${{ github.ref_name }}' (${{ github.sha }}) to prod"
+
   hotfix-deploy-to-aws:
     name: Hotfix Deploy to AWS ${{ inputs.environment }}
-    needs: build-hotfix-image
+    needs: [build-hotfix-image, review-prod-deployment]
+    # Runs when: deploying to test (review skipped) OR prod review was approved
+    if: ${{ always() && needs.build-hotfix-image.result == 'success' && (needs.review-prod-deployment.result == 'success' || needs.review-prod-deployment.result == 'skipped') }}
     uses: ./.github/workflows/.deploy-app.yml
     with:
       app: ${{ inputs.app }}
