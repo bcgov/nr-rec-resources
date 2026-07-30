@@ -41,21 +41,11 @@ jobs:
       environment: dev
     secrets: inherit
 
-  # TODO: Remove this job once admin e2e tests are set up for deployed environments.
-  tests-e2e-dev-skip:
-    if: ${{ inputs.app == 'admin' }}
-    name: Skip Playwright e2e (admin deployed - dev)
-    needs: deploy-to-aws-dev
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Skip
-        run: echo "Skipping admin e2e tests for deployed environment - to be removed once admin e2e tests are set up for deployed environments."
-
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-test-deployment:
     name: Review ${{ inputs.app }} test deployment
-    needs: [deploy-to-aws-dev, tests-e2e-dev-environment, tests-e2e-dev-skip]
-    if: ${{ always() && needs.deploy-to-aws-dev.result == 'success' && (needs.tests-e2e-dev-skip.result == 'success' || needs.tests-e2e-dev-environment.result == 'success') }}
+    needs: [deploy-to-aws-dev, tests-e2e-dev-environment]
+    if: ${{ always() && needs.deploy-to-aws-dev.result == 'success' && needs.tests-e2e-dev-environment.result != 'failure' }}
     runs-on: ubuntu-24.04
     environment: review-${{ inputs.app}}-test-deployment
     steps:
@@ -93,21 +83,11 @@ jobs:
       environment: test
     secrets: inherit
 
-  # TODO: Remove this job once admin e2e tests are set up for deployed environments.
-  tests-e2e-test-skip:
-    if: ${{ inputs.app == 'admin' }}
-    name: Skip Playwright e2e (admin deployed - test)
-    needs: deploy-to-aws-test
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Skip
-        run: echo "Skipping admin e2e tests for deployed environment - to be removed once admin e2e tests are set up for deployed environments."
-
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-prod-deployment:
     name: Review ${{ inputs.app }} prod deployment
-    needs: [deploy-to-aws-test, tests-e2e-test-environment, tests-e2e-test-skip]
-    if: ${{ always() && needs.deploy-to-aws-test.result == 'success' && (needs.tests-e2e-test-skip.result == 'success' || needs.tests-e2e-test-environment.result == 'success') }}
+    needs: [deploy-to-aws-test, tests-e2e-test-environment]
+    if: ${{ always() && needs.deploy-to-aws-test.result == 'success' && needs.tests-e2e-test-environment.result != 'failure' }}
     runs-on: ubuntu-24.04
     environment: review-${{inputs.app}}-prod-deployment
     steps:
