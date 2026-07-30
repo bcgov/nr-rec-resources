@@ -110,6 +110,12 @@ export interface AdminSearchResultRowDto {
    */
   established_date?: string | null;
   /**
+   * Last updated date
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
+   */
+  updated_at?: string | null;
+  /**
    * Number of campsites
    * @type {number}
    * @memberof AdminSearchResultRowDto
@@ -205,6 +211,7 @@ export function AdminSearchResultRowDtoFromJSONTyped(
     fee_indicators: json['fee_indicators'],
     established_date:
       json['established_date'] == null ? undefined : json['established_date'],
+    updated_at: json['updated_at'] == null ? undefined : json['updated_at'],
     campsite_count: json['campsite_count'],
     access_status_grouplabel:
       json['access_status_grouplabel'] == null
@@ -243,6 +250,7 @@ export function AdminSearchResultRowDtoToJSONTyped(
     activities: value['activities'],
     fee_indicators: value['fee_indicators'],
     established_date: value['established_date'],
+    updated_at: value['updated_at'],
     campsite_count: value['campsite_count'],
     access_status_grouplabel: value['access_status_grouplabel'],
   };

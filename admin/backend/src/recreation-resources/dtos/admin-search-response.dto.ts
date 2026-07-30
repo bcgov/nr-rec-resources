@@ -104,6 +104,15 @@ export class AdminSearchResultRowDto {
   established_date?: string | null;
 
   @ApiProperty({
+    description: 'Last updated date',
+    example: '2021-05-12',
+    required: false,
+    nullable: true,
+    type: String,
+  })
+  updated_at?: string | null;
+
+  @ApiProperty({
     description: 'Number of campsites',
     example: 24,
   })
