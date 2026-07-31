@@ -24,8 +24,13 @@ export const analyzeAccessibility = async (
   expect(accessibilityScanResults.violations).toEqual([]);
 };
 
-export const waitForImagesToLoad = async (page: Page) => {
-  while (true) {
+export const waitForImagesToLoad = async (page: Page, timeoutMs = 5000) => {
+  // Bounded poll: return once every image reports `complete`, but never hang the
+  // whole test if an asset is lazy-loaded below the fold or its host is slow /
+  // unreachable (broken images set `complete = true`, so this only waits on
+  // genuinely in-flight loads).
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
     const allLoaded = await page.evaluate(() =>
       Array.from(document.images).every((img) => img.complete),
     );
