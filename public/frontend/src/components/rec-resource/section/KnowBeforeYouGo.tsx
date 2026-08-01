@@ -139,8 +139,7 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
                   </p>
                   <p>
                     Bring enough water, food, and essential supplies for your
-                    trip, and pack out all garbage and waste. Always follow
-                    Leave No Trace outdoor ethics
+                    trip, and pack out all garbage and waste.
                   </p>
                 </>
               )}
