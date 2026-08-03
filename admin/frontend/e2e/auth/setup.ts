@@ -1,5 +1,5 @@
 import { test as setup, Page } from '@playwright/test';
-import { ADMIN_STATE, VIEWER_STATE } from 'e2e/constants';
+import { ADMIN_STATE, E2E_TARGET, VIEWER_STATE } from 'e2e/constants';
 import { performLogin } from 'e2e/auth/loginFlow';
 
 async function loginAs(
@@ -31,6 +31,14 @@ setup('authenticate as rst-admin', async ({ page }) => {
 });
 
 setup('authenticate as rst-viewer', async ({ page }) => {
+  // Deployed runs are admin-only: a real IDIR account is provisioned per role and
+  // we only have the admin one. Viewer/RBAC coverage stays on local (docker-compose
+  // Keycloak) runs. Any future viewer-dependent tests must carry the same guard.
+  setup.skip(
+    E2E_TARGET === 'deployed',
+    'viewer account not provisioned on deployed environments',
+  );
+
   const username = process.env.E2E_VIEWER_USERNAME;
   const password = process.env.E2E_VIEWER_PASSWORD;
 

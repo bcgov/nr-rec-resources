@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { BASE_URL } from 'e2e/constants';
+import { BASE_URL, E2E_TARGET } from 'e2e/constants';
 import { performLogin } from 'e2e/auth/loginFlow';
 
 // Explicitly unauthenticated — drives the real login UI rather than restoring session state
@@ -25,6 +25,12 @@ test.describe('Authentication flow', () => {
   });
 
   test('rst-viewer can log in and reach the search page', async ({ page }) => {
+    // Admin-only on deployed — viewer IDIR account is not provisioned there.
+    test.skip(
+      E2E_TARGET === 'deployed',
+      'viewer account not provisioned on deployed environments',
+    );
+
     await performLogin(
       page,
       process.env.E2E_VIEWER_USERNAME!,
