@@ -44,7 +44,7 @@ const MAX_EXHIBIT_A_FILES = 50;
 const ACCEPTED_FILE_TYPES = 'application/pdf';
 
 export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
-  const { canSuperAdmin } = useAuthorizations();
+  const { isSuperAdmin } = useAuthorizations();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -201,7 +201,7 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
     <div className="exhibit-a-section">
       <div className="exhibit-a-section__header">
         <h2 className="exhibit-a-section__title">Exhibit A</h2>
-        {canSuperAdmin && !isMaxReached && (
+        {isSuperAdmin && !isMaxReached && (
           <>
             <Button
               variant="outline-primary"
@@ -298,7 +298,7 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
                       >
                         <FontAwesomeIcon icon={faDownload} />
                       </Button>
-                      {canSuperAdmin && (
+                      {isSuperAdmin && (
                         <Button
                           variant="link"
                           size="sm"

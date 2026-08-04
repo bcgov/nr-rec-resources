@@ -74,6 +74,13 @@ export const MAP_PROJECTION_WEB_MERCATOR = 'EPSG:3857';
 export const MAP_PROJECTION_WGS84 = 'EPSG:4326';
 
 /**
+ * proj4 definition string for BC Albers (EPSG:3005).
+ * Used wherever proj4 needs to be configured with this projection.
+ */
+export const BC_ALBERS_PROJ4_DEF =
+  '+proj=aea +lat_0=45 +lon_0=-126 +lat_1=50 +lat_2=58.5 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs';
+
+/**
  * Default map center coordinates in Web Mercator (EPSG:3857) projection
  * Centered on Williams Lake, British Columbia
  */
