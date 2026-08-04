@@ -4,6 +4,7 @@ import {
   AuthRolesGuard,
   RecreationResourceAuthRole,
   ROLE_MODE,
+  SuperAdminGuard,
 } from '@/auth';
 import {
   Body,
@@ -72,6 +73,7 @@ export class ExhibitADocsController {
     return this.exhibitADocsService.getAll(rec_resource_id);
   }
 
+  @UseGuards(SuperAdminGuard)
   @Post('presign')
   @ApiOperation({
     operationId: 'presignExhibitAUpload',
@@ -101,6 +103,7 @@ export class ExhibitADocsController {
     return this.exhibitADocsService.presignUpload(rec_resource_id, fileName);
   }
 
+  @UseGuards(SuperAdminGuard)
   @Post('finalize')
   @ApiOperation({
     operationId: 'finalizeExhibitAUpload',
@@ -125,6 +128,7 @@ export class ExhibitADocsController {
     return this.exhibitADocsService.finalizeUpload(rec_resource_id, body);
   }
 
+  @UseGuards(SuperAdminGuard)
   @Delete(':document_id')
   @ApiOperation({
     operationId: 'deleteExhibitADoc',

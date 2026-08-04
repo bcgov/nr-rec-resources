@@ -222,16 +222,4 @@ export class ResourceDocsService extends BaseStorageFileService {
   private constructDocUrl(s3Key: string): string {
     return this.getPublicUrl(s3Key);
   }
-
-  private async deleteS3FileSafely(s3Key: string): Promise<void> {
-    try {
-      await this.s3Service.deleteFile(s3Key);
-      this.logger.log(`Successfully deleted document from S3: ${s3Key}`);
-    } catch (error) {
-      this.logger.warn(
-        `Failed to delete document from S3: ${s3Key}`,
-        error.stack,
-      );
-    }
-  }
 }

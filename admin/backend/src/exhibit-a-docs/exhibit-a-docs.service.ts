@@ -83,7 +83,6 @@ export class ExhibitADocsService extends BaseStorageFileService {
           extension: body.extension,
           file_size: BigInt(body.file_size),
           s3_key,
-          created_by: 'system',
           created_at: new Date(),
         },
       });
@@ -121,7 +120,7 @@ export class ExhibitADocsService extends BaseStorageFileService {
       where: { doc_id: document_id },
     });
 
-    await this.s3Service.deleteFile(doc?.s3_key);
+    await this.deleteS3FileSafely(doc.s3_key);
 
     this.logger.log(
       `Deleted Exhibit A doc: rec_resource_id=${rec_resource_id}, document_id=${document_id}`,

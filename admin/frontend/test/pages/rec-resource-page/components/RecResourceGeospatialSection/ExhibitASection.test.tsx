@@ -107,7 +107,7 @@ const mockDoc = {
 describe('ExhibitASection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseAuthorizations.mockReturnValue({ canSuperAdmin: true });
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
     mockUseGetExhibitADocs.mockReturnValue({ data: [], isFetching: false });
   });
 
@@ -129,7 +129,7 @@ describe('ExhibitASection', () => {
   });
 
   it('hides upload button when user is not superAdmin', () => {
-    mockUseAuthorizations.mockReturnValue({ canSuperAdmin: false });
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
     render(<ExhibitASection recResourceId="REC123" />);
     expect(screen.queryByText('Upload')).toBeNull();
   });

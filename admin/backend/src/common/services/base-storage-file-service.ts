@@ -154,4 +154,18 @@ export abstract class BaseStorageFileService {
       throw new HttpException(`Invalid ${entityType}`, 400);
     }
   }
+
+  /**
+   * Safely delete a file from S3, logging a warning on failure instead of
+   * throwing so that the calling request is not affected by S3 errors.
+   * @param s3Key - The S3 object key to delete
+   */
+  protected async deleteS3FileSafely(s3Key: string): Promise<void> {
+    try {
+      await this.s3Service.deleteFile(s3Key);
+      this.logger.log(`Successfully deleted file from S3: ${s3Key}`);
+    } catch (error) {
+      this.logger.warn(`Failed to delete file from S3: ${s3Key}`, error.stack);
+    }
+  }
 }
