@@ -1,9 +1,131 @@
 @import '@/styles/variables.scss';
 
+// Frozen columns (must match STICKY_COLUMN_IDS in searchDefinitions.ts). Their
+// left offsets are measured at runtime and exposed as --sticky-left-<id> vars.
+$stickyColumnIds: rec_resource_id, name, recreation_resource_type;
+$scrollbarGap: 0.25rem;
+$edgeFadeWidth: 2.5rem;
+$scrollbarThickness: 0.85rem;
+
+// Keep both horizontal scrollbars permanently visible. `appearance: none` opts
+// the WebKit scrollbar out of macOS's auto-hiding overlay behaviour, rendering
+// the classic always-visible style instead. This is still the browser's own
+// scrollbar — not a custom DOM element — and both bars share the mixin so they
+// stay identical.
+//
+// Deliberately NOT setting the standard `scrollbar-width` / `scrollbar-color`:
+// when either is present, Chromium ignores `::-webkit-scrollbar` entirely and
+// falls back to a thin overlay bar that still auto-hides on macOS.
+@mixin always-visible-scrollbar {
+  &::-webkit-scrollbar {
+    appearance: none;
+    -webkit-appearance: none;
+    height: $scrollbarThickness;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $colorBackgroundGrey;
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($colorGreyMed, 0.5);
+    border: 3px solid $colorBackgroundGrey;
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba($colorGreyMed, 0.75);
+  }
+}
+
 .search-results-table {
   position: relative;
   max-width: 100%;
-  overflow-x: auto;
+
+  // Second (top) scrollbar — an always-visible scrollbar over an empty spacer
+  // sized to the table width, kept in sync with the real bottom scroller in JS.
+  &__top-scroll {
+    height: $scrollbarThickness;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-bottom: $scrollbarGap;
+
+    @include always-visible-scrollbar;
+  }
+
+  &__top-scroll-spacer {
+    height: 1px;
+  }
+
+  // Wraps the scrolling viewport so the edge-fade overlays can be anchored to it
+  // (and not to the whole component, which includes the top scrollbar).
+  &__body {
+    position: relative;
+  }
+
+  &__viewport {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    @include always-visible-scrollbar;
+  }
+
+  // Edge indicators — non-scrolling white edge fades anchored to the body. The
+  // right fade covers the right edge on every screen size; the left fade is used
+  // on mobile (no frozen columns), while on desktop the freeze fade sits at the
+  // right edge of the frozen columns instead.
+  &__fade {
+    position: absolute;
+    top: 0;
+    // Stop above the bottom scrollbar (which reserves $scrollbarThickness at the
+    // foot of the viewport) so the fades never paint over it — otherwise the bar
+    // looks broken where a fade crosses it, e.g. at the frozen-column boundary.
+    bottom: $scrollbarThickness;
+    width: $edgeFadeWidth;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 4;
+
+    &--right {
+      right: 0;
+      background: linear-gradient(to right, rgba($colorWhite, 0), $colorWhite);
+    }
+
+    &--left {
+      left: 0;
+      background: linear-gradient(to left, rgba($colorWhite, 0), $colorWhite);
+    }
+
+    // Freeze-boundary cue (desktop): the same white edge fade, anchored to the
+    // right edge of the frozen columns so scrolling content fades out as it
+    // slides underneath them. An overlay is used rather than a cell box-shadow,
+    // which does not paint reliably on border-collapse tables.
+    &--freeze {
+      left: var(--sticky-total-width, 0);
+      background: linear-gradient(to right, $colorWhite, rgba($colorWhite, 0));
+    }
+  }
+
+  &--scroll-right &__fade--right {
+    opacity: 1;
+  }
+
+  // Left fade only below the desktop breakpoint — matches where freezing is off.
+  @media (max-width: ($mdBreakpoint - 0.02px)) {
+    &--scroll-left &__fade--left {
+      opacity: 1;
+    }
+  }
+
+  // Freeze fade only at/above the desktop breakpoint, where columns freeze.
+  @media (min-width: $mdBreakpoint) {
+    &--scroll-left &__fade--freeze {
+      opacity: 1;
+    }
+  }
 
   &__status {
     min-width: 100%;
@@ -108,5 +230,28 @@
     display: flex;
     align-items: stretch;
     min-height: 100%;
+  }
+}
+
+// Freeze the first columns from the desktop breakpoint up. On mobile only a
+// couple of columns fit at once, so freezing them is intentionally disabled.
+@media (min-width: $mdBreakpoint) {
+  .results-table {
+    @each $id in $stickyColumnIds {
+      td.results-table__column--#{$id},
+      th.results-table__column--#{$id} {
+        position: sticky;
+        left: var(--sticky-left-#{$id}, 0);
+      }
+
+      // Lift frozen cells above the scrolling cells (headers above bodies).
+      td.results-table__column--#{$id} {
+        z-index: 1;
+      }
+
+      th.results-table__column--#{$id} {
+        z-index: 3;
+      }
+    }
   }
 }

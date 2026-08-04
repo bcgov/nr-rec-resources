@@ -128,6 +128,16 @@ export const ADMIN_SEARCH_COLUMN_IDS = ADMIN_SEARCH_COLUMN_DEFINITIONS.map(
   ({ id }) => id,
 ) as AdminSearchColumnId[];
 
+// Columns frozen (sticky) to the left edge of the results table, in DOM order,
+// so the identifying details stay visible while the user scrolls horizontally.
+// Freezing is only applied at/above the desktop breakpoint (see the table SCSS);
+// on mobile only a couple of columns fit, so freezing them is disabled there.
+export const STICKY_COLUMN_IDS: AdminSearchColumnId[] = [
+  'rec_resource_id',
+  'name',
+  'recreation_resource_type',
+];
+
 export const FEATURE_FLAGGED_COLUMN_IDS = new Set<AdminSearchColumnId>([
   'public_access_status',
 ]);
