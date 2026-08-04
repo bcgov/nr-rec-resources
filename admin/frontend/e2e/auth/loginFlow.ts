@@ -15,13 +15,13 @@ async function loginViaLocalForm(
   await page.locator('#kc-login').click();
 }
 
-// Locator for the MFA one-time-code input on the IDIR/Azure AD challenge page.
+// Microsoft Entra (Azure AD) one-time-code input on the TOTP challenge page.
 // Used both to detect whether MFA was asked and, in submitMfaCode, to fill it.
-// TODO: validate the selector against the real MFA page via `npx playwright codegen`.
-const otpFieldSelector = 'input[name="otp"]';
+// (Entra uses name="otc" / id="idTxtBx_SAOTCC_OTC" for the authenticator code.)
+const otpFieldSelector = 'input[name="otc"]';
 
 /**
- * Fills the MFA (TOTP) one-time code on the IDIR/Azure AD challenge page.
+ * Fills the MFA (TOTP) one-time code on the Microsoft Entra challenge page.
  *
  * STUB: intentionally a no-op until the dedicated test IDIR account is created and
  * its TOTP secret is captured (stored as the E2E_ADMIN_TOTP_SECRET GitHub secret).
@@ -35,44 +35,59 @@ const otpFieldSelector = 'input[name="otp"]';
  *   import { authenticator } from 'otplib';
  *   const code = authenticator.generate(process.env.E2E_ADMIN_TOTP_SECRET!);
  *   await page.locator(otpFieldSelector).fill(code);
- *   await page.locator('input[type="submit"]').click();
+ *   await page.locator('#idSubmit_SAOTCC_Continue').click(); // "Verify"
  */
 async function submitMfaCode(_page: Page) {
   // no-op until the IDIR account + E2E_ADMIN_TOTP_SECRET exist
 }
 
 /**
- * Deployed BC Gov flow: clicking "Login" redirects to the loginproxy IDP chooser,
- * then to the IDIR sign-in page on a separate domain, and — depending on the origin
- * IP / device-trust policy — an optional Azure AD MFA challenge, before returning
- * to the app.
+ * Deployed BC Gov flow: clicking "Login" hands off to the app's Keycloak, which
+ * brokers straight to Microsoft Entra (Azure AD) — there is NO loginproxy "pick
+ * IDIR" chooser; the browser lands directly on login.microsoftonline.com. This
+ * drives the standard Entra sign-in: email → Next → password → Sign in, then an
+ * OPTIONAL MFA challenge and an OPTIONAL "Stay signed in?" (KMSI) prompt, before
+ * redirecting back to the app.
  *
- * NOTE: the selectors below still need to be validated against the real IDIR page
- * (e.g. via `npx playwright codegen <deployed-url>`) once a test account exists.
+ * NOTE: Entra's markup is stable but this hasn't been run green end-to-end yet —
+ * if a step drifts, confirm with `npx playwright codegen <deployed-url> --headed`.
+ * Federated/branded tenants can vary the email→password transition.
  */
 async function loginViaIdir(page: Page, username: string, password: string) {
-  // loginproxy IDP chooser → pick IDIR
-  await page.getByRole('link', { name: /idir/i }).click();
+  // Email step
+  await page.locator('input[type="email"]').fill(username);
+  await page.locator('#idSIButton9').click(); // "Next"
 
-  // IDIR sign-in page (separate domain). Rely on the field's auto-wait rather than
-  // asserting an intermediate URL, so the flow is resilient to redirect-host changes.
-  await page.locator('input[name="user"]').fill(username);
-  await page.locator('input[name="password"]').fill(password);
-  await page.locator('input[type="submit"]').click();
+  // Password step (Entra renders it as a separate view)
+  const passwordField = page.locator('input[type="password"]');
+  await passwordField.waitFor({ state: 'visible' });
+  await passwordField.fill(password);
+  await page.locator('#idSIButton9').click(); // "Sign in"
 
-  // MFA is NOT guaranteed: Azure AD only challenges some origins (e.g. non-Canadian
-  // IPs) and can skip it under "remember this device" / trusted-network policies.
-  // Race the two possible outcomes and only handle MFA if the prompt actually shows,
-  // so the same path works whether or not MFA is asked.
   const appUrl = `${BASE_URL}/**`;
   const otpField = page.locator(otpFieldSelector);
+  // "Stay signed in?" prompt: the "No" button (#idBtn_Back) is unique to KMSI,
+  // unlike the primary #idSIButton9 which Entra reuses across every view.
+  const kmsiNo = page.locator('#idBtn_Back');
+
+  // After the password, MFA is NOT guaranteed (Entra only challenges some origins,
+  // e.g. non-Canadian IPs, and can skip it under trusted-device policies) and the
+  // KMSI prompt may or may not appear. Race all outcomes so the same path works
+  // whether or not either is shown.
   await Promise.race([
     otpField.waitFor({ state: 'visible' }).catch(() => {}),
+    kmsiNo.waitFor({ state: 'visible' }).catch(() => {}),
     page.waitForURL(appUrl).catch(() => {}),
   ]);
 
   if (await otpField.isVisible().catch(() => false)) {
     await submitMfaCode(page);
+    // KMSI can surface after MFA completes.
+    await kmsiNo.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
+  }
+
+  if (await kmsiNo.isVisible().catch(() => false)) {
+    await kmsiNo.click(); // "No" — complete sign-in without a persistent cookie
   }
 
   // Back to the app origin once auth completes.
