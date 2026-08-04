@@ -2,10 +2,10 @@ import proj4 from 'proj4';
 import GeoJSON from 'ol/format/GeoJSON';
 import { LineString, MultiLineString, MultiPolygon, Polygon } from 'ol/geom';
 import type { Geometry } from 'ol/geom';
+import { BC_ALBERS_PROJ4_DEF } from '@shared/components/recreation-resource-map';
 
-/** EPSG:3005 (BC Albers) proj string – must match the definition in index.tsx */
-const BC_ALBERS =
-  '+proj=aea +lat_0=45 +lon_0=-126 +lat_1=50 +lat_2=58.5 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs';
+/** EPSG:3005 (BC Albers) proj string */
+const BC_ALBERS = BC_ALBERS_PROJ4_DEF;
 
 const WGS84 = 'EPSG:4326';
 

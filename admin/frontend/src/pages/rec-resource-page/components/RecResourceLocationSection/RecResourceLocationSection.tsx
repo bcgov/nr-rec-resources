@@ -1,10 +1,4 @@
-import {
-  CSSProperties,
-  ReactNode,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+import { CSSProperties, useCallback, useMemo, useState } from 'react';
 import { Stack } from 'react-bootstrap';
 import {
   RecreationResourceMap,
@@ -27,7 +21,6 @@ import '@/pages/rec-resource-page/components/RecResourceLocationSection/RecResou
 type RecResourceLocationSectionProps = {
   recResource: RecreationResourceDetailUIModel;
   showHeading?: boolean;
-  extraActionButtons?: ReactNode;
   imapUrl?: string;
 };
 
