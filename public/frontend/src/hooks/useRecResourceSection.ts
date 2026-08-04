@@ -6,6 +6,8 @@ import { PageSection } from '@/components/layout/PageWithScrollMenu';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
 
 const RECREATION_SITE = 'Recreation site';
+const RECREATION_TRAIL = 'Recreation trail';
+const INTERPRETIVE_FOREST = 'Interpretive forest';
 
 export function useRecResourceSections(recResource: any) {
   const formattedName = capitalizeWords(recResource?.name);
@@ -94,6 +96,8 @@ export function useRecResourceSections(recResource: any) {
   // Site info
   const isSiteDescription = Boolean(description || maintenance_standard_code);
   const isRecreationSite = rec_resource_type === RECREATION_SITE;
+  const isRecreationTrail = rec_resource_type === RECREATION_TRAIL;
+  const isInterpretiveForest = rec_resource_type === INTERPRETIVE_FOREST;
   const isClosures = Boolean(
     statusComment && formattedName && statusCode === 2,
   );
@@ -126,7 +130,7 @@ export function useRecResourceSections(recResource: any) {
         id: SectionIds.KNOW_BEFORE_YOU_GO,
         href: `#${SectionIds.KNOW_BEFORE_YOU_GO}`,
         title: SectionTitles.KNOW_BEFORE_YOU_GO,
-        isVisible: isRecreationSite,
+        isVisible: true,
       },
       {
         id: SectionIds.CAMPING,
@@ -180,7 +184,6 @@ export function useRecResourceSections(recResource: any) {
       isAccessibleActivities,
       isFacilitiesAvailable,
       isMapsAndLocation,
-      isRecreationSite,
     ],
   );
 
@@ -201,6 +204,8 @@ export function useRecResourceSections(recResource: any) {
     isFacilitiesAvailable,
     isMapsAndLocation,
     isRecreationSite,
+    isRecreationTrail,
+    isInterpretiveForest,
     isPhotoGallery,
     isReservable,
     isCampingAvailable,

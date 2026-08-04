@@ -10,6 +10,10 @@ describe('KnowBeforeYouGo', () => {
         isAdditionalFeesAvailable={false}
         isCampingAvailable={false}
         isReservable={true}
+        isRecreationSite={true}
+        isRecreationTrail={false}
+        isInterpretiveForest={false}
+        advisories={null}
       />,
     );
 
@@ -48,6 +52,10 @@ describe('KnowBeforeYouGo', () => {
         isAdditionalFeesAvailable={false}
         isCampingAvailable={true}
         isReservable={false}
+        isRecreationSite={true}
+        isRecreationTrail={false}
+        isInterpretiveForest={false}
+        advisories={null}
       />,
     );
 
@@ -71,6 +79,10 @@ describe('KnowBeforeYouGo', () => {
         isAdditionalFeesAvailable={true}
         isReservable={false}
         isCampingAvailable={false}
+        isRecreationSite={true}
+        isRecreationTrail={false}
+        isInterpretiveForest={false}
+        advisories={null}
       />,
     );
 
@@ -79,12 +91,16 @@ describe('KnowBeforeYouGo', () => {
     expect(screen.getByText(/Bring cash/i)).toBeInTheDocument();
   });
 
-  it('always renders safety and visit responsibly sections', () => {
+  it('renders all basic info', () => {
     render(
       <KnowBeforeYouGo
         isAdditionalFeesAvailable={false}
         isReservable={false}
         isCampingAvailable={false}
+        isRecreationSite={true}
+        isRecreationTrail={false}
+        isInterpretiveForest={false}
+        advisories={null}
       />,
     );
 
@@ -92,12 +108,6 @@ describe('KnowBeforeYouGo', () => {
     expect(
       screen.getByRole('heading', { level: 3, name: /Staying safe/i }),
     ).toBeInTheDocument();
-
-    // Recycle icon
-    expect(screen.getByAltText(/Recycle icon/i)).toBeInTheDocument();
-
-    // Cel reception icon
-    expect(screen.getByAltText(/Cel Reception icon/i)).toBeInTheDocument();
 
     // Visit responsibly section
     expect(
@@ -117,38 +127,118 @@ describe('KnowBeforeYouGo', () => {
     expect(screen.getByText(/The Camper's Code/i)).toBeInTheDocument();
   });
 
-  it('always renders the four new safety sections', () => {
+  it('renders all recreation site related info', () => {
     render(
       <KnowBeforeYouGo
         isAdditionalFeesAvailable={false}
         isReservable={false}
         isCampingAvailable={false}
+        isRecreationSite={true}
+        isRecreationTrail={false}
+        isInterpretiveForest={false}
+        advisories={null}
       />,
     );
+    // Recycle icon
+    expect(screen.getByAltText(/Recycle icon/i)).toBeInTheDocument();
 
-    expect(screen.getByText(/Wildlife and animal safety/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/You may encounter wildlife, including bears/i),
-    ).toBeInTheDocument();
+    // Cel reception icon
+    expect(screen.getByAltText(/Cel Reception icon/i)).toBeInTheDocument();
 
-    expect(screen.getByText(/Toilets and sanitation/i)).toBeInTheDocument();
+    // Wildlife icon
     expect(
-      screen.getByText(/Toilet facilities may be limited or unavailable/i),
-    ).toBeInTheDocument();
-
-    expect(screen.getByText('Forest Service Roads')).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /Access to this site may involve driving on Forest Service Roads/i,
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: /local road safety information/i }),
+      screen.getByAltText(/Wildlife and Animal Safety icon/i),
     ).toBeInTheDocument();
 
-    expect(screen.getByText(/Campfires and fire safety/i)).toBeInTheDocument();
+    // Toilet icon
+    expect(screen.getByAltText(/Toilet icon/i)).toBeInTheDocument();
+
+    // Forest service icon
     expect(
-      screen.getByText(/Campfire bans or restrictions may be in place/i),
+      screen.getByAltText(/Forest Service Roads icon/i),
     ).toBeInTheDocument();
+
+    // Campfires icon
+    expect(
+      screen.getByAltText(/Campfires and fire safety icon/i),
+    ).toBeInTheDocument();
+  });
+
+  it('renders all recreation trail related info', () => {
+    render(
+      <KnowBeforeYouGo
+        isAdditionalFeesAvailable={false}
+        isReservable={false}
+        isCampingAvailable={false}
+        isRecreationSite={false}
+        isRecreationTrail={true}
+        isInterpretiveForest={false}
+        advisories={null}
+      />,
+    );
+    // Recycle icon
+    expect(screen.getByAltText(/Recycle icon/i)).toBeInTheDocument();
+
+    // Cel reception icon
+    expect(screen.getByAltText(/Cel Reception icon/i)).toBeInTheDocument();
+
+    // Wildlife icon
+    expect(
+      screen.getByAltText(/Wildlife and Animal Safety icon/i),
+    ).toBeInTheDocument();
+
+    // Trail conditions icon
+    expect(screen.getByAltText(/Trail Conditions icon/i)).toBeInTheDocument();
+
+    // Stay on Trails icon
+    expect(screen.getByAltText(/Stay on Trail icon/i)).toBeInTheDocument();
+
+    // Toilet icon
+    expect(screen.getByAltText(/Toilet icon/i)).toBeInTheDocument();
+
+    // Forest service icon
+    expect(
+      screen.getByAltText(/Forest Service Roads icon/i),
+    ).toBeInTheDocument();
+
+    // Campfires icon
+    expect(
+      screen.getByAltText(/Campfires and fire safety icon/i),
+    ).toBeInTheDocument();
+  });
+
+  it('renders all interpretive forest related info', () => {
+    render(
+      <KnowBeforeYouGo
+        isAdditionalFeesAvailable={false}
+        isReservable={false}
+        isCampingAvailable={false}
+        isRecreationSite={false}
+        isRecreationTrail={false}
+        isInterpretiveForest={true}
+        advisories={null}
+      />,
+    );
+    // Stay on Trails icon
+    expect(screen.getByAltText(/Stay on Trail icon/i)).toBeInTheDocument();
+
+    // Cel reception icon
+    expect(screen.getByAltText(/Cel Reception icon/i)).toBeInTheDocument();
+
+    // Wildlife icon
+    expect(
+      screen.getByAltText(/Wildlife and Animal Safety icon/i),
+    ).toBeInTheDocument();
+
+    // Recycle icon
+    expect(screen.getByAltText(/Recycle icon/i)).toBeInTheDocument();
+
+    // Campfires icon
+    expect(
+      screen.getByAltText(/Campfires and fire safety icon/i),
+    ).toBeInTheDocument();
+
+    // Respect and learning icon
+    expect(screen.getByAltText(/Respect learning icon/i)).toBeInTheDocument();
   });
 });

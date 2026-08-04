@@ -49,6 +49,8 @@ const RecResourcePage = () => {
     isFacilitiesAvailable,
     isMapsAndLocation,
     isRecreationSite,
+    isRecreationTrail,
+    isInterpretiveForest,
     isPhotoGallery,
     isReservable,
     isCampingAvailable,
@@ -124,12 +126,15 @@ const RecResourcePage = () => {
                   />
                 )}
 
-                {isRecreationSite && (
+                {rec_resource_id && (
                   <KnowBeforeYouGo
                     isReservable={isReservable}
                     isAdditionalFeesAvailable={isAdditionalFeesAvailable}
                     isCampingAvailable={isCampingAvailable}
                     advisories={advisories}
+                    isRecreationSite={isRecreationSite}
+                    isRecreationTrail={isRecreationTrail}
+                    isInterpretiveForest={isInterpretiveForest}
                     ref={sectionRefs[refIndex++]}
                   />
                 )}
