@@ -12,9 +12,16 @@ locals {
 
   cors_allowed_origins = [
     "https://${local.frontend_url}",
+    # prod
     "https://sitesandtrailsbc.ca",
     "https://www.sitesandtrailsbc.ca",
-    "https://staff.sitesandtrailsbc.ca"
+    "https://staff.sitesandtrailsbc.ca",
+    # dev
+    "https://dev.sitesandtrailsbc.ca",
+    "https://staff.dev.sitesandtrailsbc.ca",
+    # test
+    "https://test.sitesandtrailsbc.ca",
+    "https://staff.test.sitesandtrailsbc.ca"
   ]
 
   cors_headers = [
