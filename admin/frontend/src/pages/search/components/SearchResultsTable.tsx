@@ -125,7 +125,7 @@ export const SearchResultsTable = ({
           aria-hidden="true"
         />
         <span
-          className="search-results-table__fade search-results-table__fade--freeze"
+          className="search-results-table__freeze-divider"
           aria-hidden="true"
         />
         <span

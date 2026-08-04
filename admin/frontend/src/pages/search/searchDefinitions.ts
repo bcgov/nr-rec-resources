@@ -135,7 +135,6 @@ export const ADMIN_SEARCH_COLUMN_IDS = ADMIN_SEARCH_COLUMN_DEFINITIONS.map(
 export const STICKY_COLUMN_IDS: AdminSearchColumnId[] = [
   'rec_resource_id',
   'name',
-  'recreation_resource_type',
 ];
 
 export const FEATURE_FLAGGED_COLUMN_IDS = new Set<AdminSearchColumnId>([

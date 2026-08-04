@@ -2,7 +2,7 @@
 
 // Frozen columns (must match STICKY_COLUMN_IDS in searchDefinitions.ts). Their
 // left offsets are measured at runtime and exposed as --sticky-left-<id> vars.
-$stickyColumnIds: rec_resource_id, name, recreation_resource_type;
+$stickyColumnIds: rec_resource_id, name;
 $scrollbarGap: 0.25rem;
 $edgeFadeWidth: 2.5rem;
 $scrollbarThickness: 0.85rem;
@@ -74,14 +74,14 @@ $scrollbarThickness: 0.85rem;
 
   // Edge indicators — non-scrolling white edge fades anchored to the body. The
   // right fade covers the right edge on every screen size; the left fade is used
-  // on mobile (no frozen columns), while on desktop the freeze fade sits at the
-  // right edge of the frozen columns instead.
+  // on mobile (no frozen columns). On desktop the frozen-column boundary is
+  // marked by the freeze divider (below) instead.
   &__fade {
     position: absolute;
     top: 0;
     // Stop above the bottom scrollbar (which reserves $scrollbarThickness at the
     // foot of the viewport) so the fades never paint over it — otherwise the bar
-    // looks broken where a fade crosses it, e.g. at the frozen-column boundary.
+    // looks broken where a fade crosses it.
     bottom: $scrollbarThickness;
     width: $edgeFadeWidth;
     pointer-events: none;
@@ -98,15 +98,23 @@ $scrollbarThickness: 0.85rem;
       left: 0;
       background: linear-gradient(to left, rgba($colorWhite, 0), $colorWhite);
     }
+  }
 
-    // Freeze-boundary cue (desktop): the same white edge fade, anchored to the
-    // right edge of the frozen columns so scrolling content fades out as it
-    // slides underneath them. An overlay is used rather than a cell box-shadow,
-    // which does not paint reliably on border-collapse tables.
-    &--freeze {
-      left: var(--sticky-total-width, 0);
-      background: linear-gradient(to right, $colorWhite, rgba($colorWhite, 0));
-    }
+  // Freeze-boundary divider (desktop): a stronger line at the right edge of the
+  // frozen columns, positioned at their measured total width. Drawn as an overlay
+  // rather than a cell border, which does not paint reliably on sticky cells in a
+  // border-collapse table.
+  &__freeze-divider {
+    position: absolute;
+    top: 0;
+    bottom: $scrollbarThickness;
+    left: calc(var(--sticky-total-width, 0) - 1px);
+    width: 1px;
+    background: rgba($colorGreyMed, 0.7);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 4;
   }
 
   &--scroll-right &__fade--right {
@@ -120,9 +128,11 @@ $scrollbarThickness: 0.85rem;
     }
   }
 
-  // Freeze fade only at/above the desktop breakpoint, where columns freeze.
+  // Freeze divider only at/above the desktop breakpoint (where columns freeze),
+  // and only while the table can actually scroll horizontally.
   @media (min-width: $mdBreakpoint) {
-    &--scroll-left &__fade--freeze {
+    &--scroll-left &__freeze-divider,
+    &--scroll-right &__freeze-divider {
       opacity: 1;
     }
   }

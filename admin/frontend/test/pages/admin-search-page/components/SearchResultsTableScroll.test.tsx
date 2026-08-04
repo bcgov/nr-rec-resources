@@ -98,7 +98,6 @@ function renderTable() {
 const STICKY_WIDTHS: Record<string, number> = {
   rec_resource_id: 100,
   name: 200,
-  recreation_resource_type: 150,
 };
 
 // Give the frozen header cells fixed widths so the cumulative left offsets are
@@ -166,7 +165,7 @@ describe('SearchResultsTable horizontal scroll affordances', () => {
       container.querySelector('.search-results-table__fade--left'),
     ).toBeInTheDocument();
     expect(
-      container.querySelector('.search-results-table__fade--freeze'),
+      container.querySelector('.search-results-table__freeze-divider'),
     ).toBeInTheDocument();
     expect(
       container.querySelector('.search-results-table__fade--right'),
@@ -183,11 +182,12 @@ describe('SearchResultsTable horizontal scroll affordances', () => {
       '0px',
     );
     expect(table.style.getPropertyValue('--sticky-left-name')).toBe('100px');
+    // recreation_resource_type is no longer frozen, so it gets no offset var.
     expect(
       table.style.getPropertyValue('--sticky-left-recreation_resource_type'),
-    ).toBe('300px');
+    ).toBe('');
     expect(wrapper.style.getPropertyValue('--sticky-total-width')).toBe(
-      '450px',
+      '300px',
     );
   });
 

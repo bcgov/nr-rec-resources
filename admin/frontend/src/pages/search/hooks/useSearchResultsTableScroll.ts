@@ -79,7 +79,7 @@ export function useSearchResultsTableScroll(resetKey: string) {
     });
 
     // Total width of the frozen region, used to position the freeze-boundary
-    // fade overlay at the right edge of the sticky columns.
+    // divider at the right edge of the sticky columns.
     wrapperRef.current?.style.setProperty(
       '--sticky-total-width',
       `${offset}px`,
