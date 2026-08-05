@@ -1,0 +1,130 @@
+name: Promote to Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'Application to promote'
+        required: true
+        type: choice
+        options:
+          - public
+          - admin
+      tag:
+        description: 'Image tag to deploy (leave blank to auto-detect from test)'
+        required: false
+        type: string
+        default: ''
+
+env:
+  AWS_REGION: ca-central-1
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
+jobs:
+  get-test-tag:
+    name: Detect tag deployed on test
+    runs-on: ubuntu-24.04
+    environment: test
+    outputs:
+      tag: ${{ steps.detect-tag.outputs.tag }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_LZA_DEPLOY_ROLE_ARN }}
+          role-session-name: detect-test-tag
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Detect image tag from test ECS
+        id: detect-tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          APP: ${{ inputs.app }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            echo "Using manually provided tag: $INPUT_TAG"
+            echo "tag=$INPUT_TAG" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Derive the app_name used in ECS resource naming
+          if [ "$APP" = "public" ]; then
+            APP_NAME="node-api-test"
+          else
+            APP_NAME="node-api-${APP}-test"
+          fi
+
+          CLUSTER="ecs-cluster-${APP_NAME}"
+          SERVICE="${APP_NAME}-service"
+
+          echo "Looking up tag from cluster=$CLUSTER service=$SERVICE"
+
+          TASK_DEF_ARN=$(aws ecs describe-services \
+            --cluster "$CLUSTER" \
+            --services "$SERVICE" \
+            --query 'services[0].taskDefinition' \
+            --output text)
+
+          echo "Task definition ARN: $TASK_DEF_ARN"
+
+          IMAGE=$(aws ecs describe-task-definition \
+            --task-definition "$TASK_DEF_ARN" \
+            --query 'taskDefinition.containerDefinitions[0].image' \
+            --output text)
+
+          echo "Image: $IMAGE"
+
+          TAG="${IMAGE##*:}"
+          echo "Detected tag: $TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+  # Gate: require a reviewer before deploying to prod
+  review-prod-deployment:
+    name: Review promotion to prod (${{ inputs.app }})
+    needs: get-test-tag
+    runs-on: ubuntu-24.04
+    environment: review-${{ inputs.app }}-prod-deployment
+    steps:
+      - name: Confirm promotion
+        run: |
+          echo "Promoting ${{ inputs.app }} tag=${{ needs.get-test-tag.outputs.tag }} to PROD"
+
+  promote:
+    name: Tag images as latest in GHCR
+    needs: [get-test-tag, review-prod-deployment]
+    if: ${{ always() && needs.review-prod-deployment.result == 'success' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: ['${{ inputs.app }}/backend', '${{ inputs.app }}/frontend', 'migrations/rst', 'migrations/fta']
+    timeout-minutes: 5
+    steps:
+      - name: Re-tag image as latest in GHCR
+        uses: shrink/actions-docker-registry-tag@v4
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: ${{ needs.get-test-tag.outputs.tag }}
+          tags: latest
+
+  deploy-to-prod:
+    name: Deploy ${{ inputs.app }} to prod
+    needs: [get-test-tag, review-prod-deployment]
+    if: ${{ always() && needs.review-prod-deployment.result == 'success' }}
+    uses: ./.github/workflows/.deploy-app.yml
+    concurrency:
+      group: deploy-${{ inputs.app }}-to-aws-prod
+      cancel-in-progress: false
+    with:
+      app: ${{ inputs.app }}
+      app_env: prod
+      command: apply
+      environment_name: prod
+      tag: ${{ needs.get-test-tag.outputs.tag }}
+    secrets: inherit
