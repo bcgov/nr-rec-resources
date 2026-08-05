@@ -1,3 +1,4 @@
+import { HelpIcon } from '@/components/help-icon';
 import { RecreationResourceOptionUIModel } from '@/services';
 import { ReactNode } from 'react';
 import { Form } from 'react-bootstrap';
@@ -20,6 +21,7 @@ interface SelectFieldProps<TFieldValues extends FieldValues> {
   disabled?: boolean;
   isClearable?: boolean;
   helperText?: ReactNode;
+  helpText?: string;
 }
 
 /**
@@ -36,6 +38,7 @@ export function SelectField<TFieldValues extends FieldValues>({
   disabled = false,
   isClearable = false,
   helperText,
+  helpText,
 }: SelectFieldProps<TFieldValues>) {
   return (
     <Controller<TFieldValues>
@@ -46,7 +49,10 @@ export function SelectField<TFieldValues extends FieldValues>({
 
         return (
           <Form.Group controlId={name}>
-            <Form.Label>{label}</Form.Label>
+            <Form.Label>
+              {label}
+              {helpText && <HelpIcon id={`${name}-help`} text={helpText} />}
+            </Form.Label>
             <Select<RecreationResourceOptionUIModel>
               id={`${name}-select`}
               options={options}
