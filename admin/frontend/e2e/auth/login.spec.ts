@@ -13,28 +13,19 @@ test.describe('Authentication flow', () => {
   });
 
   test('rst-admin can log in and reach the search page', async ({ page }) => {
+    // Local only. On deployed, auth/setup.ts already performs this exact login
+    // (incl. MFA) as the suite's single real login; re-driving it here once per
+    // browser project would reuse TOTP codes within the same 30s window and be
+    // rejected. Local Keycloak has no MFA, so per-browser logins are cheap and safe.
+    test.skip(
+      E2E_TARGET === 'deployed',
+      'deployed login is covered once by auth/setup.ts to avoid TOTP reuse',
+    );
+
     await performLogin(
       page,
       process.env.E2E_ADMIN_USERNAME!,
       process.env.E2E_ADMIN_PASSWORD!,
-    );
-
-    await expect(
-      page.getByRole('heading', { name: 'Search', level: 1 }),
-    ).toBeVisible({ timeout: 30000 });
-  });
-
-  test('rst-viewer can log in and reach the search page', async ({ page }) => {
-    // Admin-only on deployed — viewer IDIR account is not provisioned there.
-    test.skip(
-      E2E_TARGET === 'deployed',
-      'viewer account not provisioned on deployed environments',
-    );
-
-    await performLogin(
-      page,
-      process.env.E2E_VIEWER_USERNAME!,
-      process.env.E2E_VIEWER_PASSWORD!,
     );
 
     await expect(

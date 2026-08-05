@@ -93,11 +93,9 @@ jobs:
         E2E_TARGET: ${{ inputs.local && 'local' || 'deployed' }}
         E2E_ADMIN_USERNAME: ${{ secrets.E2E_ADMIN_USERNAME }}
         E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
-        # TOTP secret for the dedicated deployed IDIR account. Consumed by the MFA
-        # stub in e2e/auth/loginFlow.ts (empty until the account + secret exist).
+        # TOTP secret for the deployed IDIR account, consumed by the otplib MFA flow
+        # in e2e/auth/loginFlow.ts. Admin-only: the suite performs a single login.
         E2E_ADMIN_TOTP_SECRET: ${{ secrets.E2E_ADMIN_TOTP_SECRET }}
-        E2E_VIEWER_USERNAME: ${{ secrets.E2E_VIEWER_USERNAME }}
-        E2E_VIEWER_PASSWORD: ${{ secrets.E2E_VIEWER_PASSWORD }}
     - name: Dump docker logs on failure
       if: failure() && inputs.local
       uses: jwalton/gh-docker-logs@v2
