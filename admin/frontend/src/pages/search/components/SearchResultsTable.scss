@@ -7,38 +7,6 @@ $scrollbarGap: 0.25rem;
 $edgeFadeWidth: 2.5rem;
 $scrollbarThickness: 0.85rem;
 
-// Keep both horizontal scrollbars permanently visible. `appearance: none` opts
-// the WebKit scrollbar out of macOS's auto-hiding overlay behaviour, rendering
-// the classic always-visible style instead. This is still the browser's own
-// scrollbar — not a custom DOM element — and both bars share the mixin so they
-// stay identical.
-//
-// Deliberately NOT setting the standard `scrollbar-width` / `scrollbar-color`:
-// when either is present, Chromium ignores `::-webkit-scrollbar` entirely and
-// falls back to a thin overlay bar that still auto-hides on macOS.
-@mixin always-visible-scrollbar {
-  &::-webkit-scrollbar {
-    appearance: none;
-    -webkit-appearance: none;
-    height: $scrollbarThickness;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: $colorBackgroundGrey;
-    border-radius: 999px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba($colorGreyMed, 0.5);
-    border: 3px solid $colorBackgroundGrey;
-    border-radius: 999px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgba($colorGreyMed, 0.75);
-  }
-}
-
 .search-results-table {
   position: relative;
   max-width: 100%;
@@ -47,11 +15,7 @@ $scrollbarThickness: 0.85rem;
   // sized to the table width, kept in sync with the real bottom scroller in JS.
   &__top-scroll {
     height: $scrollbarThickness;
-    overflow-x: auto;
-    overflow-y: hidden;
     margin-bottom: $scrollbarGap;
-
-    @include always-visible-scrollbar;
   }
 
   &__top-scroll-spacer {
@@ -66,10 +30,40 @@ $scrollbarThickness: 0.85rem;
 
   &__viewport {
     max-width: 100%;
+  }
+
+  // Both horizontal scrollbars: shared overflow + always-visible styling.
+  // `appearance: none` opts the WebKit scrollbar out of macOS's auto-hiding
+  // overlay behaviour, rendering the classic always-visible style instead — still
+  // the browser's own scrollbar, not a custom DOM element. We deliberately do NOT
+  // set the standard `scrollbar-width` / `scrollbar-color`: when either is present
+  // Chromium ignores `::-webkit-scrollbar` and falls back to a thin overlay bar
+  // that still auto-hides on macOS.
+  &__top-scroll,
+  &__viewport {
     overflow-x: auto;
     overflow-y: hidden;
 
-    @include always-visible-scrollbar;
+    &::-webkit-scrollbar {
+      appearance: none;
+      -webkit-appearance: none;
+      height: $scrollbarThickness;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $colorBackgroundGrey;
+      border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba($colorGreyMed, 0.5);
+      border: 3px solid $colorBackgroundGrey;
+      border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba($colorGreyMed, 0.75);
+    }
   }
 
   // Edge indicators — non-scrolling white edge fades anchored to the body. The
