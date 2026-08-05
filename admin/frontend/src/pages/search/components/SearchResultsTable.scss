@@ -117,32 +117,35 @@ $scrollbarThickness: 0.85rem;
     z-index: 4;
   }
 
-  &--scroll-right &__fade--right {
-    opacity: 1;
-  }
-
-  // Left fade only below the desktop breakpoint — matches where freezing is off.
-  @media (max-width: ($mdBreakpoint - 0.02px)) {
-    &--scroll-left &__fade--left {
-      opacity: 1;
-    }
-  }
-
-  // Freeze divider only at/above the desktop breakpoint (where columns freeze),
-  // and only while the table can actually scroll horizontally.
-  @media (min-width: $mdBreakpoint) {
-    &--scroll-left &__freeze-divider,
-    &--scroll-right &__freeze-divider {
-      opacity: 1;
-    }
-  }
-
   &__status {
     min-width: 100%;
     padding: 1rem;
     border: 1px solid rgba($colorGreyLight, 0.55);
     border-top: 0;
     background-color: $colorWhite;
+  }
+}
+
+// Reveal the edge indicators based on the scroll-state classes the hook sets on
+// the wrapper. Written as explicit class selectors (rather than nested `&…&…`)
+// so each selector carries its own scoping root.
+.search-results-table--scroll-right .search-results-table__fade--right {
+  opacity: 1;
+}
+
+// Left fade only below the desktop breakpoint — matches where freezing is off.
+@media (max-width: ($mdBreakpoint - 0.02px)) {
+  .search-results-table--scroll-left .search-results-table__fade--left {
+    opacity: 1;
+  }
+}
+
+// Freeze divider only at/above the desktop breakpoint (where columns freeze),
+// and only while the table can actually scroll horizontally.
+@media (min-width: $mdBreakpoint) {
+  .search-results-table--scroll-left .search-results-table__freeze-divider,
+  .search-results-table--scroll-right .search-results-table__freeze-divider {
+    opacity: 1;
   }
 }
 
