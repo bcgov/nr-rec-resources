@@ -11,6 +11,13 @@ import {
 } from 'e2e/data/filters';
 import { FilterEnum, FilterGroup } from 'e2e/enum/filter';
 
+// The District group is populated from an API call and is the slowest, most
+// latency-sensitive part of the menu on deployed environments. Give its initial
+// render a generous window (matching the 30s default of the `locator.waitFor`
+// this readiness check used to rely on) rather than the 10s `expect` timeout, so
+// a slow-but-healthy district fetch doesn't flake the test.
+const DISTRICT_RENDER_TIMEOUT_MS = 30_000;
+
 export class FilterPOM {
   readonly page: Page;
 
@@ -161,7 +168,7 @@ export class FilterPOM {
     // auto-retrying matcher rather than a one-shot count() snapshot.
     await expect(
       this.districtFilters.locator('.form-check label').first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: DISTRICT_RENDER_TIMEOUT_MS });
     await expect(
       this.districtFilters.locator('.form-check label'),
     ).not.toHaveCount(0);
@@ -231,7 +238,7 @@ export class FilterPOM {
   async waitForFilterMenuReady() {
     await expect(
       this.districtFilters.locator('.form-check label').first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: DISTRICT_RENDER_TIMEOUT_MS });
   }
 
   async openMobileFilterMenu() {
