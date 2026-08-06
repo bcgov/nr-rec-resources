@@ -48,6 +48,7 @@ vi.mock('@/components/search-map/hooks', () => ({
           },
         },
       ],
+      setZIndex: vi.fn(),
     },
   }),
   useWildfireLocationLayer: vi.fn(() => ({
@@ -55,6 +56,7 @@ vi.mock('@/components/search-map/hooks', () => ({
       getSource: () => ({ getFeatures: () => [], refresh: vi.fn() }),
       setVisible: vi.fn(),
       set: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useWildfirePerimeterLayer: vi.fn(() => ({
@@ -62,18 +64,21 @@ vi.mock('@/components/search-map/hooks', () => ({
       getSource: () => ({ getFeatures: () => [], refresh: vi.fn() }),
       setVisible: vi.fn(),
       set: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useFireEvacuationLayer: vi.fn(() => ({
     layer: {
       getSource: () => ({ getFeatures: () => [], refresh: vi.fn() }),
       setVisible: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useWildfireAreaRestrictionLayer: vi.fn(() => ({
     layer: {
       getSource: () => ({ getFeatures: () => [], refresh: vi.fn() }),
       setVisible: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useFeatureSelection: vi.fn(() => ({
@@ -86,12 +91,14 @@ vi.mock('@/components/search-map/hooks', () => ({
     layer: {
       getSource: () => ({ getFeatures: () => [] }),
       setVisible: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useRecreationTrailLayer: vi.fn(() => ({
     layer: {
       getSource: () => ({ getFeatures: () => [] }),
       setVisible: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useMapFocusParam: vi.fn(() => ({ mode: undefined, value: undefined })),
