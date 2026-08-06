@@ -441,6 +441,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
         {isFeedbackCardVisible && (
           <div className="feedback-card rounded-2">
             <button
+              type="button"
               className="close-button"
               onClick={() => closeFeedbackCard()}
               aria-label="Close feedback card"
@@ -457,6 +458,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
               Survey takes 1-2 minutes.
             </p>
             <button
+              type="button"
               className="btn btn-outline-light btn-sm w-100 btn-thin mt-2"
               onClick={handleFeedbackClick}
               data-testid="feedback-card-survey-button"
