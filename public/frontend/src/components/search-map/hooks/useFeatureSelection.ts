@@ -229,7 +229,6 @@ export function useFeatureSelection({
 
     return () => {
       map.removeInteraction(select);
-      overlayRef.current = null;
       selectRef.current = null;
       map.un('moveend', handleMoveEnd);
       map.un('singleclick', handleSingleClick);

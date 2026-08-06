@@ -17,18 +17,25 @@ export function useLayer(
   createStyle: (feature: Feature, isHovered: boolean) => any,
   options: UseLayerOptions = {},
 ) {
-  const { hideBelowZoom, applyHoverStyles = false } = options;
+  const {
+    hideBelowZoom,
+    applyHoverStyles = false,
+    initiallyVisible = true,
+    zIndex,
+  } = options;
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
 
-  // Source is recreated whenever the caller's createSource reference changes,
-  // letting consumers swap in a fresh source (e.g. after a search) by passing
-  // a memoized factory keyed.
   const source = useMemo(() => createSource(), [createSource]);
 
   const layer = useMemo(() => {
     const l = createLayer(source);
+    if (zIndex !== undefined) {
+      l.setZIndex(zIndex);
+    }
     if (hideBelowZoom) {
       l.set('hideBelowZoom', hideBelowZoom);
+      l.setVisible(false);
+    } else if (!initiallyVisible) {
       l.setVisible(false);
     }
     return l;
@@ -48,6 +55,13 @@ export function useLayer(
 
     const updateVisibility = () => {
       if (!hideBelowZoom) return;
+      // Respect the user's explicit toggle: if the layer was disabled by the
+      // user (_userEnabled === false), never re-show it based on zoom alone.
+      const userEnabled = layer.get('_userEnabled') !== false;
+      if (!userEnabled) {
+        layer.setVisible(false);
+        return;
+      }
       const zoom = map.getView().getZoom() ?? 0;
       layer.setVisible(zoom >= hideBelowZoom);
     };
