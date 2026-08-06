@@ -68,6 +68,10 @@ export class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
+  EXHIBIT_A_DOCS_BUCKET: string;
+
+  @IsString()
+  @IsNotEmpty()
   RST_STORAGE_IMAGES_BUCKET: string;
 
   @IsString()

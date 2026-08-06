@@ -27,6 +27,8 @@ model recreation_resource {
   risk_rating_code                     String?                                @db.VarChar(2)
   right_of_way                         Decimal?                               @db.Decimal(7, 1)
   rec_status_code                      String?                                @db.VarChar(50)
+  arch_impact_assess_ind               String?                                @db.VarChar(1)
+  resource_feature_ind                 String?                                @default("N") @db.VarChar(1)
   act_advisories_flat                  act_advisories_flat[]
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
@@ -42,6 +44,7 @@ model recreation_resource {
   recreation_district_code             recreation_district_code?              @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_maintenance_standard_code recreation_maintenance_standard_code?  @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_risk_rating_code          recreation_risk_rating_code?           @relation(fields: [risk_rating_code], references: [risk_rating_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_exhibit_a_doc             recreation_exhibit_a_doc[]
   recreation_resource_document         recreation_resource_document[]
   recreation_resource_image            recreation_resource_image[]
   recreation_resource_reservation_info recreation_resource_reservation_info?
@@ -50,7 +53,7 @@ model recreation_resource {
   recreation_structure                 recreation_structure[]
   recreation_resource_type_view_admin  recreation_resource_type_view_admin[]
   recreation_resource_type_view_public recreation_resource_type_view_public[]
-  recreation_resource_status_code_rel  recreation_resource_status_code?       @relation(fields: [rec_status_code], references: [recreation_resource_status_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource_status_code_rel  recreation_resource_status_code?       @relation("recreation_resource_status_code_rel", fields: [rec_status_code], references: [recreation_resource_status_code], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("rst")
 }
@@ -95,6 +98,7 @@ model recreation_status {
   created_at             DateTime?                @default(now()) @db.Timestamp(6)
   created_by             String?
   sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  comment_date           DateTime?                @db.Date
   recreation_resource    recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   recreation_status_code recreation_status_code   @relation(fields: [status_code], references: [status_code], onDelete: NoAction, onUpdate: NoAction)
 
@@ -528,6 +532,7 @@ model recreation_status_history {
   created_at      DateTime?                @db.Timestamp(6)
   created_by      String?
   sys_period      Unsupported("tstzrange")
+  comment_date    DateTime?                @db.Date
 
   @@ignore
   @@schema("rst")
@@ -749,14 +754,15 @@ model recreation_defined_campsite_history {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_driving_direction {
-  rec_resource_id     String                   @id @db.VarChar(10)
-  description         String?
-  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
-  updated_by          String?
-  created_at          DateTime?                @default(now()) @db.Timestamp(6)
-  created_by          String?
-  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  rec_resource_id         String                   @id @db.VarChar(10)
+  description             String?
+  updated_at              DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by              String?
+  created_at              DateTime?                @default(now()) @db.Timestamp(6)
+  created_by              String?
+  sys_period              Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  driving_directions_date DateTime?                @db.Date
+  recreation_resource     recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("rst")
 }
@@ -828,6 +834,7 @@ model recreation_site_description {
   created_at          DateTime?                @default(now()) @db.Timestamp(6)
   created_by          String?
   sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  description_date    DateTime?                @db.Date
   recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("rst")
@@ -1140,6 +1147,41 @@ model recreation_resource_image_history {
   @@schema("rst")
 }
 
+model recreation_exhibit_a_doc {
+  doc_id              String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rec_resource_id     String                   @db.VarChar(10)
+  file_name           String                   @db.VarChar
+  extension           String                   @db.VarChar
+  file_size           BigInt?
+  s3_key              String                   @unique @db.VarChar
+  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by          String?
+  created_at          DateTime?                @default(now()) @db.Timestamp(6)
+  created_by          String?
+  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([rec_resource_id], map: "idx_recreation_exhibit_a_doc_rec_resource_id")
+  @@schema("rst")
+}
+
+model recreation_exhibit_a_doc_history {
+  doc_id          String                   @db.Uuid
+  rec_resource_id String                   @db.VarChar(10)
+  file_name       String                   @db.VarChar
+  extension       String                   @db.VarChar
+  file_size       BigInt?
+  s3_key          String                   @db.VarChar
+  updated_at      DateTime?                @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_image_consent_form {
   consent_id                        String                             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -1219,7 +1261,7 @@ model recreation_resource_status_code {
   update_timestamp                DateTime?                @db.Date
   updated_at                      DateTime?                @default(now()) @db.Timestamp(6)
   sys_period                      Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource             recreation_resource[]
+  recreation_resource             recreation_resource[]    @relation("recreation_resource_status_code_rel")
 
   @@schema("rst")
 }

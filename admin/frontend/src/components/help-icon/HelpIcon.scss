@@ -1,0 +1,54 @@
+@import '@/styles/variables.scss';
+
+.help-icon {
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background-color: $colorBlue;
+    color: $colorWhite;
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+    user-select: none;
+    flex-shrink: 0;
+
+    &:hover,
+    &:focus {
+      background-color: $colorBlueMed;
+      color: $colorWhite;
+      outline: none;
+    }
+  }
+
+  &__tooltip {
+    --bs-tooltip-bg: #ffffff;
+    --bs-tooltip-color: #1a1a1a;
+    --bs-tooltip-opacity: 1;
+
+    filter: drop-shadow(0px 0.6px 1.8px rgba(0, 0, 0, 0.1))
+      drop-shadow(0px 3.2px 7.2px rgba(0, 0, 0, 0.13));
+
+    .tooltip-inner {
+      width: 227px;
+      max-width: 227px;
+      background-color: $colorWhite;
+      color: $colorGrey;
+      border-radius: 4px;
+      padding: 4px 8px;
+      text-align: left;
+      font-family: $globalFont;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .tooltip-arrow::before {
+      border-top-color: #ffffff !important;
+    }
+  }
+}

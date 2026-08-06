@@ -36,6 +36,15 @@ vi.mock('@/components/auth', () => ({
   EditableGuard: ({ children }: any) => <>{children}</>,
 }));
 
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceGeospatialSection/ExhibitASection/ExhibitASection',
+  () => ({
+    ExhibitASection: () => (
+      <div data-testid="mock-exhibit-a">ExhibitASection</div>
+    ),
+  }),
+);
+
 const mockUseAuthorizations = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
@@ -139,6 +148,33 @@ describe('RecResourceGeospatialSection', () => {
 
     expect(screen.getByText('Geospatial')).toBeDefined();
     expect(screen.queryByText('Edit')).toBeNull();
+  });
+
+  it('renders ExhibitASection', () => {
+    render(<RecResourceGeospatialSection />);
+    expect(screen.getByTestId('mock-exhibit-a')).toBeDefined();
+  });
+
+  it('does not render RecResourceLocationSection when recResource is null', () => {
+    mockUseRecResource.mockReturnValueOnce({
+      recResource: null,
+      isLoading: false,
+    });
+
+    render(<RecResourceGeospatialSection />);
+    expect(screen.queryByTestId('mock-location')).toBeNull();
+  });
+
+  it('uses imap URL fallback when no lat/lon or UTM data', () => {
+    mockUseGetRecreationResourceGeospatial.mockReturnValueOnce({
+      data: {
+        // no latitude, longitude, utm_zone, utm_easting, utm_northing
+      },
+    });
+
+    // Should render without throwing (imapUrl falls back to IMAP_URL constant)
+    render(<RecResourceGeospatialSection />);
+    expect(screen.getByText('Geospatial')).toBeDefined();
   });
 
   it('renders measure items (total length, total area, right-of-way) when present', () => {
