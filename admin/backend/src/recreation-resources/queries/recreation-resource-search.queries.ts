@@ -62,6 +62,8 @@ export const SORT_FIELD_MAP: Record<
   'file_status:desc': { rec_status_code: 'desc' },
   'public_access_status:asc': { name: 'asc' },
   'public_access_status:desc': { name: 'desc' },
+  'updated_at:asc': { updated_at: 'asc' },
+  'updated_at:desc': { updated_at: 'desc' },
 };
 
 // These sorts depend on aggregated related data, so they use the raw SQL path
@@ -94,7 +96,8 @@ type DerivedSortField =
   | 'activities'
   | 'access'
   | 'fee'
-  | 'public_access_status';
+  | 'public_access_status'
+  | 'updated_at';
 
 type DerivedSortQueryParts = {
   joinsSql: Prisma.Sql;
@@ -404,6 +407,11 @@ export function buildDerivedSortQueryParts(
           ) advisory_status ON TRUE
         `,
         orderBySql: Prisma.sql`advisory_status.public_access_status ${directionSql}`,
+      };
+    case 'updated_at':
+      return {
+        joinsSql: Prisma.empty,
+        orderBySql: Prisma.sql`rr.updated_at ${directionSql}`,
       };
   }
 }

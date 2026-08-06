@@ -48,23 +48,6 @@ describe('ColumnVisibilityMenu', () => {
     });
   });
 
-  it('does not render a last updated option', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <ColumnVisibilityMenu
-        visibleColumns={['rec_resource_id', 'name']}
-        onToggle={vi.fn()}
-      />,
-    );
-
-    await user.click(screen.getByRole('button', { name: 'Columns' }));
-
-    expect(
-      screen.queryByRole('button', { name: /last updated/i }),
-    ).not.toBeInTheDocument();
-  });
-
   it('does not render the required Rec # option', async () => {
     const user = userEvent.setup();
 

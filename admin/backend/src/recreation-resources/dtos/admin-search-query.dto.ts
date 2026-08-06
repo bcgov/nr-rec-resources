@@ -40,6 +40,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'file_status:desc',
   'public_access_status:asc',
   'public_access_status:desc',
+  'updated_at:asc',
+  'updated_at:desc',
 ] as const;
 
 export const ADMIN_SEARCH_PAGE_SIZE_VALUES = [25, 50, 100] as const;

@@ -80,37 +80,7 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
 
-  deploy-dns-dev:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Deploy DNS to dev
-    needs: [review-and-deploy-admin, review-and-deploy-public]
-    uses: ./.github/workflows/.aws-deployer.yml
-    with:
-      environment_name: dev
-      command: apply
-      working_directory: dns
-    secrets: inherit
-
-  deploy-dns-test:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Deploy DNS to test
-    needs: [deploy-dns-dev]
-    uses: ./.github/workflows/.aws-deployer.yml
-    with:
-      environment_name: test
-      command: apply
-      working_directory: dns
-    secrets: inherit
-
-  deploy-dns:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Deploy DNS to prod
-    needs: [deploy-dns-dev, deploy-dns-test]
-    uses: ./.github/workflows/.aws-deployer.yml
-    with:
-      environment_name: prod
-      command: apply
-      working_directory: dns
-      dev_zone_name_servers: ${{ needs.deploy-dns-dev.outputs.ZONE_NAME_SERVERS }}
-      test_zone_name_servers: ${{ needs.deploy-dns-test.outputs.ZONE_NAME_SERVERS }}
-    secrets: inherit
+  # DNS (Route 53 child zones for dev/test + NS delegation in the prod parent zone)
+  # is deployed by the standalone, gated .github/workflows/deploy-dns.yml workflow —
+  # it runs only when the DNS Terraform changes on main or via manual dispatch, so it
+  # is no longer applied on every merge to main from here.

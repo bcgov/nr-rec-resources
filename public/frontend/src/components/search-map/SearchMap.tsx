@@ -10,18 +10,22 @@ import { SearchViewControls } from '@/components/search';
 import {
   useClusteredRecreationFeatureLayer,
   useFeatureSelection,
+  useFireEvacuationLayer,
   useMapFocusParam,
   useRecreationBoundaryLayer,
   useRecreationTrailLayer,
+  useWildfireAreaRestrictionLayer,
   useWildfireLocationLayer,
   useWildfirePerimeterLayer,
   useZoomToExtent,
 } from '@/components/search-map/hooks';
+import MapLayersPanel from '@/components/search-map/MapLayersPanel';
 import { selectedWildfireIcon } from '@/components/search-map/styles/icons';
 import searchResultsStore from '@/store/searchResults';
 import {
+  FireEvacuationPreview,
   RecreationFeaturePreview,
-  WildfireFeaturePreview,
+  WildfirePreview,
 } from '@/components/search-map/preview';
 import FilterButtonLabel from '@/components/search-map/FilterButtonLabel';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
@@ -29,6 +33,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button, ProgressBar } from 'react-bootstrap';
 import { trackClickEvent } from '@shared/utils';
+import {
+  EVACUATION_ALERT_COLOUR,
+  EVACUATION_ORDER_COLOUR,
+  EVACUATION_TACTICAL_COLOUR,
+  WILDFIRE_LOCATION_COLOUR,
+  WILDFIRE_PERIMETER_COLOUR,
+} from '@shared/constants/colours';
 import { MATOMO_SEARCH_CONTEXT_MAP } from '@/constants/analytics';
 import {
   ANIMATED_CLUSTER_OPTIONS,
@@ -60,8 +71,23 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const [selectedWildfireFeature, setSelectedWildfireFeature] =
     useState<Feature | null>(null);
+  const [
+    selectedWildfirePerimeterFeature,
+    setSelectedWildfirePerimeterFeature,
+  ] = useState<Feature | null>(null);
+  const [selectedFireEvacuationFeature, setSelectedFireEvacuationFeature] =
+    useState<Feature | null>(null);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [isDisclaimerModalOpen, setIsDisclaimerModalOpen] = useState(false);
+  const [isFireEvacuationEnabled, setIsFireEvacuationEnabled] = useState(true);
+  const [
+    isWildfireAreaRestrictionEnabled,
+    setIsWildfireAreaRestrictionEnabled,
+  ] = useState(false);
+  const [isWildfirePerimeterEnabled, setIsWildfirePerimeterEnabled] =
+    useState(true);
+  const [isWildfireLocationEnabled, setIsWildfireLocationEnabled] =
+    useState(true);
   const selectedFilterCount = filterChips.length;
 
   // Current search results and the focused resource (if any),
@@ -105,16 +131,18 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const { layer: wildfireLocationsLayer } = useWildfireLocationLayer(mapRef, {
     applyHoverStyles: true,
     hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
+    zIndex: 6,
   });
 
   const { layer: wildfirePerimeterLayer } = useWildfirePerimeterLayer(mapRef, {
-    applyHoverStyles: false,
-    hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
+    applyHoverStyles: true,
+    zIndex: 3,
   });
 
   const { layer: recreationTrailLayer } = useRecreationTrailLayer(mapRef, {
     hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
     pinSource,
+    zIndex: 4,
   });
 
   const { layer: recreationBoundaryLayer } = useRecreationBoundaryLayer(
@@ -122,8 +150,64 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     {
       hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
       pinSource,
+      zIndex: 5,
     },
   );
+
+  const { layer: fireEvacuationLayer } = useFireEvacuationLayer(mapRef, {
+    applyHoverStyles: true,
+    initiallyVisible: true,
+    zIndex: 1,
+  });
+
+  const { layer: wildfireAreaRestrictionLayer } =
+    useWildfireAreaRestrictionLayer(mapRef, {
+      applyHoverStyles: true,
+      initiallyVisible: true,
+      zIndex: 2,
+    });
+
+  // Set explicit z-indices so layer stacking order is always preserved,
+  // even when a source refresh triggers a canvas repaint.
+
+  useEffect(() => {
+    clusteredRecreationFeatureLayer?.setZIndex(7);
+  }, [clusteredRecreationFeatureLayer]);
+
+  // Directly sync visibility + force source refresh so the bbox strategy
+  // fetches data for the current viewport when a layer is first enabled.
+  useEffect(() => {
+    if (!fireEvacuationLayer) return;
+    fireEvacuationLayer.setVisible(isFireEvacuationEnabled);
+    if (isFireEvacuationEnabled) {
+      fireEvacuationLayer.getSource()?.refresh();
+    }
+  }, [fireEvacuationLayer, isFireEvacuationEnabled]);
+
+  useEffect(() => {
+    if (!wildfireAreaRestrictionLayer) return;
+    wildfireAreaRestrictionLayer.setVisible(isWildfireAreaRestrictionEnabled);
+    if (isWildfireAreaRestrictionEnabled) {
+      wildfireAreaRestrictionLayer.getSource()?.refresh();
+    }
+  }, [wildfireAreaRestrictionLayer, isWildfireAreaRestrictionEnabled]);
+
+  useEffect(() => {
+    if (!wildfirePerimeterLayer) return;
+    wildfirePerimeterLayer.setVisible(isWildfirePerimeterEnabled);
+    if (isWildfirePerimeterEnabled) {
+      wildfirePerimeterLayer.getSource()?.refresh();
+    }
+  }, [wildfirePerimeterLayer, isWildfirePerimeterEnabled]);
+
+  useEffect(() => {
+    if (!wildfireLocationsLayer) return;
+    wildfireLocationsLayer.set('_userEnabled', isWildfireLocationEnabled);
+    wildfireLocationsLayer.setVisible(isWildfireLocationEnabled);
+    if (isWildfireLocationEnabled) {
+      wildfireLocationsLayer.getSource()?.refresh();
+    }
+  }, [wildfireLocationsLayer, isWildfireLocationEnabled]);
 
   const featureSelectionLayers = useMemo(
     () => [
@@ -159,8 +243,41 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
           return selectedWildfireIcon(status);
         },
       },
+      {
+        id: 'wildfire-perimeters',
+        layer: wildfirePerimeterLayer,
+        onFeatureSelect: (feature: Feature | null) => {
+          setSelectedWildfirePerimeterFeature(feature);
+          trackClickEvent({
+            category: 'Search Map',
+            action: 'Wildfire perimeter selected',
+            name: feature
+              ? `Wildfire perimeter #: ${feature.get('FIRE_NUMBER')}`
+              : 'None',
+          });
+        },
+      },
+      {
+        id: 'fire-evacuation',
+        layer: fireEvacuationLayer,
+        onFeatureSelect: (feature: Feature | null) => {
+          setSelectedFireEvacuationFeature(feature);
+          trackClickEvent({
+            category: 'Search Map',
+            action: 'Fire evacuation feature selected',
+            name: feature
+              ? `Evacuation: ${feature.get('ORDER_ALERT_NAME') || feature.get('EVENT_NAME')}`
+              : 'None',
+          });
+        },
+      },
     ],
-    [clusteredRecreationFeatureLayer, wildfireLocationsLayer],
+    [
+      clusteredRecreationFeatureLayer,
+      wildfireLocationsLayer,
+      wildfirePerimeterLayer,
+      fireEvacuationLayer,
+    ],
   );
 
   const { clearSelection } = useFeatureSelection({
@@ -182,13 +299,18 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const layers = useMemo(
     () => [
       {
-        id: 'wildfire-perimeters',
-        layerInstance: wildfirePerimeterLayer,
-        visible: true,
+        id: 'fire-evacuation',
+        layerInstance: fireEvacuationLayer,
+        visible: true, // visibility controlled directly via useEffect above
       },
       {
-        id: 'wildfire-locations',
-        layerInstance: wildfireLocationsLayer,
+        id: 'wildfire-area-restrictions',
+        layerInstance: wildfireAreaRestrictionLayer,
+        visible: true, // visibility controlled directly via useEffect above
+      },
+      {
+        id: 'wildfire-perimeters',
+        layerInstance: wildfirePerimeterLayer,
         visible: true,
       },
       {
@@ -202,6 +324,11 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
         visible: true,
       },
       {
+        id: 'wildfire-locations',
+        layerInstance: wildfireLocationsLayer,
+        visible: true,
+      },
+      {
         id: 'recreation-features',
         layerInstance: clusteredRecreationFeatureLayer,
         visible: true,
@@ -209,8 +336,10 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     ],
     [
       clusteredRecreationFeatureLayer,
+      fireEvacuationLayer,
       recreationBoundaryLayer,
       recreationTrailLayer,
+      wildfireAreaRestrictionLayer,
       wildfireLocationsLayer,
       wildfirePerimeterLayer,
     ],
@@ -303,6 +432,45 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             <FilterButtonLabel selectedFilterCount={selectedFilterCount} />
           </Button>
           <SearchViewControls variant="list" />
+          <MapLayersPanel
+            layers={[
+              {
+                id: 'fire-evacuation',
+                label: 'Evacuation Orders & Alerts',
+                legendItems: [
+                  { colour: EVACUATION_ORDER_COLOUR, label: 'Order' },
+                  {
+                    colour: EVACUATION_TACTICAL_COLOUR,
+                    label: 'Tactical Evacuation',
+                  },
+                  { colour: EVACUATION_ALERT_COLOUR, label: 'Alert' },
+                ],
+                enabled: isFireEvacuationEnabled,
+                onToggle: setIsFireEvacuationEnabled,
+              },
+              {
+                id: 'wildfire-area-restrictions',
+                label: 'BC Area Restrictions',
+                legendHatch: true,
+                enabled: isWildfireAreaRestrictionEnabled,
+                onToggle: setIsWildfireAreaRestrictionEnabled,
+              },
+              {
+                id: 'wildfire-perimeters',
+                label: 'BC Wildfire Perimeters',
+                legendOutlineColour: WILDFIRE_PERIMETER_COLOUR,
+                enabled: isWildfirePerimeterEnabled,
+                onToggle: setIsWildfirePerimeterEnabled,
+              },
+              {
+                id: 'wildfire-locations',
+                label: 'BC Wildfire Locations',
+                legendColour: WILDFIRE_LOCATION_COLOUR,
+                enabled: isWildfireLocationEnabled,
+                onToggle: setIsWildfireLocationEnabled,
+              },
+            ]}
+          />
         </div>
         <FilterMenuSearchMap
           isOpen={isFilterMenuOpen}
@@ -326,12 +494,32 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
           />
         )}
         {selectedWildfireFeature && (
-          <WildfireFeaturePreview
+          <WildfirePreview
             onClose={() => {
               clearSelection();
               setSelectedWildfireFeature(null);
             }}
-            wildfireFeature={selectedWildfireFeature}
+            feature={selectedWildfireFeature}
+            type="location"
+          />
+        )}
+        {selectedWildfirePerimeterFeature && (
+          <WildfirePreview
+            onClose={() => {
+              clearSelection();
+              setSelectedWildfirePerimeterFeature(null);
+            }}
+            feature={selectedWildfirePerimeterFeature}
+            type="perimeter"
+          />
+        )}
+        {selectedFireEvacuationFeature && (
+          <FireEvacuationPreview
+            onClose={() => {
+              clearSelection();
+              setSelectedFireEvacuationFeature(null);
+            }}
+            evacuationFeature={selectedFireEvacuationFeature}
           />
         )}
       </div>

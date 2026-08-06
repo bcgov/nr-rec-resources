@@ -16,11 +16,17 @@
   .map-feature-preview-card {
     min-width: 90vw;
     max-width: 90vw;
-    max-height: 48vh;
+    max-height: 60vh;
+    overflow: hidden; // contain flex children within max-height
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
 
     @include media-breakpoint-up(sm) {
       min-width: 600px;
       max-width: none;
+      max-height: 80vh;
+      overflow: visible;
     }
 
     .card-activities {

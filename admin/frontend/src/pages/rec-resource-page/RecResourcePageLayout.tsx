@@ -10,7 +10,12 @@ import {
 } from '@/pages/rec-resource-page/types';
 import { Breadcrumbs } from '@shared/index';
 import { Col, Row, Spinner, Stack } from 'react-bootstrap';
-import { Outlet, useMatches, useParams } from '@tanstack/react-router';
+import {
+  Outlet,
+  useLayoutEffect,
+  useMatches,
+  useParams,
+} from '@tanstack/react-router';
 import './RecResourcePageLayout.scss';
 import { ArchivedNotice } from '@/components/archived-notice/ArchivedNotice';
 
@@ -36,6 +41,17 @@ export const RecResourcePageLayout = () => {
   const currentMatch = matches[matches.length - 1];
   const activeTab =
     (currentMatch as any).context?.tab ?? RecResourceNavKey.OVERVIEW;
+
+  // Reset scroll whenever activeTab or resource id changes
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+
+    const mainScrollContainer =
+      document.querySelector('main') || document.querySelector('.app-content');
+    if (mainScrollContainer) {
+      mainScrollContainer.scrollTop = 0;
+    }
+  }, [activeTab, rec_resource_id]);
 
   if (!rec_resource_id || error) {
     return null;

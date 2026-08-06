@@ -28,3 +28,11 @@ variable "admin_frontend_remote_state" {
     region         = string
   })
 }
+
+variable "acm_cert_validation_cname" {
+  description = "ACM validation CNAME for the *.{env}.sitesandtrailsbc.ca SAN on the multi-SAN cert. Lives in this env's child zone so ACM automatic renewal survives delegation of the child zone from the prod parent zone."
+  type = object({
+    name  = string
+    value = string
+  })
+}
