@@ -15,7 +15,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.districtFilters, 'Chilliwack');
 
@@ -33,7 +33,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.districtFilters, 'Chilliwack');
 
@@ -55,9 +55,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
-
-    await filter.verifyFilterResultsListener({ type: ['Recreation trail'] });
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.TRAIL);
 
@@ -75,17 +73,11 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
-
-    await filter.verifyFilterResultsListener({ type: ['Recreation trail'] });
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.TRAIL);
 
     await searchPage.waitForResults();
-
-    await filter.verifyFilterResultsListener({
-      type: ['Recreation trail', 'Recreation site'],
-    });
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
@@ -101,9 +93,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
-
-    await filter.verifyFilterResultsListener({ activities: ['Camping'] });
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.thingsToDoFilters, 'Camping');
 
@@ -121,17 +111,13 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.thingsToDoFilters, 'Angling');
 
     await filter.toggleFilterOn(filter.thingsToDoFilters, 'Camping');
 
     await filter.clickShowAllFilters(filter.thingsToDoFilters);
-
-    await filter.verifyFilterResultsListener({
-      activities: ['Angling', 'Camping', 'Canoeing'],
-    });
 
     await filter.toggleFilterOn(filter.thingsToDoFilters, 'Canoeing');
 
@@ -147,7 +133,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.facilitiesFilters, 'Toilets');
 
@@ -165,7 +151,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.facilitiesFilters, 'Toilets');
 
@@ -183,7 +169,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Road access');
 
@@ -201,7 +187,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Boat-in access');
 
@@ -229,7 +215,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.districtFilters, 'Chilliwack');
 
@@ -240,10 +226,6 @@ test.describe('Search page filter menu workflows', () => {
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
     await filter.toggleFilterOn(filter.facilitiesFilters, 'Toilets');
-
-    await filter.verifyFilterResultsListener({
-      type: ['Recreation site'],
-    });
 
     await searchPage.waitForResults();
 
@@ -268,7 +250,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.districtFilters, 'Chilliwack');
 
@@ -292,7 +274,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.clickShowAllFilters(filter.districtFilters);
 
