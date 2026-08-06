@@ -21,6 +21,7 @@ import {
 } from '@/components/search-map/hooks';
 import MapLayersPanel from '@/components/search-map/MapLayersPanel';
 import { selectedWildfireIcon } from '@/components/search-map/styles/icons';
+import feedBackIcon from '@/images/icons/feedback-icon.svg';
 import searchResultsStore from '@/store/searchResults';
 import {
   FireEvacuationPreview,
@@ -30,7 +31,7 @@ import {
 import FilterButtonLabel from '@/components/search-map/FilterButtonLabel';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSliders } from '@fortawesome/free-solid-svg-icons';
+import { faSliders, faExternalLink } from '@fortawesome/free-solid-svg-icons';
 import { Button, ProgressBar } from 'react-bootstrap';
 import { trackClickEvent } from '@shared/utils';
 import {
@@ -48,6 +49,7 @@ import {
   LEGACY_MAP_LINK,
   WILDFIRE_LOCATION_MIN_ZOOM,
 } from '@/components/search-map/constants';
+import { EXTERNAL_LINKS } from '@/constants/urls';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';
 import MapDisclaimerModal from '@/components/search-map/MapDisclaimerModal';
@@ -88,6 +90,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     useState(true);
   const [isWildfireLocationEnabled, setIsWildfireLocationEnabled] =
     useState(true);
+  const [isFeedbackCardVisible, setIsFeedbackCardVisible] = useState(false);
   const selectedFilterCount = filterChips.length;
 
   // Current search results and the focused resource (if any),
@@ -106,6 +109,15 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const popupRef = useRef<HTMLDivElement | null>(null);
   const overlayRef = useRef<Overlay | null>(null);
 
+  const setFeedbackCardCookie = () => {
+    Cookies.set('hidemap-feedback-card', 'true', { expires: 30 }); // expires in 1 month
+  };
+
+  const closeFeedbackCard = () => {
+    setIsFeedbackCardVisible(false);
+    setFeedbackCardCookie();
+  };
+
   useEffect(() => {
     if (!popupRef.current || !mapRef.current) return;
     const overlay = new Overlay({
@@ -121,6 +133,18 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
       overlayRef.current = null;
     };
   }, [mapRef, popupRef]);
+
+  // Show the feedback card after 2 minutes if the user hasn't dismissed it before
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const hideFeedbackCard = Cookies.get('hidemap-feedback-card');
+      if (!hideFeedbackCard) {
+        setIsFeedbackCardVisible(true);
+      }
+    }, 120000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const { layer: clusteredRecreationFeatureLayer, innerSource: pinSource } =
     useClusteredRecreationFeatureLayer(allRelevantIds, mapRef, {
@@ -366,6 +390,16 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     }
   };
 
+  const handleFeedbackClick = () => {
+    trackClickEvent({
+      category: 'Feedback',
+      action: 'Map',
+      name: `Map - Feedback card`,
+    });
+    window.open(EXTERNAL_LINKS.FEEDBACK_FORM, '_blank', 'noopener,noreferrer');
+    setFeedbackCardCookie();
+  };
+
   return (
     <div
       className="search-map-container d-flex flex-column vh-100"
@@ -404,6 +438,34 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             Link to legacy map
           </a>
         </div>
+        {isFeedbackCardVisible && (
+          <div className="feedback-card rounded-2">
+            <button
+              className="close-button"
+              onClick={() => closeFeedbackCard()}
+              aria-label="Close feedback card"
+              data-testid="feedback-card-close-button"
+            >
+              &times;
+            </button>
+            <p className="mb-0">
+              <img src={feedBackIcon} alt="Feedback" className="me-2" />
+              <strong>We'd love to hear from you</strong>
+            </p>
+            <p className="mb-0 ms-4">
+              Your feedback helps us improve your experience on our website.
+              Survey takes 1-2 minutes.
+            </p>
+            <button
+              className="btn btn-outline-light btn-sm w-100 btn-thin mt-2"
+              onClick={handleFeedbackClick}
+              data-testid="feedback-card-survey-button"
+            >
+              Take Survey{' '}
+              <FontAwesomeIcon icon={faExternalLink} className="ms-1" />
+            </button>
+          </div>
+        )}
       </div>
       <div className="search-map-controls">
         <div className="map-search-form">

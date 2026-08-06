@@ -29,7 +29,7 @@ export const HEADER_LINKS: HeaderLink[] = [
   },
   {
     url: EXTERNAL_LINKS.FEEDBACK_FORM,
-    label: 'Share feedback',
+    label: 'Website feedback',
     isExternal: true,
   },
 ];

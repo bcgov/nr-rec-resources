@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { forwardRef, useImperativeHandle } from 'react';
+import { act, forwardRef, useImperativeHandle } from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { renderWithRouter } from '@/test-utils';
 import SearchMap from '@/components/search-map/SearchMap';
@@ -7,6 +7,7 @@ import * as hooks from '@/components/search-map/hooks/useMapFocus';
 import { trackClickEvent, trackEvent } from '@shared/utils';
 import { selectedWildfireIcon } from './styles/icons';
 import { useFeatureSelection } from './hooks';
+import Cookies from 'js-cookie';
 
 vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual('@tanstack/react-router');
@@ -199,6 +200,7 @@ describe('SearchMap', () => {
   beforeEach(() => {
     vi.spyOn(Storage.prototype, 'setItem');
     vi.clearAllMocks();
+    Cookies.remove('hidemap-feedback-card');
     mockUseMapFocus.mockReturnValue({
       isMapFocusLoading: false,
       mapCenter: [0, 0],
@@ -215,6 +217,13 @@ describe('SearchMap', () => {
       },
       writable: true,
     });
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+  });
+
+  afterEach(() => {
+    vi.runOnlyPendingTimers(); // Flush remaining timers
+    vi.useRealTimers(); // Reset back to real time
   });
 
   it('renders main components', async () => {
@@ -248,6 +257,71 @@ describe('SearchMap', () => {
 
     // The modal should be present in the DOM
     expect(screen.getByRole('dialog')).toBeDefined();
+  });
+
+  it('shows feedback card after two minutes', async () => {
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(120_000);
+    });
+
+    // The card should be present in the DOM
+    expect(screen.getByText("We'd love to hear from you")).toBeInTheDocument();
+  });
+
+  it('should set a cookie when the close button is clicked', async () => {
+    const setCookieSpy = vi.spyOn(Cookies, 'set');
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(120_000);
+    });
+
+    const button = screen.getByTestId('feedback-card-close-button');
+    fireEvent.click(button);
+    expect(setCookieSpy).toHaveBeenCalledWith('hidemap-feedback-card', 'true', {
+      expires: 30,
+    });
+  });
+
+  it('should set a cookie when the survey button is clicked', async () => {
+    const setCookieSpy = vi.spyOn(Cookies, 'set');
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(120_000);
+    });
+
+    const button = screen.getByTestId('feedback-card-survey-button');
+    fireEvent.click(button);
+    expect(setCookieSpy).toHaveBeenCalledWith('hidemap-feedback-card', 'true', {
+      expires: 30,
+    });
   });
 
   it('can interact with disclaimer modal', async () => {
