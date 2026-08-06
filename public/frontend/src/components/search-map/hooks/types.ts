@@ -7,6 +7,7 @@ export type UseLayerOptions = {
   hideBelowZoom?: number;
   applyHoverStyles?: boolean;
   initiallyVisible?: boolean;
+  zIndex?: number;
 };
 
 export type MapRef = RefObject<{ getMap: () => OLMap } | null>;

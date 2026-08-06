@@ -83,7 +83,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const [
     isWildfireAreaRestrictionEnabled,
     setIsWildfireAreaRestrictionEnabled,
-  ] = useState(true);
+  ] = useState(false);
   const [isWildfirePerimeterEnabled, setIsWildfirePerimeterEnabled] =
     useState(true);
   const [isWildfireLocationEnabled, setIsWildfireLocationEnabled] =
@@ -131,15 +131,18 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const { layer: wildfireLocationsLayer } = useWildfireLocationLayer(mapRef, {
     applyHoverStyles: true,
     hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
+    zIndex: 6,
   });
 
   const { layer: wildfirePerimeterLayer } = useWildfirePerimeterLayer(mapRef, {
     applyHoverStyles: true,
+    zIndex: 3,
   });
 
   const { layer: recreationTrailLayer } = useRecreationTrailLayer(mapRef, {
     hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
     pinSource,
+    zIndex: 4,
   });
 
   const { layer: recreationBoundaryLayer } = useRecreationBoundaryLayer(
@@ -147,19 +150,29 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     {
       hideBelowZoom: BOUNDARY_LAYERS_MIN_ZOOM,
       pinSource,
+      zIndex: 5,
     },
   );
 
   const { layer: fireEvacuationLayer } = useFireEvacuationLayer(mapRef, {
     applyHoverStyles: true,
     initiallyVisible: true,
+    zIndex: 1,
   });
 
   const { layer: wildfireAreaRestrictionLayer } =
     useWildfireAreaRestrictionLayer(mapRef, {
       applyHoverStyles: true,
       initiallyVisible: true,
+      zIndex: 2,
     });
+
+  // Set explicit z-indices so layer stacking order is always preserved,
+  // even when a source refresh triggers a canvas repaint.
+
+  useEffect(() => {
+    clusteredRecreationFeatureLayer?.setZIndex(7);
+  }, [clusteredRecreationFeatureLayer]);
 
   // Directly sync visibility + force source refresh so the bbox strategy
   // fetches data for the current viewport when a layer is first enabled.
@@ -181,7 +194,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
 
   useEffect(() => {
     if (!wildfirePerimeterLayer) return;
-    wildfirePerimeterLayer.set('_userEnabled', isWildfirePerimeterEnabled);
     wildfirePerimeterLayer.setVisible(isWildfirePerimeterEnabled);
     if (isWildfirePerimeterEnabled) {
       wildfirePerimeterLayer.getSource()?.refresh();
@@ -302,11 +314,6 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
         visible: true,
       },
       {
-        id: 'wildfire-locations',
-        layerInstance: wildfireLocationsLayer,
-        visible: true,
-      },
-      {
         id: 'recreation-trails',
         layerInstance: recreationTrailLayer,
         visible: true,
@@ -314,6 +321,11 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
       {
         id: 'recreation-boundaries',
         layerInstance: recreationBoundaryLayer,
+        visible: true,
+      },
+      {
+        id: 'wildfire-locations',
+        layerInstance: wildfireLocationsLayer,
         visible: true,
       },
       {

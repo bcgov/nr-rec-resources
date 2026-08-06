@@ -21,6 +21,7 @@ export function useLayer(
     hideBelowZoom,
     applyHoverStyles = false,
     initiallyVisible = true,
+    zIndex,
   } = options;
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
 
@@ -28,6 +29,9 @@ export function useLayer(
 
   const layer = useMemo(() => {
     const l = createLayer(source);
+    if (zIndex !== undefined) {
+      l.setZIndex(zIndex);
+    }
     if (hideBelowZoom) {
       l.set('hideBelowZoom', hideBelowZoom);
       l.setVisible(false);

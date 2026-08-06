@@ -8,5 +8,5 @@ export const EVACUATION_TACTICAL_COLOUR = '#C4874A';
 export const EVACUATION_ALERT_COLOUR = '#F0A500';
 
 // Wildfire layer colours
-export const WILDFIRE_PERIMETER_COLOUR = '#FF6600';
-export const WILDFIRE_LOCATION_COLOUR = '#FF0000';
+export const WILDFIRE_PERIMETER_COLOUR = '#CB1616';
+export const WILDFIRE_LOCATION_COLOUR = '#CB1616';
