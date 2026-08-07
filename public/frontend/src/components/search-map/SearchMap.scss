@@ -69,6 +69,11 @@
   margin-bottom: 1em;
   padding: 16px 16px 16px 20px;
 
+  @media (max-width: $mdBreakpoint) {
+    width: 310px;
+    height: 150px;
+  }
+
   .close-button {
     position: absolute;
     top: 8px;
