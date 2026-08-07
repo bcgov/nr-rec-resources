@@ -3,6 +3,25 @@ import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll } from 'vitest';
 
+// jsdom does not implement ResizeObserver, which the search results table uses to
+// keep its synced scrollbars and frozen-column offsets up to date. The stub is
+// inert: jsdom performs no layout, so there is nothing to observe or report.
+if (!('ResizeObserver' in globalThis)) {
+  globalThis.ResizeObserver = class {
+    observe() {
+      // Intentionally empty: no layout in jsdom, so no size changes to watch.
+    }
+
+    unobserve() {
+      // Intentionally empty: nothing is being observed.
+    }
+
+    disconnect() {
+      // Intentionally empty: nothing is being observed.
+    }
+  };
+}
+
 const users = [
   {
     id: 1,
