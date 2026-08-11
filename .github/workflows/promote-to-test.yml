@@ -1,0 +1,124 @@
+name: Promote to Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'Application to promote'
+        required: true
+        type: choice
+        options:
+          - public
+          - admin
+      tag:
+        description: 'Image tag to deploy (leave blank to auto-detect from dev)'
+        required: false
+        type: string
+        default: ''
+
+env:
+  AWS_REGION: ca-central-1
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
+jobs:
+  get-dev-tag:
+    name: Detect tag deployed on dev
+    runs-on: ubuntu-24.04
+    environment: dev
+    outputs:
+      tag: ${{ steps.detect-tag.outputs.tag }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_LZA_DEPLOY_ROLE_ARN }}
+          role-session-name: detect-dev-tag
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Detect image tag from dev ECS
+        id: detect-tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          APP: ${{ inputs.app }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            echo "Using manually provided tag: $INPUT_TAG"
+            echo "tag=$INPUT_TAG" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Derive the app_name used in ECS resource naming
+          if [ "$APP" = "public" ]; then
+            APP_NAME="node-api-dev"
+          else
+            APP_NAME="node-api-${APP}-dev"
+          fi
+
+          CLUSTER="ecs-cluster-${APP_NAME}"
+          SERVICE="${APP_NAME}-service"
+
+          echo "Looking up tag from cluster=$CLUSTER service=$SERVICE"
+
+          TASK_DEF_ARN=$(aws ecs describe-services \
+            --cluster "$CLUSTER" \
+            --services "$SERVICE" \
+            --query 'services[0].taskDefinition' \
+            --output text)
+
+          echo "Task definition ARN: $TASK_DEF_ARN"
+
+          IMAGE=$(aws ecs describe-task-definition \
+            --task-definition "$TASK_DEF_ARN" \
+            --query 'taskDefinition.containerDefinitions[0].image' \
+            --output text)
+
+          echo "Image: $IMAGE"
+
+          TAG="${IMAGE##*:}"
+          echo "Detected tag: $TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+  # Gate: require a reviewer before deploying to test
+  review-test-deployment:
+    name: Review promotion to test (${{ inputs.app }})
+    needs: get-dev-tag
+    runs-on: ubuntu-24.04
+    environment: review-${{ inputs.app }}-test-deployment
+    steps:
+      - name: Confirm promotion
+        run: |
+          echo "Promoting ${{ inputs.app }} tag=${{ needs.get-dev-tag.outputs.tag }} to TEST"
+
+  deploy-to-test:
+    name: Deploy ${{ inputs.app }} to test
+    needs: [get-dev-tag, review-test-deployment]
+    if: ${{ always() && needs.review-test-deployment.result == 'success' }}
+    uses: ./.github/workflows/.deploy-app.yml
+    concurrency:
+      group: deploy-${{ inputs.app }}-to-aws-test
+      cancel-in-progress: false
+    with:
+      app: ${{ inputs.app }}
+      app_env: test
+      command: apply
+      environment_name: test
+      tag: ${{ needs.get-dev-tag.outputs.tag }}
+    secrets: inherit
+
+  run-e2e-tests:
+    name: Run e2e tests on test
+    needs: [get-dev-tag, deploy-to-test]
+    if: ${{ inputs.app != 'admin' }}
+    uses: ./.github/workflows/.e2e.yml
+    concurrency:
+      group: e2e-tests-${{ inputs.app }}-test
+      cancel-in-progress: false
+    with:
+      app: ${{ inputs.app }}
+      tag: ${{ needs.get-dev-tag.outputs.tag }}
+      environment: test
+    secrets: inherit

@@ -72,7 +72,7 @@ describe('NavigationDrawer', () => {
   it('renders feedback link correctly', async () => {
     await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
-    const feedbackLink = screen.getByText('Share feedback');
+    const feedbackLink = screen.getByText('Website feedback');
     expect(feedbackLink).toBeInTheDocument();
     expect(feedbackLink.closest('a')).toHaveAttribute(
       'href',
@@ -124,7 +124,7 @@ describe('NavigationDrawer', () => {
       <NavigationDrawer {...defaultProps} onClose={mockOnClose} />,
     );
 
-    const feedbackLink = screen.getByText('Share feedback');
+    const feedbackLink = screen.getByText('Website feedback');
     fireEvent.click(feedbackLink);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
@@ -170,12 +170,12 @@ describe('NavigationDrawer', () => {
 
     await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
-    const feedbackLink = screen.getByText('Share feedback');
+    const feedbackLink = screen.getByText('Website feedback');
     fireEvent.click(feedbackLink);
 
     expect(mockTrackClickEvent).toHaveBeenCalledWith({
       category: 'Mobile Navigation',
-      name: 'Hamburger Menu - Share feedback',
+      name: 'Hamburger Menu - Website feedback',
     });
   });
 

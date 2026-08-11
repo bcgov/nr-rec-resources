@@ -53,6 +53,54 @@
   padding-bottom: 1em;
 }
 
+.feedback-card {
+  color: $colorWhite;
+  font-size: 12.5px;
+  line-height: 20px;
+  background-color: $colorBlue;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px;
+  height: 127px;
+  box-sizing: border-box;
+  text-align: left;
+  margin-bottom: 1em;
+  padding: 16px 16px 16px 20px;
+
+  @media (max-width: $mdBreakpoint) {
+    width: 310px;
+    height: 150px;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .btn-thin {
+    padding: 1px 0;
+    height: 32px;
+    font-size: 11px;
+    line-height: 1;
+  }
+}
+
 .search-map-controls {
   position: fixed;
   top: 70px;
