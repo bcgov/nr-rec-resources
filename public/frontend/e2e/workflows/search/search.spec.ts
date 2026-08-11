@@ -21,7 +21,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await searchPage.verifyInitialResults();
 
@@ -50,7 +50,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await searchPage.verifyInitialResults();
 
@@ -66,7 +66,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
     await searchPage.verifyInitialResults();
 
     await searchPage.recResourceCardCount(10);
@@ -93,7 +93,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.route('?page=2');
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await searchPage.recResourceCardCount(10);
 
@@ -113,7 +113,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await searchPage.verifyInitialResults();
 

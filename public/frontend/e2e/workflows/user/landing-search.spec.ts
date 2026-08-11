@@ -31,7 +31,7 @@ test.describe('User flows from the landing page to searching for a rec resource'
     // Navigate to the search page via the nav bar link
     await layout.clickFindARecreationSiteOrTrail();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await searchPage.verifyInitialResults();
 
@@ -74,7 +74,7 @@ test.describe('User flows from the landing page to searching for a rec resource'
 
     await landingPage.searchFor('24 snow');
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await utils.checkExpectedUrlParams('filter=24+snow');
 

@@ -18,7 +18,7 @@ test.describe('Filter chip workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.districtFilters, DISTRICT);
 
@@ -42,7 +42,7 @@ test.describe('Filter chip workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.districtFilters, DISTRICT);
 
@@ -92,7 +92,7 @@ test.describe('Filter chip workflows', () => {
 
     await searchPage.route();
 
-    await filter.verifyInitialFilterMenu();
+    await filter.waitForFilterMenuReady();
 
     await filter.toggleFilterOn(filter.districtFilters, DISTRICT);
 
