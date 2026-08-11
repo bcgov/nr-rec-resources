@@ -51,6 +51,7 @@ model recreation_resource {
   recreation_resource_type_view_admin  recreation_resource_type_view_admin[]
   recreation_resource_type_view_public recreation_resource_type_view_public[]
   recreation_resource_status_code_rel  recreation_resource_status_code?       @relation(fields: [rec_status_code], references: [recreation_resource_status_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_asset                     recreation_asset[]
 
   @@schema("rst")
 }
@@ -228,6 +229,7 @@ model recreation_structure_code {
   updated_at           DateTime?                @default(now()) @db.Timestamp(6)
   sys_period           Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_structure recreation_structure[]
+  recreation_asset_recreation_asset_recreation_structure_codeTorecreation_structure_code recreation_asset[] @relation("recreation_asset_recreation_structure_codeTorecreation_structure_code")
 
   @@schema("rst")
 }
