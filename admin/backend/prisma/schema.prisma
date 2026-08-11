@@ -803,6 +803,7 @@ model recreation_remed_repair_code {
   description                                                                                                        String?                       @db.VarChar(120)
   updated_at                                                                                                         DateTime?                     @default(now()) @db.Timestamp(6)
   sys_period                                                                                                         Unsupported("tstzrange")      @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_asset_repair_recreation_asset_repair_recreation_remed_repair_codeTorecreation_remed_repair_code         recreation_asset_repair[]     @relation("recreation_asset_repair_recreation_remed_repair_codeTorecreation_remed_repair_code")
   recreation_defined_campsite_recreation_defined_campsite_recreation_remed_repair_codeTorecreation_remed_repair_code recreation_defined_campsite[] @relation("recreation_defined_campsite_recreation_remed_repair_codeTorecreation_remed_repair_code")
 
   @@schema("rst")
@@ -1386,6 +1387,134 @@ model recreation_fee_sub_code_history {
   description             String                   @db.VarChar(120)
   updated_at              DateTime?                @db.Timestamp(6)
   sys_period              Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_asset {
+  asset_id                                                                                        BigInt                    @id
+  parent_id                                                                                       BigInt?
+  asset_tag                                                                                       String?                   @db.VarChar(50)
+  rec_resource_id                                                                                 String                    @db.VarChar(20)
+  recreation_structure_code                                                                       Int
+  asset_name                                                                                      String?                   @db.VarChar(200)
+  asset_comment                                                                                   String?
+  legacy_structure_id                                                                             String?                   @db.VarChar(20)
+  asset_length                                                                                    Decimal?                  @db.Decimal(7, 1)
+  asset_width                                                                                     Decimal?                  @db.Decimal(7, 1)
+  asset_area                                                                                      Decimal?                  @db.Decimal(7, 1)
+  actual_value                                                                                    Decimal?                  @db.Decimal(7, 2)
+  installation_date                                                                               DateTime?                 @db.Date
+  updated_at                                                                                      DateTime?                 @default(now()) @db.Timestamp(6)
+  updated_by                                                                                      String?
+  created_at                                                                                      DateTime?                 @default(now()) @db.Timestamp(6)
+  created_by                                                                                      String?
+  sys_period                                                                                      Unsupported("tstzrange")  @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_asset                                                                                recreation_asset?         @relation("recreation_assetTorecreation_asset", fields: [parent_id], references: [asset_id], onDelete: Restrict, onUpdate: NoAction, map: "fk_asset_parent")
+  other_recreation_asset                                                                          recreation_asset[]        @relation("recreation_assetTorecreation_asset")
+  recreation_resource                                                                             recreation_resource       @relation(fields: [rec_resource_id], references: [rec_resource_id], onUpdate: NoAction, map: "fk_asset_rec_resource")
+  recreation_structure_code_recreation_asset_recreation_structure_codeTorecreation_structure_code recreation_structure_code @relation("recreation_asset_recreation_structure_codeTorecreation_structure_code", fields: [recreation_structure_code], references: [structure_code], onDelete: NoAction, onUpdate: NoAction, map: "fk_asset_struct_code")
+  recreation_asset_geom                                                                           recreation_asset_geom?
+  recreation_asset_repair                                                                         recreation_asset_repair[]
+
+  @@index([recreation_structure_code], map: "idx_recreation_asset_code")
+  @@index([parent_id], map: "idx_recreation_asset_parent_id")
+  @@index([rec_resource_id], map: "idx_recreation_asset_site")
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_asset_geom {
+  asset_id           BigInt                   @id
+  geometry_type_code String?                  @db.VarChar(3)
+  geometry           Unsupported("geometry")?
+  updated_at         DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by         String?
+  created_at         DateTime?                @default(now()) @db.Timestamp(6)
+  created_by         String?
+  sys_period         Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_asset   recreation_asset         @relation(fields: [asset_id], references: [asset_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asset_geom_asset")
+
+  @@index([geometry], map: "idx_recreation_asset_geom_geom", type: Gist)
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_asset_geom_history {
+  asset_id           BigInt
+  geometry_type_code String?                  @db.VarChar(3)
+  geometry           Unsupported("geometry")?
+  updated_at         DateTime?                @db.Timestamp(6)
+  updated_by         String?
+  created_at         DateTime?                @db.Timestamp(6)
+  created_by         String?
+  sys_period         Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_asset_history {
+  asset_id                  BigInt
+  parent_id                 BigInt?
+  asset_tag                 String?                  @db.VarChar(50)
+  rec_resource_id           String                   @db.VarChar(20)
+  recreation_structure_code Int
+  asset_name                String?                  @db.VarChar(200)
+  asset_comment             String?
+  legacy_structure_id       String?                  @db.VarChar(20)
+  asset_length              Decimal?                 @db.Decimal(7, 1)
+  asset_width               Decimal?                 @db.Decimal(7, 1)
+  asset_area                Decimal?                 @db.Decimal(7, 1)
+  actual_value              Decimal?                 @db.Decimal(7, 2)
+  installation_date         DateTime?                @db.Date
+  updated_at                DateTime?                @db.Timestamp(6)
+  updated_by                String?
+  created_at                DateTime?                @db.Timestamp(6)
+  created_by                String?
+  sys_period                Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_asset_repair {
+  repair_id                                                                                                       BigInt                        @id @default(autoincrement())
+  asset_id                                                                                                        BigInt
+  recreation_remed_repair_code                                                                                    String?                       @db.VarChar(2)
+  estimated_repair_cost                                                                                           Decimal?                      @db.Decimal(10, 2)
+  actual_repair_cost                                                                                              Decimal?                      @db.Decimal(10, 2)
+  repair_completed_date                                                                                           DateTime?                     @db.Date
+  updated_at                                                                                                      DateTime?                     @default(now()) @db.Timestamp(6)
+  updated_by                                                                                                      String?
+  created_at                                                                                                      DateTime?                     @default(now()) @db.Timestamp(6)
+  created_by                                                                                                      String?
+  sys_period                                                                                                      Unsupported("tstzrange")      @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_asset                                                                                                recreation_asset              @relation(fields: [asset_id], references: [asset_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_repair_asset")
+  recreation_remed_repair_code_recreation_asset_repair_recreation_remed_repair_codeTorecreation_remed_repair_code recreation_remed_repair_code? @relation("recreation_asset_repair_recreation_remed_repair_codeTorecreation_remed_repair_code", fields: [recreation_remed_repair_code], references: [recreation_remed_repair_code], onDelete: NoAction, onUpdate: NoAction, map: "fk_repair_remed_code")
+
+  @@index([asset_id], map: "idx_asset_repair_asset_id")
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_asset_repair_history {
+  repair_id                    BigInt
+  asset_id                     BigInt
+  recreation_remed_repair_code String?                  @db.VarChar(2)
+  estimated_repair_cost        Decimal?                 @db.Decimal(10, 2)
+  actual_repair_cost           Decimal?                 @db.Decimal(10, 2)
+  repair_completed_date        DateTime?                @db.Date
+  updated_at                   DateTime?                @db.Timestamp(6)
+  updated_by                   String?
+  created_at                   DateTime?                @db.Timestamp(6)
+  created_by                   String?
+  sys_period                   Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")
