@@ -1,6 +1,16 @@
+-- Seed a "Campsite" structure type. Campsites are modelled as assets (parent of other
+-- assets via parent_id). This type does not exist in FTA, so the FTA structure_code sync
+-- will never create it; seed it here (insert-only sync leaves it untouched).
+insert into rst.recreation_structure_code (description)
+select 'Campsite'
+where not exists (
+    select 1 from rst.recreation_structure_code
+    where lower(description) = 'campsite'
+);
+
 create table rst.recreation_asset
 (
-    asset_id                  bigint  primary key,
+    asset_id                  bigint generated always as identity primary key,
     parent_id                 bigint,
     asset_tag                 varchar(50),
     rec_resource_id           varchar(20) not null,
@@ -11,6 +21,7 @@ create table rst.recreation_asset
     asset_length              numeric(7, 1),
     asset_width               numeric(7, 1),
     asset_area                numeric(7, 1),
+    default_value             numeric(7, 2),
     actual_value              numeric(7, 2),
     installation_date         date,
 
@@ -47,7 +58,8 @@ comment on column rst.recreation_asset.legacy_structure_id       is 'Information
 comment on column rst.recreation_asset.asset_length              is 'Total length in metres (paths, boardwalks, fences, bridges).';
 comment on column rst.recreation_asset.asset_width               is 'Total width in metres (parking areas, shelters, docks).';
 comment on column rst.recreation_asset.asset_area                is 'Total area in square metres.';
-comment on column rst.recreation_asset.actual_value              is 'Financial valuation for this individual unit.';
+comment on column rst.recreation_asset.default_value             is 'Default value for the asset, derived from the structure type value/dimension.';
+comment on column rst.recreation_asset.actual_value              is 'Actual value of the asset; takes precedence over the default value when set.';
 comment on column rst.recreation_asset.installation_date         is 'Date the asset was installed in the field.';
 
 select upsert_timestamp_columns('rst', 'recreation_asset');
@@ -64,6 +76,9 @@ create table rst.recreation_asset_repair
     estimated_repair_cost        numeric(10, 2),
     actual_repair_cost           numeric(10, 2),
     repair_completed_date        date,
+    urgency                      varchar(25),
+    trail_segment_start          varchar(50),
+    trail_segment_end            varchar(50),
 
     constraint fk_repair_asset
         foreign key (asset_id)
@@ -83,6 +98,9 @@ comment on column rst.recreation_asset_repair.recreation_remed_repair_code is 'R
 comment on column rst.recreation_asset_repair.estimated_repair_cost        is 'Estimated financial cost for the repair work.';
 comment on column rst.recreation_asset_repair.actual_repair_cost           is 'Final actual financial cost incurred after completion.';
 comment on column rst.recreation_asset_repair.repair_completed_date        is 'Date the repair work was completed.';
+comment on column rst.recreation_asset_repair.urgency                      is 'Urgency/priority of the repair.';
+comment on column rst.recreation_asset_repair.trail_segment_start          is 'Optional trail segment start reference for trail-related repairs.';
+comment on column rst.recreation_asset_repair.trail_segment_end            is 'Optional trail segment end reference for trail-related repairs.';
 
 select upsert_timestamp_columns('rst', 'recreation_asset_repair');
 
