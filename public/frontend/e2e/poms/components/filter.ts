@@ -84,12 +84,17 @@ export class FilterPOM {
     await showAllButton.click();
   }
 
-  async toggleFilterOn(filterGroup: Locator, filterPrefix: string) {
-    await filterGroup.waitFor({ state: 'visible' });
-    await filterGroup.locator('.form-check').first().waitFor({
-      state: 'visible',
-      timeout: 10000,
-    });
+  /**
+   * Resolve the checkbox input for a filter option by its label prefix.
+   *
+   * Single source of truth for the "label -> `for` -> input" lookup used by every
+   * toggle/assert helper below, so the locator strategy stays consistent and the
+   * intermediate waits live in one place.
+   */
+  private async getCheckboxByLabel(
+    filterGroup: Locator,
+    filterPrefix: string,
+  ): Promise<Locator> {
     const label = filterGroup
       .locator('label')
       .filter({ hasText: new RegExp(`^${filterPrefix}`) });
@@ -97,41 +102,30 @@ export class FilterPOM {
     const labelFor = await label.getAttribute('for');
     const checkbox = filterGroup.locator(`input[id="${labelFor}"]`);
     await checkbox.waitFor({ state: 'visible', timeout: 5000 });
-    expect(checkbox).not.toBeChecked();
+    return checkbox;
+  }
+
+  async toggleFilterOn(filterGroup: Locator, filterPrefix: string) {
+    const checkbox = await this.getCheckboxByLabel(filterGroup, filterPrefix);
+    await expect(checkbox).not.toBeChecked();
     await checkbox.check();
     await expect(checkbox).toBeChecked();
   }
 
   async toggleFilterOff(filterGroup: Locator, filterPrefix: string) {
-    const label = filterGroup
-      .locator('label')
-      .filter({ hasText: new RegExp(`^${filterPrefix}`) });
-    await label.waitFor({ state: 'visible', timeout: 5000 });
-    const labelFor = await label.getAttribute('for');
-    const checkbox = filterGroup.locator(`input[id="${labelFor}"]`);
-    await checkbox.waitFor({ state: 'visible', timeout: 5000 });
-    expect(checkbox).toBeChecked();
+    const checkbox = await this.getCheckboxByLabel(filterGroup, filterPrefix);
+    await expect(checkbox).toBeChecked();
     await checkbox.uncheck();
     await expect(checkbox).not.toBeChecked();
   }
 
   async checkIsFilterToggledOn(filterGroup: Locator, filterPrefix: string) {
-    const label = filterGroup
-      .locator('label')
-      .filter({ hasText: new RegExp(`^${filterPrefix}`) });
-    await label.waitFor({ state: 'visible', timeout: 5000 });
-    const labelFor = await label.getAttribute('for');
-    const checkbox = filterGroup.locator(`input[id="${labelFor}"]`);
-
-    await checkbox.waitFor({ state: 'visible', timeout: 5000 });
+    const checkbox = await this.getCheckboxByLabel(filterGroup, filterPrefix);
     await expect(checkbox).toBeChecked();
   }
 
   async checkIsFilterToggledOff(filterGroup: Locator, filterPrefix: string) {
-    const checkbox = filterGroup.getByRole('checkbox', {
-      name: new RegExp(`^${filterPrefix}`),
-    });
-    await checkbox.waitFor({ state: 'visible' });
+    const checkbox = await this.getCheckboxByLabel(filterGroup, filterPrefix);
     await expect(checkbox).not.toBeChecked();
   }
 
@@ -144,14 +138,18 @@ export class FilterPOM {
       await this.clickShowAllFilters(filterGroup);
     }
 
-    for (const filter of filterOptions) {
-      const { label } = filter;
-
-      await filterGroup
-        .locator('label', { hasText: label })
-        .first()
-        .waitFor({ state: 'visible' });
-    }
+    // Verify each expected option renders (same coverage as before), but resolve
+    // the auto-retrying checks concurrently instead of as an O(n) sequence of
+    // per-option `waitFor`s. Note: the data files aren't necessarily exhaustive
+    // (e.g. the Type group renders more options than are listed), so this asserts
+    // "these options are present", not an exact count.
+    await Promise.all(
+      filterOptions.map(({ label }) =>
+        expect(
+          filterGroup.locator('label', { hasText: label }).first(),
+        ).toBeVisible(),
+      ),
+    );
 
     if (isShowMore) {
       await this.clickShowLessFilters(filterGroup);
@@ -159,10 +157,14 @@ export class FilterPOM {
   }
 
   async verifyDistrictFilterGroup() {
-    const options = this.districtFilters.locator('.form-check label');
-    await options.first().waitFor({ state: 'visible' });
-    const count = await options.count();
-    expect(count).toBeGreaterThan(0);
+    // Districts are data-driven, so assert "at least one option" with an
+    // auto-retrying matcher rather than a one-shot count() snapshot.
+    await expect(
+      this.districtFilters.locator('.form-check label').first(),
+    ).toBeVisible();
+    await expect(
+      this.districtFilters.locator('.form-check label'),
+    ).not.toHaveCount(0);
   }
 
   async verifyTypeFilterGroup() {
@@ -203,6 +205,13 @@ export class FilterPOM {
     await this.verifyFilterGroup(this.feesFilters, feesFilterOptions);
   }
 
+  /**
+   * Exhaustively verify every filter group renders with its expected options.
+   *
+   * This is the full rendering assertion and is intentionally heavy — it belongs
+   * in the dedicated "filter menu renders" test only. Functional tests that merely
+   * need the panel to be interactive should use {@link waitForFilterMenuReady}.
+   */
   async verifyInitialFilterMenu() {
     await this.verifyDistrictFilterGroup();
     await this.verifyTypeFilterGroup();
@@ -213,52 +222,16 @@ export class FilterPOM {
     await this.verifyAccessTypeFilterGroup();
   }
 
-  async verifyFilterResultsListener({
-    type,
-    activities,
-  }: {
-    type?: string[];
-    activities?: string[];
-  }) {
-    this.page.on('response', async (response) => {
-      // We can't use this to check district, facilities, or access type
-      // because the API doesn't return data for those filters
-      const url = response.url();
-      const status = response.status();
-
-      // Only parse successful JSON responses
-      if (
-        status !== 200 ||
-        !response.headers()['content-type']?.includes('application/json')
-      ) {
-        return;
-      }
-
-      if (url.includes('type=') && type) {
-        const json = await response.json();
-        const results = json.data.map((item: any) => item.rec_resource_type);
-        expect(results).toEqual(expect.arrayContaining(type));
-      }
-
-      if (url.includes('activities=') && activities) {
-        const json = await response.json();
-        const results = json.data.map((item: any) => item.recreation_activity);
-        results.forEach((activities: any) => {
-          const relevantActivities = activities.filter((activity: any) =>
-            activities.every((element: any) =>
-              activity.description.includes(element),
-            ),
-          );
-          relevantActivities.forEach((activity: any) => {
-            activities.forEach((option: any) => {
-              expect(activity.description).toEqual(
-                expect.stringContaining(option),
-              );
-            });
-          });
-        });
-      }
-    });
+  /**
+   * Lightweight readiness gate for functional tests: waits only until the filter
+   * panel is interactive (first group's first option visible). Replaces the heavy
+   * {@link verifyInitialFilterMenu} prelude that most tests don't need — a single
+   * environment blip in that prelude used to fail dozens of unrelated tests.
+   */
+  async waitForFilterMenuReady() {
+    await expect(
+      this.districtFilters.locator('.form-check label').first(),
+    ).toBeVisible();
   }
 
   async openMobileFilterMenu() {
