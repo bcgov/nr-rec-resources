@@ -7,3 +7,4 @@ export * from './components/environment-banner';
 export * from './components/safe-html';
 export * from './utils';
 export * from './hooks';
+export * from './constants/colours';

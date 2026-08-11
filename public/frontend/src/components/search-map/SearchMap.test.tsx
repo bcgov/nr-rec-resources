@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { forwardRef, useImperativeHandle } from 'react';
+import { act, forwardRef, useImperativeHandle } from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { renderWithRouter } from '@/test-utils';
 import SearchMap from '@/components/search-map/SearchMap';
@@ -7,6 +7,7 @@ import * as hooks from '@/components/search-map/hooks/useMapFocus';
 import { trackClickEvent, trackEvent } from '@shared/utils';
 import { selectedWildfireIcon } from './styles/icons';
 import { useFeatureSelection } from './hooks';
+import Cookies from 'js-cookie';
 
 vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual('@tanstack/react-router');
@@ -48,18 +49,37 @@ vi.mock('@/components/search-map/hooks', () => ({
           },
         },
       ],
+      setZIndex: vi.fn(),
     },
   }),
   useWildfireLocationLayer: vi.fn(() => ({
     layer: {
-      getSource: () => ({ getFeatures: () => [] }),
+      getSource: () => ({ getFeatures: () => [], refresh: vi.fn() }),
       setVisible: vi.fn(),
+      set: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useWildfirePerimeterLayer: vi.fn(() => ({
     layer: {
-      getSource: () => ({ getFeatures: () => [] }),
+      getSource: () => ({ getFeatures: () => [], refresh: vi.fn() }),
       setVisible: vi.fn(),
+      set: vi.fn(),
+      setZIndex: vi.fn(),
+    },
+  })),
+  useFireEvacuationLayer: vi.fn(() => ({
+    layer: {
+      getSource: () => ({ getFeatures: () => [], refresh: vi.fn() }),
+      setVisible: vi.fn(),
+      setZIndex: vi.fn(),
+    },
+  })),
+  useWildfireAreaRestrictionLayer: vi.fn(() => ({
+    layer: {
+      getSource: () => ({ getFeatures: () => [], refresh: vi.fn() }),
+      setVisible: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useFeatureSelection: vi.fn(() => ({
@@ -72,12 +92,14 @@ vi.mock('@/components/search-map/hooks', () => ({
     layer: {
       getSource: () => ({ getFeatures: () => [] }),
       setVisible: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useRecreationTrailLayer: vi.fn(() => ({
     layer: {
       getSource: () => ({ getFeatures: () => [] }),
       setVisible: vi.fn(),
+      setZIndex: vi.fn(),
     },
   })),
   useMapFocusParam: vi.fn(() => ({ mode: undefined, value: undefined })),
@@ -164,12 +186,21 @@ vi.mock('@/components/search-map/styles/icons', () => ({
   selectedWildfireIcon: vi.fn(),
 }));
 
+vi.mock('js-cookie', () => ({
+  default: {
+    get: vi.fn(() => undefined),
+    set: vi.fn(),
+    remove: vi.fn(),
+  },
+}));
+
 describe('SearchMap', () => {
   const mockUseMapFocus = hooks.useMapFocus as any;
 
   beforeEach(() => {
     vi.spyOn(Storage.prototype, 'setItem');
     vi.clearAllMocks();
+    Cookies.remove('hidemap-feedback-card');
     mockUseMapFocus.mockReturnValue({
       isMapFocusLoading: false,
       mapCenter: [0, 0],
@@ -186,6 +217,13 @@ describe('SearchMap', () => {
       },
       writable: true,
     });
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+  });
+
+  afterEach(() => {
+    vi.runOnlyPendingTimers(); // Flush remaining timers
+    vi.useRealTimers(); // Reset back to real time
   });
 
   it('renders main components', async () => {
@@ -219,6 +257,71 @@ describe('SearchMap', () => {
 
     // The modal should be present in the DOM
     expect(screen.getByRole('dialog')).toBeDefined();
+  });
+
+  it('shows feedback card after two minutes', async () => {
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(120_000);
+    });
+
+    // The card should be present in the DOM
+    expect(screen.getByText("We'd love to hear from you")).toBeInTheDocument();
+  });
+
+  it('should set a cookie when the close button is clicked', async () => {
+    const setCookieSpy = vi.spyOn(Cookies, 'set');
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(120_000);
+    });
+
+    const button = screen.getByTestId('feedback-card-close-button');
+    fireEvent.click(button);
+    expect(setCookieSpy).toHaveBeenCalledWith('hidemap-feedback-card', 'true', {
+      expires: 30,
+    });
+  });
+
+  it('should set a cookie when the survey button is clicked', async () => {
+    const setCookieSpy = vi.spyOn(Cookies, 'set');
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(120_000);
+    });
+
+    const button = screen.getByTestId('feedback-card-survey-button');
+    fireEvent.click(button);
+    expect(setCookieSpy).toHaveBeenCalledWith('hidemap-feedback-card', 'true', {
+      expires: 30,
+    });
   });
 
   it('can interact with disclaimer modal', async () => {
@@ -422,5 +525,126 @@ describe('SearchMap', () => {
     const mockFeature2 = { get: vi.fn().mockReturnValue(null) };
     wildfireConfig.selectedStyle(mockFeature2);
     expect(selectedWildfireIcon).toHaveBeenCalledWith('Out of Control');
+  });
+
+  it('calls onFeatureSelect for recreation-features layer config', async () => {
+    await renderWithRouter(
+      <SearchMap
+        totalCount={0}
+        ids={[]}
+        props={{ style: { visibility: 'hidden' } }}
+      />,
+    );
+
+    const hookArgs = vi.mocked(useFeatureSelection).mock.calls[0][0] as any;
+    const recConfig = hookArgs.featureLayers.find(
+      (l: any) => l.id === 'recreation-features',
+    );
+
+    const mockFeature = {
+      get: vi.fn((key: string) => {
+        if (key === 'FOREST_FILE_ID') return 'REC-001';
+        if (key === 'PROJECT_NAME') return 'Test Site';
+        if (key === 'PROJECT_TYPE') return 'SIT';
+        return null;
+      }),
+    };
+
+    recConfig.onFeatureSelect(mockFeature);
+    expect(trackClickEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category: 'Search Map',
+        action: 'Recreation feature selected',
+      }),
+    );
+
+    // Deselect
+    recConfig.onFeatureSelect(null);
+    expect(trackClickEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'None' }),
+    );
+  });
+
+  it('calls onFeatureSelect for wildfire-perimeters layer config', async () => {
+    await renderWithRouter(
+      <SearchMap
+        totalCount={0}
+        ids={[]}
+        props={{ style: { visibility: 'hidden' } }}
+      />,
+    );
+
+    const hookArgs = vi.mocked(useFeatureSelection).mock.calls[0][0] as any;
+    const perimeterConfig = hookArgs.featureLayers.find(
+      (l: any) => l.id === 'wildfire-perimeters',
+    );
+
+    const mockFeature = { get: vi.fn(() => 'K51234') };
+    perimeterConfig.onFeatureSelect(mockFeature);
+    expect(trackClickEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ action: 'Wildfire perimeter selected' }),
+    );
+
+    perimeterConfig.onFeatureSelect(null);
+    expect(trackClickEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'None' }),
+    );
+  });
+
+  it('calls onFeatureSelect for fire-evacuation layer config', async () => {
+    await renderWithRouter(
+      <SearchMap
+        totalCount={0}
+        ids={[]}
+        props={{ style: { visibility: 'hidden' } }}
+      />,
+    );
+
+    const hookArgs = vi.mocked(useFeatureSelection).mock.calls[0][0] as any;
+    const evacConfig = hookArgs.featureLayers.find(
+      (l: any) => l.id === 'fire-evacuation',
+    );
+
+    const mockFeature = {
+      get: vi.fn((key: string) =>
+        key === 'ORDER_ALERT_NAME' ? 'Evacuation Alert' : null,
+      ),
+    };
+    evacConfig.onFeatureSelect(mockFeature);
+    expect(trackClickEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ action: 'Fire evacuation feature selected' }),
+    );
+
+    // Uses EVENT_NAME when ORDER_ALERT_NAME is null
+    const mockFeature2 = {
+      get: vi.fn((key: string) => (key === 'EVENT_NAME' ? 'Event A' : null)),
+    };
+    evacConfig.onFeatureSelect(mockFeature2);
+    expect(trackClickEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Evacuation: Event A' }),
+    );
+
+    evacConfig.onFeatureSelect(null);
+    expect(trackClickEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'None' }),
+    );
+  });
+
+  it('does not open disclaimer modal when cookie is set', async () => {
+    vi.mocked((await import('js-cookie')).default.get).mockReturnValueOnce(
+      'true' as any,
+    );
+
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{ style: { visibility: 'visible' } }}
+      />,
+    );
+
+    // No dialog visible when the cookie is present
+    // The modal should not be open
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });

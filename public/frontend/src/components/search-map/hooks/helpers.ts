@@ -40,9 +40,14 @@ export const getFeatureLayerConfig = (
 
 export const getPointFeatureCoordinates = (feature: Feature) => {
   const geometry = feature.getGeometry();
+  if (!geometry) return undefined;
+  // For point features return the coordinate directly; for polygons/multipolygons
+  // (e.g. fire evacuation, wildfire perimeter) fall back to the extent centre so
+  // the popup overlay is still positioned correctly.
   if (geometry instanceof Point) {
     return geometry.getCoordinates();
   }
+  return getCenter(geometry.getExtent());
 };
 
 export const centerMapOnFeature = (
