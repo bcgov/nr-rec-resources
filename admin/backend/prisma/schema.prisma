@@ -224,12 +224,12 @@ model recreation_structure {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_structure_code {
-  structure_code       Int                      @id @default(autoincrement())
-  description          String?                  @db.VarChar(120)
-  updated_at           DateTime?                @default(now()) @db.Timestamp(6)
-  sys_period           Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_structure recreation_structure[]
-  recreation_asset_recreation_asset_recreation_structure_codeTorecreation_structure_code recreation_asset[] @relation("recreation_asset_recreation_structure_codeTorecreation_structure_code")
+  structure_code                                                                         Int                      @id @default(autoincrement())
+  description                                                                            String?                  @db.VarChar(120)
+  updated_at                                                                             DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period                                                                             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_asset_recreation_asset_recreation_structure_codeTorecreation_structure_code recreation_asset[]       @relation("recreation_asset_recreation_structure_codeTorecreation_structure_code")
+  recreation_structure                                                                   recreation_structure[]
 
   @@schema("rst")
 }
@@ -1517,6 +1517,33 @@ model recreation_asset_repair_history {
   created_at                   DateTime?                @db.Timestamp(6)
   created_by                   String?
   sys_period                   Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_asset_code {
+  asset_code  Int                      @id @default(autoincrement())
+  description String?                  @db.VarChar(120)
+  updated_at  DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by  String?
+  created_at  DateTime?                @default(now()) @db.Timestamp(6)
+  created_by  String?
+  sys_period  Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_asset_code_history {
+  asset_code  Int
+  description String?                  @db.VarChar(120)
+  updated_at  DateTime?                @db.Timestamp(6)
+  updated_by  String?
+  created_at  DateTime?                @db.Timestamp(6)
+  created_by  String?
+  sys_period  Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")

@@ -1,12 +1,107 @@
--- Seed a "Campsite" structure type. Campsites are modelled as assets (parent of other
--- assets via parent_id). This type does not exist in FTA, so the FTA structure_code sync
--- will never create it; seed it here (insert-only sync leaves it untouched).
-insert into rst.recreation_structure_code (description)
-select 'Campsite'
-where not exists (
-    select 1 from rst.recreation_structure_code
-    where lower(description) = 'campsite'
+
+-- recreation_asset_code must be created before recreation_asset (FK dependency)
+create table rst.recreation_asset_code
+(
+    asset_code  serial primary key,
+    description varchar(120)
 );
+
+comment on table  rst.recreation_asset_code is 'Codes describing the classification type of an individual recreation asset (e.g. Campsite, Table, Toilet). Not FTA-synced; managed internally.';
+comment on column rst.recreation_asset_code.asset_code  is 'Surrogate primary key for the asset type code.';
+comment on column rst.recreation_asset_code.description is 'Description of the asset type.';
+
+insert into rst.recreation_asset_code (description)
+values
+    ('Table - log'),
+    ('Table - wheelchair accessible'),
+    ('Toilet - wood'),
+    ('Toilet - wheelchair accessible'),
+    ('Fire ring'),
+    ('Litter barrel - 45 gallon'),
+    ('Barrel shelters'),
+    ('Parking - unimproved'),
+    ('Parking - unsurfaced'),
+    ('Parking - spaces gravel'),
+    ('Parking - spaces pavement'),
+    ('Parking - wheelchair accessible'),
+    ('Registration post'),
+    ('Boat launch - cartop (unimproved)'),
+    ('Boat launch - unimproved'),
+    ('Boat launch - gravel'),
+    ('Boat launch - concrete'),
+    ('Safety barrier'),
+    ('Signs'),
+    ('Sign - stop'),
+    ('Sign - directional (facility)'),
+    ('Entrance kiosk'),
+    ('Sign shelter'),
+    ('Shelter (cabins, warming huts)'),
+    ('Shelter - wheelchair accessible'),
+    ('Traffic counter'),
+    ('Dock wharf'),
+    ('Dock wharf - wheelchair accessible'),
+    ('Bench'),
+    ('Boardwalk'),
+    ('Bridge - foot (>6M)'),
+    ('Bridge - foot (<6M)'),
+    ('Bridge - wheelchair accessible'),
+    ('Corral - firewood'),
+    ('Corral - firewood - wheelchair accessible'),
+    ('Corral - horse'),
+    ('Hitching rail'),
+    ('Observation tower'),
+    ('Viewing platform'),
+    ('Viewing blinds'),
+    ('Trail'),
+    ('Trail - wheelchair accessible'),
+    ('Tent pad'),
+    ('Vehicle space'),
+    ('Total length of associated roads'),
+    ('Dock pier'),
+    ('Dock floating'),
+    ('Table - concrete'),
+    ('Table - metal'),
+    ('Toilet - metal'),
+    ('Toilet - concrete'),
+    ('Toilet - solar composting'),
+    ('Litter barrel - bear proof single'),
+    ('Litter barrel - bear proof double'),
+    ('Gate'),
+    ('In-site road'),
+    ('Culvert'),
+    ('Fencing - russell'),
+    ('Stairs'),
+    ('Pools and tubs - hotsprings'),
+    ('Fish cleaning station'),
+    ('Bridge - vehicle'),
+    ('Bridge - foot (suspension)'),
+    ('Cable car'),
+    ('Helipad'),
+    ('Log boom'),
+    ('Bear cache'),
+    ('Fencing - barb wire'),
+    ('Fencing - log'),
+    ('Fencing - chain link'),
+    ('Sign shelter - small'),
+    ('Sign shelter - large'),
+    ('Sign - 3 blade'),
+    ('Sign - highway'),
+    ('Barrier - no post'),
+    ('Barrier - lock block'),
+    ('Gate - single'),
+    ('Mooring buoy'),
+    ('Registration box'),
+    ('Barrier - rock'),
+    ('Fencing - strand'),
+    ('Gate - double'),
+    ('Barrier - wood'),
+    ('Bridge - foot'),
+    ('Campsite');
+
+select upsert_timestamp_columns('rst', 'recreation_asset_code');
+
+select setup_temporal_table('rst', 'recreation_asset_code', false);
+
 
 create table rst.recreation_asset
 (
@@ -14,7 +109,7 @@ create table rst.recreation_asset
     parent_id                 bigint,
     asset_tag                 varchar(50),
     rec_resource_id           varchar(20) not null,
-    recreation_structure_code integer     not null,
+    asset_code                integer     not null,
     asset_name                varchar(200),
     asset_comment             text,
     legacy_structure_id       varchar(20),
@@ -36,23 +131,23 @@ create table rst.recreation_asset
     constraint chk_no_self_parent
         check (parent_id <> asset_id),
 
-    constraint fk_asset_struct_code
-        foreign key (recreation_structure_code)
-        references rst.recreation_structure_code (structure_code)
+    constraint fk_asset_asset_code
+        foreign key (asset_code)
+        references rst.recreation_asset_code (asset_code)
 );
 
 -- Performance indexes (no GiST — geometry lives in recreation_asset_geom)
 create index idx_recreation_asset_parent_id on rst.recreation_asset (parent_id);
 create index idx_recreation_asset_site      on rst.recreation_asset (rec_resource_id);
-create index idx_recreation_asset_code      on rst.recreation_asset (recreation_structure_code);
+create index idx_recreation_asset_code      on rst.recreation_asset (asset_code);
 
 comment on table  rst.recreation_asset is 'Individualised asset entities with parent-child relationships (e.g., Campsite → Table). Geometry stored in recreation_asset_geom.';
 comment on column rst.recreation_asset.asset_id                  is 'Unique surrogate identifier for the individual asset.';
 comment on column rst.recreation_asset.parent_id                 is 'ID of the parent container asset (e.g., Campsite, Day Use Area, Zone). NULL if top-level.';
 comment on column rst.recreation_asset.asset_tag                 is 'Physical barcode, field tag, or campsite designation (e.g., CS-012, TBL-012-A).';
 comment on column rst.recreation_asset.rec_resource_id           is 'FK to the parent Recreation Resource / Site (rst.recreation_resource).';
-comment on column rst.recreation_asset.recreation_structure_code is 'Asset classification type (FK to rst.recreation_structure_code.structure_code).';
-comment on column rst.recreation_asset.asset_name                is 'Optional display name for the asset. UI defaults to structure_code description when null.';
+comment on column rst.recreation_asset.asset_code                is 'Asset classification type (FK to rst.recreation_asset_code.asset_code).';
+comment on column rst.recreation_asset.asset_name                is 'Optional display name for the asset. UI defaults to asset_code description when null.';
 comment on column rst.recreation_asset.asset_comment             is 'Free-text note or migrated structure_name value for this asset.';
 comment on column rst.recreation_asset.legacy_structure_id       is 'Informational string reference to the legacy aggregate recreation_structure record.';
 comment on column rst.recreation_asset.asset_length              is 'Total length in metres (paths, boardwalks, fences, bridges).';
