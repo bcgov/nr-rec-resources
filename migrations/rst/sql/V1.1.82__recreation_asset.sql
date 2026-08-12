@@ -1,12 +1,3 @@
--- Seed a "Campsite" structure type. Campsites are modelled as assets (parent of other
--- assets via parent_id). This type does not exist in FTA, so the FTA structure_code sync
--- will never create it; seed it here (insert-only sync leaves it untouched).
-insert into rst.recreation_structure_code (description)
-select 'Campsite'
-where not exists (
-    select 1 from rst.recreation_structure_code
-    where lower(description) = 'campsite'
-);
 
 create table rst.recreation_asset
 (
@@ -14,7 +5,7 @@ create table rst.recreation_asset
     parent_id                 bigint,
     asset_tag                 varchar(50),
     rec_resource_id           varchar(20) not null,
-    recreation_structure_code integer     not null,
+    asset_code                integer     not null,
     asset_name                varchar(200),
     asset_comment             text,
     legacy_structure_id       varchar(20),
@@ -36,23 +27,23 @@ create table rst.recreation_asset
     constraint chk_no_self_parent
         check (parent_id <> asset_id),
 
-    constraint fk_asset_struct_code
-        foreign key (recreation_structure_code)
-        references rst.recreation_structure_code (structure_code)
+    constraint fk_asset_asset_code
+        foreign key (asset_code)
+        references rst.recreation_asset_code (asset_code)
 );
 
 -- Performance indexes (no GiST — geometry lives in recreation_asset_geom)
 create index idx_recreation_asset_parent_id on rst.recreation_asset (parent_id);
 create index idx_recreation_asset_site      on rst.recreation_asset (rec_resource_id);
-create index idx_recreation_asset_code      on rst.recreation_asset (recreation_structure_code);
+create index idx_recreation_asset_code      on rst.recreation_asset (asset_code);
 
 comment on table  rst.recreation_asset is 'Individualised asset entities with parent-child relationships (e.g., Campsite → Table). Geometry stored in recreation_asset_geom.';
 comment on column rst.recreation_asset.asset_id                  is 'Unique surrogate identifier for the individual asset.';
 comment on column rst.recreation_asset.parent_id                 is 'ID of the parent container asset (e.g., Campsite, Day Use Area, Zone). NULL if top-level.';
 comment on column rst.recreation_asset.asset_tag                 is 'Physical barcode, field tag, or campsite designation (e.g., CS-012, TBL-012-A).';
 comment on column rst.recreation_asset.rec_resource_id           is 'FK to the parent Recreation Resource / Site (rst.recreation_resource).';
-comment on column rst.recreation_asset.recreation_structure_code is 'Asset classification type (FK to rst.recreation_structure_code.structure_code).';
-comment on column rst.recreation_asset.asset_name                is 'Optional display name for the asset. UI defaults to structure_code description when null.';
+comment on column rst.recreation_asset.asset_code                is 'Asset classification type (FK to rst.recreation_asset_code.asset_code).';
+comment on column rst.recreation_asset.asset_name                is 'Optional display name for the asset. UI defaults to asset_code description when null.';
 comment on column rst.recreation_asset.asset_comment             is 'Free-text note or migrated structure_name value for this asset.';
 comment on column rst.recreation_asset.legacy_structure_id       is 'Informational string reference to the legacy aggregate recreation_structure record.';
 comment on column rst.recreation_asset.asset_length              is 'Total length in metres (paths, boardwalks, fences, bridges).';
