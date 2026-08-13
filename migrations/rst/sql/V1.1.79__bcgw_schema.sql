@@ -5,9 +5,9 @@
 -- bcgw.closures_full        — all 37 columns; backs FTEN_REC_DTAILS_CLOSURES_FA_SV
 -- bcgw.closures_short       — 20-column subset; backs FTEN_REC_DTAILS_CLOSURES_SP
 
-CREATE SCHEMA IF NOT EXISTS bcgw;
+CREATE SCHEMA bcgw;
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS bcgw.resource_details_and_closures AS
+CREATE MATERIALIZED VIEW bcgw.resource_details_and_closures AS
 WITH
 point_wgs84 AS (
   SELECT
@@ -121,10 +121,10 @@ CREATE UNIQUE INDEX ON bcgw.resource_details_and_closures (forest_file_id);
 -- BCGW-facing views — thin lenses over the materialized view above.
 -- Adding a new layer means adding a new view here; the mat view does not change.
 
-CREATE OR REPLACE VIEW bcgw.closures_full AS
+CREATE VIEW bcgw.closures_full AS
 SELECT * FROM bcgw.resource_details_and_closures;
 
-CREATE OR REPLACE VIEW bcgw.closures_short AS
+CREATE VIEW bcgw.closures_short AS
 SELECT
   NULL::integer                AS ften_rpd_sysid,
   forest_file_id,
