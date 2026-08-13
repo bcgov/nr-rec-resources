@@ -338,6 +338,57 @@ class RecreationAssetFiller {
   }
 
   // -------------------------------------------------------------------------
+  // Asset code default values
+  // -------------------------------------------------------------------------
+
+  /**
+   * Writes the default_value from fta.recreation_structure_value into
+   * rst.recreation_asset_code.default_value for each matching asset_code.
+   */
+  async syncAssetCodeDefaultValues(
+    structureValueMap: Map<number, number | null>,
+    args: ParsedArgs,
+  ): Promise<void> {
+    if (args.dryRun) {
+      this.logger.info(
+        'Asset code default value sync complete (dry run) - would update ' +
+          `${structureValueMap.size} asset_code rows`,
+      );
+      return;
+    }
+
+    let updated = 0;
+    let skipped = 0;
+
+    for (const [assetCode, defaultValue] of structureValueMap) {
+      if (defaultValue === null) {
+        skipped++;
+        continue;
+      }
+      const result = await this.rstPool.query(
+        `UPDATE rst.recreation_asset_code
+         SET default_value = $1
+         WHERE asset_code = $2`,
+        [defaultValue, assetCode],
+      );
+      if ((result.rowCount ?? 0) > 0) {
+        updated++;
+      } else {
+        this.logger.warn(
+          'No matching asset_code row found - default_value not written',
+          { asset_code: String(assetCode) },
+        );
+        skipped++;
+      }
+    }
+
+    this.logger.info('Asset code default value sync complete', {
+      updated: String(updated),
+      skipped: String(skipped),
+    });
+  }
+
+  // -------------------------------------------------------------------------
   // Campsite assets (parents)
   // -------------------------------------------------------------------------
 
@@ -400,7 +451,7 @@ class RecreationAssetFiller {
           row.assetTag,
           `Campsite ${row.campsiteNum}`,
         );
-        return `($${p}, $1, $${p + 1}, $${p + 2}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, $2, $2)`;
+        return `($${p}, $1, $${p + 1}, $${p + 2}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, $2, $2)`;
       });
 
       await this.rstPool.query(
@@ -408,7 +459,7 @@ class RecreationAssetFiller {
            rec_resource_id, asset_code, asset_tag,
            asset_name, asset_comment, legacy_structure_id,
            asset_length, asset_width, asset_area,
-           default_value, actual_value, installation_date,
+           actual_value, installation_date,
            created_by, updated_by
          ) VALUES ${valueClauses.join(', ')}
          ON CONFLICT DO NOTHING`,
@@ -473,7 +524,6 @@ class RecreationAssetFiller {
     structure: FtaStructure,
     recResourceId: string,
     parentId: bigint | null,
-    defaultValue: number | null,
     structureDescription: string | null,
     actor: string,
   ): Promise<void> {
@@ -499,14 +549,14 @@ class RecreationAssetFiller {
           rec_resource_id, asset_code, asset_tag,
           asset_name, asset_comment, legacy_structure_id,
           asset_length, asset_width, asset_area,
-          default_value, actual_value, installation_date,
+          actual_value, installation_date,
           parent_id, created_by, updated_by
         ) VALUES (
           $1, $2, $3,
           $4, $5, $6,
           $7, $8, $9,
-          $10, $11, NULL,
-          $12, $13, $13
+          $10, NULL,
+          $11, $12, $12
         )
       `;
 
@@ -526,7 +576,6 @@ class RecreationAssetFiller {
           structure.structure_length ?? null,
           structure.structure_width ?? null,
           structure.structure_area ?? null,
-          defaultValue,
           perUnitValue,
           parentId !== null ? parentId.toString() : null,
           actor,
@@ -564,7 +613,6 @@ class RecreationAssetFiller {
     segment: FtaTrailSegment,
     recResourceId: string,
     trailAssetCode: number,
-    defaultValue: number | null,
     actor: string,
   ): Promise<void> {
     const count =
@@ -603,14 +651,14 @@ class RecreationAssetFiller {
           rec_resource_id, asset_code, asset_tag,
           asset_name, asset_comment, legacy_structure_id,
           asset_length, asset_width, asset_area,
-          default_value, actual_value, installation_date,
+          actual_value, installation_date,
           parent_id, created_by, updated_by
         ) VALUES (
           $1, $2, $3,
           NULL, NULL, $4,
           $5, NULL, NULL,
-          $6, $7, NULL,
-          NULL, $8, $8
+          $6, NULL,
+          NULL, $7, $7
         )
       `;
 
@@ -624,7 +672,6 @@ class RecreationAssetFiller {
           segment.trail_segment_name ?? null,
           legacyId,
           perUnitLength,
-          defaultValue,
           perUnitValue,
           actor,
         ]);
@@ -686,6 +733,9 @@ class RecreationAssetFiller {
       });
     }
 
+    this.logger.info('Syncing asset code default values…');
+    await this.syncAssetCodeDefaultValues(structureValueMap, args);
+
     this.logger.info('Syncing campsite assets…');
     const campsiteAssetIdMap = await this.syncCampsites(
       campsites,
@@ -741,9 +791,6 @@ class RecreationAssetFiller {
           }
         }
 
-        const defaultValue =
-          structureValueMap.get(structure.recreation_structure_code) ?? null;
-
         const structureDescription =
           structureCodeMap.get(structure.recreation_structure_code) ?? null;
 
@@ -761,7 +808,6 @@ class RecreationAssetFiller {
           structure,
           recResourceId,
           parentId,
-          defaultValue,
           structureDescription,
           args.actor,
         );
@@ -809,7 +855,6 @@ class RecreationAssetFiller {
     } else {
       this.logger.info('Syncing trail segment assets…');
       const trailAssetCode = args.trailAssetCode!; // guaranteed by CLI validation
-      const trailDefaultValue = structureValueMap.get(trailAssetCode) ?? null;
       const segments = trailSegments as FtaTrailSegment[];
 
       for (let i = 0; i < segments.length; i += args.batchSize) {
@@ -849,7 +894,6 @@ class RecreationAssetFiller {
             segment,
             recResourceId,
             trailAssetCode,
-            trailDefaultValue,
             args.actor,
           );
           return 'inserted';
