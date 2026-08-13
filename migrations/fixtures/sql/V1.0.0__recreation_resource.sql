@@ -10,7 +10,9 @@ insert into rst.recreation_resource (
     control_access_code,
     risk_rating_code,
     right_of_way,
-    rec_status_code
+    rec_status_code,
+    last_rec_inspection_date,
+    last_hzrd_tree_assess_date
 )
 values
     (
@@ -25,7 +27,9 @@ values
         'G',
         'H',
         null,
-        'HI'
+        'HI',
+        '2023-06-15',
+        '2022-09-10'
     ),
     (
         'REC1222',
@@ -39,7 +43,9 @@ values
         'R',
         'L',
         20.0,
-        'HI'
+        'HI',
+        '2024-03-22',
+        null
     ),
     (
         'REC160773',
@@ -53,7 +59,9 @@ values
         'G',
         'M',
         null,
-        'HI'
+        'HI',
+        '2022-11-05',
+        '2022-11-05'
     ),
     (
         'REC203239',
@@ -67,7 +75,9 @@ values
         null,
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        '2023-04-18'
     ),
     (
         'REC6866',
@@ -81,7 +91,9 @@ values
         'G',
         'L',
         6.0,
-        'HI'
+        'HI',
+        '2023-08-30',
+        '2021-07-14'
     ),
     (
         'REC203900',
@@ -95,7 +107,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        '2024-01-10',
+        '2023-12-01'
     ),
     (
         'REC160432',
@@ -109,7 +123,9 @@ values
         'G',
         'V',
         null,
-        'HI'
+        'HI',
+        null,
+        '2022-06-20'
     ),
     (
         'REC6739',
@@ -123,7 +139,9 @@ values
         'G',
         'M',
         15.0,
-        'HI'
+        'HI',
+        '2023-05-09',
+        null
     ),
     (
         'REC16158',
@@ -137,7 +155,9 @@ values
         'G',
         'L',
         3.0,
-        'HI'
+        'HI',
+        '2021-09-25',
+        '2021-09-25'
     ),
     (
         'REC2094',
@@ -151,7 +171,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        '2024-07-04',
+        '2024-07-04'
     ),
     (
         'REC6897',
@@ -165,7 +187,9 @@ values
         'G',
         'L',
         15.0,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC2206',
@@ -179,7 +203,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC206043',
@@ -193,7 +219,9 @@ values
         'R',
         'L',
         6.0,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC166903',
@@ -207,7 +235,9 @@ values
         null,
         'L',
         4.0,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC32013',
@@ -221,7 +251,9 @@ values
         null,
         'L',
         3.0,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC261475',
@@ -235,7 +267,9 @@ values
         null,
         'M',
         4.0,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC166942',
@@ -249,7 +283,9 @@ values
         null,
         'V',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC2792',
@@ -263,7 +299,9 @@ values
         null,
         'L',
         4.0,
-        'AR'
+        'AR',
+        null,
+        null
     ),
     (
         'REC230522',
@@ -277,7 +315,9 @@ values
         null,
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC205035',
@@ -291,7 +331,9 @@ values
         null,
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC2566',
@@ -305,7 +347,9 @@ values
         null,
         'H',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC1735',
@@ -319,7 +363,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC2978',
@@ -333,7 +379,9 @@ values
         null,
         'L',
         3.0,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC136003',
@@ -347,7 +395,9 @@ values
         null,
         'H',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC265901',
@@ -361,7 +411,9 @@ values
         null,
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC1585',
@@ -375,7 +427,9 @@ values
         null,
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC262200',
@@ -389,7 +443,9 @@ values
         null,
         'M',
         null,
-        'AR'
+        'AR',
+        null,
+        null
     ),
     (
         'REC265549',
@@ -403,7 +459,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC270155',
@@ -417,7 +475,9 @@ values
         null,
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC0587',
@@ -431,7 +491,9 @@ values
         null,
         'H',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC166367',
@@ -445,7 +507,9 @@ values
         null,
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC1621',
@@ -459,7 +523,9 @@ values
         null,
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC1164',
@@ -473,7 +539,9 @@ values
         'G',
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC5763',
@@ -487,7 +555,9 @@ values
         'G',
         'H',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC4519',
@@ -501,7 +571,9 @@ values
         'G',
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC265446',
@@ -515,7 +587,9 @@ values
         'G',
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC262362',
@@ -529,7 +603,9 @@ values
         'G',
         'H',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC192109',
@@ -543,7 +619,9 @@ values
         'G',
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC204480',
@@ -557,7 +635,9 @@ values
         'G',
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC0180',
@@ -571,7 +651,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC97746',
@@ -585,7 +667,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC2047',
@@ -599,7 +683,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC2054',
@@ -613,7 +699,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC0108',
@@ -627,7 +715,9 @@ values
         'G',
         'M',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC13876',
@@ -641,7 +731,9 @@ values
         'G',
         'L',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC1605',
@@ -655,7 +747,9 @@ values
         'G',
         'H',
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC1163',
@@ -669,7 +763,9 @@ values
         'G',
         'V',
         3.0,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC5973',
@@ -683,7 +779,9 @@ values
         'G',
         'L',
         null,
-        'AR'
+        'AR',
+        null,
+        null
     ),
     (
         'REC1298',
@@ -697,7 +795,9 @@ values
         null,
         null,
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC5951',
@@ -711,7 +811,9 @@ values
         null,
         null,
         3.0,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC3176',
@@ -725,7 +827,9 @@ values
         null,
         null,
         null,
-        'HI'
+        'HI',
+        null,
+        null
     ),
     (
         'REC0019',
@@ -739,5 +843,7 @@ values
         null,
         null,
         null,
-        'HI'
+        'HI',
+        null,
+        null
     );
