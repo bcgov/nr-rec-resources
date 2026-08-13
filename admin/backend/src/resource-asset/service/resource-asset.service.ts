@@ -1,0 +1,499 @@
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaService } from '@/prisma.service';
+import {
+  CreateRecreationAssetDto,
+  CreateRecreationAssetRepairDto,
+  RecreationAssetBulkRepairDto,
+  RecreationAssetBulkUpdateDto,
+  RecreationAssetCodeDto,
+  RecreationAssetDto,
+  RecreationAssetRepairDto,
+  UpdateRecreationAssetDto,
+  UpdateRecreationAssetRepairDto,
+} from '../dto';
+import { Prisma } from '@/generated/prisma/browser';
+
+@Injectable()
+export class RecreationAssetService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  // =========================================================================
+  // RECREATION ASSET CODE (LOOKUP TABLE) LOGIC
+  // =========================================================================
+
+  async findAllAssetCodes(): Promise<RecreationAssetCodeDto[]> {
+    const codes = await this.prisma.recreation_asset_code.findMany({
+      orderBy: { asset_code: 'asc' },
+    });
+    return codes.map((c) => this.mapAssetCodeToDto(c));
+  }
+
+  async findAssetCodeById(assetCode: number): Promise<RecreationAssetCodeDto> {
+    const code = await this.prisma.recreation_asset_code.findUnique({
+      where: { asset_code: assetCode },
+    });
+
+    if (!code) {
+      throw new NotFoundException(
+        `Recreation asset code with ID ${assetCode} not found`,
+      );
+    }
+
+    return this.mapAssetCodeToDto(code);
+  }
+
+  // =========================================================================
+  // RECREATION ASSET LOGIC
+  // =========================================================================
+
+  async createAsset(
+    dto: CreateRecreationAssetDto,
+  ): Promise<RecreationAssetDto> {
+    const assetCode = await this.findAssetCodeById(dto.asset_code);
+    const created = await this.prisma.recreation_asset.create({
+      data: {
+        parent_id: dto.parent_id ? BigInt(dto.parent_id) : null,
+        asset_tag: dto.asset_tag ?? null,
+        rec_resource_id: dto.rec_resource_id,
+        asset_code: assetCode.asset_code,
+        asset_name: dto.asset_name ?? null,
+        asset_comment: dto.asset_comment ?? null,
+        legacy_structure_id: dto.legacy_structure_id ?? null,
+        asset_length: dto.asset_length ?? null,
+        asset_width: dto.asset_width ?? null,
+        asset_area: dto.asset_area ?? null,
+        actual_value: dto.actual_value ?? null,
+        installation_date: dto.installation_date
+          ? new Date(dto.installation_date)
+          : null,
+      },
+    });
+
+    return this.mapAssetToDto(created);
+  }
+
+  async findAllAssets(): Promise<RecreationAssetDto[]> {
+    const assets = await this.prisma.recreation_asset.findMany({
+      select: {
+        asset_id: true,
+        parent_id: true,
+        asset_tag: true,
+        rec_resource_id: true,
+        asset_code: true,
+        asset_name: true,
+        asset_comment: true,
+        legacy_structure_id: true,
+        asset_length: true,
+        asset_width: true,
+        asset_area: true,
+        actual_value: true,
+        installation_date: true,
+      },
+      orderBy: { asset_id: 'asc' },
+    });
+    return assets.map((a) => this.mapAssetToDto(a));
+  }
+
+  async findAssetById(id: number): Promise<RecreationAssetDto> {
+    const asset = await this.prisma.recreation_asset.findUnique({
+      select: {
+        asset_id: true,
+        parent_id: true,
+        asset_tag: true,
+        rec_resource_id: true,
+        asset_code: true,
+        asset_name: true,
+        asset_comment: true,
+        legacy_structure_id: true,
+        asset_length: true,
+        asset_width: true,
+        asset_area: true,
+        actual_value: true,
+        installation_date: true,
+      },
+      where: { asset_id: BigInt(id) },
+    });
+
+    if (!asset) {
+      throw new NotFoundException(`Recreation asset with ID ${id} not found`);
+    }
+
+    return this.mapAssetToDto(asset);
+  }
+
+  async updateAsset(
+    id: number,
+    dto: UpdateRecreationAssetDto,
+  ): Promise<RecreationAssetDto> {
+    await this.ensureAssetExists(id);
+
+    // Validate NOT NULL field isn't explicitly set to null
+    if (dto.rec_resource_id === null) {
+      throw new BadRequestException('rec_resource_id cannot be null');
+    }
+
+    const updated = await this.prisma.recreation_asset.update({
+      where: { asset_id: BigInt(id) },
+      data: {
+        ...(dto.parent_id !== undefined && {
+          parent_id: dto.parent_id ? BigInt(dto.parent_id) : null,
+        }),
+        ...(dto.asset_tag !== undefined && { asset_tag: dto.asset_tag }),
+        ...(dto.rec_resource_id && {
+          rec_resource_id: dto.rec_resource_id,
+        }),
+
+        ...(dto.asset_code !== undefined && {
+          asset_code: dto.asset_code,
+        }),
+        ...(dto.asset_name !== undefined && { asset_name: dto.asset_name }),
+        ...(dto.asset_comment !== undefined && {
+          asset_comment: dto.asset_comment,
+        }),
+        ...(dto.legacy_structure_id !== undefined && {
+          legacy_structure_id: dto.legacy_structure_id,
+        }),
+        ...(dto.asset_length !== undefined && {
+          asset_length: dto.asset_length,
+        }),
+        ...(dto.asset_width !== undefined && { asset_width: dto.asset_width }),
+        ...(dto.asset_area !== undefined && { asset_area: dto.asset_area }),
+        ...(dto.default_value !== undefined && {
+          default_value: dto.default_value,
+        }),
+        ...(dto.actual_value !== undefined && {
+          actual_value: dto.actual_value,
+        }),
+        ...(dto.installation_date !== undefined && {
+          installation_date: dto.installation_date
+            ? new Date(dto.installation_date)
+            : null,
+        }),
+      },
+    });
+
+    return this.mapAssetToDto(updated);
+  }
+
+  async deleteAsset(id: number): Promise<void> {
+    await this.ensureAssetExists(id);
+    await this.prisma.recreation_asset.delete({
+      where: { asset_id: BigInt(id) },
+    });
+  }
+
+  async bulkUpdateAssets(
+    dto: RecreationAssetBulkUpdateDto,
+  ): Promise<{ count: number }> {
+    const { asset_ids, update_fields } = dto;
+
+    // 1. Basic validation
+    if (!asset_ids || asset_ids.length === 0) {
+      throw new BadRequestException('At least one asset_id must be provided.');
+    }
+
+    // Prevent explicitly setting NOT NULL fields to null
+    if (update_fields.rec_resource_id === null) {
+      throw new BadRequestException('rec_resource_id cannot be null');
+    }
+
+    const uniqueIds = Array.from(new Set(asset_ids));
+
+    // 2. Ensure all specified assets exist
+    await this.ensureAssetsExist(uniqueIds);
+
+    // 3. Build data payload dynamically based on non-undefined fields
+    const dataToUpdate: Prisma.recreation_assetUncheckedUpdateInput = {};
+
+    if (update_fields.parent_id !== undefined) {
+      dataToUpdate.parent_id = update_fields.parent_id
+        ? BigInt(update_fields.parent_id)
+        : null;
+    }
+    if (update_fields.asset_tag !== undefined) {
+      dataToUpdate.asset_tag = update_fields.asset_tag;
+    }
+    if (update_fields.rec_resource_id !== undefined) {
+      dataToUpdate.rec_resource_id = update_fields.rec_resource_id;
+    }
+    if (update_fields.asset_code !== undefined) {
+      dataToUpdate.asset_code = update_fields.asset_code;
+    }
+    if (update_fields.asset_name !== undefined) {
+      dataToUpdate.asset_name = update_fields.asset_name;
+    }
+    if (update_fields.asset_comment !== undefined) {
+      dataToUpdate.asset_comment = update_fields.asset_comment;
+    }
+    if (update_fields.legacy_structure_id !== undefined) {
+      dataToUpdate.legacy_structure_id = update_fields.legacy_structure_id;
+    }
+    if (update_fields.asset_length !== undefined) {
+      dataToUpdate.asset_length = update_fields.asset_length;
+    }
+    if (update_fields.asset_width !== undefined) {
+      dataToUpdate.asset_width = update_fields.asset_width;
+    }
+    if (update_fields.asset_area !== undefined) {
+      dataToUpdate.asset_area = update_fields.asset_area;
+    }
+    if (update_fields.default_value !== undefined) {
+      dataToUpdate.default_value = update_fields.default_value;
+    }
+    if (update_fields.actual_value !== undefined) {
+      dataToUpdate.actual_value = update_fields.actual_value;
+    }
+    if (update_fields.installation_date !== undefined) {
+      dataToUpdate.installation_date = update_fields.installation_date
+        ? new Date(update_fields.installation_date)
+        : null;
+    }
+
+    dataToUpdate.updated_at = new Date();
+
+    const result = await this.prisma.recreation_asset.updateMany({
+      where: {
+        asset_id: {
+          in: uniqueIds.map((id) => BigInt(id)),
+        },
+      },
+      data: dataToUpdate,
+    });
+
+    return result;
+  }
+
+  // =========================================================================
+  // RECREATION ASSET REPAIR LOGIC
+  // =========================================================================
+
+  async createRepair(
+    dto: CreateRecreationAssetRepairDto,
+  ): Promise<RecreationAssetRepairDto> {
+    if (dto.asset_id === undefined) {
+      throw new BadRequestException('asset_id is required');
+    }
+    await this.ensureAssetExists(dto.asset_id);
+
+    const created = await this.prisma.recreation_asset_repair.create({
+      data: {
+        asset_id: BigInt(dto.asset_id),
+        recreation_remed_repair_code: dto.recreation_remed_repair_code ?? null,
+        estimated_repair_cost: dto.estimated_repair_cost ?? null,
+        actual_repair_cost: dto.actual_repair_cost ?? null,
+        repair_completed_date: dto.repair_completed_date
+          ? new Date(dto.repair_completed_date)
+          : null,
+        urgency: dto.urgency ?? null,
+        trail_segment_start: dto.trail_segment_start ?? null,
+        trail_segment_end: dto.trail_segment_end ?? null,
+      },
+    });
+
+    return this.mapRepairToDto(created);
+  }
+
+  async findRepairsByAssetId(
+    assetId: number,
+  ): Promise<RecreationAssetRepairDto[]> {
+    await this.ensureAssetExists(assetId);
+
+    const repairs = await this.prisma.recreation_asset_repair.findMany({
+      where: { asset_id: BigInt(assetId) },
+      orderBy: { repair_id: 'asc' },
+    });
+
+    return repairs.map((r) => this.mapRepairToDto(r));
+  }
+
+  async updateRepair(
+    repairId: number,
+    dto: UpdateRecreationAssetRepairDto,
+  ): Promise<RecreationAssetRepairDto> {
+    const existing = await this.prisma.recreation_asset_repair.findUnique({
+      where: { repair_id: BigInt(repairId) },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(
+        `Repair record with ID ${repairId} not found`,
+      );
+    }
+
+    const updated = await this.prisma.recreation_asset_repair.update({
+      where: { repair_id: BigInt(repairId) },
+      data: {
+        ...(dto.recreation_remed_repair_code !== undefined && {
+          recreation_remed_repair_code: dto.recreation_remed_repair_code,
+        }),
+        ...(dto.estimated_repair_cost !== undefined && {
+          estimated_repair_cost: dto.estimated_repair_cost,
+        }),
+        ...(dto.actual_repair_cost !== undefined && {
+          actual_repair_cost: dto.actual_repair_cost,
+        }),
+        ...(dto.repair_completed_date !== undefined && {
+          repair_completed_date: dto.repair_completed_date
+            ? new Date(dto.repair_completed_date)
+            : null,
+        }),
+        ...(dto.urgency !== undefined && { urgency: dto.urgency }),
+        ...(dto.trail_segment_start !== undefined && {
+          trail_segment_start: dto.trail_segment_start,
+        }),
+        ...(dto.trail_segment_end !== undefined && {
+          trail_segment_end: dto.trail_segment_end,
+        }),
+      },
+    });
+
+    return this.mapRepairToDto(updated);
+  }
+
+  async deleteRepair(repairId: number): Promise<void> {
+    const existing = await this.prisma.recreation_asset_repair.findUnique({
+      where: { repair_id: BigInt(repairId) },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(
+        `Repair record with ID ${repairId} not found`,
+      );
+    }
+
+    await this.prisma.recreation_asset_repair.delete({
+      where: { repair_id: BigInt(repairId) },
+    });
+  }
+
+  async bulkUpsertRepairs(dto: RecreationAssetBulkRepairDto): Promise<void> {
+    const allAssetIds = Array.from(
+      new Set(dto.changes.flatMap((change) => change.asset_ids)),
+    );
+    await this.ensureAssetsExist(allAssetIds);
+
+    const completedDate = dto.completed_date
+      ? new Date(dto.completed_date)
+      : null;
+
+    await this.prisma.$transaction(async (tx) => {
+      for (const change of dto.changes) {
+        for (const assetId of change.asset_ids) {
+          // Find existing open repair for this asset
+          const existingRepair = await tx.recreation_asset_repair.findFirst({
+            where: {
+              asset_id: BigInt(assetId),
+              repair_completed_date: null, // target active repairs
+            },
+          });
+
+          if (existingRepair) {
+            // UPDATE
+            await tx.recreation_asset_repair.update({
+              where: { repair_id: existingRepair.repair_id }, // replace with PK column
+              data: {
+                recreation_remed_repair_code: dto.recreation_remed_repair_code,
+                actual_repair_cost: change.repair_cost,
+                repair_completed_date: completedDate,
+              },
+            });
+          } else {
+            // CREATE
+            await tx.recreation_asset_repair.create({
+              data: {
+                asset_id: BigInt(assetId),
+                recreation_remed_repair_code: dto.recreation_remed_repair_code,
+                actual_repair_cost: change.repair_cost,
+                repair_completed_date: completedDate,
+              },
+            });
+          }
+        }
+      }
+    });
+  }
+
+  // =========================================================================
+  // HELPER METHODS
+  // =========================================================================
+
+  private async ensureAssetExists(assetId: number): Promise<void> {
+    const asset = await this.prisma.recreation_asset.findUnique({
+      where: { asset_id: BigInt(assetId) },
+      select: { asset_id: true },
+    });
+
+    if (!asset) {
+      throw new NotFoundException(
+        `Recreation asset with ID ${assetId} not found`,
+      );
+    }
+  }
+
+  private async ensureAssetsExist(assetIds: number[]): Promise<void> {
+    const existingCount = await this.prisma.recreation_asset.count({
+      where: {
+        asset_id: {
+          in: assetIds.map((id) => BigInt(id)),
+        },
+      },
+    });
+
+    if (existingCount !== assetIds.length) {
+      throw new NotFoundException(
+        'One or more specified asset_ids do not exist in the database.',
+      );
+    }
+  }
+
+  private mapAssetCodeToDto(record: any): RecreationAssetCodeDto {
+    return {
+      asset_code: record.asset_code,
+      description: record.description ?? null,
+    };
+  }
+
+  private mapAssetToDto(record: any): RecreationAssetDto {
+    return {
+      asset_id: Number(record.asset_id),
+      parent_id: record.parent_id ? Number(record.parent_id) : null,
+      asset_tag: record.asset_tag ?? null,
+      rec_resource_id: record.rec_resource_id,
+      asset_code: record.asset_code,
+      asset_name: record.asset_name ?? null,
+      asset_comment: record.asset_comment ?? null,
+      legacy_structure_id: record.legacy_structure_id ?? null,
+      asset_length: record.asset_length ? Number(record.asset_length) : null,
+      asset_width: record.asset_width ? Number(record.asset_width) : null,
+      asset_area: record.asset_area ? Number(record.asset_area) : null,
+      actual_value: record.actual_value ? Number(record.actual_value) : null,
+      installation_date: record.installation_date
+        ? record.installation_date.toISOString().split('T')[0]
+        : null,
+    };
+  }
+
+  private mapRepairToDto(record: any): RecreationAssetRepairDto {
+    return {
+      repair_id: Number(record.repair_id),
+      asset_id: Number(record.asset_id),
+      recreation_remed_repair_code: record.recreation_remed_repair_code ?? null,
+      estimated_repair_cost: record.estimated_repair_cost
+        ? Number(record.estimated_repair_cost)
+        : null,
+      actual_repair_cost: record.actual_repair_cost
+        ? Number(record.actual_repair_cost)
+        : null,
+      repair_completed_date: record.repair_completed_date
+        ? record.repair_completed_date.toISOString().split('T')[0]
+        : null,
+      urgency: record.urgency ?? null,
+      trail_segment_start: record.trail_segment_start ?? null,
+      trail_segment_end: record.trail_segment_end ?? null,
+    };
+  }
+}
