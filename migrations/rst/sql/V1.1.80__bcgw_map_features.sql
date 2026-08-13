@@ -12,7 +12,7 @@
 -- DISTRICT_NAME on the line layer is VARCHAR2(6) in BCGW — confirmed from actual data to hold
 -- the district code (e.g. 'DCC'), not the full org unit name.
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS bcgw.recreation_map_features AS
+CREATE MATERIALIZED VIEW bcgw.recreation_map_features AS
 WITH
 campsite_counts AS (
   SELECT rec_resource_id, COUNT(*) AS defined_campsites
@@ -71,7 +71,7 @@ CREATE UNIQUE INDEX ON bcgw.recreation_map_features (rmf_skey);
 -- BCGW-facing views — thin lenses over the materialized view above.
 -- Column order matches the BCGW layer property definitions exactly.
 
-CREATE OR REPLACE VIEW bcgw.recreation_lines AS
+CREATE VIEW bcgw.recreation_lines AS
 SELECT
   rmf_skey,
   forest_file_id,
@@ -104,7 +104,7 @@ SELECT
 FROM bcgw.recreation_map_features
 WHERE geometry_type_code = 'L';
 
-CREATE OR REPLACE VIEW bcgw.recreation_polygons AS
+CREATE VIEW bcgw.recreation_polygons AS
 SELECT
   rmf_skey,
   forest_file_id,
