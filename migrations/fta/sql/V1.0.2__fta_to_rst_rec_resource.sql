@@ -39,7 +39,9 @@ select
     rp.right_of_way as right_of_way,
     ssc.file_status_st as rec_status_code,
     left(rp.arch_impact_assess_ind, 1) as arch_impact_assess_ind,
-    rp.resource_feature_ind
+    rp.resource_feature_ind,
+    rp.last_rec_inspection_date,
+    rp.last_hzrd_tree_assess_date
 from
     fta.recreation_project rp
 left join
@@ -74,4 +76,6 @@ set
     right_of_way = excluded.right_of_way,
     rec_status_code = excluded.rec_status_code,
     arch_impact_assess_ind = excluded.arch_impact_assess_ind,
-    resource_feature_ind = excluded.resource_feature_ind;
+    resource_feature_ind = excluded.resource_feature_ind,
+    last_rec_inspection_date = excluded.last_rec_inspection_date,
+    last_hzrd_tree_assess_date = excluded.last_hzrd_tree_assess_date;

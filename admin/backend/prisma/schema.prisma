@@ -27,6 +27,10 @@ model recreation_resource {
   risk_rating_code                     String?                                @db.VarChar(2)
   right_of_way                         Decimal?                               @db.Decimal(7, 1)
   rec_status_code                      String?                                @db.VarChar(50)
+  arch_impact_assess_ind               String?                                @db.VarChar(1)
+  resource_feature_ind                 String?                                @default("N") @db.VarChar(1)
+  last_rec_inspection_date             DateTime?                              @db.Date
+  last_hzrd_tree_assess_date           DateTime?                              @db.Date
   act_advisories_flat                  act_advisories_flat[]
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
@@ -96,6 +100,7 @@ model recreation_status {
   created_at             DateTime?                @default(now()) @db.Timestamp(6)
   created_by             String?
   sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  comment_date           DateTime?                @db.Date
   recreation_resource    recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   recreation_status_code recreation_status_code   @relation(fields: [status_code], references: [status_code], onDelete: NoAction, onUpdate: NoAction)
 
@@ -475,23 +480,27 @@ model recreation_map_feature_history {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_resource_history {
-  rec_resource_id           String                   @db.VarChar(20)
-  name                      String?                  @db.VarChar(200)
-  description               String?
-  closest_community         String?                  @db.VarChar(200)
-  display_on_public_site    Boolean?
-  district_code             String?                  @db.VarChar(4)
-  maintenance_standard_code String?                  @db.VarChar(1)
-  updated_at                DateTime?                @db.Timestamp(6)
-  updated_by                String?
-  created_at                DateTime?                @db.Timestamp(6)
-  created_by                String?
-  sys_period                Unsupported("tstzrange")
-  project_established_date  DateTime?                @db.Date
-  control_access_code       String?                  @db.VarChar(1)
-  risk_rating_code          String?                  @db.VarChar(2)
-  right_of_way              Decimal?                 @db.Decimal(7, 1)
-  rec_status_code           String?                  @db.VarChar(50)
+  rec_resource_id            String                   @db.VarChar(20)
+  name                       String?                  @db.VarChar(200)
+  description                String?
+  closest_community          String?                  @db.VarChar(200)
+  display_on_public_site     Boolean?
+  district_code              String?                  @db.VarChar(4)
+  maintenance_standard_code  String?                  @db.VarChar(1)
+  updated_at                 DateTime?                @db.Timestamp(6)
+  updated_by                 String?
+  created_at                 DateTime?                @db.Timestamp(6)
+  created_by                 String?
+  sys_period                 Unsupported("tstzrange")
+  project_established_date   DateTime?                @db.Date
+  control_access_code        String?                  @db.VarChar(1)
+  risk_rating_code           String?                  @db.VarChar(2)
+  right_of_way               Decimal?                 @db.Decimal(7, 1)
+  rec_status_code            String?                  @db.VarChar(50)
+  arch_impact_assess_ind     String?                  @db.VarChar(1)
+  resource_feature_ind       String?                  @default("N") @db.VarChar(1)
+  last_rec_inspection_date   DateTime?                @db.Date
+  last_hzrd_tree_assess_date DateTime?                @db.Date
 
   @@ignore
   @@schema("rst")
@@ -529,6 +538,7 @@ model recreation_status_history {
   created_at      DateTime?                @db.Timestamp(6)
   created_by      String?
   sys_period      Unsupported("tstzrange")
+  comment_date    DateTime?                @db.Date
 
   @@ignore
   @@schema("rst")
@@ -750,14 +760,15 @@ model recreation_defined_campsite_history {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_driving_direction {
-  rec_resource_id     String                   @id @db.VarChar(10)
-  description         String?
-  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
-  updated_by          String?
-  created_at          DateTime?                @default(now()) @db.Timestamp(6)
-  created_by          String?
-  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  rec_resource_id         String                   @id @db.VarChar(10)
+  description             String?
+  updated_at              DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by              String?
+  created_at              DateTime?                @default(now()) @db.Timestamp(6)
+  created_by              String?
+  sys_period              Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  driving_directions_date DateTime?                @db.Date
+  recreation_resource     recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("rst")
 }
@@ -830,6 +841,7 @@ model recreation_site_description {
   created_at          DateTime?                @default(now()) @db.Timestamp(6)
   created_by          String?
   sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  description_date    DateTime?                @db.Date
   recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("rst")
