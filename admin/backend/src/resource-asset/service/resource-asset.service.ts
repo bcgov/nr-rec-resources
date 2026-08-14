@@ -7,6 +7,8 @@ import { PrismaService } from '@/prisma.service';
 import {
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
+  FindAllAssetsQueryDto,
+  PaginatedRecreationAssetDto,
   RecreationAssetBulkRepairDto,
   RecreationAssetBulkUpdateDto,
   RecreationAssetCodeDto,
@@ -76,29 +78,91 @@ export class RecreationAssetService {
     return this.mapAssetToDto(created);
   }
 
-  async findAllAssets(): Promise<RecreationAssetDto[]> {
-    const assets = await this.prisma.recreation_asset.findMany({
-      select: {
-        asset_id: true,
-        parent_id: true,
-        asset_tag: true,
-        rec_resource_id: true,
-        asset_code: true,
-        asset_name: true,
-        asset_comment: true,
-        legacy_structure_id: true,
-        asset_length: true,
-        asset_width: true,
-        asset_area: true,
-        actual_value: true,
-        installation_date: true,
-      },
-      orderBy: { asset_id: 'asc' },
-    });
-    return assets.map((a) => this.mapAssetToDto(a));
+  async findAllAssets(
+    query: FindAllAssetsQueryDto,
+  ): Promise<PaginatedRecreationAssetDto> {
+    const {
+      page = 1,
+      limit = 10,
+      parent_id,
+      asset_tag,
+      rec_resource_id,
+      asset_code,
+      asset_name,
+      legacy_structure_id,
+      min_actual_value,
+      max_actual_value,
+      include_repair: includeRepair = false,
+    } = query;
+
+    // Build dynamic Prisma filter clause
+    const where: Prisma.recreation_assetWhereInput = {};
+
+    if (parent_id !== undefined) where.parent_id = parent_id;
+    if (rec_resource_id) where.rec_resource_id = rec_resource_id;
+    if (asset_code !== undefined) where.asset_code = asset_code;
+    if (legacy_structure_id) where.legacy_structure_id = legacy_structure_id;
+
+    // String case-insensitive partial match ("contains")
+    if (asset_tag) {
+      where.asset_tag = { contains: asset_tag, mode: 'insensitive' };
+    }
+    if (asset_name) {
+      where.asset_name = { contains: asset_name, mode: 'insensitive' };
+    }
+
+    // Range filters
+    if (min_actual_value !== undefined || max_actual_value !== undefined) {
+      where.actual_value = {};
+      if (min_actual_value !== undefined)
+        where.actual_value.gte = min_actual_value;
+      if (max_actual_value !== undefined)
+        where.actual_value.lte = max_actual_value;
+    }
+
+    // Calculate pagination offsets
+    const skip = (page - 1) * limit;
+
+    // Execute data query and total count concurrently
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.recreation_asset.findMany({
+        select: {
+          asset_id: true,
+          parent_id: true,
+          asset_tag: true,
+          rec_resource_id: true,
+          asset_code: true,
+          asset_name: true,
+          asset_comment: true,
+          legacy_structure_id: true,
+          asset_length: true,
+          asset_width: true,
+          asset_area: true,
+          actual_value: true,
+          installation_date: true,
+          recreation_asset_repair: includeRepair,
+        },
+        where,
+        skip,
+        take: limit,
+        orderBy: { asset_id: 'desc' },
+      }),
+      this.prisma.recreation_asset.count({ where }),
+    ]);
+
+    return {
+      data: data.map((asset) => this.mapAssetToDto(asset, includeRepair)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
-  async findAssetById(id: number): Promise<RecreationAssetDto> {
+  async findAssetById(
+    id: number,
+    includeRepair: boolean = false,
+  ): Promise<RecreationAssetDto> {
     const asset = await this.prisma.recreation_asset.findUnique({
       select: {
         asset_id: true,
@@ -114,6 +178,7 @@ export class RecreationAssetService {
         asset_area: true,
         actual_value: true,
         installation_date: true,
+        recreation_asset_repair: includeRepair,
       },
       where: { asset_id: BigInt(id) },
     });
@@ -122,7 +187,8 @@ export class RecreationAssetService {
       throw new NotFoundException(`Recreation asset with ID ${id} not found`);
     }
 
-    return this.mapAssetToDto(asset);
+    const assetDto = this.mapAssetToDto(asset, includeRepair);
+    return assetDto;
   }
 
   async updateAsset(
@@ -457,7 +523,10 @@ export class RecreationAssetService {
     };
   }
 
-  private mapAssetToDto(record: any): RecreationAssetDto {
+  private mapAssetToDto(
+    record: any,
+    includeRepair: boolean = false,
+  ): RecreationAssetDto {
     return {
       asset_id: Number(record.asset_id),
       parent_id: record.parent_id ? Number(record.parent_id) : null,
@@ -471,8 +540,12 @@ export class RecreationAssetService {
       asset_width: record.asset_width ? Number(record.asset_width) : null,
       asset_area: record.asset_area ? Number(record.asset_area) : null,
       actual_value: record.actual_value ? Number(record.actual_value) : null,
+      default_value: record.default_value ? Number(record.default_value) : null,
       installation_date: record.installation_date
         ? record.installation_date.toISOString().split('T')[0]
+        : null,
+      recreation_asset_repair: includeRepair
+        ? record.recreation_asset_repair.map((r) => this.mapRepairToDto(r))
         : null,
     };
   }

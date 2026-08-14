@@ -3,6 +3,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { RecreationAssetService } from '@/resource-asset/service/resource-asset.service';
 import { PrismaService } from '@/prisma.service';
+import { FindAllAssetsQueryDto } from '@/resource-asset/dto';
 
 describe('RecreationAssetService', () => {
   let service: RecreationAssetService;
@@ -191,7 +192,9 @@ describe('RecreationAssetService', () => {
         asset_width: 3.0,
         asset_area: 37.5,
         actual_value: 1500,
+        default_value: null,
         installation_date: '2023-01-01',
+        recreation_asset_repair: null,
       });
     });
 
@@ -245,23 +248,304 @@ describe('RecreationAssetService', () => {
     });
   });
 
-  describe('findAllAssets', () => {
-    it('should return all mapped assets', async () => {
-      prismaMock.recreation_asset.findMany.mockResolvedValue([
-        {
-          asset_id: 1n,
-          parent_id: null,
-          rec_resource_id: 'REC-1',
-          asset_code: 10,
-        },
+  describe('RecreationAssetService - findAllAssets', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let prismaService: PrismaService;
+
+    const mockRawAssetList = [
+      {
+        asset_id: BigInt(101),
+        parent_id: BigInt(100),
+        asset_tag: 'TAG-01',
+        rec_resource_id: 'REC10',
+        asset_code: 1,
+        asset_name: 'Campsite #1 Table',
+        asset_comment: null,
+        legacy_structure_id: 'LEG-1',
+        asset_length: null,
+        asset_width: null,
+        asset_area: null,
+        actual_value: 1500,
+        default_value: null,
+        installation_date: null,
+        recreation_asset_repair: [
+          {
+            asset_repair_id: BigInt(1),
+            asset_id: BigInt(101),
+            repair_code: 'REP-001',
+            repair_cost: 150,
+            repair_date: '2025-05-10',
+          },
+        ],
+      },
+      {
+        asset_id: BigInt(102),
+        parent_id: null,
+        asset_tag: 'TAG-02',
+        rec_resource_id: 'REC10',
+        asset_code: 2,
+        asset_name: 'Campsite #2 Bench',
+        asset_comment: null,
+        legacy_structure_id: null,
+        asset_length: null,
+        asset_width: null,
+        asset_area: null,
+        actual_value: 800,
+        default_value: null,
+        installation_date: null,
+        recreation_asset_repair: [],
+      },
+    ];
+
+    const mockPrismaService = {
+      recreation_asset: {
+        findMany: vi.fn(),
+        count: vi.fn(),
+      },
+      $transaction: vi.fn(),
+    };
+
+    beforeEach(async () => {
+      vi.clearAllMocks();
+
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          RecreationAssetService,
+          {
+            provide: PrismaService,
+            useValue: mockPrismaService,
+          },
+        ],
+      }).compile();
+
+      service = module.get<RecreationAssetService>(RecreationAssetService);
+      prismaService = module.get<PrismaService>(PrismaService);
+    });
+
+    it('should return paginated results with default limit and page when query is empty', async () => {
+      const mockTotal = 25;
+      mockPrismaService.$transaction.mockResolvedValue([
+        mockRawAssetList,
+        mockTotal,
       ]);
 
-      const result = await service.findAllAssets();
+      const query: FindAllAssetsQueryDto = {};
+      const result = await service.findAllAssets(query);
 
-      expect(prismaMock.recreation_asset.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ orderBy: { asset_id: 'asc' } }),
+      expect(mockPrismaService.$transaction).toHaveBeenCalledTimes(1);
+
+      // Verify findMany was called without relation include by default
+      expect(mockPrismaService.recreation_asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: {
+            asset_id: 'desc',
+          },
+          select: {
+            actual_value: true,
+            asset_area: true,
+            asset_code: true,
+            asset_comment: true,
+            asset_id: true,
+            asset_length: true,
+            asset_name: true,
+            asset_tag: true,
+            asset_width: true,
+            installation_date: true,
+            legacy_structure_id: true,
+            parent_id: true,
+            rec_resource_id: true,
+            recreation_asset_repair: false,
+          },
+          skip: 0,
+          take: 10,
+          where: {},
+        }),
       );
-      expect(result[0].asset_id).toBe(1);
+
+      expect(result).toEqual({
+        data: [
+          expect.objectContaining({
+            asset_id: 101,
+            parent_id: 100,
+            asset_tag: 'TAG-01',
+            rec_resource_id: 'REC10',
+            asset_code: 1,
+            asset_name: 'Campsite #1 Table',
+            actual_value: 1500,
+          }),
+          expect.objectContaining({
+            asset_id: 102,
+            parent_id: null,
+            asset_tag: 'TAG-02',
+            rec_resource_id: 'REC10',
+            asset_code: 2,
+            asset_name: 'Campsite #2 Bench',
+            actual_value: 800,
+          }),
+        ],
+        total: 25,
+        page: 1,
+        limit: 10,
+        totalPages: 3,
+      });
+    });
+
+    it('should pass include: { recreation_asset_repair: true } when include_repair is true', async () => {
+      mockPrismaService.$transaction.mockResolvedValue([mockRawAssetList, 2]);
+
+      const query: FindAllAssetsQueryDto = {
+        include_repair: true,
+      };
+
+      const result = await service.findAllAssets(query);
+
+      expect(mockPrismaService.recreation_asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: {
+            actual_value: true,
+            asset_area: true,
+            asset_code: true,
+            asset_comment: true,
+            asset_id: true,
+            asset_length: true,
+            asset_name: true,
+            asset_tag: true,
+            asset_width: true,
+            installation_date: true,
+            legacy_structure_id: true,
+            parent_id: true,
+            rec_resource_id: true,
+            recreation_asset_repair: true,
+          },
+        }),
+      );
+
+      expect(result.data).toHaveLength(2);
+    });
+
+    it('should NOT include repairs when include_repair is explicitly false', async () => {
+      mockPrismaService.$transaction.mockResolvedValue([mockRawAssetList, 2]);
+
+      const query: FindAllAssetsQueryDto = {
+        include_repair: false,
+      };
+
+      await service.findAllAssets(query);
+
+      expect(mockPrismaService.recreation_asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: {
+            actual_value: true,
+            asset_area: true,
+            asset_code: true,
+            asset_comment: true,
+            asset_id: true,
+            asset_length: true,
+            asset_name: true,
+            asset_tag: true,
+            asset_width: true,
+            installation_date: true,
+            legacy_structure_id: true,
+            parent_id: true,
+            rec_resource_id: true,
+            recreation_asset_repair: false,
+          },
+        }),
+      );
+    });
+
+    it('should correctly calculate skip offsets for custom page and limit', async () => {
+      mockPrismaService.$transaction.mockResolvedValue([[], 50]);
+
+      const query: FindAllAssetsQueryDto = { page: 3, limit: 15 };
+      await service.findAllAssets(query);
+
+      expect(mockPrismaService.recreation_asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 30,
+          take: 15,
+          orderBy: { asset_id: 'desc' },
+        }),
+      );
+    });
+
+    it('should apply exact equality filters (parent_id, rec_resource_id, asset_code, legacy_structure_id)', async () => {
+      mockPrismaService.$transaction.mockResolvedValue([[], 0]);
+
+      const query: FindAllAssetsQueryDto = {
+        parent_id: 100,
+        rec_resource_id: 'REC10',
+        asset_code: 5,
+        legacy_structure_id: 'LEG-99',
+      };
+
+      await service.findAllAssets(query);
+
+      const expectedWhere = {
+        parent_id: 100,
+        rec_resource_id: 'REC10',
+        asset_code: 5,
+        legacy_structure_id: 'LEG-99',
+      };
+
+      expect(mockPrismaService.recreation_asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expectedWhere }),
+      );
+      expect(mockPrismaService.recreation_asset.count).toHaveBeenCalledWith({
+        where: expectedWhere,
+      });
+    });
+
+    it('should apply case-insensitive contains filters for asset_tag and asset_name', async () => {
+      mockPrismaService.$transaction.mockResolvedValue([[], 0]);
+
+      const query: FindAllAssetsQueryDto = {
+        asset_tag: 'TAG',
+        asset_name: 'Bench',
+      };
+
+      await service.findAllAssets(query);
+
+      const expectedWhere = {
+        asset_tag: { contains: 'TAG', mode: 'insensitive' },
+        asset_name: { contains: 'Bench', mode: 'insensitive' },
+      };
+
+      expect(mockPrismaService.recreation_asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expectedWhere }),
+      );
+    });
+
+    it('should apply min and max range filters for actual_value', async () => {
+      mockPrismaService.$transaction.mockResolvedValue([[], 0]);
+
+      const query: FindAllAssetsQueryDto = {
+        min_actual_value: 100,
+        max_actual_value: 500,
+      };
+
+      await service.findAllAssets(query);
+
+      const expectedWhere = {
+        actual_value: {
+          gte: 100,
+          lte: 500,
+        },
+      };
+
+      expect(mockPrismaService.recreation_asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expectedWhere }),
+      );
+    });
+
+    it('should return totalPages as 0 when total items is 0', async () => {
+      mockPrismaService.$transaction.mockResolvedValue([[], 0]);
+
+      const result = await service.findAllAssets({});
+
+      expect(result.data).toEqual([]);
+      expect(result.total).toBe(0);
+      expect(result.totalPages).toBe(0);
     });
   });
 

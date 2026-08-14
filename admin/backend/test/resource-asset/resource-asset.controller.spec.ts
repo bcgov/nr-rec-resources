@@ -5,6 +5,7 @@ import { RecreationAssetService } from '@/resource-asset/service/resource-asset.
 import {
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
+  FindAllAssetsQueryDto,
   RecreationAssetBulkRepairDto,
   RecreationAssetBulkUpdateDto,
   RecreationAssetDto,
@@ -15,6 +16,7 @@ import {
 
 describe('RecreationAssetController', () => {
   let controller: RecreationAssetController;
+
   let serviceMock: {
     createAsset: ReturnType<typeof vi.fn>;
     findAllAssets: ReturnType<typeof vi.fn>;
@@ -93,6 +95,7 @@ describe('RecreationAssetController', () => {
 
   describe('findAllAssets', () => {
     it('should delegate to service.findAllAssets and return an array', async () => {
+      const query: FindAllAssetsQueryDto = {};
       const expectedResponse: RecreationAssetDto[] = [
         {
           asset_id: 1,
@@ -108,7 +111,7 @@ describe('RecreationAssetController', () => {
 
       serviceMock.findAllAssets.mockResolvedValue(expectedResponse);
 
-      const result = await controller.findAllAssets();
+      const result = await controller.findAllAssets(query);
 
       expect(serviceMock.findAllAssets).toHaveBeenCalledOnce();
       expect(result).toEqual(expectedResponse);
@@ -125,9 +128,9 @@ describe('RecreationAssetController', () => {
 
       serviceMock.findAssetById.mockResolvedValue(expectedResponse);
 
-      const result = await controller.findAssetById(5);
+      const result = await controller.findAssetById(5, false);
 
-      expect(serviceMock.findAssetById).toHaveBeenCalledWith(5);
+      expect(serviceMock.findAssetById).toHaveBeenCalledWith(5, false);
       expect(result).toEqual(expectedResponse);
     });
   });
