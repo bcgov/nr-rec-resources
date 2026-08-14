@@ -14,9 +14,11 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseBoolPipe,
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -29,6 +31,8 @@ import {
 import {
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
+  FindAllAssetsQueryDto,
+  PaginatedRecreationAssetDto,
   RecreationAssetBulkRepairDto,
   RecreationAssetBulkUpdateDto,
   RecreationAssetDto,
@@ -89,13 +93,23 @@ export class RecreationAssetController {
     ],
     ROLE_MODE.ANY,
   )
-  @ApiOperation({ summary: 'Retrieve all recreation assets' })
+  @ApiOperation({
+    summary: 'Retrieve recreation assets with filtering and pagination',
+  })
+  @ApiParam({
+    name: 'include_repair',
+    description: 'Include repair records',
+    type: Boolean,
+    required: false,
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: [RecreationAssetDto],
+    type: PaginatedRecreationAssetDto,
   })
-  async findAllAssets(): Promise<RecreationAssetDto[]> {
-    return this.assetService.findAllAssets();
+  async findAllAssets(
+    @Query() query: FindAllAssetsQueryDto,
+  ): Promise<PaginatedRecreationAssetDto> {
+    return this.assetService.findAllAssets(query);
   }
 
   @Get(':id')
@@ -109,14 +123,22 @@ export class RecreationAssetController {
   )
   @ApiOperation({ summary: 'Find a recreation asset by ID' })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
+  @ApiParam({
+    name: 'include_repair',
+    description: 'Include repair records',
+    type: Boolean,
+    required: false,
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: RecreationAssetDto,
   })
   async findAssetById(
     @Param('id', ParseIntPipe) id: number,
+    @Query('include_repair', new ParseBoolPipe({ optional: true }))
+    includeRepair: boolean = false,
   ): Promise<RecreationAssetDto> {
-    return this.assetService.findAssetById(id);
+    return this.assetService.findAssetById(id, includeRepair);
   }
 
   @Patch('bulk-update')

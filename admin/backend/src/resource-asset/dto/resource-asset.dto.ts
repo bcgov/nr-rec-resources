@@ -1,8 +1,9 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsDateString,
   IsInt,
   IsNotEmpty,
@@ -10,9 +11,12 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
   ValidateNested,
 } from 'class-validator';
+import { RecreationAssetRepairDto } from './resource-asset-repair.dto';
 
 /**
  * Base DTO containing shared asset attributes
@@ -167,6 +171,8 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
   })
   @IsInt()
   asset_id: number;
+
+  recreation_asset_repair?: RecreationAssetRepairDto[];
 }
 
 // Standard Partial DTO for fields that can be updated on an asset
@@ -195,4 +201,95 @@ export class RecreationAssetBulkUpdateDto {
   @ValidateNested()
   @Type(() => UpdateAssetFieldsDto)
   update_fields: UpdateAssetFieldsDto;
+}
+
+export class FindAllAssetsQueryDto {
+  // --- Pagination ---
+  @ApiPropertyOptional({ description: 'Page number (1-indexed)', default: 1 })
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  @IsOptional()
+  page?: number = 1;
+
+  @ApiPropertyOptional({ description: 'Number of items per page', default: 10 })
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @Type(() => Number)
+  @IsOptional()
+  limit?: number = 10;
+
+  // --- Filters ---
+  @ApiPropertyOptional({ description: 'Filter by exact Parent ID' })
+  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
+  parent_id?: number;
+
+  @ApiPropertyOptional({ description: 'Filter by asset tag (contains)' })
+  @IsString()
+  @IsOptional()
+  asset_tag?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by recreation resource ID' })
+  @IsString()
+  @IsOptional()
+  rec_resource_id?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by asset code' })
+  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
+  asset_code?: number;
+
+  @ApiPropertyOptional({ description: 'Filter by asset name (contains)' })
+  @IsString()
+  @IsOptional()
+  asset_name?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by legacy structure ID' })
+  @IsString()
+  @IsOptional()
+  legacy_structure_id?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by min actual value' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  min_actual_value?: number;
+
+  @ApiPropertyOptional({ description: 'Filter by max actual value' })
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  max_actual_value?: number;
+
+  // --- Include Repairs ---
+  @ApiPropertyOptional({
+    description: 'Include repair records in the asset response',
+    type: Boolean,
+  })
+  @IsBoolean()
+  @IsOptional()
+  // Converts query string values ("true" / "1") into native JS boolean
+  @Transform(({ value }) => value === 'true' || value === true || value === '1')
+  include_repair?: boolean = false;
+}
+
+export class PaginatedRecreationAssetDto {
+  @ApiProperty({ type: [RecreationAssetDto] })
+  data: RecreationAssetDto[];
+
+  @ApiProperty({ example: 42 })
+  total: number;
+
+  @ApiProperty({ example: 1 })
+  page: number;
+
+  @ApiProperty({ example: 10 })
+  limit: number;
+
+  @ApiProperty({ example: 5 })
+  totalPages: number;
 }
