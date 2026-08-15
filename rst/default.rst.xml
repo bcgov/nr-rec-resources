@@ -3,6 +3,7 @@
       <sequence increment="1" name="recreation_access_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_activity_code_recreation_activity_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_activity_code_trails_id_seq" startValue="1"/>
+      <sequence increment="1" name="recreation_asset_code_asset_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_fee_fdl_log_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_status_code_status_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_structure_code_structure_code_seq" startValue="1"/>
@@ -355,6 +356,180 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
+      <table name="recreation_asset" remarks="Individualised asset entities with parent-child relationships (e.g., Campsite → Table). Geometry stored in recreation_asset_geom." schema="rst" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="asset_id" nullable="false" remarks="Unique surrogate identifier for the individual asset." size="19" type="int8" typeCode="-5">
+            <child column="parent_id" foreignKey="fk_asset_parent" implied="false" onDeleteCascade="false" schema="rst" table="recreation_asset"/>
+            <child column="asset_id" foreignKey="fk_asset_geom_asset" implied="false" onDeleteCascade="true" schema="rst" table="recreation_asset_geom"/>
+            <child column="asset_id" foreignKey="fk_repair_asset" implied="false" onDeleteCascade="true" schema="rst" table="recreation_asset_repair"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="parent_id" nullable="true" remarks="ID of the parent container asset (e.g., Campsite, Day Use Area, Zone). NULL if top-level." size="19" type="int8" typeCode="-5">
+            <parent column="asset_id" foreignKey="fk_asset_parent" implied="false" onDeleteCascade="false" schema="rst" table="recreation_asset"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="asset_tag" nullable="true" remarks="Physical barcode, field tag, or campsite designation (e.g., CS-012, TBL-012-A)." size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="rec_resource_id" nullable="false" remarks="FK to the parent Recreation Resource / Site (rst.recreation_resource)." size="20" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="fk_asset_rec_resource" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="asset_code" nullable="false" remarks="Asset classification type (FK to rst.recreation_asset_code.asset_code)." size="10" type="int4" typeCode="4">
+            <parent column="asset_code" foreignKey="fk_asset_asset_code" implied="false" onDeleteCascade="false" schema="rst" table="recreation_asset_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="asset_name" nullable="true" remarks="Optional display name for the asset. UI defaults to asset_code description when null." size="200" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="asset_comment" nullable="true" remarks="Free-text note or migrated structure_name value for this asset." size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="legacy_structure_id" nullable="true" remarks="Informational string reference to the legacy aggregate recreation_structure record." size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="1" id="8" name="asset_length" nullable="true" remarks="Total length in metres (paths, boardwalks, fences, bridges)." size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="1" id="9" name="asset_width" nullable="true" remarks="Total width in metres (parking areas, shelters, docks)." size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="1" id="10" name="asset_area" nullable="true" remarks="Total area in square metres." size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="11" name="default_value" nullable="true" remarks="Default value for the asset, derived from the structure type value/dimension." size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="12" name="actual_value" nullable="true" remarks="Actual value of the asset; takes precedence over the default value when set." size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="installation_date" nullable="true" remarks="Date the asset was installed in the field." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="14" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="16" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="18" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="asset_id" sequenceNumberInPK="1"/>
+         <index name="recreation_asset_pkey" unique="true">
+            <column ascending="true" name="asset_id"/>
+         </index>
+         <index name="idx_recreation_asset_code" unique="false">
+            <column ascending="true" name="asset_code"/>
+         </index>
+         <index name="idx_recreation_asset_parent_id" unique="false">
+            <column ascending="true" name="parent_id"/>
+         </index>
+         <index name="idx_recreation_asset_site" unique="false">
+            <column ascending="true" name="rec_resource_id"/>
+         </index>
+         <checkConstraint constraint="(parent_id &lt;&gt; asset_id)" name="chk_no_self_parent"/>
+      </table>
+      <table name="recreation_asset_code" remarks="Codes describing the classification type of an individual recreation asset (e.g. Campsite, Table, Toilet). Not FTA-synced; managed internally." schema="rst" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('rst.recreation_asset_code_asset_code_seq'::regclass)" digits="0" id="0" name="asset_code" nullable="false" remarks="Surrogate primary key for the asset type code." size="10" type="serial" typeCode="4">
+            <child column="asset_code" foreignKey="fk_asset_asset_code" implied="false" onDeleteCascade="false" schema="rst" table="recreation_asset"/>
+            <child column="asset_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_asset_code_history"/>
+            <child column="asset_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_asset_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="true" remarks="Description of the asset type." size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="4" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="6" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="asset_code" sequenceNumberInPK="1"/>
+         <index name="recreation_asset_code_pkey" unique="true">
+            <column ascending="true" name="asset_code"/>
+         </index>
+      </table>
+      <table name="recreation_asset_code_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="asset_code" nullable="false" remarks="" size="10" type="int4" typeCode="4">
+            <parent column="asset_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_asset_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="true" remarks="" size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="4" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
+      <table name="recreation_asset_geom" remarks="1:1 geometry store for individual assets, separated from the main asset record for performance and schema clarity." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="asset_id" nullable="false" remarks="one geometry record per asset." size="19" type="int8" typeCode="-5">
+            <parent column="asset_id" foreignKey="fk_asset_geom_asset" implied="false" onDeleteCascade="true" schema="rst" table="recreation_asset"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="geometry_type_code" nullable="true" remarks="Short code describing the geometry type (e.g., PT = Point, LN = LineString, PY = Polygon)." size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="geometry" nullable="true" remarks="geometry for the asset." size="2147483647" type="geometry" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="3" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="asset_id" sequenceNumberInPK="1"/>
+         <index name="recreation_asset_geom_pkey" unique="true">
+            <column ascending="true" name="asset_id"/>
+         </index>
+         <index name="idx_recreation_asset_geom_geom" unique="false">
+            <column ascending="true" name="geometry"/>
+         </index>
+      </table>
+      <table name="recreation_asset_geom_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="asset_id" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="geometry_type_code" nullable="true" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="geometry" nullable="true" remarks="" size="2147483647" type="geometry" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="3" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
+      <table name="recreation_asset_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="asset_id" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="parent_id" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_fee_fdl_log"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="asset_tag" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="rec_resource_id" nullable="false" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="asset_code" nullable="false" remarks="" size="10" type="int4" typeCode="4">
+            <parent column="asset_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_asset_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="asset_name" nullable="true" remarks="" size="200" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="asset_comment" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="legacy_structure_id" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="1" id="8" name="asset_length" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="1" id="9" name="asset_width" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="1" id="10" name="asset_area" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="11" name="default_value" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="12" name="actual_value" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="installation_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="14" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="16" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
+      <table name="recreation_asset_repair" remarks="Repair and cost tracking records for individual assets." schema="rst" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="repair_id" nullable="false" remarks="Unique surrogate identifier for the repair log entry." size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="asset_id" nullable="false" remarks="FK linking to the individual asset being repaired." size="19" type="int8" typeCode="-5">
+            <parent column="asset_id" foreignKey="fk_repair_asset" implied="false" onDeleteCascade="true" schema="rst" table="recreation_asset"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="recreation_remed_repair_code" nullable="true" remarks="Remedial repair classification code (FK to rst.recreation_remed_repair_code)." size="2" type="varchar" typeCode="12">
+            <parent column="recreation_remed_repair_code" foreignKey="fk_repair_remed_code" implied="false" onDeleteCascade="false" schema="rst" table="recreation_remed_repair_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="3" name="estimated_repair_cost" nullable="true" remarks="Estimated financial cost for the repair work." size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="4" name="actual_repair_cost" nullable="true" remarks="Final actual financial cost incurred after completion." size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="repair_completed_date" nullable="true" remarks="Date the repair work was completed." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="urgency" nullable="true" remarks="Urgency/priority of the repair." size="25" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="trail_segment_start" nullable="true" remarks="Optional trail segment start reference for trail-related repairs." size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="trail_segment_end" nullable="true" remarks="Optional trail segment end reference for trail-related repairs." size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="9" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="11" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="13" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="repair_id" sequenceNumberInPK="1"/>
+         <index name="recreation_asset_repair_pkey" unique="true">
+            <column ascending="true" name="repair_id"/>
+         </index>
+         <index name="idx_asset_repair_asset_id" unique="false">
+            <column ascending="true" name="asset_id"/>
+         </index>
+      </table>
+      <table name="recreation_asset_repair_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="repair_id" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="asset_id" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="recreation_remed_repair_code" nullable="true" remarks="" size="2" type="varchar" typeCode="12">
+            <parent column="recreation_remed_repair_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_remed_repair_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="3" name="estimated_repair_cost" nullable="true" remarks="" size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="4" name="actual_repair_cost" nullable="true" remarks="" size="10" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="repair_completed_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="urgency" nullable="true" remarks="" size="25" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="trail_segment_start" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="trail_segment_end" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="9" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="11" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
       <table name="recreation_control_access_code" remarks="Describes the Controlled Access Code for a rec resource. E.g. “Gated”, “Restricted Use”." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="recreation_control_access_code" nullable="false" remarks="The Controlled Access Code for a rec resource. E.g. “Gated”, “Restricted Use”." size="1" type="varchar" typeCode="12">
             <child column="recreation_control_access_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_control_access_code_history"/>
@@ -642,7 +817,9 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_fee_fdl_log" remarks="Append-only audit log recording each time a fee determination letter was confirmed by staff when creating or updating a recreation fee." schema="rst" type="TABLE">
-         <column autoUpdated="true" defaultValue="nextval('rst.recreation_fee_fdl_log_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="Surrogate primary key." size="19" type="bigserial" typeCode="-5"/>
+         <column autoUpdated="true" defaultValue="nextval('rst.recreation_fee_fdl_log_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="Surrogate primary key." size="19" type="bigserial" typeCode="-5">
+            <child column="parent_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_asset_history"/>
+         </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="fee_id" nullable="false" remarks="Foreign key to the recreation fee this confirmation relates to." size="10" type="int4" typeCode="4">
             <parent column="fee_id" foreignKey="recreation_fee_fdl_log_fee_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee"/>
          </column>
@@ -926,6 +1103,8 @@
       </table>
       <table name="recreation_remed_repair_code" remarks="Codes describing types of remedial repairs for recreation structures." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="recreation_remed_repair_code" nullable="false" remarks="Indicates the type of remedial repair applicable to the defined campsite." size="2" type="varchar" typeCode="12">
+            <child column="recreation_remed_repair_code" foreignKey="fk_repair_remed_code" implied="false" onDeleteCascade="false" schema="rst" table="recreation_asset_repair"/>
+            <child column="recreation_remed_repair_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_asset_repair_history"/>
             <child column="recreation_remed_repair_code" foreignKey="recreation_defined_campsite_recreation_remed_repair_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_defined_campsite"/>
             <child column="recreation_remed_repair_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_defined_campsite_history"/>
             <child column="recreation_remed_repair_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_remed_repair_code_history"/>
@@ -956,6 +1135,8 @@
             <child column="rec_resource_id" foreignKey="recreation_activity_code_trails_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_activity_code_trails"/>
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_activity_code_trails_history"/>
             <child column="rec_resource_id" foreignKey="recreation_agreement_holder_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_agreement_holder"/>
+            <child column="rec_resource_id" foreignKey="fk_asset_rec_resource" implied="false" onDeleteCascade="false" schema="rst" table="recreation_asset"/>
+            <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_asset_history"/>
             <child column="rec_resource_id" foreignKey="recreation_defined_campsite_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_defined_campsite"/>
             <child column="rec_resource_id" foreignKey="recreation_driving_direction_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_driving_direction"/>
             <child column="rec_resource_id" foreignKey="recreation_establishment_order_docs_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_establishment_order_docs"/>
@@ -1001,6 +1182,8 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="rec_status_code" nullable="true" remarks="Site status value for a recreation resource. Sourced from fta.recreation_file_status_code.file_status_st." size="50" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="arch_impact_assess_ind" nullable="true" remarks="Indicates if an archaeological impact assessment has been performed. Y or N. Sourced from fta.recreation_project.arch_impact_assess_ind." size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="18" name="resource_feature_ind" nullable="true" remarks="Indicates whether this is a resource feature established under the Government Action Regulation." size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="last_rec_inspection_date" nullable="true" remarks="The last date of inspection for the recreation resource. Sourced from fta.recreation_project.last_rec_inspection_date." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="last_hzrd_tree_assess_date" nullable="true" remarks="The date of the last hazard tree assessment for the recreation resource. Sourced from fta.recreation_project.last_hzrd_tree_assess_date." size="13" type="date" typeCode="91"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_resource_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
@@ -1135,6 +1318,10 @@
          </column>
          <column autoUpdated="false" defaultValue="null" digits="1" id="15" name="right_of_way" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="rec_status_code" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="arch_impact_assess_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="18" name="resource_feature_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="last_rec_inspection_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="last_hzrd_tree_assess_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
       </table>
       <table name="recreation_resource_image" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="image_id" nullable="false" remarks="Unique UUID identifier for the image" size="2147483647" type="uuid" typeCode="1111">

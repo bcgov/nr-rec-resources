@@ -131,6 +131,16 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
+                                                <td title="recreation_asset_repair.recreation_remed_repair_code references recreation_remed_repair_code.recreation_remed_repair_code via fk_repair_remed_code"><a href='recreation_asset_repair.html'>recreation_asset_repair</a><span class='relatedKey'>.recreation_remed_repair_code</span></td>
+                                                <td class="constraint detail">fk_repair_remed_code</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="recreation_asset_repair_history.recreation_remed_repair_code&#39;s name implies that it&#39;s a child of recreation_remed_repair_code.recreation_remed_repair_code, but it doesn&#39;t reference that column."><a href='recreation_asset_repair_history.html'>recreation_asset_repair_history</a><span class='relatedKey'>.recreation_remed_repair_code</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="recreation_defined_campsite.recreation_remed_repair_code references recreation_remed_repair_code.recreation_remed_repair_code via recreation_defined_campsite_recreation_remed_repair_code_fkey"><a href='recreation_defined_campsite.html'>recreation_defined_campsite</a><span class='relatedKey'>.recreation_remed_repair_code</span></td>
                                                 <td class="constraint detail">recreation_defined_campsite_recreation_remed_repair_code_fkey</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -265,35 +275,43 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="507,5,816,181">
-<area shape="rect" id="node2" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="5,61,463,248">
+<area shape="rect" id="node1" href="recreation_asset_repair.html" target="_top" title="recreation_asset_repair" alt="" coords="516,5,807,181">
+<area shape="rect" id="node2" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="5,159,463,345">
+<area shape="rect" id="node3" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="507,199,816,375">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_remed_repair_code.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="507,29,816,205">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="114,5,354,93">
-<area shape="rect" id="node3" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="5,111,463,297">
+<area shape="rect" id="node1" href="recreation_asset.html" target="_top" title="recreation_asset" alt="" coords="412,277,624,365">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,138,245,226">
+<area shape="rect" id="node3" href="recreation_asset_repair.html" target="_top" title="recreation_asset_repair" alt="" coords="800,223,1091,399">
+<area shape="rect" id="node4" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="289,73,747,259">
+<area shape="rect" id="node5" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="791,7,1100,183">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_remed_repair_code.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="544,5,853,181">
-<area shape="rect" id="node2" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="5,196,463,383">
-<area shape="rect" id="node3" href="recreation_defined_campsite_history.html" target="_top" title="recreation_defined_campsite_history" alt="" coords="512,199,885,316">
-<area shape="rect" id="node4" href="recreation_remed_repair_code_history.html" target="_top" title="recreation_remed_repair_code_history" alt="" coords="507,333,891,451">
+<area shape="rect" id="node1" href="recreation_asset_repair.html" target="_top" title="recreation_asset_repair" alt="" coords="553,5,844,181">
+<area shape="rect" id="node2" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="5,389,463,576">
+<area shape="rect" id="node3" href="recreation_asset_repair_history.html" target="_top" title="recreation_asset_repair_history" alt="" coords="534,199,863,316">
+<area shape="rect" id="node4" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="544,333,853,509">
+<area shape="rect" id="node5" href="recreation_defined_campsite_history.html" target="_top" title="recreation_defined_campsite_history" alt="" coords="512,527,885,644">
+<area shape="rect" id="node6" href="recreation_remed_repair_code_history.html" target="_top" title="recreation_remed_repair_code_history" alt="" coords="507,661,891,779">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_remed_repair_code.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="544,5,853,181">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="114,8,354,96">
-<area shape="rect" id="node3" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="5,196,463,383">
-<area shape="rect" id="node4" href="recreation_defined_campsite_history.html" target="_top" title="recreation_defined_campsite_history" alt="" coords="512,199,885,316">
-<area shape="rect" id="node5" href="recreation_remed_repair_code_history.html" target="_top" title="recreation_remed_repair_code_history" alt="" coords="507,333,891,451">
+<area shape="rect" id="node1" href="recreation_asset.html" target="_top" title="recreation_asset" alt="" coords="412,193,624,281">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,120,245,208">
+<area shape="rect" id="node3" href="recreation_asset_repair.html" target="_top" title="recreation_asset_repair" alt="" coords="837,199,1128,375">
+<area shape="rect" id="node4" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="289,389,747,576">
+<area shape="rect" id="node5" href="recreation_asset_repair_history.html" target="_top" title="recreation_asset_repair_history" alt="" coords="818,392,1147,509">
+<area shape="rect" id="node6" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="828,5,1137,181">
+<area shape="rect" id="node7" href="recreation_defined_campsite_history.html" target="_top" title="recreation_defined_campsite_history" alt="" coords="796,527,1169,644">
+<area shape="rect" id="node8" href="recreation_remed_repair_code_history.html" target="_top" title="recreation_remed_repair_code_history" alt="" coords="791,661,1175,779">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_remed_repair_code.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
