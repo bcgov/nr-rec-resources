@@ -28,7 +28,6 @@ export interface AssetRepair {
   estimated_repair_cost: number | null;
   actual_repair_cost: number | null;
   repair_completed_date: string | null;
-  urgency: string | null;
   created_by: string | null;
   created_at: string | null;
   updated_by: string | null;
@@ -51,6 +50,12 @@ export interface AssetGeom {
 /** rst.recreation_structure_code lookup */
 export interface RecreationStructureCode {
   structure_code: number;
+  description: string;
+}
+
+/** rst.recreation_remed_repair_code lookup */
+export interface RecreationRepairCode {
+  repair_code: string;
   description: string;
 }
 

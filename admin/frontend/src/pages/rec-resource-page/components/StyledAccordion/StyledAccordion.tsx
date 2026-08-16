@@ -7,6 +7,7 @@ export interface StyledAccordionProps {
   title: ReactNode;
   children: ReactNode;
   className?: string;
+  defaultOpen?: boolean;
 }
 
 export const StyledAccordion = ({
@@ -14,9 +15,10 @@ export const StyledAccordion = ({
   title,
   children,
   className = '',
+  defaultOpen = true,
 }: StyledAccordionProps) => (
   <Accordion
-    defaultActiveKey={eventKey}
+    defaultActiveKey={defaultOpen ? eventKey : undefined}
     className={`styled-accordion ${className}`}
   >
     <Accordion.Item eventKey={eventKey} className="styled-accordion__item">

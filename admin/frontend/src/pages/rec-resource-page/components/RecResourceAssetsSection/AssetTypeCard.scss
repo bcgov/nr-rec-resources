@@ -1,0 +1,83 @@
+@import '@shared/styles/variables';
+
+// `.styled-accordion` is per-instance; scope the border/flex overrides to this card.
+.asset-type-card {
+  .accordion-item {
+    border: 1px solid #{$colorGreyLight};
+  }
+
+  .styled-accordion__item {
+    padding: 0;
+  }
+
+  // Pin the chevron to the start of the header row in every state.
+  .accordion-button::after {
+    order: -1;
+    margin-left: 0;
+    margin-right: 0.75rem;
+  }
+
+  // Let the title span fill the header row so total-value can sit at the end.
+  // (`display: flex` here instead of a `width: 100%` on the child below —
+  // a percentage width creates a circular dependency against this span's
+  // own content-based `flex-basis: auto`, which resolves to 0 on reflow.)
+  .styled-accordion__title {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.asset-type-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.asset-type-card__heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.asset-type-card__description {
+  color: #{$colorGrey};
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1.2rem; // 19.2px
+  line-height: 1.4375; // 27.6px at this size
+}
+
+.asset-type-card__count .custom-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem; // 28px
+  min-height: 1.8125rem; // 29px
+  padding: 0.25rem 0.625rem; // 4px 10px
+  border-radius: 1rem; // 16px
+
+  // Spec calls for Noto Sans specifically here, unlike the rest of the card.
+  font-family:
+    'Noto Sans',
+    #{$globalFont};
+  font-weight: 700;
+  font-size: 0.875rem; // 14px
+  line-height: 1.5; // 150%
+}
+
+.asset-type-card__total-value {
+  color: #{$colorGrey};
+  font-weight: var(--typography-font-weights-regular, 400);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1rem; // 16px
+  line-height: 1.6; // 25.6px
+  white-space: nowrap;
+  flex-shrink: 0;
+}

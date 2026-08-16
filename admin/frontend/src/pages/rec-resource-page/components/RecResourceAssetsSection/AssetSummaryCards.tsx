@@ -1,39 +1,30 @@
 import { Col, Row } from 'react-bootstrap';
 import { formatDateReadable } from '@shared/utils';
 import { SummaryCard } from './SummaryCard';
+import { formatCurrency } from './formatCurrency';
 import type { AssetSummary } from './types';
 import resourceInspection from '@shared/assets/icons/asset-type.svg';
 import dangerTreeAssessment from '@shared/assets/icons/danger-tree-inspection.svg';
 
-const currencyFormatter = new Intl.NumberFormat('en-CA', {
-  style: 'currency',
-  currency: 'CAD',
-  maximumFractionDigits: 0,
-});
-
-const formatCurrency = (value: number) => currencyFormatter.format(value);
-
 interface AssetSummaryCardsProps {
   summary: AssetSummary;
-  showStructuresCard: boolean;
 }
 
-export function AssetSummaryCards({
-  summary,
-  showStructuresCard,
-}: AssetSummaryCardsProps) {
+export function AssetSummaryCards({ summary }: AssetSummaryCardsProps) {
   return (
     <Row className="g-3 row-cols-1 row-cols-sm-2 row-cols-xl-4">
-      {showStructuresCard ? (
-        <Col>
-          <SummaryCard
-            title="Structures"
-            subtitle={`${summary.total_campsites} campsites`}
-          >
-            <div className="summary-card__value">{summary.total_assets}</div>
-          </SummaryCard>
-        </Col>
-      ) : null}
+      <Col>
+        <SummaryCard
+          title="Structures"
+          subtitle={
+            summary.total_campsites > 0
+              ? `${summary.total_campsites} campsites`
+              : undefined
+          }
+        >
+          <div className="summary-card__value">{summary.total_assets}</div>
+        </SummaryCard>
+      </Col>
 
       <Col>
         <SummaryCard

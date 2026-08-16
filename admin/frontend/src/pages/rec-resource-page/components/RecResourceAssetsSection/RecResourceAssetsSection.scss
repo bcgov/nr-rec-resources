@@ -10,6 +10,14 @@
 
 .asset-summary-toolbar {
   height: 2.375rem; // 38px
+
+  // Not enough room for the toggle + action buttons on one line below this
+  // width (covers tablets up to iPad Pro portrait's 1024px, not just phones)
+  // — let the action buttons drop to their own row instead of crowding.
+  @media (max-width: ($xlBreakpoint - 0.02px)) {
+    height: auto;
+    flex-wrap: wrap;
+  }
 }
 
 // `.btn` beats .btn-outline-primary's specificity regardless of source order.
@@ -17,6 +25,8 @@
   display: inline-flex;
   align-items: center;
   height: 2.375rem; // 38px
+  flex-shrink: 0;
+  white-space: nowrap;
   --bs-btn-padding-y: 0.5rem; // 8px
   --bs-btn-padding-x: 0.875rem; // 14px
 
@@ -52,4 +62,22 @@
   height: 96%;
   --bs-btn-padding-y: 0.25rem; // 4px
   --bs-btn-padding-x: 0.875rem; // 14px
+}
+
+.campsite-children {
+  display: flex;
+  align-items: stretch;
+}
+
+.campsite-children__divider {
+  width: 0.5rem; // 8px
+  margin-left: 1.375rem; // 22px
+  margin-right: 0.875rem; // 14px
+  background-color: #{$colorGreyLight};
+  flex-shrink: 0;
+}
+
+.campsite-children__list {
+  flex: 1 1 auto;
+  min-width: 0;
 }

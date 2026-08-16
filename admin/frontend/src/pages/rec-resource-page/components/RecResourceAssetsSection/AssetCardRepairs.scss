@@ -1,0 +1,65 @@
+@import '@shared/styles/variables';
+
+.asset-card-repairs {
+  margin-top: 0.5rem;
+}
+
+// `.btn` sets a global font-weight: 700 and height: 48px; `.btn.<class>` reliably beats both.
+.btn.asset-card__expand-link {
+  padding: 0;
+  height: auto;
+  color: #{$colorBlueMed};
+  font-weight: var(--typography-font-weights-regular, 400);
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: #{$colorBlueMed};
+    text-decoration: underline;
+  }
+}
+
+.asset-card-repairs__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
+}
+
+.asset-card-repairs__item {
+  background-color: #{$colorIceBlue};
+  border-radius: var(--bs-border-radius, 0.375rem);
+  padding: 0.5rem 0.75rem;
+}
+
+.asset-card-repairs__item-title {
+  color: #{$colorGrey};
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1.2rem; // 19.2px
+  line-height: 1.4375; // 27.6px at this size
+}
+
+.asset-card-repairs__item-fields {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.5rem;
+  row-gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.asset-card-repairs__item-field-label {
+  font-weight: var(--typography-font-weights-bold, 700);
+}
+
+.asset-card-repairs__add-btn {
+  margin-top: 1rem;
+}
+
+.asset-card-repairs__empty {
+  margin-top: 0.5rem;
+  color: #{$colorGreyMed};
+  font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
+}
