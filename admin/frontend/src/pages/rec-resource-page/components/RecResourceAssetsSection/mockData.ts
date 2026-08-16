@@ -3,6 +3,7 @@ import type {
   AssetGeom,
   AssetRepair,
   AssetSummary,
+  RecreationRepairCode,
   RecreationStructureCode,
 } from './types';
 
@@ -13,6 +14,12 @@ export const MOCK_STRUCTURE_CODES: RecreationStructureCode[] = [
   { structure_code: 6, description: 'Fire ring' },
   { structure_code: 7, description: 'Sign' },
   { structure_code: 14, description: 'Waste bin' },
+];
+
+export const MOCK_REPAIR_CODES: RecreationRepairCode[] = [
+  { repair_code: 'MI', description: 'Minor repair' },
+  { repair_code: 'MA', description: 'Major repair' },
+  { repair_code: 'BR', description: 'Beam replacement' },
 ];
 
 const audit = {
@@ -80,13 +87,30 @@ function buildAssets(recResourceId: string): Asset[] {
 
 const repairs: AssetRepair[] = [
   {
+    repair_id: 5000,
+    asset_id: 1,
+    recreation_remed_repair_code: 'MI',
+    estimated_repair_cost: 300,
+    actual_repair_cost: null,
+    repair_completed_date: null, // outstanding
+    ...audit,
+  },
+  {
+    repair_id: 5004,
+    asset_id: 1,
+    recreation_remed_repair_code: 'BR',
+    estimated_repair_cost: 6200,
+    actual_repair_cost: 5950,
+    repair_completed_date: '2024-03-14',
+    ...audit,
+  },
+  {
     repair_id: 5001,
     asset_id: 4,
     recreation_remed_repair_code: 'MI',
     estimated_repair_cost: 520,
     actual_repair_cost: null,
     repair_completed_date: null, // outstanding
-    urgency: 'Medium',
     ...audit,
   },
   {
@@ -96,7 +120,6 @@ const repairs: AssetRepair[] = [
     estimated_repair_cost: 7400,
     actual_repair_cost: null,
     repair_completed_date: null, // outstanding
-    urgency: 'High',
     ...audit,
   },
   {
@@ -106,7 +129,6 @@ const repairs: AssetRepair[] = [
     estimated_repair_cost: 450,
     actual_repair_cost: 420,
     repair_completed_date: '2024-06-25',
-    urgency: 'Low',
     ...audit,
   },
 ];
@@ -160,6 +182,7 @@ export function getMockAssetSummary(_recResourceId: string): AssetSummary {
   return {
     total_assets: rows.length,
     total_campsites: rows.filter(([, code]) => code === 1).length,
+    // total_campsites: rows.filter(([, code]) => code === 1).length,
     total_value: rows.reduce((sum, r) => sum + (r[8] ?? r[7] ?? 0), 0),
     outstanding_repairs: repairs.filter((r) => !r.repair_completed_date).length,
     spent_to_date: repairs.reduce(
