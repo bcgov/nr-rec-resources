@@ -4,6 +4,7 @@ import { Stack, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CustomButton } from '@/components';
+import { AddRepairModal } from './AddRepairModal';
 import { AssetCard } from './AssetCard';
 import { AssetSummaryCards } from './AssetSummaryCards';
 import { AssetTypeCard } from './AssetTypeCard';
@@ -26,6 +27,7 @@ export function RecResourceAssetsSection() {
   const { id: recResourceId } = useParams({ from: '/rec-resource/$id' });
   const summary = getMockAssetSummary(recResourceId);
   const [groupMode, setGroupMode] = useState<AssetGroupMode>('type');
+  const [isAddRepairModalOpen, setIsAddRepairModalOpen] = useState(false);
   const assets = getMockAssets(recResourceId);
   const typeGroups = groupAssetsByType(
     assets,
@@ -93,6 +95,7 @@ export function RecResourceAssetsSection() {
             variant="secondary"
             className="asset-summary-action-btn"
             leftIcon={<FontAwesomeIcon icon={faPlus} />}
+            onClick={() => setIsAddRepairModalOpen(true)}
           >
             Add repair
           </CustomButton>
@@ -164,6 +167,12 @@ export function RecResourceAssetsSection() {
           ))}
         </Stack>
       )}
+
+      <AddRepairModal
+        show={isAddRepairModalOpen}
+        onCancel={() => setIsAddRepairModalOpen(false)}
+        onCreate={() => setIsAddRepairModalOpen(false)}
+      />
     </Stack>
   );
 }
