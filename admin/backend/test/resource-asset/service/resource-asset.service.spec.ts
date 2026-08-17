@@ -140,6 +140,7 @@ describe('RecreationAssetService', () => {
         asset_width: 3.0,
         asset_area: 37.5,
         actual_value: 1500,
+        default_value: 1600,
         installation_date: new Date('2023-01-01T00:00:00.000Z'),
       };
 
@@ -157,6 +158,7 @@ describe('RecreationAssetService', () => {
         asset_width: 3.0,
         asset_area: 37.5,
         actual_value: 1500,
+        default_value: 1600,
         installation_date: '2023-01-01',
       };
 
@@ -175,6 +177,7 @@ describe('RecreationAssetService', () => {
           asset_width: 3.0,
           asset_area: 37.5,
           actual_value: 1500,
+          default_value: 1600,
           installation_date: new Date('2023-01-01'),
         },
       });
@@ -192,7 +195,7 @@ describe('RecreationAssetService', () => {
         asset_width: 3.0,
         asset_area: 37.5,
         actual_value: 1500,
-        default_value: null,
+        default_value: 1600,
         installation_date: '2023-01-01',
         recreation_asset_repair: null,
       });
@@ -217,6 +220,7 @@ describe('RecreationAssetService', () => {
         asset_width: null,
         asset_area: null,
         actual_value: null,
+        default_value: null,
         installation_date: null,
       });
 
@@ -240,6 +244,7 @@ describe('RecreationAssetService', () => {
           asset_width: null,
           asset_area: null,
           actual_value: null,
+          default_value: null,
           installation_date: null,
         },
       });
@@ -266,7 +271,7 @@ describe('RecreationAssetService', () => {
         asset_width: null,
         asset_area: null,
         actual_value: 1500,
-        default_value: null,
+        default_value: 1600,
         installation_date: null,
         recreation_asset_repair: [
           {
@@ -291,7 +296,7 @@ describe('RecreationAssetService', () => {
         asset_width: null,
         asset_area: null,
         actual_value: 800,
-        default_value: null,
+        default_value: 900,
         installation_date: null,
         recreation_asset_repair: [],
       },
@@ -346,6 +351,7 @@ describe('RecreationAssetService', () => {
             asset_code: true,
             asset_comment: true,
             asset_id: true,
+            default_value: true,
             asset_length: true,
             asset_name: true,
             asset_tag: true,
@@ -372,6 +378,7 @@ describe('RecreationAssetService', () => {
             asset_code: 1,
             asset_name: 'Campsite #1 Table',
             actual_value: 1500,
+            default_value: 1600,
           }),
           expect.objectContaining({
             asset_id: 102,
@@ -381,6 +388,7 @@ describe('RecreationAssetService', () => {
             asset_code: 2,
             asset_name: 'Campsite #2 Bench',
             actual_value: 800,
+            default_value: 900,
           }),
         ],
         total: 25,
@@ -403,6 +411,7 @@ describe('RecreationAssetService', () => {
         expect.objectContaining({
           select: {
             actual_value: true,
+            default_value: true,
             asset_area: true,
             asset_code: true,
             asset_comment: true,
@@ -436,6 +445,7 @@ describe('RecreationAssetService', () => {
         expect.objectContaining({
           select: {
             actual_value: true,
+            default_value: true,
             asset_area: true,
             asset_code: true,
             asset_comment: true,
@@ -611,6 +621,7 @@ describe('RecreationAssetService', () => {
         asset_width: 5,
         asset_area: 50,
         actual_value: 200,
+        default_value: 300,
         installation_date: new Date('2023-05-15T00:00:00.000Z'),
       });
 
@@ -625,7 +636,7 @@ describe('RecreationAssetService', () => {
         asset_length: 10,
         asset_width: 5,
         asset_area: 50,
-        default_value: 100,
+        default_value: 300,
         actual_value: 200,
         installation_date: '2023-05-15',
       };
@@ -645,7 +656,7 @@ describe('RecreationAssetService', () => {
           asset_length: 10,
           asset_width: 5,
           asset_area: 50,
-          default_value: 100,
+          default_value: 300,
           actual_value: 200,
           installation_date: new Date('2023-05-15'),
         },

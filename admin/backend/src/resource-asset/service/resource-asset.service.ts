@@ -70,6 +70,7 @@ export class RecreationAssetService {
         asset_width: dto.asset_width ?? null,
         asset_area: dto.asset_area ?? null,
         actual_value: dto.actual_value ?? null,
+        default_value: dto.default_value ?? null,
         installation_date: dto.installation_date
           ? new Date(dto.installation_date)
           : null,
@@ -140,6 +141,7 @@ export class RecreationAssetService {
           asset_width: true,
           asset_area: true,
           actual_value: true,
+          default_value: true,
           installation_date: true,
           recreation_asset_repair: includeRepair,
         },
@@ -178,6 +180,7 @@ export class RecreationAssetService {
         asset_width: true,
         asset_area: true,
         actual_value: true,
+        default_value: true,
         installation_date: true,
         recreation_asset_repair: includeRepair,
       },
@@ -266,7 +269,6 @@ export class RecreationAssetService {
       throw new BadRequestException('At least one asset_id must be provided.');
     }
 
-    // Prevent explicitly setting NOT NULL fields to null
     if (update_fields.rec_resource_id === null) {
       throw new BadRequestException('rec_resource_id cannot be null');
     }
@@ -276,59 +278,27 @@ export class RecreationAssetService {
     // 2. Ensure all specified assets exist
     await this.ensureAssetsExist(uniqueIds);
 
-    // 3. Build data payload dynamically based on non-undefined fields
-    const dataToUpdate: Prisma.recreation_assetUncheckedUpdateInput = {};
+    // 3. Build data payload dynamically using a field transformation map
+    const fieldTransformers: Record<string, (val: any) => any> = {
+      parent_id: (val) => (val ? BigInt(val) : null),
+      installation_date: (val) => (val ? new Date(val) : null),
+    };
 
-    if (update_fields.parent_id !== undefined) {
-      dataToUpdate.parent_id = update_fields.parent_id
-        ? BigInt(update_fields.parent_id)
-        : null;
-    }
-    if (update_fields.asset_tag !== undefined) {
-      dataToUpdate.asset_tag = update_fields.asset_tag;
-    }
-    if (update_fields.rec_resource_id !== undefined) {
-      dataToUpdate.rec_resource_id = update_fields.rec_resource_id;
-    }
-    if (update_fields.asset_code !== undefined) {
-      dataToUpdate.asset_code = update_fields.asset_code;
-    }
-    if (update_fields.asset_name !== undefined) {
-      dataToUpdate.asset_name = update_fields.asset_name;
-    }
-    if (update_fields.asset_comment !== undefined) {
-      dataToUpdate.asset_comment = update_fields.asset_comment;
-    }
-    if (update_fields.legacy_structure_id !== undefined) {
-      dataToUpdate.legacy_structure_id = update_fields.legacy_structure_id;
-    }
-    if (update_fields.asset_length !== undefined) {
-      dataToUpdate.asset_length = update_fields.asset_length;
-    }
-    if (update_fields.asset_width !== undefined) {
-      dataToUpdate.asset_width = update_fields.asset_width;
-    }
-    if (update_fields.asset_area !== undefined) {
-      dataToUpdate.asset_area = update_fields.asset_area;
-    }
-    if (update_fields.default_value !== undefined) {
-      dataToUpdate.default_value = update_fields.default_value;
-    }
-    if (update_fields.actual_value !== undefined) {
-      dataToUpdate.actual_value = update_fields.actual_value;
-    }
-    if (update_fields.installation_date !== undefined) {
-      dataToUpdate.installation_date = update_fields.installation_date
-        ? new Date(update_fields.installation_date)
-        : null;
-    }
+    const dataToUpdate: Prisma.recreation_assetUncheckedUpdateInput = {
+      updated_at: new Date(),
+    };
 
-    dataToUpdate.updated_at = new Date();
+    for (const [key, value] of Object.entries(update_fields)) {
+      if (value !== undefined) {
+        const transform = fieldTransformers[key];
+        dataToUpdate[key] = transform ? transform(value) : value;
+      }
+    }
 
     const result = await this.prisma.recreation_asset.updateMany({
       where: {
         asset_id: {
-          in: uniqueIds.map((id) => BigInt(id)),
+          in: uniqueIds.map(BigInt),
         },
       },
       data: dataToUpdate,
@@ -512,7 +482,7 @@ export class RecreationAssetService {
     const existingCount = await this.prisma.recreation_asset.count({
       where: {
         asset_id: {
-          in: assetIds.map((id) => BigInt(id)),
+          in: assetIds.map(BigInt),
         },
       },
     });
