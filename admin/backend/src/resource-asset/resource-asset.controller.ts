@@ -142,6 +142,14 @@ export class RecreationAssetController {
   }
 
   @Patch('bulk-update')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Bulk update common fields across multiple recreation assets',
@@ -163,6 +171,14 @@ export class RecreationAssetController {
   }
 
   @Patch(':id')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @ApiOperation({ summary: 'Update an existing recreation asset' })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
   @ApiResponse({
@@ -177,6 +193,7 @@ export class RecreationAssetController {
   }
 
   @Delete(':id')
+  @AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN])
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a recreation asset' })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
@@ -190,6 +207,14 @@ export class RecreationAssetController {
   // =========================================================================
 
   @Post(':id/repairs')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @ApiOperation({ summary: 'Create a repair record for an asset' })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
   @ApiResponse({
@@ -212,6 +237,14 @@ export class RecreationAssetController {
     ],
     ROLE_MODE.ANY,
   )
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @ApiOperation({ summary: 'Get all repair records for an asset' })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
   @ApiResponse({
@@ -225,6 +258,14 @@ export class RecreationAssetController {
   }
 
   @Patch('repairs/:repairId')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @ApiOperation({ summary: 'Update a repair record' })
   @ApiParam({ name: 'repairId', description: 'Repair ID', type: Number })
   @ApiResponse({
@@ -239,6 +280,14 @@ export class RecreationAssetController {
   }
 
   @Delete('repairs/:repairId')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a repair record' })
   @ApiParam({ name: 'repairId', description: 'Repair ID', type: Number })
@@ -250,6 +299,14 @@ export class RecreationAssetController {
   }
 
   @Post('bulk-repairs')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Bulk create or record repairs across multiple recreation assets',
