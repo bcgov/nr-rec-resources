@@ -142,7 +142,11 @@ describe('RecreationAssetController', () => {
         update_fields: { asset_name: 'Updated Bulk Name' },
       };
 
-      const expectedResponse = { count: 3 };
+      const expectedResponse = {
+        status: 'success',
+        updated_count: 3,
+        updated_asset_ids: [1, 2, 3],
+      };
 
       serviceMock.bulkUpdateAssets.mockResolvedValue(expectedResponse);
 
