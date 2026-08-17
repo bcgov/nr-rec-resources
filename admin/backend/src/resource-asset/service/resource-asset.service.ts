@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@/prisma.service';
 import {
+  BulkAssetUpdateResponseDto,
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
   FindAllAssetsQueryDto,
@@ -257,7 +258,7 @@ export class RecreationAssetService {
 
   async bulkUpdateAssets(
     dto: RecreationAssetBulkUpdateDto,
-  ): Promise<{ count: number }> {
+  ): Promise<BulkAssetUpdateResponseDto> {
     const { asset_ids, update_fields } = dto;
 
     // 1. Basic validation
@@ -333,7 +334,11 @@ export class RecreationAssetService {
       data: dataToUpdate,
     });
 
-    return result;
+    return {
+      status: 'success',
+      updated_count: result.count,
+      updated_asset_ids: uniqueIds,
+    };
   }
 
   // =========================================================================

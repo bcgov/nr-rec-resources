@@ -781,7 +781,11 @@ describe('RecreationAssetService', () => {
         }),
       });
 
-      expect(result).toEqual({ count: 2 });
+      expect(result).toEqual({
+        status: 'success',
+        updated_count: 2,
+        updated_asset_ids: [1, 2],
+      });
     });
 
     it('should set parent_id to null and installation_date to null when explicitly null', async () => {

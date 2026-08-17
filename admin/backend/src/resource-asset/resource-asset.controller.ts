@@ -29,6 +29,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import {
+  BulkAssetUpdateResponseDto,
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
   FindAllAssetsQueryDto,
@@ -157,16 +158,11 @@ export class RecreationAssetController {
   @ApiResponse({
     status: 200,
     description: 'Assets updated successfully.',
-    schema: {
-      type: 'object',
-      properties: {
-        count: { type: 'number', example: 3 },
-      },
-    },
+    type: BulkAssetUpdateResponseDto,
   })
   async bulkUpdateAssets(
     @Body() dto: RecreationAssetBulkUpdateDto,
-  ): Promise<{ count: number }> {
+  ): Promise<BulkAssetUpdateResponseDto> {
     return this.assetService.bulkUpdateAssets(dto);
   }
 
