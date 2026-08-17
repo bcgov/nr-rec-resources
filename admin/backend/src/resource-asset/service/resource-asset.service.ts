@@ -197,52 +197,55 @@ export class RecreationAssetService {
   ): Promise<RecreationAssetDto> {
     await this.ensureAssetExists(id);
 
-    // Validate NOT NULL field isn't explicitly set to null
     if (dto.rec_resource_id === null) {
       throw new BadRequestException('rec_resource_id cannot be null');
     }
 
+    const data = this.buildUpdateData(dto);
+
     const updated = await this.prisma.recreation_asset.update({
       where: { asset_id: BigInt(id) },
-      data: {
-        ...(dto.parent_id !== undefined && {
-          parent_id: dto.parent_id ? BigInt(dto.parent_id) : null,
-        }),
-        ...(dto.asset_tag !== undefined && { asset_tag: dto.asset_tag }),
-        ...(dto.rec_resource_id && {
-          rec_resource_id: dto.rec_resource_id,
-        }),
-
-        ...(dto.asset_code !== undefined && {
-          asset_code: dto.asset_code,
-        }),
-        ...(dto.asset_name !== undefined && { asset_name: dto.asset_name }),
-        ...(dto.asset_comment !== undefined && {
-          asset_comment: dto.asset_comment,
-        }),
-        ...(dto.legacy_structure_id !== undefined && {
-          legacy_structure_id: dto.legacy_structure_id,
-        }),
-        ...(dto.asset_length !== undefined && {
-          asset_length: dto.asset_length,
-        }),
-        ...(dto.asset_width !== undefined && { asset_width: dto.asset_width }),
-        ...(dto.asset_area !== undefined && { asset_area: dto.asset_area }),
-        ...(dto.default_value !== undefined && {
-          default_value: dto.default_value,
-        }),
-        ...(dto.actual_value !== undefined && {
-          actual_value: dto.actual_value,
-        }),
-        ...(dto.installation_date !== undefined && {
-          installation_date: dto.installation_date
-            ? new Date(dto.installation_date)
-            : null,
-        }),
-      },
+      data,
     });
 
     return this.mapAssetToDto(updated);
+  }
+
+  private buildUpdateData(
+    dto: UpdateRecreationAssetDto,
+  ): Prisma.recreation_assetUpdateInput {
+    const data: Prisma.recreation_assetUncheckedUpdateInput = {};
+
+    if (dto.parent_id !== undefined) {
+      data.parent_id = dto.parent_id ? BigInt(dto.parent_id) : null;
+    }
+    if (dto.installation_date !== undefined) {
+      data.installation_date = dto.installation_date
+        ? new Date(dto.installation_date)
+        : null;
+    }
+
+    const simpleFields = [
+      'asset_tag',
+      'rec_resource_id',
+      'asset_code',
+      'asset_name',
+      'asset_comment',
+      'legacy_structure_id',
+      'asset_length',
+      'asset_width',
+      'asset_area',
+      'default_value',
+      'actual_value',
+    ] as const;
+
+    for (const field of simpleFields) {
+      if (dto[field] !== undefined) {
+        (data as any)[field] = dto[field];
+      }
+    }
+
+    return data;
   }
 
   async deleteAsset(id: number): Promise<void> {
