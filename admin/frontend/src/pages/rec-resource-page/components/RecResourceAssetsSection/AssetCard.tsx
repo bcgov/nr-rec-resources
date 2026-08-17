@@ -63,20 +63,24 @@ export function AssetCard({ asset, className = '' }: AssetCardProps) {
   return (
     <Card className={`asset-card ${className}`}>
       <Card.Body>
-        <div className="d-flex justify-content-between align-items-center">
-          <span className="asset-card__title">{asset.asset_name}</span>
-        </div>
-        {fields.length > 0 && (
-          <div className="asset-card__fields">
-            {fields.map((field) => (
-              <span key={field.label} className="asset-card__field">
-                <span className="asset-card__field-label">{field.label}:</span>{' '}
-                {field.value}
-              </span>
-            ))}
+        <div className="asset-card__header">
+          <div className="d-flex justify-content-between align-items-center">
+            <span className="asset-card__title">{asset.asset_name}</span>
           </div>
-        )}
-        <AssetCardRepairs repairs={repairs} />
+          {fields.length > 0 && (
+            <div className="asset-card__fields">
+              {fields.map((field) => (
+                <span key={field.label} className="asset-card__field">
+                  <span className="asset-card__field-label">
+                    {field.label}:
+                  </span>{' '}
+                  {field.value}
+                </span>
+              ))}
+            </div>
+          )}
+          <AssetCardRepairs repairs={repairs} />
+        </div>
       </Card.Body>
     </Card>
   );

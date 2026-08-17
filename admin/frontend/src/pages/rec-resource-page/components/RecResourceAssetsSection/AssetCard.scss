@@ -5,14 +5,25 @@
   // only the color needs overriding.
   --bs-card-border-color: #{$colorGreyLight};
 
+  // Let the rounded card border clip the header/repairs backgrounds below,
+  // instead of colouring the whole card (so the repairs section can stay
+  // white independently of the header's background).
+  overflow: hidden;
+
   .card-body {
-    // Spec's padding is asymmetric (bottom is 4px, not the usual 16px).
-    padding: 1rem 1rem;
+    padding: 0;
   }
+}
+
+.asset-card__header {
+  padding: 1rem 1rem;
 }
 
 .asset-card--campsite {
   --bs-card-border-color: #{$colorGreyMed};
+}
+
+.asset-card--campsite .asset-card__header {
   background-color: #{$colorBackgroundGrey};
 }
 

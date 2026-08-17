@@ -77,7 +77,7 @@ export function AssetCardRepairs({ repairs }: AssetCardRepairsProps) {
       </button>
 
       {isExpanded && (
-        <>
+        <div className="asset-card-repairs__expandable">
           {visibleRepairs.length > 0 ? (
             <div className="asset-card-repairs__list">
               {visibleRepairs.map(({ repair, title }) => {
@@ -122,7 +122,7 @@ export function AssetCardRepairs({ repairs }: AssetCardRepairsProps) {
           >
             Add repair
           </CustomButton>
-        </>
+        </div>
       )}
     </div>
   );

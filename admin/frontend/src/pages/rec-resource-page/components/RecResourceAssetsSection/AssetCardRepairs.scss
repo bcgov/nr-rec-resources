@@ -19,11 +19,19 @@
   }
 }
 
+// Breaks out of the asset card header's 1rem padding (see AssetCard.scss)
+// on the left/right/bottom so this section always reaches the card's edges
+// with its own white background, regardless of the header's own background.
+.asset-card-repairs__expandable {
+  margin: 0.5rem -1rem -1rem;
+  padding: 0.75rem 1rem 1rem;
+  background-color: #{$colorWhite};
+}
+
 .asset-card-repairs__list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 0.5rem;
   font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
 }
 
@@ -59,7 +67,6 @@
 }
 
 .asset-card-repairs__empty {
-  margin-top: 0.5rem;
   color: #{$colorGreyMed};
   font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
 }

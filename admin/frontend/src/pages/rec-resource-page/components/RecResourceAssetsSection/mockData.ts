@@ -43,7 +43,7 @@ type MockRow = [
 ];
 
 const rows: MockRow[] = [
-  [1, 1, 'Campsite 01 — Lakeshore', null, 18, 10, 180, 4500, 4800],
+  [1, 1, 'Campsite 1', null, 18, 10, 180, 4500, 4800],
   [2, 2, 'C01 Picnic Table', 1, 2.4, 1.5, null, 900, 950],
   [3, 6, 'C01 Fire Ring', 1, 1.0, 1.0, null, 350, 350],
   [4, 3, 'C01 Toilet', 1, 1.5, 1.5, 2.25, 12000, 12500],

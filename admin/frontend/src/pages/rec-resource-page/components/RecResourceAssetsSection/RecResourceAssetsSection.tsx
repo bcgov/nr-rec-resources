@@ -31,7 +31,7 @@ export function RecResourceAssetsSection() {
   const hasCampsites = campsiteGroups.length > 0;
 
   return (
-    <Stack direction="vertical" gap={3}>
+    <Stack direction="vertical" className="pb-4" gap={3}>
       <div className="d-flex justify-content-between align-items-center gap-3">
         <h2 className="mb-0">Assets</h2>
       </div>
@@ -129,6 +129,7 @@ export function RecResourceAssetsSection() {
               key={campsite.asset_id}
               eventKey={String(campsite.asset_id)}
               description={campsite.asset_name ?? ''}
+              structureCount={children.length}
               totalValue={
                 (campsite.actual_value ?? campsite.default_value ?? 0) +
                 children.reduce(
