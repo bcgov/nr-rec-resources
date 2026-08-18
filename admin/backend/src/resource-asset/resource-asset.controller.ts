@@ -36,8 +36,10 @@ import {
   PaginatedRecreationAssetDto,
   RecreationAssetBulkRepairDto,
   RecreationAssetBulkUpdateDto,
+  RecreationAssetCodeDto,
   RecreationAssetDto,
   RecreationAssetRepairDto,
+  RecreationRepairCodeDto,
   UpdateRecreationAssetDto,
   UpdateRecreationAssetRepairDto,
 } from './dto';
@@ -111,6 +113,58 @@ export class RecreationAssetController {
     @Query() query: FindAllAssetsQueryDto,
   ): Promise<PaginatedRecreationAssetDto> {
     return this.assetService.findAllAssets(query);
+  }
+
+  // =========================================================================
+  // RECREATION ASSET CODE (LOOKUP TABLE) ENDPOINTS
+  // Declared before ':id' so 'codes' isn't captured as a numeric asset id param.
+  // =========================================================================
+
+  @Get('codes')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
+  @ApiOperation({
+    operationId: 'RecreationAssetController_findAllAssetCodes',
+    summary: 'Retrieve all recreation asset type codes',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [RecreationAssetCodeDto],
+  })
+  async findAllAssetCodes(): Promise<RecreationAssetCodeDto[]> {
+    return this.assetService.findAllAssetCodes();
+  }
+
+  // =========================================================================
+  // RECREATION REPAIR CODE (LOOKUP TABLE) ENDPOINTS
+  // Declared before ':id' so 'repair-codes' isn't captured as a numeric asset id param.
+  // =========================================================================
+
+  @Get('repair-codes')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
+  @ApiOperation({
+    operationId: 'RecreationAssetController_findAllRepairCodes',
+    summary: 'Retrieve all recreation asset repair codes',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [RecreationRepairCodeDto],
+  })
+  async findAllRepairCodes(): Promise<RecreationRepairCodeDto[]> {
+    return this.assetService.findAllRepairCodes();
   }
 
   @Get(':id')

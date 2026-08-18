@@ -18,3 +18,23 @@ export class RecreationAssetCodeDto {
   @IsOptional()
   description?: string;
 }
+
+export class RecreationRepairCodeDto {
+  @ApiProperty({
+    description: 'Surrogate primary key for the remedial repair code',
+    example: 'CL',
+    maxLength: 2,
+  })
+  @IsString()
+  @MaxLength(2)
+  recreation_remed_repair_code: string;
+
+  @ApiPropertyOptional({
+    description: 'Description of the repair code',
+    example: 'Clean',
+  })
+  @IsString()
+  @MaxLength(120)
+  @IsOptional()
+  description?: string;
+}
