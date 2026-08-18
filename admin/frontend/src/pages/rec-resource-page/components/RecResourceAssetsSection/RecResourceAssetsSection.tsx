@@ -12,6 +12,7 @@ import { CampsiteCard } from './CampsiteCard';
 import { groupAssetsByCampsite } from './campsiteGrouping';
 import {
   MOCK_STRUCTURE_CODES,
+  getMockAssetRepairs,
   getMockAssetSummary,
   getMockAssets,
 } from './mockData';
@@ -26,7 +27,11 @@ export function RecResourceAssetsSection() {
   const summary = getMockAssetSummary(recResourceId);
   const [groupMode, setGroupMode] = useState<AssetGroupMode>('type');
   const assets = getMockAssets(recResourceId);
-  const typeGroups = groupAssetsByType(assets, MOCK_STRUCTURE_CODES);
+  const typeGroups = groupAssetsByType(
+    assets,
+    MOCK_STRUCTURE_CODES,
+    getMockAssetRepairs(),
+  );
   const campsiteGroups = groupAssetsByCampsite(assets);
   const hasCampsites = campsiteGroups.length > 0;
 
@@ -111,6 +116,7 @@ export function RecResourceAssetsSection() {
               description={group.description}
               count={group.count}
               totalValue={group.totalValue}
+              activeRepairsCount={group.activeRepairsCount}
             >
               <Stack direction="vertical" gap={2}>
                 {group.assets.map((asset) => (

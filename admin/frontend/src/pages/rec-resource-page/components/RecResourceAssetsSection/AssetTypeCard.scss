@@ -26,22 +26,31 @@
     flex: 1 1 auto;
     min-width: 0;
   }
-}
 
-.asset-type-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex: 1 1 auto;
-  min-width: 0;
+  // Button + total value live outside the accordion's own toggle button
+  // (via `headerEnd`) so they're not nested inside it and can wrap on their own.
+  .styled-accordion__header-row {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    column-gap: 0.75rem;
+    padding-right: 1.25rem; // matches the accordion button's own right padding
+  }
+
+  // Stop the title from growing (StyledAccordion defaults it to flex:1 1 auto)
+  // so `__secondary-info` can grow into that space instead. Scoped to this
+  // card only — CampsiteCard keeps the default.
+  @media (min-width: $lgBreakpoint) {
+    .styled-accordion__header {
+      flex: 0 1 auto;
+    }
+  }
 }
 
 .asset-type-card__heading {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-shrink: 0;
+  min-width: 0;
 }
 
 .asset-type-card__description {
@@ -71,6 +80,36 @@
   line-height: 1.5; // 150%
 }
 
+.asset-type-card__bulk-update-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+// Total value + active-repairs badge, grouped so they move together on wrap.
+.asset-type-card__secondary-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  // grows into the space the title gave up above
+  @media (min-width: $lgBreakpoint) {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.asset-type-card__active-repairs .custom-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2625rem 0.4875rem; // 4.2px 7.8px, spec doesn't map to a token
+  border-radius: var(--bs-border-radius-sm, 0.25rem); // 4px
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-size: 0.875rem; // 14px
+  line-height: 1.5; // 150%
+}
+
 .asset-type-card__total-value {
   color: #{$colorGrey};
   font-weight: var(--typography-font-weights-regular, 400);
@@ -80,4 +119,22 @@
   line-height: 1.6; // 25.6px
   white-space: nowrap;
   flex-shrink: 0;
+  margin-left: auto; // stays right-aligned even when the badge isn't rendered
+}
+
+// Below this, bulk-update stays next to the title and secondary info drops
+// to its own line (breakpoint matches CampsiteCard, covers iPad Mini too).
+// Secondary info comes first in the markup, so the button needs its own
+// `order` to jump ahead of it instead of wrapping down with it.
+@media (max-width: ($lgBreakpoint - 0.02px)) {
+  .asset-type-card__bulk-update-btn {
+    order: 1;
+  }
+
+  .asset-type-card__secondary-info {
+    order: 2;
+    flex-basis: 100%;
+    padding-left: 1.25rem; // lines up with the title's own left padding
+    padding-bottom: 1rem;
+  }
 }
