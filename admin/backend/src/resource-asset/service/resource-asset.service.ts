@@ -15,10 +15,18 @@ import {
   RecreationAssetCodeDto,
   RecreationAssetDto,
   RecreationAssetRepairDto,
+  RecreationRepairCodeDto,
   UpdateRecreationAssetDto,
   UpdateRecreationAssetRepairDto,
 } from '../dto';
 import { Prisma } from '@/generated/prisma/browser';
+import { getRecreationAssetGeom } from '@prisma-generated-sql/getRecreationAssetGeom';
+
+type AssetGeom = {
+  latitude: number | null;
+  longitude: number | null;
+  geometry_type_code: string | null;
+};
 
 @Injectable()
 export class RecreationAssetService {
@@ -47,6 +55,17 @@ export class RecreationAssetService {
     }
 
     return this.mapAssetCodeToDto(code);
+  }
+
+  // =========================================================================
+  // RECREATION REPAIR CODE (LOOKUP TABLE) LOGIC
+  // =========================================================================
+
+  async findAllRepairCodes(): Promise<RecreationRepairCodeDto[]> {
+    const codes = await this.prisma.recreation_remed_repair_code.findMany({
+      orderBy: { recreation_remed_repair_code: 'asc' },
+    });
+    return codes.map((c) => this.mapRepairCodeToDto(c));
   }
 
   // =========================================================================
@@ -143,6 +162,8 @@ export class RecreationAssetService {
           actual_value: true,
           default_value: true,
           installation_date: true,
+          updated_by: true,
+          updated_at: true,
           recreation_asset_repair: includeRepair,
         },
         where,
@@ -153,8 +174,18 @@ export class RecreationAssetService {
       this.prisma.recreation_asset.count({ where }),
     ]);
 
+    const geomByAssetId = await this.fetchGeomByAssetIds(
+      data.map((asset) => asset.asset_id),
+    );
+
     return {
-      data: data.map((asset) => this.mapAssetToDto(asset, includeRepair)),
+      data: data.map((asset) =>
+        this.mapAssetToDto(
+          asset,
+          includeRepair,
+          geomByAssetId.get(asset.asset_id.toString()),
+        ),
+      ),
       total,
       page,
       limit,
@@ -182,6 +213,8 @@ export class RecreationAssetService {
         actual_value: true,
         default_value: true,
         installation_date: true,
+        updated_by: true,
+        updated_at: true,
         recreation_asset_repair: includeRepair,
       },
       where: { asset_id: BigInt(id) },
@@ -191,7 +224,12 @@ export class RecreationAssetService {
       throw new NotFoundException(`Recreation asset with ID ${id} not found`);
     }
 
-    const assetDto = this.mapAssetToDto(asset, includeRepair);
+    const geomByAssetId = await this.fetchGeomByAssetIds([asset.asset_id]);
+    const assetDto = this.mapAssetToDto(
+      asset,
+      includeRepair,
+      geomByAssetId.get(asset.asset_id.toString()),
+    );
     return assetDto;
   }
 
@@ -482,9 +520,45 @@ export class RecreationAssetService {
     };
   }
 
+  private mapRepairCodeToDto(record: any): RecreationRepairCodeDto {
+    return {
+      recreation_remed_repair_code: record.recreation_remed_repair_code,
+      description: record.description ?? null,
+    };
+  }
+
+  /**
+   * Batched lat/long lookup (BC Albers -> WGS84) for a set of asset ids, via the
+   * getRecreationAssetGeom typed SQL query. Returns a map keyed by asset_id.toString()
+   * so callers can look up by BigInt without a second conversion.
+   */
+  private async fetchGeomByAssetIds(
+    assetIds: bigint[],
+  ): Promise<Map<string, AssetGeom>> {
+    if (assetIds.length === 0) {
+      return new Map();
+    }
+
+    const rows = await this.prisma.$queryRawTyped(
+      getRecreationAssetGeom(assetIds),
+    );
+
+    return new Map(
+      rows.map((row) => [
+        row.asset_id.toString(),
+        {
+          latitude: row.latitude ? Number(row.latitude) : null,
+          longitude: row.longitude ? Number(row.longitude) : null,
+          geometry_type_code: row.geometry_type_code ?? null,
+        },
+      ]),
+    );
+  }
+
   private mapAssetToDto(
     record: any,
     includeRepair: boolean = false,
+    geom?: AssetGeom,
   ): RecreationAssetDto {
     return {
       asset_id: Number(record.asset_id),
@@ -503,6 +577,11 @@ export class RecreationAssetService {
       installation_date: record.installation_date
         ? record.installation_date.toISOString().split('T')[0]
         : null,
+      updated_by: record.updated_by ?? null,
+      updated_at: record.updated_at ? record.updated_at.toISOString() : null,
+      geometry_type_code: geom?.geometry_type_code ?? null,
+      latitude: geom?.latitude ?? null,
+      longitude: geom?.longitude ?? null,
       recreation_asset_repair: includeRepair
         ? record.recreation_asset_repair.map((r) => this.mapRepairToDto(r))
         : [],
@@ -526,6 +605,10 @@ export class RecreationAssetService {
       urgency: record.urgency ?? null,
       trail_segment_start: record.trail_segment_start ?? null,
       trail_segment_end: record.trail_segment_end ?? null,
+      created_by: record.created_by ?? null,
+      created_at: record.created_at ? record.created_at.toISOString() : null,
+      updated_by: record.updated_by ?? null,
+      updated_at: record.updated_at ? record.updated_at.toISOString() : null,
     };
   }
 }

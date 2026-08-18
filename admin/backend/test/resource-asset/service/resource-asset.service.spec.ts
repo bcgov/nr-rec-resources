@@ -12,6 +12,9 @@ describe('RecreationAssetService', () => {
       findMany: ReturnType<typeof vi.fn>;
       findUnique: ReturnType<typeof vi.fn>;
     };
+    recreation_remed_repair_code: {
+      findMany: ReturnType<typeof vi.fn>;
+    };
     recreation_asset: {
       create: ReturnType<typeof vi.fn>;
       findMany: ReturnType<typeof vi.fn>;
@@ -31,6 +34,7 @@ describe('RecreationAssetService', () => {
       delete: ReturnType<typeof vi.fn>;
     };
     $transaction: ReturnType<typeof vi.fn>;
+    $queryRawTyped: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -38,6 +42,9 @@ describe('RecreationAssetService', () => {
       recreation_asset_code: {
         findMany: vi.fn(),
         findUnique: vi.fn(),
+      },
+      recreation_remed_repair_code: {
+        findMany: vi.fn(),
       },
       recreation_asset: {
         create: vi.fn(),
@@ -58,6 +65,7 @@ describe('RecreationAssetService', () => {
         delete: vi.fn(),
       },
       $transaction: vi.fn((cb) => cb(prismaMock)),
+      $queryRawTyped: vi.fn().mockResolvedValue([]),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -91,6 +99,30 @@ describe('RecreationAssetService', () => {
       expect(result).toEqual([
         { asset_code: 1, description: 'Bridge' },
         { asset_code: 2, description: null },
+      ]);
+    });
+  });
+
+  // =========================================================================
+  // RECREATION REPAIR CODE TESTS
+  // =========================================================================
+  describe('findAllRepairCodes', () => {
+    it('should return mapped repair codes including handling null descriptions', async () => {
+      prismaMock.recreation_remed_repair_code.findMany.mockResolvedValue([
+        { recreation_remed_repair_code: 'CL', description: 'Clean' },
+        { recreation_remed_repair_code: 'FX', description: null },
+      ]);
+
+      const result = await service.findAllRepairCodes();
+
+      expect(
+        prismaMock.recreation_remed_repair_code.findMany,
+      ).toHaveBeenCalledWith({
+        orderBy: { recreation_remed_repair_code: 'asc' },
+      });
+      expect(result).toEqual([
+        { recreation_remed_repair_code: 'CL', description: 'Clean' },
+        { recreation_remed_repair_code: 'FX', description: null },
       ]);
     });
   });
@@ -199,6 +231,11 @@ describe('RecreationAssetService', () => {
         actual_value: 1500,
         default_value: 1600,
         installation_date: '2023-01-01',
+        updated_by: null,
+        updated_at: null,
+        geometry_type_code: null,
+        latitude: null,
+        longitude: null,
         recreation_asset_repair: [],
       });
     });
@@ -310,6 +347,7 @@ describe('RecreationAssetService', () => {
         count: vi.fn(),
       },
       $transaction: vi.fn(),
+      $queryRawTyped: vi.fn().mockResolvedValue([]),
     };
 
     beforeEach(async () => {
@@ -362,6 +400,8 @@ describe('RecreationAssetService', () => {
             legacy_structure_id: true,
             parent_id: true,
             rec_resource_id: true,
+            updated_at: true,
+            updated_by: true,
             recreation_asset_repair: false,
           },
           skip: 0,
@@ -426,6 +466,8 @@ describe('RecreationAssetService', () => {
             legacy_structure_id: true,
             parent_id: true,
             rec_resource_id: true,
+            updated_at: true,
+            updated_by: true,
             recreation_asset_repair: true,
           },
         }),
@@ -460,6 +502,8 @@ describe('RecreationAssetService', () => {
             legacy_structure_id: true,
             parent_id: true,
             rec_resource_id: true,
+            updated_at: true,
+            updated_by: true,
             recreation_asset_repair: false,
           },
         }),
@@ -559,6 +603,58 @@ describe('RecreationAssetService', () => {
       expect(result.total).toBe(0);
       expect(result.totalPages).toBe(0);
     });
+
+    it('should map each geom row to its matching asset by asset_id', async () => {
+      mockPrismaService.$transaction.mockResolvedValue([mockRawAssetList, 2]);
+      mockPrismaService.$queryRawTyped.mockResolvedValue([
+        {
+          asset_id: BigInt(101),
+          geometry_type_code: 'PT',
+          latitude: 49.1,
+          longitude: -123.1,
+        },
+        {
+          asset_id: BigInt(102),
+          geometry_type_code: 'PT',
+          latitude: 50.2,
+          longitude: -124.2,
+        },
+      ]);
+
+      const result = await service.findAllAssets({});
+
+      expect(result.data[0]).toEqual(
+        expect.objectContaining({
+          asset_id: 101,
+          latitude: 49.1,
+          longitude: -123.1,
+          geometry_type_code: 'PT',
+        }),
+      );
+      expect(result.data[1]).toEqual(
+        expect.objectContaining({
+          asset_id: 102,
+          latitude: 50.2,
+          longitude: -124.2,
+          geometry_type_code: 'PT',
+        }),
+      );
+    });
+
+    it('should default geom fields to null when the asset has no geom row', async () => {
+      mockPrismaService.$transaction.mockResolvedValue([mockRawAssetList, 2]);
+      mockPrismaService.$queryRawTyped.mockResolvedValue([]);
+
+      const result = await service.findAllAssets({});
+
+      expect(result.data[0]).toEqual(
+        expect.objectContaining({
+          latitude: null,
+          longitude: null,
+          geometry_type_code: null,
+        }),
+      );
+    });
   });
 
   describe('findAssetById', () => {
@@ -583,6 +679,70 @@ describe('RecreationAssetService', () => {
       await expect(service.findAssetById(99)).rejects.toThrow(
         NotFoundException,
       );
+    });
+
+    it('should populate latitude/longitude/geometry_type_code from the geom lookup, and map updated_by/updated_at', async () => {
+      prismaMock.recreation_asset.findUnique.mockResolvedValue({
+        asset_id: 5n,
+        rec_resource_id: 'REC-1',
+        asset_code: 10,
+        updated_by: 'jdoe',
+        updated_at: new Date('2024-01-01T00:00:00.000Z'),
+      });
+      prismaMock.$queryRawTyped.mockResolvedValue([
+        {
+          asset_id: 5n,
+          geometry_type_code: 'PT',
+          latitude: 49.94212,
+          longitude: -123.03604,
+        },
+      ]);
+
+      const result = await service.findAssetById(5);
+
+      expect(prismaMock.$queryRawTyped).toHaveBeenCalledTimes(1);
+      expect(result.geometry_type_code).toBe('PT');
+      expect(result.latitude).toBe(49.94212);
+      expect(result.longitude).toBe(-123.03604);
+      expect(result.updated_by).toBe('jdoe');
+      expect(result.updated_at).toBe('2024-01-01T00:00:00.000Z');
+    });
+
+    it('should default latitude/longitude to null when the geom row has null coordinates', async () => {
+      prismaMock.recreation_asset.findUnique.mockResolvedValue({
+        asset_id: 7n,
+        rec_resource_id: 'REC-1',
+        asset_code: 10,
+      });
+      prismaMock.$queryRawTyped.mockResolvedValue([
+        {
+          asset_id: 7n,
+          geometry_type_code: null,
+          latitude: null,
+          longitude: null,
+        },
+      ]);
+
+      const result = await service.findAssetById(7);
+
+      expect(result.geometry_type_code).toBeNull();
+      expect(result.latitude).toBeNull();
+      expect(result.longitude).toBeNull();
+    });
+
+    it('should default geom fields to null when no geom row is returned', async () => {
+      prismaMock.recreation_asset.findUnique.mockResolvedValue({
+        asset_id: 6n,
+        rec_resource_id: 'REC-1',
+        asset_code: 10,
+      });
+      prismaMock.$queryRawTyped.mockResolvedValue([]);
+
+      const result = await service.findAssetById(6);
+
+      expect(result.geometry_type_code).toBeNull();
+      expect(result.latitude).toBeNull();
+      expect(result.longitude).toBeNull();
     });
   });
 
@@ -893,6 +1053,10 @@ describe('RecreationAssetService', () => {
         urgency: 'HIGH',
         trail_segment_start: 'A',
         trail_segment_end: 'B',
+        created_by: null,
+        created_at: null,
+        updated_by: null,
+        updated_at: null,
       });
     });
 
@@ -915,6 +1079,27 @@ describe('RecreationAssetService', () => {
       const result = await service.createRepair({ asset_id: 1 });
 
       expect(result.repair_completed_date).toBeNull();
+    });
+
+    it('should map created_by/created_at/updated_by/updated_at when present', async () => {
+      prismaMock.recreation_asset.findUnique.mockResolvedValue({
+        asset_id: 1n,
+      });
+      prismaMock.recreation_asset_repair.create.mockResolvedValue({
+        repair_id: 12n,
+        asset_id: 1n,
+        created_by: 'jdoe',
+        created_at: new Date('2023-09-01T00:00:00.000Z'),
+        updated_by: 'asmith',
+        updated_at: new Date('2023-09-02T00:00:00.000Z'),
+      });
+
+      const result = await service.createRepair({ asset_id: 1 });
+
+      expect(result.created_by).toBe('jdoe');
+      expect(result.created_at).toBe('2023-09-01T00:00:00.000Z');
+      expect(result.updated_by).toBe('asmith');
+      expect(result.updated_at).toBe('2023-09-02T00:00:00.000Z');
     });
   });
 

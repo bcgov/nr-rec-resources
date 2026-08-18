@@ -8,8 +8,10 @@ import {
   FindAllAssetsQueryDto,
   RecreationAssetBulkRepairDto,
   RecreationAssetBulkUpdateDto,
+  RecreationAssetCodeDto,
   RecreationAssetDto,
   RecreationAssetRepairDto,
+  RecreationRepairCodeDto,
   UpdateRecreationAssetDto,
   UpdateRecreationAssetRepairDto,
 } from '@/resource-asset/dto';
@@ -21,6 +23,8 @@ describe('RecreationAssetController', () => {
     createAsset: ReturnType<typeof vi.fn>;
     findAllAssets: ReturnType<typeof vi.fn>;
     findAssetById: ReturnType<typeof vi.fn>;
+    findAllAssetCodes: ReturnType<typeof vi.fn>;
+    findAllRepairCodes: ReturnType<typeof vi.fn>;
     bulkUpdateAssets: ReturnType<typeof vi.fn>;
     updateAsset: ReturnType<typeof vi.fn>;
     deleteAsset: ReturnType<typeof vi.fn>;
@@ -36,6 +40,8 @@ describe('RecreationAssetController', () => {
       createAsset: vi.fn(),
       findAllAssets: vi.fn(),
       findAssetById: vi.fn(),
+      findAllAssetCodes: vi.fn(),
+      findAllRepairCodes: vi.fn(),
       bulkUpdateAssets: vi.fn(),
       updateAsset: vi.fn(),
       deleteAsset: vi.fn(),
@@ -131,6 +137,38 @@ describe('RecreationAssetController', () => {
       const result = await controller.findAssetById(5, false);
 
       expect(serviceMock.findAssetById).toHaveBeenCalledWith(5, false);
+      expect(result).toEqual(expectedResponse);
+    });
+  });
+
+  describe('findAllAssetCodes', () => {
+    it('should delegate to service.findAllAssetCodes and return an array', async () => {
+      const expectedResponse: RecreationAssetCodeDto[] = [
+        { asset_code: 1, description: 'Bridge' },
+        { asset_code: 2, description: 'Table - log' },
+      ];
+
+      serviceMock.findAllAssetCodes.mockResolvedValue(expectedResponse);
+
+      const result = await controller.findAllAssetCodes();
+
+      expect(serviceMock.findAllAssetCodes).toHaveBeenCalledOnce();
+      expect(result).toEqual(expectedResponse);
+    });
+  });
+
+  describe('findAllRepairCodes', () => {
+    it('should delegate to service.findAllRepairCodes and return an array', async () => {
+      const expectedResponse: RecreationRepairCodeDto[] = [
+        { recreation_remed_repair_code: 'CL', description: 'Clean' },
+        { recreation_remed_repair_code: 'FX', description: 'Fix' },
+      ];
+
+      serviceMock.findAllRepairCodes.mockResolvedValue(expectedResponse);
+
+      const result = await controller.findAllRepairCodes();
+
+      expect(serviceMock.findAllRepairCodes).toHaveBeenCalledOnce();
       expect(result).toEqual(expectedResponse);
     });
   });
