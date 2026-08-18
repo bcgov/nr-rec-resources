@@ -1,4 +1,4 @@
-import type { Asset, AssetRepair, RecreationStructureCode } from './types';
+import type { Asset, AssetCode } from './types';
 
 export interface AssetTypeGroup {
   structureCode: number;
@@ -11,38 +11,37 @@ export interface AssetTypeGroup {
 
 export function groupAssetsByType(
   assets: Asset[],
-  structureCodes: RecreationStructureCode[],
-  repairs: AssetRepair[],
+  assetCodes: AssetCode[],
 ): AssetTypeGroup[] {
   const descriptionByCode = new Map(
-    structureCodes.map((c) => [c.structure_code, c.description]),
+    assetCodes.map((c) => [c.asset_code, c.description]),
   );
 
   const assetsByCode = new Map<number, Asset[]>();
   for (const asset of assets) {
-    const group = assetsByCode.get(asset.recreation_structure_code) ?? [];
+    const group = assetsByCode.get(asset.asset_code) ?? [];
     group.push(asset);
-    assetsByCode.set(asset.recreation_structure_code, group);
+    assetsByCode.set(asset.asset_code, group);
   }
 
   return Array.from(assetsByCode.entries()).map(
-    ([structureCode, groupAssets]) => {
-      const assetIds = new Set(groupAssets.map((a) => a.asset_id));
-
-      return {
-        structureCode,
-        description: descriptionByCode.get(structureCode) ?? 'Unknown',
-        count: groupAssets.length,
-        totalValue: groupAssets.reduce(
-          (sum, a) => sum + (a.actual_value ?? a.default_value ?? 0),
-          0,
-        ),
-        activeRepairsCount: repairs.filter(
-          (repair) =>
-            assetIds.has(repair.asset_id) && !repair.repair_completed_date,
-        ).length,
-        assets: groupAssets,
-      };
-    },
+    ([structureCode, groupAssets]) => ({
+      structureCode,
+      description: descriptionByCode.get(structureCode) ?? 'Unknown',
+      count: groupAssets.length,
+      totalValue: groupAssets.reduce(
+        (sum, a) => sum + (a.actual_value ?? a.default_value ?? 0),
+        0,
+      ),
+      activeRepairsCount: groupAssets.reduce(
+        (sum, a) =>
+          sum +
+          (a.recreation_asset_repair ?? []).filter(
+            (repair) => !repair.repair_completed_date,
+          ).length,
+        0,
+      ),
+      assets: groupAssets,
+    }),
   );
 }

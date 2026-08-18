@@ -17,6 +17,13 @@
     margin-right: 0.75rem;
   }
 
+  // Bootstrap's own --bs-accordion-btn-padding-x (1.25rem) applies to both
+  // sides — trim just the right side so the title sits closer to whatever's
+  // next to it instead of leaving extra dead space inside the button itself.
+  .accordion-button {
+    padding-right: 0.5rem;
+  }
+
   // Let the title span fill the header row so total-value can sit at the end.
   // (`display: flex` here instead of a `width: 100%` on the child below —
   // a percentage width creates a circular dependency against this span's
@@ -29,20 +36,23 @@
 
   // Button + total value live outside the accordion's own toggle button
   // (via `headerEnd`) so they're not nested inside it and can wrap on their own.
+  // `justify-content: space-between` spreads whatever ends up on a line
+  // (title vs. button, each sized to their own content) across it, instead
+  // of relying on the title growing to push things to the right.
   .styled-accordion__header-row {
     flex-wrap: wrap;
+    justify-content: space-between;
     row-gap: 0.5rem;
     column-gap: 0.75rem;
     padding-right: 1.25rem; // matches the accordion button's own right padding
   }
 
-  // Stop the title from growing (StyledAccordion defaults it to flex:1 1 auto)
-  // so `__secondary-info` can grow into that space instead. Scoped to this
-  // card only — CampsiteCard keeps the default.
-  @media (min-width: $lgBreakpoint) {
-    .styled-accordion__header {
-      flex: 0 1 auto;
-    }
+  // Title never grows — sized to its own content, `__secondary-info` takes
+  // the leftover space on desktop instead. Without this it balloons to
+  // fill the row just because it's flex:1 1 auto by default.
+  .styled-accordion__header {
+    flex: 0 1 auto;
+    min-width: 0;
   }
 }
 

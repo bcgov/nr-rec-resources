@@ -1,7 +1,9 @@
 import type { Asset } from './types';
 
-// rst.recreation_structure_code for "Campsite" (see MOCK_STRUCTURE_CODES).
-export const CAMPSITE_STRUCTURE_CODE = 1;
+// rst.recreation_asset_code for "Campsite" — legacy, non-sequential value from
+// migrations/rst/sql/V1.1.83__recreation_asset_code_update.sql. Hardcoded for now;
+// TODO(backend): resolve dynamically once asset-code categorization exists.
+export const CAMPSITE_STRUCTURE_CODE = 227;
 
 export interface CampsiteGroup {
   campsite: Asset;
@@ -10,7 +12,7 @@ export interface CampsiteGroup {
 
 export function groupAssetsByCampsite(assets: Asset[]): CampsiteGroup[] {
   const campsites = assets.filter(
-    (asset) => asset.recreation_structure_code === CAMPSITE_STRUCTURE_CODE,
+    (asset) => asset.asset_code === CAMPSITE_STRUCTURE_CODE,
   );
 
   return campsites.map((campsite) => ({

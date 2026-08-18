@@ -1,16 +1,18 @@
 import { Col, Form, Modal, Row } from 'react-bootstrap';
 import { CustomButton } from '@/components';
-import { MOCK_REPAIR_CODES } from './mockData';
+import type { RepairCode } from './types';
 import './AddRepairModal.scss';
 
 interface AddRepairModalProps {
   show: boolean;
+  repairCodes: RepairCode[];
   onCancel: () => void;
   onCreate: () => void;
 }
 
 export function AddRepairModal({
   show,
+  repairCodes,
   onCancel,
   onCreate,
 }: AddRepairModalProps) {
@@ -32,8 +34,11 @@ export function AddRepairModal({
                 <option value="" disabled>
                   Select repair type...
                 </option>
-                {MOCK_REPAIR_CODES.map((code) => (
-                  <option key={code.repair_code} value={code.repair_code}>
+                {repairCodes.map((code) => (
+                  <option
+                    key={code.recreation_remed_repair_code}
+                    value={code.recreation_remed_repair_code}
+                  >
                     {code.description}
                   </option>
                 ))}

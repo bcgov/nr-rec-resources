@@ -5,12 +5,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { formatDateReadable } from '@shared/utils';
 import { CustomButton } from '@/components';
 import { formatCurrency } from './formatCurrency';
-import { MOCK_REPAIR_CODES } from './mockData';
-import type { AssetRepair } from './types';
+import type { AssetRepair, RepairCode } from './types';
 import './AssetCardRepairs.scss';
 
 interface AssetCardRepairsProps {
   repairs: AssetRepair[];
+  repairCodes: RepairCode[];
 }
 
 interface RepairField {
@@ -18,10 +18,15 @@ interface RepairField {
   value: string | null;
 }
 
-function getRepairTitle(repair: AssetRepair): string | null {
+function getRepairTitle(
+  repair: AssetRepair,
+  repairCodes: RepairCode[],
+): string | null {
   return (
-    MOCK_REPAIR_CODES.find(
-      (code) => code.repair_code === repair.recreation_remed_repair_code,
+    repairCodes.find(
+      (code) =>
+        code.recreation_remed_repair_code ===
+        repair.recreation_remed_repair_code,
     )?.description ?? null
   );
 }
@@ -51,11 +56,17 @@ function getRepairFields(repair: AssetRepair): RepairField[] {
   return fields.filter((field) => !!field.value);
 }
 
-export function AssetCardRepairs({ repairs }: AssetCardRepairsProps) {
+export function AssetCardRepairs({
+  repairs,
+  repairCodes,
+}: AssetCardRepairsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const visibleRepairs = repairs
-    .map((repair) => ({ repair, title: getRepairTitle(repair) }))
+    .map((repair) => ({
+      repair,
+      title: getRepairTitle(repair, repairCodes),
+    }))
     .filter(
       (entry): entry is { repair: AssetRepair; title: string } => !!entry.title,
     );

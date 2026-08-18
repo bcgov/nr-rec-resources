@@ -2,12 +2,12 @@ import { Card } from 'react-bootstrap';
 import { formatDateReadable } from '@shared/utils';
 import { AssetCardRepairs } from './AssetCardRepairs';
 import { formatCurrency } from './formatCurrency';
-import { getMockAssetRepairs } from './mockData';
-import type { Asset } from './types';
+import type { Asset, RepairCode } from './types';
 import './AssetCard.scss';
 
 interface AssetCardProps {
   asset: Asset;
+  repairCodes: RepairCode[];
   className?: string;
 }
 
@@ -54,11 +54,13 @@ function getAssetFields(asset: Asset): AssetField[] {
   return fields.filter((field) => !!field.value);
 }
 
-export function AssetCard({ asset, className = '' }: AssetCardProps) {
+export function AssetCard({
+  asset,
+  repairCodes,
+  className = '',
+}: AssetCardProps) {
   const fields = getAssetFields(asset);
-  const repairs = getMockAssetRepairs().filter(
-    (repair) => repair.asset_id === asset.asset_id,
-  );
+  const repairs = asset.recreation_asset_repair ?? [];
 
   return (
     <Card className={`asset-card ${className}`}>
@@ -79,7 +81,7 @@ export function AssetCard({ asset, className = '' }: AssetCardProps) {
               ))}
             </div>
           )}
-          <AssetCardRepairs repairs={repairs} />
+          <AssetCardRepairs repairs={repairs} repairCodes={repairCodes} />
         </div>
       </Card.Body>
     </Card>
