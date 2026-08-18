@@ -172,8 +172,47 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
   @IsInt()
   asset_id: number;
 
+  @ApiPropertyOptional({
+    description: 'User identifier who last updated the record',
+    nullable: true,
+  })
+  @IsOptional()
+  updated_by?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Timestamp when record was last updated',
+    nullable: true,
+  })
+  @IsOptional()
+  updated_at?: Date | string | null;
+
+  @ApiPropertyOptional({
+    description: 'Point geometry type code, if this asset has a location',
+    example: 'PT',
+    nullable: true,
+  })
+  @IsOptional()
+  geometry_type_code?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Latitude in WGS84 (derived from recreation_asset_geom)',
+    example: 49.94212,
+    nullable: true,
+  })
+  @IsOptional()
+  latitude?: number | null;
+
+  @ApiPropertyOptional({
+    description: 'Longitude in WGS84 (derived from recreation_asset_geom)',
+    example: -123.03604,
+    nullable: true,
+  })
+  @IsOptional()
+  longitude?: number | null;
+
   @ApiProperty({
     description: 'List of repairs associated with this asset',
+    type: [RecreationAssetRepairDto],
   })
   @IsArray()
   recreation_asset_repair: RecreationAssetRepairDto[];

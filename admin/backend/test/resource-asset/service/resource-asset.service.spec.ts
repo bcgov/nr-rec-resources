@@ -31,6 +31,7 @@ describe('RecreationAssetService', () => {
       delete: ReturnType<typeof vi.fn>;
     };
     $transaction: ReturnType<typeof vi.fn>;
+    $queryRawTyped: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -58,6 +59,7 @@ describe('RecreationAssetService', () => {
         delete: vi.fn(),
       },
       $transaction: vi.fn((cb) => cb(prismaMock)),
+      $queryRawTyped: vi.fn().mockResolvedValue([]),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -199,6 +201,11 @@ describe('RecreationAssetService', () => {
         actual_value: 1500,
         default_value: 1600,
         installation_date: '2023-01-01',
+        updated_by: null,
+        updated_at: null,
+        geometry_type_code: null,
+        latitude: null,
+        longitude: null,
         recreation_asset_repair: [],
       });
     });
@@ -310,6 +317,7 @@ describe('RecreationAssetService', () => {
         count: vi.fn(),
       },
       $transaction: vi.fn(),
+      $queryRawTyped: vi.fn().mockResolvedValue([]),
     };
 
     beforeEach(async () => {
@@ -362,6 +370,8 @@ describe('RecreationAssetService', () => {
             legacy_structure_id: true,
             parent_id: true,
             rec_resource_id: true,
+            updated_at: true,
+            updated_by: true,
             recreation_asset_repair: false,
           },
           skip: 0,
@@ -426,6 +436,8 @@ describe('RecreationAssetService', () => {
             legacy_structure_id: true,
             parent_id: true,
             rec_resource_id: true,
+            updated_at: true,
+            updated_by: true,
             recreation_asset_repair: true,
           },
         }),
@@ -460,6 +472,8 @@ describe('RecreationAssetService', () => {
             legacy_structure_id: true,
             parent_id: true,
             rec_resource_id: true,
+            updated_at: true,
+            updated_by: true,
             recreation_asset_repair: false,
           },
         }),
@@ -893,6 +907,10 @@ describe('RecreationAssetService', () => {
         urgency: 'HIGH',
         trail_segment_start: 'A',
         trail_segment_end: 'B',
+        created_by: null,
+        created_at: null,
+        updated_by: null,
+        updated_at: null,
       });
     });
 
