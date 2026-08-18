@@ -28,6 +28,12 @@ describe('services/hooks/recreation-resource-admin/index', () => {
     expect(recreationResourceAdminIndex).toHaveProperty('useCreateTrail');
     expect(recreationResourceAdminIndex).toHaveProperty('useUpdateTrail');
     expect(recreationResourceAdminIndex).toHaveProperty('useDeleteTrail');
+    expect(recreationResourceAdminIndex).toHaveProperty('useAssetsApiClient');
+    expect(recreationResourceAdminIndex).toHaveProperty(
+      'useGetAssetsByRecResourceId',
+    );
+    expect(recreationResourceAdminIndex).toHaveProperty('useGetAssetCodes');
+    expect(recreationResourceAdminIndex).toHaveProperty('useGetRepairCodes');
   });
 
   it('exports helpers', () => {
@@ -65,5 +71,17 @@ describe('services/hooks/recreation-resource-admin/index', () => {
     expect(
       typeof recreationResourceAdminIndex.mapRecreationResourceDetail,
     ).toBe('function');
+    expect(typeof recreationResourceAdminIndex.useAssetsApiClient).toBe(
+      'function',
+    );
+    expect(
+      typeof recreationResourceAdminIndex.useGetAssetsByRecResourceId,
+    ).toBe('function');
+    expect(typeof recreationResourceAdminIndex.useGetAssetCodes).toBe(
+      'function',
+    );
+    expect(typeof recreationResourceAdminIndex.useGetRepairCodes).toBe(
+      'function',
+    );
   });
 });

@@ -15,8 +15,12 @@ export function groupAssetsByCampsite(assets: Asset[]): CampsiteGroup[] {
     (asset) => asset.asset_code === CAMPSITE_STRUCTURE_CODE,
   );
 
-  return campsites.map((campsite) => ({
-    campsite,
-    children: assets.filter((asset) => asset.parent_id === campsite.asset_id),
-  }));
+  return campsites
+    .map((campsite) => ({
+      campsite,
+      children: assets.filter((asset) => asset.parent_id === campsite.asset_id),
+    }))
+    .sort((a, b) =>
+      (a.campsite.asset_name ?? '').localeCompare(b.campsite.asset_name ?? ''),
+    );
 }

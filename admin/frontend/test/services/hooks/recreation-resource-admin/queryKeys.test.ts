@@ -96,5 +96,18 @@ describe('RECREATION_RESOURCE_QUERY_KEYS', () => {
     expect(RECREATION_RESOURCE_QUERY_KEYS.all).toEqual([
       'recreation-resource-admin',
     ]);
+    expect(RECREATION_RESOURCE_QUERY_KEYS.assets('abc')).toEqual([
+      'recreation-resource-admin',
+      'assets',
+      'abc',
+    ]);
+    expect(RECREATION_RESOURCE_QUERY_KEYS.assetCodes()).toEqual([
+      'recreation-resource-admin',
+      'asset-codes',
+    ]);
+    expect(RECREATION_RESOURCE_QUERY_KEYS.repairCodes()).toEqual([
+      'recreation-resource-admin',
+      'repair-codes',
+    ]);
   });
 });

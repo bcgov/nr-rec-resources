@@ -45,7 +45,7 @@ export function CampsiteCard({
             variant="secondary"
             className="asset-summary-action-btn campsite-card__bulk-update-btn"
           >
-            Bulk update
+            Edit
           </CustomButton>
         </>
       }

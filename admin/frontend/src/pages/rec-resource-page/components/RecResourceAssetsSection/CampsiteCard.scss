@@ -112,6 +112,9 @@
   }
 
   .campsite-card__secondary-info {
+    // Hidden for now rather than fixed up for mobile — leaving the rest of
+    // the rules below in place so this is easy to re-enable later.
+    display: none;
     order: 2;
     flex-basis: 100%;
     // Matches the accordion button's own left padding

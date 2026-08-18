@@ -64,7 +64,7 @@ export function AssetTypeCard({
             variant="secondary"
             className="asset-summary-action-btn asset-type-card__bulk-update-btn"
           >
-            Bulk update
+            Edit
           </CustomButton>
         </>
       }

@@ -24,8 +24,8 @@ export function groupAssetsByType(
     assetsByCode.set(asset.asset_code, group);
   }
 
-  return Array.from(assetsByCode.entries()).map(
-    ([structureCode, groupAssets]) => ({
+  return Array.from(assetsByCode.entries())
+    .map(([structureCode, groupAssets]) => ({
       structureCode,
       description: descriptionByCode.get(structureCode) ?? 'Unknown',
       count: groupAssets.length,
@@ -42,6 +42,6 @@ export function groupAssetsByType(
         0,
       ),
       assets: groupAssets,
-    }),
-  );
+    }))
+    .sort((a, b) => a.description.localeCompare(b.description));
 }
