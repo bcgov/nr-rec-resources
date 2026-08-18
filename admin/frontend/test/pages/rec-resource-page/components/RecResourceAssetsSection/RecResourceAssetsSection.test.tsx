@@ -176,7 +176,11 @@ describe('RecResourceAssetsSection', () => {
 
     await user.click(screen.getByText('By campsite'));
 
-    expect(screen.getByText('Campsite A')).toBeInTheDocument();
+    // "Campsite A" appears both in the CampsiteCard header and in the nested
+    // AssetCard for the campsite itself, so scope to the accordion toggle.
+    expect(
+      screen.getByRole('button', { name: /Campsite A/ }),
+    ).toBeInTheDocument();
   });
 
   it('opens and cancels the Add repair modal', async () => {
