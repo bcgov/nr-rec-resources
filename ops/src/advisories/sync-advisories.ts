@@ -7,7 +7,7 @@
  *
  * Environment variables:
  *   - DATABASE_URL: PostgreSQL connection string (required)
- *   - API_BASE_URL: Base URL for the CMS API (required)
+ *   - API_BASE_URL: CMS root URL or full advisory endpoint URL (required)
  *   - API_TOKEN: Bearer token for API authentication (required)
  *   - LOG_LEVEL: Winston log level (default: info)
  */
@@ -23,9 +23,12 @@ import { createLogger, Logger } from '../logger';
  * so we can tell which job inserted/updated each row.
  */
 const SYNC_SOURCE = 'sync-advisories';
+const SCHEDULED_AND_PUBLISHED_ENDPOINT =
+  '/api/public-advisory-audits/scheduled-and-published';
 
 interface ParsedArgs {
   dryRun: boolean;
+  clean: boolean;
   pageSize: number;
   maxPages?: number;
   concurrency: number;
@@ -93,6 +96,7 @@ class AdvisorySync {
   private logger: Logger;
   private pool: Pool;
   private axiosInstance;
+  private advisoryEndpoint: string;
 
   constructor(
     logger: Logger,
@@ -102,8 +106,8 @@ class AdvisorySync {
   ) {
     this.logger = logger;
     this.pool = pool;
+    this.advisoryEndpoint = this.resolveAdvisoryEndpoint(apiBaseUrl);
     this.axiosInstance = axiosCreate({
-      baseURL: apiBaseUrl,
       timeout: 30000,
       headers: {
         ...(apiToken && { Authorization: `Bearer ${apiToken}` }),
@@ -112,48 +116,35 @@ class AdvisorySync {
   }
 
   /**
-   * Build the Strapi API URL with all the required query parameters.
-   * Strapi accepts the bracket-style query string directly, so we keep it
-   * as a readable template literal instead of building it via URLSearchParams.
-   * Only `page` and `pageSize` are dynamic.
+   * Accept either the CMS root URL or the full scheduled-and-published endpoint.
+   */
+  private resolveAdvisoryEndpoint(apiBaseUrl: string): string {
+    const trimmedUrl = apiBaseUrl.trim().replace(/\/+$/, '');
+
+    if (trimmedUrl.includes(SCHEDULED_AND_PUBLISHED_ENDPOINT)) {
+      return trimmedUrl.split('?')[0];
+    }
+
+    return `${trimmedUrl}${SCHEDULED_AND_PUBLISHED_ENDPOINT}`;
+  }
+
+  /**
+   * Build the advisory API URL using the scheduled-and-published endpoint.
+   * Only pagination is dynamic; the endpoint now encapsulates the status logic.
    */
   private buildApiUrl(page: number, pageSize: number): string {
-    return (
-      `/api/public-advisory-audits` +
-      `?filters[recreationResources][recResourceId][$notNull]=true` +
-      `&filters[isLatestRevision][$eq]=true` +
-      `&filters[advisoryStatus][advisoryStatus][$in][0]=Published` +
-      `&filters[advisoryStatus][advisoryStatus][$in][1]=Scheduled` +
-      `&fields[0]=advisoryNumber` +
-      `&fields[1]=title` +
-      `&fields[2]=description` +
-      `&fields[3]=advisoryDate` +
-      `&fields[4]=effectiveDate` +
-      `&fields[5]=endDate` +
-      `&fields[6]=expiryDate` +
-      `&fields[7]=updatedDate` +
-      `&fields[8]=publishedAt` +
-      `&fields[9]=isReservationsAffected` +
-      `&fields[10]=isAdvisoryDateDisplayed` +
-      `&fields[11]=isEffectiveDateDisplayed` +
-      `&fields[12]=isEndDateDisplayed` +
-      `&fields[13]=isUpdatedDateDisplayed` +
-      `&fields[14]=listingRank` +
-      `&fields[15]=submittedByName` +
-      `&fields[16]=isLatestRevision` +
-      `&populate[accessStatus][fields][0]=accessStatus` +
-      `&populate[accessStatus][fields][1]=groupLabel` +
-      `&populate[accessStatus][fields][2]=description` +
-      `&populate[accessStatus][fields][3]=precedence` +
-      `&populate[eventType][fields][0]=eventType` +
-      `&populate[eventType][fields][1]=precedence` +
-      `&populate[urgency][fields][0]=urgency` +
-      `&populate[urgency][fields][1]=sequence` +
-      `&populate[advisoryStatus][fields][0]=advisoryStatus` +
-      `&populate[recreationResources][fields][0]=recResourceId` +
-      `&pagination[page]=${page}` +
-      `&pagination[pageSize]=${pageSize}`
-    );
+    const params = new URLSearchParams();
+
+    params.append('populate[0]', 'accessStatus');
+    params.append('populate[1]', 'eventType');
+    params.append('populate[2]', 'advisoryStatus');
+    params.append('populate[3]', 'recreationResources');
+    params.append('populate[4]', 'urgency');
+    params.append('filters[recreationResources][id][$notNull]', 'true');
+    params.append('pagination[page]', String(page));
+    params.append('pagination[pageSize]', String(pageSize));
+
+    return `${this.advisoryEndpoint}?${params.toString()}`;
   }
 
   /**
@@ -200,33 +191,33 @@ class AdvisorySync {
                    $17, $18, $19, $20, $21, $22, $23, $24, $25, $26
                  )
           ON CONFLICT (rec_resource_id, advisory_number) DO UPDATE SET
-            title = EXCLUDED.title,
-            description = EXCLUDED.description,
-            submitted_by = EXCLUDED.submitted_by,
-            access_status_name = EXCLUDED.access_status_name,
-            access_status_grouplabel = EXCLUDED.access_status_grouplabel,
-            access_status_description = EXCLUDED.access_status_description,
-            event_type = EXCLUDED.event_type,
-            urgency = EXCLUDED.urgency,
-            advisory_status = EXCLUDED.advisory_status,
-            is_reservations_affected = EXCLUDED.is_reservations_affected,
-            is_advisory_date_displayed = EXCLUDED.is_advisory_date_displayed,
-            is_effective_date_displayed = EXCLUDED.is_effective_date_displayed,
-            is_end_date_displayed = EXCLUDED.is_end_date_displayed,
-            is_updated_date_displayed = EXCLUDED.is_updated_date_displayed,
-            advisory_date = EXCLUDED.advisory_date,
-            effective_date = EXCLUDED.effective_date,
-            end_date = EXCLUDED.end_date,
-            expiry_date = EXCLUDED.expiry_date,
-            updated_date = EXCLUDED.updated_date,
-            published_at = EXCLUDED.published_at,
-            listing_rank = EXCLUDED.listing_rank,
-            urgency_sequence = EXCLUDED.urgency_sequence,
-            access_status_precedence = EXCLUDED.access_status_precedence,
-            event_type_precedence = EXCLUDED.event_type_precedence,
-            updated_at = now();
-          -- NOTE: created_at is intentionally NOT in the ON CONFLICT UPDATE SET
-          -- so the original insert timestamp is preserved on re-syncs.
+          title = EXCLUDED.title,
+                                                              description = EXCLUDED.description,
+                                                              submitted_by = EXCLUDED.submitted_by,
+                                                              access_status_name = EXCLUDED.access_status_name,
+                                                              access_status_grouplabel = EXCLUDED.access_status_grouplabel,
+                                                              access_status_description = EXCLUDED.access_status_description,
+                                                              event_type = EXCLUDED.event_type,
+                                                              urgency = EXCLUDED.urgency,
+                                                              advisory_status = EXCLUDED.advisory_status,
+                                                              is_reservations_affected = EXCLUDED.is_reservations_affected,
+                                                              is_advisory_date_displayed = EXCLUDED.is_advisory_date_displayed,
+                                                              is_effective_date_displayed = EXCLUDED.is_effective_date_displayed,
+                                                              is_end_date_displayed = EXCLUDED.is_end_date_displayed,
+                                                              is_updated_date_displayed = EXCLUDED.is_updated_date_displayed,
+                                                              advisory_date = EXCLUDED.advisory_date,
+                                                              effective_date = EXCLUDED.effective_date,
+                                                              end_date = EXCLUDED.end_date,
+                                                              expiry_date = EXCLUDED.expiry_date,
+                                                              updated_date = EXCLUDED.updated_date,
+                                                              published_at = EXCLUDED.published_at,
+                                                              listing_rank = EXCLUDED.listing_rank,
+                                                              urgency_sequence = EXCLUDED.urgency_sequence,
+                                                              access_status_precedence = EXCLUDED.access_status_precedence,
+                                                              event_type_precedence = EXCLUDED.event_type_precedence,
+                                                              updated_at = now();
+        -- NOTE: created_at is intentionally NOT in the ON CONFLICT UPDATE SET
+        -- so the original insert timestamp is preserved on re-syncs.
       `;
 
       const values = [
@@ -429,17 +420,25 @@ async function parseArgs(): Promise<ParsedArgs> {
     })
     .option('api-base-url', {
       type: 'string',
-      description: 'Base URL for the CMS API',
+      description:
+        'CMS root URL or full scheduled-and-published advisory endpoint',
     })
     .option('api-token', {
       type: 'string',
       description: 'Bearer token for API authentication',
+    })
+    .option('clean', {
+      type: 'boolean',
+      default: false,
+      description:
+        'Truncate the advisories table before syncing (full refresh)',
     })
     .help()
     .parseAsync();
 
   return {
     dryRun: parsed['dry-run'] as boolean,
+    clean: parsed['clean'] as boolean,
     pageSize: parsed['page-size'] as number,
     maxPages: parsed['max-pages'] as number | undefined,
     concurrency: parsed.concurrency as number,
@@ -462,7 +461,7 @@ async function main(): Promise<void> {
   const apiBaseUrl = args.apiBaseUrl || process.env.API_BASE_URL;
   if (!apiBaseUrl) {
     logger.error(
-      'API_BASE_URL is required. Provide via --api-base-url flag or API_BASE_URL env var',
+      'API_BASE_URL is required. Provide the CMS root URL or full advisory endpoint via --api-base-url flag or API_BASE_URL env var',
     );
     process.exit(1);
   }
@@ -478,11 +477,20 @@ async function main(): Promise<void> {
   try {
     logger.info('Starting advisory sync', {
       dryRun: args.dryRun,
+      clean: args.clean,
       pageSize: args.pageSize,
       maxPages: args.maxPages || 'unlimited',
       concurrency: args.concurrency,
       apiBaseUrl,
     });
+
+    if (args.clean && !args.dryRun) {
+      logger.warn(
+        '--clean flag set: truncating rst.act_advisories_flat before sync',
+      );
+      await pool.query('TRUNCATE TABLE rst.act_advisories_flat;');
+      logger.info('Table truncated successfully');
+    }
 
     const syncer = new AdvisorySync(logger, pool, apiBaseUrl, apiToken);
     await syncer.sync(args);
