@@ -172,7 +172,11 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
   @IsInt()
   asset_id: number;
 
-  recreation_asset_repair?: RecreationAssetRepairDto[];
+  @ApiProperty({
+    description: 'List of repairs associated with this asset',
+  })
+  @IsArray()
+  recreation_asset_repair: RecreationAssetRepairDto[];
 }
 
 // Standard Partial DTO for fields that can be updated on an asset

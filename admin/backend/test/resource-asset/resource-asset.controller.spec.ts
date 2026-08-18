@@ -28,7 +28,7 @@ describe('RecreationAssetController', () => {
     findRepairsByAssetId: ReturnType<typeof vi.fn>;
     updateRepair: ReturnType<typeof vi.fn>;
     deleteRepair: ReturnType<typeof vi.fn>;
-    bulkUpsertRepairs: ReturnType<typeof vi.fn>;
+    bulkInsertRepairs: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -43,7 +43,7 @@ describe('RecreationAssetController', () => {
       findRepairsByAssetId: vi.fn(),
       updateRepair: vi.fn(),
       deleteRepair: vi.fn(),
-      bulkUpsertRepairs: vi.fn(),
+      bulkInsertRepairs: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -276,11 +276,11 @@ describe('RecreationAssetController', () => {
         ],
       };
 
-      serviceMock.bulkUpsertRepairs.mockResolvedValue(undefined);
+      serviceMock.bulkInsertRepairs.mockResolvedValue(undefined);
 
       await controller.bulkCreateRepairs(dto);
 
-      expect(serviceMock.bulkUpsertRepairs).toHaveBeenCalledWith(dto);
+      expect(serviceMock.bulkInsertRepairs).toHaveBeenCalledWith(dto);
     });
   });
 });

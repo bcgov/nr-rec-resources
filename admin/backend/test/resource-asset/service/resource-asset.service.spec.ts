@@ -23,6 +23,7 @@ describe('RecreationAssetService', () => {
     };
     recreation_asset_repair: {
       create: ReturnType<typeof vi.fn>;
+      createMany: ReturnType<typeof vi.fn>;
       findMany: ReturnType<typeof vi.fn>;
       findUnique: ReturnType<typeof vi.fn>;
       findFirst: ReturnType<typeof vi.fn>;
@@ -49,6 +50,7 @@ describe('RecreationAssetService', () => {
       },
       recreation_asset_repair: {
         create: vi.fn(),
+        createMany: vi.fn(),
         findMany: vi.fn(),
         findUnique: vi.fn(),
         findFirst: vi.fn(),
@@ -197,7 +199,7 @@ describe('RecreationAssetService', () => {
         actual_value: 1500,
         default_value: 1600,
         installation_date: '2023-01-01',
-        recreation_asset_repair: null,
+        recreation_asset_repair: [],
       });
     });
 
@@ -1022,14 +1024,9 @@ describe('RecreationAssetService', () => {
     });
   });
 
-  describe('bulkUpsertRepairs', () => {
-    it('should update existing open repairs and create new ones when absent', async () => {
+  describe('bulkInsertRepairs', () => {
+    it('should perform a bulk insert for all assets in the DTO', async () => {
       prismaMock.recreation_asset.count.mockResolvedValue(2); // Assets exist validation passes
-
-      // Mock finding an existing repair for asset 1, but NONE for asset 2
-      prismaMock.recreation_asset_repair.findFirst
-        .mockResolvedValueOnce({ repair_id: 50n, asset_id: 1n }) // Asset 1 -> UPDATE
-        .mockResolvedValueOnce(null); // Asset 2 -> CREATE
 
       const dto = {
         recreation_remed_repair_code: 'BULK_REPAIR',
@@ -1042,26 +1039,26 @@ describe('RecreationAssetService', () => {
         ],
       };
 
-      await service.bulkUpsertRepairs(dto as any);
+      await service.bulkInsertRepairs(dto as any);
 
-      // Verify UPDATE was called for asset 1
-      expect(prismaMock.recreation_asset_repair.update).toHaveBeenCalledWith({
-        where: { repair_id: 50n },
-        data: {
-          recreation_remed_repair_code: 'BULK_REPAIR',
-          actual_repair_cost: 250,
-          repair_completed_date: new Date('2023-11-15'),
-        },
-      });
-
-      // Verify CREATE was called for asset 2
-      expect(prismaMock.recreation_asset_repair.create).toHaveBeenCalledWith({
-        data: {
-          asset_id: 2n,
-          recreation_remed_repair_code: 'BULK_REPAIR',
-          actual_repair_cost: 250,
-          repair_completed_date: new Date('2023-11-15'),
-        },
+      // Verify single createMany invocation with mapped records
+      expect(
+        prismaMock.recreation_asset_repair.createMany,
+      ).toHaveBeenCalledWith({
+        data: [
+          {
+            asset_id: 1n,
+            recreation_remed_repair_code: 'BULK_REPAIR',
+            actual_repair_cost: 250,
+            repair_completed_date: new Date('2023-11-15'),
+          },
+          {
+            asset_id: 2n,
+            recreation_remed_repair_code: 'BULK_REPAIR',
+            actual_repair_cost: 250,
+            repair_completed_date: new Date('2023-11-15'),
+          },
+        ],
       });
     });
 
@@ -1080,15 +1077,19 @@ describe('RecreationAssetService', () => {
         ],
       };
 
-      await service.bulkUpsertRepairs(dto as any);
+      await service.bulkInsertRepairs(dto as any);
 
-      expect(prismaMock.recreation_asset_repair.create).toHaveBeenCalledWith({
-        data: {
-          asset_id: 1n,
-          recreation_remed_repair_code: 'BULK_REPAIR',
-          actual_repair_cost: 100,
-          repair_completed_date: null,
-        },
+      expect(
+        prismaMock.recreation_asset_repair.createMany,
+      ).toHaveBeenCalledWith({
+        data: [
+          {
+            asset_id: 1n,
+            recreation_remed_repair_code: 'BULK_REPAIR',
+            actual_repair_cost: 100,
+            repair_completed_date: null,
+          },
+        ],
       });
     });
   });
