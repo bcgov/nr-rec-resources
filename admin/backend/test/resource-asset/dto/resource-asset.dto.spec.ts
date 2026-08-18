@@ -216,6 +216,7 @@ describe('Recreation Asset DTOs', () => {
         asset_id: 101,
         rec_resource_id: 'REC123',
         asset_code: 1,
+        recreation_asset_repair: [],
       };
 
       const { errors } = await validateDto(RecreationAssetDto, validReadDto);

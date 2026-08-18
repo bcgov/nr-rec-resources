@@ -452,7 +452,7 @@ export class RecreationAssetService {
     });
   }
 
-  async bulkUpsertRepairs(dto: RecreationAssetBulkRepairDto): Promise<void> {
+  async bulkInsertRepairs(dto: RecreationAssetBulkRepairDto): Promise<void> {
     const allAssetIds = Array.from(
       new Set(dto.changes.flatMap((change) => change.asset_ids)),
     );
@@ -462,40 +462,21 @@ export class RecreationAssetService {
       ? new Date(dto.completed_date)
       : null;
 
-    await this.prisma.$transaction(async (tx) => {
-      for (const change of dto.changes) {
-        for (const assetId of change.asset_ids) {
-          // Find existing open repair for this asset
-          const existingRepair = await tx.recreation_asset_repair.findFirst({
-            where: {
-              asset_id: BigInt(assetId),
-              repair_completed_date: null, // target active repairs
-            },
-          });
+    // Flatten nested changes into a single array of record objects
+    const recordsToInsert = dto.changes.flatMap((change) =>
+      change.asset_ids.map((assetId) => ({
+        asset_id: BigInt(assetId),
+        recreation_remed_repair_code: dto.recreation_remed_repair_code,
+        actual_repair_cost: change.repair_cost,
+        repair_completed_date: completedDate,
+      })),
+    );
 
-          if (existingRepair) {
-            // UPDATE
-            await tx.recreation_asset_repair.update({
-              where: { repair_id: existingRepair.repair_id }, // replace with PK column
-              data: {
-                recreation_remed_repair_code: dto.recreation_remed_repair_code,
-                actual_repair_cost: change.repair_cost,
-                repair_completed_date: completedDate,
-              },
-            });
-          } else {
-            // CREATE
-            await tx.recreation_asset_repair.create({
-              data: {
-                asset_id: BigInt(assetId),
-                recreation_remed_repair_code: dto.recreation_remed_repair_code,
-                actual_repair_cost: change.repair_cost,
-                repair_completed_date: completedDate,
-              },
-            });
-          }
-        }
-      }
+    if (recordsToInsert.length === 0) return;
+
+    // Single bulk insert query replaces the previous transaction block
+    await this.prisma.recreation_asset_repair.createMany({
+      data: recordsToInsert,
     });
   }
 
@@ -603,7 +584,7 @@ export class RecreationAssetService {
       longitude: geom?.longitude ?? null,
       recreation_asset_repair: includeRepair
         ? record.recreation_asset_repair.map((r) => this.mapRepairToDto(r))
-        : null,
+        : [],
     };
   }
 

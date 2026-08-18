@@ -210,9 +210,12 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
   @IsOptional()
   longitude?: number | null;
 
-  @ApiPropertyOptional({ type: [RecreationAssetRepairDto], nullable: true })
-  @IsOptional()
-  recreation_asset_repair?: RecreationAssetRepairDto[] | null;
+  @ApiProperty({
+    description: 'List of repairs associated with this asset',
+    type: [RecreationAssetRepairDto],
+  })
+  @IsArray()
+  recreation_asset_repair: RecreationAssetRepairDto[];
 }
 
 // Standard Partial DTO for fields that can be updated on an asset

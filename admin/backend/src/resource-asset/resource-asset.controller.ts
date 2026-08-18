@@ -77,7 +77,10 @@ export class RecreationAssetController {
     ],
     ROLE_MODE.ANY,
   )
-  @ApiOperation({ summary: 'Create a new recreation asset' })
+  @ApiOperation({
+    summary: 'Create a new recreation asset',
+    operationId: 'createRecreationAsset',
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: RecreationAssetDto,
@@ -99,6 +102,7 @@ export class RecreationAssetController {
   )
   @ApiOperation({
     summary: 'Retrieve recreation assets with filtering and pagination',
+    operationId: 'getPaginatedRecreationAssets',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -171,7 +175,10 @@ export class RecreationAssetController {
     ],
     ROLE_MODE.ANY,
   )
-  @ApiOperation({ summary: 'Find a recreation asset by ID' })
+  @ApiOperation({
+    summary: 'Find a recreation asset by ID',
+    operationId: 'getRecreationAssetById',
+  })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
   @ApiQuery({
     name: 'include_repair',
@@ -203,6 +210,7 @@ export class RecreationAssetController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Bulk update common fields across multiple recreation assets',
+    operationId: 'bulkUpdateRecreationAssets',
   })
   @ApiResponse({
     status: 200,
@@ -224,7 +232,10 @@ export class RecreationAssetController {
     ],
     ROLE_MODE.ANY,
   )
-  @ApiOperation({ summary: 'Update an existing recreation asset' })
+  @ApiOperation({
+    summary: 'Update an existing recreation asset',
+    operationId: 'updateRecreationAsset',
+  })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -240,7 +251,10 @@ export class RecreationAssetController {
   @Delete(':id')
   @AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN])
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a recreation asset' })
+  @ApiOperation({
+    summary: 'Delete a recreation asset',
+    operationId: 'deleteRecreationAsset',
+  })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   async deleteAsset(@Param('id', ParseIntPipe) id: number): Promise<void> {
@@ -260,7 +274,10 @@ export class RecreationAssetController {
     ],
     ROLE_MODE.ANY,
   )
-  @ApiOperation({ summary: 'Create a repair record for an asset' })
+  @ApiOperation({
+    summary: 'Create a repair record for an asset',
+    operationId: 'createAssetRepair',
+  })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -290,7 +307,10 @@ export class RecreationAssetController {
     ],
     ROLE_MODE.ANY,
   )
-  @ApiOperation({ summary: 'Get all repair records for an asset' })
+  @ApiOperation({
+    summary: 'Get all repair records for an asset',
+    operationId: 'getAssetRepairs',
+  })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -311,7 +331,10 @@ export class RecreationAssetController {
     ],
     ROLE_MODE.ANY,
   )
-  @ApiOperation({ summary: 'Update a repair record' })
+  @ApiOperation({
+    summary: 'Update a repair record',
+    operationId: 'updateAssetRepair',
+  })
   @ApiParam({ name: 'repairId', description: 'Repair ID', type: Number })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -334,7 +357,10 @@ export class RecreationAssetController {
     ROLE_MODE.ANY,
   )
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a repair record' })
+  @ApiOperation({
+    summary: 'Delete a repair record',
+    operationId: 'deleteAssetRepair',
+  })
   @ApiParam({ name: 'repairId', description: 'Repair ID', type: Number })
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   async deleteRepair(
@@ -354,7 +380,8 @@ export class RecreationAssetController {
   )
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Bulk create or record repairs across multiple recreation assets',
+    summary: 'Bulk create repairs across multiple recreation assets',
+    operationId: 'bulkInsertAssetRepairs',
     description:
       'Applies a common repair code and completion date across multiple grouped asset IDs with varying costs.',
   })
@@ -373,6 +400,6 @@ export class RecreationAssetController {
   async bulkCreateRepairs(
     @Body() dto: RecreationAssetBulkRepairDto,
   ): Promise<void> {
-    return this.assetService.bulkUpsertRepairs(dto);
+    return this.assetService.bulkInsertRepairs(dto);
   }
 }
