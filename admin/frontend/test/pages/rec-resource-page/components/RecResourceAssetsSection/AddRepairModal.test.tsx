@@ -1,5 +1,8 @@
 import { AddRepairModal } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/AddRepairModal';
-import type { RepairCode } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
+import type {
+  AssetCode,
+  RepairCode,
+} from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -9,12 +12,19 @@ const repairCodes: RepairCode[] = [
   { recreation_remed_repair_code: 'R2', description: 'Deck repair' },
 ];
 
+const assetCodes: AssetCode[] = [
+  { asset_code: 1, description: 'Picnic table' },
+  { asset_code: 2, description: 'Toilet' },
+];
+
 describe('AddRepairModal', () => {
   it('does not render modal content when show is false', () => {
     render(
       <AddRepairModal
         show={false}
         repairCodes={repairCodes}
+        assetCodes={assetCodes}
+        assets={[]}
         onCancel={vi.fn()}
         onCreate={vi.fn()}
       />,
@@ -23,11 +33,14 @@ describe('AddRepairModal', () => {
     expect(screen.queryByText('Add repair')).not.toBeInTheDocument();
   });
 
-  it('renders the title and repair type options when shown', () => {
+  it('renders the title and repair type options, sorted alphabetically, when shown', async () => {
+    const user = userEvent.setup();
     render(
       <AddRepairModal
         show
         repairCodes={repairCodes}
+        assetCodes={assetCodes}
+        assets={[]}
         onCancel={vi.fn()}
         onCreate={vi.fn()}
       />,
@@ -35,28 +48,33 @@ describe('AddRepairModal', () => {
 
     expect(screen.getByText('Add repair')).toBeInTheDocument();
     expect(screen.getByText('Repair details')).toBeInTheDocument();
-    expect(
-      screen.getByRole('option', { name: 'Paint touch-up' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('option', { name: 'Deck repair' }),
-    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('combobox', { name: 'Repair type' }));
+
+    const options = screen.getAllByRole('option');
+    expect(options.map((option) => option.textContent)).toEqual([
+      'Deck repair',
+      'Paint touch-up',
+    ]);
   });
 
-  it('renders no repair type options when repairCodes is empty', () => {
+  it('renders no repair type options when repairCodes is empty', async () => {
+    const user = userEvent.setup();
     render(
       <AddRepairModal
         show
         repairCodes={[]}
+        assetCodes={assetCodes}
+        assets={[]}
         onCancel={vi.fn()}
         onCreate={vi.fn()}
       />,
     );
 
-    expect(
-      screen.getByRole('option', { name: 'Select repair type...' }),
-    ).toBeInTheDocument();
-    expect(screen.queryAllByRole('option')).toHaveLength(1);
+    await user.click(screen.getByRole('combobox', { name: 'Repair type' }));
+
+    expect(screen.queryByRole('option')).not.toBeInTheDocument();
+    expect(screen.getByText('No options')).toBeInTheDocument();
   });
 
   it('calls onCancel when Cancel is clicked', async () => {
@@ -66,6 +84,8 @@ describe('AddRepairModal', () => {
       <AddRepairModal
         show
         repairCodes={repairCodes}
+        assetCodes={assetCodes}
+        assets={[]}
         onCancel={onCancel}
         onCreate={vi.fn()}
       />,
@@ -83,6 +103,8 @@ describe('AddRepairModal', () => {
       <AddRepairModal
         show
         repairCodes={repairCodes}
+        assetCodes={assetCodes}
+        assets={[]}
         onCancel={vi.fn()}
         onCreate={onCreate}
       />,
@@ -100,6 +122,8 @@ describe('AddRepairModal', () => {
       <AddRepairModal
         show
         repairCodes={repairCodes}
+        assetCodes={assetCodes}
+        assets={[]}
         onCancel={onCancel}
         onCreate={vi.fn()}
       />,
