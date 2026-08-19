@@ -1,0 +1,30 @@
+.summary-card__title {
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: var(--typography-font-size-body, 1rem); // 16px
+  line-height: 1.6; // 25.6px at this size
+}
+
+.summary-card__subtitle {
+  // BC Gov "small body"
+  font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
+}
+
+.summary-card__meta {
+  font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
+}
+
+.summary-card__meta-label {
+  // Body small (bold)
+  font: var(--typography-bold-small-body, 700 0.875rem/1.313rem 'BC Sans');
+}
+
+.summary-card__value {
+  // Family (BC Sans + fallbacks) is inherited from the app's global font.
+  font-weight: var(--typography-font-weights-regular, 400);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 2.074rem;
+  line-height: 1.44;
+}

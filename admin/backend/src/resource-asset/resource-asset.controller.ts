@@ -25,11 +25,13 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import {
   BulkAssetUpdateResponseDto,
+  BulkCreateRecreationAssetsDto,
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
   FindAllAssetsQueryDto,
@@ -90,6 +92,29 @@ export class RecreationAssetController {
     return this.assetService.createAsset(dto);
   }
 
+  @Post('bulk-create')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
+  @ApiOperation({
+    summary: 'Bulk create multiple recreation assets in a single request',
+    operationId: 'bulkCreateRecreationAssets',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: [RecreationAssetDto],
+  })
+  async bulkCreateAssets(
+    @Body() dto: BulkCreateRecreationAssetsDto,
+  ): Promise<RecreationAssetDto[]> {
+    return this.assetService.bulkCreateAssets(dto);
+  }
+
   @Get()
   @AuthRoles(
     [
@@ -102,12 +127,6 @@ export class RecreationAssetController {
   @ApiOperation({
     summary: 'Retrieve recreation assets with filtering and pagination',
     operationId: 'getPaginatedRecreationAssets',
-  })
-  @ApiParam({
-    name: 'include_repair',
-    description: 'Include repair records',
-    type: Boolean,
-    required: false,
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -185,7 +204,7 @@ export class RecreationAssetController {
     operationId: 'getRecreationAssetById',
   })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
-  @ApiParam({
+  @ApiQuery({
     name: 'include_repair',
     description: 'Include repair records',
     type: Boolean,

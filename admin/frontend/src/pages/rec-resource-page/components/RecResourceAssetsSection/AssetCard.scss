@@ -1,0 +1,50 @@
+@import '@shared/styles/variables';
+
+.asset-card {
+  // Bootstrap's own border-radius/width tokens already match spec (6px / 1px);
+  // only the color needs overriding.
+  --bs-card-border-color: #{$colorGreyLight};
+
+  // Let the rounded card border clip the header/repairs backgrounds below,
+  // instead of colouring the whole card (so the repairs section can stay
+  // white independently of the header's background).
+  overflow: hidden;
+
+  .card-body {
+    padding: 0;
+  }
+}
+
+.asset-card__header {
+  padding: 1rem 1rem;
+}
+
+.asset-card--campsite {
+  --bs-card-border-color: #{$colorGreyMed};
+}
+
+.asset-card--campsite .asset-card__header {
+  background-color: #{$colorBackgroundGrey};
+}
+
+.asset-card__title {
+  color: #{$colorGrey};
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1.2rem; // 19.2px
+  line-height: 1.4375; // 27.6px at this size
+}
+
+.asset-card__fields {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.5rem;
+  row-gap: 0.25rem;
+  margin-top: 0.5rem;
+  font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
+}
+
+.asset-card__field-label {
+  font: var(--typography-bold-small-body, 700 0.875rem/1.313rem 'BC Sans');
+}

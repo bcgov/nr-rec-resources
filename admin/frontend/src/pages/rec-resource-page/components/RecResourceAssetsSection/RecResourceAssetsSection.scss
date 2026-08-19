@@ -1,0 +1,83 @@
+@import '@shared/styles/variables';
+
+.asset-summary-heading {
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1.44rem; // 23.04px
+  line-height: 1.441; // 33.2px at this size
+}
+
+.asset-summary-toolbar {
+  height: 2.375rem; // 38px
+
+  // Not enough room for the toggle + action buttons on one line below this
+  // width (covers tablets up to iPad Pro portrait's 1024px, not just phones)
+  // — let the action buttons drop to their own row instead of crowding.
+  @media (max-width: ($xlBreakpoint - 0.02px)) {
+    height: auto;
+    flex-wrap: wrap;
+  }
+}
+
+// `.btn` beats .btn-outline-primary's specificity regardless of source order.
+.btn.asset-group-toggle {
+  display: inline-flex;
+  align-items: center;
+  height: 2.375rem; // 38px
+  flex-shrink: 0;
+  white-space: nowrap;
+  --bs-btn-padding-y: 0.5rem; // 8px
+  --bs-btn-padding-x: 0.875rem; // 14px
+
+  // !important: border-color is set per-state in multiple places otherwise.
+  border-color: #{$colorGreyLight} !important;
+
+  background-color: #{$colorGreyLight};
+  color: var(--typography-color-primary, #2d2d2d);
+  font-weight: var(--typography-font-weights-regular, 400);
+
+  // Selected state (checked radio's sibling label).
+  --bs-btn-active-bg: #{$colorWhite};
+  --bs-btn-active-color: var(--typography-color-primary, #2d2d2d);
+
+  &:hover {
+    background-color: var(--surface-color-secondary-button-hover);
+    color: var(--typography-color-primary, #2d2d2d);
+  }
+}
+
+// No active-state font-weight variable in Bootstrap, so this needs its own rule.
+.btn-check:checked + .btn.asset-group-toggle {
+  font-weight: var(--typography-font-weights-bold, 700);
+}
+
+.asset-summary-action-buttons {
+  height: 2.375rem; // 38px
+}
+
+.btn.asset-summary-action-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 96%;
+  --bs-btn-padding-y: 0.25rem; // 4px
+  --bs-btn-padding-x: 0.875rem; // 14px
+}
+
+.campsite-children {
+  display: flex;
+  align-items: stretch;
+}
+
+.campsite-children__divider {
+  width: 0.5rem; // 8px
+  margin-left: 1.375rem; // 22px
+  margin-right: 0.875rem; // 14px
+  background-color: #{$colorGreyLight};
+  flex-shrink: 0;
+}
+
+.campsite-children__list {
+  flex: 1 1 auto;
+  min-width: 0;
+}

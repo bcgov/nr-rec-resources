@@ -195,14 +195,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   rec_status_code: string | null;
-
   /**
-   * Recreation resource status description (Archived, Issued)
+   * Description of the recreation resource status code
    * @type {string}
    * @memberof RecreationResourceDetailDto
    */
-
-  rec_status_description?: string | null;
+  rec_status_description: string | null;
   /**
    * Full descriptive name of the organization unit
    * @type {string}
@@ -272,6 +270,11 @@ export function instanceOfRecreationResourceDetailDto(
   )
     return false;
   if (!('rec_status_code' in value) || value['rec_status_code'] === undefined)
+    return false;
+  if (
+    !('rec_status_description' in value) ||
+    value['rec_status_description'] === undefined
+  )
     return false;
   if (
     !('natural_resource_org_unit_name' in value) ||
@@ -346,10 +349,7 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     right_of_way:
       json['right_of_way'] == null ? undefined : json['right_of_way'],
     rec_status_code: json['rec_status_code'],
-    rec_status_description:
-      json['rec_status_description'] == null
-        ? undefined
-        : json['rec_status_description'],
+    rec_status_description: json['rec_status_description'],
     natural_resource_org_unit_name: json['natural_resource_org_unit_name'],
   };
 }

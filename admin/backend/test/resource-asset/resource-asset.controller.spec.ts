@@ -302,7 +302,7 @@ describe('RecreationAssetController', () => {
   });
 
   describe('bulkCreateRepairs', () => {
-    it('should delegate to service.bulkUpsertRepairs with the bulk repair DTO', async () => {
+    it('should delegate to service.bulkInsertRepairs with the bulk repair DTO', async () => {
       const dto: RecreationAssetBulkRepairDto = {
         recreation_remed_repair_code: 'REPAIR_ALL',
         completed_date: '2026-08-13',

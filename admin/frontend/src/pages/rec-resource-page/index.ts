@@ -2,6 +2,7 @@ export * from './components';
 export * from './constants';
 export { RecResourceFilesPage } from './RecResourceFilesPage';
 export { RecResourceFeesPage } from './RecResourceFeesPage';
+export { RecResourceAssetsPage } from './RecResourceAssetsPage';
 export { RecResourceOverviewPage } from './RecResourceOverviewPage';
 export { RecResourceReservationPage } from './RecResourceReservationPage';
 export { RecResourcePageLayout as RecResourceLayout } from './RecResourcePageLayout';
