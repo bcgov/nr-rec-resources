@@ -31,6 +31,7 @@ import {
 } from '@nestjs/swagger';
 import {
   BulkAssetUpdateResponseDto,
+  BulkCreateRecreationAssetsDto,
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
   FindAllAssetsQueryDto,
@@ -89,6 +90,29 @@ export class RecreationAssetController {
     @Body() dto: CreateRecreationAssetDto,
   ): Promise<RecreationAssetDto> {
     return this.assetService.createAsset(dto);
+  }
+
+  @Post('bulk-create')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
+  @ApiOperation({
+    summary: 'Bulk create multiple recreation assets in a single request',
+    operationId: 'bulkCreateRecreationAssets',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: [RecreationAssetDto],
+  })
+  async bulkCreateAssets(
+    @Body() dto: BulkCreateRecreationAssetsDto,
+  ): Promise<RecreationAssetDto[]> {
+    return this.assetService.bulkCreateAssets(dto);
   }
 
   @Get()

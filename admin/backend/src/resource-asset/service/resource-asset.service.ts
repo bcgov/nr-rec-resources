@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '@/prisma.service';
 import {
   BulkAssetUpdateResponseDto,
+  BulkCreateRecreationAssetsDto,
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
   FindAllAssetsQueryDto,
@@ -106,6 +107,42 @@ export class RecreationAssetService {
     }
 
     return this.mapAssetToDto(created);
+  }
+
+  async bulkCreateAssets(
+    dto: BulkCreateRecreationAssetsDto,
+  ): Promise<RecreationAssetDto[]> {
+    // Validate all asset codes exist first
+    const uniqueCodes = Array.from(
+      new Set(dto.assets.map((a) => a.asset_code)),
+    );
+    await Promise.all(uniqueCodes.map((code) => this.findAssetCodeById(code)));
+
+    const created = await this.prisma.$transaction(
+      dto.assets.map((asset) =>
+        this.prisma.recreation_asset.create({
+          data: {
+            parent_id: asset.parent_id ? BigInt(asset.parent_id) : null,
+            asset_tag: asset.asset_tag ?? null,
+            rec_resource_id: asset.rec_resource_id,
+            asset_code: asset.asset_code,
+            asset_name: asset.asset_name ?? null,
+            asset_comment: asset.asset_comment ?? null,
+            legacy_structure_id: asset.legacy_structure_id ?? null,
+            asset_length: asset.asset_length ?? null,
+            asset_width: asset.asset_width ?? null,
+            asset_area: asset.asset_area ?? null,
+            actual_value: asset.actual_value ?? null,
+            default_value: asset.default_value ?? null,
+            installation_date: asset.installation_date
+              ? new Date(asset.installation_date)
+              : null,
+          },
+        }),
+      ),
+    );
+
+    return created.map((asset) => this.mapAssetToDto(asset));
   }
 
   async findAllAssets(

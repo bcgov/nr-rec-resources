@@ -1,0 +1,339 @@
+/**
+ * Shared styles consumed by BulkAddCampsitesModal and BulkAddAssetsModal
+ * via BulkAddModalShared.tsx.
+ *
+ * BEM root: .bulk-modal
+ */
+
+.bulk-modal {
+  // ── Modal shell ──────────────────────────────────────────────────────────
+
+  .modal-dialog {
+    max-width: 800px;
+    width: 800px;
+  }
+
+  .modal-content {
+    border-radius: 4px;
+    border: 1px solid #c7c7c7;
+    overflow: hidden;
+  }
+
+  // ── Header ───────────────────────────────────────────────────────────────
+
+  &__header {
+    background: #f2f2f2;
+    border-bottom: 1px solid #c7c7c7;
+    padding: 16px 24px;
+    min-height: 80px;
+    align-items: center;
+    border-radius: 0;
+  }
+
+  &__title {
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 26px;
+    color: #1a1a1a;
+  }
+
+  // ── Body ─────────────────────────────────────────────────────────────────
+
+  &__body {
+    background: #ffffff;
+    padding: 24px;
+  }
+
+  // ── Section header (subtitle + count) ────────────────────────────────────
+
+  &__section-header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  &__subtitle {
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 700;
+    font-size: 19.2px;
+    line-height: 28px;
+    color: #1a1a1a;
+    margin-bottom: 0;
+  }
+
+  &__current-count {
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 26px;
+    color: #1a1a1a;
+    white-space: nowrap;
+    padding-top: 4px;
+  }
+
+  // ── Quantity stepper ─────────────────────────────────────────────────────
+
+  &__quantity-group {
+    margin-top: 8px;
+    margin-bottom: 0;
+    width: 198px;
+  }
+
+  &__quantity-label {
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 400;
+    font-size: 13.33px;
+    line-height: 21px;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+  }
+
+  &__stepper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 198px;
+    height: 44px;
+    background: #ffffff;
+    border: 1px solid #656565;
+    border-radius: 4px;
+    padding: 8px 12px;
+    gap: 8px;
+
+    &-btn {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      line-height: 1;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: #2d2d2d;
+      flex-shrink: 0;
+
+      &:hover:not(:disabled) {
+        opacity: 0.7;
+      }
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+    }
+
+    &-input {
+      flex: 1;
+      text-align: center;
+      border: none !important;
+      border-radius: 0 !important;
+      height: auto !important;
+      padding: 0 !important;
+      font-family: 'BC Sans', sans-serif;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 26px;
+      color: #1a1a1a;
+      box-shadow: none !important;
+      background: transparent;
+
+      &:focus {
+        box-shadow: none !important;
+        outline: none;
+      }
+
+      // Hide native number spinner arrows
+      -moz-appearance: textfield;
+
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
+  }
+
+  // ── Preview section (ice-blue) ────────────────────────────────────────────
+
+  &__preview-section {
+    background-color: #ecf6ff;
+    border: 1px solid #c7c7c7;
+    border-radius: 0;
+    padding: 24px;
+    margin-top: 8px;
+  }
+
+  &__preview-heading {
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 700;
+    font-size: 19.2px;
+    line-height: 28px;
+    color: #003366;
+    margin-bottom: 14px;
+  }
+
+  &__item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  // ── Item row ──────────────────────────────────────────────────────────────
+
+  &__item-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__item-row-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  &__item-row-name {
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 26px;
+    color: #1a1a1a;
+  }
+
+  &__item-row-id {
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 400;
+    font-size: 13.33px;
+    line-height: 21px;
+    color: #656565;
+  }
+
+  // Blue divider between rows
+  &__row-divider {
+    width: 100%;
+    height: 1px;
+    background: #003366;
+    border-radius: 9999px;
+    margin: 20px 0;
+  }
+
+  // ── Field inputs inside rows ──────────────────────────────────────────────
+
+  &__field-col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    & + & {
+      padding-left: 8px !important;
+    }
+  }
+
+  &__field-label {
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 400;
+    font-size: 13.33px;
+    line-height: 21px;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+    white-space: nowrap;
+  }
+
+  &__field-input {
+    height: 44px;
+    padding: 8px 12px;
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 26px;
+    color: #1a1a1a;
+    background: #ffffff;
+    border: 1px solid #656565 !important;
+    border-radius: 4px;
+
+    &::placeholder {
+      color: #656565;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(0, 51, 102, 0.25);
+    }
+  }
+
+  // ── Help icon (used by BulkAddAssetsModal) ────────────────────────────────
+
+  &__help-icon {
+    cursor: pointer;
+    color: #003366;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+
+  // ── Footer ───────────────────────────────────────────────────────────────
+
+  &__footer {
+    border-top: none;
+    padding: 12px 24px;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  &__btn-cancel {
+    padding: 0 16px;
+    height: 40px;
+    background: #ffffff !important;
+    border: 1px solid #353433 !important;
+    border-radius: 4px;
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 27px;
+    color: #2d2d2d !important;
+
+    &:hover {
+      background: #f2f2f2 !important;
+    }
+  }
+
+  &__btn-create {
+    padding: 0 16px;
+    height: 40px;
+    background: #013366 !important;
+    border: none !important;
+    border-radius: 4px;
+    font-family: 'BC Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 27px;
+    color: #ffffff !important;
+
+    &:hover:not(:disabled) {
+      background: #002a54 !important;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  // ── Utility: prevent label overflow in narrow cols ────────────────────────
+
+  .form-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .input-group-text {
+    background-color: #f0f0f0;
+    border-color: var(--bs-border-color);
+  }
+}

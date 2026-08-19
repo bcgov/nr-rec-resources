@@ -349,3 +349,18 @@ export class PaginatedRecreationAssetDto {
   @ApiProperty({ example: 5 })
   totalPages: number;
 }
+
+/**
+ * Payload for bulk-creating multiple Recreation Assets in a single request
+ */
+export class BulkCreateRecreationAssetsDto {
+  @ApiProperty({
+    description: 'List of assets to create',
+    type: [CreateRecreationAssetDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateRecreationAssetDto)
+  @ArrayMinSize(1)
+  assets: CreateRecreationAssetDto[];
+}
