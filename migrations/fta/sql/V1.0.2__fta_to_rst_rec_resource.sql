@@ -16,7 +16,9 @@ insert into rst.recreation_resource (
     right_of_way,
     rec_status_code,
     arch_impact_assess_ind,
-    resource_feature_ind
+    resource_feature_ind,
+    last_rec_inspection_date,
+    last_hzrd_tree_assess_date
 )
 select
     rp.forest_file_id as rec_resource_id,
