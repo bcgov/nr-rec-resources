@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { Overlay, Tooltip } from 'react-bootstrap';
+import { useSyncExternalStore } from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import './HelpIcon.scss';
 
 export interface HelpIconProps {
@@ -9,40 +9,59 @@ export interface HelpIconProps {
   id: string;
 }
 
-/** Small inline ? badge that shows a tooltip on click */
+let activeId: string | null = null;
+const listeners = new Set<() => void>();
+
+const store = {
+  subscribe: (listener: () => void) => {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  },
+  getSnapshot: () => activeId,
+  setActiveId: (id: string | null) => {
+    activeId = id;
+    listeners.forEach((listener) => listener());
+  },
+};
+
+/** Small inline ? badge that shows a tooltip on click (only one open at a time) */
 export function HelpIcon({ text, id }: HelpIconProps) {
-  const [show, setShow] = useState(false);
-  const [target, setTarget] = useState<HTMLSpanElement | null>(null);
-  const spanRef = useRef<HTMLSpanElement | null>(null);
+  const show = useSyncExternalStore(store.subscribe, store.getSnapshot) === id;
+
+  const stop = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   return (
-    <>
+    <OverlayTrigger
+      placement="top"
+      trigger="click"
+      show={show}
+      onToggle={(next) => store.setActiveId(next ? id : null)}
+      rootClose
+      overlay={
+        <Tooltip id={`tooltip-${id}`} className="help-icon__tooltip">
+          {text}
+        </Tooltip>
+      }
+    >
       <span
-        ref={(node) => {
-          spanRef.current = node;
-          setTarget(node);
-        }}
         className="help-icon__badge"
         aria-label="Help"
+        role="button"
         tabIndex={0}
-        onClick={() => setShow((prev) => !prev)}
+        onClick={stop}
+        onMouseDown={stop}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') setShow((prev) => !prev);
+          if (e.key === 'Enter' || e.key === ' ') {
+            stop(e);
+            store.setActiveId(show ? null : id);
+          }
         }}
       >
         ?
       </span>
-      <Overlay
-        target={target}
-        show={show}
-        placement="top"
-        rootClose
-        onHide={() => setShow(false)}
-      >
-        <Tooltip id={`tooltip-${id}`} className="help-icon__tooltip">
-          {text}
-        </Tooltip>
-      </Overlay>
-    </>
+    </OverlayTrigger>
   );
 }

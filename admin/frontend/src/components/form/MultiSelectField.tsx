@@ -56,10 +56,8 @@ function MultiSelectFieldComponent<TFieldValues extends FieldValues>({
 
         return (
           <Form.Group controlId={name as string}>
-            <Form.Label>
-              <span className={hideLabel ? 'visually-hidden' : ''}>
-                {label}
-              </span>
+            <Form.Label className={hideLabel ? 'visually-hidden' : ''}>
+              {label}
               {helpText && <HelpIcon id={`${name}-help`} text={helpText} />}
             </Form.Label>
             <Select<RecreationResourceOptionUIModel, true>
