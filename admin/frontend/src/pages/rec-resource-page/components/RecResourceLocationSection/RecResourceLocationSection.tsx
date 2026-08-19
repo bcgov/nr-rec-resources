@@ -6,7 +6,6 @@ import {
   DownloadMapModal,
   getMapFeaturesFromRecResource,
   getLayerStyleForRecResource,
-  getExtentFromRecResource,
   StyleContext,
   ExportMapFileBtn,
 } from '@shared/components/recreation-resource-map';
@@ -73,13 +72,6 @@ export const RecResourceLocationSection = ({
     setIsDownloadModalOpen(true);
   }, [recResourceName, recResource?.rec_resource_id]);
 
-  const mapviewUrl = useMemo(() => {
-    const extent = getExtentFromRecResource(recResource);
-    if (!extent) return undefined;
-    const [minX, minY, maxX, maxY] = extent.map(Math.round);
-    return `https://arcmaps.gov.bc.ca/ess/hm/mapview/?runWorkflow=Startup&Theme=TEN&extent=${minX},${minY},${maxX},${maxY}`;
-  }, [recResource]);
-
   const hasGeometry =
     recResource?.site_point_geometry || recResource?.spatial_feature_geometry;
 
@@ -111,18 +103,6 @@ export const RecResourceLocationSection = ({
         >
           iMap
         </CustomButton>
-        {mapviewUrl && (
-          <a
-            href={mapviewUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="custom-btn btn btn-outline-primary"
-            aria-label="Open in Mapview (opens in a new tab)"
-          >
-            Open in Mapview
-            <FontAwesomeIcon icon={faExternalLink as any} className="ms-2" />
-          </a>
-        )}
       </Stack>
 
       <DownloadMapModal

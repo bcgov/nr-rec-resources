@@ -1269,7 +1269,7 @@ model recreation_resource_status_code {
   update_timestamp                DateTime?                @db.Date
   updated_at                      DateTime?                @default(now()) @db.Timestamp(6)
   sys_period                      Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource             recreation_resource[]    @relation("recreation_resource_status_code_rel")
+  recreation_resource             recreation_resource[]
 
   @@schema("rst")
 }

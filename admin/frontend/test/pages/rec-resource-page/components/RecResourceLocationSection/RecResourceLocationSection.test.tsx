@@ -1,7 +1,6 @@
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection/RecResourceLocationSection';
 import { RecreationResourceDetailUIModel } from '@/services';
 import {
-  getExtentFromRecResource,
   getLayerStyleForRecResource,
   getMapFeaturesFromRecResource,
 } from '@shared/components/recreation-resource-map';
@@ -43,7 +42,6 @@ vi.mock('@shared/components/recreation-resource-map', () => ({
   ),
   getMapFeaturesFromRecResource: vi.fn(),
   getLayerStyleForRecResource: vi.fn(),
-  getExtentFromRecResource: vi.fn(),
   MATOMO_TRACKING_CATEGORY_MAP: 'Map',
   StyleContext: {
     DOWNLOAD: 'download',
@@ -61,7 +59,6 @@ describe('RecResourceLocationSection', () => {
     vi.clearAllMocks();
     vi.mocked(getMapFeaturesFromRecResource).mockReturnValue([]);
     vi.mocked(getLayerStyleForRecResource).mockReturnValue(() => []);
-    vi.mocked(getExtentFromRecResource).mockReturnValue(undefined);
   });
 
   it('renders location section with title', () => {
@@ -198,41 +195,10 @@ describe('RecResourceLocationSection', () => {
     expect(screen.getByText('Location')).toBeInTheDocument();
   });
 
-  it('renders mapview link when extent is available', () => {
-    vi.mocked(getExtentFromRecResource).mockReturnValue([
-      100.5, 200.3, 300.7, 400.9,
-    ]);
-
-    render(<RecResourceLocationSection recResource={baseResource} />);
-
-    const mapviewLink = screen.getByText('Open in Mapview');
-    expect(mapviewLink).toBeInTheDocument();
-    expect(mapviewLink).toHaveAttribute(
-      'href',
-      'https://arcmaps.gov.bc.ca/ess/hm/mapview/?runWorkflow=Startup&Theme=TEN&extent=101,200,301,401',
-    );
-  });
-
-  it('does not render mapview link when extent is not available', () => {
-    vi.mocked(getExtentFromRecResource).mockReturnValue(undefined);
-
+  it('does not render mapview link', () => {
     render(<RecResourceLocationSection recResource={baseResource} />);
 
     expect(screen.queryByText('Open in Mapview')).not.toBeInTheDocument();
-  });
-
-  it('rounds extent values to integers for mapview URL', () => {
-    vi.mocked(getExtentFromRecResource).mockReturnValue([
-      123.456, 234.567, 345.678, 456.789,
-    ]);
-
-    render(<RecResourceLocationSection recResource={baseResource} />);
-
-    const mapviewLink = screen.getByText('Open in Mapview');
-    expect(mapviewLink).toHaveAttribute(
-      'href',
-      'https://arcmaps.gov.bc.ca/ess/hm/mapview/?runWorkflow=Startup&Theme=TEN&extent=123,235,346,457',
-    );
   });
 
   it('passes getResourceDetailUrl function to DownloadMapModal', async () => {

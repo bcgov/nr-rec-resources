@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Controller, useWatch } from 'react-hook-form';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { UTM_HELP } from '@/constants/geospatial';
 import { Route } from '@/routes/rec-resource/$id/geospatial/edit';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { useEditGeospatialForm } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/hooks';
@@ -13,6 +14,7 @@ import {
   utmToWgs84,
 } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/utils/validateUtmAgainstSpatialFeatures';
 import { ExhibitASection } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/ExhibitASection/ExhibitASection';
+import { HelpIcon } from '@/components/help-icon';
 
 const onNumberChange = (onChange: (v?: number) => void) => {
   return (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,7 +148,9 @@ export const RecResourceGeospatialEditSection = () => {
         <Row className="gy-3">
           <Col xs={12} md={4}>
             <Form.Group controlId="utm_zone">
-              <Form.Label>UTM Zone</Form.Label>
+              <Form.Label>
+                UTM Zone <HelpIcon text={UTM_HELP.zone} id="utm-zone" />
+              </Form.Label>
               <Controller
                 name="utm_zone"
                 control={control}
@@ -170,7 +174,10 @@ export const RecResourceGeospatialEditSection = () => {
 
           <Col xs={12} md={4}>
             <Form.Group controlId="utm_easting">
-              <Form.Label>UTM Easting</Form.Label>
+              <Form.Label>
+                UTM Easting{' '}
+                <HelpIcon text={UTM_HELP.easting} id="utm-easting" />
+              </Form.Label>
               <Controller
                 name="utm_easting"
                 control={control}
@@ -194,7 +201,10 @@ export const RecResourceGeospatialEditSection = () => {
 
           <Col xs={12} md={4}>
             <Form.Group controlId="utm_northing">
-              <Form.Label>UTM Northing</Form.Label>
+              <Form.Label>
+                UTM Northing{' '}
+                <HelpIcon text={UTM_HELP.northing} id="utm-northing" />
+              </Form.Label>
               <Controller
                 name="utm_northing"
                 control={control}
@@ -227,6 +237,9 @@ export const RecResourceGeospatialEditSection = () => {
                 </small>
               </Form.Label>
               <Form.Control type="text" value={displayLatitude} disabled />
+              <Form.Text className="text-muted">
+                Generated from UTM coordinates.
+              </Form.Text>
             </Form.Group>
           </Col>
 
@@ -239,6 +252,9 @@ export const RecResourceGeospatialEditSection = () => {
                 </small>
               </Form.Label>
               <Form.Control type="text" value={displayLongitude} disabled />
+              <Form.Text className="text-muted">
+                Generated from UTM coordinates.
+              </Form.Text>
             </Form.Group>
           </Col>
         </Row>
