@@ -127,6 +127,34 @@ describe('RecResourceAssetsSection', () => {
     expect(screen.getByText('Total value')).toBeInTheDocument();
   });
 
+  it('shows an empty state message when there are no assets', () => {
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    expect(
+      screen.getByText('No assets recorded for this resource yet'),
+    ).toBeInTheDocument();
+  });
+
+  it('does not show the empty state message when there are assets', () => {
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [buildAsset({ asset_code: 100 })],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    expect(
+      screen.queryByText('No assets recorded for this resource yet'),
+    ).not.toBeInTheDocument();
+  });
+
   it('groups assets by type by default', () => {
     vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
       data: [buildAsset({ asset_code: 100 })],

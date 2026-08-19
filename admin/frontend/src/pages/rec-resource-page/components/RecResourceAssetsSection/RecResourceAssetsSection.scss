@@ -64,6 +64,11 @@
   --bs-btn-padding-x: 0.875rem; // 14px
 }
 
+.asset-summary-empty {
+  color: #{$colorGrey};
+  font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
+}
+
 .campsite-children {
   display: flex;
   align-items: stretch;

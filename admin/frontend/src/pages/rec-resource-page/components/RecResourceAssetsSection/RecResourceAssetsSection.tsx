@@ -140,6 +140,12 @@ export function RecResourceAssetsSection() {
             </div>
           </div>
 
+          {(assets ?? []).length === 0 && (
+            <div className="asset-summary-empty">
+              No assets recorded for this resource yet
+            </div>
+          )}
+
           {groupMode === 'type' && (
             <Stack direction="vertical" gap={3}>
               {typeGroups.map((group) => (
