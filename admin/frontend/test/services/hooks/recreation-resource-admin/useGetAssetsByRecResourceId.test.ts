@@ -45,7 +45,10 @@ describe('useGetAssetsByRecResourceId', () => {
 
   it('fetches assets with pagination, repair inclusion, and the given resource ID', async () => {
     const assets = [{ asset_id: 1, asset_name: 'Bridge' }];
-    mockGetPaginatedRecreationAssets.mockResolvedValueOnce({ data: assets });
+    mockGetPaginatedRecreationAssets.mockResolvedValueOnce({
+      data: assets,
+      totalPages: 1,
+    });
 
     const { result } = renderHook(() => useGetAssetsByRecResourceId('REC123'), {
       wrapper: TestQueryClientProvider,
@@ -55,7 +58,8 @@ describe('useGetAssetsByRecResourceId', () => {
 
     expect(mockGetPaginatedRecreationAssets).toHaveBeenCalledWith({
       recResourceId: 'REC123',
-      limit: 30,
+      page: 1,
+      limit: 50,
       includeRepair: true,
     });
   });
