@@ -260,7 +260,7 @@ describe('RecResourceOverviewEditSection', () => {
 
       expect(screen.getByText('Displayed on public site')).toBeInTheDocument();
       expect(screen.getByTestId('helper-text')).toHaveTextContent(
-        'Access types are grouped with their available sub-options below them.',
+        'How visitors reach the site.',
       );
     });
   });
