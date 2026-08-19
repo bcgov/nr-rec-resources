@@ -72,6 +72,7 @@ models/RecreationStatusDto.ts
 models/RecreationStructureDto.ts
 models/RecreationSubAccessCodeDto.ts
 models/RecreationTrailDto.ts
+models/RepairChange.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts
 models/UpdateActivitiesDto.ts

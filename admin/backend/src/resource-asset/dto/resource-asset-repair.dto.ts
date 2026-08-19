@@ -185,6 +185,7 @@ export class RepairChange {
   @ApiPropertyOptional({
     description: 'Actual cost of the repair, once known',
     example: 950.0,
+    type: Number,
     nullable: true,
   })
   @IsNumber()
@@ -194,6 +195,7 @@ export class RepairChange {
   @ApiPropertyOptional({
     description: 'Trail station where the repaired segment starts',
     example: '49.232423, -128.334343',
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -203,6 +205,7 @@ export class RepairChange {
   @ApiPropertyOptional({
     description: 'Trail station where the repaired segment ends',
     example: '49.234561, -128.331872',
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -211,6 +214,7 @@ export class RepairChange {
 
   @ApiProperty({
     description: 'Array of asset IDs to which this repair change applies',
+    type: [Number],
     example: [1, 2, 3],
   })
   @IsArray()
@@ -228,9 +232,11 @@ export class RecreationAssetBulkRepairDto {
   @IsNotEmpty()
   recreation_remed_repair_code: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Date when the repairs were completed',
     example: '2023-10-01',
+    type: String,
+    nullable: true,
   })
   @IsDateString()
   @IsOptional()
@@ -238,6 +244,7 @@ export class RecreationAssetBulkRepairDto {
 
   @ApiProperty({
     description: 'Array of repair changes to be applied across multiple assets',
+    type: [RepairChange],
     example: [
       {
         estimated_repair_cost: 1000.0,

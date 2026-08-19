@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { RepairChange } from './RepairChange';
+import {
+  RepairChangeFromJSON,
+  RepairChangeFromJSONTyped,
+  RepairChangeToJSON,
+  RepairChangeToJSONTyped,
+} from './RepairChange';
+
 /**
  *
  * @export
@@ -30,13 +38,13 @@ export interface RecreationAssetBulkRepairDto {
    * @type {string}
    * @memberof RecreationAssetBulkRepairDto
    */
-  completed_date: string;
+  completed_date?: string | null;
   /**
    * Array of repair changes to be applied across multiple assets
-   * @type {Array<string>}
+   * @type {Array<RepairChange>}
    * @memberof RecreationAssetBulkRepairDto
    */
-  changes: Array<string>;
+  changes: Array<RepairChange>;
 }
 
 /**
@@ -49,8 +57,6 @@ export function instanceOfRecreationAssetBulkRepairDto(
     !('recreation_remed_repair_code' in value) ||
     value['recreation_remed_repair_code'] === undefined
   )
-    return false;
-  if (!('completed_date' in value) || value['completed_date'] === undefined)
     return false;
   if (!('changes' in value) || value['changes'] === undefined) return false;
   return true;
@@ -71,8 +77,9 @@ export function RecreationAssetBulkRepairDtoFromJSONTyped(
   }
   return {
     recreation_remed_repair_code: json['recreation_remed_repair_code'],
-    completed_date: json['completed_date'],
-    changes: json['changes'],
+    completed_date:
+      json['completed_date'] == null ? undefined : json['completed_date'],
+    changes: (json['changes'] as Array<any>).map(RepairChangeFromJSON),
   };
 }
 
@@ -93,6 +100,6 @@ export function RecreationAssetBulkRepairDtoToJSONTyped(
   return {
     recreation_remed_repair_code: value['recreation_remed_repair_code'],
     completed_date: value['completed_date'],
-    changes: value['changes'],
+    changes: (value['changes'] as Array<any>).map(RepairChangeToJSON),
   };
 }

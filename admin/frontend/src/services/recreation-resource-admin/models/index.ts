@@ -66,6 +66,7 @@ export * from './RecreationStatusDto';
 export * from './RecreationStructureDto';
 export * from './RecreationSubAccessCodeDto';
 export * from './RecreationTrailDto';
+export * from './RepairChange';
 export * from './SuggestionDto';
 export * from './SuggestionsResponseDto';
 export * from './UpdateActivitiesDto';
