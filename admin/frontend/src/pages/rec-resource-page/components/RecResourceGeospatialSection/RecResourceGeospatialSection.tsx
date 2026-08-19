@@ -1,6 +1,5 @@
 import { Col, Row, Stack } from 'react-bootstrap';
 import { EditableGuard } from '@/components/auth';
-import { HelpIcon } from '@/components/help-icon';
 import { CopyButton } from '@shared/components/copy-button';
 import { FieldItem } from '../shared/FieldItem';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
@@ -11,7 +10,6 @@ import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-
 import { Link } from '@tanstack/react-router';
 import { ExhibitASection } from './ExhibitASection/ExhibitASection';
 import { IMAP_URL } from '@/constants/urls';
-import { UTM_HELP } from '@/constants/geospatial';
 import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
 import './RecResourceGeospatialSection.scss';
 
@@ -19,24 +17,6 @@ const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
   maximumFractionDigits: 4,
 };
-
-/** Renders a label string with an optional inline help icon */
-function FieldLabel({
-  label,
-  helpText,
-  helpId,
-}: {
-  label: string;
-  helpText?: string;
-  helpId?: string;
-}) {
-  return (
-    <span className="d-inline-flex align-items-center gap-1">
-      {label}
-      {helpText && helpId && <HelpIcon text={helpText} id={helpId} />}
-    </span>
-  );
-}
 
 export function RecResourceGeospatialSection() {
   const params = Route.useParams();
@@ -60,38 +40,30 @@ export function RecResourceGeospatialSection() {
 
   const hasGeometryData = utm_zone && utm_easting && utm_northing;
 
+  const SITE_TYPE_CODES = ['IF', 'RR', 'SIT', 'RTR', 'TRB'];
+  const TRAIL_TYPE_CODES = ['TBL', 'IFT', 'RTE'];
+
+  const isTrail = TRAIL_TYPE_CODES.includes(
+    recResource?.rec_resource_type_code ?? '',
+  );
+  const isSite = SITE_TYPE_CODES.includes(
+    recResource?.rec_resource_type_code ?? '',
+  );
+
   const geospatialItems = [
     {
       key: 'utm-zone',
-      label: (
-        <FieldLabel
-          label="UTM zone"
-          helpText={UTM_HELP.zone}
-          helpId="utm-zone"
-        />
-      ),
+      label: 'UTM zone',
       value: utm_zone?.toString(),
     },
     {
       key: 'utm-easting',
-      label: (
-        <FieldLabel
-          label="UTM easting"
-          helpText={UTM_HELP.easting}
-          helpId="utm-easting"
-        />
-      ),
+      label: 'UTM easting',
       value: utm_easting?.toString(),
     },
     {
       key: 'utm-northing',
-      label: (
-        <FieldLabel
-          label="UTM northing"
-          helpText={UTM_HELP.northing}
-          helpId="utm-northing"
-        />
-      ),
+      label: 'UTM northing',
       value: utm_northing?.toString(),
     },
     {
@@ -104,30 +76,38 @@ export function RecResourceGeospatialSection() {
       label: 'Longitude',
       value: longitude ? <CopyButton text={String(longitude)} /> : undefined,
     },
-    {
-      key: 'total-length',
-      label: 'Total length (km)',
-      value:
-        total_length_km != null
-          ? `${total_length_km.toLocaleString('en-CA', geometryNumberFormat)}`
-          : null,
-    },
-    {
-      key: 'total-area',
-      label: 'Total area (ha)',
-      value:
-        total_area_hectares != null
-          ? `${total_area_hectares.toLocaleString('en-CA', geometryNumberFormat)}`
-          : null,
-    },
-    {
-      key: 'right-of-way',
-      label: 'Right-of-way width (m)',
-      value:
-        right_of_way_m != null
-          ? `${right_of_way_m.toLocaleString('en-CA', geometryNumberFormat)}`
-          : null,
-    },
+    ...(isSite
+      ? [
+          {
+            key: 'total-area',
+            label: 'Total area (ha)',
+            value:
+              total_area_hectares != null
+                ? `${total_area_hectares.toLocaleString('en-CA', geometryNumberFormat)}`
+                : null,
+          },
+        ]
+      : []),
+    ...(isTrail
+      ? [
+          {
+            key: 'total-length',
+            label: 'Total length (km)',
+            value:
+              total_length_km != null
+                ? `${total_length_km.toLocaleString('en-CA', geometryNumberFormat)}`
+                : null,
+          },
+          {
+            key: 'right-of-way',
+            label: 'Right-of-way width (m)',
+            value:
+              right_of_way_m != null
+                ? `${right_of_way_m.toLocaleString('en-CA', geometryNumberFormat)}`
+                : null,
+          },
+        ]
+      : []),
   ];
 
   const recResourceWithGeometry = recResource

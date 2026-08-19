@@ -177,7 +177,38 @@ describe('RecResourceGeospatialSection', () => {
     expect(screen.getByText('Geospatial')).toBeDefined();
   });
 
-  it('renders measure items (total length, total area, right-of-way) when present', () => {
+  it('renders measure items (total area) for site resources', () => {
+    mockUseRecResource.mockReturnValue({
+      recResource: { rec_status_code: 'OP', rec_resource_type_code: 'SIT' },
+      isLoading: false,
+      error: undefined,
+    });
+    mockUseGetRecreationResourceGeospatial.mockReturnValueOnce({
+      data: {
+        utm_zone: 10,
+        utm_easting: 500000,
+        utm_northing: 5480000,
+        latitude: 49.12,
+        longitude: -123.65,
+        total_area_hectares: 61.6545,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.getByText('Total area (ha)')).toBeDefined();
+    expect(screen.getByText('61.6545')).toBeDefined();
+
+    expect(screen.queryByText('Total length (km)')).toBeNull();
+    expect(screen.queryByText('Right-of-way width (m)')).toBeNull();
+  });
+
+  it('renders measure items (total length, right-of-way) for trail resources', () => {
+    mockUseRecResource.mockReturnValue({
+      recResource: { rec_status_code: 'OP', rec_resource_type_code: 'RTE' },
+      isLoading: false,
+      error: undefined,
+    });
     mockUseGetRecreationResourceGeospatial.mockReturnValueOnce({
       data: {
         utm_zone: 10,
@@ -186,7 +217,6 @@ describe('RecResourceGeospatialSection', () => {
         latitude: 49.12,
         longitude: -123.65,
         total_length_km: 41.103,
-        total_area_hectares: 61.6545,
         right_of_way_m: 15,
       },
     });
@@ -196,10 +226,9 @@ describe('RecResourceGeospatialSection', () => {
     expect(screen.getByText('Total length (km)')).toBeDefined();
     expect(screen.getByText('41.103')).toBeDefined();
 
-    expect(screen.getByText('Total area (ha)')).toBeDefined();
-    expect(screen.getByText('61.6545')).toBeDefined();
-
     expect(screen.getByText('Right-of-way width (m)')).toBeDefined();
     expect(screen.getByText('15.00')).toBeDefined();
+
+    expect(screen.queryByText('Total area (ha)')).toBeNull();
   });
 });
