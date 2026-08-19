@@ -7,6 +7,7 @@ import {
   Path,
   UseFormRegister,
 } from 'react-hook-form';
+import { HelpIcon } from '@/components';
 
 export interface DateInputFieldProps<TFieldValues extends FieldValues> {
   name: Path<TFieldValues>;
@@ -18,6 +19,7 @@ export interface DateInputFieldProps<TFieldValues extends FieldValues> {
   required?: boolean;
   min?: string;
   max?: string;
+  helpText?: string;
 }
 
 export const DateInputField = <TFieldValues extends FieldValues>({
@@ -30,13 +32,15 @@ export const DateInputField = <TFieldValues extends FieldValues>({
   required = false,
   min,
   max,
+  helpText,
 }: DateInputFieldProps<TFieldValues>) => {
   if (control) {
     return (
       <Form.Group controlId={name}>
-        <Form.Label>
+        <Form.Label className="d-flex align-items-center flex-wrap gap-1">
           {label}
           {required && ' *'}
+          {helpText && <HelpIcon id={`${name}-help`} text={helpText} />}
         </Form.Label>
         <Controller<TFieldValues>
           name={name}

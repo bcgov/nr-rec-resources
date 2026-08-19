@@ -1,5 +1,7 @@
 import { Form, Stack } from 'react-bootstrap';
 import { FormLabel } from '@/components/form';
+import { HelpIcon } from '@/components/help-icon';
+import { RESERVABLE_HELP_TEXT } from '@/utils/helpText';
 import '@/pages/rec-resource-page/components/RecResourceReservationSection/RecResourceReservationSection.scss';
 
 type HasReservationProps = {
@@ -15,9 +17,12 @@ export const HasReservation = ({ value, onChange }: HasReservationProps) => {
           Reservation
         </FormLabel>
       </Stack>
-      <FormLabel className="reservation-form-label mb-2" required>
-        Is this resource reservable?
-      </FormLabel>
+      <div className="d-flex align-items-center flex-wrap gap-1 mb-2">
+        <FormLabel className="reservation-form-label mb-0" required>
+          Is this resource reservable?
+        </FormLabel>
+        <HelpIcon id="reservable-help" text={RESERVABLE_HELP_TEXT} />
+      </div>
       <Stack direction="horizontal" gap={4}>
         <Form.Check
           data-testid="reservable-yes"
