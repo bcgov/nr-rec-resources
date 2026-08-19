@@ -21,16 +21,16 @@ import { mapValues } from '../runtime';
 export interface UpdateRecreationAssetDto {
   /**
    * ID of the parent container asset
-   * @type {object}
+   * @type {number}
    * @memberof UpdateRecreationAssetDto
    */
-  parent_id?: object | null;
+  parent_id?: number | null;
   /**
    * Physical barcode or field tag
-   * @type {object}
+   * @type {string}
    * @memberof UpdateRecreationAssetDto
    */
-  asset_tag?: object | null;
+  asset_tag?: string | null;
   /**
    * FK to the parent Recreation Resource
    * @type {string}
@@ -45,58 +45,58 @@ export interface UpdateRecreationAssetDto {
   asset_code?: number;
   /**
    * Optional display name
-   * @type {object}
+   * @type {string}
    * @memberof UpdateRecreationAssetDto
    */
-  asset_name?: object | null;
+  asset_name?: string | null;
   /**
    * Free-text note
-   * @type {object}
+   * @type {string}
    * @memberof UpdateRecreationAssetDto
    */
-  asset_comment?: object | null;
+  asset_comment?: string | null;
   /**
    * Legacy aggregate structure reference ID
-   * @type {object}
+   * @type {string}
    * @memberof UpdateRecreationAssetDto
    */
-  legacy_structure_id?: object | null;
+  legacy_structure_id?: string | null;
   /**
    * Total length in metres
-   * @type {object}
+   * @type {number}
    * @memberof UpdateRecreationAssetDto
    */
-  asset_length?: object | null;
+  asset_length?: number | null;
   /**
    * Total width in metres
-   * @type {object}
+   * @type {number}
    * @memberof UpdateRecreationAssetDto
    */
-  asset_width?: object | null;
+  asset_width?: number | null;
   /**
    * Total area in square metres
-   * @type {object}
+   * @type {number}
    * @memberof UpdateRecreationAssetDto
    */
-  asset_area?: object | null;
+  asset_area?: number | null;
   /**
    * Default monetary value
-   * @type {object}
+   * @type {number}
    * @memberof UpdateRecreationAssetDto
    */
-  default_value?: object | null;
+  default_value?: number | null;
   /**
    * Actual monetary value
-   * @type {object}
+   * @type {number}
    * @memberof UpdateRecreationAssetDto
    */
-  actual_value?: object | null;
+  actual_value?: number | null;
   /**
    * Date the asset was installed (YYYY-MM-DD)
-   * @type {object}
+   * @type {string}
    * @memberof UpdateRecreationAssetDto
    */
-  installation_date?: object | null;
+  installation_date?: string | null;
 }
 
 /**

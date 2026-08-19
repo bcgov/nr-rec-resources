@@ -21,46 +21,46 @@ import { mapValues } from '../runtime';
 export interface CreateRecreationAssetRepairDto {
   /**
    * Remedial repair classification code (FK to recreation_remed_repair_code)
-   * @type {object}
+   * @type {string}
    * @memberof CreateRecreationAssetRepairDto
    */
-  recreation_remed_repair_code?: object | null;
+  recreation_remed_repair_code?: string | null;
   /**
    * Estimated financial cost for repair
-   * @type {object}
+   * @type {number}
    * @memberof CreateRecreationAssetRepairDto
    */
-  estimated_repair_cost?: object | null;
+  estimated_repair_cost?: number | null;
   /**
    * Final actual cost incurred
-   * @type {object}
+   * @type {number}
    * @memberof CreateRecreationAssetRepairDto
    */
-  actual_repair_cost?: object | null;
+  actual_repair_cost?: number | null;
   /**
    * Date completed (YYYY-MM-DD)
-   * @type {object}
+   * @type {string}
    * @memberof CreateRecreationAssetRepairDto
    */
-  repair_completed_date?: object | null;
+  repair_completed_date?: string | null;
   /**
    * Urgency/priority of repair
-   * @type {object}
+   * @type {string}
    * @memberof CreateRecreationAssetRepairDto
    */
-  urgency?: object | null;
+  urgency?: string | null;
   /**
    * Trail segment start reference
-   * @type {object}
+   * @type {string}
    * @memberof CreateRecreationAssetRepairDto
    */
-  trail_segment_start?: object | null;
+  trail_segment_start?: string | null;
   /**
    * Trail segment end reference
-   * @type {object}
+   * @type {string}
    * @memberof CreateRecreationAssetRepairDto
    */
-  trail_segment_end?: object | null;
+  trail_segment_end?: string | null;
   /**
    * FK linking to the individual asset being repaired (populated automatically from URL param)
    * @type {number}

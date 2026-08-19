@@ -6,7 +6,7 @@ import { QueryOptions, useQuery } from '@tanstack/react-query';
 import { createRetryHandler } from './helpers';
 import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
-const ASSETS_PAGE_LIMIT = 30;
+const ASSETS_PAGE_LIMIT = 50;
 
 export const useGetAssetsByRecResourceId = (
   recResourceId?: string,
@@ -18,12 +18,23 @@ export const useGetAssetsByRecResourceId = (
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.assets(recResourceId!),
     initialData: [],
     queryFn: async () => {
-      const paginated = await assetsApiClient.getPaginatedRecreationAssets({
-        recResourceId: recResourceId!,
-        limit: ASSETS_PAGE_LIMIT,
-        includeRepair: true,
-      });
-      return paginated.data as unknown as Asset[];
+      const assets: Asset[] = [];
+      let page = 1;
+      let totalPages = 1;
+
+      do {
+        const paginated = await assetsApiClient.getPaginatedRecreationAssets({
+          recResourceId: recResourceId!,
+          page,
+          limit: ASSETS_PAGE_LIMIT,
+          includeRepair: true,
+        });
+        assets.push(...(paginated.data as Asset[]));
+        totalPages = paginated.totalPages;
+        page++;
+      } while (page <= totalPages);
+
+      return assets;
     },
     enabled: Boolean(recResourceId),
     retry: createRetryHandler({

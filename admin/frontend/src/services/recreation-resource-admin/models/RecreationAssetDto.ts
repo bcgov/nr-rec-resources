@@ -29,16 +29,16 @@ import {
 export interface RecreationAssetDto {
   /**
    * ID of the parent container asset
-   * @type {object}
+   * @type {number}
    * @memberof RecreationAssetDto
    */
-  parent_id?: object | null;
+  parent_id?: number | null;
   /**
    * Physical barcode or field tag
-   * @type {object}
+   * @type {string}
    * @memberof RecreationAssetDto
    */
-  asset_tag?: object | null;
+  asset_tag?: string | null;
   /**
    * FK to the parent Recreation Resource
    * @type {string}
@@ -53,58 +53,58 @@ export interface RecreationAssetDto {
   asset_code: number;
   /**
    * Optional display name
-   * @type {object}
+   * @type {string}
    * @memberof RecreationAssetDto
    */
-  asset_name?: object | null;
+  asset_name?: string | null;
   /**
    * Free-text note
-   * @type {object}
+   * @type {string}
    * @memberof RecreationAssetDto
    */
-  asset_comment?: object | null;
+  asset_comment?: string | null;
   /**
    * Legacy aggregate structure reference ID
-   * @type {object}
+   * @type {string}
    * @memberof RecreationAssetDto
    */
-  legacy_structure_id?: object | null;
+  legacy_structure_id?: string | null;
   /**
    * Total length in metres
-   * @type {object}
+   * @type {number}
    * @memberof RecreationAssetDto
    */
-  asset_length?: object | null;
+  asset_length?: number | null;
   /**
    * Total width in metres
-   * @type {object}
+   * @type {number}
    * @memberof RecreationAssetDto
    */
-  asset_width?: object | null;
+  asset_width?: number | null;
   /**
    * Total area in square metres
-   * @type {object}
+   * @type {number}
    * @memberof RecreationAssetDto
    */
-  asset_area?: object | null;
+  asset_area?: number | null;
   /**
    * Default monetary value
-   * @type {object}
+   * @type {number}
    * @memberof RecreationAssetDto
    */
-  default_value?: object | null;
+  default_value?: number | null;
   /**
    * Actual monetary value
-   * @type {object}
+   * @type {number}
    * @memberof RecreationAssetDto
    */
-  actual_value?: object | null;
+  actual_value?: number | null;
   /**
    * Date the asset was installed (YYYY-MM-DD)
-   * @type {object}
+   * @type {string}
    * @memberof RecreationAssetDto
    */
-  installation_date?: object | null;
+  installation_date?: string | null;
   /**
    * Unique surrogate identifier for the asset
    * @type {number}
@@ -113,34 +113,34 @@ export interface RecreationAssetDto {
   asset_id: number;
   /**
    * User identifier who last updated the record
-   * @type {object}
+   * @type {string}
    * @memberof RecreationAssetDto
    */
-  updated_by?: object | null;
+  updated_by?: string | null;
   /**
    * Timestamp when record was last updated
-   * @type {object}
+   * @type {string}
    * @memberof RecreationAssetDto
    */
-  updated_at?: object | null;
+  updated_at?: string | null;
   /**
    * Point geometry type code, if this asset has a location
-   * @type {object}
+   * @type {string}
    * @memberof RecreationAssetDto
    */
-  geometry_type_code?: object | null;
+  geometry_type_code?: string | null;
   /**
    * Latitude in WGS84 (derived from recreation_asset_geom)
-   * @type {object}
+   * @type {number}
    * @memberof RecreationAssetDto
    */
-  latitude?: object | null;
+  latitude?: number | null;
   /**
    * Longitude in WGS84 (derived from recreation_asset_geom)
-   * @type {object}
+   * @type {number}
    * @memberof RecreationAssetDto
    */
-  longitude?: object | null;
+  longitude?: number | null;
   /**
    * List of repairs associated with this asset
    * @type {Array<RecreationAssetRepairDto>}
