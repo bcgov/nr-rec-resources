@@ -467,8 +467,11 @@ export class RecreationAssetService {
       change.asset_ids.map((assetId) => ({
         asset_id: BigInt(assetId),
         recreation_remed_repair_code: dto.recreation_remed_repair_code,
-        actual_repair_cost: change.repair_cost,
+        estimated_repair_cost: change.estimated_repair_cost,
+        actual_repair_cost: change.actual_repair_cost ?? null,
         repair_completed_date: completedDate,
+        trail_segment_start: change.station_start ?? null,
+        trail_segment_end: change.station_end ?? null,
       })),
     );
 
