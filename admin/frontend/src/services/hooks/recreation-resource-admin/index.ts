@@ -31,3 +31,4 @@ export * from './useAssetsApiClient';
 export * from './useGetAssetsByRecResourceId';
 export * from './useGetAssetCodes';
 export * from './useGetRepairCodes';
+export * from './useCreateBulkAssets';

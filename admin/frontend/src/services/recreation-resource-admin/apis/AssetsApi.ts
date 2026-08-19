@@ -305,6 +305,41 @@ export class AssetsApi extends runtime.BaseAPI {
   }
 
   /**
+   * Bulk create multiple recreation assets
+   */
+  async bulkCreateRecreationAssets(
+    assets: CreateRecreationAssetDto[],
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationAssetDto[]> {
+    const headerParameters: runtime.HTTPHeaders = {};
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    const response = await this.request(
+      {
+        path: `/api/v1/assets/bulk-create`,
+        method: 'POST',
+        headers: headerParameters,
+        query: {},
+        body: { assets: assets.map((a) => CreateRecreationAssetDtoToJSON(a)) },
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse<RecreationAssetDto[]>(
+      response,
+      (jsonValue) => (jsonValue as any[]).map(RecreationAssetDtoFromJSON),
+    ).value();
+  }
+
+  /**
    * Create a repair record for an asset
    */
   async recreationAssetControllerCreateRepairRaw(
