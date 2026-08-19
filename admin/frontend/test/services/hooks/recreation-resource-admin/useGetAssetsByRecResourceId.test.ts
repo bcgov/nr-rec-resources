@@ -5,11 +5,11 @@ import { TestQueryClientProvider } from '@test/test-utils';
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mockFindAllAssets = vi.fn();
+const mockGetPaginatedRecreationAssets = vi.fn();
 const mockAddErrorNotification = vi.fn();
 
 const mockApi = {
-  recreationAssetControllerFindAllAssets: mockFindAllAssets,
+  getPaginatedRecreationAssets: mockGetPaginatedRecreationAssets,
 };
 
 describe('useGetAssetsByRecResourceId', () => {
@@ -40,12 +40,12 @@ describe('useGetAssetsByRecResourceId', () => {
     );
 
     expect(result.current.isPending).toBe(false);
-    expect(mockFindAllAssets).not.toHaveBeenCalled();
+    expect(mockGetPaginatedRecreationAssets).not.toHaveBeenCalled();
   });
 
   it('fetches assets with pagination, repair inclusion, and the given resource ID', async () => {
     const assets = [{ asset_id: 1, asset_name: 'Bridge' }];
-    mockFindAllAssets.mockResolvedValueOnce({ data: assets });
+    mockGetPaginatedRecreationAssets.mockResolvedValueOnce({ data: assets });
 
     const { result } = renderHook(() => useGetAssetsByRecResourceId('REC123'), {
       wrapper: TestQueryClientProvider,
@@ -53,7 +53,7 @@ describe('useGetAssetsByRecResourceId', () => {
 
     await waitFor(() => expect(result.current.data).toEqual(assets));
 
-    expect(mockFindAllAssets).toHaveBeenCalledWith({
+    expect(mockGetPaginatedRecreationAssets).toHaveBeenCalledWith({
       recResourceId: 'REC123',
       limit: 30,
       includeRepair: true,
