@@ -21,6 +21,11 @@ sync-advisories: ## Sync advisories from CMS API to database
 	@cd "$(OPS)" && DATABASE_URL="$(DB_URL)" API_BASE_URL="$(API_BASE_URL)" \
 		npx tsx src/advisories/sync-advisories.ts $(ARGS)
 
+.PHONY: sync-advisories-clean
+sync-advisories-clean: ## Wipe table and re-sync all advisories from CMS API
+	@cd "$(OPS)" && DATABASE_URL="$(DB_URL)" API_BASE_URL="$(API_BASE_URL)" \
+		npx tsx src/advisories/sync-advisories.ts --clean $(ARGS)
+
 .PHONY: sync-advisories-dry
 sync-advisories-dry: ## Dry run - validate data without writing to database
 	@cd "$(OPS)" && DATABASE_URL="$(DB_URL)" API_BASE_URL="$(API_BASE_URL)" \
