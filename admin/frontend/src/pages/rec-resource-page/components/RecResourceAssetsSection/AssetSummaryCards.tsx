@@ -1,5 +1,6 @@
 import { Col, Row } from 'react-bootstrap';
 import { formatDateReadable } from '@shared/utils';
+import { HelpIcon } from '@/components';
 import { SummaryCard } from './SummaryCard';
 import { formatCurrency } from './formatCurrency';
 import type { AssetSummary } from './types';
@@ -9,6 +10,23 @@ import dangerTreeAssessment from '@shared/assets/icons/danger-tree-inspection.sv
 interface AssetSummaryCardsProps {
   summary: AssetSummary;
 }
+
+const TOTAL_VALUE_HELP_TEXT = (
+  <>
+    <p className="mb-2">
+      <strong>Total value</strong> is the sum of &lsquo;actual value&rsquo; when
+      available, or &lsquo;default value&rsquo; when not.
+    </p>
+    <p className="mb-2">
+      <strong>Actual value</strong> is the real amount paid (or donated value)
+      for this specific asset.
+    </p>
+    <p className="mb-0">
+      <strong>Default value</strong> is the estimated cost to replace this asset
+      today using provincial standard rates.
+    </p>
+  </>
+);
 
 export function AssetSummaryCards({ summary }: AssetSummaryCardsProps) {
   return (
@@ -28,7 +46,15 @@ export function AssetSummaryCards({ summary }: AssetSummaryCardsProps) {
 
       <Col>
         <SummaryCard
-          title="Total value"
+          title={
+            <>
+              Total value
+              <HelpIcon
+                id="asset-summary-total-value"
+                text={TOTAL_VALUE_HELP_TEXT}
+              />
+            </>
+          }
           subtitle="Actual value, default if unset"
         >
           <div className="summary-card__value">

@@ -1,10 +1,10 @@
-import { useSyncExternalStore } from 'react';
+import { ReactNode, useSyncExternalStore } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import './HelpIcon.scss';
 
 export interface HelpIconProps {
-  /** Tooltip text to display on click */
-  text: string;
+  /** Tooltip content to display on click */
+  text: ReactNode;
   /** Unique id used to link the tooltip (should be unique on the page) */
   id: string;
 }

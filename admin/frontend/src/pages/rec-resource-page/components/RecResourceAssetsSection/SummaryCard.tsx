@@ -3,7 +3,7 @@ import { Card } from 'react-bootstrap';
 import './SummaryCard.scss';
 
 interface SummaryCardProps {
-  title: string;
+  title: ReactNode;
   subtitle?: string;
   children: ReactNode;
 }
