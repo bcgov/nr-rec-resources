@@ -46,6 +46,7 @@ model recreation_resource {
   recreation_district_code             recreation_district_code?              @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_maintenance_standard_code recreation_maintenance_standard_code?  @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_risk_rating_code          recreation_risk_rating_code?           @relation(fields: [risk_rating_code], references: [risk_rating_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_exhibit_a_doc             recreation_exhibit_a_doc[]
   recreation_resource_document         recreation_resource_document[]
   recreation_resource_image            recreation_resource_image[]
   recreation_resource_reservation_info recreation_resource_reservation_info?
@@ -1144,6 +1145,41 @@ model recreation_resource_image_history {
   file_name       String                   @db.VarChar
   extension       String                   @db.VarChar
   file_size       BigInt?
+  updated_at      DateTime?                @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+model recreation_exhibit_a_doc {
+  doc_id              String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rec_resource_id     String                   @db.VarChar(10)
+  file_name           String                   @db.VarChar
+  extension           String                   @db.VarChar
+  file_size           BigInt?
+  s3_key              String                   @unique @db.VarChar
+  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by          String?
+  created_at          DateTime?                @default(now()) @db.Timestamp(6)
+  created_by          String?
+  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([rec_resource_id], map: "idx_recreation_exhibit_a_doc_rec_resource_id")
+  @@schema("rst")
+}
+
+model recreation_exhibit_a_doc_history {
+  doc_id          String                   @db.Uuid
+  rec_resource_id String                   @db.VarChar(10)
+  file_name       String                   @db.VarChar
+  extension       String                   @db.VarChar
+  file_size       BigInt?
+  s3_key          String                   @db.VarChar
   updated_at      DateTime?                @db.Timestamp(6)
   updated_by      String?
   created_at      DateTime?                @db.Timestamp(6)

@@ -8,6 +8,10 @@ import { ROUTE_PATHS } from '@/constants/routes';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
 import { Link } from '@tanstack/react-router';
+import { ExhibitASection } from './ExhibitASection/ExhibitASection';
+import { IMAP_URL } from '@/constants/urls';
+import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
+import './RecResourceGeospatialSection.scss';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
@@ -36,6 +40,16 @@ export function RecResourceGeospatialSection() {
 
   const hasGeometryData = utm_zone && utm_easting && utm_northing;
 
+  const SITE_TYPE_CODES = ['IF', 'RR', 'SIT', 'RTR', 'TRB'];
+  const TRAIL_TYPE_CODES = ['TBL', 'IFT', 'RTE'];
+
+  const isTrail = TRAIL_TYPE_CODES.includes(
+    recResource?.rec_resource_type_code ?? '',
+  );
+  const isSite = SITE_TYPE_CODES.includes(
+    recResource?.rec_resource_type_code ?? '',
+  );
+
   const geospatialItems = [
     {
       key: 'utm-zone',
@@ -62,66 +76,103 @@ export function RecResourceGeospatialSection() {
       label: 'Longitude',
       value: longitude ? <CopyButton text={String(longitude)} /> : undefined,
     },
-    {
-      key: 'total-length',
-      label: 'Total length (km)',
-      value:
-        total_length_km != null
-          ? `${total_length_km.toLocaleString('en-CA', geometryNumberFormat)}`
-          : null,
-    },
-    {
-      key: 'total-area',
-      label: 'Total area (ha)',
-      value:
-        total_area_hectares != null
-          ? `${total_area_hectares.toLocaleString('en-CA', geometryNumberFormat)}`
-          : null,
-    },
-    {
-      key: 'right-of-way',
-      label: 'Right-of-way width (m)',
-      value:
-        right_of_way_m != null
-          ? `${right_of_way_m.toLocaleString('en-CA', geometryNumberFormat)}`
-          : null,
-    },
+    ...(isSite
+      ? [
+          {
+            key: 'total-area',
+            label: 'Total area (ha)',
+            value:
+              total_area_hectares != null
+                ? `${total_area_hectares.toLocaleString('en-CA', geometryNumberFormat)}`
+                : null,
+          },
+        ]
+      : []),
+    ...(isTrail
+      ? [
+          {
+            key: 'total-length',
+            label: 'Total length (km)',
+            value:
+              total_length_km != null
+                ? `${total_length_km.toLocaleString('en-CA', geometryNumberFormat)}`
+                : null,
+          },
+          {
+            key: 'right-of-way',
+            label: 'Right-of-way width (m)',
+            value:
+              right_of_way_m != null
+                ? `${right_of_way_m.toLocaleString('en-CA', geometryNumberFormat)}`
+                : null,
+          },
+        ]
+      : []),
   ];
+
+  const recResourceWithGeometry = recResource
+    ? {
+        ...recResource,
+        site_point_geometry:
+          geospatialData?.site_point_geometry ??
+          recResource.site_point_geometry,
+        spatial_feature_geometry:
+          geospatialData?.spatial_feature_geometry ??
+          recResource.spatial_feature_geometry,
+      }
+    : undefined;
+
+  const imapUrl =
+    latitude != null && longitude != null
+      ? buildImapUrlFromLatLng(latitude, longitude)
+      : utm_zone != null && utm_easting != null && utm_northing != null
+        ? buildImapUrlFromUtm(utm_easting, utm_northing, utm_zone)
+        : IMAP_URL;
 
   return (
     <Stack direction="vertical" gap={4}>
-      <div className="d-flex justify-content-between align-items-center">
-        <h2>Geospatial</h2>
+      {/* ── Geospatial fields card ── */}
+      <div className="geospatial-section__card">
+        <div className="geospatial-section__card-header d-flex justify-content-between align-items-center">
+          <h2 className="geospatial-section__card-title">Geospatial</h2>
+          <EditableGuard isArchived={isArchived}>
+            {hasGeometryData && (
+              <Link
+                to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
+                  '$id',
+                  recResourceId,
+                )}
+                className="btn btn-outline-primary btn-sm"
+              >
+                Edit
+              </Link>
+            )}
+          </EditableGuard>
+        </div>
 
-        <EditableGuard isArchived={isArchived}>
-          {hasGeometryData && (
-            <Link
-              to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
-                '$id',
-                recResourceId,
-              )}
-              className="btn btn-outline-primary"
-            >
-              Edit
-            </Link>
-          )}
-        </EditableGuard>
+        <div className="geospatial-section__card-body">
+          <Row className="gy-3">
+            {geospatialItems.map((item) => (
+              <Col key={item.key} xs={12} md={6} lg={4}>
+                <FieldItem label={item.label} value={item.value} />
+              </Col>
+            ))}
+          </Row>
+        </div>
       </div>
 
-      <div className="rec-resource-geospatial-section__body">
-        <Row className="gy-3">
-          {geospatialItems.map((item) => (
-            <Col key={item.key} xs={12} md={6} lg={4}>
-              <FieldItem label={item.label} value={item.value} />
-            </Col>
-          ))}
-        </Row>
+      {/* ── Map + action buttons ── */}
+      {recResourceWithGeometry && (
+        <RecResourceLocationSection
+          recResource={recResourceWithGeometry}
+          showHeading={false}
+          imapUrl={imapUrl}
+        />
+      )}
 
-        {recResource && (
-          <div className="mt-4">
-            <RecResourceLocationSection recResource={recResource} />
-          </div>
-        )}
+      {/* ── Exhibit A ── */}
+      <div className="geospatial-section__card">
+        <ExhibitASection recResourceId={recResourceId} />
       </div>
     </Stack>
   );

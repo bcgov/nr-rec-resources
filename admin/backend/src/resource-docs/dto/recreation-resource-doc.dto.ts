@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 /**
  * Enum representing available image size options for the recreation API
@@ -120,4 +120,15 @@ export class FinalizeDocUploadRequestDto {
   })
   @IsNotEmpty()
   file_size: number;
+
+  @ApiProperty({
+    description:
+      'Document type code (e.g. RM for Recreation Map, EA for Exhibit A). Defaults to RM.',
+    enum: RecreationResourceDocCode,
+    example: RecreationResourceDocCode.RM,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(RecreationResourceDocCode)
+  doc_code?: RecreationResourceDocCode;
 }

@@ -33,6 +33,7 @@ testing. It allows you to test S3 operations without connecting to AWS.
    aws --endpoint-url=http://localhost:4566 s3 mb s3://rst-storage-images-dev
    aws --endpoint-url=http://localhost:4566 s3 mb s3://rst-storage-public-documents-dev
    aws --endpoint-url=http://localhost:4566 s3 mb s3://rst-lza-establishment-order-docs-dev
+   aws --endpoint-url=http://localhost:4566 s3 mb s3://rst-lza-exhibit-a-docs-dev
 
    # Alternatively one command to run localstack and set up everything
    make localstack-setup
@@ -57,6 +58,7 @@ The S3 key structure remains consistent:
 - Images: `images/{recResourceId}/{imageId}/{sizeCode}.webp`
 - Documents: `documents/{recResourceId}/{documentId}.{extension}`
 - Establishment order docs: `{recResourceId}/{filename}`
+- Exhibit A docs: `{recResourceId}/{filename}`
 
 ## Troubleshooting
 

@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ResourceDocsModule } from '@/resource-docs/resource-docs.module';
 import { ResourceImagesModule } from '@/resource-images/resource-images.module';
 import { EstablishmentOrderDocsModule } from '@/establishment-order-docs/establishment-order-docs.module';
+import { ExhibitADocsModule } from '@/exhibit-a-docs/exhibit-a-docs.module';
 import { OptionsModule } from './options/options.module';
 import { UserContextModule } from '../common/modules/user-context/user-context.module';
 import { ActivitiesModule } from './activities/activities.module';
@@ -25,6 +26,7 @@ import { RecreationAssetModule } from '@/resource-asset/resource-asset.module';
     ResourceDocsModule,
     ResourceImagesModule,
     EstablishmentOrderDocsModule,
+    ExhibitADocsModule,
     FeesModule,
     GeospatialModule,
     OptionsModule,
