@@ -12,6 +12,7 @@ import { CustomButton } from '@/components';
 import {
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
+  useGetRecreationResourceById,
   useGetRepairCodes,
 } from '@/services/hooks/recreation-resource-admin';
 import { AddRepairModal } from './AddRepairModal';
@@ -40,8 +41,13 @@ export function RecResourceAssetsSection() {
   } = useGetAssetsByRecResourceId(recResourceId);
   const { data: assetCodes } = useGetAssetCodes();
   const { data: repairCodes = [] } = useGetRepairCodes();
+  const { data: resource } = useGetRecreationResourceById(recResourceId);
 
-  const summary = computeAssetSummary(assets ?? []);
+  const summary = computeAssetSummary(
+    assets ?? [],
+    resource?.last_rec_inspection_date ?? null,
+    resource?.last_hzrd_tree_assess_date ?? null,
+  );
   const typeGroups = groupAssetsByType(assets ?? [], assetCodes ?? []);
   const campsiteGroups = groupAssetsByCampsite(assets ?? []);
   const hasCampsites = campsiteGroups.length > 0;

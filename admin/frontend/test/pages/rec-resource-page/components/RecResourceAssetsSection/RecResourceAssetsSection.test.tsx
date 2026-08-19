@@ -6,6 +6,7 @@ import type {
 import {
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
+  useGetRecreationResourceById,
   useGetRepairCodes,
 } from '@/services/hooks/recreation-resource-admin';
 import { useParams } from '@tanstack/react-router';
@@ -25,6 +26,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 vi.mock('@/services/hooks/recreation-resource-admin', () => ({
   useGetAssetCodes: vi.fn(),
   useGetAssetsByRecResourceId: vi.fn(),
+  useGetRecreationResourceById: vi.fn(),
   useGetRepairCodes: vi.fn(),
 }));
 
@@ -68,6 +70,9 @@ describe('RecResourceAssetsSection', () => {
       data: [],
       isLoading: false,
       isError: false,
+    } as any);
+    vi.mocked(useGetRecreationResourceById).mockReturnValue({
+      data: undefined,
     } as any);
   });
 

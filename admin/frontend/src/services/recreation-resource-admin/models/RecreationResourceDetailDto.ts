@@ -166,6 +166,18 @@ export interface RecreationResourceDetailDto {
    */
   project_established_date?: Date;
   /**
+   * Date of the last recreation inspection for the resource
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
+   */
+  last_rec_inspection_date?: Date;
+  /**
+   * Date of the last hazard tree assessment for the resource
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
+   */
+  last_hzrd_tree_assess_date?: Date;
+  /**
    * Recreation control access code
    * @type {RecreationControlAccessDto}
    * @memberof RecreationResourceDetailDto
@@ -332,6 +344,14 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['project_established_date'] == null
         ? undefined
         : new Date(json['project_established_date']),
+    last_rec_inspection_date:
+      json['last_rec_inspection_date'] == null
+        ? undefined
+        : new Date(json['last_rec_inspection_date']),
+    last_hzrd_tree_assess_date:
+      json['last_hzrd_tree_assess_date'] == null
+        ? undefined
+        : new Date(json['last_hzrd_tree_assess_date']),
     recreation_control_access_code:
       json['recreation_control_access_code'] == null
         ? undefined
@@ -396,6 +416,14 @@ export function RecreationResourceDetailDtoToJSONTyped(
       value['project_established_date'] == null
         ? undefined
         : value['project_established_date'].toISOString(),
+    last_rec_inspection_date:
+      value['last_rec_inspection_date'] == null
+        ? undefined
+        : value['last_rec_inspection_date'].toISOString(),
+    last_hzrd_tree_assess_date:
+      value['last_hzrd_tree_assess_date'] == null
+        ? undefined
+        : value['last_hzrd_tree_assess_date'].toISOString(),
     recreation_control_access_code: RecreationControlAccessDtoToJSON(
       value['recreation_control_access_code'],
     ),

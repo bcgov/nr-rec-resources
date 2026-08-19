@@ -133,6 +133,8 @@ export function formatRecreationResourceDetailResults(
     site_point_geometry: spatialFeatures?.site_point_geometry ?? undefined,
     recreation_district: recreationDistrict,
     project_established_date: result.project_established_date ?? undefined,
+    last_rec_inspection_date: result.last_rec_inspection_date ?? undefined,
+    last_hzrd_tree_assess_date: result.last_hzrd_tree_assess_date ?? undefined,
     recreation_control_access_code: {
       recreation_control_access_code:
         recreation_control_access_code?.recreation_control_access_code ?? '',

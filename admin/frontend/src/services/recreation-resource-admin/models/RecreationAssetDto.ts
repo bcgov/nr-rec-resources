@@ -142,11 +142,11 @@ export interface RecreationAssetDto {
    */
   longitude?: object | null;
   /**
-   *
+   * List of repairs associated with this asset
    * @type {Array<RecreationAssetRepairDto>}
    * @memberof RecreationAssetDto
    */
-  recreation_asset_repair?: Array<RecreationAssetRepairDto> | null;
+  recreation_asset_repair: Array<RecreationAssetRepairDto>;
 }
 
 /**
@@ -160,6 +160,11 @@ export function instanceOfRecreationAssetDto(
   if (!('asset_code' in value) || value['asset_code'] === undefined)
     return false;
   if (!('asset_id' in value) || value['asset_id'] === undefined) return false;
+  if (
+    !('recreation_asset_repair' in value) ||
+    value['recreation_asset_repair'] === undefined
+  )
+    return false;
   return true;
 }
 
@@ -205,12 +210,9 @@ export function RecreationAssetDtoFromJSONTyped(
         : json['geometry_type_code'],
     latitude: json['latitude'] == null ? undefined : json['latitude'],
     longitude: json['longitude'] == null ? undefined : json['longitude'],
-    recreation_asset_repair:
-      json['recreation_asset_repair'] == null
-        ? undefined
-        : (json['recreation_asset_repair'] as Array<any>).map(
-            RecreationAssetRepairDtoFromJSON,
-          ),
+    recreation_asset_repair: (
+      json['recreation_asset_repair'] as Array<any>
+    ).map(RecreationAssetRepairDtoFromJSON),
   };
 }
 
@@ -246,11 +248,8 @@ export function RecreationAssetDtoToJSONTyped(
     geometry_type_code: value['geometry_type_code'],
     latitude: value['latitude'],
     longitude: value['longitude'],
-    recreation_asset_repair:
-      value['recreation_asset_repair'] == null
-        ? undefined
-        : (value['recreation_asset_repair'] as Array<any>).map(
-            RecreationAssetRepairDtoToJSON,
-          ),
+    recreation_asset_repair: (
+      value['recreation_asset_repair'] as Array<any>
+    ).map(RecreationAssetRepairDtoToJSON),
   };
 }

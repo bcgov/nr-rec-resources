@@ -60,6 +60,6 @@ export interface AssetSummary {
   total_value: number;
   outstanding_repairs: number;
   spent_to_date: number;
-  last_inspection_date: string | null;
-  last_hzd_tree_assessment_date: string | null;
+  last_inspection_date: Date | null;
+  last_hzd_tree_assessment_date: Date | null;
 }

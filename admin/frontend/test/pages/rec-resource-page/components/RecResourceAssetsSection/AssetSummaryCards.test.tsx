@@ -9,8 +9,8 @@ const buildSummary = (overrides: Partial<AssetSummary> = {}): AssetSummary => ({
   total_value: 5000,
   outstanding_repairs: 2,
   spent_to_date: 300,
-  last_inspection_date: '2024-09-11',
-  last_hzd_tree_assessment_date: '2024-05-02',
+  last_inspection_date: new Date('2024-09-11'),
+  last_hzd_tree_assessment_date: new Date('2024-05-02'),
   ...overrides,
 });
 
@@ -60,8 +60,8 @@ describe('AssetSummaryCards', () => {
     render(
       <AssetSummaryCards
         summary={buildSummary({
-          last_inspection_date: '2024-09-11',
-          last_hzd_tree_assessment_date: '2024-05-02',
+          last_inspection_date: new Date('2024-09-11'),
+          last_hzd_tree_assessment_date: new Date('2024-05-02'),
         })}
       />,
     );

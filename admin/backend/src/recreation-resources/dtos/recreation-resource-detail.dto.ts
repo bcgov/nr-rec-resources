@@ -381,6 +381,22 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   project_established_date?: Date;
 
   @ApiProperty({
+    description: 'Date of the last recreation inspection for the resource',
+    example: '2023-08-15',
+    required: false,
+    type: Date,
+  })
+  last_rec_inspection_date?: Date;
+
+  @ApiProperty({
+    description: 'Date of the last hazard tree assessment for the resource',
+    example: '2023-08-15',
+    required: false,
+    type: Date,
+  })
+  last_hzrd_tree_assess_date?: Date;
+
+  @ApiProperty({
     description: 'Recreation control access code',
     example: 'G',
     required: false,

@@ -130,10 +130,26 @@ describe('computeAssetSummary', () => {
     expect(summary.spent_to_date).toBe(200);
   });
 
-  it('includes placeholder inspection dates', () => {
+  it('defaults inspection dates to null when not provided', () => {
     const summary = computeAssetSummary([]);
 
-    expect(summary.last_inspection_date).toBe('2024-09-11');
-    expect(summary.last_hzd_tree_assessment_date).toBe('2024-05-02');
+    expect(summary.last_inspection_date).toBeNull();
+    expect(summary.last_hzd_tree_assessment_date).toBeNull();
+  });
+
+  it('passes through the provided inspection dates', () => {
+    const lastInspectionDate = new Date('2024-09-11');
+    const lastHzdTreeAssessmentDate = new Date('2024-05-02');
+
+    const summary = computeAssetSummary(
+      [],
+      lastInspectionDate,
+      lastHzdTreeAssessmentDate,
+    );
+
+    expect(summary.last_inspection_date).toBe(lastInspectionDate);
+    expect(summary.last_hzd_tree_assessment_date).toBe(
+      lastHzdTreeAssessmentDate,
+    );
   });
 });

@@ -18,12 +18,11 @@ export const useGetAssetsByRecResourceId = (
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.assets(recResourceId!),
     initialData: [],
     queryFn: async () => {
-      const paginated =
-        await assetsApiClient.recreationAssetControllerFindAllAssets({
-          recResourceId: recResourceId!,
-          limit: ASSETS_PAGE_LIMIT,
-          includeRepair: true,
-        });
+      const paginated = await assetsApiClient.getPaginatedRecreationAssets({
+        recResourceId: recResourceId!,
+        limit: ASSETS_PAGE_LIMIT,
+        includeRepair: true,
+      });
       return paginated.data as unknown as Asset[];
     },
     enabled: Boolean(recResourceId),

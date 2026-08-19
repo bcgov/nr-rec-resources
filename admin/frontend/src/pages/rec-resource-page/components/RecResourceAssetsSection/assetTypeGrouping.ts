@@ -41,7 +41,9 @@ export function groupAssetsByType(
           ).length,
         0,
       ),
-      assets: groupAssets,
+      assets: [...groupAssets].sort((a, b) =>
+        (a.asset_name ?? '').localeCompare(b.asset_name ?? ''),
+      ),
     }))
     .sort((a, b) => a.description.localeCompare(b.description));
 }

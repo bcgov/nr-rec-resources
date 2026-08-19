@@ -54,32 +54,36 @@ import {
   UpdateRecreationAssetRepairDtoToJSON,
 } from '../models/index';
 
-export interface RecreationAssetControllerBulkCreateRepairsRequest {
+export interface BulkInsertAssetRepairsRequest {
   recreationAssetBulkRepairDto: RecreationAssetBulkRepairDto;
 }
 
-export interface RecreationAssetControllerBulkUpdateAssetsRequest {
+export interface BulkUpdateRecreationAssetsRequest {
   recreationAssetBulkUpdateDto: RecreationAssetBulkUpdateDto;
 }
 
-export interface RecreationAssetControllerCreateAssetRequest {
-  createRecreationAssetDto: CreateRecreationAssetDto;
-}
-
-export interface RecreationAssetControllerCreateRepairRequest {
+export interface CreateAssetRepairRequest {
   id: number;
   createRecreationAssetRepairDto: CreateRecreationAssetRepairDto;
 }
 
-export interface RecreationAssetControllerDeleteAssetRequest {
-  id: number;
+export interface CreateRecreationAssetRequest {
+  createRecreationAssetDto: CreateRecreationAssetDto;
 }
 
-export interface RecreationAssetControllerDeleteRepairRequest {
+export interface DeleteAssetRepairRequest {
   repairId: number;
 }
 
-export interface RecreationAssetControllerFindAllAssetsRequest {
+export interface DeleteRecreationAssetRequest {
+  id: number;
+}
+
+export interface GetAssetRepairsRequest {
+  id: number;
+}
+
+export interface GetPaginatedRecreationAssetsRequest {
   page?: number;
   limit?: number;
   parentId?: number;
@@ -93,23 +97,19 @@ export interface RecreationAssetControllerFindAllAssetsRequest {
   includeRepair?: boolean;
 }
 
-export interface RecreationAssetControllerFindAssetByIdRequest {
+export interface GetRecreationAssetByIdRequest {
   id: number;
   includeRepair?: boolean;
 }
 
-export interface RecreationAssetControllerFindRepairsByAssetIdRequest {
-  id: number;
-}
-
-export interface RecreationAssetControllerUpdateAssetRequest {
-  id: number;
-  updateRecreationAssetDto: UpdateRecreationAssetDto;
-}
-
-export interface RecreationAssetControllerUpdateRepairRequest {
+export interface UpdateAssetRepairRequest {
   repairId: number;
   updateRecreationAssetRepairDto: UpdateRecreationAssetRepairDto;
+}
+
+export interface UpdateRecreationAssetRequest {
+  id: number;
+  updateRecreationAssetDto: UpdateRecreationAssetDto;
 }
 
 /**
@@ -118,16 +118,16 @@ export interface RecreationAssetControllerUpdateRepairRequest {
 export class AssetsApi extends runtime.BaseAPI {
   /**
    * Applies a common repair code and completion date across multiple grouped asset IDs with varying costs.
-   * Bulk create or record repairs across multiple recreation assets
+   * Bulk create repairs across multiple recreation assets
    */
-  async recreationAssetControllerBulkCreateRepairsRaw(
-    requestParameters: RecreationAssetControllerBulkCreateRepairsRequest,
+  async bulkInsertAssetRepairsRaw(
+    requestParameters: BulkInsertAssetRepairsRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<void>> {
     if (requestParameters['recreationAssetBulkRepairDto'] == null) {
       throw new runtime.RequiredError(
         'recreationAssetBulkRepairDto',
-        'Required parameter "recreationAssetBulkRepairDto" was null or undefined when calling recreationAssetControllerBulkCreateRepairs().',
+        'Required parameter "recreationAssetBulkRepairDto" was null or undefined when calling bulkInsertAssetRepairs().',
       );
     }
 
@@ -166,29 +166,26 @@ export class AssetsApi extends runtime.BaseAPI {
 
   /**
    * Applies a common repair code and completion date across multiple grouped asset IDs with varying costs.
-   * Bulk create or record repairs across multiple recreation assets
+   * Bulk create repairs across multiple recreation assets
    */
-  async recreationAssetControllerBulkCreateRepairs(
-    requestParameters: RecreationAssetControllerBulkCreateRepairsRequest,
+  async bulkInsertAssetRepairs(
+    requestParameters: BulkInsertAssetRepairsRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<void> {
-    await this.recreationAssetControllerBulkCreateRepairsRaw(
-      requestParameters,
-      initOverrides,
-    );
+    await this.bulkInsertAssetRepairsRaw(requestParameters, initOverrides);
   }
 
   /**
    * Bulk update common fields across multiple recreation assets
    */
-  async recreationAssetControllerBulkUpdateAssetsRaw(
-    requestParameters: RecreationAssetControllerBulkUpdateAssetsRequest,
+  async bulkUpdateRecreationAssetsRaw(
+    requestParameters: BulkUpdateRecreationAssetsRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<BulkAssetUpdateResponseDto>> {
     if (requestParameters['recreationAssetBulkUpdateDto'] == null) {
       throw new runtime.RequiredError(
         'recreationAssetBulkUpdateDto',
-        'Required parameter "recreationAssetBulkUpdateDto" was null or undefined when calling recreationAssetControllerBulkUpdateAssets().',
+        'Required parameter "recreationAssetBulkUpdateDto" was null or undefined when calling bulkUpdateRecreationAssets().',
       );
     }
 
@@ -230,74 +227,11 @@ export class AssetsApi extends runtime.BaseAPI {
   /**
    * Bulk update common fields across multiple recreation assets
    */
-  async recreationAssetControllerBulkUpdateAssets(
-    requestParameters: RecreationAssetControllerBulkUpdateAssetsRequest,
+  async bulkUpdateRecreationAssets(
+    requestParameters: BulkUpdateRecreationAssetsRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<BulkAssetUpdateResponseDto> {
-    const response = await this.recreationAssetControllerBulkUpdateAssetsRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
-   * Create a new recreation asset
-   */
-  async recreationAssetControllerCreateAssetRaw(
-    requestParameters: RecreationAssetControllerCreateAssetRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationAssetDto>> {
-    if (requestParameters['createRecreationAssetDto'] == null) {
-      throw new runtime.RequiredError(
-        'createRecreationAssetDto',
-        'Required parameter "createRecreationAssetDto" was null or undefined when calling recreationAssetControllerCreateAsset().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    headerParameters['Content-Type'] = 'application/json';
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-
-    let urlPath = `/api/v1/assets`;
-
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreateRecreationAssetDtoToJSON(
-          requestParameters['createRecreationAssetDto'],
-        ),
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationAssetDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Create a new recreation asset
-   */
-  async recreationAssetControllerCreateAsset(
-    requestParameters: RecreationAssetControllerCreateAssetRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationAssetDto> {
-    const response = await this.recreationAssetControllerCreateAssetRaw(
+    const response = await this.bulkUpdateRecreationAssetsRaw(
       requestParameters,
       initOverrides,
     );
@@ -307,21 +241,21 @@ export class AssetsApi extends runtime.BaseAPI {
   /**
    * Create a repair record for an asset
    */
-  async recreationAssetControllerCreateRepairRaw(
-    requestParameters: RecreationAssetControllerCreateRepairRequest,
+  async createAssetRepairRaw(
+    requestParameters: CreateAssetRepairRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<RecreationAssetRepairDto>> {
     if (requestParameters['id'] == null) {
       throw new runtime.RequiredError(
         'id',
-        'Required parameter "id" was null or undefined when calling recreationAssetControllerCreateRepair().',
+        'Required parameter "id" was null or undefined when calling createAssetRepair().',
       );
     }
 
     if (requestParameters['createRecreationAssetRepairDto'] == null) {
       throw new runtime.RequiredError(
         'createRecreationAssetRepairDto',
-        'Required parameter "createRecreationAssetRepairDto" was null or undefined when calling recreationAssetControllerCreateRepair().',
+        'Required parameter "createRecreationAssetRepairDto" was null or undefined when calling createAssetRepair().',
       );
     }
 
@@ -367,11 +301,11 @@ export class AssetsApi extends runtime.BaseAPI {
   /**
    * Create a repair record for an asset
    */
-  async recreationAssetControllerCreateRepair(
-    requestParameters: RecreationAssetControllerCreateRepairRequest,
+  async createAssetRepair(
+    requestParameters: CreateAssetRepairRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationAssetRepairDto> {
-    const response = await this.recreationAssetControllerCreateRepairRaw(
+    const response = await this.createAssetRepairRaw(
       requestParameters,
       initOverrides,
     );
@@ -379,22 +313,24 @@ export class AssetsApi extends runtime.BaseAPI {
   }
 
   /**
-   * Delete a recreation asset
+   * Create a new recreation asset
    */
-  async recreationAssetControllerDeleteAssetRaw(
-    requestParameters: RecreationAssetControllerDeleteAssetRequest,
+  async createRecreationAssetRaw(
+    requestParameters: CreateRecreationAssetRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<void>> {
-    if (requestParameters['id'] == null) {
+  ): Promise<runtime.ApiResponse<RecreationAssetDto>> {
+    if (requestParameters['createRecreationAssetDto'] == null) {
       throw new runtime.RequiredError(
-        'id',
-        'Required parameter "id" was null or undefined when calling recreationAssetControllerDeleteAsset().',
+        'createRecreationAssetDto',
+        'Required parameter "createRecreationAssetDto" was null or undefined when calling createRecreationAsset().',
       );
     }
 
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
 
     if (this.configuration && this.configuration.accessToken) {
       const token = this.configuration.accessToken;
@@ -405,49 +341,51 @@ export class AssetsApi extends runtime.BaseAPI {
       }
     }
 
-    let urlPath = `/api/v1/assets/{id}`;
-    urlPath = urlPath.replace(
-      `{${'id'}}`,
-      encodeURIComponent(String(requestParameters['id'])),
-    );
+    let urlPath = `/api/v1/assets`;
 
     const response = await this.request(
       {
         path: urlPath,
-        method: 'DELETE',
+        method: 'POST',
         headers: headerParameters,
         query: queryParameters,
+        body: CreateRecreationAssetDtoToJSON(
+          requestParameters['createRecreationAssetDto'],
+        ),
       },
       initOverrides,
     );
 
-    return new runtime.VoidApiResponse(response);
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationAssetDtoFromJSON(jsonValue),
+    );
   }
 
   /**
-   * Delete a recreation asset
+   * Create a new recreation asset
    */
-  async recreationAssetControllerDeleteAsset(
-    requestParameters: RecreationAssetControllerDeleteAssetRequest,
+  async createRecreationAsset(
+    requestParameters: CreateRecreationAssetRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<void> {
-    await this.recreationAssetControllerDeleteAssetRaw(
+  ): Promise<RecreationAssetDto> {
+    const response = await this.createRecreationAssetRaw(
       requestParameters,
       initOverrides,
     );
+    return await response.value();
   }
 
   /**
    * Delete a repair record
    */
-  async recreationAssetControllerDeleteRepairRaw(
-    requestParameters: RecreationAssetControllerDeleteRepairRequest,
+  async deleteAssetRepairRaw(
+    requestParameters: DeleteAssetRepairRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<void>> {
     if (requestParameters['repairId'] == null) {
       throw new runtime.RequiredError(
         'repairId',
-        'Required parameter "repairId" was null or undefined when calling recreationAssetControllerDeleteRepair().',
+        'Required parameter "repairId" was null or undefined when calling deleteAssetRepair().',
       );
     }
 
@@ -486,22 +424,27 @@ export class AssetsApi extends runtime.BaseAPI {
   /**
    * Delete a repair record
    */
-  async recreationAssetControllerDeleteRepair(
-    requestParameters: RecreationAssetControllerDeleteRepairRequest,
+  async deleteAssetRepair(
+    requestParameters: DeleteAssetRepairRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<void> {
-    await this.recreationAssetControllerDeleteRepairRaw(
-      requestParameters,
-      initOverrides,
-    );
+    await this.deleteAssetRepairRaw(requestParameters, initOverrides);
   }
 
   /**
-   * Retrieve all recreation asset type codes
+   * Delete a recreation asset
    */
-  async recreationAssetControllerFindAllAssetCodesRaw(
+  async deleteRecreationAssetRaw(
+    requestParameters: DeleteRecreationAssetRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationAssetCodeDto>>> {
+  ): Promise<runtime.ApiResponse<void>> {
+    if (requestParameters['id'] == null) {
+      throw new runtime.RequiredError(
+        'id',
+        'Required parameter "id" was null or undefined when calling deleteRecreationAsset().',
+      );
+    }
+
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -515,7 +458,67 @@ export class AssetsApi extends runtime.BaseAPI {
       }
     }
 
-    let urlPath = `/api/v1/assets/codes`;
+    let urlPath = `/api/v1/assets/{id}`;
+    urlPath = urlPath.replace(
+      `{${'id'}}`,
+      encodeURIComponent(String(requestParameters['id'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * Delete a recreation asset
+   */
+  async deleteRecreationAsset(
+    requestParameters: DeleteRecreationAssetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    await this.deleteRecreationAssetRaw(requestParameters, initOverrides);
+  }
+
+  /**
+   * Get all repair records for an asset
+   */
+  async getAssetRepairsRaw(
+    requestParameters: GetAssetRepairsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationAssetRepairDto>>> {
+    if (requestParameters['id'] == null) {
+      throw new runtime.RequiredError(
+        'id',
+        'Required parameter "id" was null or undefined when calling getAssetRepairs().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/assets/{id}/repairs`;
+    urlPath = urlPath.replace(
+      `{${'id'}}`,
+      encodeURIComponent(String(requestParameters['id'])),
+    );
 
     const response = await this.request(
       {
@@ -528,26 +531,29 @@ export class AssetsApi extends runtime.BaseAPI {
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      jsonValue.map(RecreationAssetCodeDtoFromJSON),
+      jsonValue.map(RecreationAssetRepairDtoFromJSON),
     );
   }
 
   /**
-   * Retrieve all recreation asset type codes
+   * Get all repair records for an asset
    */
-  async recreationAssetControllerFindAllAssetCodes(
+  async getAssetRepairs(
+    requestParameters: GetAssetRepairsRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<Array<RecreationAssetCodeDto>> {
-    const response =
-      await this.recreationAssetControllerFindAllAssetCodesRaw(initOverrides);
+  ): Promise<Array<RecreationAssetRepairDto>> {
+    const response = await this.getAssetRepairsRaw(
+      requestParameters,
+      initOverrides,
+    );
     return await response.value();
   }
 
   /**
    * Retrieve recreation assets with filtering and pagination
    */
-  async recreationAssetControllerFindAllAssetsRaw(
-    requestParameters: RecreationAssetControllerFindAllAssetsRequest,
+  async getPaginatedRecreationAssetsRaw(
+    requestParameters: GetPaginatedRecreationAssetsRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<PaginatedRecreationAssetDto>> {
     const queryParameters: any = {};
@@ -628,14 +634,127 @@ export class AssetsApi extends runtime.BaseAPI {
   /**
    * Retrieve recreation assets with filtering and pagination
    */
-  async recreationAssetControllerFindAllAssets(
-    requestParameters: RecreationAssetControllerFindAllAssetsRequest = {},
+  async getPaginatedRecreationAssets(
+    requestParameters: GetPaginatedRecreationAssetsRequest = {},
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<PaginatedRecreationAssetDto> {
-    const response = await this.recreationAssetControllerFindAllAssetsRaw(
+    const response = await this.getPaginatedRecreationAssetsRaw(
       requestParameters,
       initOverrides,
     );
+    return await response.value();
+  }
+
+  /**
+   * Find a recreation asset by ID
+   */
+  async getRecreationAssetByIdRaw(
+    requestParameters: GetRecreationAssetByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationAssetDto>> {
+    if (requestParameters['id'] == null) {
+      throw new runtime.RequiredError(
+        'id',
+        'Required parameter "id" was null or undefined when calling getRecreationAssetById().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    if (requestParameters['includeRepair'] != null) {
+      queryParameters['include_repair'] = requestParameters['includeRepair'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/assets/{id}`;
+    urlPath = urlPath.replace(
+      `{${'id'}}`,
+      encodeURIComponent(String(requestParameters['id'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationAssetDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Find a recreation asset by ID
+   */
+  async getRecreationAssetById(
+    requestParameters: GetRecreationAssetByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationAssetDto> {
+    const response = await this.getRecreationAssetByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Retrieve all recreation asset type codes
+   */
+  async recreationAssetControllerFindAllAssetCodesRaw(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationAssetCodeDto>>> {
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/assets/codes`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationAssetCodeDtoFromJSON),
+    );
+  }
+
+  /**
+   * Retrieve all recreation asset type codes
+   */
+  async recreationAssetControllerFindAllAssetCodes(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationAssetCodeDto>> {
+    const response =
+      await this.recreationAssetControllerFindAllAssetCodesRaw(initOverrides);
     return await response.value();
   }
 
@@ -687,226 +806,23 @@ export class AssetsApi extends runtime.BaseAPI {
   }
 
   /**
-   * Find a recreation asset by ID
-   */
-  async recreationAssetControllerFindAssetByIdRaw(
-    requestParameters: RecreationAssetControllerFindAssetByIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationAssetDto>> {
-    if (requestParameters['id'] == null) {
-      throw new runtime.RequiredError(
-        'id',
-        'Required parameter "id" was null or undefined when calling recreationAssetControllerFindAssetById().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    if (requestParameters['includeRepair'] != null) {
-      queryParameters['include_repair'] = requestParameters['includeRepair'];
-    }
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-
-    let urlPath = `/api/v1/assets/{id}`;
-    urlPath = urlPath.replace(
-      `{${'id'}}`,
-      encodeURIComponent(String(requestParameters['id'])),
-    );
-
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationAssetDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Find a recreation asset by ID
-   */
-  async recreationAssetControllerFindAssetById(
-    requestParameters: RecreationAssetControllerFindAssetByIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationAssetDto> {
-    const response = await this.recreationAssetControllerFindAssetByIdRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
-   * Get all repair records for an asset
-   */
-  async recreationAssetControllerFindRepairsByAssetIdRaw(
-    requestParameters: RecreationAssetControllerFindRepairsByAssetIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationAssetRepairDto>>> {
-    if (requestParameters['id'] == null) {
-      throw new runtime.RequiredError(
-        'id',
-        'Required parameter "id" was null or undefined when calling recreationAssetControllerFindRepairsByAssetId().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-
-    let urlPath = `/api/v1/assets/{id}/repairs`;
-    urlPath = urlPath.replace(
-      `{${'id'}}`,
-      encodeURIComponent(String(requestParameters['id'])),
-    );
-
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      jsonValue.map(RecreationAssetRepairDtoFromJSON),
-    );
-  }
-
-  /**
-   * Get all repair records for an asset
-   */
-  async recreationAssetControllerFindRepairsByAssetId(
-    requestParameters: RecreationAssetControllerFindRepairsByAssetIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<Array<RecreationAssetRepairDto>> {
-    const response =
-      await this.recreationAssetControllerFindRepairsByAssetIdRaw(
-        requestParameters,
-        initOverrides,
-      );
-    return await response.value();
-  }
-
-  /**
-   * Update an existing recreation asset
-   */
-  async recreationAssetControllerUpdateAssetRaw(
-    requestParameters: RecreationAssetControllerUpdateAssetRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationAssetDto>> {
-    if (requestParameters['id'] == null) {
-      throw new runtime.RequiredError(
-        'id',
-        'Required parameter "id" was null or undefined when calling recreationAssetControllerUpdateAsset().',
-      );
-    }
-
-    if (requestParameters['updateRecreationAssetDto'] == null) {
-      throw new runtime.RequiredError(
-        'updateRecreationAssetDto',
-        'Required parameter "updateRecreationAssetDto" was null or undefined when calling recreationAssetControllerUpdateAsset().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    headerParameters['Content-Type'] = 'application/json';
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-
-    let urlPath = `/api/v1/assets/{id}`;
-    urlPath = urlPath.replace(
-      `{${'id'}}`,
-      encodeURIComponent(String(requestParameters['id'])),
-    );
-
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'PATCH',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateRecreationAssetDtoToJSON(
-          requestParameters['updateRecreationAssetDto'],
-        ),
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationAssetDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Update an existing recreation asset
-   */
-  async recreationAssetControllerUpdateAsset(
-    requestParameters: RecreationAssetControllerUpdateAssetRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationAssetDto> {
-    const response = await this.recreationAssetControllerUpdateAssetRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
    * Update a repair record
    */
-  async recreationAssetControllerUpdateRepairRaw(
-    requestParameters: RecreationAssetControllerUpdateRepairRequest,
+  async updateAssetRepairRaw(
+    requestParameters: UpdateAssetRepairRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<RecreationAssetRepairDto>> {
     if (requestParameters['repairId'] == null) {
       throw new runtime.RequiredError(
         'repairId',
-        'Required parameter "repairId" was null or undefined when calling recreationAssetControllerUpdateRepair().',
+        'Required parameter "repairId" was null or undefined when calling updateAssetRepair().',
       );
     }
 
     if (requestParameters['updateRecreationAssetRepairDto'] == null) {
       throw new runtime.RequiredError(
         'updateRecreationAssetRepairDto',
-        'Required parameter "updateRecreationAssetRepairDto" was null or undefined when calling recreationAssetControllerUpdateRepair().',
+        'Required parameter "updateRecreationAssetRepairDto" was null or undefined when calling updateAssetRepair().',
       );
     }
 
@@ -952,11 +868,85 @@ export class AssetsApi extends runtime.BaseAPI {
   /**
    * Update a repair record
    */
-  async recreationAssetControllerUpdateRepair(
-    requestParameters: RecreationAssetControllerUpdateRepairRequest,
+  async updateAssetRepair(
+    requestParameters: UpdateAssetRepairRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationAssetRepairDto> {
-    const response = await this.recreationAssetControllerUpdateRepairRaw(
+    const response = await this.updateAssetRepairRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Update an existing recreation asset
+   */
+  async updateRecreationAssetRaw(
+    requestParameters: UpdateRecreationAssetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationAssetDto>> {
+    if (requestParameters['id'] == null) {
+      throw new runtime.RequiredError(
+        'id',
+        'Required parameter "id" was null or undefined when calling updateRecreationAsset().',
+      );
+    }
+
+    if (requestParameters['updateRecreationAssetDto'] == null) {
+      throw new runtime.RequiredError(
+        'updateRecreationAssetDto',
+        'Required parameter "updateRecreationAssetDto" was null or undefined when calling updateRecreationAsset().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/assets/{id}`;
+    urlPath = urlPath.replace(
+      `{${'id'}}`,
+      encodeURIComponent(String(requestParameters['id'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'PATCH',
+        headers: headerParameters,
+        query: queryParameters,
+        body: UpdateRecreationAssetDtoToJSON(
+          requestParameters['updateRecreationAssetDto'],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationAssetDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Update an existing recreation asset
+   */
+  async updateRecreationAsset(
+    requestParameters: UpdateRecreationAssetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationAssetDto> {
+    const response = await this.updateRecreationAssetRaw(
       requestParameters,
       initOverrides,
     );

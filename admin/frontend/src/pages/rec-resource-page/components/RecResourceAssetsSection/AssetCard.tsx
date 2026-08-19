@@ -49,6 +49,8 @@ function getAssetFields(asset: Asset): AssetField[] {
     },
     { label: 'Legacy structure ID', value: asset.legacy_structure_id },
     { label: 'Comment', value: asset.asset_comment },
+    { label: 'Latitude', value: String(asset.latitude) },
+    { label: 'Longitude', value: String(asset.longitude) },
   ];
 
   return fields.filter((field) => !!field.value);
