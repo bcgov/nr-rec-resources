@@ -64,7 +64,6 @@
   }
 }
 
-// Placeholder for a future "select all" action — not wired up yet.
 .btn.repair-asset-entry__select-all-btn {
   padding: 0;
   height: auto;
@@ -104,6 +103,32 @@
   // Keeps the modal from growing too tall when a type has a long asset list.
   max-height: 14rem;
   overflow-y: auto;
+}
+
+.repair-asset-entry__trail-row {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+
+  &:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+.repair-asset-entry__trail-name {
+  color: #{$colorBlack};
+  font-family: var(--typography-font-families-bc-sans, #{$globalFont});
+  font-weight: var(--typography-font-weights-bold, 700);
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: var(--typography-font-size-body, 1rem); // 16px
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.repair-asset-entry__trail-empty {
+  color: #{$colorGrey};
+  font-size: 0.875rem;
 }
 
 .repair-asset-entry__asset .form-check-label {

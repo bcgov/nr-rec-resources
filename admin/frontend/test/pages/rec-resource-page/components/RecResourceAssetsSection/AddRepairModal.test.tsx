@@ -1,5 +1,6 @@
 import { AddRepairModal } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/AddRepairModal';
 import type {
+  Asset,
   AssetCode,
   RepairCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
@@ -16,6 +17,41 @@ const assetCodes: AssetCode[] = [
   { asset_code: 1, description: 'Picnic table' },
   { asset_code: 2, description: 'Toilet' },
 ];
+
+const assets: Asset[] = [
+  {
+    asset_id: 1,
+    parent_id: null,
+    rec_resource_id: 'REC0001',
+    asset_code: 1,
+    asset_name: 'Picnic table 1',
+    asset_tag: null,
+    asset_comment: null,
+    legacy_structure_id: null,
+    asset_length: null,
+    asset_width: null,
+    asset_area: null,
+    default_value: null,
+    actual_value: null,
+    installation_date: null,
+    updated_by: null,
+    updated_at: null,
+    geometry_type_code: null,
+    latitude: null,
+    longitude: null,
+    recreation_asset_repair: null,
+  },
+];
+
+// Selects the first asset type in a RepairAssetEntry and checks the asset
+// that reveals, which is what's required to make "Create repairs" clickable.
+const selectAssetAndCheckIt = async (
+  user: ReturnType<typeof userEvent.setup>,
+) => {
+  await user.click(screen.getByRole('combobox', { name: 'Asset type' }));
+  await user.click(screen.getByRole('option', { name: 'Picnic table' }));
+  await user.click(screen.getByRole('checkbox', { name: 'Picnic table 1' }));
+};
 
 describe('AddRepairModal', () => {
   it('does not render modal content when show is false', () => {
@@ -96,7 +132,31 @@ describe('AddRepairModal', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onCreate when Create repairs is clicked', async () => {
+  it('disables Create repairs until an asset is selected', async () => {
+    const user = userEvent.setup();
+    render(
+      <AddRepairModal
+        show
+        repairCodes={repairCodes}
+        assetCodes={assetCodes}
+        assets={assets}
+        onCancel={vi.fn()}
+        onCreate={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Create repairs' }),
+    ).toBeDisabled();
+
+    await selectAssetAndCheckIt(user);
+
+    expect(
+      screen.getByRole('button', { name: 'Create repairs' }),
+    ).not.toBeDisabled();
+  });
+
+  it('shows validation errors and does not call onCreate when required fields are missing', async () => {
     const user = userEvent.setup();
     const onCreate = vi.fn();
     render(
@@ -104,10 +164,44 @@ describe('AddRepairModal', () => {
         show
         repairCodes={repairCodes}
         assetCodes={assetCodes}
-        assets={[]}
+        assets={assets}
         onCancel={vi.fn()}
         onCreate={onCreate}
       />,
+    );
+
+    await selectAssetAndCheckIt(user);
+    await user.click(screen.getByRole('button', { name: 'Create repairs' }));
+
+    expect(onCreate).not.toHaveBeenCalled();
+    expect(screen.getByText('Repair type is required')).toBeInTheDocument();
+    expect(
+      screen.getByText('Estimated repair cost is required'),
+    ).toBeInTheDocument();
+  });
+
+  it('calls onCreate when Create repairs is clicked with all required fields filled', async () => {
+    const user = userEvent.setup();
+    const onCreate = vi.fn();
+    render(
+      <AddRepairModal
+        show
+        repairCodes={repairCodes}
+        assetCodes={assetCodes}
+        assets={assets}
+        onCancel={vi.fn()}
+        onCreate={onCreate}
+      />,
+    );
+
+    await selectAssetAndCheckIt(user);
+
+    await user.click(screen.getByRole('combobox', { name: 'Repair type' }));
+    await user.click(screen.getByRole('option', { name: 'Paint touch-up' }));
+
+    await user.type(
+      screen.getByLabelText('Estimated repair cost per asset'),
+      '100',
     );
 
     await user.click(screen.getByRole('button', { name: 'Create repairs' }));
