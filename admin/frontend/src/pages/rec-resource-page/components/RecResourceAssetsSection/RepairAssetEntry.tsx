@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Form } from 'react-bootstrap';
+import { Col, Form, Row } from 'react-bootstrap';
 import Select from 'react-select';
 import type { Asset, AssetCode } from './types';
 import './RepairAssetEntry.scss';
@@ -88,19 +88,54 @@ export function RepairAssetEntry({
       </div>
 
       {matchingAssets.length > 0 && (
-        <div className="repair-asset-entry__assets">
-          {matchingAssets.map((asset) => (
-            <Form.Check
-              key={asset.asset_id}
-              type="checkbox"
-              id={`repair-asset-entry-asset-${asset.asset_id}`}
-              className="repair-asset-entry__asset"
-              checked={checkedAssetIds.has(asset.asset_id)}
-              onChange={() => toggleAsset(asset.asset_id)}
-              label={asset.asset_name}
-            />
-          ))}
-        </div>
+        <>
+          <div className="repair-asset-entry__assets-header">
+            <h4 className="repair-asset-entry__title">
+              Select assets ({matchingAssets.length} of {matchingAssets.length})
+            </h4>
+            <button
+              type="button"
+              className="btn repair-asset-entry__select-all-btn"
+            >
+              Select all
+            </button>
+          </div>
+          <div className="repair-asset-entry__assets">
+            {matchingAssets.map((asset) => (
+              <Form.Check
+                key={asset.asset_id}
+                type="checkbox"
+                id={`repair-asset-entry-asset-${asset.asset_id}`}
+                className="repair-asset-entry__asset"
+                checked={checkedAssetIds.has(asset.asset_id)}
+                onChange={() => toggleAsset(asset.asset_id)}
+                label={asset.asset_name}
+              />
+            ))}
+          </div>
+
+          <h4 className="repair-asset-entry__title repair-asset-entry__title--spaced">
+            Repair cost
+          </h4>
+          <Row className="gy-3">
+            <Col xs={12} md={6}>
+              <Form.Group controlId={`${selectInputId}-estimated-cost`}>
+                <Form.Label className="repair-asset-entry__cost-label">
+                  Estimated repair cost per asset
+                </Form.Label>
+                <Form.Control type="text" />
+              </Form.Group>
+            </Col>
+            <Col xs={12} md={6}>
+              <Form.Group controlId={`${selectInputId}-actual-cost`}>
+                <Form.Label className="repair-asset-entry__cost-label">
+                  Actual repair cost per asset (if applicable)
+                </Form.Label>
+                <Form.Control type="text" />
+              </Form.Group>
+            </Col>
+          </Row>
+        </>
       )}
     </div>
   );
