@@ -1,4 +1,5 @@
 import { ROUTE_PATHS } from '@/constants/routes';
+import { HelpIcon } from '@/components';
 import {
   RecResourceFeatureEditSection,
   useEditFeaturesForm,
@@ -94,7 +95,13 @@ export const RecResourceActivitiesFeaturesEditPage = () => {
       <Stack direction="vertical" gap={5}>
         <Stack direction="vertical" gap={4}>
           <div className="d-flex justify-content-between align-items-center">
-            <h2>Activities</h2>
+            <div className="d-flex align-items-center gap-2">
+              <h2 className="mb-0">Activities</h2>
+              <HelpIcon
+                id="activities-help"
+                text="Select the activities most appropriate at this location. "
+              />
+            </div>
             <Stack direction="horizontal" gap={2}>
               <Link
                 to={ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES}

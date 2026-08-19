@@ -18,6 +18,8 @@ import { Route } from '@/routes/rec-resource/$id/reservation/edit';
 import { FormErrorBanner } from '@/pages/rec-resource-page/components/shared/FormErrorBanner';
 import '@/pages/rec-resource-page/components/RecResourceReservationSection/RecResourceReservationSection.scss';
 import { Link } from '@tanstack/react-router';
+import { HelpIcon } from '@/components/help-icon';
+import { RESERVATION_METHOD_HELP_TEXT } from '@/utils/helpText';
 
 export const RecResourceReservationEditSection = () => {
   const params = Route.useParams();
@@ -105,9 +107,20 @@ export const RecResourceReservationEditSection = () => {
                     control={control}
                     render={() => (
                       <Form.Group controlId="reservation_method">
-                        <FormLabel className="reservation-form-label" required>
-                          {EDIT_RESERVATION_FIELD_LABEL_MAP.reservation_method}
-                        </FormLabel>
+                        <div className="d-flex align-items-center flex-wrap gap-1 mb-1">
+                          <FormLabel
+                            className="reservation-form-label mb-0"
+                            required
+                          >
+                            {
+                              EDIT_RESERVATION_FIELD_LABEL_MAP.reservation_method
+                            }
+                          </FormLabel>
+                          <HelpIcon
+                            id="reservation-method-help"
+                            text={RESERVATION_METHOD_HELP_TEXT}
+                          />
+                        </div>
                         <Form.Select
                           aria-label="Reservation method"
                           value={reservationMethod || ''}
@@ -146,6 +159,14 @@ export const RecResourceReservationEditSection = () => {
                         {...register('reservation_contact')}
                         isInvalid={!!errors.reservation_contact}
                       />
+                      <Form.Text muted>
+                        {reservationMethod === 'reservation_website' &&
+                          'Enter the full URL including https://.'}
+                        {reservationMethod === 'reservation_phone_number' &&
+                          'Enter a valid phone number, e.g. 250-555-1234.'}
+                        {reservationMethod === 'reservation_email' &&
+                          'Enter a valid email address, e.g. name@example.com.'}
+                      </Form.Text>
                       <Form.Control.Feedback type="invalid">
                         {errors.reservation_contact?.message}
                       </Form.Control.Feedback>
