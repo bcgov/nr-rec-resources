@@ -155,8 +155,6 @@ export const RecResourceOverviewEditSection = () => {
                   register={register}
                   errors={errors}
                   maxLength={NAME_MAX_LENGTH}
-                  helpText={DESCRIPTION_HELP_TEXT}
-                  helperText={DESCRIPTION_TEXT}
                 />
               </Col>
             )}
@@ -251,7 +249,7 @@ export const RecResourceOverviewEditSection = () => {
             </Col>
           </Row>
 
-          <Row className="gy-3">
+          <Row className="gy-3 mb-3">
             {/* Grouped Access Codes with Sub-Access Codes */}
             <Col xs={12}>
               <GroupedMultiSelectField<EditResourceFormData>
@@ -275,6 +273,8 @@ export const RecResourceOverviewEditSection = () => {
               label="Site Description"
               control={control}
               errors={errors}
+              helpText={DESCRIPTION_HELP_TEXT}
+              helperText={DESCRIPTION_TEXT}
             />
           </Col>
         </Row>

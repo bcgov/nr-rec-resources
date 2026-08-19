@@ -56,7 +56,9 @@ function MultiSelectFieldComponent<TFieldValues extends FieldValues>({
 
         return (
           <Form.Group controlId={name as string}>
-            <Form.Label className={hideLabel ? 'visually-hidden' : ''}>
+            <Form.Label
+              className={`d-flex align-items-center flex-wrap gap-1${hideLabel ? ' visually-hidden' : ''}`}
+            >
               {label}
               {helpText && <HelpIcon id={`${name}-help`} text={helpText} />}
             </Form.Label>

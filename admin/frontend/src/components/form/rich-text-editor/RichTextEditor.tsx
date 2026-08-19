@@ -26,7 +26,7 @@ export const RichTextEditor = ({
   return (
     <Form.Group controlId={name}>
       {label && (
-        <Form.Label>
+        <Form.Label className="d-flex align-items-center flex-wrap gap-1">
           {label}
           {required ? ' *' : ''}
           {helpText && <HelpIcon id={`${name}-help`} text={helpText} />}

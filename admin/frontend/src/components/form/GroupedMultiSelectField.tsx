@@ -80,7 +80,7 @@ export function GroupedMultiSelectField<TFieldValues extends FieldValues>({
 
           return (
             <Form.Group controlId={name as string}>
-              <Form.Label>
+              <Form.Label className="d-flex align-items-center flex-wrap gap-1">
                 {label}
                 {helpText && (
                   <HelpIcon id={`${name as string}-help`} text={helpText} />
@@ -121,7 +121,7 @@ export function GroupedMultiSelectField<TFieldValues extends FieldValues>({
 
         return (
           <Form.Group controlId={name as string}>
-            <Form.Label>
+            <Form.Label className="d-flex align-items-center flex-wrap gap-1">
               {label}
               {helpText && (
                 <HelpIcon

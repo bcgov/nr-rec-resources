@@ -24,3 +24,8 @@ export const ACCESS_SUBACCES_HELP_TEXT =
 
 export const DRIVING_DIRECTIONS_HELP_TEXT =
   'Provide clear, step‑by‑step directions from a recognizable starting point (nearest highway/community). Include major turns, distances, road type/conditions, and seasonal constraints; avoid private or sensitive routing details.';
+
+export const RESERVABLE_HELP_TEXT =
+  'Indicate whether reservations are required or available for any part of this site (e.g., camping, day-use, facilities). If yes, ensure reservation details and links are maintained in the appropriate fields/system of record.';
+export const RESERVATION_METHOD_HELP_TEXT =
+  'Primary contact method for reservations.';

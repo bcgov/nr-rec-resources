@@ -49,7 +49,7 @@ export function SelectField<TFieldValues extends FieldValues>({
 
         return (
           <Form.Group controlId={name}>
-            <Form.Label>
+            <Form.Label className="d-flex align-items-center flex-wrap gap-1">
               {label}
               {helpText && <HelpIcon id={`${name}-help`} text={helpText} />}
             </Form.Label>
