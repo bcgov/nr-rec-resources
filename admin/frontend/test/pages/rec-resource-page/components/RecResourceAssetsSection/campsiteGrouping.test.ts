@@ -90,6 +90,58 @@ describe('groupAssetsByCampsite', () => {
     expect(groups.map((g) => g.campsite.asset_id)).toEqual([10, 20]);
   });
 
+  it('sorts campsite groups numerically when names share a prefix', () => {
+    const campsite100 = buildAsset({
+      asset_id: 100,
+      asset_code: CAMPSITE_STRUCTURE_CODE,
+      asset_name: 'Campsite 100',
+    });
+    const campsite2 = buildAsset({
+      asset_id: 2,
+      asset_code: CAMPSITE_STRUCTURE_CODE,
+      asset_name: 'Campsite 2',
+    });
+    const campsite1 = buildAsset({
+      asset_id: 1,
+      asset_code: CAMPSITE_STRUCTURE_CODE,
+      asset_name: 'Campsite 1',
+    });
+
+    const groups = groupAssetsByCampsite([campsite100, campsite2, campsite1]);
+
+    expect(groups.map((g) => g.campsite.asset_id)).toEqual([1, 2, 100]);
+  });
+
+  it('sorts children numerically when names share a prefix', () => {
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: CAMPSITE_STRUCTURE_CODE,
+      asset_name: 'Campsite A',
+    });
+    const child10 = buildAsset({
+      asset_id: 1,
+      asset_code: 1,
+      parent_id: 10,
+      asset_name: 'Fire ring 10',
+    });
+    const child3 = buildAsset({
+      asset_id: 2,
+      asset_code: 1,
+      parent_id: 10,
+      asset_name: 'Fire ring 3',
+    });
+    const child1 = buildAsset({
+      asset_id: 3,
+      asset_code: 1,
+      parent_id: 10,
+      asset_name: 'Fire ring 1',
+    });
+
+    const groups = groupAssetsByCampsite([campsite, child10, child3, child1]);
+
+    expect(groups[0].children.map((c) => c.asset_id)).toEqual([3, 2, 1]);
+  });
+
   it('treats a null asset_name as an empty string when sorting', () => {
     const campsiteNoName = buildAsset({
       asset_id: 10,

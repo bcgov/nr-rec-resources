@@ -1,4 +1,25 @@
+@import '@shared/styles/variables';
+
+.summary-card__body {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'title value'
+    'subtitle value';
+  align-items: start;
+  column-gap: 0.75rem;
+
+  @media (min-width: $smBreakpoint) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'title'
+      'value'
+      'subtitle';
+  }
+}
+
 .summary-card__title {
+  grid-area: title;
   font-weight: var(--typography-font-weights-bold, 700);
   font-style: normal;
   letter-spacing: var(--typography-letter-spacing-0, 0);
@@ -6,7 +27,12 @@
   line-height: 1.6; // 25.6px at this size
 }
 
+.summary-card__value-slot {
+  grid-area: value;
+}
+
 .summary-card__subtitle {
+  grid-area: subtitle;
   // BC Gov "small body"
   font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
 }

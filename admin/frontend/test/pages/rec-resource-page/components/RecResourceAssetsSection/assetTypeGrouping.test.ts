@@ -147,6 +147,22 @@ describe('groupAssetsByType', () => {
     expect(groups[0].activeRepairsCount).toBe(0);
   });
 
+  it('sorts assets within a group numerically when names share a prefix', () => {
+    const assets = [
+      buildAsset({ asset_id: 1, asset_code: 100, asset_name: 'Fire ring 10' }),
+      buildAsset({ asset_id: 2, asset_code: 100, asset_name: 'fire ring 3' }),
+      buildAsset({ asset_id: 3, asset_code: 100, asset_name: 'Fire ring 1' }),
+    ];
+
+    const groups = groupAssetsByType(assets, []);
+
+    expect(groups[0].assets.map((a) => a.asset_name)).toEqual([
+      'Fire ring 1',
+      'fire ring 3',
+      'Fire ring 10',
+    ]);
+  });
+
   it('sorts groups by description alphabetically', () => {
     const assets = [
       buildAsset({ asset_id: 1, asset_code: 200 }),

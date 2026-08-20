@@ -46,6 +46,20 @@ describe('AssetTypeCard', () => {
     expect(screen.getByText('3 repairs')).toBeInTheDocument();
   });
 
+  it('renders the singular "repair" label when there is 1 active repair', () => {
+    render(
+      <AssetTypeCard
+        eventKey="1"
+        description="Bridge"
+        count={5}
+        totalValue={1000}
+        activeRepairsCount={1}
+      />,
+    );
+
+    expect(screen.getByText('1 repair')).toBeInTheDocument();
+  });
+
   it('hides the active repairs badge when there are no active repairs', () => {
     render(
       <AssetTypeCard

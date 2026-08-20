@@ -20,9 +20,17 @@ export function groupAssetsByCampsite(assets: Asset[]): CampsiteGroup[] {
       campsite,
       children: assets
         .filter((asset) => asset.parent_id === campsite.asset_id)
-        .sort((a, b) => (a.asset_name ?? '').localeCompare(b.asset_name ?? '')),
+        .sort((a, b) =>
+          (a.asset_name ?? '').localeCompare(b.asset_name ?? '', undefined, {
+            numeric: true,
+          }),
+        ),
     }))
     .sort((a, b) =>
-      (a.campsite.asset_name ?? '').localeCompare(b.campsite.asset_name ?? ''),
+      (a.campsite.asset_name ?? '').localeCompare(
+        b.campsite.asset_name ?? '',
+        undefined,
+        { numeric: true },
+      ),
     );
 }

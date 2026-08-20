@@ -29,7 +29,7 @@ export function CampsiteCard({
         <>
           <div className="campsite-card__secondary-info">
             <span className="campsite-card__secondary-info-text">
-              {structureCount} assets
+              {structureCount} asset{structureCount === 1 ? '' : 's'}
             </span>
             <span
               className="campsite-card__secondary-info-separator"

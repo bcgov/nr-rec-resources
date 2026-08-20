@@ -11,17 +11,12 @@ interface SummaryCardProps {
 export function SummaryCard({ title, subtitle, children }: SummaryCardProps) {
   return (
     <Card className="h-100">
-      <Card.Body
-        className="d-flex flex-row flex-sm-column justify-content-between
-          justify-content-sm-start align-items-start"
-      >
-        <div>
-          <div className="summary-card__title">{title}</div>
-          {subtitle ? (
-            <div className="summary-card__subtitle mt-1">{subtitle}</div>
-          ) : null}
-        </div>
-        <div className="mt-sm-1">{children}</div>
+      <Card.Body className="summary-card__body">
+        <div className="summary-card__title">{title}</div>
+        <div className="summary-card__value-slot mt-sm-1">{children}</div>
+        {subtitle ? (
+          <div className="summary-card__subtitle mt-1">{subtitle}</div>
+        ) : null}
       </Card.Body>
     </Card>
   );

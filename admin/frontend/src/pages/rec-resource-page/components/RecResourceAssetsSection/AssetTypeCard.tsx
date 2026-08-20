@@ -50,7 +50,7 @@ export function AssetTypeCard({
             {activeRepairsCount > 0 && (
               <span className="asset-type-card__active-repairs">
                 <CustomBadge
-                  label={String(activeRepairsCount) + ' repairs'}
+                  label={`${activeRepairsCount} repair${activeRepairsCount === 1 ? '' : 's'}`}
                   bgColor={COLOR_AMBER_LIGHT}
                   textColor={COLOR_AMBER_DARK}
                 />

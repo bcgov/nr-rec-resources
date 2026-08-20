@@ -30,6 +30,19 @@ describe('CampsiteCard', () => {
     expect(screen.getByText('$1,500 total value')).toBeInTheDocument();
   });
 
+  it('renders the singular "asset" label when the structure count is 1', () => {
+    render(
+      <CampsiteCard
+        eventKey="1"
+        description="Campsite A"
+        structureCount={1}
+        totalValue={1500}
+      />,
+    );
+
+    expect(screen.getByText('1 asset')).toBeInTheDocument();
+  });
+
   it('renders an Edit button', () => {
     render(
       <CampsiteCard

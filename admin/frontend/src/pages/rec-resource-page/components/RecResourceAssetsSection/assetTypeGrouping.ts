@@ -42,7 +42,9 @@ export function groupAssetsByType(
         0,
       ),
       assets: [...groupAssets].sort((a, b) =>
-        (a.asset_name ?? '').localeCompare(b.asset_name ?? ''),
+        (a.asset_name ?? '').localeCompare(b.asset_name ?? '', undefined, {
+          numeric: true,
+        }),
       ),
     }))
     .sort((a, b) => a.description.localeCompare(b.description));
