@@ -101,7 +101,7 @@ export function AssetCard({
             {fields.map((field) => (
               <span key={field.label} className="asset-card__field">
                 <span className="asset-card__field-label">{field.label}:</span>{' '}
-                {field.value ?? '—'}
+                {field.value ?? '-'}
               </span>
             ))}
           </div>
