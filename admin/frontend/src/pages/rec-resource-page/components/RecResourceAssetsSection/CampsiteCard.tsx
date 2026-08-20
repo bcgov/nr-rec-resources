@@ -29,7 +29,7 @@ export function CampsiteCard({
         <>
           <div className="campsite-card__secondary-info">
             <span className="campsite-card__secondary-info-text">
-              {structureCount} structures
+              {structureCount} assets
             </span>
             <span
               className="campsite-card__secondary-info-separator"

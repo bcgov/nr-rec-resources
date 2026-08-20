@@ -26,7 +26,7 @@ describe('CampsiteCard', () => {
       />,
     );
 
-    expect(screen.getByText('2 structures')).toBeInTheDocument();
+    expect(screen.getByText('2 assets')).toBeInTheDocument();
     expect(screen.getByText('$1,500 total value')).toBeInTheDocument();
   });
 

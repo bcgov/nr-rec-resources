@@ -31,7 +31,7 @@
     min-width: 0;
   }
 
-  // structures count, total value + the bulk-update button live outside the accordion's own
+  // assets count, total value + the bulk-update button live outside the accordion's own
   // button, in `headerEnd`, as direct flex siblings of it. Lets
   // button stay pinned next to the title while structure count and total value wraps on its own
   // `justify-content: space-between` spreads whatever ends up on a line

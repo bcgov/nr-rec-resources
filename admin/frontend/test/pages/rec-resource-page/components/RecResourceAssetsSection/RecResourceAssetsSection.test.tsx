@@ -123,7 +123,7 @@ describe('RecResourceAssetsSection', () => {
 
     render(<RecResourceAssetsSection />);
 
-    expect(screen.getByText('Structures')).toBeInTheDocument();
+    expect(screen.getByText('Assets')).toBeInTheDocument();
     expect(screen.getByText('Total value')).toBeInTheDocument();
   });
 

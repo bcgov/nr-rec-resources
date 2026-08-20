@@ -129,14 +129,6 @@ export function RecResourceAssetsSection() {
               >
                 Add repair
               </CustomButton>
-
-              <CustomButton
-                variant="primary"
-                className="asset-summary-action-btn"
-                leftIcon={<FontAwesomeIcon icon={faPlus} />}
-              >
-                Add campsite
-              </CustomButton>
             </div>
           </div>
 

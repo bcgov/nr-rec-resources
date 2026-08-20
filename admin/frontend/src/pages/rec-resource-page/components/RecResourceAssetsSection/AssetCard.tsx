@@ -1,6 +1,6 @@
 import { Card } from 'react-bootstrap';
-import { formatDateReadable } from '@shared/utils';
 import { AssetCardRepairs } from './AssetCardRepairs';
+import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
 import { formatCurrency } from './formatCurrency';
 import type { Asset, RepairCode } from './types';
 import './AssetCard.scss';
@@ -16,9 +16,33 @@ interface AssetField {
   value: string | null;
 }
 
+// Campsites don't have area/length/width or an outstanding-repair estimate,
+// so their card shows a reduced field set.
+const CAMPSITE_FIELD_LABELS = new Set([
+  'Value',
+  'Repair spend',
+  'Latitude',
+  'Longitude',
+]);
+
 function getAssetFields(asset: Asset): AssetField[] {
+  const repairs = asset.recreation_asset_repair ?? [];
+  const hasRepairs = repairs.length > 0;
+  const value = asset.actual_value ?? asset.default_value;
+  const repairSpend = hasRepairs
+    ? repairs.reduce((sum, repair) => sum + (repair.actual_repair_cost ?? 0), 0)
+    : null;
+  const outstandingEstimate = hasRepairs
+    ? repairs
+        .filter((repair) => !repair.repair_completed_date)
+        .reduce((sum, repair) => sum + (repair.estimated_repair_cost ?? 0), 0)
+    : null;
+
   const fields: AssetField[] = [
-    { label: 'Asset tag', value: asset.asset_tag },
+    {
+      label: 'Area',
+      value: asset.asset_area != null ? String(asset.asset_area) : null,
+    },
     {
       label: 'Length',
       value: asset.asset_length != null ? String(asset.asset_length) : null,
@@ -28,32 +52,34 @@ function getAssetFields(asset: Asset): AssetField[] {
       value: asset.asset_width != null ? String(asset.asset_width) : null,
     },
     {
-      label: 'Area',
-      value: asset.asset_area != null ? String(asset.asset_area) : null,
+      label: 'Value',
+      value: value != null ? formatCurrency(value) : null,
     },
     {
-      label: 'Default value',
+      label: 'Repair spend',
+      value: repairSpend != null ? formatCurrency(repairSpend) : null,
+    },
+    {
+      label: 'Outstanding estimate',
       value:
-        asset.default_value != null
-          ? formatCurrency(asset.default_value)
+        outstandingEstimate != null
+          ? formatCurrency(outstandingEstimate)
           : null,
     },
     {
-      label: 'Actual value',
-      value:
-        asset.actual_value != null ? formatCurrency(asset.actual_value) : null,
+      label: 'Latitude',
+      value: asset.latitude != null ? String(asset.latitude) : null,
     },
     {
-      label: 'Installation date',
-      value: formatDateReadable(asset.installation_date),
+      label: 'Longitude',
+      value: asset.longitude != null ? String(asset.longitude) : null,
     },
-    { label: 'Legacy structure ID', value: asset.legacy_structure_id },
-    { label: 'Comment', value: asset.asset_comment },
-    { label: 'Latitude', value: String(asset.latitude) },
-    { label: 'Longitude', value: String(asset.longitude) },
   ];
 
-  return fields.filter((field) => !!field.value);
+  const isCampsite = asset.asset_code === CAMPSITE_STRUCTURE_CODE;
+  return isCampsite
+    ? fields.filter((field) => CAMPSITE_FIELD_LABELS.has(field.label))
+    : fields;
 }
 
 export function AssetCard({
@@ -71,18 +97,14 @@ export function AssetCard({
           <div className="d-flex justify-content-between align-items-center">
             <span className="asset-card__title">{asset.asset_name}</span>
           </div>
-          {fields.length > 0 && (
-            <div className="asset-card__fields">
-              {fields.map((field) => (
-                <span key={field.label} className="asset-card__field">
-                  <span className="asset-card__field-label">
-                    {field.label}:
-                  </span>{' '}
-                  {field.value}
-                </span>
-              ))}
-            </div>
-          )}
+          <div className="asset-card__fields">
+            {fields.map((field) => (
+              <span key={field.label} className="asset-card__field">
+                <span className="asset-card__field-label">{field.label}:</span>{' '}
+                {field.value ?? '—'}
+              </span>
+            ))}
+          </div>
           <AssetCardRepairs repairs={repairs} repairCodes={repairCodes} />
         </div>
       </Card.Body>

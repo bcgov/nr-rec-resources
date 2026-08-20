@@ -18,7 +18,7 @@ describe('AssetSummaryCards', () => {
   it('renders the total asset count', () => {
     render(<AssetSummaryCards summary={buildSummary({ total_assets: 10 })} />);
 
-    expect(screen.getByText('Structures')).toBeInTheDocument();
+    expect(screen.getByText('Assets')).toBeInTheDocument();
     expect(screen.getByText('10')).toBeInTheDocument();
   });
 

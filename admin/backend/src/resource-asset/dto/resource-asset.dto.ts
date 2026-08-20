@@ -274,7 +274,7 @@ export class FindAllAssetsQueryDto {
   @ApiPropertyOptional({ description: 'Number of items per page', default: 10 })
   @IsInt()
   @Min(1)
-  @Max(100)
+  @Max(500)
   @Type(() => Number)
   @IsOptional()
   limit?: number = 10;

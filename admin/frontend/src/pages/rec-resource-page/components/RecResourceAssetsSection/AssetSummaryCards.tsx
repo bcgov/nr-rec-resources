@@ -33,7 +33,7 @@ export function AssetSummaryCards({ summary }: AssetSummaryCardsProps) {
     <Row className="g-3 row-cols-1 row-cols-sm-2 row-cols-xl-4">
       <Col>
         <SummaryCard
-          title="Structures"
+          title="Assets"
           subtitle={
             summary.total_campsites > 0
               ? `${summary.total_campsites} campsites`

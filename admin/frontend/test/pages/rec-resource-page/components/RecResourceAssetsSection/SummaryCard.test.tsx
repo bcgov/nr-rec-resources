@@ -16,7 +16,7 @@ describe('SummaryCard', () => {
 
   it('renders the subtitle when provided', () => {
     render(
-      <SummaryCard title="Structures" subtitle="3 campsites">
+      <SummaryCard title="Assets" subtitle="3 campsites">
         <div>10</div>
       </SummaryCard>,
     );
@@ -26,7 +26,7 @@ describe('SummaryCard', () => {
 
   it('does not render a subtitle element when omitted', () => {
     render(
-      <SummaryCard title="Structures">
+      <SummaryCard title="Assets">
         <div>10</div>
       </SummaryCard>,
     );

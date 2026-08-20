@@ -6,7 +6,7 @@ import { QueryOptions, useQuery } from '@tanstack/react-query';
 import { createRetryHandler } from './helpers';
 import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
-const ASSETS_PAGE_LIMIT = 50;
+const ASSETS_PAGE_LIMIT = 500;
 
 export const useGetAssetsByRecResourceId = (
   recResourceId?: string,
@@ -18,23 +18,30 @@ export const useGetAssetsByRecResourceId = (
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.assets(recResourceId!),
     initialData: [],
     queryFn: async () => {
-      const assets: Asset[] = [];
-      let page = 1;
-      let totalPages = 1;
+      const firstPage = await assetsApiClient.getPaginatedRecreationAssets({
+        recResourceId: recResourceId!,
+        page: 1,
+        limit: ASSETS_PAGE_LIMIT,
+        includeRepair: true,
+      });
 
-      do {
-        const paginated = await assetsApiClient.getPaginatedRecreationAssets({
-          recResourceId: recResourceId!,
-          page,
-          limit: ASSETS_PAGE_LIMIT,
-          includeRepair: true,
-        });
-        assets.push(...(paginated.data as Asset[]));
-        totalPages = paginated.totalPages;
-        page++;
-      } while (page <= totalPages);
+      const remainingPages = await Promise.all(
+        Array.from(
+          { length: Math.max(firstPage.totalPages - 1, 0) },
+          (_, i) => i + 2,
+        ).map((page) =>
+          assetsApiClient.getPaginatedRecreationAssets({
+            recResourceId: recResourceId!,
+            page,
+            limit: ASSETS_PAGE_LIMIT,
+            includeRepair: true,
+          }),
+        ),
+      );
 
-      return assets;
+      return [firstPage, ...remainingPages].flatMap(
+        (paginated) => paginated.data as Asset[],
+      );
     },
     enabled: Boolean(recResourceId),
     retry: createRetryHandler({
