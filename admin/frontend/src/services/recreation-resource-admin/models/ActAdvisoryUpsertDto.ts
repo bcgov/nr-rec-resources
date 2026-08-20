@@ -126,7 +126,7 @@ export interface ActAdvisoryUpsertDto {
    * @type {string}
    * @memberof ActAdvisoryUpsertDto
    */
-  effective_date: string;
+  effective_date: string | null;
   /**
    * Date the advisory ends, if applicable (ISO 8601).
    * @type {string}
@@ -150,7 +150,7 @@ export interface ActAdvisoryUpsertDto {
    * @type {string}
    * @memberof ActAdvisoryUpsertDto
    */
-  updated_date: string;
+  updated_date: string | null;
   /**
    * Date the advisory was last content-modified in Act.
    * @type {string}

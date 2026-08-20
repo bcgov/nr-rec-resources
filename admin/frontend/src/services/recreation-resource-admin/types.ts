@@ -14,6 +14,8 @@ export interface RecreationResourceDetailUIModel
   recreation_status_code?: number;
   recreation_status_description?: string;
   project_established_date_readable_utc: string | null;
+  last_rec_inspection_date_readable_utc: string | null;
+  last_hzrd_tree_assess_date_readable_utc: string | null;
   control_access_code?: string;
   control_access_code_description?: string;
   risk_rating_code?: string;

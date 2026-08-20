@@ -105,6 +105,8 @@ const _recreationResourceSelect = {
   maintenance_standard_code: true,
   right_of_way: true,
   rec_status_code: true,
+  last_rec_inspection_date: true,
+  last_hzrd_tree_assess_date: true,
   recreation_maintenance_standard_code: {
     select: {
       description: true,

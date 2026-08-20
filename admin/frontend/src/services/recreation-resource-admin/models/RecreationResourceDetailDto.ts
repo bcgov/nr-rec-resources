@@ -166,6 +166,18 @@ export interface RecreationResourceDetailDto {
    */
   project_established_date?: Date;
   /**
+   * Date of the last recreation inspection for the resource
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
+   */
+  last_rec_inspection_date?: Date;
+  /**
+   * Date of the last hazard tree assessment for the resource
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
+   */
+  last_hzrd_tree_assess_date?: Date;
+  /**
    * Recreation control access code
    * @type {RecreationControlAccessDto}
    * @memberof RecreationResourceDetailDto
@@ -195,14 +207,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   rec_status_code: string | null;
-
   /**
-   * Recreation resource status description (Archived, Issued)
+   * Description of the recreation resource status code
    * @type {string}
    * @memberof RecreationResourceDetailDto
    */
-
-  rec_status_description?: string | null;
+  rec_status_description: string | null;
   /**
    * Full descriptive name of the organization unit
    * @type {string}
@@ -274,6 +284,11 @@ export function instanceOfRecreationResourceDetailDto(
   if (!('rec_status_code' in value) || value['rec_status_code'] === undefined)
     return false;
   if (
+    !('rec_status_description' in value) ||
+    value['rec_status_description'] === undefined
+  )
+    return false;
+  if (
     !('natural_resource_org_unit_name' in value) ||
     value['natural_resource_org_unit_name'] === undefined
   )
@@ -329,6 +344,14 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['project_established_date'] == null
         ? undefined
         : new Date(json['project_established_date']),
+    last_rec_inspection_date:
+      json['last_rec_inspection_date'] == null
+        ? undefined
+        : new Date(json['last_rec_inspection_date']),
+    last_hzrd_tree_assess_date:
+      json['last_hzrd_tree_assess_date'] == null
+        ? undefined
+        : new Date(json['last_hzrd_tree_assess_date']),
     recreation_control_access_code:
       json['recreation_control_access_code'] == null
         ? undefined
@@ -346,10 +369,7 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     right_of_way:
       json['right_of_way'] == null ? undefined : json['right_of_way'],
     rec_status_code: json['rec_status_code'],
-    rec_status_description:
-      json['rec_status_description'] == null
-        ? undefined
-        : json['rec_status_description'],
+    rec_status_description: json['rec_status_description'],
     natural_resource_org_unit_name: json['natural_resource_org_unit_name'],
   };
 }
@@ -396,6 +416,14 @@ export function RecreationResourceDetailDtoToJSONTyped(
       value['project_established_date'] == null
         ? undefined
         : value['project_established_date'].toISOString(),
+    last_rec_inspection_date:
+      value['last_rec_inspection_date'] == null
+        ? undefined
+        : value['last_rec_inspection_date'].toISOString(),
+    last_hzrd_tree_assess_date:
+      value['last_hzrd_tree_assess_date'] == null
+        ? undefined
+        : value['last_hzrd_tree_assess_date'].toISOString(),
     recreation_control_access_code: RecreationControlAccessDtoToJSON(
       value['recreation_control_access_code'],
     ),

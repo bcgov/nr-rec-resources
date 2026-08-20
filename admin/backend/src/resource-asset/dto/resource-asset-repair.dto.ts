@@ -21,6 +21,7 @@ export class BaseRecreationAssetRepairDto {
       'Remedial repair classification code (FK to recreation_remed_repair_code)',
     example: 'RC',
     maxLength: 2,
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -31,6 +32,7 @@ export class BaseRecreationAssetRepairDto {
   @ApiPropertyOptional({
     description: 'Estimated financial cost for repair',
     example: 450.0,
+    type: Number,
     nullable: true,
   })
   @IsNumber()
@@ -41,6 +43,7 @@ export class BaseRecreationAssetRepairDto {
   @ApiPropertyOptional({
     description: 'Final actual cost incurred',
     example: 485.5,
+    type: Number,
     nullable: true,
   })
   @IsNumber()
@@ -51,6 +54,7 @@ export class BaseRecreationAssetRepairDto {
   @ApiPropertyOptional({
     description: 'Date completed (YYYY-MM-DD)',
     example: '2026-08-10',
+    type: String,
     nullable: true,
   })
   @IsDateString()
@@ -61,6 +65,7 @@ export class BaseRecreationAssetRepairDto {
     description: 'Urgency/priority of repair',
     example: 'High',
     maxLength: 25,
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -72,6 +77,7 @@ export class BaseRecreationAssetRepairDto {
     description: 'Trail segment start reference',
     example: 'KM 0.5',
     maxLength: 50,
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -83,6 +89,7 @@ export class BaseRecreationAssetRepairDto {
     description: 'Trail segment end reference',
     example: 'KM 1.2',
     maxLength: 50,
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -133,24 +140,34 @@ export class RecreationAssetRepairDto extends BaseRecreationAssetRepairDto {
   @Type(() => Number)
   asset_id: number;
 
-  @ApiPropertyOptional({ description: 'Timestamp when record was created' })
+  @ApiPropertyOptional({
+    description: 'Timestamp when record was created',
+    type: String,
+    nullable: true,
+  })
   @IsOptional()
   created_at?: Date | string | null;
 
   @ApiPropertyOptional({
     description: 'User identifier who created the record',
+    type: String,
+    nullable: true,
   })
   @IsOptional()
   created_by?: string | null;
 
   @ApiPropertyOptional({
     description: 'Timestamp when record was last updated',
+    type: String,
+    nullable: true,
   })
   @IsOptional()
   updated_at?: Date | string | null;
 
   @ApiPropertyOptional({
     description: 'User identifier who last updated the record',
+    type: String,
+    nullable: true,
   })
   @IsOptional()
   updated_by?: string | null;

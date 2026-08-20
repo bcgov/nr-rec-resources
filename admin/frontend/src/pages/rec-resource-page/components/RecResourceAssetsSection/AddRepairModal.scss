@@ -1,0 +1,18 @@
+@import '@shared/styles/variables';
+
+.add-repair-modal__header {
+  background-color: #{$colorBackgroundGrey};
+}
+
+.add-repair-modal__title {
+  font: var(--typography-bold-body, 700 1rem/1.688rem 'BC Sans');
+}
+
+.add-repair-modal__body {
+  background-color: #{$colorWhite};
+}
+
+.add-repair-modal__subtitle {
+  font: var(--typography-bold-body, 700 1rem/1.688rem 'BC Sans');
+  margin-bottom: 0;
+}

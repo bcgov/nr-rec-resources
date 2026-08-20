@@ -21,4 +21,57 @@ describe('StyledAccordion', () => {
     const accordion = screen.getByText('Title').closest('.styled-accordion');
     expect(accordion).toHaveClass('custom-class');
   });
+
+  it('is expanded by default', () => {
+    render(
+      <StyledAccordion eventKey="0" title="Title">
+        <div>Content</div>
+      </StyledAccordion>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Title' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
+
+  it('is collapsed when defaultOpen is false', () => {
+    render(
+      <StyledAccordion eventKey="0" title="Title" defaultOpen={false}>
+        <div>Content</div>
+      </StyledAccordion>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Title' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+  });
+
+  it('renders headerEnd content as a sibling of the toggle button', () => {
+    render(
+      <StyledAccordion
+        eventKey="0"
+        title="Title"
+        headerEnd={<button type="button">Header action</button>}
+      >
+        <div>Content</div>
+      </StyledAccordion>,
+    );
+
+    const headerAction = screen.getByRole('button', { name: 'Header action' });
+    const toggle = screen.getByRole('button', { name: 'Title' });
+    expect(headerAction).toBeInTheDocument();
+    expect(headerAction).not.toBe(toggle);
+  });
+
+  it('renders nothing extra in the header row when headerEnd is omitted', () => {
+    render(
+      <StyledAccordion eventKey="0" title="Title">
+        <div>Content</div>
+      </StyledAccordion>,
+    );
+
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+  });
 });
