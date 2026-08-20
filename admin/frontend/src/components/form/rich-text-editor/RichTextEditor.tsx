@@ -2,6 +2,7 @@ import { Controller } from 'react-hook-form';
 import { Form } from 'react-bootstrap';
 import { QuillEditor } from './QuillEditor';
 import './RichTextEditor.scss';
+import { HelpIcon } from '@/components';
 
 export interface RichTextEditorProps {
   name: string;
@@ -9,6 +10,8 @@ export interface RichTextEditorProps {
   control: any;
   errors?: any;
   required?: boolean;
+  helpText?: string;
+  helperText?: string;
 }
 
 export const RichTextEditor = ({
@@ -17,13 +20,16 @@ export const RichTextEditor = ({
   control,
   errors = {},
   required = false,
+  helpText,
+  helperText,
 }: RichTextEditorProps) => {
   return (
     <Form.Group controlId={name}>
       {label && (
-        <Form.Label>
+        <Form.Label className="d-flex align-items-center flex-wrap gap-1">
           {label}
           {required ? ' *' : ''}
+          {helpText && <HelpIcon id={`${name}-help`} text={helpText} />}
         </Form.Label>
       )}
 
@@ -42,6 +48,7 @@ export const RichTextEditor = ({
           </>
         )}
       />
+      {helperText && <Form.Text muted>{helperText}</Form.Text>}
     </Form.Group>
   );
 };

@@ -20,6 +20,26 @@ import {
 import { useEditResourceForm, useResourceOptions } from './hooks';
 import { EditResourceFormData } from './schemas';
 import { FormErrorBanner } from '../../shared/FormErrorBanner';
+import {
+  ACCESS_SUBACCES_TEXT,
+  CLOSEST_COMMUNITY_TEXT,
+  CONTROLLED_ACCESS_TYPE_TEXT,
+  DESCRIPTION_TEXT,
+  DRIVING_DIRECTIONS_TEXT,
+  RISK_RATING_TEXT,
+  STATUS_TEXT,
+} from '@/utils/helperText';
+import {
+  ACCESS_SUBACCES_HELP_TEXT,
+  CLOSEST_COMMUNITY_HELP_TEXT,
+  CONTROL_ACCESS_HELP_TEXT,
+  DESCRIPTION_HELP_TEXT,
+  DISTRICT_HELP_TEXT,
+  DRIVING_DIRECTIONS_HELP_TEXT,
+  PROJECT_ESTABLISHED_DATE_HELP_TEXT,
+  RISK_RATING_HELP_TEXT,
+  STATUS_HELP_TEXT,
+} from '@/utils/helpText';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 /**
@@ -148,6 +168,8 @@ export const RecResourceOverviewEditSection = () => {
                 register={register}
                 errors={errors}
                 maxLength={CLOSEST_COMMUNITY_MAX_LENGTH}
+                helpText={CLOSEST_COMMUNITY_HELP_TEXT}
+                helperText={CLOSEST_COMMUNITY_TEXT}
               />
             </Col>
             {/* Status */}
@@ -159,6 +181,8 @@ export const RecResourceOverviewEditSection = () => {
                 placeholder="Search or select a status..."
                 control={control}
                 errors={errors}
+                helperText={STATUS_TEXT}
+                helpText={STATUS_HELP_TEXT}
               />
             </Col>
 
@@ -182,6 +206,8 @@ export const RecResourceOverviewEditSection = () => {
                 placeholder="Search or select a control access type..."
                 control={control}
                 errors={errors}
+                helpText={CONTROL_ACCESS_HELP_TEXT}
+                helperText={CONTROLLED_ACCESS_TYPE_TEXT}
               />
             </Col>
 
@@ -194,6 +220,7 @@ export const RecResourceOverviewEditSection = () => {
                 control={control}
                 errors={errors}
                 helperText={districtHelperText}
+                helpText={DISTRICT_HELP_TEXT}
               />
             </Col>
 
@@ -205,6 +232,8 @@ export const RecResourceOverviewEditSection = () => {
                 placeholder="Search or select a risk rating..."
                 control={control}
                 errors={errors}
+                helpText={RISK_RATING_HELP_TEXT}
+                helperText={RISK_RATING_TEXT}
               />
             </Col>
 
@@ -215,11 +244,12 @@ export const RecResourceOverviewEditSection = () => {
                 control={control}
                 errors={errors}
                 max={new Date().toISOString().split('T')[0]}
+                helpText={PROJECT_ESTABLISHED_DATE_HELP_TEXT}
               />
             </Col>
           </Row>
 
-          <Row className="gy-3">
+          <Row className="gy-3 mb-3">
             {/* Grouped Access Codes with Sub-Access Codes */}
             <Col xs={12}>
               <GroupedMultiSelectField<EditResourceFormData>
@@ -229,7 +259,8 @@ export const RecResourceOverviewEditSection = () => {
                 placeholder="Search and select access types and their specific sub-options..."
                 control={control}
                 errors={errors}
-                helperText="Access types are grouped with their available sub-options below them."
+                helperText={ACCESS_SUBACCES_TEXT}
+                helpText={ACCESS_SUBACCES_HELP_TEXT}
               />
             </Col>
           </Row>
@@ -242,6 +273,8 @@ export const RecResourceOverviewEditSection = () => {
               label="Site Description"
               control={control}
               errors={errors}
+              helpText={DESCRIPTION_HELP_TEXT}
+              helperText={DESCRIPTION_TEXT}
             />
           </Col>
         </Row>
@@ -253,6 +286,8 @@ export const RecResourceOverviewEditSection = () => {
               label="Driving Directions"
               control={control}
               errors={errors}
+              helpText={DRIVING_DIRECTIONS_HELP_TEXT}
+              helperText={DRIVING_DIRECTIONS_TEXT}
             />
           </Col>
         </Row>
