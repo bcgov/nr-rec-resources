@@ -44,9 +44,10 @@ export function createRepairGroupFormState(id: number): RepairGroupFormState {
   };
 }
 
-// Shared with AddRepairModal so the "Create repairs" submit check validates
-// against exactly the same matching/selection logic this component renders.
-function getRepairGroupContext(
+// Shared with AddRepairModal so the "Create repairs" submit check and the
+// submit payload builder both use exactly the same matching/selection logic
+// this component renders.
+export function getRepairGroupContext(
   entry: RepairGroupFormState,
   assets: Asset[],
   assetCodes: AssetCode[],

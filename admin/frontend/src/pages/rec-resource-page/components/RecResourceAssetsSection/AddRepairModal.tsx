@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
 import Select from 'react-select';
 import { CustomButton } from '@/components';
+import { useBulkInsertAssetRepairs } from '@/services/hooks/recreation-resource-admin';
+import { buildBulkRepairPayload } from './buildBulkRepairPayload';
 import {
   createRepairGroupFormState,
   isRepairGroupValid,
@@ -32,6 +34,7 @@ export interface AddRepairFormState {
 
 interface AddRepairModalProps {
   show: boolean;
+  recResourceId: string;
   repairCodes: RepairCode[];
   assetCodes: AssetCode[];
   assets: Asset[];
@@ -41,6 +44,7 @@ interface AddRepairModalProps {
 
 export function AddRepairModal({
   show,
+  recResourceId,
   repairCodes,
   assetCodes,
   assets,
@@ -49,6 +53,7 @@ export function AddRepairModal({
 }: AddRepairModalProps) {
   const { scrollRef, contentRef, canScrollUp, canScrollDown } =
     useModalScrollFade();
+  const bulkInsertAssetRepairs = useBulkInsertAssetRepairs();
   const [selectedRepairType, setSelectedRepairType] = useState('');
   const [completionDate, setCompletionDate] = useState('');
   const [repairGroups, setRepairGroups] = useState<RepairGroupFormState[]>([
@@ -116,10 +121,27 @@ export function AddRepairModal({
         isRepairGroupValid(group, assets, assetCodes),
       );
 
-    if (isValid) {
-      onCreate();
-      resetForm();
+    if (!isValid) {
+      return;
     }
+
+    const dto = buildBulkRepairPayload(
+      selectedRepairType,
+      completionDate,
+      repairGroups,
+      assets,
+      assetCodes,
+    );
+
+    bulkInsertAssetRepairs.mutate(
+      { recResourceId, dto },
+      {
+        onSuccess: () => {
+          resetForm();
+          onCreate();
+        },
+      },
+    );
   };
 
   return (
@@ -233,15 +255,21 @@ export function AddRepairModal({
         </div>
       </Modal.Body>
       <Modal.Footer className="add-repair-modal__footer">
-        <CustomButton variant="outline-primary" onClick={handleCancel}>
+        <CustomButton
+          variant="outline-primary"
+          onClick={handleCancel}
+          disabled={bulkInsertAssetRepairs.isPending}
+        >
           Cancel
         </CustomButton>
         <CustomButton
           variant="primary"
           onClick={handleCreateClick}
-          disabled={!hasSelectedAsset}
+          disabled={!hasSelectedAsset || bulkInsertAssetRepairs.isPending}
         >
-          Create repairs
+          {bulkInsertAssetRepairs.isPending
+            ? 'Creating repairs...'
+            : 'Create repairs'}
         </CustomButton>
       </Modal.Footer>
     </Modal>

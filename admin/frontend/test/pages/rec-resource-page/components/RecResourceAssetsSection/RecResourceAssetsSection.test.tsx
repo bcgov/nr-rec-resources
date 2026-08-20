@@ -4,6 +4,7 @@ import type {
   AssetCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import {
+  useBulkInsertAssetRepairs,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -24,6 +25,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 });
 
 vi.mock('@/services/hooks/recreation-resource-admin', () => ({
+  useBulkInsertAssetRepairs: vi.fn(),
   useGetAssetCodes: vi.fn(),
   useGetAssetsByRecResourceId: vi.fn(),
   useGetRecreationResourceById: vi.fn(),
@@ -73,6 +75,10 @@ describe('RecResourceAssetsSection', () => {
     } as any);
     vi.mocked(useGetRecreationResourceById).mockReturnValue({
       data: undefined,
+    } as any);
+    vi.mocked(useBulkInsertAssetRepairs).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
     } as any);
   });
 

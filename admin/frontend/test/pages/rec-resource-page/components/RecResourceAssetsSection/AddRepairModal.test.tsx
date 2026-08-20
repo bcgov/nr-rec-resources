@@ -4,9 +4,16 @@ import type {
   AssetCode,
   RepairCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
+import { useBulkInsertAssetRepairs } from '@/services/hooks/recreation-resource-admin';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/services/hooks/recreation-resource-admin', () => ({
+  useBulkInsertAssetRepairs: vi.fn(),
+}));
+
+const REC_RESOURCE_ID = 'REC0001';
 
 const repairCodes: RepairCode[] = [
   { recreation_remed_repair_code: 'R1', description: 'Paint touch-up' },
@@ -22,7 +29,7 @@ const assets: Asset[] = [
   {
     asset_id: 1,
     parent_id: null,
-    rec_resource_id: 'REC0001',
+    rec_resource_id: REC_RESOURCE_ID,
     asset_code: 1,
     asset_name: 'Picnic table 1',
     asset_tag: null,
@@ -54,10 +61,25 @@ const selectAssetAndCheckIt = async (
 };
 
 describe('AddRepairModal', () => {
+  // Synchronously invokes the per-call onSuccess callback, mirroring what a
+  // successful real mutation would do, so submit-success behaviour is testable.
+  const mutate = vi.fn((_variables, options) => {
+    options?.onSuccess?.();
+  });
+
+  beforeEach(() => {
+    mutate.mockClear();
+    vi.mocked(useBulkInsertAssetRepairs).mockReturnValue({
+      mutate,
+      isPending: false,
+    } as any);
+  });
+
   it('does not render modal content when show is false', () => {
     render(
       <AddRepairModal
         show={false}
+        recResourceId={REC_RESOURCE_ID}
         repairCodes={repairCodes}
         assetCodes={assetCodes}
         assets={[]}
@@ -74,6 +96,7 @@ describe('AddRepairModal', () => {
     render(
       <AddRepairModal
         show
+        recResourceId={REC_RESOURCE_ID}
         repairCodes={repairCodes}
         assetCodes={assetCodes}
         assets={[]}
@@ -99,6 +122,7 @@ describe('AddRepairModal', () => {
     render(
       <AddRepairModal
         show
+        recResourceId={REC_RESOURCE_ID}
         repairCodes={[]}
         assetCodes={assetCodes}
         assets={[]}
@@ -119,6 +143,7 @@ describe('AddRepairModal', () => {
     render(
       <AddRepairModal
         show
+        recResourceId={REC_RESOURCE_ID}
         repairCodes={repairCodes}
         assetCodes={assetCodes}
         assets={[]}
@@ -137,6 +162,7 @@ describe('AddRepairModal', () => {
     render(
       <AddRepairModal
         show
+        recResourceId={REC_RESOURCE_ID}
         repairCodes={repairCodes}
         assetCodes={assetCodes}
         assets={assets}
@@ -156,12 +182,13 @@ describe('AddRepairModal', () => {
     ).not.toBeDisabled();
   });
 
-  it('shows validation errors and does not call onCreate when required fields are missing', async () => {
+  it('shows validation errors and does not submit when required fields are missing', async () => {
     const user = userEvent.setup();
     const onCreate = vi.fn();
     render(
       <AddRepairModal
         show
+        recResourceId={REC_RESOURCE_ID}
         repairCodes={repairCodes}
         assetCodes={assetCodes}
         assets={assets}
@@ -173,6 +200,7 @@ describe('AddRepairModal', () => {
     await selectAssetAndCheckIt(user);
     await user.click(screen.getByRole('button', { name: 'Create repairs' }));
 
+    expect(mutate).not.toHaveBeenCalled();
     expect(onCreate).not.toHaveBeenCalled();
     expect(screen.getByText('Repair type is required')).toBeInTheDocument();
     expect(
@@ -180,12 +208,13 @@ describe('AddRepairModal', () => {
     ).toBeInTheDocument();
   });
 
-  it('calls onCreate when Create repairs is clicked with all required fields filled', async () => {
+  it('submits the built payload and calls onCreate when all required fields are filled', async () => {
     const user = userEvent.setup();
     const onCreate = vi.fn();
     render(
       <AddRepairModal
         show
+        recResourceId={REC_RESOURCE_ID}
         repairCodes={repairCodes}
         assetCodes={assetCodes}
         assets={assets}
@@ -206,7 +235,47 @@ describe('AddRepairModal', () => {
 
     await user.click(screen.getByRole('button', { name: 'Create repairs' }));
 
+    expect(mutate).toHaveBeenCalledTimes(1);
+    const [variables] = mutate.mock.calls[0];
+    expect(variables).toEqual({
+      recResourceId: REC_RESOURCE_ID,
+      dto: {
+        recreation_remed_repair_code: 'R1',
+        completed_date: undefined,
+        changes: [
+          {
+            estimated_repair_cost: 100,
+            actual_repair_cost: undefined,
+            asset_ids: [1],
+          },
+        ],
+      },
+    });
     expect(onCreate).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables the footer buttons while the mutation is pending', () => {
+    vi.mocked(useBulkInsertAssetRepairs).mockReturnValue({
+      mutate,
+      isPending: true,
+    } as any);
+
+    render(
+      <AddRepairModal
+        show
+        recResourceId={REC_RESOURCE_ID}
+        repairCodes={repairCodes}
+        assetCodes={assetCodes}
+        assets={assets}
+        onCancel={vi.fn()}
+        onCreate={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Creating repairs...' }),
+    ).toBeDisabled();
   });
 
   it('calls onCancel when the close button is clicked', async () => {
@@ -215,6 +284,7 @@ describe('AddRepairModal', () => {
     render(
       <AddRepairModal
         show
+        recResourceId={REC_RESOURCE_ID}
         repairCodes={repairCodes}
         assetCodes={assetCodes}
         assets={[]}
