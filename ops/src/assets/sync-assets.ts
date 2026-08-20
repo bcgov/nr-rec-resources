@@ -36,7 +36,7 @@
  *     asset_width / asset_area - null (no source data)
  *     default_value         - looked up in fta.recreation_structure_value by
  *                             the trail asset code, if a matching row exists
-     *     actual_value          - actual_repair_cost / count (divided evenly across units)
+ *     actual_value          - actual_repair_cost / count (divided evenly across units)
  *     parent_id              - null (trail segments aren't nested under a campsite)
  *
  *   count for trail segments is derived from revision_count when > 0,
@@ -210,6 +210,11 @@ interface FtaStructureValue {
   structure_value: number | null;
 }
 
+interface FtaStructureCode {
+  recreation_structure_code: string;
+  description: string | null;
+}
+
 interface FtaCampsite {
   forest_file_id: string;
   campsite_number: number;
@@ -272,7 +277,22 @@ class RecreationAssetFiller {
     `);
     const map = new Map<number, number | null>();
     for (const row of rows) {
-      map.set(Number(row.recreation_structure_code), row.structure_value ?? null);
+      map.set(
+        Number(row.recreation_structure_code),
+        row.structure_value ?? null,
+      );
+    }
+    return map;
+  }
+
+  async fetchStructureCodes(): Promise<Map<number, string | null>> {
+    const { rows } = await this.ftaPool.query<FtaStructureCode>(`
+      SELECT recreation_structure_code::text, description
+      FROM fta.recreation_structure_code
+    `);
+    const map = new Map<number, string | null>();
+    for (const row of rows) {
+      map.set(Number(row.recreation_structure_code), row.description ?? null);
     }
     return map;
   }
@@ -330,17 +350,24 @@ class RecreationAssetFiller {
     const campsiteAssetIdMap = new Map<string, Map<number, bigint>>();
 
     // pg returns numeric columns as strings — always coerce campsite_number to number
-    type ValidCampsite = { recResourceId: string; campsiteNum: number; assetTag: string };
+    type ValidCampsite = {
+      recResourceId: string;
+      campsiteNum: number;
+      assetTag: string;
+    };
     const valid: ValidCampsite[] = [];
     let skipped = 0;
 
     for (const cs of campsites) {
       const recResourceId = forestFileIdMap.get(cs.forest_file_id);
       if (!recResourceId) {
-        this.logger.warn('No rec_resource_id for campsite forest_file_id - skipping', {
-          forest_file_id: cs.forest_file_id,
-          campsite_number: String(cs.campsite_number),
-        });
+        this.logger.warn(
+          'No rec_resource_id for campsite forest_file_id - skipping',
+          {
+            forest_file_id: cs.forest_file_id,
+            campsite_number: String(cs.campsite_number),
+          },
+        );
         skipped++;
         continue;
       }
@@ -364,12 +391,16 @@ class RecreationAssetFiller {
     const CHUNK = 500;
     for (let i = 0; i < valid.length; i += CHUNK) {
       const chunk = valid.slice(i, i + CHUNK);
-      // $1 = asset_code, $2 = actor, then pairs ($3,$4), ($5,$6)… = (rec_resource_id, asset_tag)
+      // $1 = asset_code, $2 = actor, then triplets ($3,$4,$5), ($6,$7,$8)… = (rec_resource_id, asset_tag, asset_name)
       const params: unknown[] = [CAMPSITE_ASSET_CODE, args.actor];
       const valueClauses = chunk.map((row, idx) => {
-        const p = 3 + idx * 2;
-        params.push(row.recResourceId, row.assetTag);
-        return `($${p}, $1, $${p + 1}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, $2, $2)`;
+        const p = 3 + idx * 3;
+        params.push(
+          row.recResourceId,
+          row.assetTag,
+          `Campsite ${row.campsiteNum}`,
+        );
+        return `($${p}, $1, $${p + 1}, $${p + 2}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, $2, $2)`;
       });
 
       await this.rstPool.query(
@@ -391,8 +422,8 @@ class RecreationAssetFiller {
     }
 
     // Single query to fetch all asset_ids back for the parent lookup map
-    const recResourceIdList = [...new Set(valid.map(r => r.recResourceId))];
-    const assetTagList = [...new Set(valid.map(r => r.assetTag))];
+    const recResourceIdList = [...new Set(valid.map((r) => r.recResourceId))];
+    const assetTagList = [...new Set(valid.map((r) => r.assetTag))];
 
     if (recResourceIdList.length > 0) {
       const { rows } = await this.rstPool.query<{
@@ -413,7 +444,9 @@ class RecreationAssetFiller {
         if (!campsiteAssetIdMap.has(row.rec_resource_id)) {
           campsiteAssetIdMap.set(row.rec_resource_id, new Map());
         }
-        campsiteAssetIdMap.get(row.rec_resource_id)!.set(campsiteNum, BigInt(row.asset_id));
+        campsiteAssetIdMap
+          .get(row.rec_resource_id)!
+          .set(campsiteNum, BigInt(row.asset_id));
       }
     }
 
@@ -441,6 +474,7 @@ class RecreationAssetFiller {
     recResourceId: string,
     parentId: bigint | null,
     defaultValue: number | null,
+    structureDescription: string | null,
     actor: string,
   ): Promise<void> {
     const count =
@@ -469,18 +503,24 @@ class RecreationAssetFiller {
           parent_id, created_by, updated_by
         ) VALUES (
           $1, $2, $3,
-          NULL, $4, $5,
-          $6, $7, $8,
-          $9, $10, NULL,
-          $11, $12, $12
+          $4, $5, $6,
+          $7, $8, $9,
+          $10, $11, NULL,
+          $12, $13, $13
         )
       `;
 
       for (let i = 0; i < count; i++) {
+        const assetName =
+          structureDescription !== null
+            ? `${structureDescription}-${i + 1}`
+            : null;
+
         await client.query(insertSql, [
           recResourceId,
           structure.recreation_structure_code,
           null, // asset_tag
+          assetName,
           structure.structure_name ?? null,
           structure.structure_id,
           structure.structure_length ?? null,
@@ -540,7 +580,9 @@ class RecreationAssetFiller {
     const perUnitLength = totalLength !== null ? totalLength / count : null;
 
     const perUnitValue =
-      segment.actual_repair_cost != null ? segment.actual_repair_cost / count : null;
+      segment.actual_repair_cost != null
+        ? segment.actual_repair_cost / count
+        : null;
 
     const baseKey = `${segment.forest_file_id}-${segment.recreation_trail_seg_id}`;
 
@@ -574,9 +616,7 @@ class RecreationAssetFiller {
 
       for (let i = 0; i < count; i++) {
         const legacyId =
-          count === 1
-            ? baseKey
-            : `${baseKey}-${String(i).padStart(3, '0')}`;
+          count === 1 ? baseKey : `${baseKey}-${String(i).padStart(3, '0')}`;
 
         await client.query(insertSql, [
           recResourceId,
@@ -606,18 +646,26 @@ class RecreationAssetFiller {
   async run(args: ParsedArgs): Promise<void> {
     this.logger.info('Fetching source data from FTA…');
 
-    const [structures, structureValueMap, campsites, forestFileIdMap, trailSegments] =
-      await Promise.all([
-        this.fetchStructures(),
-        this.fetchStructureValues(),
-        this.fetchCampsites(),
-        this.fetchForestFileIdMap(),
-        args.skipTrails ? Promise.resolve([]) : this.fetchTrailSegments(),
-      ]);
+    const [
+      structures,
+      structureValueMap,
+      structureCodeMap,
+      campsites,
+      forestFileIdMap,
+      trailSegments,
+    ] = await Promise.all([
+      this.fetchStructures(),
+      this.fetchStructureValues(),
+      this.fetchStructureCodes(),
+      this.fetchCampsites(),
+      this.fetchForestFileIdMap(),
+      args.skipTrails ? Promise.resolve([]) : this.fetchTrailSegments(),
+    ]);
 
     this.logger.info('Source data fetched', {
       structures: String(structures.length),
       structureCodes: String(structureValueMap.size),
+      structureCodeDescriptions: String(structureCodeMap.size),
       campsites: String(campsites.length),
       knownForestFileIds: String(forestFileIdMap.size),
       trailSegments: String((trailSegments as FtaTrailSegment[]).length),
@@ -625,17 +673,25 @@ class RecreationAssetFiller {
 
     // Diagnostic: show how many structure forest_file_ids are unrecognised
     if (structures.length > 0) {
-      const unmatched = structures.filter(s => !forestFileIdMap.has(s.forest_file_id));
+      const unmatched = structures.filter(
+        (s) => !forestFileIdMap.has(s.forest_file_id),
+      );
       this.logger.info('Structure forest_file_id match diagnostic', {
         total_structures: String(structures.length),
         matched_to_rec_resource: String(structures.length - unmatched.length),
         unmatched: String(unmatched.length),
-        sample_unmatched: JSON.stringify([...new Set(unmatched.map(s => s.forest_file_id))].slice(0, 5)),
+        sample_unmatched: JSON.stringify(
+          [...new Set(unmatched.map((s) => s.forest_file_id))].slice(0, 5),
+        ),
       });
     }
 
     this.logger.info('Syncing campsite assets…');
-    const campsiteAssetIdMap = await this.syncCampsites(campsites, forestFileIdMap, args);
+    const campsiteAssetIdMap = await this.syncCampsites(
+      campsites,
+      forestFileIdMap,
+      args,
+    );
 
     this.logger.info('Syncing structure assets…');
     let totalInserted = 0;
@@ -688,6 +744,9 @@ class RecreationAssetFiller {
         const defaultValue =
           structureValueMap.get(structure.recreation_structure_code) ?? null;
 
+        const structureDescription =
+          structureCodeMap.get(structure.recreation_structure_code) ?? null;
+
         if (args.dryRun) {
           this.logger.debug('Dry run: would upsert structure asset', {
             structure_id: structure.structure_id,
@@ -698,7 +757,14 @@ class RecreationAssetFiller {
           return 'inserted';
         }
 
-        await this.syncStructure(structure, recResourceId, parentId, defaultValue, args.actor);
+        await this.syncStructure(
+          structure,
+          recResourceId,
+          parentId,
+          defaultValue,
+          structureDescription,
+          args.actor,
+        );
         return 'inserted';
       });
 
@@ -707,11 +773,19 @@ class RecreationAssetFiller {
         const results = await Promise.allSettled(slice);
         for (const result of results) {
           if (result.status === 'fulfilled') {
-            if (result.value === 'inserted') { totalInserted++; structureInserted++; }
-            else { totalSkipped++; structureSkipped++; }
+            if (result.value === 'inserted') {
+              totalInserted++;
+              structureInserted++;
+            } else {
+              totalSkipped++;
+              structureSkipped++;
+            }
           } else {
             this.logger.error('Failed to sync structure', {
-              error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+              error:
+                result.reason instanceof Error
+                  ? result.reason.message
+                  : String(result.reason),
             });
             totalSkipped++;
             structureSkipped++;
@@ -744,10 +818,15 @@ class RecreationAssetFiller {
         const tasks = batch.map(async (segment) => {
           const recResourceId = forestFileIdMap.get(segment.forest_file_id);
           if (!recResourceId) {
-            this.logger.warn('No rec_resource_id for trail segment - skipping', {
-              forest_file_id: segment.forest_file_id,
-              recreation_trail_seg_id: String(segment.recreation_trail_seg_id),
-            });
+            this.logger.warn(
+              'No rec_resource_id for trail segment - skipping',
+              {
+                forest_file_id: segment.forest_file_id,
+                recreation_trail_seg_id: String(
+                  segment.recreation_trail_seg_id,
+                ),
+              },
+            );
             return 'skipped';
           }
 
@@ -786,7 +865,9 @@ class RecreationAssetFiller {
             } else {
               this.logger.error('Failed to sync trail segment', {
                 error:
-                  result.reason instanceof Error ? result.reason.message : String(result.reason),
+                  result.reason instanceof Error
+                    ? result.reason.message
+                    : String(result.reason),
               });
               totalSkipped++;
             }
@@ -816,13 +897,17 @@ async function main(): Promise<void> {
 
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
-    logger.error('DATABASE_URL environment variable is required (RST database)');
+    logger.error(
+      'DATABASE_URL environment variable is required (RST database)',
+    );
     process.exit(1);
   }
 
   const ftaDbUrl = process.env.FTA_DB_URL;
   if (!ftaDbUrl) {
-    logger.error('FTA_DB_URL environment variable is required (FTA source database)');
+    logger.error(
+      'FTA_DB_URL environment variable is required (FTA source database)',
+    );
     process.exit(1);
   }
 
@@ -839,7 +924,8 @@ async function main(): Promise<void> {
       concurrency: String(args.concurrency),
       actor: args.actor,
       skipTrails: String(args.skipTrails),
-      trailAssetCode: args.trailAssetCode !== undefined ? String(args.trailAssetCode) : 'n/a',
+      trailAssetCode:
+        args.trailAssetCode !== undefined ? String(args.trailAssetCode) : 'n/a',
     });
 
     await rstPool.query('SET search_path TO rst, public;');
@@ -848,7 +934,9 @@ async function main(): Promise<void> {
       logger.warn(
         '--clean flag set: truncating rst.recreation_asset (cascades to repairs and geometry)',
       );
-      await rstPool.query('TRUNCATE TABLE rst.recreation_asset RESTART IDENTITY CASCADE;');
+      await rstPool.query(
+        'TRUNCATE TABLE rst.recreation_asset RESTART IDENTITY CASCADE;',
+      );
       logger.info('Table truncated successfully');
     }
 

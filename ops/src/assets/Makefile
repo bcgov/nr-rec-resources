@@ -1,17 +1,9 @@
 # Asset sync – migrate FTA structure data into RST recreation_asset table
 # Run from the repo root OR from ops/src/assets/
 #
-# Recommended usage (avoids shell-escaping issues with special password characters):
-#
+# Set required environment variables before running:
 #   export PGPASSWORD='<your-db-password>'
 #   export DATABASE_URL='postgresql://sysadmin@localhost:5433/rst'
-#   export FTA_DB_URL='postgresql://sysadmin@localhost:5433/rst'
-#   make sync-assets-dry
-#   make sync-assets
-#
-# PGPASSWORD is picked up automatically by the pg driver when the password
-# is omitted from the connection URL.
-# Both RST and FTA live in the same DB – set FTA_DB_URL to the same value as DATABASE_URL.
 
 SHELL := /usr/bin/env bash
 ROOT  := $(shell git rev-parse --show-toplevel 2>/dev/null || echo "../../..")
@@ -53,4 +45,3 @@ sync-all: sync-assets-clean sync-repairs-clean ## Full re-sync: assets then repa
 .PHONY: sync-all-with-trails
 sync-all-with-trails: sync-assets-clean sync-repairs-clean sync-repairs-with-trails ## Full re-sync including trails
 	@echo "Full sync (with trails) complete"
-

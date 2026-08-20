@@ -79,7 +79,8 @@ async function main(): Promise<void> {
       asset_id: string;
       rec_resource_id: string;
       legacy_structure_id: string;
-    }>(`
+    }>(
+      `
       SELECT asset_id, rec_resource_id, legacy_structure_id
       FROM rst.recreation_asset
       WHERE parent_id IS NULL
@@ -87,7 +88,9 @@ async function main(): Promise<void> {
         AND asset_code IS NOT NULL
         AND asset_code != $1
       ORDER BY legacy_structure_id, asset_id
-    `, [CAMPSITE_ASSET_CODE]);
+    `,
+      [CAMPSITE_ASSET_CODE],
+    );
 
     logger.info('Found structure assets with missing parent_id', {
       count: String(candidates.length),
@@ -105,11 +108,16 @@ async function main(): Promise<void> {
     //         Some assets may be fan-out duplicates of the same structure
     //         (structure_count > 1) — group by legacy_structure_id.
     // -----------------------------------------------------------------------
-    const legacyIds = [...new Set(candidates.map(r => r.legacy_structure_id))];
+    const legacyIds = [
+      ...new Set(candidates.map((r) => r.legacy_structure_id)),
+    ];
 
-    logger.info('Fetching campsite_number from FTA for unique legacy_structure_ids', {
-      count: String(legacyIds.length),
-    });
+    logger.info(
+      'Fetching campsite_number from FTA for unique legacy_structure_ids',
+      {
+        count: String(legacyIds.length),
+      },
+    );
 
     // Fetch in batches to avoid huge IN lists
     const FETCH_CHUNK = 1000;
@@ -131,13 +139,19 @@ async function main(): Promise<void> {
       );
       for (const row of rows) {
         if (row.campsite_number !== null) {
-          campsitenumberByLegacyId.set(row.structure_id, Number(row.campsite_number));
+          campsitenumberByLegacyId.set(
+            row.structure_id,
+            Number(row.campsite_number),
+          );
         }
       }
     }
 
     // Also need forest_file_id for the campsite lookup
-    const forestFileByLegacyId = new Map<string, { forestFileId: string; campsiteForestFileId: string | null }>();
+    const forestFileByLegacyId = new Map<
+      string,
+      { forestFileId: string; campsiteForestFileId: string | null }
+    >();
     for (let i = 0; i < legacyIds.length; i += FETCH_CHUNK) {
       const chunk = legacyIds.slice(i, i + FETCH_CHUNK);
       const { rows } = await ftaPool.query<{
@@ -158,14 +172,18 @@ async function main(): Promise<void> {
       }
     }
 
-    const withCampsite = candidates.filter(c => campsitenumberByLegacyId.has(c.legacy_structure_id));
+    const withCampsite = candidates.filter((c) =>
+      campsitenumberByLegacyId.has(c.legacy_structure_id),
+    );
     logger.info('Structure assets with a campsite_number to resolve', {
       count: String(withCampsite.length),
       no_campsite_number: String(candidates.length - withCampsite.length),
     });
 
     if (withCampsite.length === 0) {
-      logger.info('No structures have a campsite_number — nothing to backfill.');
+      logger.info(
+        'No structures have a campsite_number — nothing to backfill.',
+      );
       return;
     }
 
@@ -184,17 +202,19 @@ async function main(): Promise<void> {
       lookupPairs.add(`${c.rec_resource_id}|${assetTag}`);
     }
 
-    const pairArray = [...lookupPairs].map(p => {
+    const pairArray = [...lookupPairs].map((p) => {
       const [rid, tag] = p.split('|');
       return { rec_resource_id: rid, asset_tag: tag };
     });
 
-    logger.info('Looking up campsite asset_ids', { pairs: String(pairArray.length) });
+    logger.info('Looking up campsite asset_ids', {
+      pairs: String(pairArray.length),
+    });
 
     for (let i = 0; i < pairArray.length; i += FETCH_CHUNK) {
       const chunk = pairArray.slice(i, i + FETCH_CHUNK);
-      const recIds = chunk.map(p => p.rec_resource_id);
-      const tags = chunk.map(p => p.asset_tag);
+      const recIds = chunk.map((p) => p.rec_resource_id);
+      const tags = chunk.map((p) => p.asset_tag);
 
       const { rows } = await rstPool.query<{
         asset_id: string;
@@ -210,7 +230,10 @@ async function main(): Promise<void> {
       );
 
       for (const row of rows) {
-        campsiteAssetIdMap.set(`${row.rec_resource_id}|${row.asset_tag}`, BigInt(row.asset_id));
+        campsiteAssetIdMap.set(
+          `${row.rec_resource_id}|${row.asset_tag}`,
+          BigInt(row.asset_id),
+        );
       }
     }
 
@@ -224,73 +247,82 @@ async function main(): Promise<void> {
     let notFound = 0;
 
     if (!dryRun) {
-      await rstPool.query('ALTER TABLE rst.recreation_asset DISABLE TRIGGER USER');
+      await rstPool.query(
+        'ALTER TABLE rst.recreation_asset DISABLE TRIGGER USER',
+      );
       logger.info('Triggers disabled on rst.recreation_asset');
     }
 
     try {
       for (let i = 0; i < withCampsite.length; i += batchSize) {
-      const batch = withCampsite.slice(i, i + batchSize);
+        const batch = withCampsite.slice(i, i + batchSize);
 
-      // Build update pairs: [asset_id, parent_id]
-      const updatePairs: Array<{ assetId: string; parentId: bigint }> = [];
+        // Build update pairs: [asset_id, parent_id]
+        const updatePairs: Array<{ assetId: string; parentId: bigint }> = [];
 
-      for (const c of batch) {
-        const campsiteNum = campsitenumberByLegacyId.get(c.legacy_structure_id)!;
-        const assetTag = `CS-${String(campsiteNum).padStart(3, '0')}`;
-        const mapKey = `${c.rec_resource_id}|${assetTag}`;
-        const parentId = campsiteAssetIdMap.get(mapKey);
+        for (const c of batch) {
+          const campsiteNum = campsitenumberByLegacyId.get(
+            c.legacy_structure_id,
+          )!;
+          const assetTag = `CS-${String(campsiteNum).padStart(3, '0')}`;
+          const mapKey = `${c.rec_resource_id}|${assetTag}`;
+          const parentId = campsiteAssetIdMap.get(mapKey);
 
-        if (!parentId) {
-          logger.warn('Campsite asset not found — parent_id cannot be set', {
-            asset_id: c.asset_id,
-            rec_resource_id: c.rec_resource_id,
-            legacy_structure_id: c.legacy_structure_id,
-            campsite_number: String(campsiteNum),
-          });
-          notFound++;
+          if (!parentId) {
+            logger.warn('Campsite asset not found — parent_id cannot be set', {
+              asset_id: c.asset_id,
+              rec_resource_id: c.rec_resource_id,
+              legacy_structure_id: c.legacy_structure_id,
+              campsite_number: String(campsiteNum),
+            });
+            notFound++;
+            continue;
+          }
+
+          updatePairs.push({ assetId: c.asset_id, parentId });
+        }
+
+        if (updatePairs.length === 0) continue;
+
+        if (dryRun) {
+          for (const p of updatePairs) {
+            logger.debug('Dry run: would set parent_id', {
+              asset_id: p.assetId,
+              parent_id: p.parentId.toString(),
+            });
+          }
+          updated += updatePairs.length;
           continue;
         }
 
-        updatePairs.push({ assetId: c.asset_id, parentId });
-      }
+        // Use UPDATE ... FROM (VALUES ...) for a single round-trip per batch
+        const valueList = updatePairs
+          .map((_, idx) => `($${idx * 2 + 1}::bigint, $${idx * 2 + 2}::bigint)`)
+          .join(', ');
+        const params = updatePairs.flatMap((p) => [
+          p.assetId,
+          p.parentId.toString(),
+        ]);
 
-      if (updatePairs.length === 0) continue;
-
-      if (dryRun) {
-        for (const p of updatePairs) {
-          logger.debug('Dry run: would set parent_id', {
-            asset_id: p.assetId,
-            parent_id: p.parentId.toString(),
-          });
-        }
-        updated += updatePairs.length;
-        continue;
-      }
-
-      // Use UPDATE ... FROM (VALUES ...) for a single round-trip per batch
-      const valueList = updatePairs
-        .map((_, idx) => `($${idx * 2 + 1}::bigint, $${idx * 2 + 2}::bigint)`)
-        .join(', ');
-      const params = updatePairs.flatMap(p => [p.assetId, p.parentId.toString()]);
-
-      await rstPool.query(
-        `UPDATE rst.recreation_asset AS a
+        await rstPool.query(
+          `UPDATE rst.recreation_asset AS a
          SET parent_id = v.parent_id
          FROM (VALUES ${valueList}) AS v(asset_id, parent_id)
          WHERE a.asset_id = v.asset_id`,
-        params,
-      );
+          params,
+        );
 
-      updated += updatePairs.length;
-      logger.info(
-        `Updated batch ${Math.floor(i / batchSize) + 1}` +
-          ` (${Math.min(i + batchSize, withCampsite.length)}/${withCampsite.length})`,
-      );
-    }
+        updated += updatePairs.length;
+        logger.info(
+          `Updated batch ${Math.floor(i / batchSize) + 1}` +
+            ` (${Math.min(i + batchSize, withCampsite.length)}/${withCampsite.length})`,
+        );
+      }
     } finally {
       if (!dryRun) {
-        await rstPool.query('ALTER TABLE rst.recreation_asset ENABLE TRIGGER USER');
+        await rstPool.query(
+          'ALTER TABLE rst.recreation_asset ENABLE TRIGGER USER',
+        );
         logger.info('Triggers re-enabled on rst.recreation_asset');
       }
     }
@@ -313,4 +345,3 @@ async function main(): Promise<void> {
 }
 
 main();
-

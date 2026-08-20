@@ -169,12 +169,15 @@ class RepairSync {
       asset_id: string;
       rec_resource_id: string;
       asset_tag: string;
-    }>(`
+    }>(
+      `
       SELECT asset_id, rec_resource_id, asset_tag
       FROM rst.recreation_asset
       WHERE asset_code = $1
         AND asset_tag IS NOT NULL
-    `, [CAMPSITE_ASSET_CODE]);
+    `,
+      [CAMPSITE_ASSET_CODE],
+    );
     const map = new Map<string, bigint>();
     for (const row of rows) {
       map.set(`${row.rec_resource_id}|${row.asset_tag}`, BigInt(row.asset_id));
@@ -220,7 +223,10 @@ class RepairSync {
       repairs.push({
         asset_id: assetId,
         recreation_remed_repair_code: row.recreation_remed_repair_code,
-        estimated_repair_cost: row.estimated_repair_cost != null ? Number(row.estimated_repair_cost) : null,
+        estimated_repair_cost:
+          row.estimated_repair_cost != null
+            ? Number(row.estimated_repair_cost)
+            : null,
         actual_repair_cost: null, // not available on structure
         repair_completed_date: row.repair_completed_date,
         trail_segment_start: null,
@@ -277,7 +283,10 @@ class RepairSync {
       repairs.push({
         asset_id: assetId,
         recreation_remed_repair_code: row.recreation_remed_repair_code,
-        estimated_repair_cost: row.estimated_repair_cost != null ? Number(row.estimated_repair_cost) : null,
+        estimated_repair_cost:
+          row.estimated_repair_cost != null
+            ? Number(row.estimated_repair_cost)
+            : null,
         actual_repair_cost: null, // not available on campsite
         repair_completed_date: row.repair_complete_date,
         trail_segment_start: null,
@@ -337,11 +346,19 @@ class RepairSync {
       repairs.push({
         asset_id: assetId,
         recreation_remed_repair_code: row.recreation_remed_repair_code,
-        estimated_repair_cost: row.estimated_repair_cost != null ? Number(row.estimated_repair_cost) : null,
-        actual_repair_cost: row.actual_repair_cost != null ? Number(row.actual_repair_cost) : null,
+        estimated_repair_cost:
+          row.estimated_repair_cost != null
+            ? Number(row.estimated_repair_cost)
+            : null,
+        actual_repair_cost:
+          row.actual_repair_cost != null
+            ? Number(row.actual_repair_cost)
+            : null,
         repair_completed_date: row.repair_completed_date,
-        trail_segment_start: row.start_station != null ? Number(row.start_station) : null,
-        trail_segment_end: row.end_station != null ? Number(row.end_station) : null,
+        trail_segment_start:
+          row.start_station != null ? Number(row.start_station) : null,
+        trail_segment_end:
+          row.end_station != null ? Number(row.end_station) : null,
       });
     }
 
@@ -375,7 +392,7 @@ class RepairSync {
     }
 
     // Delete existing repairs for each asset_id to keep reruns idempotent
-    const assetIds = [...new Set(repairs.map(r => r.asset_id.toString()))];
+    const assetIds = [...new Set(repairs.map((r) => r.asset_id.toString()))];
     this.logger.info('Deleting existing repairs for affected assets', {
       asset_count: String(assetIds.length),
     });
@@ -398,18 +415,18 @@ class RepairSync {
       const valueClauses = batch.map((row, idx) => {
         const base = idx * COL_COUNT + 1;
         params.push(
-          row.asset_id.toString(),            // $1  asset_id
-          row.recreation_remed_repair_code,   // $2  recreation_remed_repair_code
-          row.estimated_repair_cost,          // $3  estimated_repair_cost
-          row.actual_repair_cost,             // $4  actual_repair_cost
-          row.repair_completed_date,          // $5  repair_completed_date
-          null,                               // $6  urgency (no source)
-          row.trail_segment_start,            // $7  trail_segment_start
-          row.trail_segment_end,              // $8  trail_segment_end
-          actor,                              // $9  created_by
-          actor,                              // $10 updated_by
+          row.asset_id.toString(), // $1  asset_id
+          row.recreation_remed_repair_code, // $2  recreation_remed_repair_code
+          row.estimated_repair_cost, // $3  estimated_repair_cost
+          row.actual_repair_cost, // $4  actual_repair_cost
+          row.repair_completed_date, // $5  repair_completed_date
+          null, // $6  urgency (no source)
+          row.trail_segment_start, // $7  trail_segment_start
+          row.trail_segment_end, // $8  trail_segment_end
+          actor, // $9  created_by
+          actor, // $10 updated_by
         );
-        return `($${base},$${base+1},$${base+2},$${base+3},$${base+4},$${base+5},$${base+6},$${base+7},$${base+8},$${base+9})`;
+        return `($${base},$${base + 1},$${base + 2},$${base + 3},$${base + 4},$${base + 5},$${base + 6},$${base + 7},$${base + 8},$${base + 9})`;
       });
 
       await this.rstPool.query(
@@ -447,15 +464,21 @@ class RepairSync {
     });
 
     this.logger.info('Building repair rows from FTA…');
-    const [structureRepairs, campsiteRepairs, trailRepairs] = await Promise.all([
-      this.buildStructureRepairs(legacyIdMap),
-      this.buildCampsiteRepairs(campsiteAssetIdMap),
-      args.skipTrails
-        ? Promise.resolve([] as RepairRow[])
-        : this.buildTrailRepairs(legacyIdMap),
-    ]);
+    const [structureRepairs, campsiteRepairs, trailRepairs] = await Promise.all(
+      [
+        this.buildStructureRepairs(legacyIdMap),
+        this.buildCampsiteRepairs(campsiteAssetIdMap),
+        args.skipTrails
+          ? Promise.resolve([] as RepairRow[])
+          : this.buildTrailRepairs(legacyIdMap),
+      ],
+    );
 
-    const allRepairs = [...structureRepairs, ...campsiteRepairs, ...trailRepairs];
+    const allRepairs = [
+      ...structureRepairs,
+      ...campsiteRepairs,
+      ...trailRepairs,
+    ];
     this.logger.info('Total repair rows to insert', {
       structures: String(structureRepairs.length),
       campsites: String(campsiteRepairs.length),
@@ -463,7 +486,12 @@ class RepairSync {
       total: String(allRepairs.length),
     });
 
-    await this.insertRepairs(allRepairs, args.actor, args.batchSize, args.dryRun);
+    await this.insertRepairs(
+      allRepairs,
+      args.actor,
+      args.batchSize,
+      args.dryRun,
+    );
   }
 }
 
@@ -506,7 +534,9 @@ async function main(): Promise<void> {
 
     if (args.clean && !args.dryRun) {
       logger.warn('--clean flag set: truncating rst.recreation_asset_repair');
-      await rstPool.query('TRUNCATE TABLE rst.recreation_asset_repair RESTART IDENTITY CASCADE;');
+      await rstPool.query(
+        'TRUNCATE TABLE rst.recreation_asset_repair RESTART IDENTITY CASCADE;',
+      );
       logger.info('Table truncated successfully');
     }
 
@@ -527,4 +557,3 @@ async function main(): Promise<void> {
 }
 
 main();
-
