@@ -79,7 +79,7 @@ export function RecResourceAssetsSection() {
         </Dropdown>
       </div>
 
-      <AssetSummaryCards summary={summary} />
+      <AssetSummaryCards summary={summary} isLoading={isAssetsLoading} />
 
       {isAssetsLoading ? (
         <div className="d-flex justify-content-center py-5">

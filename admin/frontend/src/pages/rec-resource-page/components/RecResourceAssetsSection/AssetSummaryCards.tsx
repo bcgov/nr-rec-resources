@@ -1,4 +1,4 @@
-import { Col, Row } from 'react-bootstrap';
+import { Card, Col, Row } from 'react-bootstrap';
 import { formatDateReadable } from '@shared/utils';
 import { HelpIcon } from '@/components';
 import { SummaryCard } from './SummaryCard';
@@ -9,6 +9,7 @@ import dangerTreeAssessment from '@shared/assets/icons/danger-tree-inspection.sv
 
 interface AssetSummaryCardsProps {
   summary: AssetSummary;
+  isLoading?: boolean;
 }
 
 const TOTAL_VALUE_HELP_TEXT = (
@@ -28,7 +29,31 @@ const TOTAL_VALUE_HELP_TEXT = (
   </>
 );
 
-export function AssetSummaryCards({ summary }: AssetSummaryCardsProps) {
+export function AssetSummaryCards({
+  summary,
+  isLoading,
+}: AssetSummaryCardsProps) {
+  if (isLoading) {
+    return (
+      <Row className="g-3 row-cols-1 row-cols-sm-2 row-cols-xl-4">
+        {[0, 1, 2, 3].map((i) => (
+          <Col key={i}>
+            <Card className="h-100">
+              <Card.Body>
+                <div className="summary-card__title placeholder-glow">
+                  <span className="placeholder col-6" />
+                </div>
+                <div className="summary-card__value placeholder-glow mt-2">
+                  <span className="placeholder col-4" />
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    );
+  }
+
   return (
     <Row className="g-3 row-cols-1 row-cols-sm-2 row-cols-xl-4">
       <Col>
