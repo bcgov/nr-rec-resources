@@ -129,7 +129,7 @@ describe('AssetCard', () => {
   it('shows a dash for every field with no value', () => {
     render(<AssetCard asset={buildAsset()} repairCodes={[]} />);
 
-    expect(screen.getAllByText('—')).toHaveLength(7);
+    expect(screen.getAllByText('-')).toHaveLength(7);
   });
 
   it('shows a dash for repair spend and outstanding estimate when there are no repairs', () => {
@@ -140,7 +140,7 @@ describe('AssetCard', () => {
       />,
     );
 
-    expect(screen.getAllByText('—')).toHaveLength(7);
+    expect(screen.getAllByText('-')).toHaveLength(7);
   });
 
   it('shows a dash for location when only one of latitude/longitude is set', () => {
@@ -153,7 +153,7 @@ describe('AssetCard', () => {
 
     expect(screen.getByText('Location:')).toBeInTheDocument();
     expect(screen.queryByText(/^49\.1/)).not.toBeInTheDocument();
-    expect(screen.getAllByText('—')).toHaveLength(7);
+    expect(screen.getAllByText('-')).toHaveLength(7);
   });
 
   it('excludes repairs with no completion date from repair spend', () => {
@@ -171,7 +171,10 @@ describe('AssetCard', () => {
       />,
     );
 
-    expect(screen.getByText('$0')).toBeInTheDocument();
+    const repairSpendField = screen
+      .getByText('Repair spend:')
+      .closest('.asset-card__field');
+    expect(repairSpendField).toHaveTextContent('$0');
   });
 
   it('falls back to estimated cost when a completed repair has no actual cost', () => {

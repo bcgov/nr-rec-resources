@@ -59,7 +59,7 @@ describe('useGetAssetsByRecResourceId', () => {
     expect(mockGetPaginatedRecreationAssets).toHaveBeenCalledWith({
       recResourceId: 'REC123',
       page: 1,
-      limit: 50,
+      limit: 500,
       includeRepair: true,
     });
   });

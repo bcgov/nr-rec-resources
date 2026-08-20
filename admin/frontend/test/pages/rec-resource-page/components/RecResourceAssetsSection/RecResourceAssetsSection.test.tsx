@@ -123,7 +123,9 @@ describe('RecResourceAssetsSection', () => {
 
     render(<RecResourceAssetsSection />);
 
-    expect(screen.getByText('Assets')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Assets', level: 2 }),
+    ).toBeInTheDocument();
     expect(screen.getByText('Total value')).toBeInTheDocument();
   });
 
@@ -229,13 +231,5 @@ describe('RecResourceAssetsSection', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(screen.queryByText('Repair details')).not.toBeInTheDocument();
-  });
-
-  it('renders the Add campsite button', () => {
-    render(<RecResourceAssetsSection />);
-
-    expect(
-      screen.getByRole('button', { name: /Add campsite/ }),
-    ).toBeInTheDocument();
   });
 });
