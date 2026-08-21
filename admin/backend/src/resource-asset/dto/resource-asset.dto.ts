@@ -240,7 +240,17 @@ export class UpdateAssetFieldsDto extends PartialType(BaseRecreationAssetDto) {}
 // DTO for bulk operation
 export class RecreationAssetBulkUpdateDto {
   @ApiProperty({
+    description: 'FK to the parent Recreation Resource',
+    example: 'REC1222',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(20)
+  rec_resource_id: string;
+
+  @ApiProperty({
     description: 'List of asset IDs to update',
+    type: [Number],
     example: [101, 102, 103],
   })
   @IsArray()
@@ -260,6 +270,30 @@ export class RecreationAssetBulkUpdateDto {
   @ValidateNested()
   @Type(() => UpdateAssetFieldsDto)
   update_fields: UpdateAssetFieldsDto;
+}
+
+// DTO for bulk operation response
+export class BulkAssetUpdateResponseDto {
+  @ApiProperty({
+    description: 'Status response from Bulk Update operation',
+    example: 'success',
+  })
+  status: string;
+  @ApiProperty({
+    description: 'FK to the parent Recreation Resource',
+    example: 'REC1222',
+  })
+  rec_resource_id: string;
+  @ApiProperty({
+    description: 'Number of updated rows',
+    example: 2,
+  })
+  updated_count: number;
+  @ApiProperty({
+    description: 'List of updated assets',
+    example: 'success',
+  })
+  updated_asset_ids: number[];
 }
 
 export class FindAllAssetsQueryDto {
