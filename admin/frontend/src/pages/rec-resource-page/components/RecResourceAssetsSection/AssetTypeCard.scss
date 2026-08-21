@@ -1,0 +1,153 @@
+@import '@shared/styles/variables';
+
+// `.styled-accordion` is per-instance; scope the border/flex overrides to this card.
+.asset-type-card {
+  .accordion-item {
+    border: 1px solid #{$colorGreyLight};
+  }
+
+  .styled-accordion__item {
+    padding: 0;
+  }
+
+  // Pin the chevron to the start of the header row in every state.
+  .accordion-button::after {
+    order: -1;
+    margin-left: 0;
+    margin-right: 0.75rem;
+  }
+
+  // Bootstrap's own --bs-accordion-btn-padding-x (1.25rem) applies to both
+  // sides — trim just the right side so the title sits closer to whatever's
+  // next to it instead of leaving extra dead space inside the button itself.
+  .accordion-button {
+    padding-right: 0.5rem;
+  }
+
+  // Let the title span fill the header row so total-value can sit at the end.
+  // (`display: flex` here instead of a `width: 100%` on the child below —
+  // a percentage width creates a circular dependency against this span's
+  // own content-based `flex-basis: auto`, which resolves to 0 on reflow.)
+  .styled-accordion__title {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  // Button + total value live outside the accordion's own toggle button
+  // (via `headerEnd`) so they're not nested inside it and can wrap on their own.
+  // `justify-content: space-between` spreads whatever ends up on a line
+  // (title vs. button, each sized to their own content) across it, instead
+  // of relying on the title growing to push things to the right.
+  .styled-accordion__header-row {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    row-gap: 0.5rem;
+    column-gap: 0.75rem;
+    padding-right: 1.25rem; // matches the accordion button's own right padding
+  }
+
+  // Title never grows — sized to its own content, `__secondary-info` takes
+  // the leftover space on desktop instead. Without this it balloons to
+  // fill the row just because it's flex:1 1 auto by default.
+  .styled-accordion__header {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+}
+
+.asset-type-card__heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.asset-type-card__description {
+  color: #{$colorGrey};
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1.2rem; // 19.2px
+  line-height: 1.4375; // 27.6px at this size
+}
+
+.asset-type-card__count .custom-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem; // 28px
+  min-height: 1.8125rem; // 29px
+  padding: 0.25rem 0.625rem; // 4px 10px
+  border-radius: 1rem; // 16px
+
+  // Spec calls for Noto Sans specifically here, unlike the rest of the card.
+  font-family:
+    'Noto Sans',
+    #{$globalFont};
+  font-weight: 700;
+  font-size: 0.875rem; // 14px
+  line-height: 1.5; // 150%
+}
+
+.asset-type-card__bulk-update-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+// Total value + active-repairs badge, grouped so they move together on wrap.
+.asset-type-card__secondary-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  // grows into the space the title gave up above
+  @media (min-width: $lgBreakpoint) {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.asset-type-card__active-repairs .custom-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2625rem 0.4875rem; // 4.2px 7.8px, spec doesn't map to a token
+  border-radius: var(--bs-border-radius-sm, 0.25rem); // 4px
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-size: 0.875rem; // 14px
+  line-height: 1.5; // 150%
+}
+
+.asset-type-card__total-value {
+  color: #{$colorGrey};
+  font-weight: var(--typography-font-weights-regular, 400);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1rem; // 16px
+  line-height: 1.6; // 25.6px
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto; // stays right-aligned even when the badge isn't rendered
+}
+
+// Below this, bulk-update stays next to the title and secondary info drops
+// to its own line (breakpoint matches CampsiteCard, covers iPad Mini too).
+// Secondary info comes first in the markup, so the button needs its own
+// `order` to jump ahead of it instead of wrapping down with it.
+@media (max-width: ($lgBreakpoint - 0.02px)) {
+  .asset-type-card__bulk-update-btn {
+    order: 1;
+  }
+
+  .asset-type-card__secondary-info {
+    // Hidden for now rather than fixed up for mobile — leaving the rest of
+    // the rules below in place so this is easy to re-enable later.
+    display: none;
+    order: 2;
+    flex-basis: 100%;
+    padding-left: 1.25rem; // lines up with the title's own left padding
+    padding-bottom: 1rem;
+  }
+}

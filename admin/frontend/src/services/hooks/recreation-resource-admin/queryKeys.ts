@@ -49,4 +49,7 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
   trails: (id: string) => ['recreation-resource-admin', 'trails', id] as const,
   advisories: (id: string) =>
     ['recreation-resource-admin', 'advisories', id] as const,
+  assets: (id: string) => ['recreation-resource-admin', 'assets', id] as const,
+  assetCodes: () => ['recreation-resource-admin', 'asset-codes'] as const,
+  repairCodes: () => ['recreation-resource-admin', 'repair-codes'] as const,
 };

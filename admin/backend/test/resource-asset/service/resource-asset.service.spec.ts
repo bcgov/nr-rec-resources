@@ -1360,7 +1360,6 @@ describe('RecreationAssetService', () => {
 
     it('should handle null completed_date during bulk upsert', async () => {
       prismaMock.recreation_asset.count.mockResolvedValue(1);
-      prismaMock.recreation_asset_repair.findFirst.mockResolvedValue(null);
 
       const dto = {
         recreation_remed_repair_code: 'BULK_REPAIR',

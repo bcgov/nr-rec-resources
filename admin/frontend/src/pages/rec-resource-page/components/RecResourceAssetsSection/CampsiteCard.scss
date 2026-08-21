@@ -1,0 +1,125 @@
+@import '@shared/styles/variables';
+
+// `.styled-accordion` is per-instance; scope the border/flex overrides to this card.
+.campsite-card {
+  .accordion-item {
+    border: 1px solid #{$colorGreyLight};
+  }
+
+  .styled-accordion__item {
+    padding: 0;
+  }
+
+  // Pin the chevron to the start of the header row in every state.
+  .accordion-button::after {
+    order: -1;
+    margin-left: 0;
+    margin-right: 0.75rem;
+  }
+
+  // Bootstrap's own --bs-accordion-btn-padding-x (1.25rem) applies to both
+  // sides — trim just the right side so the title sits closer to whatever's
+  // next to it instead of leaving extra dead space inside the button itself.
+  .accordion-button {
+    padding-right: 0.5rem;
+  }
+
+  // Let the title span fill the header row so total-value can sit at the end.
+  .styled-accordion__title {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  // assets count, total value + the bulk-update button live outside the accordion's own
+  // button, in `headerEnd`, as direct flex siblings of it. Lets
+  // button stay pinned next to the title while structure count and total value wraps on its own
+  // `justify-content: space-between` spreads whatever ends up on a line
+  // (title vs. button, each sized to their own content) across it, instead
+  // of relying on the title growing to push things to the right.
+  .styled-accordion__header-row {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    row-gap: 0.5rem;
+    column-gap: 0.75rem;
+    // Reproduces the accordion button's own right padding so total value /
+    // the button align with it instead of sitting to the edge.
+    padding-right: 1.25rem;
+  }
+
+  // Title never grows — sized to its own content, `__secondary-info` takes
+  // the leftover space on desktop instead. Without this it balloons to
+  // fill the row just because it's flex:1 1 auto by default.
+  .styled-accordion__header {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+}
+
+.campsite-card__description {
+  color: #{$colorGrey};
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1.2rem; // 19.2px
+  line-height: 1.4375; // 27.6px at this size
+}
+
+// Wraps total value and structure count
+.campsite-card__secondary-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  // grows into the space the title gave up above — its own children are
+  // left-aligned by default, so without this they'd just sit wherever they
+  // land inside that (now wider) box instead of hugging the button.
+  @media (min-width: $lgBreakpoint) {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+}
+
+.campsite-card__secondary-info-text {
+  color: #{$colorGrey};
+  font-weight: var(--typography-font-weights-regular, 400);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1rem; // 16px
+  line-height: 1.6; // 25.6px
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.campsite-card__secondary-info-separator {
+  color: #{$colorGrey};
+  font-size: 1rem; // 16px
+  flex-shrink: 0;
+}
+
+.campsite-card__bulk-update-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+// Below this width, keep the bulk-update button in place next to the title
+// and let the secondary info (total value, structure count.) drop to its own line
+@media (max-width: ($lgBreakpoint - 0.02px)) {
+  .campsite-card__bulk-update-btn {
+    order: 1;
+  }
+
+  .campsite-card__secondary-info {
+    // Hidden for now rather than fixed up for mobile — leaving the rest of
+    // the rules below in place so this is easy to re-enable later.
+    display: none;
+    order: 2;
+    flex-basis: 100%;
+    // Matches the accordion button's own left padding
+    // (--bs-accordion-btn-padding-x) so this lines up with the title above.
+    padding-left: 1.25rem;
+    padding-bottom: 1rem;
+  }
+}
