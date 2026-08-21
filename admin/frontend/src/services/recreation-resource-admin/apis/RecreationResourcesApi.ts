@@ -3464,6 +3464,8 @@ export const SearchRecreationResourcesSortEnum = {
   FileStatusDesc: 'file_status:desc',
   PublicAccessStatusAsc: 'public_access_status:asc',
   PublicAccessStatusDesc: 'public_access_status:desc',
+  UpdatedAtAsc: 'updated_at:asc',
+  UpdatedAtDesc: 'updated_at:desc',
 } as const;
 export type SearchRecreationResourcesSortEnum =
   (typeof SearchRecreationResourcesSortEnum)[keyof typeof SearchRecreationResourcesSortEnum];

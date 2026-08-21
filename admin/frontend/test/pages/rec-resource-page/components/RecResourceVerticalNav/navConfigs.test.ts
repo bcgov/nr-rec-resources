@@ -36,12 +36,24 @@ describe('rec-resource-page navigation', () => {
       });
     });
 
+    it('has correct assets tab configuration', () => {
+      const assetsTab =
+        REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.ASSETS];
+      expect(assetsTab.title).toBe('Assets');
+      expect(assetsTab.isFeatureFlagged).toBe(true);
+      expect(assetsTab.getNavigateOptions('123')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
+        params: { id: '123' },
+      });
+    });
+
     it('has tabs for all tab keys', () => {
       expect(Object.keys(REC_RESOURCE_PAGE_NAV_SECTIONS)).toEqual([
         RecResourceNavKey.OVERVIEW,
         RecResourceNavKey.FILES,
         RecResourceNavKey.ACTIVITIES,
         RecResourceNavKey.FEES,
+        RecResourceNavKey.ASSETS,
         RecResourceNavKey.GEOSPATIAL,
         RecResourceNavKey.RESERVATION,
         RecResourceNavKey.ADVISORIES,
@@ -64,6 +76,8 @@ describe('rec-resource-page navigation', () => {
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.OVERVIEW];
       const filesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FILES];
       const feesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FEES];
+      const assetsTab =
+        REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.ASSETS];
       const geospatialTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.GEOSPATIAL];
       const reservationTab =
@@ -79,6 +93,10 @@ describe('rec-resource-page navigation', () => {
       });
       expect(feesTab.getNavigateOptions('xyz')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_FEES,
+        params: { id: 'xyz' },
+      });
+      expect(assetsTab.getNavigateOptions('xyz')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
         params: { id: 'xyz' },
       });
       expect(geospatialTab.getNavigateOptions('xyz')).toEqual({

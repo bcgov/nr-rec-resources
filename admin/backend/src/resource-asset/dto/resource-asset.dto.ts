@@ -25,6 +25,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'ID of the parent container asset',
     example: 100,
+    type: Number,
     nullable: true,
   })
   @IsInt()
@@ -35,6 +36,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Physical barcode or field tag',
     example: 'CS-012',
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -63,6 +65,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Optional display name',
     example: 'Campsite #12 Table',
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -73,6 +76,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Free-text note',
     example: 'Located near river',
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -82,6 +86,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Legacy aggregate structure reference ID',
     example: 'LEG-884',
+    type: String,
     nullable: true,
   })
   @IsString()
@@ -92,6 +97,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Total length in metres',
     example: 12.5,
+    type: Number,
     nullable: true,
   })
   @IsNumber()
@@ -102,6 +108,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Total width in metres',
     example: 3.0,
+    type: Number,
     nullable: true,
   })
   @IsNumber()
@@ -112,6 +119,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Total area in square metres',
     example: 37.5,
+    type: Number,
     nullable: true,
   })
   @IsNumber()
@@ -122,6 +130,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Default monetary value',
     example: 1500.0,
+    type: Number,
     nullable: true,
   })
   @IsNumber()
@@ -132,6 +141,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Actual monetary value',
     example: 1800.5,
+    type: Number,
     nullable: true,
   })
   @IsNumber()
@@ -142,6 +152,7 @@ export class BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Date the asset was installed (YYYY-MM-DD)',
     example: '2023-05-15',
+    type: String,
     nullable: true,
   })
   @IsDateString()
@@ -174,6 +185,7 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
 
   @ApiPropertyOptional({
     description: 'User identifier who last updated the record',
+    type: String,
     nullable: true,
   })
   @IsOptional()
@@ -181,6 +193,7 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
 
   @ApiPropertyOptional({
     description: 'Timestamp when record was last updated',
+    type: String,
     nullable: true,
   })
   @IsOptional()
@@ -189,6 +202,7 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Point geometry type code, if this asset has a location',
     example: 'PT',
+    type: String,
     nullable: true,
   })
   @IsOptional()
@@ -197,6 +211,7 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Latitude in WGS84 (derived from recreation_asset_geom)',
     example: 49.94212,
+    type: Number,
     nullable: true,
   })
   @IsOptional()
@@ -205,6 +220,7 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
   @ApiPropertyOptional({
     description: 'Longitude in WGS84 (derived from recreation_asset_geom)',
     example: -123.03604,
+    type: Number,
     nullable: true,
   })
   @IsOptional()
@@ -258,7 +274,7 @@ export class FindAllAssetsQueryDto {
   @ApiPropertyOptional({ description: 'Number of items per page', default: 10 })
   @IsInt()
   @Min(1)
-  @Max(100)
+  @Max(500)
   @Type(() => Number)
   @IsOptional()
   limit?: number = 10;

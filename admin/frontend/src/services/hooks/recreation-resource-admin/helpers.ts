@@ -39,6 +39,12 @@ export function mapRecreationResourceDetail(
     project_established_date_readable_utc: formatDateReadable(
       data.project_established_date,
     ),
+    last_rec_inspection_date_readable_utc: formatDateReadable(
+      data.last_rec_inspection_date,
+    ),
+    last_hzrd_tree_assess_date_readable_utc: formatDateReadable(
+      data.last_hzrd_tree_assess_date,
+    ),
     risk_rating_code: data.risk_rating?.risk_rating_code,
     risk_rating_description: data.risk_rating?.description,
   };

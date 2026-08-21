@@ -25,6 +25,7 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -103,12 +104,6 @@ export class RecreationAssetController {
     summary: 'Retrieve recreation assets with filtering and pagination',
     operationId: 'getPaginatedRecreationAssets',
   })
-  @ApiParam({
-    name: 'include_repair',
-    description: 'Include repair records',
-    type: Boolean,
-    required: false,
-  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: PaginatedRecreationAssetDto,
@@ -185,7 +180,7 @@ export class RecreationAssetController {
     operationId: 'getRecreationAssetById',
   })
   @ApiParam({ name: 'id', description: 'Asset ID', type: Number })
-  @ApiParam({
+  @ApiQuery({
     name: 'include_repair',
     description: 'Include repair records',
     type: Boolean,

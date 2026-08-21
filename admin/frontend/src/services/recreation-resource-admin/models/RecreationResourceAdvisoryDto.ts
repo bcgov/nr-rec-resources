@@ -137,9 +137,6 @@ export function instanceOfRecreationResourceAdvisoryDto(
   if (!('urgency' in value) || value['urgency'] === undefined) return false;
   if (!('advisory_date' in value) || value['advisory_date'] === undefined)
     return false;
-  if (!('effective_date' in value)) return false;
-  if (!('updated_date' in value) || value['updated_date'] === undefined)
-    return false;
   if (!('submitted_by' in value) || value['submitted_by'] === undefined)
     return false;
   if (
