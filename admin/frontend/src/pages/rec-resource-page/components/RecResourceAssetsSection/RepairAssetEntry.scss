@@ -1,0 +1,142 @@
+@import '@shared/styles/variables';
+
+.repair-asset-entry {
+  background-color: #{$colorIceBlue};
+  border: 1px solid #{$colorGreyLight};
+  border-radius: var(--bs-border-radius, 0.375rem);
+  padding: 1rem 1.5rem; // 16px 24px
+}
+
+.repair-asset-entry__title {
+  color: #{$colorBlue};
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+
+  &--spaced {
+    margin-top: 1rem;
+  }
+}
+
+.repair-asset-entry__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.repair-asset-entry__select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+// `.btn` sets a global font-weight: 700 and height: 48px; `.btn.<class>` reliably beats both.
+// #255a90 is a one-off spec colour, not in the shared palette.
+.btn.repair-asset-entry__remove-btn {
+  padding: 0;
+  height: auto;
+  background: none;
+  border: none;
+  color: #255a90;
+  font-family: var(--typography-font-families-bc-sans, #{$globalFont});
+  font-weight: var(--typography-font-weights-bold, 700);
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 0.833rem; // 13.33px — no matching typography token
+  line-height: 1.331rem; // 21.3px
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover,
+  &:focus {
+    color: #255a90;
+    text-decoration: underline;
+  }
+}
+
+.repair-asset-entry__assets-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+
+  .repair-asset-entry__title {
+    margin-bottom: 0;
+  }
+}
+
+.btn.repair-asset-entry__select-all-btn {
+  padding: 0;
+  height: auto;
+  background: none;
+  border: none;
+  color: #255a90;
+  font-family: var(--typography-font-families-bc-sans, #{$globalFont});
+  font-weight: var(--typography-font-weights-regular, 400);
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 0.833rem; // 13.33px — no matching typography token
+  line-height: 1.331rem; // 21.3px
+  text-decoration: underline;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover,
+  &:focus {
+    color: #255a90;
+    text-decoration: underline;
+  }
+}
+
+.repair-asset-entry__cost-label {
+  color: #{$colorGrey};
+  font-family: var(--typography-font-families-bc-sans, #{$globalFont});
+  font-weight: var(--typography-font-weights-regular, 400);
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 0.833rem; // 13.33px — no matching typography token
+  line-height: 1.331rem; // 21.3px
+}
+
+.repair-asset-entry__assets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+  // Keeps the modal from growing too tall when a type has a long asset list.
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.repair-asset-entry__trail-row {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+
+  &:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+.repair-asset-entry__trail-name {
+  color: #{$colorBlack};
+  font-family: var(--typography-font-families-bc-sans, #{$globalFont});
+  font-weight: var(--typography-font-weights-bold, 700);
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: var(--typography-font-size-body, 1rem); // 16px
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.repair-asset-entry__trail-empty {
+  color: #{$colorGrey};
+  font-size: 0.875rem;
+}
+
+.repair-asset-entry__asset .form-check-label {
+  color: #{$colorBlack};
+  font-family: var(--typography-font-families-bc-sans, #{$globalFont});
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-style: normal;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: var(--typography-font-size-body, 1rem); // 16px
+  line-height: 1.6; // 25.6px at this size
+}

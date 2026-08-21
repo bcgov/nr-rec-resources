@@ -18,13 +18,13 @@ export interface CurrencyInputFieldProps<TFieldValues extends FieldValues> {
   disabled?: boolean;
 }
 
-interface CurrencyInputProps {
+export interface CurrencyInputProps {
   value: number | undefined;
   onChange: (value: number | undefined) => void;
-  onBlur: () => void;
-  placeholder: string;
-  isInvalid: boolean;
-  disabled: boolean;
+  onBlur?: () => void;
+  placeholder?: string;
+  isInvalid?: boolean;
+  disabled?: boolean;
 }
 
 const isValidCurrencyInput = (input: string): boolean => {
@@ -35,13 +35,13 @@ const formatCurrency = (value: number): string => {
   return value.toFixed(2);
 };
 
-const CurrencyInput = ({
+export const CurrencyInput = ({
   value,
   onChange,
   onBlur,
-  placeholder,
-  isInvalid,
-  disabled,
+  placeholder = '0.00',
+  isInvalid = false,
+  disabled = false,
 }: CurrencyInputProps) => {
   const [displayValue, setDisplayValue] = useState<string>(() => {
     if (value === undefined || value === null) return '';
@@ -70,7 +70,7 @@ const CurrencyInput = ({
   };
 
   const handleBlur = () => {
-    onBlur();
+    onBlur?.();
 
     if (!displayValue || displayValue === '.') {
       setDisplayValue('');

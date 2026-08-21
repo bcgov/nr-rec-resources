@@ -1,5 +1,14 @@
 @import '@shared/styles/variables';
 
+// Caps the dialog to the viewport height (react-bootstrap's own `scrollable`
+// prop does this too, but also makes `.modal-body` itself the scroll
+// container — we need that to be our own inner wrapper instead, so the fade
+// overlays below have a non-scrolling parent to anchor to.
+.add-repair-modal .modal-content {
+  max-height: calc(100vh - (var(--bs-modal-margin, 0.5rem) * 2));
+  overflow: hidden;
+}
+
 .add-repair-modal__header {
   background-color: #{$colorBackgroundGrey};
 }
@@ -10,9 +19,61 @@
 
 .add-repair-modal__body {
   background-color: #{$colorWhite};
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
 }
 
 .add-repair-modal__subtitle {
   font: var(--typography-bold-body, 700 1rem/1.688rem 'BC Sans');
   margin-bottom: 0;
+}
+
+// Wraps the scrolling content so the edge-fade overlays can be anchored to it
+// rather than to the whole body — same pattern as the search results table's
+// horizontal edge fades.
+.add-repair-modal__scroll-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+// `height: 100%` here would need `.add-repair-modal__scroll-wrapper` to have a
+// CSS-specified (not just flex-resolved) height, which it never does — so this
+// stays a flex item like its parent instead, all the way down to the actual
+// `overflow-y: auto` element.
+.add-repair-modal__scroll-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--bs-modal-padding, 1rem);
+}
+
+.add-repair-modal__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 1;
+
+  &--top {
+    top: 0;
+    background: linear-gradient(to bottom, $colorWhite, rgba($colorWhite, 0));
+  }
+
+  &--bottom {
+    bottom: 0;
+    background: linear-gradient(to top, $colorWhite, rgba($colorWhite, 0));
+  }
+
+  &--visible {
+    opacity: 1;
+  }
 }

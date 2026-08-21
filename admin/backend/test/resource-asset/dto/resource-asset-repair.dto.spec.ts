@@ -232,7 +232,10 @@ describe('Recreation Asset Repair DTOs', () => {
   describe('RepairChange', () => {
     it('should validate a valid RepairChange object', async () => {
       const validChange = {
-        repair_cost: 1000.0,
+        estimated_repair_cost: 1000.0,
+        actual_repair_cost: 950.0,
+        station_start: '49.232423, -128.334343',
+        station_end: '49.234561, -128.331872',
         asset_ids: [1, 2, 3],
       };
 
@@ -240,33 +243,71 @@ describe('Recreation Asset Repair DTOs', () => {
       expect(errors.length).toBe(0);
     });
 
-    it('should fail when repair_cost is missing or not a number', async () => {
+    it('should validate successfully without the optional actual cost and stations', async () => {
+      const minimalChange = {
+        estimated_repair_cost: 1000.0,
+        asset_ids: [1, 2, 3],
+      };
+
+      const { errors } = await validateDto(RepairChange, minimalChange);
+      expect(errors.length).toBe(0);
+    });
+
+    it('should fail when estimated_repair_cost is missing or not a number', async () => {
       const invalidCost = {
-        repair_cost: 'invalid',
+        estimated_repair_cost: 'invalid',
         asset_ids: [1, 2],
       };
 
       const { errors } = await validateDto(RepairChange, invalidCost);
 
       const properties = errors.map((e) => e.property);
-      expect(properties).toContain('repair_cost');
+      expect(properties).toContain('estimated_repair_cost');
     });
 
-    it('should fail when repair_cost is null or empty', async () => {
+    it('should fail when estimated_repair_cost is null or empty', async () => {
       const emptyCost = {
-        repair_cost: null,
+        estimated_repair_cost: null,
         asset_ids: [1, 2],
       };
 
       const { errors } = await validateDto(RepairChange, emptyCost);
 
       const properties = errors.map((e) => e.property);
-      expect(properties).toContain('repair_cost');
+      expect(properties).toContain('estimated_repair_cost');
+    });
+
+    it('should fail when actual_repair_cost is provided but not a number', async () => {
+      const invalidActualCost = {
+        estimated_repair_cost: 500,
+        actual_repair_cost: 'invalid',
+        asset_ids: [1, 2],
+      };
+
+      const { errors } = await validateDto(RepairChange, invalidActualCost);
+
+      const properties = errors.map((e) => e.property);
+      expect(properties).toContain('actual_repair_cost');
+    });
+
+    it('should fail when station_start or station_end are provided but not strings', async () => {
+      const invalidStations = {
+        estimated_repair_cost: 500,
+        station_start: 123,
+        station_end: 456,
+        asset_ids: [1, 2],
+      };
+
+      const { errors } = await validateDto(RepairChange, invalidStations);
+
+      const properties = errors.map((e) => e.property);
+      expect(properties).toContain('station_start');
+      expect(properties).toContain('station_end');
     });
 
     it('should fail when asset_ids is not an array or contains non-integer values', async () => {
       const invalidAssetIds = {
-        repair_cost: 500,
+        estimated_repair_cost: 500,
         asset_ids: ['abc', 2],
       };
 
@@ -278,7 +319,7 @@ describe('Recreation Asset Repair DTOs', () => {
 
     it('should fail when asset_ids is not an array type', async () => {
       const nonArrayAssetIds = {
-        repair_cost: 500,
+        estimated_repair_cost: 500,
         asset_ids: '1, 2, 3',
       };
 
@@ -296,7 +337,8 @@ describe('Recreation Asset Repair DTOs', () => {
         completed_date: '2023-10-01',
         changes: [
           {
-            repair_cost: 1000.0,
+            estimated_repair_cost: 1000.0,
+            actual_repair_cost: 950.0,
             asset_ids: [1, 2, 3],
           },
         ],
@@ -314,7 +356,7 @@ describe('Recreation Asset Repair DTOs', () => {
         recreation_remed_repair_code: 'CL',
         changes: [
           {
-            repair_cost: 500.0,
+            estimated_repair_cost: 500.0,
             asset_ids: [10],
           },
         ],
@@ -378,7 +420,7 @@ describe('Recreation Asset Repair DTOs', () => {
         recreation_remed_repair_code: 'CL',
         changes: [
           {
-            repair_cost: 'invalid-cost',
+            estimated_repair_cost: 'invalid-cost',
             asset_ids: ['invalid-id'],
           },
         ],
