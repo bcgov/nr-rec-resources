@@ -28,11 +28,17 @@ import {
  */
 export interface RecreationAssetBulkUpdateDto {
   /**
-   * List of asset IDs to update
-   * @type {Array<string>}
+   * FK to the parent Recreation Resource
+   * @type {string}
    * @memberof RecreationAssetBulkUpdateDto
    */
-  asset_ids: Array<string>;
+  rec_resource_id: string;
+  /**
+   * List of asset IDs to update
+   * @type {Array<number>}
+   * @memberof RecreationAssetBulkUpdateDto
+   */
+  asset_ids: Array<number>;
   /**
    * Fields to update for the specified assets
    * @type {UpdateAssetFieldsDto}
@@ -47,6 +53,8 @@ export interface RecreationAssetBulkUpdateDto {
 export function instanceOfRecreationAssetBulkUpdateDto(
   value: object,
 ): value is RecreationAssetBulkUpdateDto {
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
+    return false;
   if (!('asset_ids' in value) || value['asset_ids'] === undefined) return false;
   if (!('update_fields' in value) || value['update_fields'] === undefined)
     return false;
@@ -67,6 +75,7 @@ export function RecreationAssetBulkUpdateDtoFromJSONTyped(
     return json;
   }
   return {
+    rec_resource_id: json['rec_resource_id'],
     asset_ids: json['asset_ids'],
     update_fields: UpdateAssetFieldsDtoFromJSON(json['update_fields']),
   };
@@ -87,6 +96,7 @@ export function RecreationAssetBulkUpdateDtoToJSONTyped(
   }
 
   return {
+    rec_resource_id: value['rec_resource_id'],
     asset_ids: value['asset_ids'],
     update_fields: UpdateAssetFieldsDtoToJSON(value['update_fields']),
   };

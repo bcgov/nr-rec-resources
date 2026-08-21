@@ -26,6 +26,12 @@ export interface BulkAssetUpdateResponseDto {
    */
   status: string;
   /**
+   * FK to the parent Recreation Resource
+   * @type {string}
+   * @memberof BulkAssetUpdateResponseDto
+   */
+  rec_resource_id: string;
+  /**
    * Number of updated rows
    * @type {number}
    * @memberof BulkAssetUpdateResponseDto
@@ -46,6 +52,8 @@ export function instanceOfBulkAssetUpdateResponseDto(
   value: object,
 ): value is BulkAssetUpdateResponseDto {
   if (!('status' in value) || value['status'] === undefined) return false;
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
+    return false;
   if (!('updated_count' in value) || value['updated_count'] === undefined)
     return false;
   if (
@@ -71,6 +79,7 @@ export function BulkAssetUpdateResponseDtoFromJSONTyped(
   }
   return {
     status: json['status'],
+    rec_resource_id: json['rec_resource_id'],
     updated_count: json['updated_count'],
     updated_asset_ids: json['updated_asset_ids'],
   };
@@ -92,6 +101,7 @@ export function BulkAssetUpdateResponseDtoToJSONTyped(
 
   return {
     status: value['status'],
+    rec_resource_id: value['rec_resource_id'],
     updated_count: value['updated_count'],
     updated_asset_ids: value['updated_asset_ids'],
   };
