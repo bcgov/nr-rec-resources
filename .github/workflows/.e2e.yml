@@ -65,7 +65,7 @@ jobs:
       continue-on-error: true
     - name: Dump docker logs for debugging
       if: ${{ inputs.local }}
-      uses: jwalton/gh-docker-logs@v2
+      uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2
     - name: Cache Playwright Browsers
       uses: actions/cache@v5
       id: playwright-cache
@@ -78,7 +78,7 @@ jobs:
     - name: Setup node
       uses: actions/setup-node@v6
       with:
-        node-version: '24.18.0'
+        node-version: '24.19.0'
     - run: npm install --@fortawesome:registry=https://npm.fontawesome.com/ --//npm.fontawesome.com/:_authToken=${{ secrets.FONT_AWESOME_PRO_TOKEN }}
       working-directory: ./${{ inputs.app }}/frontend
     - run: npx @playwright/test install --with-deps
@@ -108,4 +108,4 @@ jobs:
         E2E_VIEWER_PASSWORD: ${{ secrets.E2E_VIEWER_PASSWORD }}
     - name: Dump docker logs on failure
       if: failure() && inputs.local
-      uses: jwalton/gh-docker-logs@v2
+      uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2
