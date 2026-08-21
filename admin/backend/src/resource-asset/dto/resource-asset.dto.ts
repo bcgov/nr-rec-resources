@@ -223,33 +223,6 @@ export class RecreationAssetDto extends BaseRecreationAssetDto {
   @IsOptional()
   updated_at?: Date | string | null;
 
-  @ApiPropertyOptional({
-    description: 'Point geometry type code, if this asset has a location',
-    example: 'PT',
-    type: String,
-    nullable: true,
-  })
-  @IsOptional()
-  geometry_type_code?: string | null;
-
-  @ApiPropertyOptional({
-    description: 'Latitude in WGS84 (derived from recreation_asset_geom)',
-    example: 49.94212,
-    type: Number,
-    nullable: true,
-  })
-  @IsOptional()
-  latitude?: number | null;
-
-  @ApiPropertyOptional({
-    description: 'Longitude in WGS84 (derived from recreation_asset_geom)',
-    example: -123.03604,
-    type: Number,
-    nullable: true,
-  })
-  @IsOptional()
-  longitude?: number | null;
-
   @ApiProperty({
     description: 'List of repairs associated with this asset',
     type: [RecreationAssetRepairDto],
