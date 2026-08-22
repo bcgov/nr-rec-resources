@@ -16,13 +16,17 @@ import {
   useGetRepairCodes,
 } from '@/services/hooks/recreation-resource-admin';
 import { AddRepairModal } from './AddRepairModal';
+import { BulkAssetEditModal } from './BulkAssetEditModal';
 import { AssetCard } from './AssetCard';
 import { AssetSummaryCards } from './AssetSummaryCards';
 import { AssetTypeCard } from './AssetTypeCard';
 import { computeAssetSummary } from './assetSummary';
 import { groupAssetsByType } from './assetTypeGrouping';
 import { CampsiteCard } from './CampsiteCard';
-import { groupAssetsByCampsite } from './campsiteGrouping';
+import {
+  CAMPSITE_STRUCTURE_CODE,
+  groupAssetsByCampsite,
+} from './campsiteGrouping';
 import assetType from '@shared/assets/icons/asset-type-outline.svg';
 import campingType from '@shared/assets/icons/camping-type.svg';
 import './RecResourceAssetsSection.scss';
@@ -33,6 +37,8 @@ export function RecResourceAssetsSection() {
   const { id: recResourceId } = useParams({ from: '/rec-resource/$id' });
   const [groupMode, setGroupMode] = useState<AssetGroupMode>('type');
   const [isAddRepairModalOpen, setIsAddRepairModalOpen] = useState(false);
+  const [isBulkEditAssetModalOpen, setIsBulkEditAssetModalOpen] =
+    useState(false);
 
   const {
     data: assets,
@@ -52,14 +58,17 @@ export function RecResourceAssetsSection() {
   const campsiteGroups = groupAssetsByCampsite(assets ?? []);
   const hasCampsites = campsiteGroups.length > 0;
 
+  const openBulkEditModal = () => {
+    setIsBulkEditAssetModalOpen(true);
+  };
+
   return (
     <Stack direction="vertical" className="pb-4" gap={3}>
       <div className="d-flex justify-content-between align-items-center gap-3">
         <h2 className="mb-0">Assets</h2>
       </div>
-
+      <button onClick={() => openBulkEditModal()}>Bulk Edit Assets</button>
       <AssetSummaryCards summary={summary} />
-
       {isAssetsLoading ? (
         <div className="d-flex justify-content-center py-5">
           <Spinner
@@ -215,6 +224,15 @@ export function RecResourceAssetsSection() {
         repairCodes={repairCodes}
         onCancel={() => setIsAddRepairModalOpen(false)}
         onCreate={() => setIsAddRepairModalOpen(false)}
+      />
+      <BulkAssetEditModal
+        show={isBulkEditAssetModalOpen}
+        rec_resource_id={recResourceId}
+        assetTypes={typeGroups.filter(
+          (group) => group.structureCode !== CAMPSITE_STRUCTURE_CODE,
+        )}
+        campsites={campsiteGroups}
+        onCancel={() => setIsBulkEditAssetModalOpen(false)}
       />
     </Stack>
   );
