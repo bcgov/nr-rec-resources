@@ -1419,7 +1419,6 @@ model recreation_asset {
   asset_length            Decimal?                  @db.Decimal(7, 1)
   asset_width             Decimal?                  @db.Decimal(7, 1)
   asset_area              Decimal?                  @db.Decimal(7, 1)
-  default_value           Decimal?                  @db.Decimal(7, 2)
   actual_value            Decimal?                  @db.Decimal(7, 2)
   installation_date       DateTime?                 @db.Date
   updated_at              DateTime?                 @default(now()) @db.Timestamp(6)
@@ -1553,6 +1552,7 @@ model recreation_asset_code {
   has_length       Boolean                  @default(false)
   has_width        Boolean                  @default(false)
   has_area         Boolean                  @default(false)
+  default_value    Decimal?                 @db.Decimal(7, 2)
   recreation_asset recreation_asset[]
 
   @@schema("rst")
@@ -1560,16 +1560,17 @@ model recreation_asset_code {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_asset_code_history {
-  asset_code  Int
-  description String?                  @db.VarChar(120)
-  updated_at  DateTime?                @db.Timestamp(6)
-  updated_by  String?
-  created_at  DateTime?                @db.Timestamp(6)
-  created_by  String?
-  sys_period  Unsupported("tstzrange")
-  has_length  Boolean                  @default(false)
-  has_width   Boolean                  @default(false)
-  has_area    Boolean                  @default(false)
+  asset_code    Int
+  description   String?                  @db.VarChar(120)
+  updated_at    DateTime?                @db.Timestamp(6)
+  updated_by    String?
+  created_at    DateTime?                @db.Timestamp(6)
+  created_by    String?
+  sys_period    Unsupported("tstzrange")
+  has_length    Boolean                  @default(false)
+  has_width     Boolean                  @default(false)
+  has_area      Boolean                  @default(false)
+  default_value Decimal?                 @db.Decimal(7, 2)
 
   @@ignore
   @@schema("rst")

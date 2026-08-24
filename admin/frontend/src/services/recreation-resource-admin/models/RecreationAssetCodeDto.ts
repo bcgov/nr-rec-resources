@@ -31,6 +31,30 @@ export interface RecreationAssetCodeDto {
    * @memberof RecreationAssetCodeDto
    */
   description?: string;
+  /**
+   * Indicates whether a length measurement is applicable for this asset type
+   * @type {boolean}
+   * @memberof RecreationAssetCodeDto
+   */
+  has_length?: boolean;
+  /**
+   * Indicates whether a width measurement is applicable for this asset type
+   * @type {boolean}
+   * @memberof RecreationAssetCodeDto
+   */
+  has_width?: boolean;
+  /**
+   * Indicates whether an area measurement is applicable for this asset type
+   * @type {boolean}
+   * @memberof RecreationAssetCodeDto
+   */
+  has_area?: boolean;
+  /**
+   * Default monetary value for an asset of this type
+   * @type {number}
+   * @memberof RecreationAssetCodeDto
+   */
+  default_value?: number | null;
 }
 
 /**
@@ -60,6 +84,11 @@ export function RecreationAssetCodeDtoFromJSONTyped(
   return {
     asset_code: json['asset_code'],
     description: json['description'] == null ? undefined : json['description'],
+    has_length: json['has_length'] == null ? undefined : json['has_length'],
+    has_width: json['has_width'] == null ? undefined : json['has_width'],
+    has_area: json['has_area'] == null ? undefined : json['has_area'],
+    default_value:
+      json['default_value'] == null ? undefined : json['default_value'],
   };
 }
 
@@ -80,5 +109,9 @@ export function RecreationAssetCodeDtoToJSONTyped(
   return {
     asset_code: value['asset_code'],
     description: value['description'],
+    has_length: value['has_length'],
+    has_width: value['has_width'],
+    has_area: value['has_area'],
+    default_value: value['default_value'],
   };
 }

@@ -87,20 +87,69 @@ describe('RecreationAssetService', () => {
   // RECREATION ASSET CODE TESTS
   // =========================================================================
   describe('findAllAssetCodes', () => {
-    it('should return mapped asset codes including handling null descriptions', async () => {
+    it('should return mapped asset codes including has_length/width/area flags and null descriptions', async () => {
       prismaMock.recreation_asset_code.findMany.mockResolvedValue([
-        { asset_code: 1, description: 'Bridge' },
-        { asset_code: 2, description: null },
+        {
+          asset_code: 1,
+          description: 'Bridge',
+          has_length: true,
+          has_width: false,
+          has_area: false,
+        },
+        {
+          asset_code: 2,
+          description: null,
+          has_length: false,
+          has_width: false,
+          has_area: false,
+        },
       ]);
 
       const result = await service.findAllAssetCodes();
 
       expect(prismaMock.recreation_asset_code.findMany).toHaveBeenCalledWith({
+        select: {
+          asset_code: true,
+          description: true,
+          has_length: true,
+          has_width: true,
+          has_area: true,
+        },
         orderBy: { asset_code: 'asc' },
       });
       expect(result).toEqual([
+        {
+          asset_code: 1,
+          description: 'Bridge',
+          has_length: true,
+          has_width: false,
+          has_area: false,
+        },
+        {
+          asset_code: 2,
+          description: null,
+          has_length: false,
+          has_width: false,
+          has_area: false,
+        },
+      ]);
+    });
+
+    it('should default has_length/width/area to false when not returned by DB', async () => {
+      prismaMock.recreation_asset_code.findMany.mockResolvedValue([
         { asset_code: 1, description: 'Bridge' },
-        { asset_code: 2, description: null },
+      ]);
+
+      const result = await service.findAllAssetCodes();
+
+      expect(result).toEqual([
+        {
+          asset_code: 1,
+          description: 'Bridge',
+          has_length: false,
+          has_width: false,
+          has_area: false,
+        },
       ]);
     });
   });
@@ -130,18 +179,34 @@ describe('RecreationAssetService', () => {
   });
 
   describe('findAssetCodeById', () => {
-    it('should return a mapped asset code when found', async () => {
+    it('should return a mapped asset code with dimension flags when found', async () => {
       prismaMock.recreation_asset_code.findUnique.mockResolvedValue({
         asset_code: 1,
         description: 'Bridge',
+        has_length: true,
+        has_width: false,
+        has_area: false,
       });
 
       const result = await service.findAssetCodeById(1);
 
       expect(prismaMock.recreation_asset_code.findUnique).toHaveBeenCalledWith({
+        select: {
+          asset_code: true,
+          description: true,
+          has_length: true,
+          has_width: true,
+          has_area: true,
+        },
         where: { asset_code: 1 },
       });
-      expect(result).toEqual({ asset_code: 1, description: 'Bridge' });
+      expect(result).toEqual({
+        asset_code: 1,
+        description: 'Bridge',
+        has_length: true,
+        has_width: false,
+        has_area: false,
+      });
     });
 
     it('should throw NotFoundException if asset code does not exist', async () => {

@@ -126,7 +126,7 @@ export function BulkAddCampsitesModal({
   return (
     <BulkAddModalLayout
       show={show}
-      title="Bulk add campsites"
+      title="Add campsites"
       onHide={handleClose}
       onShow={() => setCampsiteRows([{ latitude: '', longitude: '' }])}
       submitLabel={`Create ${quantity} campsite${quantity !== 1 ? 's' : ''}`}

@@ -144,8 +144,20 @@ describe('RecreationAssetController', () => {
   describe('findAllAssetCodes', () => {
     it('should delegate to service.findAllAssetCodes and return an array', async () => {
       const expectedResponse: RecreationAssetCodeDto[] = [
-        { asset_code: 1, description: 'Bridge' },
-        { asset_code: 2, description: 'Table - log' },
+        {
+          asset_code: 1,
+          description: 'Bridge',
+          has_length: true,
+          has_width: false,
+          has_area: false,
+        },
+        {
+          asset_code: 2,
+          description: 'Table - log',
+          has_length: false,
+          has_width: false,
+          has_area: false,
+        },
       ];
 
       serviceMock.findAllAssetCodes.mockResolvedValue(expectedResponse);

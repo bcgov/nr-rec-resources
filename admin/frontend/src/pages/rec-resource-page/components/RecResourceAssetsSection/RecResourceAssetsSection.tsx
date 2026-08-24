@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import {
   Dropdown,
@@ -15,10 +15,9 @@ import {
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
   useGetRepairCodes,
-  useUpdateAsset,
 } from '@/services/hooks/recreation-resource-admin';
 import { AddRepairModal } from './AddRepairModal';
-import { AssetCard, type AssetEditDraft } from './AssetCard';
+import { AssetCard } from './AssetCard';
 import { AssetSummaryCards } from './AssetSummaryCards';
 import { AssetTypeCard } from './AssetTypeCard';
 import { BulkAddAssetsModal } from './BulkAddAssetsModal';
@@ -40,12 +39,6 @@ export function RecResourceAssetsSection() {
   const [isBulkAddModalOpen, setIsBulkAddModalOpen] = useState(false);
   const [isBulkAddCampsitesModalOpen, setIsBulkAddCampsitesModalOpen] =
     useState(false);
-  const [editingStructureCode, setEditingStructureCode] = useState<
-    number | null
-  >(null);
-
-  // Map of assetId → latest draft values collected from AssetCard forms
-  const draftsRef = useRef<Map<number, AssetEditDraft>>(new Map());
 
   const {
     data: assets,
@@ -55,7 +48,6 @@ export function RecResourceAssetsSection() {
   const { data: assetCodes = [] } = useGetAssetCodes();
   const { data: repairCodes = [] } = useGetRepairCodes();
   const { data: resource } = useGetRecreationResourceById(recResourceId);
-  const { mutateAsync: updateAsset, isPending: isSaving } = useUpdateAsset();
 
   const summary = computeAssetSummary(
     assets ?? [],
@@ -65,58 +57,6 @@ export function RecResourceAssetsSection() {
   const typeGroups = groupAssetsByType(assets ?? [], assetCodes ?? []);
   const campsiteGroups = groupAssetsByCampsite(assets ?? []);
   const hasCampsites = campsiteGroups.length > 0;
-
-  const handleDraftChange = useCallback(
-    (assetId: number, draft: AssetEditDraft) => {
-      draftsRef.current.set(assetId, draft);
-    },
-    [],
-  );
-
-  async function handleSave(structureCode: number) {
-    const group = typeGroups.find((g) => g.structureCode === structureCode);
-    if (!group) return;
-
-    await Promise.all(
-      group.assets.map((asset) => {
-        const draft = draftsRef.current.get(asset.asset_id);
-        if (!draft) return Promise.resolve();
-
-        // Use `undefined` for empty strings so Prisma skips those fields
-        // instead of setting them to NULL (which violates NOT NULL constraints).
-        return updateAsset({
-          assetId: asset.asset_id,
-          recResourceId,
-          dto: {
-            asset_name: draft.asset_name || undefined,
-            asset_length: draft.asset_length
-              ? Number(draft.asset_length)
-              : undefined,
-            asset_width: draft.asset_width
-              ? Number(draft.asset_width)
-              : undefined,
-            asset_area: draft.asset_area
-              ? Number(draft.asset_area)
-              : undefined,
-            default_value: draft.default_value
-              ? Number(draft.default_value)
-              : null,
-            actual_value: draft.actual_value
-              ? Number(draft.actual_value)
-              : null,
-          },
-        });
-      }),
-    );
-
-    draftsRef.current = new Map();
-    setEditingStructureCode(null);
-  }
-
-  function handleCancel() {
-    draftsRef.current = new Map();
-    setEditingStructureCode(null);
-  }
 
   return (
     <Stack direction="vertical" className="pb-4" gap={3}>
@@ -128,12 +68,10 @@ export function RecResourceAssetsSection() {
           </Dropdown.Toggle>
           <Dropdown.Menu align="end">
             <Dropdown.Item onClick={() => setIsBulkAddModalOpen(true)}>
-              <FontAwesomeIcon icon={faPlus as any} className="me-2" />
-              Bulk add assets
+              Add assets
             </Dropdown.Item>
             <Dropdown.Item onClick={() => setIsBulkAddCampsitesModalOpen(true)}>
-              <FontAwesomeIcon icon={faPlus as any} className="me-2" />
-              Bulk add campsites
+              Add campsites
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
@@ -205,7 +143,7 @@ export function RecResourceAssetsSection() {
               <CustomButton
                 variant="secondary"
                 className="asset-summary-action-btn"
-                leftIcon={<FontAwesomeIcon icon={faPlus} />}
+                leftIcon={<FontAwesomeIcon icon={faPlus as any} />}
                 onClick={() => setIsAddRepairModalOpen(true)}
               >
                 Add repair
@@ -221,38 +159,26 @@ export function RecResourceAssetsSection() {
 
           {groupMode === 'type' && (
             <Stack direction="vertical" gap={3}>
-              {typeGroups.map((group) => {
-                const isEditing = editingStructureCode === group.structureCode;
-                const isDisabled = editingStructureCode !== null && !isEditing;
-                return (
-                  <AssetTypeCard
-                    key={group.structureCode}
-                    eventKey={String(group.structureCode)}
-                    description={group.description}
-                    count={group.count}
-                    totalValue={group.totalValue}
-                    activeRepairsCount={group.activeRepairsCount}
-                    isEditing={isEditing}
-                    isDisabled={isDisabled}
-                    isSaving={isEditing && isSaving}
-                    onEdit={() => setEditingStructureCode(group.structureCode)}
-                    onSave={() => handleSave(group.structureCode)}
-                    onCancel={handleCancel}
-                  >
-                    <Stack direction="vertical" gap={2}>
-                      {group.assets.map((asset) => (
-                        <AssetCard
-                          key={asset.asset_id}
-                          asset={asset}
-                          repairCodes={repairCodes}
-                          isEditing={isEditing}
-                          onDraftChange={handleDraftChange}
-                        />
-                      ))}
-                    </Stack>
-                  </AssetTypeCard>
-                );
-              })}
+              {typeGroups.map((group) => (
+                <AssetTypeCard
+                  key={group.structureCode}
+                  eventKey={String(group.structureCode)}
+                  description={group.description}
+                  count={group.count}
+                  totalValue={group.totalValue}
+                  activeRepairsCount={group.activeRepairsCount}
+                >
+                  <Stack direction="vertical" gap={2}>
+                    {group.assets.map((asset) => (
+                      <AssetCard
+                        key={asset.asset_id}
+                        asset={asset}
+                        repairCodes={repairCodes}
+                      />
+                    ))}
+                  </Stack>
+                </AssetTypeCard>
+              ))}
             </Stack>
           )}
 

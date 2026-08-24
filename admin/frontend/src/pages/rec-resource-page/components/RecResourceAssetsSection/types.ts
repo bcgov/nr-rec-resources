@@ -46,6 +46,10 @@ export interface Asset {
 export interface AssetCode {
   asset_code: number;
   description?: string;
+  has_length?: boolean;
+  has_width?: boolean;
+  has_area?: boolean;
+  default_value?: number | null;
 }
 
 /** rst.recreation_remed_repair_code lookup */

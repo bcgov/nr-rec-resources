@@ -122,6 +122,10 @@ export function BulkAddAssetsModal({
 
   const selectedAssetCode = assetCodes.find((c) => c.asset_code === assetCode);
 
+  const lengthEnabled = selectedAssetCode?.has_length ?? false;
+  const widthEnabled = selectedAssetCode?.has_width ?? false;
+  const areaEnabled = selectedAssetCode?.has_area ?? false;
+
   // Sync rows when quantity changes
   const handleQuantityChange = (value: number) => {
     const qty = Math.max(1, Math.min(value, 100));
@@ -161,17 +165,20 @@ export function BulkAddAssetsModal({
     if (assetCode === '') return;
 
     const assets: CreateRecreationAssetDto[] = assetRows.map((row, i) => {
+      const rowNumber = existingCountForType + i + 1;
+      const displayName = selectedAssetCode?.description ?? 'Asset';
+      const defaultName = `${displayName} ${rowNumber}`;
       const tag = generateAssetTag(
         selectedAssetCode?.description ?? String(assetCode),
-        existingCountForType + i + 1,
+        rowNumber,
         recResourceId,
       );
       return {
         rec_resource_id: recResourceId,
         asset_code: assetCode as number,
-        asset_name: row.asset_name || undefined,
+        asset_name: row.asset_name || defaultName,
         asset_tag: tag,
-        parent_id: (row.parent_id ?? undefined) as object | null | undefined,
+        parent_id: (row.parent_id ?? undefined) as number | null | undefined,
         asset_length: assetLength ? parseFloat(assetLength) : undefined,
         asset_width: assetWidth ? parseFloat(assetWidth) : undefined,
         asset_area: assetArea ? parseFloat(assetArea) : undefined,
@@ -188,7 +195,7 @@ export function BulkAddAssetsModal({
   return (
     <BulkAddModalLayout
       show={show}
-      title="Bulk add assets"
+      title="Add assets"
       onHide={handleClose}
       onShow={() => setAssetRows([{ ...EMPTY_ROW }])}
       submitLabel={`Create ${quantity} asset${quantity !== 1 ? 's' : ''}`}
@@ -205,16 +212,28 @@ export function BulkAddAssetsModal({
             <Form.Label>Asset type</Form.Label>
             <Form.Select
               value={assetCode}
-              onChange={(e) =>
-                setAssetCode(e.target.value ? Number(e.target.value) : '')
-              }
+              onChange={(e) => {
+                const code = e.target.value ? Number(e.target.value) : '';
+                setAssetCode(code);
+                setAssetLength('');
+                setAssetWidth('');
+                setAssetArea('');
+                const selected = assetCodes.find((c) => c.asset_code === code);
+                setDefaultValue(
+                  selected?.default_value != null
+                    ? String(selected.default_value)
+                    : '',
+                );
+              }}
             >
               <option value="">Choose an asset type</option>
-              {assetCodes.map((code) => (
-                <option key={code.asset_code} value={code.asset_code}>
-                  {code.description}
-                </option>
-              ))}
+              {assetCodes
+                .filter((code) => code.asset_code !== CAMPSITE_STRUCTURE_CODE)
+                .map((code) => (
+                  <option key={code.asset_code} value={code.asset_code}>
+                    {code.description}
+                  </option>
+                ))}
             </Form.Select>
           </Form.Group>
         </Col>
@@ -229,6 +248,7 @@ export function BulkAddAssetsModal({
                 value={assetLength}
                 onChange={(e) => setAssetLength(e.target.value)}
                 placeholder="0"
+                disabled={!lengthEnabled}
               />
               <InputGroup.Text>m</InputGroup.Text>
             </InputGroup>
@@ -245,6 +265,7 @@ export function BulkAddAssetsModal({
                 value={assetWidth}
                 onChange={(e) => setAssetWidth(e.target.value)}
                 placeholder="0"
+                disabled={!widthEnabled}
               />
               <InputGroup.Text>m</InputGroup.Text>
             </InputGroup>
@@ -261,6 +282,7 @@ export function BulkAddAssetsModal({
                 value={assetArea}
                 onChange={(e) => setAssetArea(e.target.value)}
                 placeholder="0"
+                disabled={!areaEnabled}
               />
               <InputGroup.Text>m²</InputGroup.Text>
             </InputGroup>
@@ -282,6 +304,7 @@ export function BulkAddAssetsModal({
                 value={defaultValue}
                 onChange={(e) => setDefaultValue(e.target.value)}
                 placeholder="0.00"
+                disabled
               />
             </InputGroup>
           </Form.Group>

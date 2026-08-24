@@ -1,0 +1,49 @@
+-- Populate default_value on rst.recreation_asset_code.
+-- Values provided from legacy recreation_structure_value data.
+-- Asset codes with no known default value are left NULL.
+
+update rst.recreation_asset_code set default_value = 400.00     where asset_code = 1;
+update rst.recreation_asset_code set default_value = 450.00     where asset_code = 2;
+update rst.recreation_asset_code set default_value = 2200.00    where asset_code = 5;
+update rst.recreation_asset_code set default_value = 2700.00    where asset_code = 6;
+update rst.recreation_asset_code set default_value = 300.00     where asset_code = 11;
+update rst.recreation_asset_code set default_value = 75.00      where asset_code = 16;
+update rst.recreation_asset_code set default_value = 300.00     where asset_code = 19;
+update rst.recreation_asset_code set default_value = 1000.00    where asset_code = 30;
+update rst.recreation_asset_code set default_value = 5000.00    where asset_code = 32;
+update rst.recreation_asset_code set default_value = 15000.00   where asset_code = 33;
+update rst.recreation_asset_code set default_value = 600.00     where asset_code = 66;
+update rst.recreation_asset_code set default_value = 1000.00    where asset_code = 67;
+update rst.recreation_asset_code set default_value = 3000.00    where asset_code = 69;
+update rst.recreation_asset_code set default_value = 200.00     where asset_code = 41;
+update rst.recreation_asset_code set default_value = 100.00     where asset_code = 42;
+update rst.recreation_asset_code set default_value = 250.00     where asset_code = 54;
+update rst.recreation_asset_code set default_value = 250.00     where asset_code = 55;
+update rst.recreation_asset_code set default_value = 200.00     where asset_code = 57;
+update rst.recreation_asset_code set default_value = 50.00      where asset_code = 60;
+update rst.recreation_asset_code set default_value = 1500.00    where asset_code = 61;
+update rst.recreation_asset_code set default_value = 200.00     where asset_code = 62;
+update rst.recreation_asset_code set default_value = 15.00      where asset_code = 78;
+update rst.recreation_asset_code set default_value = 30.00      where asset_code = 79;
+update rst.recreation_asset_code set default_value = 500.00     where asset_code = 81;
+update rst.recreation_asset_code set default_value = 9002.00    where asset_code = 89;
+update rst.recreation_asset_code set default_value = 900.00     where asset_code = 92;
+update rst.recreation_asset_code set default_value = 1000.00    where asset_code = 94;
+update rst.recreation_asset_code set default_value = 1300.00    where asset_code = 95;
+update rst.recreation_asset_code set default_value = 105.00     where asset_code = 98;
+update rst.recreation_asset_code set default_value = 50.00      where asset_code = 100;
+update rst.recreation_asset_code set default_value = 5000.00    where asset_code = 103;
+update rst.recreation_asset_code set default_value = 10000.00   where asset_code = 109;
+update rst.recreation_asset_code set default_value = 5000.00    where asset_code = 110;
+update rst.recreation_asset_code set default_value = 45.00      where asset_code = 111;
+update rst.recreation_asset_code set default_value = 1000.00    where asset_code = 112;
+update rst.recreation_asset_code set default_value = 3000.00    where asset_code = 113;
+update rst.recreation_asset_code set default_value = 300.00     where asset_code = 114;
+update rst.recreation_asset_code set default_value = 130.00     where asset_code = 200;
+update rst.recreation_asset_code set default_value = 110.00     where asset_code = 201;
+update rst.recreation_asset_code set default_value = 1500.00    where asset_code = 202;
+update rst.recreation_asset_code set default_value = 5000.00    where asset_code = 203;
+update rst.recreation_asset_code set default_value = 100.00     where asset_code = 204;
+update rst.recreation_asset_code set default_value = 30.00      where asset_code = 210;
+update rst.recreation_asset_code set default_value = 5000.00    where asset_code = 216;
+update rst.recreation_asset_code set default_value = 4000.00    where asset_code = 223;
