@@ -78,6 +78,7 @@ const MockReactSelect = vi.fn((props: any) => {
                   <button
                     key={optValue || 'null'}
                     type="button"
+                    role="option"
                     onClick={() => !isDisabledOption && props.onChange?.(opt)}
                     disabled={isDisabledOption}
                     data-testid={`option-${optValue}`}

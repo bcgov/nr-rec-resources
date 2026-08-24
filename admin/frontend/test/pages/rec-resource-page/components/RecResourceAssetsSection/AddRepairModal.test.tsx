@@ -5,7 +5,7 @@ import type {
   RepairCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import { useBulkInsertAssetRepairs } from '@/services/hooks/recreation-resource-admin';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -131,10 +131,21 @@ describe('AddRepairModal', () => {
       />,
     );
 
-    await user.click(screen.getByRole('combobox', { name: 'Repair type' }));
+    const repairTypeCombobox = screen.getByRole('combobox', {
+      name: 'Repair type',
+    });
+    await user.click(repairTypeCombobox);
 
-    expect(screen.queryByRole('option')).not.toBeInTheDocument();
-    expect(screen.getByText('No options')).toBeInTheDocument();
+    const repairTypeSelect = repairTypeCombobox.closest(
+      '[data-testid="mock-select"]',
+    ) as HTMLElement;
+
+    expect(
+      within(repairTypeSelect).queryByRole('option'),
+    ).not.toBeInTheDocument();
+    expect(
+      within(repairTypeSelect).getByText('No options'),
+    ).toBeInTheDocument();
   });
 
   it('calls onCancel when Cancel is clicked', async () => {
