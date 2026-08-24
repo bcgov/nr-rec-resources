@@ -96,6 +96,15 @@ export class RecreationAssetService {
       },
     });
 
+    if (dto.geometry_type_code && dto.latitude && dto.longitude) {
+      await this.upsertAssetGeometry(
+        Number(created.asset_id),
+        dto.geometry_type_code,
+        dto.latitude,
+        dto.longitude,
+      );
+    }
+
     return this.mapAssetToDto(created);
   }
 
@@ -249,6 +258,15 @@ export class RecreationAssetService {
       where: { asset_id: BigInt(id) },
       data,
     });
+
+    if (dto.geometry_type_code && dto.latitude && dto.longitude) {
+      await this.upsertAssetGeometry(
+        Number(updated.asset_id),
+        dto.geometry_type_code,
+        dto.latitude,
+        dto.longitude,
+      );
+    }
 
     return this.mapAssetToDto(updated);
   }
@@ -613,5 +631,33 @@ export class RecreationAssetService {
       updated_by: record.updated_by ?? null,
       updated_at: record.updated_at ? record.updated_at.toISOString() : null,
     };
+  }
+
+  /**
+   * Upsert geometry info for an Asset.
+   */
+  async upsertAssetGeometry(
+    asset_id: number,
+    geometry_type_code: string,
+    latitude: number,
+    longitude: number,
+  ): Promise<void> {
+    // SRID 4326 represents standard WGS 84 (GPS latitude/longitude)
+    await this.prisma.$executeRaw`
+    INSERT INTO rst.recreation_asset_geom
+      (asset_id, geometry_type_code, geometry, created_at, updated_at)
+    VALUES (
+      ${asset_id},
+      ${geometry_type_code},
+      ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326),
+      now(),
+      now()
+    )
+    ON CONFLICT (asset_id) DO UPDATE
+    SET
+      geometry_type_code = EXCLUDED.geometry_type_code,
+      geometry = EXCLUDED.geometry,
+      updated_at = now();
+  `;
   }
 }
