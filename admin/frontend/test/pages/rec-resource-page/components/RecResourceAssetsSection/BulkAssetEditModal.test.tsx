@@ -283,25 +283,4 @@ describe('BulkAssetEditModal', () => {
     expect(screen.getByText('Update 1 asset')).toBeInTheDocument();
     expect(screen.getByText('Site-B')).toBeInTheDocument();
   });
-
-  // it('handles campsite helper function fallbacks for unmapped or null campsite names', () => {
-  //   render(<BulkAssetEditModal {...defaultProps} />);
-
-  //   // Navigate to Step 2 Review...
-  //   fireEvent.change(screen.getByRole('combobox'), {
-  //     target: { value: '101' },
-  //   });
-  //   fireEvent.click(screen.getByText('Continue'));
-
-  //   fireEvent.click(screen.getAllByTestId('asset-checkbox')[0]);
-
-  //   const selects = screen.getAllByRole('combobox');
-  //   fireEvent.change(selects[0], { target: { value: '30' } });
-
-  //   fireEvent.click(screen.getByText('Review'));
-
-  //   // Verify the review step container or dialog body includes 'N/A' in its full textContent
-  //   const modalBody = screen.getByRole('dialog'); // Or screen.getByTestId('bulk-edit-modal')
-  //   expect(modalBody.textContent).toContain('N/A');
-  // });
 });
