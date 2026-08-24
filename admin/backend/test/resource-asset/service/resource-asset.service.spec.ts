@@ -35,6 +35,7 @@ describe('RecreationAssetService', () => {
     };
     $transaction: ReturnType<typeof vi.fn>;
     $queryRawTyped: ReturnType<typeof vi.fn>;
+    $executeRaw: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -66,6 +67,7 @@ describe('RecreationAssetService', () => {
       },
       $transaction: vi.fn((cb) => cb(prismaMock)),
       $queryRawTyped: vi.fn().mockResolvedValue([]),
+      $executeRaw: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -289,6 +291,66 @@ describe('RecreationAssetService', () => {
       });
 
       expect(result.installation_date).toBeNull();
+    });
+
+    it('should create an asset with geometry object', async () => {
+      (
+        prismaMock.$executeRaw as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue(undefined);
+      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
+        asset_code: 10,
+        description: 'Test Code',
+      });
+
+      prismaMock.recreation_asset.create.mockResolvedValue({
+        asset_id: 101n,
+        parent_id: null,
+        asset_tag: null,
+        rec_resource_id: 'REC-1',
+        asset_code: 10,
+        asset_name: null,
+        asset_comment: null,
+        legacy_structure_id: null,
+        asset_length: null,
+        asset_width: null,
+        asset_area: null,
+        actual_value: null,
+        default_value: null,
+        installation_date: null,
+        geometry_type_code: null,
+        latitude: null,
+        longitude: null,
+      });
+
+      const dto = {
+        asset_code: 10,
+        rec_resource_id: 'REC-1',
+        geometry_type_code: 'P',
+        latitude: 50.281403,
+        longitude: -125.648533,
+      };
+
+      await service.createAsset(dto);
+
+      expect(prismaMock.$executeRaw).toHaveBeenCalled();
+
+      expect(prismaMock.recreation_asset.create).toHaveBeenCalledWith({
+        data: {
+          parent_id: null,
+          asset_tag: null,
+          rec_resource_id: 'REC-1',
+          asset_code: 10,
+          asset_name: null,
+          asset_comment: null,
+          legacy_structure_id: null,
+          asset_length: null,
+          asset_width: null,
+          asset_area: null,
+          actual_value: null,
+          default_value: null,
+          installation_date: null,
+        },
+      });
     });
   });
 
@@ -824,6 +886,55 @@ describe('RecreationAssetService', () => {
         },
       });
       expect(result.installation_date).toBe('2023-05-15');
+    });
+
+    it('should update an asset with geometry object', async () => {
+      (
+        prismaMock.$executeRaw as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue(undefined);
+      prismaMock.recreation_asset.findUnique.mockResolvedValue({
+        asset_id: 1n,
+      });
+
+      prismaMock.recreation_asset.update.mockResolvedValue({
+        asset_id: 1n,
+        parent_id: null,
+        asset_tag: null,
+        rec_resource_id: 'REC-1',
+        asset_code: 10,
+        asset_name: null,
+        asset_comment: null,
+        legacy_structure_id: null,
+        asset_length: null,
+        asset_width: null,
+        asset_area: null,
+        actual_value: null,
+        default_value: null,
+        installation_date: null,
+        geometry_type_code: null,
+        latitude: null,
+        longitude: null,
+      });
+
+      const dto = {
+        asset_code: 10,
+        rec_resource_id: 'REC-1',
+        geometry_type_code: 'P',
+        latitude: 50.281403,
+        longitude: -125.648533,
+      };
+
+      await service.updateAsset(1, dto);
+
+      expect(prismaMock.$executeRaw).toHaveBeenCalled();
+
+      expect(prismaMock.recreation_asset.update).toHaveBeenCalledWith({
+        where: { asset_id: 1n },
+        data: {
+          rec_resource_id: 'REC-1',
+          asset_code: 10,
+        },
+      });
     });
 
     it('should handle updating parent_id as number and clearing installation_date', async () => {
