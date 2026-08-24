@@ -65,7 +65,6 @@ export function BulkAssetEditModal({
   };
 
   const selectAssetGroup = (value: string) => {
-    console.log(value, selectedGroup, assetTypeGroup);
     setSelectedGroup(value);
     if (value === '') {
       setAssetTypeGroup(null);
@@ -263,6 +262,7 @@ export function BulkAssetEditModal({
                             onChange={() =>
                               handleCheckboxChange(asset.asset_id)
                             }
+                            data-testid="asset-checkbox"
                           />
 
                           {/* lh-1 removes default line-height spacing above the text */}
