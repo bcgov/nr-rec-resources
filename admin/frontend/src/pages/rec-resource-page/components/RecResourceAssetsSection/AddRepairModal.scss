@@ -46,11 +46,38 @@
 // CSS-specified (not just flex-resolved) height, which it never does — so this
 // stays a flex item like its parent instead, all the way down to the actual
 // `overflow-y: auto` element.
+// `appearance: none` opts the WebKit scrollbar out of macOS's auto-hiding
+// overlay behaviour, rendering the classic always-visible style instead —
+// same technique as the search results table's horizontal scrollbars. We
+// deliberately do NOT set the standard `scrollbar-width` / `scrollbar-color`:
+// when either is present, Chromium ignores `::-webkit-scrollbar` and falls
+// back to a thin overlay bar that still auto-hides on macOS.
 .add-repair-modal__scroll-content {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   padding: var(--bs-modal-padding, 1rem);
+
+  &::-webkit-scrollbar {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 0.85rem;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $colorBackgroundGrey;
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($colorGreyMed, 0.5);
+    border: 3px solid $colorBackgroundGrey;
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba($colorGreyMed, 0.75);
+  }
 }
 
 .add-repair-modal__fade {

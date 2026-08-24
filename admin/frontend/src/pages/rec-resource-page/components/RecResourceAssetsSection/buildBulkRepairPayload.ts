@@ -33,8 +33,10 @@ export function buildBulkRepairPayload(
         return selectedAssets.map((asset) => ({
           estimated_repair_cost: group.estimatedCost ?? 0,
           actual_repair_cost: group.actualCost,
-          station_start: group.trailStations[asset.asset_id]?.startStation,
-          station_end: group.trailStations[asset.asset_id]?.endStation,
+          station_start:
+            group.trailStations[asset.asset_id]?.startStation || undefined,
+          station_end:
+            group.trailStations[asset.asset_id]?.endStation || undefined,
           asset_ids: [asset.asset_id],
         }));
       }

@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Form, Row } from 'react-bootstrap';
 import Select from 'react-select';
 import { CurrencyInput } from '@/components/form';
+import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
 import type { Asset, AssetCode } from './types';
 import './RepairAssetEntry.scss';
 
@@ -22,6 +23,15 @@ const TRAIL_ASSET_TYPE_DESCRIPTIONS = new Set([
 interface TrailStationState {
   startStation: string;
   endStation: string;
+}
+
+// Station fields are optional, but when filled must be "lat,long" — two
+// decimal numbers separated by a comma, e.g. "49.1232,-128.3030".
+const STATION_COORDINATE_REGEX = /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/;
+
+function isValidStationValue(value: string | undefined): boolean {
+  const trimmed = value?.trim();
+  return !trimmed || STATION_COORDINATE_REGEX.test(trimmed);
 }
 
 export interface RepairGroupFormState {
@@ -74,6 +84,27 @@ export function getRepairGroupContext(
   return { matchingAssets, selectedAssets, isTrailAssetType };
 }
 
+// Secondary line shown under an asset's name in the checkbox list: comment
+// and parent campsite name, joined by a dash when both are present, with
+// either shown alone (no dash) when only one is, and nothing when neither is.
+function getAssetSecondaryText(asset: Asset, assets: Asset[]): string | null {
+  const comment = asset.asset_comment?.trim() || undefined;
+
+  const parent =
+    asset.parent_id != null
+      ? assets.find((candidate) => candidate.asset_id === asset.parent_id)
+      : undefined;
+  const campsiteName =
+    parent?.asset_code === CAMPSITE_STRUCTURE_CODE
+      ? parent.asset_name?.trim() || undefined
+      : undefined;
+
+  if (comment && campsiteName) {
+    return `${comment} - ${campsiteName}`;
+  }
+  return comment ?? campsiteName ?? null;
+}
+
 // A group with no asset type selected yet has nothing to validate — there's
 // no "Select assets" or "Repair cost" section rendered for it at all.
 export function isRepairGroupValid(
@@ -98,8 +129,9 @@ export function isRepairGroupValid(
   if (isTrailAssetType) {
     return selectedAssets.every((asset) => {
       const station = entry.trailStations[asset.asset_id];
-      return Boolean(
-        station?.startStation.trim() && station?.endStation.trim(),
+      return (
+        isValidStationValue(station?.startStation) &&
+        isValidStationValue(station?.endStation)
       );
     });
   }
@@ -232,17 +264,32 @@ export function RepairAssetEntry({
             </button>
           </div>
           <div className="repair-asset-entry__assets">
-            {matchingAssets.map((asset) => (
-              <Form.Check
-                key={asset.asset_id}
-                type="checkbox"
-                id={`repair-asset-entry-asset-${asset.asset_id}`}
-                className="repair-asset-entry__asset"
-                checked={selectedAssetIds.has(asset.asset_id)}
-                onChange={() => toggleAsset(asset.asset_id)}
-                label={asset.asset_name}
-              />
-            ))}
+            {matchingAssets.map((asset) => {
+              const secondaryText = getAssetSecondaryText(asset, assets);
+
+              return (
+                <Form.Check
+                  key={asset.asset_id}
+                  type="checkbox"
+                  id={`repair-asset-entry-asset-${asset.asset_id}`}
+                  className="repair-asset-entry__asset"
+                  checked={selectedAssetIds.has(asset.asset_id)}
+                  onChange={() => toggleAsset(asset.asset_id)}
+                  label={
+                    <span className="repair-asset-entry__asset-label">
+                      <span className="repair-asset-entry__asset-name">
+                        {asset.asset_name}
+                      </span>
+                      {secondaryText && (
+                        <span className="repair-asset-entry__asset-secondary">
+                          {secondaryText}
+                        </span>
+                      )}
+                    </span>
+                  }
+                />
+              );
+            })}
           </div>
           {noAssetsSelectedError && (
             <div className="text-danger mt-2">
@@ -263,9 +310,9 @@ export function RepairAssetEntry({
                 selectedAssets.map((asset) => {
                   const station = entry.trailStations[asset.asset_id];
                   const startStationError =
-                    showErrors && !station?.startStation.trim();
+                    showErrors && !isValidStationValue(station?.startStation);
                   const endStationError =
-                    showErrors && !station?.endStation.trim();
+                    showErrors && !isValidStationValue(station?.endStation);
 
                   return (
                     <div
@@ -301,7 +348,8 @@ export function RepairAssetEntry({
                                 type="invalid"
                                 className="d-block"
                               >
-                                Start station is required
+                                Enter coordinates as lat,long (e.g.
+                                49.1232,-128.3030)
                               </Form.Control.Feedback>
                             )}
                           </Form.Group>
@@ -331,7 +379,8 @@ export function RepairAssetEntry({
                                 type="invalid"
                                 className="d-block"
                               >
-                                End station is required
+                                Enter coordinates as lat,long (e.g.
+                                49.1232,-128.3030)
                               </Form.Control.Feedback>
                             )}
                           </Form.Group>

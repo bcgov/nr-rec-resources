@@ -140,3 +140,15 @@
   font-size: var(--typography-font-size-body, 1rem); // 16px
   line-height: 1.6; // 25.6px at this size
 }
+
+.repair-asset-entry__asset-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.repair-asset-entry__asset-secondary {
+  color: #{$colorGrey};
+  font-weight: var(--typography-font-weights-regular, 400);
+  font-size: 0.833rem; // 13.33px — no matching typography token
+  line-height: 1.331rem; // 21.3px
+}
