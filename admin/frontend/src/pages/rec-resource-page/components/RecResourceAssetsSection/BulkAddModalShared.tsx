@@ -45,6 +45,7 @@ export function NumberStepperInput({
           min={min}
           max={max}
           value={value}
+          onFocus={(e) => e.target.select()}
           onChange={(e) => {
             const n = Number(e.target.value);
             onChange(Math.max(min, Math.min(max, n)));
@@ -153,7 +154,9 @@ export function BulkAddModalLayout({
       className="bulk-modal"
     >
       <Modal.Header closeButton className="bulk-modal__header">
-        <Modal.Title className="bulk-modal__title">{title}</Modal.Title>
+        <Modal.Title as="h4" className="bulk-modal__title">
+          {title}
+        </Modal.Title>
       </Modal.Header>
 
       <Modal.Body className="bulk-modal__body">{children}</Modal.Body>

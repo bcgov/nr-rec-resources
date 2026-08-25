@@ -242,4 +242,28 @@ describe('RecResourceAssetsSection', () => {
 
     expect(screen.queryByText('Repair details')).not.toBeInTheDocument();
   });
+
+  it('opens the Add assets modal via Actions dropdown', async () => {
+    const user = userEvent.setup();
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByRole('button', { name: /Actions/ }));
+    await user.click(screen.getByRole('button', { name: 'Add assets' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Add assets' }),
+    ).toBeInTheDocument();
+  });
+
+  it('opens the Add campsites modal via Actions dropdown', async () => {
+    const user = userEvent.setup();
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByRole('button', { name: /Actions/ }));
+    await user.click(screen.getByRole('button', { name: 'Add campsites' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Add campsites' }),
+    ).toBeInTheDocument();
+  });
 });
