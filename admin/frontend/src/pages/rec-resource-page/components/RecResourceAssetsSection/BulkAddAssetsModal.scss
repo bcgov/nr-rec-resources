@@ -1,0 +1,109 @@
+.bulk-add-assets-modal {
+  .modal-dialog {
+    max-width: 800px;
+  }
+
+  // Grey header bar — matches Figma (#F2F2F2 background, #C7C7C7 border)
+  &__header {
+    background: #f2f2f2;
+    border-bottom: 1px solid #c7c7c7;
+    padding: 16px 24px;
+    min-height: 80px;
+    align-items: center;
+  }
+
+  &__header-title {
+    font-weight: 700;
+    font-size: 1rem; // 16px — Body bold
+    line-height: 1.625; // 26px
+    color: #1a1a1a;
+  }
+
+  &__body {
+    padding: 24px;
+
+    // Prevent long labels wrapping in any narrow column
+    .form-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__subtitle {
+    font-size: 1.2rem; // ~19.2px — H4
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+  }
+
+  &__help-icon {
+    cursor: pointer;
+    color: #003366; // BC Primary Blue
+    vertical-align: middle;
+  }
+
+  // Ice-blue preview section (#ECF6FF background)
+  &__preview-section {
+    background-color: #ecf6ff;
+    border: 1px solid #c7c7c7;
+    border-radius: 0;
+    padding: 24px;
+  }
+
+  &__preview-heading {
+    font-size: 1.2rem; // H4
+    font-weight: 700;
+    color: #003366; // BC Primary Blue
+    margin-bottom: 1rem;
+  }
+
+  &__asset-row {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #003366; // blue divider per Figma
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  // Row header: bold name + grey ID inline
+  &__asset-row-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0.5rem;
+  }
+
+  &__asset-row-name {
+    font-weight: 700;
+    font-size: 1rem; // 16px body bold
+    color: #1a1a1a;
+  }
+
+  &__asset-row-id {
+    font-size: 0.8333rem; // 13.33px body small
+    font-weight: 400;
+    color: #656565; // Medium Grey
+  }
+
+  &__footer {
+    border-top: 1px solid var(--bs-border-color);
+  }
+
+  // Prevent long labels from wrapping in narrow preview columns
+  &__asset-row .form-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .input-group-text {
+    background-color: #f0f0f0;
+    border-color: var(--bs-border-color);
+  }
+}

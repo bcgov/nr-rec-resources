@@ -3,6 +3,7 @@ import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { RecreationAssetController } from '@/resource-asset/resource-asset.controller';
 import { RecreationAssetService } from '@/resource-asset/service/resource-asset.service';
 import {
+  BulkCreateRecreationAssetsDto,
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
   FindAllAssetsQueryDto,
@@ -21,6 +22,7 @@ describe('RecreationAssetController', () => {
 
   let serviceMock: {
     createAsset: ReturnType<typeof vi.fn>;
+    bulkCreateAssets: ReturnType<typeof vi.fn>;
     findAllAssets: ReturnType<typeof vi.fn>;
     findAssetById: ReturnType<typeof vi.fn>;
     findAllAssetCodes: ReturnType<typeof vi.fn>;
@@ -38,6 +40,7 @@ describe('RecreationAssetController', () => {
   beforeEach(async () => {
     serviceMock = {
       createAsset: vi.fn(),
+      bulkCreateAssets: vi.fn(),
       findAllAssets: vi.fn(),
       findAssetById: vi.fn(),
       findAllAssetCodes: vi.fn(),
@@ -99,6 +102,37 @@ describe('RecreationAssetController', () => {
     });
   });
 
+  describe('bulkCreateAssets', () => {
+    it('should delegate to service.bulkCreateAssets with the provided DTO', async () => {
+      const dto: BulkCreateRecreationAssetsDto = {
+        assets: [
+          { asset_code: 1, rec_resource_id: 'REC-1' },
+          { asset_code: 2, rec_resource_id: 'REC-1' },
+        ],
+      };
+
+      const expectedResponse: RecreationAssetDto[] = [
+        {
+          asset_id: 10,
+          rec_resource_id: 'REC-1',
+          asset_code: 1,
+        } as RecreationAssetDto,
+        {
+          asset_id: 11,
+          rec_resource_id: 'REC-1',
+          asset_code: 2,
+        } as RecreationAssetDto,
+      ];
+
+      serviceMock.bulkCreateAssets.mockResolvedValue(expectedResponse);
+
+      const result = await controller.bulkCreateAssets(dto);
+
+      expect(serviceMock.bulkCreateAssets).toHaveBeenCalledWith(dto);
+      expect(result).toEqual(expectedResponse);
+    });
+  });
+
   describe('findAllAssets', () => {
     it('should delegate to service.findAllAssets and return an array', async () => {
       const query: FindAllAssetsQueryDto = {};
@@ -144,8 +178,20 @@ describe('RecreationAssetController', () => {
   describe('findAllAssetCodes', () => {
     it('should delegate to service.findAllAssetCodes and return an array', async () => {
       const expectedResponse: RecreationAssetCodeDto[] = [
-        { asset_code: 1, description: 'Bridge' },
-        { asset_code: 2, description: 'Table - log' },
+        {
+          asset_code: 1,
+          description: 'Bridge',
+          has_length: true,
+          has_width: false,
+          has_area: false,
+        },
+        {
+          asset_code: 2,
+          description: 'Table - log',
+          has_length: false,
+          has_width: false,
+          has_area: false,
+        },
       ];
 
       serviceMock.findAllAssetCodes.mockResolvedValue(expectedResponse);

@@ -87,20 +87,73 @@ describe('RecreationAssetService', () => {
   // RECREATION ASSET CODE TESTS
   // =========================================================================
   describe('findAllAssetCodes', () => {
-    it('should return mapped asset codes including handling null descriptions', async () => {
+    it('should return mapped asset codes including has_length/width/area flags and null descriptions', async () => {
       prismaMock.recreation_asset_code.findMany.mockResolvedValue([
-        { asset_code: 1, description: 'Bridge' },
-        { asset_code: 2, description: null },
+        {
+          asset_code: 1,
+          description: 'Bridge',
+          has_length: true,
+          has_width: false,
+          has_area: false,
+        },
+        {
+          asset_code: 2,
+          description: null,
+          has_length: false,
+          has_width: false,
+          has_area: false,
+        },
       ]);
 
       const result = await service.findAllAssetCodes();
 
       expect(prismaMock.recreation_asset_code.findMany).toHaveBeenCalledWith({
+        select: {
+          asset_code: true,
+          description: true,
+          has_length: true,
+          has_width: true,
+          has_area: true,
+          default_value: true,
+        },
         orderBy: { asset_code: 'asc' },
       });
       expect(result).toEqual([
+        {
+          asset_code: 1,
+          description: 'Bridge',
+          has_length: true,
+          has_width: false,
+          has_area: false,
+          default_value: null,
+        },
+        {
+          asset_code: 2,
+          description: null,
+          has_length: false,
+          has_width: false,
+          has_area: false,
+          default_value: null,
+        },
+      ]);
+    });
+
+    it('should default has_length/width/area to false when not returned by DB', async () => {
+      prismaMock.recreation_asset_code.findMany.mockResolvedValue([
         { asset_code: 1, description: 'Bridge' },
-        { asset_code: 2, description: null },
+      ]);
+
+      const result = await service.findAllAssetCodes();
+
+      expect(result).toEqual([
+        {
+          asset_code: 1,
+          description: 'Bridge',
+          has_length: false,
+          has_width: false,
+          has_area: false,
+          default_value: null,
+        },
       ]);
     });
   });
@@ -130,18 +183,36 @@ describe('RecreationAssetService', () => {
   });
 
   describe('findAssetCodeById', () => {
-    it('should return a mapped asset code when found', async () => {
+    it('should return a mapped asset code with dimension flags when found', async () => {
       prismaMock.recreation_asset_code.findUnique.mockResolvedValue({
         asset_code: 1,
         description: 'Bridge',
+        has_length: true,
+        has_width: false,
+        has_area: false,
       });
 
       const result = await service.findAssetCodeById(1);
 
       expect(prismaMock.recreation_asset_code.findUnique).toHaveBeenCalledWith({
+        select: {
+          asset_code: true,
+          description: true,
+          has_length: true,
+          has_width: true,
+          has_area: true,
+          default_value: true,
+        },
         where: { asset_code: 1 },
       });
-      expect(result).toEqual({ asset_code: 1, description: 'Bridge' });
+      expect(result).toEqual({
+        asset_code: 1,
+        description: 'Bridge',
+        has_length: true,
+        has_width: false,
+        has_area: false,
+        default_value: null,
+      });
     });
 
     it('should throw NotFoundException if asset code does not exist', async () => {
@@ -213,7 +284,6 @@ describe('RecreationAssetService', () => {
           asset_width: 3.0,
           asset_area: 37.5,
           actual_value: 1500,
-          default_value: 1600,
           installation_date: new Date('2023-01-01'),
         },
       });
@@ -231,7 +301,6 @@ describe('RecreationAssetService', () => {
         asset_width: 3.0,
         asset_area: 37.5,
         actual_value: 1500,
-        default_value: 1600,
         installation_date: '2023-01-01',
         updated_by: null,
         updated_at: null,
@@ -285,7 +354,6 @@ describe('RecreationAssetService', () => {
           asset_width: null,
           asset_area: null,
           actual_value: null,
-          default_value: null,
           installation_date: null,
         },
       });
@@ -347,9 +415,178 @@ describe('RecreationAssetService', () => {
           asset_width: null,
           asset_area: null,
           actual_value: null,
-          default_value: null,
           installation_date: null,
         },
+      });
+    });
+  });
+
+  describe('bulkCreateAssets', () => {
+    it('should validate all unique asset codes then create all assets in a transaction', async () => {
+      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
+        asset_code: 1,
+        description: 'Bridge',
+      });
+
+      const createdAssets = [
+        {
+          asset_id: 10n,
+          parent_id: null,
+          asset_tag: null,
+          rec_resource_id: 'REC-1',
+          asset_code: 1,
+          asset_name: 'Asset A',
+          asset_comment: null,
+          legacy_structure_id: null,
+          asset_length: null,
+          asset_width: null,
+          asset_area: null,
+          actual_value: null,
+          installation_date: null,
+        },
+        {
+          asset_id: 11n,
+          parent_id: null,
+          asset_tag: null,
+          rec_resource_id: 'REC-1',
+          asset_code: 1,
+          asset_name: 'Asset B',
+          asset_comment: null,
+          legacy_structure_id: null,
+          asset_length: null,
+          asset_width: null,
+          asset_area: null,
+          actual_value: null,
+          installation_date: null,
+        },
+      ];
+
+      prismaMock.$transaction.mockResolvedValue(createdAssets);
+
+      const dto = {
+        assets: [
+          { asset_code: 1, rec_resource_id: 'REC-1', asset_name: 'Asset A' },
+          { asset_code: 1, rec_resource_id: 'REC-1', asset_name: 'Asset B' },
+        ],
+      };
+
+      const result = await service.bulkCreateAssets(dto as any);
+
+      // Only one unique code (1), so findAssetCodeById called once
+      expect(service.findAssetCodeById).toHaveBeenCalledTimes(1);
+      expect(service.findAssetCodeById).toHaveBeenCalledWith(1);
+
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].asset_id).toBe(10);
+      expect(result[1].asset_id).toBe(11);
+    });
+
+    it('should call findAssetCodeById for each unique asset_code', async () => {
+      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
+        asset_code: 1,
+        description: 'Bridge',
+      });
+
+      prismaMock.$transaction.mockResolvedValue([
+        {
+          asset_id: 20n,
+          rec_resource_id: 'REC-2',
+          asset_code: 2,
+          parent_id: null,
+          asset_tag: null,
+          asset_name: null,
+          asset_comment: null,
+          legacy_structure_id: null,
+          asset_length: null,
+          asset_width: null,
+          asset_area: null,
+          actual_value: null,
+          installation_date: null,
+        },
+      ]);
+
+      const dto = {
+        assets: [
+          { asset_code: 1, rec_resource_id: 'REC-2' },
+          { asset_code: 2, rec_resource_id: 'REC-2' },
+          { asset_code: 1, rec_resource_id: 'REC-2' }, // duplicate
+        ],
+      };
+
+      await service.bulkCreateAssets(dto as any);
+
+      // 2 unique codes: 1 and 2
+      expect(service.findAssetCodeById).toHaveBeenCalledTimes(2);
+    });
+
+    it('should throw NotFoundException if any asset code is invalid', async () => {
+      vi.spyOn(service, 'findAssetCodeById').mockRejectedValue(
+        new NotFoundException('Asset code not found'),
+      );
+
+      const dto = {
+        assets: [{ asset_code: 999, rec_resource_id: 'REC-1' }],
+      };
+
+      await expect(service.bulkCreateAssets(dto as any)).rejects.toThrow();
+    });
+
+    it('should map all returned assets including null optional fields', async () => {
+      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
+        asset_code: 5,
+        description: 'Bench',
+      });
+
+      prismaMock.$transaction.mockResolvedValue([
+        {
+          asset_id: 30n,
+          parent_id: 5n,
+          asset_tag: 'T-30',
+          rec_resource_id: 'REC-3',
+          asset_code: 5,
+          asset_name: 'My Bench',
+          asset_comment: 'A comment',
+          legacy_structure_id: 'LEG-30',
+          asset_length: 2.5,
+          asset_width: 1.2,
+          asset_area: 3.0,
+          actual_value: 750,
+          installation_date: new Date('2022-06-15T00:00:00.000Z'),
+        },
+      ]);
+
+      const dto = {
+        assets: [
+          {
+            asset_code: 5,
+            rec_resource_id: 'REC-3',
+            parent_id: 5,
+            asset_tag: 'T-30',
+            asset_name: 'My Bench',
+            asset_comment: 'A comment',
+            legacy_structure_id: 'LEG-30',
+            asset_length: 2.5,
+            asset_width: 1.2,
+            asset_area: 3.0,
+            actual_value: 750,
+            installation_date: '2022-06-15',
+          },
+        ],
+      };
+
+      const result = await service.bulkCreateAssets(dto as any);
+
+      expect(result[0]).toMatchObject({
+        asset_id: 30,
+        parent_id: 5,
+        asset_tag: 'T-30',
+        rec_resource_id: 'REC-3',
+        asset_code: 5,
+        asset_name: 'My Bench',
+        actual_value: 750,
+        installation_date: '2022-06-15',
       });
     });
   });
@@ -453,7 +690,6 @@ describe('RecreationAssetService', () => {
             asset_code: true,
             asset_comment: true,
             asset_id: true,
-            default_value: true,
             asset_length: true,
             asset_name: true,
             asset_tag: true,
@@ -482,7 +718,6 @@ describe('RecreationAssetService', () => {
             asset_code: 1,
             asset_name: 'Campsite #1 Table',
             actual_value: 1500,
-            default_value: 1600,
           }),
           expect.objectContaining({
             asset_id: 102,
@@ -492,7 +727,6 @@ describe('RecreationAssetService', () => {
             asset_code: 2,
             asset_name: 'Campsite #2 Bench',
             actual_value: 800,
-            default_value: 900,
           }),
         ],
         total: 25,
@@ -515,7 +749,6 @@ describe('RecreationAssetService', () => {
         expect.objectContaining({
           select: {
             actual_value: true,
-            default_value: true,
             asset_area: true,
             asset_code: true,
             asset_comment: true,
@@ -551,7 +784,6 @@ describe('RecreationAssetService', () => {
         expect.objectContaining({
           select: {
             actual_value: true,
-            default_value: true,
             asset_area: true,
             asset_code: true,
             asset_comment: true,
@@ -880,7 +1112,6 @@ describe('RecreationAssetService', () => {
           asset_length: 10,
           asset_width: 5,
           asset_area: 50,
-          default_value: 300,
           actual_value: 200,
           installation_date: new Date('2023-05-15'),
         },

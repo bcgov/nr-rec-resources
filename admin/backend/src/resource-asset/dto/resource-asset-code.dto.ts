@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class RecreationAssetCodeDto {
   @ApiProperty({
@@ -17,6 +24,41 @@ export class RecreationAssetCodeDto {
   @MaxLength(120)
   @IsOptional()
   description?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Indicates whether a length measurement is applicable for this asset type',
+    example: true,
+  })
+  @IsBoolean()
+  @IsOptional()
+  has_length?: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      'Indicates whether a width measurement is applicable for this asset type',
+    example: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  has_width?: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      'Indicates whether an area measurement is applicable for this asset type',
+    example: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  has_area?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Default monetary value for an asset of this type',
+    example: 300.0,
+  })
+  @IsNumber()
+  @IsOptional()
+  default_value?: number | null;
 }
 
 export class RecreationRepairCodeDto {

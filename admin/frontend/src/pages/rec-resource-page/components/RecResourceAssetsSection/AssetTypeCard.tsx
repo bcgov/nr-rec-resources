@@ -17,6 +17,12 @@ interface AssetTypeCardProps {
   totalValue: number;
   activeRepairsCount: number;
   children?: ReactNode;
+  isEditing?: boolean;
+  isDisabled?: boolean;
+  isSaving?: boolean;
+  onEdit?: () => void;
+  onSave?: () => void;
+  onCancel?: () => void;
 }
 
 export function AssetTypeCard({
@@ -26,12 +32,20 @@ export function AssetTypeCard({
   totalValue,
   activeRepairsCount,
   children,
+  isEditing = false,
+  isDisabled = false,
+  isSaving = false,
+  onEdit,
+  onSave,
+  onCancel,
 }: AssetTypeCardProps) {
   return (
     <StyledAccordion
       eventKey={eventKey}
-      defaultOpen={false}
-      className="asset-type-card"
+      defaultOpen={isEditing}
+      className={`asset-type-card${
+        isEditing ? ' asset-type-card--editing' : ''
+      }`}
       title={
         <div className="asset-type-card__heading">
           <span className="asset-type-card__description">{description}</span>
@@ -60,12 +74,44 @@ export function AssetTypeCard({
               {formatCurrency(totalValue)} total value
             </span>
           </div>
-          <CustomButton
-            variant="secondary"
-            className="asset-summary-action-btn asset-type-card__bulk-update-btn"
-          >
-            Edit
-          </CustomButton>
+          {isEditing ? (
+            <div className="d-flex gap-2">
+              <CustomButton
+                variant="outline-primary"
+                className="asset-summary-action-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCancel?.();
+                }}
+                disabled={isSaving}
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton
+                variant="primary"
+                className="asset-summary-action-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSave?.();
+                }}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving…' : 'Save changes'}
+              </CustomButton>
+            </div>
+          ) : (
+            <CustomButton
+              variant="secondary"
+              className="asset-summary-action-btn asset-type-card__bulk-update-btn"
+              disabled={isDisabled}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.();
+              }}
+            >
+              Edit
+            </CustomButton>
+          )}
         </>
       }
     >

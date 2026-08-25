@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import {
+  Dropdown,
   Spinner,
   Stack,
   ToggleButton,
@@ -19,6 +20,8 @@ import { AddRepairModal } from './AddRepairModal';
 import { AssetCard } from './AssetCard';
 import { AssetSummaryCards } from './AssetSummaryCards';
 import { AssetTypeCard } from './AssetTypeCard';
+import { BulkAddAssetsModal } from './BulkAddAssetsModal';
+import { BulkAddCampsitesModal } from './BulkAddCampsitesModal';
 import { computeAssetSummary } from './assetSummary';
 import { groupAssetsByType } from './assetTypeGrouping';
 import { CampsiteCard } from './CampsiteCard';
@@ -33,13 +36,16 @@ export function RecResourceAssetsSection() {
   const { id: recResourceId } = useParams({ from: '/rec-resource/$id' });
   const [groupMode, setGroupMode] = useState<AssetGroupMode>('type');
   const [isAddRepairModalOpen, setIsAddRepairModalOpen] = useState(false);
+  const [isBulkAddModalOpen, setIsBulkAddModalOpen] = useState(false);
+  const [isBulkAddCampsitesModalOpen, setIsBulkAddCampsitesModalOpen] =
+    useState(false);
 
   const {
     data: assets,
     isLoading: isAssetsLoading,
     isError: isAssetsError,
   } = useGetAssetsByRecResourceId(recResourceId);
-  const { data: assetCodes } = useGetAssetCodes();
+  const { data: assetCodes = [] } = useGetAssetCodes();
   const { data: repairCodes = [] } = useGetRepairCodes();
   const { data: resource } = useGetRecreationResourceById(recResourceId);
 
@@ -56,9 +62,22 @@ export function RecResourceAssetsSection() {
     <Stack direction="vertical" className="pb-4" gap={3}>
       <div className="d-flex justify-content-between align-items-center gap-3">
         <h2 className="mb-0">Assets</h2>
+        <Dropdown>
+          <Dropdown.Toggle variant="primary" id="assets-actions-dropdown">
+            Actions
+          </Dropdown.Toggle>
+          <Dropdown.Menu align="end">
+            <Dropdown.Item onClick={() => setIsBulkAddModalOpen(true)}>
+              Add assets
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => setIsBulkAddCampsitesModalOpen(true)}>
+              Add campsites
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
 
-      <AssetSummaryCards summary={summary} />
+      <AssetSummaryCards summary={summary} isLoading={isAssetsLoading} />
 
       {isAssetsLoading ? (
         <div className="d-flex justify-content-center py-5">
@@ -124,7 +143,7 @@ export function RecResourceAssetsSection() {
               <CustomButton
                 variant="secondary"
                 className="asset-summary-action-btn"
-                leftIcon={<FontAwesomeIcon icon={faPlus} />}
+                leftIcon={<FontAwesomeIcon icon={faPlus as any} />}
                 onClick={() => setIsAddRepairModalOpen(true)}
               >
                 Add repair
@@ -218,6 +237,23 @@ export function RecResourceAssetsSection() {
         assets={assets ?? []}
         onCancel={() => setIsAddRepairModalOpen(false)}
         onCreate={() => setIsAddRepairModalOpen(false)}
+      />
+
+      <BulkAddAssetsModal
+        show={isBulkAddModalOpen}
+        recResourceId={recResourceId}
+        assetCodes={assetCodes}
+        existingAssets={assets ?? []}
+        onCancel={() => setIsBulkAddModalOpen(false)}
+        onCreate={() => setIsBulkAddModalOpen(false)}
+      />
+
+      <BulkAddCampsitesModal
+        show={isBulkAddCampsitesModalOpen}
+        recResourceId={recResourceId}
+        existingAssets={assets ?? []}
+        onCancel={() => setIsBulkAddCampsitesModalOpen(false)}
+        onCreate={() => setIsBulkAddCampsitesModalOpen(false)}
       />
     </Stack>
   );

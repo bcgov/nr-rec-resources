@@ -128,17 +128,6 @@ export class BaseRecreationAssetDto {
   asset_area?: number | null;
 
   @ApiPropertyOptional({
-    description: 'Default monetary value',
-    example: 1500.0,
-    type: Number,
-    nullable: true,
-  })
-  @IsNumber()
-  @Type(() => Number)
-  @IsOptional()
-  default_value?: number | null;
-
-  @ApiPropertyOptional({
     description: 'Actual monetary value',
     example: 1800.5,
     type: Number,
@@ -250,7 +239,6 @@ export class RecreationAssetBulkUpdateDto {
     example: {
       asset_name: 'Updated Asset Name',
       asset_area: 50.0,
-      default_value: 2000.0,
     },
   })
   @IsObject()
@@ -348,4 +336,19 @@ export class PaginatedRecreationAssetDto {
 
   @ApiProperty({ example: 5 })
   totalPages: number;
+}
+
+/**
+ * Payload for bulk-creating multiple Recreation Assets in a single request
+ */
+export class BulkCreateRecreationAssetsDto {
+  @ApiProperty({
+    description: 'List of assets to create',
+    type: [CreateRecreationAssetDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateRecreationAssetDto)
+  @ArrayMinSize(1)
+  assets: CreateRecreationAssetDto[];
 }

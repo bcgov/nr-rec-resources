@@ -32,3 +32,6 @@ export * from './useBulkInsertAssetRepairs';
 export * from './useGetAssetsByRecResourceId';
 export * from './useGetAssetCodes';
 export * from './useGetRepairCodes';
+export * from './useCreateBulkAssets';
+export * from './useUpdateAsset';
+export * from './useUpdateRepair';

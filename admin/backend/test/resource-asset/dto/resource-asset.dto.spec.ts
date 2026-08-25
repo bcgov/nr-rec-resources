@@ -33,7 +33,6 @@ describe('Recreation Asset DTOs', () => {
         asset_length: 12.5,
         asset_width: 3.0,
         asset_area: 37.5,
-        default_value: 1500.0,
         actual_value: 1800.5,
         installation_date: '2023-05-15',
       };
@@ -57,7 +56,6 @@ describe('Recreation Asset DTOs', () => {
         asset_length: null,
         asset_width: null,
         asset_area: null,
-        default_value: null,
         actual_value: null,
         installation_date: null,
       };
@@ -90,7 +88,6 @@ describe('Recreation Asset DTOs', () => {
         asset_length: 'not-a-number',
         asset_width: 'not-a-number',
         asset_area: 'not-a-number',
-        default_value: 'not-a-number',
         actual_value: 'not-a-number',
       };
 
@@ -105,7 +102,6 @@ describe('Recreation Asset DTOs', () => {
       expect(properties).toContain('asset_length');
       expect(properties).toContain('asset_width');
       expect(properties).toContain('asset_area');
-      expect(properties).toContain('default_value');
       expect(properties).toContain('actual_value');
     });
 
@@ -244,7 +240,6 @@ describe('Recreation Asset DTOs', () => {
         update_fields: {
           asset_name: 'Bulk Updated Name',
           asset_area: 50.0,
-          default_value: 2000.0,
         },
       };
 

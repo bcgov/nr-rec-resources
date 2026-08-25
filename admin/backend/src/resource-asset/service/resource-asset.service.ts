@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '@/prisma.service';
 import {
   BulkAssetUpdateResponseDto,
+  BulkCreateRecreationAssetsDto,
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
   FindAllAssetsQueryDto,
@@ -38,6 +39,14 @@ export class RecreationAssetService {
 
   async findAllAssetCodes(): Promise<RecreationAssetCodeDto[]> {
     const codes = await this.prisma.recreation_asset_code.findMany({
+      select: {
+        asset_code: true,
+        description: true,
+        has_length: true,
+        has_width: true,
+        has_area: true,
+        default_value: true,
+      },
       orderBy: { asset_code: 'asc' },
     });
     return codes.map((c) => this.mapAssetCodeToDto(c));
@@ -45,6 +54,14 @@ export class RecreationAssetService {
 
   async findAssetCodeById(assetCode: number): Promise<RecreationAssetCodeDto> {
     const code = await this.prisma.recreation_asset_code.findUnique({
+      select: {
+        asset_code: true,
+        description: true,
+        has_length: true,
+        has_width: true,
+        has_area: true,
+        default_value: true,
+      },
       where: { asset_code: assetCode },
     });
 
@@ -89,7 +106,6 @@ export class RecreationAssetService {
         asset_width: dto.asset_width ?? null,
         asset_area: dto.asset_area ?? null,
         actual_value: dto.actual_value ?? null,
-        default_value: dto.default_value ?? null,
         installation_date: dto.installation_date
           ? new Date(dto.installation_date)
           : null,
@@ -106,6 +122,41 @@ export class RecreationAssetService {
     }
 
     return this.mapAssetToDto(created);
+  }
+
+  async bulkCreateAssets(
+    dto: BulkCreateRecreationAssetsDto,
+  ): Promise<RecreationAssetDto[]> {
+    // Validate all asset codes exist first
+    const uniqueCodes = Array.from(
+      new Set(dto.assets.map((a) => a.asset_code)),
+    );
+    await Promise.all(uniqueCodes.map((code) => this.findAssetCodeById(code)));
+
+    const created = await this.prisma.$transaction(
+      dto.assets.map((asset) =>
+        this.prisma.recreation_asset.create({
+          data: {
+            parent_id: asset.parent_id ? BigInt(asset.parent_id) : null,
+            asset_tag: asset.asset_tag ?? null,
+            rec_resource_id: asset.rec_resource_id,
+            asset_code: asset.asset_code,
+            asset_name: asset.asset_name ?? null,
+            asset_comment: asset.asset_comment ?? null,
+            legacy_structure_id: asset.legacy_structure_id ?? null,
+            asset_length: asset.asset_length ?? null,
+            asset_width: asset.asset_width ?? null,
+            asset_area: asset.asset_area ?? null,
+            actual_value: asset.actual_value ?? null,
+            installation_date: asset.installation_date
+              ? new Date(asset.installation_date)
+              : null,
+          },
+        }),
+      ),
+    );
+
+    return created.map((asset) => this.mapAssetToDto(asset));
   }
 
   async findAllAssets(
@@ -169,7 +220,6 @@ export class RecreationAssetService {
           asset_width: true,
           asset_area: true,
           actual_value: true,
-          default_value: true,
           installation_date: true,
           updated_by: true,
           updated_at: true,
@@ -220,7 +270,6 @@ export class RecreationAssetService {
         asset_width: true,
         asset_area: true,
         actual_value: true,
-        default_value: true,
         installation_date: true,
         updated_by: true,
         updated_at: true,
@@ -295,7 +344,6 @@ export class RecreationAssetService {
       'asset_length',
       'asset_width',
       'asset_area',
-      'default_value',
       'actual_value',
     ] as const;
 
@@ -538,6 +586,10 @@ export class RecreationAssetService {
     return {
       asset_code: record.asset_code,
       description: record.description ?? null,
+      has_length: record.has_length ?? false,
+      has_width: record.has_width ?? false,
+      has_area: record.has_area ?? false,
+      default_value: record.default_value ?? null,
     };
   }
 
@@ -594,7 +646,6 @@ export class RecreationAssetService {
       asset_width: record.asset_width ? Number(record.asset_width) : null,
       asset_area: record.asset_area ? Number(record.asset_area) : null,
       actual_value: record.actual_value ? Number(record.actual_value) : null,
-      default_value: record.default_value ? Number(record.default_value) : null,
       installation_date: record.installation_date
         ? record.installation_date.toISOString().split('T')[0]
         : null,
