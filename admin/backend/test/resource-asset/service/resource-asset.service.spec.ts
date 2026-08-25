@@ -1330,7 +1330,10 @@ describe('RecreationAssetService', () => {
         changes: [
           {
             asset_ids: [1, 2],
-            repair_cost: 250,
+            estimated_repair_cost: 300,
+            actual_repair_cost: 250,
+            station_start: '49.232423, -128.334343',
+            station_end: '49.234561, -128.331872',
           },
         ],
       };
@@ -1345,20 +1348,26 @@ describe('RecreationAssetService', () => {
           {
             asset_id: 1n,
             recreation_remed_repair_code: 'BULK_REPAIR',
+            estimated_repair_cost: 300,
             actual_repair_cost: 250,
             repair_completed_date: new Date('2023-11-15'),
+            trail_segment_start: '49.232423, -128.334343',
+            trail_segment_end: '49.234561, -128.331872',
           },
           {
             asset_id: 2n,
             recreation_remed_repair_code: 'BULK_REPAIR',
+            estimated_repair_cost: 300,
             actual_repair_cost: 250,
             repair_completed_date: new Date('2023-11-15'),
+            trail_segment_start: '49.232423, -128.334343',
+            trail_segment_end: '49.234561, -128.331872',
           },
         ],
       });
     });
 
-    it('should handle null completed_date during bulk upsert', async () => {
+    it('should handle null completed_date, actual cost, and stations during bulk insert', async () => {
       prismaMock.recreation_asset.count.mockResolvedValue(1);
 
       const dto = {
@@ -1367,7 +1376,7 @@ describe('RecreationAssetService', () => {
         changes: [
           {
             asset_ids: [1],
-            repair_cost: 100,
+            estimated_repair_cost: 100,
           },
         ],
       };
@@ -1381,8 +1390,11 @@ describe('RecreationAssetService', () => {
           {
             asset_id: 1n,
             recreation_remed_repair_code: 'BULK_REPAIR',
-            actual_repair_cost: 100,
+            estimated_repair_cost: 100,
+            actual_repair_cost: null,
             repair_completed_date: null,
+            trail_segment_start: null,
+            trail_segment_end: null,
           },
         ],
       });

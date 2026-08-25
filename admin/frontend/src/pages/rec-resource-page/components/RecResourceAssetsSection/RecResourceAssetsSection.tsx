@@ -212,7 +212,10 @@ export function RecResourceAssetsSection() {
 
       <AddRepairModal
         show={isAddRepairModalOpen}
+        recResourceId={recResourceId}
         repairCodes={repairCodes}
+        assetCodes={assetCodes ?? []}
+        assets={assets ?? []}
         onCancel={() => setIsAddRepairModalOpen(false)}
         onCreate={() => setIsAddRepairModalOpen(false)}
       />

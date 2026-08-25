@@ -46,6 +46,9 @@ const MockReactSelect = vi.fn((props: any) => {
         <input
           type="text"
           role="combobox"
+          id={props.inputId}
+          aria-label={props['aria-label']}
+          aria-labelledby={props['aria-labelledby']}
           value={
             selectedOption
               ? getOptLabel(selectedOption, props.getOptionLabel) || ''
@@ -75,6 +78,7 @@ const MockReactSelect = vi.fn((props: any) => {
                   <button
                     key={optValue || 'null'}
                     type="button"
+                    role="option"
                     onClick={() => !isDisabledOption && props.onChange?.(opt)}
                     disabled={isDisabledOption}
                     data-testid={`option-${optValue}`}
@@ -104,6 +108,9 @@ const MockReactSelect = vi.fn((props: any) => {
       <input
         type="text"
         role="combobox"
+        id={props.inputId}
+        aria-label={props['aria-label']}
+        aria-labelledby={props['aria-labelledby']}
         placeholder={props.placeholder}
         disabled={props.isDisabled}
         readOnly

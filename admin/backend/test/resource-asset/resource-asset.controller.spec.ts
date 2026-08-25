@@ -309,7 +309,8 @@ describe('RecreationAssetController', () => {
         changes: [
           {
             asset_ids: [1, 2],
-            repair_cost: 300,
+            estimated_repair_cost: 350,
+            actual_repair_cost: 300,
           },
         ],
       };

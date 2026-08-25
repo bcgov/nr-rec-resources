@@ -28,6 +28,7 @@ export * from './useCreateTrail';
 export * from './useUpdateTrail';
 export * from './useDeleteTrail';
 export * from './useAssetsApiClient';
+export * from './useBulkInsertAssetRepairs';
 export * from './useGetAssetsByRecResourceId';
 export * from './useGetAssetCodes';
 export * from './useGetRepairCodes';
