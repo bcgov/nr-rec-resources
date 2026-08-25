@@ -30,6 +30,10 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
   useGetAssetsByRecResourceId: vi.fn(),
   useGetRecreationResourceById: vi.fn(),
   useGetRepairCodes: vi.fn(),
+  useCreateBulkAssets: vi.fn().mockReturnValue({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
 }));
 
 const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({

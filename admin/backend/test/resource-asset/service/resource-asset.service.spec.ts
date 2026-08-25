@@ -421,6 +421,176 @@ describe('RecreationAssetService', () => {
     });
   });
 
+  describe('bulkCreateAssets', () => {
+    it('should validate all unique asset codes then create all assets in a transaction', async () => {
+      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
+        asset_code: 1,
+        description: 'Bridge',
+      });
+
+      const createdAssets = [
+        {
+          asset_id: 10n,
+          parent_id: null,
+          asset_tag: null,
+          rec_resource_id: 'REC-1',
+          asset_code: 1,
+          asset_name: 'Asset A',
+          asset_comment: null,
+          legacy_structure_id: null,
+          asset_length: null,
+          asset_width: null,
+          asset_area: null,
+          actual_value: null,
+          installation_date: null,
+        },
+        {
+          asset_id: 11n,
+          parent_id: null,
+          asset_tag: null,
+          rec_resource_id: 'REC-1',
+          asset_code: 1,
+          asset_name: 'Asset B',
+          asset_comment: null,
+          legacy_structure_id: null,
+          asset_length: null,
+          asset_width: null,
+          asset_area: null,
+          actual_value: null,
+          installation_date: null,
+        },
+      ];
+
+      prismaMock.$transaction.mockResolvedValue(createdAssets);
+
+      const dto = {
+        assets: [
+          { asset_code: 1, rec_resource_id: 'REC-1', asset_name: 'Asset A' },
+          { asset_code: 1, rec_resource_id: 'REC-1', asset_name: 'Asset B' },
+        ],
+      };
+
+      const result = await service.bulkCreateAssets(dto as any);
+
+      // Only one unique code (1), so findAssetCodeById called once
+      expect(service.findAssetCodeById).toHaveBeenCalledTimes(1);
+      expect(service.findAssetCodeById).toHaveBeenCalledWith(1);
+
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].asset_id).toBe(10);
+      expect(result[1].asset_id).toBe(11);
+    });
+
+    it('should call findAssetCodeById for each unique asset_code', async () => {
+      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
+        asset_code: 1,
+        description: 'Bridge',
+      });
+
+      prismaMock.$transaction.mockResolvedValue([
+        {
+          asset_id: 20n,
+          rec_resource_id: 'REC-2',
+          asset_code: 2,
+          parent_id: null,
+          asset_tag: null,
+          asset_name: null,
+          asset_comment: null,
+          legacy_structure_id: null,
+          asset_length: null,
+          asset_width: null,
+          asset_area: null,
+          actual_value: null,
+          installation_date: null,
+        },
+      ]);
+
+      const dto = {
+        assets: [
+          { asset_code: 1, rec_resource_id: 'REC-2' },
+          { asset_code: 2, rec_resource_id: 'REC-2' },
+          { asset_code: 1, rec_resource_id: 'REC-2' }, // duplicate
+        ],
+      };
+
+      await service.bulkCreateAssets(dto as any);
+
+      // 2 unique codes: 1 and 2
+      expect(service.findAssetCodeById).toHaveBeenCalledTimes(2);
+    });
+
+    it('should throw NotFoundException if any asset code is invalid', async () => {
+      vi.spyOn(service, 'findAssetCodeById').mockRejectedValue(
+        new NotFoundException('Asset code not found'),
+      );
+
+      const dto = {
+        assets: [{ asset_code: 999, rec_resource_id: 'REC-1' }],
+      };
+
+      await expect(service.bulkCreateAssets(dto as any)).rejects.toThrow();
+    });
+
+    it('should map all returned assets including null optional fields', async () => {
+      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
+        asset_code: 5,
+        description: 'Bench',
+      });
+
+      prismaMock.$transaction.mockResolvedValue([
+        {
+          asset_id: 30n,
+          parent_id: 5n,
+          asset_tag: 'T-30',
+          rec_resource_id: 'REC-3',
+          asset_code: 5,
+          asset_name: 'My Bench',
+          asset_comment: 'A comment',
+          legacy_structure_id: 'LEG-30',
+          asset_length: 2.5,
+          asset_width: 1.2,
+          asset_area: 3.0,
+          actual_value: 750,
+          installation_date: new Date('2022-06-15T00:00:00.000Z'),
+        },
+      ]);
+
+      const dto = {
+        assets: [
+          {
+            asset_code: 5,
+            rec_resource_id: 'REC-3',
+            parent_id: 5,
+            asset_tag: 'T-30',
+            asset_name: 'My Bench',
+            asset_comment: 'A comment',
+            legacy_structure_id: 'LEG-30',
+            asset_length: 2.5,
+            asset_width: 1.2,
+            asset_area: 3.0,
+            actual_value: 750,
+            installation_date: '2022-06-15',
+          },
+        ],
+      };
+
+      const result = await service.bulkCreateAssets(dto as any);
+
+      expect(result[0]).toMatchObject({
+        asset_id: 30,
+        parent_id: 5,
+        asset_tag: 'T-30',
+        rec_resource_id: 'REC-3',
+        asset_code: 5,
+        asset_name: 'My Bench',
+        actual_value: 750,
+        installation_date: '2022-06-15',
+      });
+    });
+  });
+
   describe('RecreationAssetService - findAllAssets', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let prismaService: PrismaService;
