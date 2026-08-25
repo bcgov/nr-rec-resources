@@ -95,6 +95,20 @@
   white-space: nowrap;
 }
 
+.asset-type-card__edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.asset-type-card__edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
 // Total value + active-repairs badge, grouped so they move together on wrap.
 .asset-type-card__secondary-info {
   display: flex;

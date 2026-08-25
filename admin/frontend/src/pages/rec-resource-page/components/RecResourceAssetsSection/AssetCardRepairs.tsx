@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Col, Form, Row } from 'react-bootstrap';
+import { Col, Form, Row, Button, InputGroup } from 'react-bootstrap';
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { formatDateReadable } from '@shared/utils';
 import { CustomButton } from '@/components';
-import { useUpdateRepair } from '@/services/hooks/recreation-resource-admin';
+import { useCreateAssetRepair , useUpdateRepair } from '@/services/hooks/recreation-resource-admin';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { formatCurrency } from './formatCurrency';
 import type { AssetRepair, RepairCode } from './types';
@@ -14,6 +14,7 @@ import './AssetCardRepairs.scss';
 interface AssetCardRepairsProps {
   repairs: AssetRepair[];
   repairCodes: RepairCode[];
+  assetId?: number;
   isEditing?: boolean;
   recResourceId?: string;
 }
@@ -218,14 +219,28 @@ function RepairEditRow({
   );
 }
 
+const EMPTY_FORM = {
+  repairCode: '',
+  estimatedCost: '',
+  actualCost: '',
+  completedDate: '',
+};
+
 export function AssetCardRepairs({
   repairs,
   repairCodes,
-  isEditing = false,
+  assetId,
   recResourceId,
+  isEditing = false,
+
 }: AssetCardRepairsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { canViewSensitiveInfo } = useAuthorizations();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+
+  const { mutate: createRepair, isPending: isCreating } =
+    useCreateAssetRepair();
 
   const visibleRepairs = repairs
     .map((repair) => ({
@@ -235,6 +250,41 @@ export function AssetCardRepairs({
     .filter(
       (entry): entry is { repair: AssetRepair; title: string } => !!entry.title,
     );
+
+  function handleAddRepair() {
+    setShowAddForm(true);
+  }
+
+  function handleCancelAdd() {
+    setShowAddForm(false);
+    setForm(EMPTY_FORM);
+  }
+
+  function handleSaveRepair() {
+    if (!assetId || !recResourceId) return;
+    createRepair(
+      {
+        assetId,
+        recResourceId,
+        dto: {
+          recreation_remed_repair_code: form.repairCode || null,
+          estimated_repair_cost: form.estimatedCost
+            ? parseFloat(form.estimatedCost)
+            : null,
+          actual_repair_cost: form.actualCost
+            ? parseFloat(form.actualCost)
+            : null,
+          repair_completed_date: form.completedDate || null,
+        },
+      },
+      {
+        onSuccess: () => {
+          setShowAddForm(false);
+          setForm(EMPTY_FORM);
+        },
+      },
+    );
+  }
 
   return (
     <div className="asset-card-repairs">
@@ -311,20 +361,115 @@ export function AssetCardRepairs({
                   })}
                 </div>
               ) : (
-                <div className="asset-card-repairs__empty">
-                  This asset has no repairs
-                </div>
+                !showAddForm && (
+                  <div className="asset-card-repairs__empty">
+                    This asset has no repairs
+                  </div>
+                )
               )}
             </>
           )}
 
-          <CustomButton
-            variant="secondary"
-            className="asset-summary-action-btn asset-card-repairs__add-btn"
-            leftIcon={<FontAwesomeIcon icon={faPlus} />}
-          >
-            Add repair
-          </CustomButton>
+          {showAddForm && !isEditing && (
+            <div className="asset-card-repairs__add-form">
+              <div className="asset-card-repairs__add-form-fields">
+                <Form.Group controlId={`repair-type-${assetId}`}>
+                  <Form.Label>Repair type</Form.Label>
+                  <Form.Select
+                    value={form.repairCode}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, repairCode: e.target.value }))
+                    }
+                  >
+                    <option value="">Select type…</option>
+                    {repairCodes.map((code) => (
+                      <option
+                        key={code.recreation_remed_repair_code}
+                        value={code.recreation_remed_repair_code}
+                      >
+                        {code.description}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+
+                <Form.Group controlId={`repair-est-cost-${assetId}`}>
+                  <Form.Label>Estimated cost</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text>$</InputGroup.Text>
+                    <Form.Control
+                      type="number"
+                      step="0.01"
+                      value={form.estimatedCost}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          estimatedCost: e.target.value,
+                        }))
+                      }
+                    />
+                  </InputGroup>
+                </Form.Group>
+
+                <Form.Group controlId={`repair-actual-cost-${assetId}`}>
+                  <Form.Label>Actual cost</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text>$</InputGroup.Text>
+                    <Form.Control
+                      type="number"
+                      step="0.01"
+                      value={form.actualCost}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, actualCost: e.target.value }))
+                      }
+                    />
+                  </InputGroup>
+                </Form.Group>
+
+                <Form.Group controlId={`repair-date-${assetId}`}>
+                  <Form.Label>Completed date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={form.completedDate}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, completedDate: e.target.value }))
+                    }
+                  />
+                </Form.Group>
+              </div>
+
+              <div className="asset-card-repairs__add-form-actions">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={handleCancelAdd}
+                  disabled={isCreating}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleSaveRepair}
+                  disabled={isCreating || !form.repairCode}
+                >
+                  {isCreating ? 'Saving…' : 'Save repair'}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {(!showAddForm || isEditing) && (
+            <CustomButton
+              variant="secondary"
+              className="asset-summary-action-btn asset-card-repairs__add-btn"
+              leftIcon={<FontAwesomeIcon icon={faPlus} />}
+              onClick={handleAddRepair}
+              disabled={isEditing}
+            >
+              Add repair
+            </CustomButton>
+          )}
         </div>
       )}
     </div>

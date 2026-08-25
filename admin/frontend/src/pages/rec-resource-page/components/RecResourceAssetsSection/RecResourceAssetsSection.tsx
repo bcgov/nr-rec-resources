@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from '@tanstack/react-router';
+import { useNavigate, useParams } from '@tanstack/react-router';
 import {
   Dropdown,
   Spinner,
@@ -16,6 +16,7 @@ import {
   useGetRecreationResourceById,
   useGetRepairCodes,
 } from '@/services/hooks/recreation-resource-admin';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { AddRepairModal } from './AddRepairModal';
 import { BulkAssetEditModal } from './BulkAssetEditModal';
 import { AssetCard } from './AssetCard';
@@ -38,6 +39,7 @@ type AssetGroupMode = 'type' | 'campsite';
 
 export function RecResourceAssetsSection() {
   const { id: recResourceId } = useParams({ from: '/rec-resource/$id' });
+  const navigate = useNavigate();
   const [groupMode, setGroupMode] = useState<AssetGroupMode>('type');
   const [isAddRepairModalOpen, setIsAddRepairModalOpen] = useState(false);
   const [isBulkAddModalOpen, setIsBulkAddModalOpen] = useState(false);
@@ -178,6 +180,13 @@ export function RecResourceAssetsSection() {
                   count={group.count}
                   totalValue={group.totalValue}
                   activeRepairsCount={group.activeRepairsCount}
+                  onEdit={() =>
+                    void navigate({
+                      to: ROUTE_PATHS.REC_RESOURCE_ASSETS_EDIT,
+                      params: { id: recResourceId },
+                      search: { editGroup: String(group.structureCode) },
+                    })
+                  }
                 >
                   <Stack direction="vertical" gap={2}>
                     {group.assets.map((asset) => (
@@ -185,6 +194,7 @@ export function RecResourceAssetsSection() {
                         key={asset.asset_id}
                         asset={asset}
                         repairCodes={repairCodes}
+                        recResourceId={recResourceId}
                         assetCodes={assetCodes}
                       />
                     ))}
@@ -222,6 +232,7 @@ export function RecResourceAssetsSection() {
                       repairCodes={repairCodes}
                       assetCodes={assetCodes}
                       className="asset-card--campsite"
+                      recResourceId={recResourceId}
                     />
                     <div className="campsite-children">
                       <div className="campsite-children__divider" />
@@ -236,6 +247,7 @@ export function RecResourceAssetsSection() {
                             asset={child}
                             repairCodes={repairCodes}
                             assetCodes={assetCodes}
+                            recResourceId={recResourceId}
                           />
                         ))}
                       </Stack>

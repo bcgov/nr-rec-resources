@@ -10,6 +10,7 @@ interface AssetCardProps {
   repairCodes: RepairCode[];
   assetCodes?: AssetCode[];
   className?: string;
+  recResourceId?: string;
 }
 
 interface AssetField {
@@ -91,6 +92,7 @@ export function AssetCard({
   repairCodes,
   assetCodes = [],
   className = '',
+  recResourceId,
 }: AssetCardProps) {
   const fields = getAssetFields(asset, assetCodes);
   const repairs = asset.recreation_asset_repair ?? [];
@@ -117,7 +119,12 @@ export function AssetCard({
               </span>
             ))}
           </div>
-          <AssetCardRepairs repairs={repairs} repairCodes={repairCodes} />
+          <AssetCardRepairs
+            repairs={repairs}
+            repairCodes={repairCodes}
+            assetId={asset.asset_id}
+            recResourceId={recResourceId}
+          />
         </div>
       </Card.Body>
     </Card>
