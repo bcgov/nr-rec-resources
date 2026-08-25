@@ -2,12 +2,13 @@ import { Card } from 'react-bootstrap';
 import { AssetCardRepairs } from './AssetCardRepairs';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
 import { formatCurrency } from './formatCurrency';
-import type { Asset, RepairCode } from './types';
+import type { Asset, AssetCode, RepairCode } from './types';
 import './AssetCard.scss';
 
 interface AssetCardProps {
   asset: Asset;
   repairCodes: RepairCode[];
+  assetCodes?: AssetCode[];
   className?: string;
 }
 
@@ -20,10 +21,12 @@ interface AssetField {
 // so their card shows a reduced field set.
 const CAMPSITE_FIELD_LABELS = new Set(['Value', 'Repair spend', 'Location']);
 
-function getAssetFields(asset: Asset): AssetField[] {
+function getAssetFields(asset: Asset, assetCodes: AssetCode[]): AssetField[] {
+  const codeMap = new Map(assetCodes.map((c) => [c.asset_code, c]));
   const repairs = asset.recreation_asset_repair ?? [];
   const hasRepairs = repairs.length > 0;
-  const value = asset.actual_value ?? asset.default_value;
+  const value =
+    asset.actual_value ?? codeMap.get(asset.asset_code)?.default_value;
   const repairSpend = hasRepairs
     ? repairs
         .filter((repair) => repair.repair_completed_date)
@@ -86,9 +89,10 @@ function getAssetFields(asset: Asset): AssetField[] {
 export function AssetCard({
   asset,
   repairCodes,
+  assetCodes = [],
   className = '',
 }: AssetCardProps) {
-  const fields = getAssetFields(asset);
+  const fields = getAssetFields(asset, assetCodes);
   const repairs = asset.recreation_asset_repair ?? [];
 
   return (

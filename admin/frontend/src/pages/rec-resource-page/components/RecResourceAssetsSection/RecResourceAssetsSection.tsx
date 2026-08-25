@@ -53,10 +53,12 @@ export function RecResourceAssetsSection() {
     assets ?? [],
     resource?.last_rec_inspection_date ?? null,
     resource?.last_hzrd_tree_assess_date ?? null,
+    assetCodes,
   );
   const typeGroups = groupAssetsByType(assets ?? [], assetCodes ?? []);
   const campsiteGroups = groupAssetsByCampsite(assets ?? []);
   const hasCampsites = campsiteGroups.length > 0;
+  const codeMap = new Map((assetCodes ?? []).map((c) => [c.asset_code, c]));
 
   return (
     <Stack direction="vertical" className="pb-4" gap={3}>
@@ -174,6 +176,7 @@ export function RecResourceAssetsSection() {
                         key={asset.asset_id}
                         asset={asset}
                         repairCodes={repairCodes}
+                        assetCodes={assetCodes}
                       />
                     ))}
                   </Stack>
@@ -191,10 +194,15 @@ export function RecResourceAssetsSection() {
                   description={campsite.asset_name ?? ''}
                   structureCount={children.length}
                   totalValue={
-                    (campsite.actual_value ?? campsite.default_value ?? 0) +
+                    (campsite.actual_value ??
+                      codeMap.get(campsite.asset_code)?.default_value ??
+                      0) +
                     children.reduce(
                       (sum, child) =>
-                        sum + (child.actual_value ?? child.default_value ?? 0),
+                        sum +
+                        (child.actual_value ??
+                          codeMap.get(child.asset_code)?.default_value ??
+                          0),
                       0,
                     )
                   }
@@ -203,6 +211,7 @@ export function RecResourceAssetsSection() {
                     <AssetCard
                       asset={campsite}
                       repairCodes={repairCodes}
+                      assetCodes={assetCodes}
                       className="asset-card--campsite"
                     />
                     <div className="campsite-children">
@@ -217,6 +226,7 @@ export function RecResourceAssetsSection() {
                             key={child.asset_id}
                             asset={child}
                             repairCodes={repairCodes}
+                            assetCodes={assetCodes}
                           />
                         ))}
                       </Stack>
