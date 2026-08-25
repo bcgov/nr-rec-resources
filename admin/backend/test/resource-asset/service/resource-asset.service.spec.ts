@@ -114,6 +114,7 @@ describe('RecreationAssetService', () => {
           has_length: true,
           has_width: true,
           has_area: true,
+          default_value: true,
         },
         orderBy: { asset_code: 'asc' },
       });
@@ -124,6 +125,7 @@ describe('RecreationAssetService', () => {
           has_length: true,
           has_width: false,
           has_area: false,
+          default_value: null,
         },
         {
           asset_code: 2,
@@ -131,6 +133,7 @@ describe('RecreationAssetService', () => {
           has_length: false,
           has_width: false,
           has_area: false,
+          default_value: null,
         },
       ]);
     });
@@ -149,6 +152,7 @@ describe('RecreationAssetService', () => {
           has_length: false,
           has_width: false,
           has_area: false,
+          default_value: null,
         },
       ]);
     });
@@ -197,6 +201,7 @@ describe('RecreationAssetService', () => {
           has_length: true,
           has_width: true,
           has_area: true,
+          default_value: true,
         },
         where: { asset_code: 1 },
       });
@@ -206,6 +211,7 @@ describe('RecreationAssetService', () => {
         has_length: true,
         has_width: false,
         has_area: false,
+        default_value: null,
       });
     });
 
@@ -278,7 +284,6 @@ describe('RecreationAssetService', () => {
           asset_width: 3.0,
           asset_area: 37.5,
           actual_value: 1500,
-          default_value: 1600,
           installation_date: new Date('2023-01-01'),
         },
       });
@@ -296,7 +301,6 @@ describe('RecreationAssetService', () => {
         asset_width: 3.0,
         asset_area: 37.5,
         actual_value: 1500,
-        default_value: 1600,
         installation_date: '2023-01-01',
         updated_by: null,
         updated_at: null,
@@ -350,7 +354,6 @@ describe('RecreationAssetService', () => {
           asset_width: null,
           asset_area: null,
           actual_value: null,
-          default_value: null,
           installation_date: null,
         },
       });
@@ -412,7 +415,6 @@ describe('RecreationAssetService', () => {
           asset_width: null,
           asset_area: null,
           actual_value: null,
-          default_value: null,
           installation_date: null,
         },
       });
@@ -518,7 +520,6 @@ describe('RecreationAssetService', () => {
             asset_code: true,
             asset_comment: true,
             asset_id: true,
-            default_value: true,
             asset_length: true,
             asset_name: true,
             asset_tag: true,
@@ -547,7 +548,6 @@ describe('RecreationAssetService', () => {
             asset_code: 1,
             asset_name: 'Campsite #1 Table',
             actual_value: 1500,
-            default_value: 1600,
           }),
           expect.objectContaining({
             asset_id: 102,
@@ -557,7 +557,6 @@ describe('RecreationAssetService', () => {
             asset_code: 2,
             asset_name: 'Campsite #2 Bench',
             actual_value: 800,
-            default_value: 900,
           }),
         ],
         total: 25,
@@ -580,7 +579,6 @@ describe('RecreationAssetService', () => {
         expect.objectContaining({
           select: {
             actual_value: true,
-            default_value: true,
             asset_area: true,
             asset_code: true,
             asset_comment: true,
@@ -616,7 +614,6 @@ describe('RecreationAssetService', () => {
         expect.objectContaining({
           select: {
             actual_value: true,
-            default_value: true,
             asset_area: true,
             asset_code: true,
             asset_comment: true,
@@ -945,7 +942,6 @@ describe('RecreationAssetService', () => {
           asset_length: 10,
           asset_width: 5,
           asset_area: 50,
-          default_value: 300,
           actual_value: 200,
           installation_date: new Date('2023-05-15'),
         },
