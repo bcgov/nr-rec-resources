@@ -17,6 +17,7 @@ import {
   useGetRepairCodes,
 } from '@/services/hooks/recreation-resource-admin';
 import { AddRepairModal } from './AddRepairModal';
+import { BulkAssetEditModal } from './BulkAssetEditModal';
 import { AssetCard } from './AssetCard';
 import { AssetSummaryCards } from './AssetSummaryCards';
 import { AssetTypeCard } from './AssetTypeCard';
@@ -25,7 +26,10 @@ import { BulkAddCampsitesModal } from './BulkAddCampsitesModal';
 import { computeAssetSummary } from './assetSummary';
 import { groupAssetsByType } from './assetTypeGrouping';
 import { CampsiteCard } from './CampsiteCard';
-import { groupAssetsByCampsite } from './campsiteGrouping';
+import {
+  CAMPSITE_STRUCTURE_CODE,
+  groupAssetsByCampsite,
+} from './campsiteGrouping';
 import assetType from '@shared/assets/icons/asset-type-outline.svg';
 import campingType from '@shared/assets/icons/camping-type.svg';
 import './RecResourceAssetsSection.scss';
@@ -38,6 +42,8 @@ export function RecResourceAssetsSection() {
   const [isAddRepairModalOpen, setIsAddRepairModalOpen] = useState(false);
   const [isBulkAddModalOpen, setIsBulkAddModalOpen] = useState(false);
   const [isBulkAddCampsitesModalOpen, setIsBulkAddCampsitesModalOpen] =
+    useState(false);
+  const [isBulkEditAssetModalOpen, setIsBulkEditAssetModalOpen] =
     useState(false);
 
   const {
@@ -69,6 +75,9 @@ export function RecResourceAssetsSection() {
             Actions
           </Dropdown.Toggle>
           <Dropdown.Menu align="end">
+            <Dropdown.Item onClick={() => setIsBulkEditAssetModalOpen(true)}>
+              Update assets
+            </Dropdown.Item>
             <Dropdown.Item onClick={() => setIsBulkAddModalOpen(true)}>
               Add assets
             </Dropdown.Item>
@@ -264,6 +273,17 @@ export function RecResourceAssetsSection() {
         existingAssets={assets ?? []}
         onCancel={() => setIsBulkAddCampsitesModalOpen(false)}
         onCreate={() => setIsBulkAddCampsitesModalOpen(false)}
+      />
+
+      <BulkAssetEditModal
+        show={isBulkEditAssetModalOpen}
+        rec_resource_id={recResourceId}
+        assetTypes={typeGroups.filter(
+          (group) => group.structureCode !== CAMPSITE_STRUCTURE_CODE,
+        )}
+        assetCodes={assetCodes}
+        campsites={campsiteGroups}
+        onCancel={() => setIsBulkEditAssetModalOpen(false)}
       />
     </Stack>
   );
