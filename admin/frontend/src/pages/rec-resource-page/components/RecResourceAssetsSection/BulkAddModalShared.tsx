@@ -6,11 +6,20 @@
 import type { ReactNode } from 'react';
 import { Form, Modal } from 'react-bootstrap';
 import { CustomButton } from '@/components';
+import {
+  validateLatitude,
+  validateLongitude,
+} from '@/utils/coordinateValidation';
 import './BulkAddModalShared.scss';
 
 // ---------------------------------------------------------------------------
 // Coordinate validation helpers (shared between both bulk modals)
 // ---------------------------------------------------------------------------
+
+export {
+  validateLatitude,
+  validateLongitude,
+} from '@/utils/coordinateValidation';
 
 export interface RowErrors {
   latitude?: string;
@@ -20,22 +29,6 @@ export interface RowErrors {
 export interface CoordinateRow {
   latitude: string;
   longitude: string;
-}
-
-export function validateLatitude(value: string): string | undefined {
-  if (value === '') return undefined;
-  const n = parseFloat(value);
-  if (isNaN(n)) return 'Must be a valid number';
-  if (n < -90 || n > 90) return 'Must be between -90 and 90';
-  return undefined;
-}
-
-export function validateLongitude(value: string): string | undefined {
-  if (value === '') return undefined;
-  const n = parseFloat(value);
-  if (isNaN(n)) return 'Must be a valid number';
-  if (n < -180 || n > 180) return 'Must be between -180 and 180';
-  return undefined;
 }
 
 export function validateCoordinateRow(row: CoordinateRow): RowErrors {
@@ -136,17 +129,19 @@ export function BulkCreationPreview({
 
 interface BulkAssetPreviewRowProps {
   name: string;
+  id?: string;
   showDivider?: boolean;
   children: ReactNode;
 }
 
 export function BulkAssetPreviewRow({
   name,
+  id,
   showDivider = false,
   children,
 }: BulkAssetPreviewRowProps) {
   return (
-    <div className="bulk-modal__item-row">
+    <div id={id} className="bulk-modal__item-row">
       <div className="bulk-modal__item-row-header">
         <span className="bulk-modal__item-row-name">{name}</span>
       </div>

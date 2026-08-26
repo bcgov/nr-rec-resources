@@ -30,7 +30,9 @@ export function groupAssetsByType(
       totalValue: groupAssets.reduce(
         (sum, a) =>
           sum +
-          (a.actual_value ?? codeMap.get(a.asset_code)?.default_value ?? 0),
+          Number(
+            a.actual_value ?? codeMap.get(a.asset_code)?.default_value ?? 0,
+          ),
         0,
       ),
       activeRepairsCount: groupAssets.reduce(

@@ -96,11 +96,12 @@ export function BulkAddCampsitesModal({
     setCampsiteRows((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
-      setRowErrors((errs) => {
-        const updatedErrs = [...errs];
-        updatedErrs[index] = validateCoordinateRow(updated[index]);
-        return updatedErrs;
-      });
+      return updated;
+    });
+    // Clear the error for this field as soon as the user starts editing
+    setRowErrors((errs) => {
+      const updated = [...errs];
+      updated[index] = { ...updated[index], [field]: undefined };
       return updated;
     });
   };
@@ -111,10 +112,6 @@ export function BulkAddCampsitesModal({
     setRowErrors([{}]);
     onCancel();
   };
-
-  const hasErrors = rowErrors.some(
-    (e) => e.latitude !== undefined || e.longitude !== undefined,
-  );
 
   const handleSubmit = async () => {
     // Run full validation before submit
@@ -163,7 +160,7 @@ export function BulkAddCampsitesModal({
         setRowErrors([{}]);
       }}
       submitLabel={`Create ${quantity} campsite${quantity !== 1 ? 's' : ''}`}
-      submitDisabled={quantity < 1 || hasErrors}
+      submitDisabled={quantity < 1}
       isPending={isPending}
       onCancel={handleClose}
       onSubmit={handleSubmit}
@@ -192,6 +189,7 @@ export function BulkAddCampsitesModal({
               <BulkAssetPreviewRow
                 key={i}
                 name={`Campsite ${campsiteNumber}`}
+                id={generateCampsiteId(campsiteNumber, recResourceId)}
                 showDivider={i < campsiteRows.length - 1}
               >
                 <Row className="g-0">

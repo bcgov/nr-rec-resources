@@ -100,7 +100,14 @@ export function AssetCard({
       <Card.Body>
         <div className="asset-card__header">
           <div className="d-flex justify-content-between align-items-center">
-            <span className="asset-card__title">{asset.asset_name}</span>
+            <div className="asset-card__title">
+              <span className="asset-card__title-name">{asset.asset_name}</span>
+              {asset.asset_comment && (
+                <span className="asset-card__comment">
+                  {asset.asset_comment}
+                </span>
+              )}
+            </div>
           </div>
           <div className="asset-card__fields">
             {fields.map((field) => (

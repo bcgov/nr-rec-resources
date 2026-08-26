@@ -28,12 +28,21 @@
 }
 
 .asset-card__title {
-  color: #{$colorGrey};
-  font-weight: var(--typography-font-weights-bold, 700);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+
+  font-family: 'BC Sans';
   font-style: normal;
-  letter-spacing: var(--typography-letter-spacing-0, 0);
-  font-size: 1.2rem; // 19.2px
-  line-height: 1.4375; // 27.6px at this size
+  font-size: 19.2px;
+  line-height: 28px;
+  color: #1a1a1a;
+}
+
+.asset-card__title-name {
+  font-weight: 700;
+  flex: none;
 }
 
 .asset-card__fields {
@@ -47,4 +56,9 @@
 
 .asset-card__field-label {
   font: var(--typography-bold-small-body, 700 0.875rem/1.313rem 'BC Sans');
+}
+
+.asset-card__comment {
+  font-weight: 400;
+  flex: 1;
 }

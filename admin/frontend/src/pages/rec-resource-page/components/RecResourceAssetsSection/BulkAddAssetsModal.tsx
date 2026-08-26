@@ -25,7 +25,7 @@ interface BulkAddAssetsModalProps {
 }
 
 interface AssetRow {
-  asset_name: string;
+  asset_comment: string;
   parent_id: number | null;
   latitude: string;
   longitude: string;
@@ -47,7 +47,7 @@ function generateAssetTag(
 }
 
 const EMPTY_ROW: AssetRow = {
-  asset_name: '',
+  asset_comment: '',
   parent_id: null,
   latitude: '',
   longitude: '',
@@ -118,15 +118,16 @@ export function BulkAddAssetsModal({
     setAssetRows((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
-      if (field === 'latitude' || field === 'longitude') {
-        setRowErrors((errs) => {
-          const updatedErrs = [...errs];
-          updatedErrs[index] = validateCoordinateRow(updated[index]);
-          return updatedErrs;
-        });
-      }
       return updated;
     });
+    // Clear the coordinate error for this field as soon as the user starts editing
+    if (field === 'latitude' || field === 'longitude') {
+      setRowErrors((errs) => {
+        const updated = [...errs];
+        updated[index] = { ...updated[index], [field]: undefined };
+        return updated;
+      });
+    }
   };
 
   const handleClose = () => {
@@ -140,10 +141,6 @@ export function BulkAddAssetsModal({
     setRowErrors([{}]);
     onCancel();
   };
-
-  const hasErrors = rowErrors.some(
-    (e) => e.latitude !== undefined || e.longitude !== undefined,
-  );
 
   const handleSubmit = async () => {
     if (assetCode === '') return;
@@ -172,8 +169,9 @@ export function BulkAddAssetsModal({
       return {
         rec_resource_id: recResourceId,
         asset_code: assetCode as number,
-        asset_name: row.asset_name || defaultName,
+        asset_name: defaultName,
         asset_tag: tag,
+        asset_comment: row.asset_comment || undefined,
         parent_id: (row.parent_id ?? undefined) as number | null | undefined,
         asset_length: assetLength ? parseFloat(assetLength) : undefined,
         asset_width: assetWidth ? parseFloat(assetWidth) : undefined,
@@ -200,7 +198,7 @@ export function BulkAddAssetsModal({
         setRowErrors([{}]);
       }}
       submitLabel={`Create ${quantity} asset${quantity !== 1 ? 's' : ''}`}
-      submitDisabled={assetCode === '' || hasErrors}
+      submitDisabled={assetCode === ''}
       isPending={isPending}
       onCancel={handleClose}
       onSubmit={handleSubmit}
@@ -354,20 +352,27 @@ export function BulkAddAssetsModal({
               <BulkAssetPreviewRow
                 key={i}
                 name={`${displayName} ${rowNumber}`}
+                id={generateAssetTag(
+                  selectedAssetCode?.description ?? String(assetCode),
+                  rowNumber,
+                  recResourceId,
+                )}
                 showDivider={i < assetRows.length - 1}
               >
                 <Row className="gy-2 gx-3">
                   <Col xs={12} sm={5}>
-                    <Form.Group controlId={`bulk-asset-name-${i}`}>
-                      <Form.Label className="small">Asset name</Form.Label>
+                    <Form.Group controlId={`bulk-asset-comment-${i}`}>
+                      <Form.Label className="small">
+                        Asset description
+                      </Form.Label>
                       <Form.Control
                         size="sm"
                         type="text"
-                        value={row.asset_name}
+                        value={row.asset_comment}
                         onChange={(e) =>
-                          updateRow(i, 'asset_name', e.target.value)
+                          updateRow(i, 'asset_comment', e.target.value)
                         }
-                        placeholder={`${displayName} ${rowNumber}`}
+                        placeholder="Optional description"
                       />
                     </Form.Group>
                   </Col>

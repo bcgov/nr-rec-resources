@@ -23,16 +23,18 @@ export function computeAssetSummary(
     total_value: assets.reduce(
       (sum, asset) =>
         sum +
-        (asset.actual_value ??
-          codeMap.get(asset.asset_code)?.default_value ??
-          0),
+        Number(
+          asset.actual_value ??
+            codeMap.get(asset.asset_code)?.default_value ??
+            0,
+        ),
       0,
     ),
     outstanding_repairs: repairs.filter(
       (repair) => !repair.repair_completed_date,
     ).length,
     spent_to_date: repairs.reduce(
-      (sum, repair) => sum + (repair.actual_repair_cost ?? 0),
+      (sum, repair) => sum + Number(repair.actual_repair_cost ?? 0),
       0,
     ),
     last_inspection_date: lastInspectionDate,
