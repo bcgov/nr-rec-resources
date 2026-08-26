@@ -48,9 +48,12 @@ export function BulkAssetEditModal({
     hasArea: false,
   });
 
+  const END_DIGITS_REGEX = /\d+$/;
+
   const getEndNumberOrString = (text: string | null) => {
-    const match = text && text.match(/\d+$/);
-    return match ? match[0] : text;
+    if (!text) return text;
+    const match = END_DIGITS_REGEX.exec(text);
+    return match?.[0] ?? text;
   };
 
   const showCampsideNumber = (id: number) => {
@@ -111,57 +114,50 @@ export function BulkAssetEditModal({
     setSelectedGroup('');
   };
 
-  const handleContinue = () => {
-    if (assetTypeGroup) {
-      if (step === 2) {
-        let update_fields = {};
-        if (editFields.length !== '') {
-          update_fields = {
-            ...update_fields,
-            asset_length: Number(editFields.length),
-          };
+  const getUpdateFields = (fields: typeof editFields) => {
+    const fieldMapping: Record<string, keyof typeof fields> = {
+      asset_length: 'length',
+      asset_width: 'width',
+      asset_area: 'area',
+      actual_value: 'actualValue',
+      parent_id: 'campsiteId',
+    };
+
+    return Object.entries(fieldMapping).reduce(
+      (acc, [apiKey, formKey]) => {
+        const val = fields[formKey];
+        if (val !== '') {
+          acc[apiKey] = Number(val);
         }
-        if (editFields.width !== '') {
-          update_fields = {
-            ...update_fields,
-            asset_width: Number(editFields.width),
-          };
-        }
-        if (editFields.area !== '') {
-          update_fields = {
-            ...update_fields,
-            asset_area: Number(editFields.area),
-          };
-        }
-        if (editFields.actualValue !== '') {
-          update_fields = {
-            ...update_fields,
-            actual_value: Number(editFields.actualValue),
-          };
-        }
-        if (editFields.campsiteId !== '') {
-          update_fields = {
-            ...update_fields,
-            parent_id: Number(editFields.campsiteId),
-          };
-        }
-        const bulkUpdateObj = {
-          rec_resource_id,
-          asset_ids: selectedAssetIds,
-          update_fields,
-        };
-        mutate({
-          recreationAssetBulkUpdateDto: bulkUpdateObj,
-        });
-        setStep(0);
-        setSelectedAssetIds([]);
-        clearFields();
-        onCancel();
-        return;
-      }
-      setStep(step + 1);
-    }
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   };
+
+  const handleContinue = () => {
+    if (!assetTypeGroup) return;
+
+    if (step !== 2) {
+      setStep(step + 1);
+      return;
+    }
+
+    const update_fields = getUpdateFields(editFields);
+
+    const bulkUpdateObj = {
+      rec_resource_id,
+      asset_ids: selectedAssetIds,
+      update_fields,
+    };
+
+    mutate({ recreationAssetBulkUpdateDto: bulkUpdateObj });
+    setStep(0);
+    setSelectedAssetIds([]);
+    clearFields();
+    onCancel();
+  };
+
   const handleBackCancel = () => {
     clearFields();
     if (step === 0) {
@@ -250,6 +246,7 @@ export function BulkAssetEditModal({
             {assetTypeGroup?.assets.length})
           </h3>
           <button
+            type="button"
             className="btn btn-link p-0 text-decoration-underline fs-6 fw-normal"
             onClick={toggleSelectAll}
           >
