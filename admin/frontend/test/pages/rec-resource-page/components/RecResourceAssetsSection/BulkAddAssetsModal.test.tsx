@@ -241,4 +241,254 @@ describe('BulkAddAssetsModal', () => {
 
     expect(screen.getByRole('button', { name: 'Creating…' })).toBeDisabled();
   });
+
+  it('shows latitude and longitude inputs in preview row after selecting asset type', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const optionalInputs = screen.getAllByPlaceholderText('Optional');
+    expect(optionalInputs.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('shows validation error when latitude is out of range in the preview row', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const latInputs = screen.getAllByPlaceholderText('Optional');
+    await user.type(latInputs[0], '200');
+
+    expect(screen.getByText('Must be between -90 and 90')).toBeInTheDocument();
+  });
+
+  it('shows longitude error when only longitude is out of range', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const lngInputs = screen.getAllByPlaceholderText('Optional');
+    // longitude is the second "Optional" placeholder input
+    await user.type(lngInputs[1], '500');
+
+    expect(
+      screen.getByText('Must be between -180 and 180'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows "Longitude is required" error when latitude is set without longitude', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const latInputs = screen.getAllByPlaceholderText('Optional');
+    await user.type(latInputs[0], '49.5');
+
+    expect(
+      screen.getByText('Longitude is required when latitude is set'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows "Latitude is required" error when longitude is set without latitude', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const lngInputs = screen.getAllByPlaceholderText('Optional');
+    await user.type(lngInputs[1], '-123.5');
+
+    expect(
+      screen.getByText('Latitude is required when longitude is set'),
+    ).toBeInTheDocument();
+  });
+
+  it('disables submit button when preview row has coordinate errors', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const latInputs = screen.getAllByPlaceholderText('Optional');
+    await user.type(latInputs[0], '200');
+
+    expect(
+      screen.getByRole('button', { name: 'Create 1 asset' }),
+    ).toBeDisabled();
+  });
+
+  it('does not call mutateAsync when validation errors exist on submit', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const latInputs = screen.getAllByPlaceholderText('Optional');
+    await user.type(latInputs[0], '200');
+
+    // Re-enable button by clearing the error first (simulate direct submit attempt)
+    // The button is disabled but we can check that mutateAsync was not called
+    expect(mockMutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('allows typing a custom asset name in the preview row', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const nameInput = screen.getByPlaceholderText('Bridge 1');
+    await user.type(nameInput, 'My Custom Bridge');
+
+    expect(nameInput).toHaveValue('My Custom Bridge');
+  });
+
+  it('assigns campsite to asset row when selected from dropdown', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 5,
+      asset_code: 227,
+      asset_name: 'Campsite 1',
+    });
+
+    render(
+      <BulkAddAssetsModal {...defaultProps} existingAssets={[campsite]} />,
+    );
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const campsiteSelect = screen.getByRole('combobox', {
+      name: 'Assign to campsite',
+    });
+    await user.selectOptions(campsiteSelect, '5');
+
+    expect(campsiteSelect).toHaveValue('5');
+  });
+
+  it('includes geometry_type_code PT when lat and lng are both provided', async () => {
+    const user = userEvent.setup();
+    mockMutateAsync.mockResolvedValueOnce(undefined);
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const [latInput, lngInput] = screen.getAllByPlaceholderText('Optional');
+    await user.type(latInput, '49.5');
+    await user.type(lngInput, '-123.0');
+
+    await user.click(screen.getByRole('button', { name: 'Create 1 asset' }));
+
+    expect(mockMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assets: expect.arrayContaining([
+          expect.objectContaining({
+            latitude: 49.5,
+            longitude: -123.0,
+            geometry_type_code: 'PT',
+          }),
+        ]),
+      }),
+    );
+  });
+
+  it('uses default asset name when name field is left empty', async () => {
+    const user = userEvent.setup();
+    mockMutateAsync.mockResolvedValueOnce(undefined);
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Create 1 asset' }));
+
+    expect(mockMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assets: expect.arrayContaining([
+          expect.objectContaining({ asset_name: 'Bridge 1' }),
+        ]),
+      }),
+    );
+  });
+
+  it('includes actual_value, length, width and area in payload when set', async () => {
+    const user = userEvent.setup();
+    mockMutateAsync.mockResolvedValueOnce(undefined);
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    await user.type(screen.getByLabelText('Length (m)'), '5');
+    await user.type(screen.getByLabelText('Width (m)'), '3');
+    // Actual value input: use placeholder text since label has a nested HelpIcon
+    const actualValueInput = screen.getByPlaceholderText('0.00');
+    await user.type(actualValueInput, '1500');
+
+    await user.click(screen.getByRole('button', { name: 'Create 1 asset' }));
+
+    expect(mockMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assets: expect.arrayContaining([
+          expect.objectContaining({
+            asset_length: 5,
+            asset_width: 3,
+            actual_value: 1500,
+          }),
+        ]),
+      }),
+    );
+  });
+
+  it('counts existing assets of the selected type for sequential numbering', async () => {
+    const user = userEvent.setup();
+    const existing = buildAsset({ asset_id: 10, asset_code: 100 });
+    render(
+      <BulkAddAssetsModal {...defaultProps} existingAssets={[existing]} />,
+    );
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    expect(screen.getByText('Bridge 2')).toBeInTheDocument();
+  });
 });

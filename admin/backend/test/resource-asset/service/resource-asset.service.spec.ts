@@ -1566,6 +1566,16 @@ describe('RecreationAssetService', () => {
     });
   });
 
+  describe('findRepairsByAssetId', () => {
+    it('should throw NotFoundException if asset does not exist', async () => {
+      prismaMock.recreation_asset.findUnique.mockResolvedValue(null);
+
+      await expect(service.findRepairsByAssetId(99)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
   describe('bulkInsertRepairs', () => {
     it('should perform a bulk insert for all assets in the DTO', async () => {
       prismaMock.recreation_asset.count.mockResolvedValue(2); // Assets exist validation passes
@@ -1644,6 +1654,101 @@ describe('RecreationAssetService', () => {
           },
         ],
       });
+    });
+
+    it('should return early without inserting when all changes produce empty asset_ids', async () => {
+      prismaMock.recreation_asset.count.mockResolvedValue(0);
+
+      const dto = {
+        recreation_remed_repair_code: 'BULK_REPAIR',
+        completed_date: '2023-11-15',
+        changes: [],
+      };
+
+      await service.bulkInsertRepairs(dto as any);
+
+      expect(
+        prismaMock.recreation_asset_repair.createMany,
+      ).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findAllAssets - partial value range filters', () => {
+    it('should apply only min_actual_value when max_actual_value is not provided', async () => {
+      prismaMock.$transaction.mockResolvedValue([[], 0]);
+      prismaMock.$queryRawTyped.mockResolvedValue([]);
+
+      const query: FindAllAssetsQueryDto = { min_actual_value: 200 };
+      await service.findAllAssets(query);
+
+      expect(prismaMock.recreation_asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            actual_value: { gte: 200 },
+          },
+        }),
+      );
+    });
+
+    it('should apply only max_actual_value when min_actual_value is not provided', async () => {
+      prismaMock.$transaction.mockResolvedValue([[], 0]);
+      prismaMock.$queryRawTyped.mockResolvedValue([]);
+
+      const query: FindAllAssetsQueryDto = { max_actual_value: 1000 };
+      await service.findAllAssets(query);
+
+      expect(prismaMock.recreation_asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            actual_value: { lte: 1000 },
+          },
+        }),
+      );
+    });
+  });
+
+  describe('bulkCreateAssets - geometry upsert with missing record', () => {
+    it('should skip geometry upsert when created record is not found by asset_tag', async () => {
+      prismaMock.recreation_asset_code.findMany.mockResolvedValue([
+        { asset_code: 1 },
+      ] as any);
+      prismaMock.recreation_asset.createMany.mockResolvedValue({ count: 1 });
+      // findMany returns an asset with a different tag — simulates a mismatch
+      prismaMock.recreation_asset.findMany.mockResolvedValue([
+        {
+          asset_id: 99n,
+          parent_id: null,
+          asset_tag: 'different-tag',
+          rec_resource_id: 'REC-1',
+          asset_code: 1,
+          asset_name: null,
+          asset_comment: null,
+          legacy_structure_id: null,
+          asset_length: null,
+          asset_width: null,
+          asset_area: null,
+          actual_value: null,
+          installation_date: null,
+        },
+      ] as any);
+
+      const dto = {
+        assets: [
+          {
+            asset_code: 1,
+            rec_resource_id: 'REC-1',
+            asset_tag: 'my-tag',
+            geometry_type_code: 'PT',
+            latitude: 49.1,
+            longitude: -123.1,
+          },
+        ],
+      };
+
+      // Should complete without throwing even though record is not found by tag
+      await expect(service.bulkCreateAssets(dto as any)).resolves.toBeDefined();
+      // upsertAssetGeometry ($executeRaw) should NOT have been called
+      expect(prismaMock.$executeRaw).not.toHaveBeenCalled();
     });
   });
 });

@@ -11,6 +11,8 @@ import {
   BulkCreationPreview,
   BulkAssetPreviewRow,
   NumberStepperInput,
+  validateCoordinateRow,
+  type RowErrors,
 } from './BulkAddModalShared';
 
 interface BulkAddAssetsModalProps {
@@ -27,40 +29,6 @@ interface AssetRow {
   parent_id: number | null;
   latitude: string;
   longitude: string;
-}
-
-interface RowErrors {
-  latitude?: string;
-  longitude?: string;
-}
-
-function validateLatitude(value: string): string | undefined {
-  if (value === '') return undefined;
-  const n = parseFloat(value);
-  if (isNaN(n)) return 'Must be a valid number';
-  if (n < -90 || n > 90) return 'Must be between -90 and 90';
-  return undefined;
-}
-
-function validateLongitude(value: string): string | undefined {
-  if (value === '') return undefined;
-  const n = parseFloat(value);
-  if (isNaN(n)) return 'Must be a valid number';
-  if (n < -180 || n > 180) return 'Must be between -180 and 180';
-  return undefined;
-}
-
-function validateRow(row: AssetRow): RowErrors {
-  const errors: RowErrors = {};
-  const latError = validateLatitude(row.latitude);
-  const lngError = validateLongitude(row.longitude);
-  if (latError) errors.latitude = latError;
-  if (lngError) errors.longitude = lngError;
-  if (row.latitude !== '' && row.longitude === '')
-    errors.longitude = 'Longitude is required when latitude is set';
-  if (row.longitude !== '' && row.latitude === '')
-    errors.latitude = 'Latitude is required when longitude is set';
-  return errors;
 }
 
 function generateAssetTag(
@@ -153,7 +121,7 @@ export function BulkAddAssetsModal({
       if (field === 'latitude' || field === 'longitude') {
         setRowErrors((errs) => {
           const updatedErrs = [...errs];
-          updatedErrs[index] = validateRow(updated[index]);
+          updatedErrs[index] = validateCoordinateRow(updated[index]);
           return updatedErrs;
         });
       }
@@ -181,7 +149,7 @@ export function BulkAddAssetsModal({
     if (assetCode === '') return;
 
     // Run full validation before submit
-    const allErrors = assetRows.map(validateRow);
+    const allErrors = assetRows.map(validateCoordinateRow);
     setRowErrors(allErrors);
     if (
       allErrors.some(

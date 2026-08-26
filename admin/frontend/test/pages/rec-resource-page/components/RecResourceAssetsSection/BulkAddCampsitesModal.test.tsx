@@ -166,4 +166,112 @@ describe('BulkAddCampsitesModal', () => {
 
     expect(screen.getByRole('button', { name: 'Creating…' })).toBeDisabled();
   });
+
+  it('shows latitude validation error when latitude is out of range', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddCampsitesModal {...defaultProps} />);
+
+    const latInput = screen.getByPlaceholderText('Optional (e.g. 49.94)');
+    await user.type(latInput, '200');
+
+    expect(screen.getByText('Must be between -90 and 90')).toBeInTheDocument();
+  });
+
+  it('shows longitude validation error when longitude is out of range', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddCampsitesModal {...defaultProps} />);
+
+    const lngInput = screen.getByPlaceholderText('Optional (e.g. -123.04)');
+    await user.type(lngInput, '500');
+
+    expect(
+      screen.getByText('Must be between -180 and 180'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows "Longitude is required" error when latitude is set but longitude is empty', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddCampsitesModal {...defaultProps} />);
+
+    const latInput = screen.getByPlaceholderText('Optional (e.g. 49.94)');
+    await user.type(latInput, '49.5');
+
+    expect(
+      screen.getByText('Longitude is required when latitude is set'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows "Latitude is required" error when longitude is set but latitude is empty', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddCampsitesModal {...defaultProps} />);
+
+    const lngInput = screen.getByPlaceholderText('Optional (e.g. -123.04)');
+    await user.type(lngInput, '-123.0');
+
+    expect(
+      screen.getByText('Latitude is required when longitude is set'),
+    ).toBeInTheDocument();
+  });
+
+  it('does not submit when coordinate validation errors are present', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddCampsitesModal {...defaultProps} />);
+
+    const latInput = screen.getByPlaceholderText('Optional (e.g. 49.94)');
+    await user.type(latInput, '200');
+
+    await user.click(screen.getByRole('button', { name: 'Create 1 campsite' }));
+
+    expect(mockMutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('decrements quantity back to 1 and updates label to singular', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddCampsitesModal {...defaultProps} />);
+
+    await user.click(screen.getByRole('button', { name: 'Increase quantity' }));
+    expect(screen.getByText('Creating 2 campsites')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Decrease quantity' }));
+    expect(
+      screen.getByRole('button', { name: 'Create 1 campsite' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows multiple preview rows matching the quantity', async () => {
+    const user = userEvent.setup();
+    render(<BulkAddCampsitesModal {...defaultProps} />);
+
+    await user.click(screen.getByRole('button', { name: 'Increase quantity' }));
+    await user.click(screen.getByRole('button', { name: 'Increase quantity' }));
+
+    expect(screen.getByText('Campsite 1')).toBeInTheDocument();
+    expect(screen.getByText('Campsite 2')).toBeInTheDocument();
+    expect(screen.getByText('Campsite 3')).toBeInTheDocument();
+  });
+
+  it('includes lat/lng and geometry_type_code PT in payload when coordinates are valid', async () => {
+    const user = userEvent.setup();
+    mockMutateAsync.mockResolvedValueOnce(undefined);
+    render(<BulkAddCampsitesModal {...defaultProps} />);
+
+    const latInput = screen.getByPlaceholderText('Optional (e.g. 49.94)');
+    const lngInput = screen.getByPlaceholderText('Optional (e.g. -123.04)');
+    await user.type(latInput, '49.5');
+    await user.type(lngInput, '-123.0');
+
+    await user.click(screen.getByRole('button', { name: 'Create 1 campsite' }));
+
+    expect(mockMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assets: expect.arrayContaining([
+          expect.objectContaining({
+            latitude: 49.5,
+            longitude: -123.0,
+            geometry_type_code: 'PT',
+          }),
+        ]),
+      }),
+    );
+  });
 });

@@ -265,4 +265,102 @@ describe('RecResourceAssetsSection', () => {
       screen.getByRole('heading', { name: 'Add campsites' }),
     ).toBeInTheDocument();
   });
+
+  it('renders child assets under the campsite card in campsite view', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+      parent_id: null,
+    });
+    const child = buildAsset({
+      asset_id: 20,
+      asset_code: 100,
+      asset_name: 'Child Asset',
+      parent_id: 10,
+    });
+
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+
+    // Open the campsite accordion
+    await user.click(screen.getByRole('button', { name: /Campsite A/ }));
+
+    expect(screen.getByText('Child Asset')).toBeInTheDocument();
+  });
+
+  it('shows total value combining campsite and child assets in campsite view', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+      actual_value: 1000,
+      parent_id: null,
+    });
+    const child = buildAsset({
+      asset_id: 20,
+      asset_code: 100,
+      asset_name: 'Child Asset',
+      actual_value: 500,
+      parent_id: 10,
+    });
+
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+
+    // The CampsiteCard header shows the total value directly in the accordion toggle
+    expect(
+      screen.getByRole('button', { name: /Campsite A/ }),
+    ).toBeInTheDocument();
+    // Total value (1000 + 500) should appear somewhere in the rendered output
+    expect(screen.getAllByText(/1,500/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('closes the Add assets modal via cancel', async () => {
+    const user = userEvent.setup();
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByRole('button', { name: /Actions/ }));
+    await user.click(screen.getByRole('button', { name: 'Add assets' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Add assets' }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(
+      screen.queryByRole('heading', { name: 'Add assets' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('closes the Add campsites modal via cancel', async () => {
+    const user = userEvent.setup();
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByRole('button', { name: /Actions/ }));
+    await user.click(screen.getByRole('button', { name: 'Add campsites' }));
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(
+      screen.queryByRole('heading', { name: 'Add campsites' }),
+    ).not.toBeInTheDocument();
+  });
 });

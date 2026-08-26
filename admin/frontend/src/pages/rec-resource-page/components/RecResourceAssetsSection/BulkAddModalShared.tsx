@@ -9,6 +9,49 @@ import { CustomButton } from '@/components';
 import './BulkAddModalShared.scss';
 
 // ---------------------------------------------------------------------------
+// Coordinate validation helpers (shared between both bulk modals)
+// ---------------------------------------------------------------------------
+
+export interface RowErrors {
+  latitude?: string;
+  longitude?: string;
+}
+
+export interface CoordinateRow {
+  latitude: string;
+  longitude: string;
+}
+
+export function validateLatitude(value: string): string | undefined {
+  if (value === '') return undefined;
+  const n = parseFloat(value);
+  if (isNaN(n)) return 'Must be a valid number';
+  if (n < -90 || n > 90) return 'Must be between -90 and 90';
+  return undefined;
+}
+
+export function validateLongitude(value: string): string | undefined {
+  if (value === '') return undefined;
+  const n = parseFloat(value);
+  if (isNaN(n)) return 'Must be a valid number';
+  if (n < -180 || n > 180) return 'Must be between -180 and 180';
+  return undefined;
+}
+
+export function validateCoordinateRow(row: CoordinateRow): RowErrors {
+  const errors: RowErrors = {};
+  const latError = validateLatitude(row.latitude);
+  const lngError = validateLongitude(row.longitude);
+  if (latError) errors.latitude = latError;
+  if (lngError) errors.longitude = lngError;
+  if (row.latitude !== '' && row.longitude === '')
+    errors.longitude = 'Longitude is required when latitude is set';
+  if (row.longitude !== '' && row.latitude === '')
+    errors.latitude = 'Latitude is required when longitude is set';
+  return errors;
+}
+
+// ---------------------------------------------------------------------------
 // NumberStepperInput  (− / value / + stepper)
 // ---------------------------------------------------------------------------
 

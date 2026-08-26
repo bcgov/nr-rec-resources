@@ -8,6 +8,9 @@ import {
   BulkCreationPreview,
   BulkAssetPreviewRow,
   NumberStepperInput,
+  validateCoordinateRow,
+  type RowErrors,
+  type CoordinateRow,
 } from './BulkAddModalShared';
 
 interface BulkAddCampsitesModalProps {
@@ -18,44 +21,7 @@ interface BulkAddCampsitesModalProps {
   onCreate: () => void;
 }
 
-interface CampsiteRow {
-  latitude: string;
-  longitude: string;
-}
-
-interface RowErrors {
-  latitude?: string;
-  longitude?: string;
-}
-
-function validateLatitude(value: string): string | undefined {
-  if (value === '') return undefined;
-  const n = parseFloat(value);
-  if (isNaN(n)) return 'Must be a valid number';
-  if (n < -90 || n > 90) return 'Must be between -90 and 90';
-  return undefined;
-}
-
-function validateLongitude(value: string): string | undefined {
-  if (value === '') return undefined;
-  const n = parseFloat(value);
-  if (isNaN(n)) return 'Must be a valid number';
-  if (n < -180 || n > 180) return 'Must be between -180 and 180';
-  return undefined;
-}
-
-function validateRow(row: CampsiteRow): RowErrors {
-  const errors: RowErrors = {};
-  const latError = validateLatitude(row.latitude);
-  const lngError = validateLongitude(row.longitude);
-  if (latError) errors.latitude = latError;
-  if (lngError) errors.longitude = lngError;
-  if (row.latitude !== '' && row.longitude === '')
-    errors.longitude = 'Longitude is required when latitude is set';
-  if (row.longitude !== '' && row.latitude === '')
-    errors.latitude = 'Latitude is required when longitude is set';
-  return errors;
-}
+type CampsiteRow = CoordinateRow;
 
 /**
  * Generates a campsite identifier.
@@ -132,7 +98,7 @@ export function BulkAddCampsitesModal({
       updated[index] = { ...updated[index], [field]: value };
       setRowErrors((errs) => {
         const updatedErrs = [...errs];
-        updatedErrs[index] = validateRow(updated[index]);
+        updatedErrs[index] = validateCoordinateRow(updated[index]);
         return updatedErrs;
       });
       return updated;
@@ -152,7 +118,7 @@ export function BulkAddCampsitesModal({
 
   const handleSubmit = async () => {
     // Run full validation before submit
-    const allErrors = campsiteRows.map(validateRow);
+    const allErrors = campsiteRows.map(validateCoordinateRow);
     setRowErrors(allErrors);
     if (
       allErrors.some(
