@@ -5,7 +5,7 @@ import { AssetTypeGroup } from './assetTypeGrouping';
 import { Checkbox } from '@bcgov/design-system-react-components';
 import { useState } from 'react';
 import { CampsiteGroup } from './campsiteGrouping';
-import { useBulkUpdateAssets } from '@/services/hooks/recreation-resource-admin/useBulkUpdateAssets';
+import { useBulkUpdateAssets } from '@/services/hooks/recreation-resource-admin';
 import { AssetCode } from './types';
 
 interface BulkAssetEditModalProps {

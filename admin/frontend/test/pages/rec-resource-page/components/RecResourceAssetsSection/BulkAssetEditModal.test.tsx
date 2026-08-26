@@ -85,11 +85,57 @@ describe('BulkAssetEditModal', () => {
     },
   ];
 
+  const sampleAssetCodes = [
+    {
+      asset_code: 1,
+      description: 'Table - Log',
+      has_length: false,
+      has_width: false,
+      has_area: false,
+    },
+    {
+      asset_code: 2,
+      description: 'Table - Wheelchair Accessible',
+      has_length: false,
+      has_width: false,
+      has_area: false,
+    },
+    {
+      asset_code: 5,
+      description: 'Toilet - Wood',
+      has_length: false,
+      has_width: false,
+      has_area: false,
+    },
+    {
+      asset_code: 6,
+      description: 'Toilet - Wheelchair Accessible',
+      has_length: false,
+      has_width: false,
+      has_area: false,
+    },
+    {
+      asset_code: 11,
+      description: 'Fire Ring',
+      has_length: false,
+      has_width: false,
+      has_area: false,
+    },
+    {
+      asset_code: 16,
+      description: 'Litter Barrel - 45 Gallon',
+      has_length: false,
+      has_width: false,
+      has_area: false,
+    },
+  ];
+
   const defaultProps = {
     show: true,
     rec_resource_id: 'rec-123',
     assetTypes: sampleAssetTypes as any,
     campsites: sampleCampsites as any,
+    assetCodes: sampleAssetCodes as any,
     onCancel: mockOnCancel,
   };
 

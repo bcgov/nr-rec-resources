@@ -5,6 +5,7 @@ import type {
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import {
   useBulkInsertAssetRepairs,
+  useBulkUpdateAssets,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -30,6 +31,7 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
   useGetAssetsByRecResourceId: vi.fn(),
   useGetRecreationResourceById: vi.fn(),
   useGetRepairCodes: vi.fn(),
+  useBulkUpdateAssets: vi.fn(),
   useCreateBulkAssets: vi.fn().mockReturnValue({
     mutateAsync: vi.fn(),
     isPending: false,
@@ -81,6 +83,10 @@ describe('RecResourceAssetsSection', () => {
       data: undefined,
     } as any);
     vi.mocked(useBulkInsertAssetRepairs).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as any);
+    vi.mocked(useBulkUpdateAssets).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     } as any);
