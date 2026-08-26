@@ -173,6 +173,7 @@ describe('BulkAddCampsitesModal', () => {
 
     const latInput = screen.getByPlaceholderText('Optional (e.g. 49.94)');
     await user.type(latInput, '200');
+    await user.click(screen.getByRole('button', { name: 'Create 1 campsite' }));
 
     expect(screen.getByText('Must be between -90 and 90')).toBeInTheDocument();
   });
@@ -183,6 +184,7 @@ describe('BulkAddCampsitesModal', () => {
 
     const lngInput = screen.getByPlaceholderText('Optional (e.g. -123.04)');
     await user.type(lngInput, '500');
+    await user.click(screen.getByRole('button', { name: 'Create 1 campsite' }));
 
     expect(
       screen.getByText('Must be between -180 and 180'),
@@ -195,6 +197,7 @@ describe('BulkAddCampsitesModal', () => {
 
     const latInput = screen.getByPlaceholderText('Optional (e.g. 49.94)');
     await user.type(latInput, '49.5');
+    await user.click(screen.getByRole('button', { name: 'Create 1 campsite' }));
 
     expect(
       screen.getByText('Longitude is required when latitude is set'),
@@ -207,6 +210,7 @@ describe('BulkAddCampsitesModal', () => {
 
     const lngInput = screen.getByPlaceholderText('Optional (e.g. -123.04)');
     await user.type(lngInput, '-123.0');
+    await user.click(screen.getByRole('button', { name: 'Create 1 campsite' }));
 
     expect(
       screen.getByText('Latitude is required when longitude is set'),
