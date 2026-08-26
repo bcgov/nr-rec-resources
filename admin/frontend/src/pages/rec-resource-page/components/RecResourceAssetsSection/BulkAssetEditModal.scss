@@ -49,6 +49,9 @@ input[type='number'] {
   .input-group-text {
     border: none;
     background-color: transparent;
+    &:disabled {
+      background-color: $colorGreyLight;
+    }
   }
 
   .form-control:focus {

@@ -73,6 +73,9 @@ export function RecResourceAssetsSection() {
             Actions
           </Dropdown.Toggle>
           <Dropdown.Menu align="end">
+            <Dropdown.Item onClick={() => setIsBulkEditAssetModalOpen(true)}>
+              Update assets
+            </Dropdown.Item>
             <Dropdown.Item onClick={() => setIsBulkAddModalOpen(true)}>
               Add assets
             </Dropdown.Item>
@@ -268,6 +271,7 @@ export function RecResourceAssetsSection() {
         assetTypes={typeGroups.filter(
           (group) => group.structureCode !== CAMPSITE_STRUCTURE_CODE,
         )}
+        assetCodes={assetCodes}
         campsites={campsiteGroups}
         onCancel={() => setIsBulkEditAssetModalOpen(false)}
       />

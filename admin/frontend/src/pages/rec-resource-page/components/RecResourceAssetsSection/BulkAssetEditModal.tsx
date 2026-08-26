@@ -6,12 +6,14 @@ import { Checkbox } from '@bcgov/design-system-react-components';
 import { useState } from 'react';
 import { CampsiteGroup } from './campsiteGrouping';
 import { useBulkUpdateAssets } from '@/services/hooks/recreation-resource-admin/useBulkUpdateAssets';
+import { AssetCode } from './types';
 
 interface BulkAssetEditModalProps {
   show: boolean;
   rec_resource_id: string;
   assetTypes: AssetTypeGroup[];
   campsites: CampsiteGroup[];
+  assetCodes: AssetCode[];
   onCancel: () => void;
 }
 
@@ -20,6 +22,7 @@ export function BulkAssetEditModal({
   rec_resource_id,
   assetTypes,
   campsites,
+  assetCodes,
   onCancel,
 }: BulkAssetEditModalProps) {
   const { mutate } = useBulkUpdateAssets();
@@ -37,6 +40,12 @@ export function BulkAssetEditModal({
     area: '',
     actualValue: '',
     campsiteId: '',
+  });
+
+  const [enabledFields, setEnabledFields] = useState({
+    hasWidth: false,
+    hasLength: false,
+    hasArea: false,
   });
 
   const getEndNumberOrString = (text: string | null) => {
@@ -73,9 +82,25 @@ export function BulkAssetEditModal({
     setAssetTypeGroup(
       assetTypes.find((group) => group.structureCode === Number(value)),
     );
+    const selectedStructureCode = assetCodes.find(
+      (s) => s.asset_code === Number(value),
+    );
+    if (selectedStructureCode) {
+      setEnabledFields({
+        hasWidth: selectedStructureCode.has_width
+          ? selectedStructureCode.has_width
+          : false,
+        hasLength: selectedStructureCode.has_length
+          ? selectedStructureCode.has_length
+          : false,
+        hasArea: selectedStructureCode.has_area
+          ? selectedStructureCode.has_area
+          : false,
+      });
+    }
   };
 
-  const cleanFields = () => {
+  const clearFields = () => {
     setEditFields({
       length: '',
       width: '',
@@ -130,7 +155,7 @@ export function BulkAssetEditModal({
         });
         setStep(0);
         setSelectedAssetIds([]);
-        cleanFields();
+        clearFields();
         onCancel();
         return;
       }
@@ -138,8 +163,8 @@ export function BulkAssetEditModal({
     }
   };
   const handleBackCancel = () => {
+    clearFields();
     if (step === 0) {
-      cleanFields();
       onCancel();
     } else {
       setStep(step - 1);
@@ -187,7 +212,7 @@ export function BulkAssetEditModal({
   const clearAndCancel = () => {
     setStep(0);
     setSelectedAssetIds([]);
-    cleanFields();
+    clearFields();
     onCancel();
   };
 
@@ -276,8 +301,9 @@ export function BulkAssetEditModal({
               <InputGroup className="custom-input-group mt-auto">
                 <Form.Control
                   type="number"
-                  placeholder="0"
+                  placeholder={enabledFields.hasLength ? '0' : '-'}
                   value={editFields.length}
+                  disabled={!enabledFields.hasLength}
                   onChange={(e) => handleFieldChange('length', e.target.value)}
                 />
                 <InputGroup.Text>m</InputGroup.Text>
@@ -295,8 +321,9 @@ export function BulkAssetEditModal({
               <InputGroup className="custom-input-group mt-auto">
                 <Form.Control
                   type="number"
-                  placeholder="0"
+                  placeholder={enabledFields.hasWidth ? '0' : '-'}
                   value={editFields.width}
+                  disabled={!enabledFields.hasWidth}
                   onChange={(e) => handleFieldChange('width', e.target.value)}
                 />
                 <InputGroup.Text>m</InputGroup.Text>
@@ -314,8 +341,9 @@ export function BulkAssetEditModal({
               <InputGroup className="custom-input-group mt-auto">
                 <Form.Control
                   type="number"
-                  placeholder="0"
+                  placeholder={enabledFields.hasArea ? '0' : '-'}
                   value={editFields.area}
+                  disabled={!enabledFields.hasArea}
                   onChange={(e) => handleFieldChange('area', e.target.value)}
                 />
                 <InputGroup.Text>m²</InputGroup.Text>
