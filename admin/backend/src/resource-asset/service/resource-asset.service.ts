@@ -410,6 +410,7 @@ export class RecreationAssetService {
 
     return {
       status: 'success',
+      rec_resource_id: dto.rec_resource_id,
       updated_count: result.count,
       updated_asset_ids: uniqueIds,
     };

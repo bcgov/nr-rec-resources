@@ -258,21 +258,3 @@ export class RecreationAssetBulkRepairDto {
   @Type(() => RepairChange)
   changes: RepairChange[];
 }
-
-export class BulkAssetUpdateResponseDto {
-  @ApiProperty({
-    description: 'Status response from Bulk Update operation',
-    example: 'success',
-  })
-  status: string;
-  @ApiProperty({
-    description: 'Number of updated rows',
-    example: 2,
-  })
-  updated_count: number;
-  @ApiProperty({
-    description: 'List of updated assets',
-    example: 'success',
-  })
-  updated_asset_ids: number[];
-}

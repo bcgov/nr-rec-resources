@@ -236,6 +236,7 @@ describe('Recreation Asset DTOs', () => {
   describe('RecreationAssetBulkUpdateDto', () => {
     it('should validate a valid bulk update payload', async () => {
       const validBulkPayload = {
+        rec_resource_id: 'REC001',
         asset_ids: [101, 102, 103],
         update_fields: {
           asset_name: 'Bulk Updated Name',
@@ -252,6 +253,7 @@ describe('Recreation Asset DTOs', () => {
 
     it('should fail when asset_ids is not an array or contains non-integer items', async () => {
       const invalidIdsPayload = {
+        rec_resource_id: 'REC001',
         asset_ids: ['abc', 102],
         update_fields: { asset_name: 'Name' },
       };
@@ -267,6 +269,7 @@ describe('Recreation Asset DTOs', () => {
 
     it('should fail when asset_ids is empty or omitted', async () => {
       const emptyIdsPayload = {
+        rec_resource_id: 'REC001',
         asset_ids: [],
         update_fields: { asset_name: 'Name' },
       };
@@ -282,6 +285,7 @@ describe('Recreation Asset DTOs', () => {
 
     it('should fail when update_fields is missing or invalid object', async () => {
       const invalidFieldsPayload = {
+        rec_resource_id: 'REC001',
         asset_ids: [101],
         update_fields: 'not-an-object',
       };
@@ -297,6 +301,7 @@ describe('Recreation Asset DTOs', () => {
 
     it('should trigger nested validation errors inside update_fields', async () => {
       const invalidNestedPayload = {
+        rec_resource_id: 'REC001',
         asset_ids: [101],
         update_fields: {
           asset_name: 'A'.repeat(201), // Violates MaxLength(200)

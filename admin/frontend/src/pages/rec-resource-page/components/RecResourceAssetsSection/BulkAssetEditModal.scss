@@ -1,0 +1,91 @@
+@import '@shared/styles/variables';
+
+.bulk-asset-edit-modal__header {
+  background-color: #{$colorBackgroundGrey};
+}
+
+.bulk-asset-edit-modal__title {
+  font: var(--typography-bold-body, 700 1rem/1.688rem 'BC Sans');
+}
+
+.bulk-asset-edit-modal__body {
+  background-color: $colorWhite;
+}
+
+.bulk-asset-edit-modal__panel {
+  margin-top: 1rem;
+  background-color: $colorBlueLight;
+  border: solid 1px $colorBlue;
+}
+
+.bulk-asset-edit-modal__subtitle {
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 19.2px;
+  line-height: 27.6px;
+}
+
+.panel-title {
+  color: $colorBlue;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.custom-input-group {
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem; /* Standard Bootstrap border-radius */
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+
+  .form-control,
+  .input-group-text {
+    border: none;
+    background-color: transparent;
+    &:disabled {
+      background-color: $colorGreyLight;
+    }
+  }
+
+  .form-control:focus {
+    box-shadow: none;
+  }
+
+  &:focus-within {
+    border-color: $colorBlueLight;
+    box-shadow: 0 0 0 0.25rem $colorBlueLight;
+  }
+}
+
+.bold-field {
+  font-weight: bold;
+  font-weight: 700;
+}
+
+.bottom-border {
+  border-bottom: solid 2px $colorBlue;
+}
+
+.asset-title {
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 16px;
+  line-height: 25.6px;
+}
+
+.review-info {
+  font-size: 13.33px;
+  line-height: 21.3px;
+}
+
+.asset-name {
+  font-size: 16px;
+}
