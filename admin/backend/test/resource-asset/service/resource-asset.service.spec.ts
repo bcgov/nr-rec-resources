@@ -17,6 +17,7 @@ describe('RecreationAssetService', () => {
     };
     recreation_asset: {
       create: ReturnType<typeof vi.fn>;
+      createMany: ReturnType<typeof vi.fn>;
       findMany: ReturnType<typeof vi.fn>;
       findUnique: ReturnType<typeof vi.fn>;
       update: ReturnType<typeof vi.fn>;
@@ -49,6 +50,7 @@ describe('RecreationAssetService', () => {
       },
       recreation_asset: {
         create: vi.fn(),
+        createMany: vi.fn(),
         findMany: vi.fn(),
         findUnique: vi.fn(),
         update: vi.fn(),
@@ -422,17 +424,12 @@ describe('RecreationAssetService', () => {
   });
 
   describe('bulkCreateAssets', () => {
-    it('should validate all unique asset codes then create all assets in a transaction', async () => {
-      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
-        asset_code: 1,
-        description: 'Bridge',
-      });
-
+    it('should validate all unique asset codes then create all assets', async () => {
       const createdAssets = [
         {
           asset_id: 10n,
           parent_id: null,
-          asset_tag: null,
+          asset_tag: 'tag-a',
           rec_resource_id: 'REC-1',
           asset_code: 1,
           asset_name: 'Asset A',
@@ -447,7 +444,7 @@ describe('RecreationAssetService', () => {
         {
           asset_id: 11n,
           parent_id: null,
-          asset_tag: null,
+          asset_tag: 'tag-b',
           rec_resource_id: 'REC-1',
           asset_code: 1,
           asset_name: 'Asset B',
@@ -461,35 +458,49 @@ describe('RecreationAssetService', () => {
         },
       ];
 
-      prismaMock.$transaction.mockResolvedValue(createdAssets);
+      prismaMock.recreation_asset_code.findMany.mockResolvedValue([
+        { asset_code: 1 },
+      ] as any);
+      prismaMock.recreation_asset.createMany.mockResolvedValue({ count: 2 });
+      prismaMock.recreation_asset.findMany.mockResolvedValue(
+        createdAssets as any,
+      );
 
       const dto = {
         assets: [
-          { asset_code: 1, rec_resource_id: 'REC-1', asset_name: 'Asset A' },
-          { asset_code: 1, rec_resource_id: 'REC-1', asset_name: 'Asset B' },
+          {
+            asset_code: 1,
+            rec_resource_id: 'REC-1',
+            asset_name: 'Asset A',
+            asset_tag: 'tag-a',
+          },
+          {
+            asset_code: 1,
+            rec_resource_id: 'REC-1',
+            asset_name: 'Asset B',
+            asset_tag: 'tag-b',
+          },
         ],
       };
 
       const result = await service.bulkCreateAssets(dto as any);
-
-      // Only one unique code (1), so findAssetCodeById called once
-      expect(service.findAssetCodeById).toHaveBeenCalledTimes(1);
-      expect(service.findAssetCodeById).toHaveBeenCalledWith(1);
-
-      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+      expect(prismaMock.recreation_asset_code.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { asset_code: { in: [1] } } }),
+      );
+      expect(prismaMock.recreation_asset.createMany).toHaveBeenCalledTimes(1);
 
       expect(result).toHaveLength(2);
-      expect(result[0].asset_id).toBe(10);
-      expect(result[1].asset_id).toBe(11);
+      expect(result[0]!.asset_id).toBe(10);
+      expect(result[1]!.asset_id).toBe(11);
     });
 
-    it('should call findAssetCodeById for each unique asset_code', async () => {
-      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
-        asset_code: 1,
-        description: 'Bridge',
-      });
-
-      prismaMock.$transaction.mockResolvedValue([
+    it('should use a single findMany to validate all unique asset codes', async () => {
+      prismaMock.recreation_asset_code.findMany.mockResolvedValue([
+        { asset_code: 1 },
+        { asset_code: 2 },
+      ] as any);
+      prismaMock.recreation_asset.createMany.mockResolvedValue({ count: 3 });
+      prismaMock.recreation_asset.findMany.mockResolvedValue([
         {
           asset_id: 20n,
           rec_resource_id: 'REC-2',
@@ -505,7 +516,7 @@ describe('RecreationAssetService', () => {
           actual_value: null,
           installation_date: null,
         },
-      ]);
+      ] as any);
 
       const dto = {
         assets: [
@@ -517,14 +528,19 @@ describe('RecreationAssetService', () => {
 
       await service.bulkCreateAssets(dto as any);
 
-      // 2 unique codes: 1 and 2
-      expect(service.findAssetCodeById).toHaveBeenCalledTimes(2);
+      // single findMany call covering both unique codes
+      expect(prismaMock.recreation_asset_code.findMany).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(prismaMock.recreation_asset_code.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { asset_code: { in: expect.arrayContaining([1, 2]) } },
+        }),
+      );
     });
 
-    it('should throw NotFoundException if any asset code is invalid', async () => {
-      vi.spyOn(service, 'findAssetCodeById').mockRejectedValue(
-        new NotFoundException('Asset code not found'),
-      );
+    it('should throw BadRequestException if any asset code is invalid', async () => {
+      prismaMock.recreation_asset_code.findMany.mockResolvedValue([] as any);
 
       const dto = {
         assets: [{ asset_code: 999, rec_resource_id: 'REC-1' }],
@@ -534,12 +550,11 @@ describe('RecreationAssetService', () => {
     });
 
     it('should map all returned assets including null optional fields', async () => {
-      vi.spyOn(service, 'findAssetCodeById').mockResolvedValue({
-        asset_code: 5,
-        description: 'Bench',
-      });
-
-      prismaMock.$transaction.mockResolvedValue([
+      prismaMock.recreation_asset_code.findMany.mockResolvedValue([
+        { asset_code: 5 },
+      ] as any);
+      prismaMock.recreation_asset.createMany.mockResolvedValue({ count: 1 });
+      prismaMock.recreation_asset.findMany.mockResolvedValue([
         {
           asset_id: 30n,
           parent_id: 5n,
@@ -555,7 +570,7 @@ describe('RecreationAssetService', () => {
           actual_value: 750,
           installation_date: new Date('2022-06-15T00:00:00.000Z'),
         },
-      ]);
+      ] as any);
 
       const dto = {
         assets: [

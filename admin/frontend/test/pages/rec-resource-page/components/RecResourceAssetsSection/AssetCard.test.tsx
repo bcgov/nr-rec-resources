@@ -1,6 +1,7 @@
 import { AssetCard } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCard';
 import type {
   Asset,
+  AssetCode,
   AssetRepair,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import { render, screen } from '@testing-library/react';
@@ -18,7 +19,6 @@ const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_length: null,
   asset_width: null,
   asset_area: null,
-  default_value: null,
   actual_value: null,
   installation_date: null,
   updated_by: null,
@@ -67,7 +67,6 @@ describe('AssetCard', () => {
           asset_length: 10,
           asset_width: 5,
           actual_value: 900,
-          default_value: 1000,
           latitude: 49.1,
           longitude: -123.1,
           recreation_asset_repair: [
@@ -115,10 +114,12 @@ describe('AssetCard', () => {
     expect(screen.getByText('49.1,-123.1')).toBeInTheDocument();
   });
 
-  it('falls back to default_value when actual_value is missing', () => {
+  it('falls back to default_value from asset code when actual_value is missing', () => {
+    const assetCodes: AssetCode[] = [{ asset_code: 1, default_value: 1000 }];
     render(
       <AssetCard
-        asset={buildAsset({ default_value: 1000 })}
+        asset={buildAsset()}
+        assetCodes={assetCodes}
         repairCodes={[]}
       />,
     );

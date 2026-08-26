@@ -93,14 +93,12 @@ export function BulkCreationPreview({
 
 interface BulkAssetPreviewRowProps {
   name: string;
-  id: string;
   showDivider?: boolean;
   children: ReactNode;
 }
 
 export function BulkAssetPreviewRow({
   name,
-  id,
   showDivider = false,
   children,
 }: BulkAssetPreviewRowProps) {
@@ -108,7 +106,6 @@ export function BulkAssetPreviewRow({
     <div className="bulk-modal__item-row">
       <div className="bulk-modal__item-row-header">
         <span className="bulk-modal__item-row-name">{name}</span>
-        <span className="bulk-modal__item-row-id">ID: {id}</span>
       </div>
       {children}
       {showDivider && <div className="bulk-modal__row-divider" />}

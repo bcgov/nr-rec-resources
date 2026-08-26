@@ -128,17 +128,6 @@ export class BaseRecreationAssetDto {
   asset_area?: number | null;
 
   @ApiPropertyOptional({
-    description: 'Default monetary value',
-    example: 1500.0,
-    type: Number,
-    nullable: true,
-  })
-  @IsNumber()
-  @Type(() => Number)
-  @IsOptional()
-  default_value?: number | null;
-
-  @ApiPropertyOptional({
     description: 'Actual monetary value',
     example: 1800.5,
     type: Number,

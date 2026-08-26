@@ -21,7 +21,6 @@ const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_length: null,
   asset_width: null,
   asset_area: null,
-  default_value: null,
   actual_value: null,
   installation_date: null,
   updated_by: null,
@@ -88,7 +87,6 @@ describe('BulkAddCampsitesModal', () => {
   it('renders the preview with campsite name and ID for default quantity of 1', () => {
     render(<BulkAddCampsitesModal {...defaultProps} />);
     expect(screen.getByText('Campsite 1')).toBeInTheDocument();
-    expect(screen.getByText('ID: Campsite-01-REC123')).toBeInTheDocument();
   });
 
   it('updates preview names when quantity is increased', async () => {
@@ -156,7 +154,6 @@ describe('BulkAddCampsitesModal', () => {
     );
 
     expect(screen.getByText('Campsite 8')).toBeInTheDocument();
-    expect(screen.getByText('ID: Campsite-08-REC123')).toBeInTheDocument();
   });
 
   it('shows "Creating…" label when isPending', () => {

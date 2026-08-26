@@ -88,12 +88,6 @@ export interface RecreationAssetDto {
    */
   asset_area?: number | null;
   /**
-   * Default monetary value
-   * @type {number}
-   * @memberof RecreationAssetDto
-   */
-  default_value?: number | null;
-  /**
    * Actual monetary value
    * @type {number}
    * @memberof RecreationAssetDto
@@ -195,8 +189,6 @@ export function RecreationAssetDtoFromJSONTyped(
       json['asset_length'] == null ? undefined : json['asset_length'],
     asset_width: json['asset_width'] == null ? undefined : json['asset_width'],
     asset_area: json['asset_area'] == null ? undefined : json['asset_area'],
-    default_value:
-      json['default_value'] == null ? undefined : json['default_value'],
     actual_value:
       json['actual_value'] == null ? undefined : json['actual_value'],
     installation_date:
@@ -239,7 +231,6 @@ export function RecreationAssetDtoToJSONTyped(
     asset_length: value['asset_length'],
     asset_width: value['asset_width'],
     asset_area: value['asset_area'],
-    default_value: value['default_value'],
     actual_value: value['actual_value'],
     installation_date: value['installation_date'],
     asset_id: value['asset_id'],

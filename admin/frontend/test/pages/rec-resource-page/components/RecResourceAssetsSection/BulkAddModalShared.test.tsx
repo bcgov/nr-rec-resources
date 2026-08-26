@@ -93,7 +93,6 @@ describe('BulkAssetPreviewRow', () => {
     );
 
     expect(screen.getByText('Bridge 1')).toBeInTheDocument();
-    expect(screen.getByText('ID: bridge-01-REC0001')).toBeInTheDocument();
   });
 
   it('renders children content', () => {

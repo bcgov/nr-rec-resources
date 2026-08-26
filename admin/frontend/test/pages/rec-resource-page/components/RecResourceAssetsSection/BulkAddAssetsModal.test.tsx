@@ -24,7 +24,6 @@ const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_length: null,
   asset_width: null,
   asset_area: null,
-  default_value: null,
   actual_value: null,
   installation_date: null,
   updated_by: null,
@@ -51,7 +50,6 @@ const assetCodes: AssetCode[] = [
     has_length: false,
     has_width: false,
     has_area: false,
-    default_value: null,
   },
 ];
 
@@ -145,7 +143,7 @@ describe('BulkAddAssetsModal', () => {
       '100',
     );
 
-    expect(screen.getByLabelText('Default value')).toHaveValue(5000);
+    expect(screen.getByDisplayValue('5000')).toBeInTheDocument();
   });
 
   it('updates quantity label when quantity is increased', async () => {
