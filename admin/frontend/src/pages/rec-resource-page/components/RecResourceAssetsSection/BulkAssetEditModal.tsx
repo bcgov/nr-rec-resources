@@ -76,7 +76,19 @@ export function BulkAssetEditModal({
     setEditFields((prev) => ({ ...prev, [field]: value }));
   };
 
+  const clearFields = () => {
+    setEditFields({
+      length: '',
+      width: '',
+      area: '',
+      actualValue: '',
+      campsiteId: '',
+    });
+    setSelectedGroup('');
+  };
+
   const selectAssetGroup = (value: string) => {
+    clearFields();
     setSelectedGroup(value);
     if (value === '') {
       setAssetTypeGroup(null);
@@ -101,17 +113,6 @@ export function BulkAssetEditModal({
           : false,
       });
     }
-  };
-
-  const clearFields = () => {
-    setEditFields({
-      length: '',
-      width: '',
-      area: '',
-      actualValue: '',
-      campsiteId: '',
-    });
-    setSelectedGroup('');
   };
 
   const getUpdateFields = (fields: typeof editFields) => {
@@ -159,10 +160,12 @@ export function BulkAssetEditModal({
   };
 
   const handleBackCancel = () => {
-    clearFields();
     if (step === 0) {
       onCancel();
     } else {
+      if (step === 1) {
+        setSelectedAssetIds([]);
+      }
       setStep(step - 1);
     }
   };
@@ -239,7 +242,7 @@ export function BulkAssetEditModal({
 
   const step1 = (
     <>
-      <div className="bulk-asset-edit-modal__panel px-4 py-3">
+      <div className="bulk-asset-edit-modal__panel px-4 py-3 rounded-3">
         <div className="d-flex justify-content-between align-items-center">
           <h3 className="bulk-asset-edit-modal__subtitle panel-title mb-0">
             Select Assets ({selectedAssetIds.length} of{' '}
