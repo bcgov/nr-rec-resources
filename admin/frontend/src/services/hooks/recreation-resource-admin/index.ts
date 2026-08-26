@@ -35,3 +35,4 @@ export * from './useGetRepairCodes';
 export * from './useCreateBulkAssets';
 export * from './useUpdateAsset';
 export * from './useUpdateRepair';
+export * from './useBulkUpdateAssets';
