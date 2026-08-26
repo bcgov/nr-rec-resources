@@ -85,9 +85,15 @@ jobs:
         HAPPO_PROJECT: "${{ inputs.local && secrets.HAPPO_PROJECT_LOCAL || secrets.HAPPO_PROJECT }}"
         # Use 127.0.0.1 explicitly — on Ubuntu 24.04 `localhost` can resolve to
         # ::1 (IPv6), causing "Premature close" errors against IPv4 Docker containers.
+        # Deployed runs pull the base URL from environment secrets. Public and admin
+        # share the same GitHub environment (dev/test), so admin uses its own
+        # E2E_ADMIN_BASE_URL secret; public keeps E2E_BASE_URL. If E2E_ADMIN_BASE_URL
+        # is unset, admin falls back to E2E_BASE_URL (the public URL) — so make sure
+        # it is populated when enabling admin e2e for an environment.
         E2E_BASE_URL: "${{
             inputs.local && inputs.app == 'admin' && 'http://127.0.0.1:3001' ||
             inputs.local && inputs.app != 'admin' && 'http://127.0.0.1:3000' ||
+            inputs.app == 'admin' && secrets.E2E_ADMIN_BASE_URL ||
             secrets.E2E_BASE_URL
           }}"
         E2E_TARGET: ${{ inputs.local && 'local' || 'deployed' }}
