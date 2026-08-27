@@ -43,19 +43,6 @@ describe('CampsiteCard', () => {
     expect(screen.getByText('1 asset')).toBeInTheDocument();
   });
 
-  it('renders an Edit button', () => {
-    render(
-      <CampsiteCard
-        eventKey="1"
-        description="Campsite A"
-        structureCount={2}
-        totalValue={1500}
-      />,
-    );
-
-    expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
-  });
-
   it('renders children content', () => {
     render(
       <CampsiteCard

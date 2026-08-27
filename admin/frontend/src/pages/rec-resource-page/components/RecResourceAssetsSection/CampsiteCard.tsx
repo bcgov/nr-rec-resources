@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import { CustomButton } from '@/components';
 import { StyledAccordion } from '../StyledAccordion';
 import { formatCurrency } from './formatCurrency';
 import './CampsiteCard.scss';
@@ -41,12 +40,6 @@ export function CampsiteCard({
               {formatCurrency(totalValue)} total value
             </span>
           </div>
-          <CustomButton
-            variant="secondary"
-            className="asset-summary-action-btn campsite-card__bulk-update-btn"
-          >
-            Edit
-          </CustomButton>
         </>
       }
     >
