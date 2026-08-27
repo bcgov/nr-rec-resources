@@ -10,7 +10,8 @@ import { ROUTE_PATHS } from '@/constants/routes';
 export const Route = createFileRoute('/rec-resource/$id/assets/edit')({
   component: RecResourceAssetsEditPageRoute,
   validateSearch: (search: Record<string, unknown>) => ({
-    editGroup: typeof search.editGroup === 'string' ? search.editGroup : undefined,
+    editGroup:
+      typeof search.editGroup === 'string' ? search.editGroup : undefined,
   }),
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
@@ -52,4 +53,3 @@ function RecResourceAssetsEditPageRoute() {
     </RoleRouteGuard>
   );
 }
-

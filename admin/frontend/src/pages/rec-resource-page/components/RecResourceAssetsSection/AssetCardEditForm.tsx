@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Col, Form, Row } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
 import type { Asset } from './types';
 import './AssetCardEditForm.scss';
@@ -159,9 +159,7 @@ export function AssetCardEditForm({ asset, onChange }: AssetCardEditFormProps) {
                 type="number"
                 value={form.default_value}
                 placeholder="–"
-                onChange={(e) =>
-                  handleChange('default_value', e.target.value)
-                }
+                onChange={(e) => handleChange('default_value', e.target.value)}
               />
             </div>
           </Form.Group>
@@ -177,9 +175,7 @@ export function AssetCardEditForm({ asset, onChange }: AssetCardEditFormProps) {
               <Form.Control
                 type="number"
                 value={form.actual_value}
-                onChange={(e) =>
-                  handleChange('actual_value', e.target.value)
-                }
+                onChange={(e) => handleChange('actual_value', e.target.value)}
               />
             </div>
           </Form.Group>
@@ -188,4 +184,3 @@ export function AssetCardEditForm({ asset, onChange }: AssetCardEditFormProps) {
     </div>
   );
 }
-

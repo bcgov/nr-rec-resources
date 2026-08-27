@@ -5,7 +5,10 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { formatDateReadable } from '@shared/utils';
 import { CustomButton } from '@/components';
-import { useCreateAssetRepair , useUpdateRepair } from '@/services/hooks/recreation-resource-admin';
+import {
+  useCreateAssetRepair,
+  useUpdateRepair,
+} from '@/services/hooks/recreation-resource-admin';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { formatCurrency } from './formatCurrency';
 import type { AssetRepair, RepairCode } from './types';
@@ -232,7 +235,6 @@ export function AssetCardRepairs({
   assetId,
   recResourceId,
   isEditing = false,
-
 }: AssetCardRepairsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { canViewSensitiveInfo } = useAuthorizations();
@@ -308,15 +310,19 @@ export function AssetCardRepairs({
             <>
               {repairs.length > 0 ? (
                 <div className="asset-card-repairs__list">
-                  {repairs.map((repair) => (
-                    <RepairEditRow
-                      key={repair.repair_id}
-                      repair={repair}
-                      repairCodes={repairCodes}
-                      recResourceId={recResourceId}
-                      canViewSensitiveInfo={canViewSensitiveInfo}
-                    />
-                  ))}
+                  {repairs
+                    .slice()
+                    .sort((a, b) => a.repair_id - b.repair_id)
+                    .map((repair) => (
+                      <RepairEditRow
+                        key={repair.repair_id}
+                        repair={repair}
+                        repairCodes={repairCodes}
+                        recResourceId={recResourceId}
+                        canViewSensitiveInfo={canViewSensitiveInfo}
+
+                      />
+                    ))}
                 </div>
               ) : (
                 <div className="asset-card-repairs__empty">

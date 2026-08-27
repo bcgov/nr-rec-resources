@@ -5,7 +5,20 @@ import type {
   AssetRepair,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/services/hooks/recreation-resource-admin/useUpdateRepair', () => ({
+  useUpdateRepair: vi.fn().mockReturnValue({ mutate: vi.fn() }),
+}));
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useCreateAssetRepair',
+  () => ({
+    useCreateAssetRepair: vi
+      .fn()
+      .mockReturnValue({ mutate: vi.fn(), isPending: false }),
+  }),
+);
 
 const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_id: 1,

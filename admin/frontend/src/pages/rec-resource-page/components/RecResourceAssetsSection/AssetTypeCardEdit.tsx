@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Button, Stack } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { CustomBadge } from '@/components';
 import {
   COLOR_AMBER_DARK,
@@ -96,4 +96,3 @@ export function AssetTypeCardEdit({
     </StyledAccordion>
   );
 }
-

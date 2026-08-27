@@ -35,7 +35,10 @@
     flex: 0 1 auto;
 
     label {
-      font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
+      font: var(
+        --typography-regular-small-body,
+        400 0.875rem/1.313rem 'BC Sans'
+      );
       color: #{$colorGrey};
       display: block;
       margin-bottom: 0.25rem;
@@ -47,9 +50,11 @@
 
     .input-group-text {
       background-color: #{$colorBackgroundGrey};
-      font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
+      font: var(
+        --typography-regular-small-body,
+        400 0.875rem/1.313rem 'BC Sans'
+      );
       color: #{$colorGreyMed};
     }
   }
 }
-

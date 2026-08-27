@@ -1,5 +1,6 @@
 import { AssetCardRepairs } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCardRepairs';
 import * as useUpdateRepairModule from '@/services/hooks/recreation-resource-admin/useUpdateRepair';
+import * as useCreateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useCreateAssetRepair';
 import * as useAuthorizationsModule from '@/hooks/useAuthorizations';
 import type {
   AssetRepair,
@@ -16,6 +17,13 @@ vi.mock('@/services/hooks/recreation-resource-admin/useUpdateRepair', () => ({
 vi.mock('@/hooks/useAuthorizations', () => ({
   useAuthorizations: vi.fn(),
 }));
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useCreateAssetRepair',
+  () => ({
+    useCreateAssetRepair: vi.fn(),
+  }),
+);
 
 const buildRepair = (overrides: Partial<AssetRepair> = {}): AssetRepair => ({
   repair_id: 1,
@@ -39,12 +47,17 @@ const repairCodes: RepairCode[] = [
 ];
 
 const mockUpdateRepair = vi.fn();
+const mockCreateRepair = vi.fn();
 
 describe('AssetCardRepairs', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useUpdateRepairModule.useUpdateRepair).mockReturnValue({
       mutate: mockUpdateRepair,
+    } as any);
+    vi.mocked(useCreateAssetRepairModule.useCreateAssetRepair).mockReturnValue({
+      mutate: mockCreateRepair,
+      isPending: false,
     } as any);
     vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
       canView: true,
@@ -246,6 +259,40 @@ describe('AssetCardRepairs', () => {
       await user.tab();
 
       expect(mockUpdateRepair).not.toHaveBeenCalled();
+    });
+
+    it('renders multiple repairs in stable repair_id order regardless of prop order', async () => {
+      const user = userEvent.setup();
+      const repairCodesMulti: RepairCode[] = [
+        { recreation_remed_repair_code: 'R1', description: 'Paint touch-up' },
+        { recreation_remed_repair_code: 'R2', description: 'Structural fix' },
+        { recreation_remed_repair_code: 'R3', description: 'Deck replacement' },
+      ];
+
+      // Pass repairs in reverse id order to simulate server returning them out-of-order
+      render(
+        <AssetCardRepairs
+          repairs={[
+            buildRepair({ repair_id: 3, recreation_remed_repair_code: 'R3' }),
+            buildRepair({ repair_id: 1, recreation_remed_repair_code: 'R1' }),
+            buildRepair({ repair_id: 2, recreation_remed_repair_code: 'R2' }),
+          ]}
+          repairCodes={repairCodesMulti}
+          isEditing
+          recResourceId="REC0001"
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      const selects = screen.getAllByLabelText(
+        'Repair type',
+      ) as HTMLSelectElement[];
+      expect(selects).toHaveLength(3);
+      // Should appear sorted by repair_id: R1, R2, R3
+      expect(selects[0].value).toBe('R1');
+      expect(selects[1].value).toBe('R2');
+      expect(selects[2].value).toBe('R3');
     });
   });
 });
