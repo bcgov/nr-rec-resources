@@ -17,7 +17,6 @@ const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_length: null,
   asset_width: null,
   asset_area: null,
-  default_value: null,
   actual_value: null,
   installation_date: null,
   updated_by: null,
@@ -66,26 +65,17 @@ describe('groupAssetsByType', () => {
     );
   });
 
-  it('sums totalValue using actual_value, falling back to default_value', () => {
+  it('sums totalValue using actual_value, falling back to default_value from asset code', () => {
     const assets = [
       buildAsset({ asset_id: 1, asset_code: 100, actual_value: 500 }),
-      buildAsset({
-        asset_id: 2,
-        asset_code: 100,
-        actual_value: null,
-        default_value: 300,
-      }),
-      buildAsset({
-        asset_id: 3,
-        asset_code: 100,
-        actual_value: null,
-        default_value: null,
-      }),
+      buildAsset({ asset_id: 2, asset_code: 100, actual_value: null }),
+      buildAsset({ asset_id: 3, asset_code: 100, actual_value: null }),
     ];
+    const codes: AssetCode[] = [{ asset_code: 100, default_value: 300 }];
 
-    const groups = groupAssetsByType(assets, []);
+    const groups = groupAssetsByType(assets, codes);
 
-    expect(groups[0].totalValue).toBe(800);
+    expect(groups[0].totalValue).toBe(1100);
   });
 
   it('counts only repairs without a completed date as active', () => {

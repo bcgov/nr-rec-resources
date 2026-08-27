@@ -17,7 +17,6 @@ const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_length: null,
   asset_width: null,
   asset_area: null,
-  default_value: null,
   actual_value: null,
   installation_date: null,
   updated_by: null,

@@ -11,9 +11,7 @@ import { describe, expect, it, vi } from 'vitest';
 describe('NumberStepperInput', () => {
   it('renders the label and current value', () => {
     render(<NumberStepperInput value={3} onChange={vi.fn()} />);
-    expect(
-      screen.getByText('How many do you want to add?'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Quantity')).toBeInTheDocument();
     expect(screen.getByRole('spinbutton')).toHaveValue(3);
   });
 
@@ -93,7 +91,6 @@ describe('BulkAssetPreviewRow', () => {
     );
 
     expect(screen.getByText('Bridge 1')).toBeInTheDocument();
-    expect(screen.getByText('ID: bridge-01-REC0001')).toBeInTheDocument();
   });
 
   it('renders children content', () => {

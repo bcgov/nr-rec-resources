@@ -13,9 +13,7 @@ export function groupAssetsByType(
   assets: Asset[],
   assetCodes: AssetCode[],
 ): AssetTypeGroup[] {
-  const descriptionByCode = new Map(
-    assetCodes.map((c) => [c.asset_code, c.description]),
-  );
+  const codeMap = new Map(assetCodes.map((c) => [c.asset_code, c]));
 
   const assetsByCode = new Map<number, Asset[]>();
   for (const asset of assets) {
@@ -27,10 +25,14 @@ export function groupAssetsByType(
   return Array.from(assetsByCode.entries())
     .map(([structureCode, groupAssets]) => ({
       structureCode,
-      description: descriptionByCode.get(structureCode) ?? 'Unknown',
+      description: codeMap.get(structureCode)?.description ?? 'Unknown',
       count: groupAssets.length,
       totalValue: groupAssets.reduce(
-        (sum, a) => sum + (a.actual_value ?? a.default_value ?? 0),
+        (sum, a) =>
+          sum +
+          Number(
+            a.actual_value ?? codeMap.get(a.asset_code)?.default_value ?? 0,
+          ),
         0,
       ),
       activeRepairsCount: groupAssets.reduce(

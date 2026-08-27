@@ -127,33 +127,68 @@ export class RecreationAssetService {
   async bulkCreateAssets(
     dto: BulkCreateRecreationAssetsDto,
   ): Promise<RecreationAssetDto[]> {
-    // Validate all asset codes exist first
     const uniqueCodes = Array.from(
       new Set(dto.assets.map((a) => a.asset_code)),
     );
-    await Promise.all(uniqueCodes.map((code) => this.findAssetCodeById(code)));
+    const foundCodes = await this.prisma.recreation_asset_code.findMany({
+      where: { asset_code: { in: uniqueCodes } },
+      select: { asset_code: true },
+    });
+    if (foundCodes.length !== uniqueCodes.length) {
+      const foundSet = new Set(foundCodes.map((c) => c.asset_code));
+      const missing = uniqueCodes.filter((c) => !foundSet.has(c));
+      throw new BadRequestException(
+        `Invalid asset code(s): ${missing.join(', ')}`,
+      );
+    }
 
-    const created = await this.prisma.$transaction(
-      dto.assets.map((asset) =>
-        this.prisma.recreation_asset.create({
-          data: {
-            parent_id: asset.parent_id ? BigInt(asset.parent_id) : null,
-            asset_tag: asset.asset_tag ?? null,
-            rec_resource_id: asset.rec_resource_id,
-            asset_code: asset.asset_code,
-            asset_name: asset.asset_name ?? null,
-            asset_comment: asset.asset_comment ?? null,
-            legacy_structure_id: asset.legacy_structure_id ?? null,
-            asset_length: asset.asset_length ?? null,
-            asset_width: asset.asset_width ?? null,
-            asset_area: asset.asset_area ?? null,
-            actual_value: asset.actual_value ?? null,
-            installation_date: asset.installation_date
-              ? new Date(asset.installation_date)
-              : null,
-          },
+    const payloads = dto.assets.map((asset) => ({
+      parent_id: asset.parent_id ? BigInt(asset.parent_id) : null,
+      asset_tag: asset.asset_tag ?? null,
+      rec_resource_id: asset.rec_resource_id,
+      asset_code: asset.asset_code,
+      asset_name: asset.asset_name ?? null,
+      asset_comment: asset.asset_comment ?? null,
+      legacy_structure_id: asset.legacy_structure_id ?? null,
+      asset_length: asset.asset_length ?? null,
+      asset_width: asset.asset_width ?? null,
+      asset_area: asset.asset_area ?? null,
+      actual_value: asset.actual_value ?? null,
+      installation_date: asset.installation_date
+        ? new Date(asset.installation_date)
+        : null,
+    }));
+
+    await this.prisma.recreation_asset.createMany({ data: payloads });
+
+    // Retrieve created records by asset_tag to get their IDs
+    const assetTags = payloads
+      .map((p) => p.asset_tag)
+      .filter((t): t is string => t !== null);
+
+    const created = await this.prisma.recreation_asset.findMany({
+      where: { asset_tag: { in: assetTags } },
+    });
+
+    // Upsert geometry for assets that have lat/long
+    await Promise.all(
+      dto.assets
+        .filter(
+          (asset) =>
+            asset.geometry_type_code &&
+            asset.latitude != null &&
+            asset.longitude != null,
+        )
+        .map((asset) => {
+          const record = created.find((c) => c.asset_tag === asset.asset_tag);
+          if (!record) return Promise.resolve();
+          return this.upsertAssetGeometry(
+            Number(record.asset_id),
+            asset.geometry_type_code!,
+            asset.latitude!,
+            asset.longitude!,
+          );
         }),
-      ),
     );
 
     return created.map((asset) => this.mapAssetToDto(asset));
