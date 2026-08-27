@@ -14,7 +14,8 @@
     "e2e": "npx happo-e2e -- npx playwright test",
     "e2e:chrome": "npx happo-e2e -- npx playwright test --project=chromium",
     "e2e:ui": "npx happo-e2e -- npx playwright test --ui",
-    "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
+    "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "prisma-generate": "echo 'No Prisma client for frontend'"
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
