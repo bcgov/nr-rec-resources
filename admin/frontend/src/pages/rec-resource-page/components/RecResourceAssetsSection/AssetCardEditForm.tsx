@@ -11,7 +11,6 @@ interface AssetEditFormState {
   asset_area: string;
   longitude: string;
   latitude: string;
-  default_value: string;
   actual_value: string;
 }
 
@@ -22,7 +21,6 @@ export interface AssetEditValues {
   asset_area: number | null;
   longitude: number | null;
   latitude: number | null;
-  default_value: number | null;
   actual_value: number | null;
 }
 
@@ -64,7 +62,6 @@ export function AssetCardEditForm({
     asset_area: toFormString(asset.asset_area),
     longitude: toFormString(asset.longitude),
     latitude: toFormString(asset.latitude),
-    default_value: toFormString(asset.default_value),
     actual_value: toFormString(asset.actual_value),
   });
 
@@ -78,7 +75,6 @@ export function AssetCardEditForm({
       asset_area: parseNumber(updated.asset_area),
       longitude: parseNumber(updated.longitude),
       latitude: parseNumber(updated.latitude),
-      default_value: parseNumber(updated.default_value),
       actual_value: parseNumber(updated.actual_value),
     });
   }
@@ -172,9 +168,10 @@ export function AssetCardEditForm({
               </span>
               <Form.Control
                 type="number"
-                value={form.default_value}
+                value={selectedAssetCode?.default_value ?? ''}
                 placeholder="–"
-                onChange={(e) => handleChange('default_value', e.target.value)}
+                disabled
+                readOnly
               />
             </div>
           </Form.Group>

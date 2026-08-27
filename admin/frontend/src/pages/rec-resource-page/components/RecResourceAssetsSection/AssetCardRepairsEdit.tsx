@@ -3,10 +3,8 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Form, InputGroup } from 'react-bootstrap';
 import { CustomButton } from '@/components';
-import {
-  useCreateAssetRepair,
-  useUpdateAssetRepair,
-} from '@/services/hooks/recreation-resource-admin';
+import { useCreateAssetRepair } from '@/services/hooks/recreation-resource-admin';
+import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import {
   EMPTY_REPAIR_FORM,
   getRepairTitle,
@@ -21,6 +19,11 @@ interface AssetCardRepairsEditProps {
   repairCodes: RepairCode[];
   recResourceId: string;
   assetId: number;
+  /** Called on every repair field blur so the parent can batch-save on Save */
+  onRepairChange?: (
+    repairId: number,
+    dto: Partial<UpdateRecreationAssetRepairDto>,
+  ) => void;
 }
 
 export function AssetCardRepairsEdit({
@@ -28,11 +31,11 @@ export function AssetCardRepairsEdit({
   repairCodes,
   recResourceId,
   assetId,
+  onRepairChange,
 }: AssetCardRepairsEditProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [form, setForm] = useState(EMPTY_REPAIR_FORM);
-  const { mutate: updateRepair } = useUpdateAssetRepair();
   const { mutate: createRepair, isPending: isCreating } =
     useCreateAssetRepair();
 
@@ -62,11 +65,7 @@ export function AssetCardRepairsEdit({
           ? null
           : parseFloat(value);
 
-    updateRepair({
-      repairId,
-      recResourceId,
-      dto: { [field]: parsed },
-    });
+    onRepairChange?.(repairId, { [field]: parsed });
   }
 
   function handleSaveRepair() {

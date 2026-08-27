@@ -38,6 +38,7 @@ const assetCodesWithDimensions: AssetCode[] = [
     has_length: true,
     has_width: true,
     has_area: true,
+    default_value: 5000,
   },
 ];
 
@@ -65,6 +66,37 @@ describe('AssetCardEditForm', () => {
     expect(screen.getByLabelText('Length')).toBeDisabled();
     expect(screen.getByLabelText('Width')).toBeDisabled();
     expect(screen.getByLabelText('Area')).toBeDisabled();
+  });
+
+  it('Default Value is always disabled and shows value from asset code table', () => {
+    render(
+      <AssetCardEditForm
+        asset={buildAsset()}
+        assetCodes={assetCodesWithDimensions}
+        onChange={vi.fn()}
+      />,
+    );
+    const defaultValueInput =
+      screen.getByLabelText<HTMLInputElement>('Default Value');
+    expect(defaultValueInput).toBeDisabled();
+    expect(defaultValueInput.value).toBe('5000');
+  });
+
+  it('Default Value shows empty placeholder when asset code has no default_value', () => {
+    const codesNoDefault: AssetCode[] = [
+      { asset_code: 100, description: 'Bridge' },
+    ];
+    render(
+      <AssetCardEditForm
+        asset={buildAsset()}
+        assetCodes={codesNoDefault}
+        onChange={vi.fn()}
+      />,
+    );
+    const defaultValueInput =
+      screen.getByLabelText<HTMLInputElement>('Default Value');
+    expect(defaultValueInput).toBeDisabled();
+    expect(defaultValueInput.value).toBe('');
   });
 
   it('hides dimension and value fields for campsite assets (code 227)', () => {

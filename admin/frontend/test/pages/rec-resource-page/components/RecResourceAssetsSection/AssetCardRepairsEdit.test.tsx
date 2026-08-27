@@ -1,5 +1,4 @@
 import { AssetCardRepairsEdit } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCardRepairsEdit';
-import * as useUpdateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair';
 import * as useCreateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useCreateAssetRepair';
 import type {
   AssetRepair,
@@ -8,13 +7,6 @@ import type {
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-vi.mock(
-  '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair',
-  () => ({
-    useUpdateAssetRepair: vi.fn(),
-  }),
-);
 
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useCreateAssetRepair',
@@ -45,7 +37,6 @@ const repairCodes: RepairCode[] = [
   { recreation_remed_repair_code: 'R2', description: 'Structural fix' },
 ];
 
-const mockUpdateRepair = vi.fn();
 const mockCreateRepair = vi.fn();
 
 const defaultProps = {
@@ -58,9 +49,6 @@ const defaultProps = {
 describe('AssetCardRepairsEdit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useUpdateAssetRepairModule.useUpdateAssetRepair).mockReturnValue({
-      mutate: mockUpdateRepair,
-    } as any);
     vi.mocked(useCreateAssetRepairModule.useCreateAssetRepair).mockReturnValue({
       mutate: mockCreateRepair,
       isPending: false,
@@ -138,12 +126,14 @@ describe('AssetCardRepairsEdit', () => {
     expect(screen.getByText('This asset has no repairs')).toBeInTheDocument();
   });
 
-  it('calls updateRepair with parsed number when estimated cost blurs', async () => {
+  it('calls onRepairChange with parsed number when estimated cost blurs', async () => {
     const user = userEvent.setup();
+    const onRepairChange = vi.fn();
     render(
       <AssetCardRepairsEdit
         {...defaultProps}
         repairs={[buildRepair({ repair_id: 3 })]}
+        onRepairChange={onRepairChange}
       />,
     );
 
@@ -154,21 +144,19 @@ describe('AssetCardRepairsEdit', () => {
     await user.type(estimatedInput, '300');
     await user.tab();
 
-    expect(mockUpdateRepair).toHaveBeenCalledWith(
-      expect.objectContaining({
-        repairId: 3,
-        recResourceId: 'REC001',
-        dto: { estimated_repair_cost: 300 },
-      }),
-    );
+    expect(onRepairChange).toHaveBeenCalledWith(3, {
+      estimated_repair_cost: 300,
+    });
   });
 
-  it('calls updateRepair with null when estimated cost blurred empty', async () => {
+  it('calls onRepairChange with null when estimated cost blurred empty', async () => {
     const user = userEvent.setup();
+    const onRepairChange = vi.fn();
     render(
       <AssetCardRepairsEdit
         {...defaultProps}
         repairs={[buildRepair({ repair_id: 3, estimated_repair_cost: 100 })]}
+        onRepairChange={onRepairChange}
       />,
     );
 
@@ -178,19 +166,19 @@ describe('AssetCardRepairsEdit', () => {
     await user.clear(estimatedInput);
     await user.tab();
 
-    expect(mockUpdateRepair).toHaveBeenCalledWith(
-      expect.objectContaining({
-        dto: { estimated_repair_cost: null },
-      }),
-    );
+    expect(onRepairChange).toHaveBeenCalledWith(3, {
+      estimated_repair_cost: null,
+    });
   });
 
-  it('calls updateRepair with null when date blurred empty', async () => {
+  it('calls onRepairChange with null when date blurred empty', async () => {
     const user = userEvent.setup();
+    const onRepairChange = vi.fn();
     render(
       <AssetCardRepairsEdit
         {...defaultProps}
         repairs={[buildRepair({ repair_id: 3 })]}
+        onRepairChange={onRepairChange}
       />,
     );
 
@@ -200,11 +188,9 @@ describe('AssetCardRepairsEdit', () => {
     await user.click(dateInput);
     await user.tab();
 
-    expect(mockUpdateRepair).toHaveBeenCalledWith(
-      expect.objectContaining({
-        dto: { repair_completed_date: null },
-      }),
-    );
+    expect(onRepairChange).toHaveBeenCalledWith(3, {
+      repair_completed_date: null,
+    });
   });
 
   it('sorts repairs by repair_id ascending', async () => {

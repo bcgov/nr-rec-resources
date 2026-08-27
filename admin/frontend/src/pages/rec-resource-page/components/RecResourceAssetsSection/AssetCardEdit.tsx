@@ -3,6 +3,7 @@ import { Card, Form, InputGroup } from 'react-bootstrap';
 import { AssetCardRepairsEdit } from './AssetCardRepairsEdit';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
 import type { Asset, AssetCode, RepairCode } from './types';
+import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import './AssetCard.scss';
 import './AssetCardEdit.scss';
 
@@ -13,7 +14,6 @@ export interface AssetEditFormValues {
   asset_area: string;
   longitude: string;
   latitude: string;
-  default_value: string;
   actual_value: string;
 }
 
@@ -24,6 +24,10 @@ interface AssetCardEditProps {
   className?: string;
   recResourceId: string;
   onChange: (assetId: number, values: AssetEditFormValues) => void;
+  onRepairChange?: (
+    repairId: number,
+    dto: Partial<UpdateRecreationAssetRepairDto>,
+  ) => void;
 }
 
 export function AssetCardEdit({
@@ -33,6 +37,7 @@ export function AssetCardEdit({
   className = '',
   recResourceId,
   onChange,
+  onRepairChange,
 }: AssetCardEditProps) {
   const isCampsite = asset.asset_code === CAMPSITE_STRUCTURE_CODE;
 
@@ -53,8 +58,6 @@ export function AssetCardEdit({
       asset_area: asset.asset_area != null ? String(asset.asset_area) : '',
       longitude: asset.longitude != null ? String(asset.longitude) : '',
       latitude: asset.latitude != null ? String(asset.latitude) : '',
-      default_value:
-        asset.default_value != null ? String(asset.default_value) : '',
       actual_value:
         asset.actual_value != null ? String(asset.actual_value) : '',
     },
@@ -179,11 +182,9 @@ export function AssetCardEdit({
                     type="number"
                     step="0.01"
                     placeholder="–"
-                    {...register('default_value')}
-                    onChange={(e) => {
-                      void register('default_value').onChange(e);
-                      handleChange();
-                    }}
+                    value={selectedAssetCode?.default_value ?? ''}
+                    disabled
+                    readOnly
                   />
                 </InputGroup>
               </Form.Group>
@@ -213,6 +214,7 @@ export function AssetCardEdit({
             repairCodes={repairCodes}
             recResourceId={recResourceId}
             assetId={asset.asset_id}
+            onRepairChange={onRepairChange}
           />
         </div>
       </Card.Body>

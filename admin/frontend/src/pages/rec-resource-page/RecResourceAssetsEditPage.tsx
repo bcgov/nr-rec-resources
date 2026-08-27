@@ -16,7 +16,9 @@ import {
   useGetRecreationResourceById,
   useGetRepairCodes,
   useUpdateAsset,
+  useUpdateAssetRepair,
 } from '@/services/hooks/recreation-resource-admin';
+import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { AssetCard } from './components/RecResourceAssetsSection/AssetCard';
 import { AssetCardEdit } from './components/RecResourceAssetsSection/AssetCardEdit';
@@ -55,9 +57,13 @@ export function RecResourceAssetsEditPage() {
   const { data: repairCodes = [] } = useGetRepairCodes();
   const { data: resource } = useGetRecreationResourceById(recResourceId);
   const { mutateAsync: updateAsset } = useUpdateAsset();
+  const { mutateAsync: updateRepair } = useUpdateAssetRepair();
 
   const [pendingChanges, setPendingChanges] = useState<
     Map<number, AssetEditFormValues>
+  >(new Map());
+  const [pendingRepairChanges, setPendingRepairChanges] = useState<
+    Map<number, Partial<UpdateRecreationAssetRepairDto>>
   >(new Map());
   const [isSaving, setIsSaving] = useState(false);
 
@@ -74,6 +80,17 @@ export function RecResourceAssetsEditPage() {
     setPendingChanges((prev) => new Map(prev).set(assetId, values));
   }
 
+  function handleRepairChange(
+    repairId: number,
+    dto: Partial<UpdateRecreationAssetRepairDto>,
+  ) {
+    setPendingRepairChanges((prev) => {
+      const updated = new Map(prev);
+      updated.set(repairId, { ...updated.get(repairId), ...dto });
+      return updated;
+    });
+  }
+
   function navigateToView() {
     void navigate({
       to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
@@ -85,8 +102,8 @@ export function RecResourceAssetsEditPage() {
     if (!recResourceId) return;
     setIsSaving(true);
     try {
-      await Promise.all(
-        Array.from(pendingChanges.entries()).map(([assetId, values]) =>
+      await Promise.all([
+        ...Array.from(pendingChanges.entries()).map(([assetId, values]) =>
           updateAsset({
             assetId,
             recResourceId,
@@ -95,12 +112,14 @@ export function RecResourceAssetsEditPage() {
               asset_length: parseNumber(values.asset_length),
               asset_width: parseNumber(values.asset_width),
               asset_area: parseNumber(values.asset_area),
-              default_value: parseNumber(values.default_value),
               actual_value: parseNumber(values.actual_value),
             },
           }),
         ),
-      );
+        ...Array.from(pendingRepairChanges.entries()).map(([repairId, dto]) =>
+          updateRepair({ repairId, recResourceId, dto }),
+        ),
+      ]);
       navigateToView();
     } finally {
       setIsSaving(false);
@@ -225,6 +244,7 @@ export function RecResourceAssetsEditPage() {
                           assetCodes={assetCodes ?? []}
                           recResourceId={recResourceId}
                           onChange={handleEditChange}
+                          onRepairChange={handleRepairChange}
                         />
                       ))}
                     </Stack>
@@ -240,6 +260,14 @@ export function RecResourceAssetsEditPage() {
                   count={group.count}
                   totalValue={group.totalValue}
                   activeRepairsCount={group.activeRepairsCount}
+                  isDisabled={!!editGroup}
+                  onEdit={() =>
+                    void navigate({
+                      to: ROUTE_PATHS.REC_RESOURCE_ASSETS_EDIT,
+                      params: { id: recResourceId },
+                      search: { editGroup: groupKey },
+                    })
+                  }
                 >
                   <Stack direction="vertical" gap={2}>
                     {group.assets.map((asset) => (

@@ -160,7 +160,9 @@ describe('AssetCardRepairs', () => {
 
   it('renders the Add repair button', async () => {
     const user = userEvent.setup();
-    render(<AssetCardRepairs repairs={[]} repairCodes={[]} />);
+    render(
+      <AssetCardRepairs repairs={[]} repairCodes={[]} recResourceId="REC001" />,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Show repairs' }));
 
