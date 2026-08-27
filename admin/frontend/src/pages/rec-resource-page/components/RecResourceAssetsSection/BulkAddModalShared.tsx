@@ -60,7 +60,7 @@ export function NumberStepperInput({
   value,
   min = 1,
   max = 100,
-  label = 'How many do you want to add?',
+  label = 'Quantity',
   onChange,
 }: NumberStepperInputProps) {
   return (

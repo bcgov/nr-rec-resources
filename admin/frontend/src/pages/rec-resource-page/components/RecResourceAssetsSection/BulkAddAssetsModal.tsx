@@ -120,7 +120,6 @@ export function BulkAddAssetsModal({
       updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
-    // Clear the coordinate error for this field as soon as the user starts editing
     if (field === 'latitude' || field === 'longitude') {
       setRowErrors((errs) => {
         const updated = [...errs];
@@ -164,8 +163,10 @@ export function BulkAddAssetsModal({
         rowNumber,
         recResourceId,
       );
-      const lat = row.latitude !== '' ? parseFloat(row.latitude) : undefined;
-      const lng = row.longitude !== '' ? parseFloat(row.longitude) : undefined;
+      const lat =
+        row.latitude !== '' ? Number.parseFloat(row.latitude) : undefined;
+      const lng =
+        row.longitude !== '' ? Number.parseFloat(row.longitude) : undefined;
       return {
         rec_resource_id: recResourceId,
         asset_code: assetCode as number,
@@ -173,10 +174,10 @@ export function BulkAddAssetsModal({
         asset_tag: tag,
         asset_comment: row.asset_comment || undefined,
         parent_id: (row.parent_id ?? undefined) as number | null | undefined,
-        asset_length: assetLength ? parseFloat(assetLength) : undefined,
-        asset_width: assetWidth ? parseFloat(assetWidth) : undefined,
-        asset_area: assetArea ? parseFloat(assetArea) : undefined,
-        actual_value: actualValue ? parseFloat(actualValue) : undefined,
+        asset_length: assetLength ? Number.parseFloat(assetLength) : undefined,
+        asset_width: assetWidth ? Number.parseFloat(assetWidth) : undefined,
+        asset_area: assetArea ? Number.parseFloat(assetArea) : undefined,
+        actual_value: actualValue ? Number.parseFloat(actualValue) : undefined,
         latitude: lat,
         longitude: lng,
         geometry_type_code: lat != null && lng != null ? 'PT' : undefined,
@@ -187,6 +188,17 @@ export function BulkAddAssetsModal({
     handleClose();
     onCreate();
   };
+
+  const actualValueHelpText = (
+    <span>
+      Recorded value for each asset based on its purchase, construction, or
+      donation value. This amount is applied to every asset being added.
+      <br />
+      <br />
+      Example: If Actual Value = $50 and you add 10 assets, each asset will have
+      a value of $50.
+    </span>
+  );
 
   return (
     <BulkAddModalLayout
@@ -295,11 +307,7 @@ export function BulkAddAssetsModal({
               <InputGroup.Text>$</InputGroup.Text>
               <Form.Control
                 type="number"
-                value={
-                  selectedAssetCode?.default_value != null
-                    ? selectedAssetCode.default_value
-                    : ''
-                }
+                value={selectedAssetCode?.default_value ?? ''}
                 placeholder="—"
                 disabled
                 readOnly
@@ -314,7 +322,7 @@ export function BulkAddAssetsModal({
               Actual value
               <HelpIcon
                 id="bulk-actual-value-help"
-                text="Recorded value of asset based on actual purchase, construction, or donation values."
+                text={actualValueHelpText}
               />
             </Form.Label>
             <InputGroup>

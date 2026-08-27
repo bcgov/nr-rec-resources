@@ -11,9 +11,7 @@ import { describe, expect, it, vi } from 'vitest';
 describe('NumberStepperInput', () => {
   it('renders the label and current value', () => {
     render(<NumberStepperInput value={3} onChange={vi.fn()} />);
-    expect(
-      screen.getByText('How many do you want to add?'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Quantity')).toBeInTheDocument();
     expect(screen.getByRole('spinbutton')).toHaveValue(3);
   });
 

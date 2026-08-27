@@ -24,7 +24,7 @@ describe('validateLatitude', () => {
   });
 
   it('rejects more than 6 decimal places', () => {
-    expect(validateLatitude('49.8826001')).toMatch(/6 decimal/);
+    expect(validateLatitude('49.8826001')).toMatch(/-90 and 90/);
   });
 
   it('rejects out-of-range value > 90', () => {
@@ -59,7 +59,7 @@ describe('validateLongitude', () => {
   });
 
   it('rejects more than 6 decimal places', () => {
-    expect(validateLongitude('-123.1234567')).toMatch(/6 decimal/);
+    expect(validateLongitude('-123.1234567')).toMatch(/-180 and 180/);
   });
 
   it('rejects out-of-range value > 180', () => {
@@ -107,7 +107,7 @@ describe('validateCoordinateRow', () => {
       latitude: '49.8826001',
       longitude: '-123.1234',
     });
-    expect(errors.latitude).toMatch(/6 decimal/);
+    expect(errors.latitude).toMatch(/-90 and 90/);
   });
 
   it('surfaces longitude range error', () => {

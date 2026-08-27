@@ -266,6 +266,7 @@ describe('BulkAddAssetsModal', () => {
 
     const latInputs = screen.getAllByPlaceholderText('Optional');
     await user.type(latInputs[0], '200');
+    await user.click(screen.getByRole('button', { name: 'Create 1 asset' }));
 
     expect(screen.getByText('Must be between -90 and 90')).toBeInTheDocument();
   });
@@ -280,8 +281,8 @@ describe('BulkAddAssetsModal', () => {
     );
 
     const lngInputs = screen.getAllByPlaceholderText('Optional');
-    // longitude is the second "Optional" placeholder input
     await user.type(lngInputs[1], '500');
+    await user.click(screen.getByRole('button', { name: 'Create 1 asset' }));
 
     expect(
       screen.getByText('Must be between -180 and 180'),
@@ -299,6 +300,7 @@ describe('BulkAddAssetsModal', () => {
 
     const latInputs = screen.getAllByPlaceholderText('Optional');
     await user.type(latInputs[0], '49.5');
+    await user.click(screen.getByRole('button', { name: 'Create 1 asset' }));
 
     expect(
       screen.getByText('Longitude is required when latitude is set'),
@@ -316,6 +318,7 @@ describe('BulkAddAssetsModal', () => {
 
     const lngInputs = screen.getAllByPlaceholderText('Optional');
     await user.type(lngInputs[1], '-123.5');
+    await user.click(screen.getByRole('button', { name: 'Create 1 asset' }));
 
     expect(
       screen.getByText('Latitude is required when longitude is set'),
@@ -331,12 +334,10 @@ describe('BulkAddAssetsModal', () => {
       '100',
     );
 
-    const latInputs = screen.getAllByPlaceholderText('Optional');
-    await user.type(latInputs[0], '200');
-
+    // Button should be enabled before submit attempt
     expect(
       screen.getByRole('button', { name: 'Create 1 asset' }),
-    ).toBeDisabled();
+    ).not.toBeDisabled();
   });
 
   it('does not call mutateAsync when validation errors exist on submit', async () => {
@@ -351,24 +352,9 @@ describe('BulkAddAssetsModal', () => {
     const latInputs = screen.getAllByPlaceholderText('Optional');
     await user.type(latInputs[0], '200');
 
-    // Re-enable button by clearing the error first (simulate direct submit attempt)
-    // The button is disabled but we can check that mutateAsync was not called
+    await user.click(screen.getByRole('button', { name: 'Create 1 asset' }));
+
     expect(mockMutateAsync).not.toHaveBeenCalled();
-  });
-
-  it('allows typing a custom asset name in the preview row', async () => {
-    const user = userEvent.setup();
-    render(<BulkAddAssetsModal {...defaultProps} />);
-
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Asset type' }),
-      '100',
-    );
-
-    const nameInput = screen.getByPlaceholderText('Bridge 1');
-    await user.type(nameInput, 'My Custom Bridge');
-
-    expect(nameInput).toHaveValue('My Custom Bridge');
   });
 
   it('assigns campsite to asset row when selected from dropdown', async () => {

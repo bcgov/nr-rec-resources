@@ -127,8 +127,10 @@ export function BulkAddCampsitesModal({
     const assets = campsiteRows.map((row, i) => {
       const campsiteNumber = highestNumber + i + 1;
       const tag = generateCampsiteId(campsiteNumber, recResourceId);
-      const lat = row.latitude !== '' ? parseFloat(row.latitude) : undefined;
-      const lng = row.longitude !== '' ? parseFloat(row.longitude) : undefined;
+      const lat =
+        row.latitude !== '' ? Number.parseFloat(row.latitude) : undefined;
+      const lng =
+        row.longitude !== '' ? Number.parseFloat(row.longitude) : undefined;
       return {
         rec_resource_id: recResourceId,
         asset_code: CAMPSITE_STRUCTURE_CODE,
