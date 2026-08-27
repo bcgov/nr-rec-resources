@@ -31,7 +31,6 @@ export interface Asset {
   asset_length: number | null;
   asset_width: number | null;
   asset_area: number | null;
-  default_value: number | null;
   actual_value: number | null;
   installation_date: string | null;
   updated_by: string | null;

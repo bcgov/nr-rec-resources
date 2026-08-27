@@ -6,51 +6,51 @@
 
 insert into rst.recreation_asset (
     rec_resource_id, asset_code, asset_tag, asset_name, asset_comment,
-    asset_length, asset_width, asset_area, default_value, actual_value, installation_date
+    asset_length, asset_width, asset_area, actual_value, installation_date
 )
 values
     -- REC204117 - top-level campsite assets
-    ('REC204117', 227, 'CS-001', 'Campsite 1', 'Lakeside campsite', null, null, null, 250.00, 250.00, '2015-06-01'),
-    ('REC204117', 227, 'CS-002', 'Campsite 2', 'Forested campsite', null, null, null, 250.00, 250.00, '2015-06-01'),
-    ('REC204117', 11,  'FR-001', 'Fire Ring 1', 'Fire ring at campsite 1', null, null, null, 80.00, 80.00, '2015-06-01'),
-    ('REC204117', 1,   'TBL-001', 'Table Wood 1', 'Log table at campsite 1', null, null, null, 60.00, 60.00, '2015-06-01'),
-    ('REC204117', 5,   'TOI-001', 'Toilet Wood Block', 'Wood toilet block',       null, null, null, 500.00, 480.00, '2015-06-01'),
+    ('REC204117', 227, 'CS-001', 'Campsite 1', 'Lakeside campsite', null, null, null, 250.00, '2015-06-01'),
+    ('REC204117', 227, 'CS-002', 'Campsite 2', 'Forested campsite', null, null, null, 250.00, '2015-06-01'),
+    ('REC204117', 11,  'FR-001', 'Fire Ring 1', 'Fire ring at campsite 1', null, null, null, 80.00, '2015-06-01'),
+    ('REC204117', 1,   'TBL-001', 'Table Wood 1', 'Log table at campsite 1', null, null, null, 60.00, '2015-06-01'),
+    ('REC204117', 5,   'TOI-001', 'Toilet Wood Block', 'Wood toilet block',       null, null, null, 480.00, '2015-06-01'),
     -- REC1222
-    ('REC1222', 227, 'CS-001', 'Campsite 1', null, null, null, null, 250.00, null, '2010-05-15'),
-    ('REC1222', 227, 'CS-002', 'Campsite 2', null, null, null, null, 250.00, null, '2010-05-15'),
-    ('REC1222', 227, 'CS-003', 'Campsite 3', null, null, null, null, 250.00, null, '2010-05-15'),
-    ('REC1222', 11,  'FR-001', 'Fire Ring 1', 'Fire ring campsite 1', null, null, null, 80.00, null, '2010-05-15'),
-    ('REC1222', 57,  'BEN-001', 'Trailhead Bench', 'Bench near trailhead', null, null, null, 45.00, null, '2010-05-15'),
+    ('REC1222', 227, 'CS-001', 'Campsite 1', null, null, null, null, null, '2010-05-15'),
+    ('REC1222', 227, 'CS-002', 'Campsite 2', null, null, null, null, null, '2010-05-15'),
+    ('REC1222', 227, 'CS-003', 'Campsite 3', null, null, null, null, null, '2010-05-15'),
+    ('REC1222', 11,  'FR-001', 'Fire Ring 1', 'Fire ring campsite 1', null, null, null, null, '2010-05-15'),
+    ('REC1222', 57,  'BEN-001', 'Trailhead Bench', 'Bench near trailhead', null, null, null, null, '2010-05-15'),
     -- REC160773
-    ('REC160773', 78,  'TRL-001', 'Main Trail', 'Primary hiking trail', 3200.0, 2.0, null, 12000.00, 11500.00, '2012-08-20'),
-    ('REC160773', 81,  'TP-001',  'Tent Pad 1', 'Tent pad 1',           null,   null, 20.0, 150.00, 150.00, '2012-08-20'),
-    ('REC160773', 81,  'TP-002',  'Tent Pad 2', 'Tent pad 2',           null,   null, 20.0, 150.00, 150.00, '2012-08-20'),
-    ('REC160773', 5,   'TOI-001', 'Pit Toilet', 'Pit toilet',          null,   null, null, 500.00, 500.00, '2012-08-20'),
+    ('REC160773', 78,  'TRL-001', 'Main Trail', 'Primary hiking trail', 3200.0, 2.0, null, 11500.00, '2012-08-20'),
+    ('REC160773', 81,  'TP-001',  'Tent Pad 1', 'Tent pad 1',           null,   null, 20.0, 150.00, '2012-08-20'),
+    ('REC160773', 81,  'TP-002',  'Tent Pad 2', 'Tent pad 2',           null,   null, 20.0, 150.00, '2012-08-20'),
+    ('REC160773', 5,   'TOI-001', 'Pit Toilet', 'Pit toilet',          null,   null, null, 500.00, '2012-08-20'),
     -- REC203239
-    ('REC203239', 85,  'PKG-001', 'Main Parking Lot', 'Main gravel parking area', null, null, 400.0, 800.00, 800.00, '2018-04-10'),
-    ('REC203239', 227, 'CS-001', 'Campsite 1', null, null, null, null, 250.00, null, '2018-04-10'),
-    ('REC203239', 227, 'CS-002', 'Campsite 2', null, null, null, null, 250.00, null, '2018-04-10'),
-    ('REC203239', 11,  'FR-001', 'Fire Ring 1', null, null, null, null, 80.00,  null, '2018-04-10'),
+    ('REC203239', 85,  'PKG-001', 'Main Parking Lot', 'Main gravel parking area', null, null, 400.0, 800.00, '2018-04-10'),
+    ('REC203239', 227, 'CS-001', 'Campsite 1', null, null, null, null, null, '2018-04-10'),
+    ('REC203239', 227, 'CS-002', 'Campsite 2', null, null, null, null, null, '2018-04-10'),
+    ('REC203239', 11,  'FR-001', 'Fire Ring 1', null, null, null, null, null, '2018-04-10'),
     -- REC6866
-    ('REC6866', 227, 'CS-001', 'Campsite 1', 'Riverside campsite', null, null, null, 250.00, 275.00, '2009-07-01'),
-    ('REC6866', 227, 'CS-002', 'Campsite 2', null,                 null, null, null, 250.00, null,   '2009-07-01'),
-    ('REC6866', 16,  'LB-001',  'Litter Barrel 1', 'Litter barrel 45gal', null, null, null, 120.00, 120.00, '2009-07-01'),
-    ('REC6866', 2,   'TBL-002', 'Table Accessible 1', 'Accessible table',    null, null, null, 90.00,  90.00, '2009-07-01'),
+    ('REC6866', 227, 'CS-001', 'Campsite 1', 'Riverside campsite', null, null, null, 275.00, '2009-07-01'),
+    ('REC6866', 227, 'CS-002', 'Campsite 2', null,                 null, null, null, null,   '2009-07-01'),
+    ('REC6866', 16,  'LB-001',  'Litter Barrel 1', 'Litter barrel 45gal', null, null, null, 120.00, '2009-07-01'),
+    ('REC6866', 2,   'TBL-002', 'Table Accessible 1', 'Accessible table',    null, null, null, 90.00, '2009-07-01'),
     -- REC160432
-    ('REC160432', 227, 'CS-001', 'Campsite 1', null, null, null, null, 250.00, null, '2014-06-15'),
-    ('REC160432', 227, 'CS-002', 'Campsite 2', null, null, null, null, 250.00, null, '2014-06-15'),
-    ('REC160432', 5,   'TOI-001', 'Pit Toilet', 'Pit toilet',      null, null, null, 500.00, 500.00, '2014-06-15'),
-    ('REC160432', 57,  'BEN-001', 'Entrance Bench', 'Entrance bench',  null, null, null,  45.00, null,   '2014-06-15'),
+    ('REC160432', 227, 'CS-001', 'Campsite 1', null, null, null, null, null, '2014-06-15'),
+    ('REC160432', 227, 'CS-002', 'Campsite 2', null, null, null, null, null, '2014-06-15'),
+    ('REC160432', 5,   'TOI-001', 'Pit Toilet', 'Pit toilet',      null, null, null, 500.00, '2014-06-15'),
+    ('REC160432', 57,  'BEN-001', 'Entrance Bench', 'Entrance bench',  null, null, null, null, '2014-06-15'),
     -- REC6739
-    ('REC6739', 78,  'TRL-001', 'Lakeshore Trail', null, 1800.0, 1.5, null, 7200.00, 7200.00, '2011-09-01'),
-    ('REC6739', 81,  'TP-001',  'Tent Pad 1', 'Tent pad 1', null, null, 18.0, 150.00, 150.00, '2011-09-01'),
-    ('REC6739', 81,  'TP-002',  'Tent Pad 2', 'Tent pad 2', null, null, 18.0, 150.00, 140.00, '2011-09-01'),
-    ('REC6739', 11,  'FR-001',  'Fire Ring 1', null,         null, null, null,  80.00, null,   '2011-09-01'),
+    ('REC6739', 78,  'TRL-001', 'Lakeshore Trail', null, 1800.0, 1.5, null, 7200.00, '2011-09-01'),
+    ('REC6739', 81,  'TP-001',  'Tent Pad 1', 'Tent pad 1', null, null, 18.0, 150.00, '2011-09-01'),
+    ('REC6739', 81,  'TP-002',  'Tent Pad 2', 'Tent pad 2', null, null, 18.0, 140.00, '2011-09-01'),
+    ('REC6739', 11,  'FR-001',  'Fire Ring 1', null,         null, null, null, null,   '2011-09-01'),
     -- REC16158
-    ('REC16158', 227, 'CS-001', 'Campsite 1', null, null, null, null, 250.00, null, '2013-05-20'),
-    ('REC16158', 227, 'CS-002', 'Campsite 2', null, null, null, null, 250.00, null, '2013-05-20'),
-    ('REC16158', 1,   'TBL-001', 'Middle Log', 'Log table',   null, null, null, 60.00, 60.00, '2013-05-20'),
-    ('REC16158', 5,   'TOI-001', 'Wood Toilet', 'Wood toilet', null, null, null, 500.00, 500.00, '2013-05-20');
+    ('REC16158', 227, 'CS-001', 'Campsite 1', null, null, null, null, null, '2013-05-20'),
+    ('REC16158', 227, 'CS-002', 'Campsite 2', null, null, null, null, null, '2013-05-20'),
+    ('REC16158', 1,   'TBL-001', 'Middle Log', 'Log table',   null, null, null, 60.00, '2013-05-20'),
+    ('REC16158', 5,   'TOI-001', 'Wood Toilet', 'Wood toilet', null, null, null, 500.00, '2013-05-20');
 
 
 -- Recreation Asset parent/child fixtures

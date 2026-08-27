@@ -1,15 +1,7 @@
 import { useState, useMemo } from 'react';
-import {
-  Col,
-  Form,
-  InputGroup,
-  OverlayTrigger,
-  Popover,
-  Row,
-} from 'react-bootstrap';
-import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Col, Form, InputGroup, Row } from 'react-bootstrap';
 
+import { HelpIcon } from '@/components';
 import { useCreateBulkAssets } from '@/services/hooks/recreation-resource-admin';
 import type { CreateRecreationAssetDto } from '@/services/recreation-resource-admin';
 import type { Asset, AssetCode } from './types';
@@ -19,6 +11,8 @@ import {
   BulkCreationPreview,
   BulkAssetPreviewRow,
   NumberStepperInput,
+  validateCoordinateRow,
+  type RowErrors,
 } from './BulkAddModalShared';
 
 interface BulkAddAssetsModalProps {
@@ -31,16 +25,12 @@ interface BulkAddAssetsModalProps {
 }
 
 interface AssetRow {
-  asset_name: string;
+  asset_comment: string;
   parent_id: number | null;
   latitude: string;
   longitude: string;
 }
 
-/**
- * Generates a preview asset tag/identifier for display purposes.
- * Format: {description-kebab}-{index:02d}-{recResourceId}
- */
 function generateAssetTag(
   description: string,
   index: number,
@@ -56,30 +46,8 @@ function generateAssetTag(
   return `${slug}-${seq}-${recResourceId}`;
 }
 
-function HelpPopover({ content }: { content: string }) {
-  return (
-    <OverlayTrigger
-      trigger={['hover', 'focus']}
-      placement="top"
-      overlay={
-        <Popover>
-          <Popover.Body>{content}</Popover.Body>
-        </Popover>
-      }
-    >
-      <span
-        className="ms-1 bulk-modal__help-icon"
-        tabIndex={0}
-        aria-label="Help"
-      >
-        <FontAwesomeIcon icon={faCircleQuestion as any} />
-      </span>
-    </OverlayTrigger>
-  );
-}
-
 const EMPTY_ROW: AssetRow = {
-  asset_name: '',
+  asset_comment: '',
   parent_id: null,
   latitude: '',
   longitude: '',
@@ -97,10 +65,10 @@ export function BulkAddAssetsModal({
   const [assetLength, setAssetLength] = useState('');
   const [assetWidth, setAssetWidth] = useState('');
   const [assetArea, setAssetArea] = useState('');
-  const [defaultValue, setDefaultValue] = useState('');
   const [actualValue, setActualValue] = useState('');
   const [quantity, setQuantity] = useState<number>(1);
   const [assetRows, setAssetRows] = useState<AssetRow[]>([{ ...EMPTY_ROW }]);
+  const [rowErrors, setRowErrors] = useState<RowErrors[]>([{}]);
 
   const { mutateAsync: bulkCreate, isPending } = useCreateBulkAssets();
 
@@ -135,6 +103,11 @@ export function BulkAddAssetsModal({
       while (updated.length < qty) updated.push({ ...EMPTY_ROW });
       return updated.slice(0, qty);
     });
+    setRowErrors((prev) => {
+      const updated = [...prev];
+      while (updated.length < qty) updated.push({});
+      return updated.slice(0, qty);
+    });
   };
 
   const updateRow = (
@@ -147,6 +120,13 @@ export function BulkAddAssetsModal({
       updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
+    if (field === 'latitude' || field === 'longitude') {
+      setRowErrors((errs) => {
+        const updated = [...errs];
+        updated[index] = { ...updated[index], [field]: undefined };
+        return updated;
+      });
+    }
   };
 
   const handleClose = () => {
@@ -154,15 +134,25 @@ export function BulkAddAssetsModal({
     setAssetLength('');
     setAssetWidth('');
     setAssetArea('');
-    setDefaultValue('');
     setActualValue('');
     setQuantity(1);
     setAssetRows([{ ...EMPTY_ROW }]);
+    setRowErrors([{}]);
     onCancel();
   };
 
   const handleSubmit = async () => {
     if (assetCode === '') return;
+
+    // Run full validation before submit
+    const allErrors = assetRows.map(validateCoordinateRow);
+    setRowErrors(allErrors);
+    if (
+      allErrors.some(
+        (e) => e.latitude !== undefined || e.longitude !== undefined,
+      )
+    )
+      return;
 
     const assets: CreateRecreationAssetDto[] = assetRows.map((row, i) => {
       const rowNumber = existingCountForType + i + 1;
@@ -173,17 +163,24 @@ export function BulkAddAssetsModal({
         rowNumber,
         recResourceId,
       );
+      const lat =
+        row.latitude !== '' ? Number.parseFloat(row.latitude) : undefined;
+      const lng =
+        row.longitude !== '' ? Number.parseFloat(row.longitude) : undefined;
       return {
         rec_resource_id: recResourceId,
         asset_code: assetCode as number,
-        asset_name: row.asset_name || defaultName,
+        asset_name: defaultName,
         asset_tag: tag,
+        asset_comment: row.asset_comment || undefined,
         parent_id: (row.parent_id ?? undefined) as number | null | undefined,
-        asset_length: assetLength ? parseFloat(assetLength) : undefined,
-        asset_width: assetWidth ? parseFloat(assetWidth) : undefined,
-        asset_area: assetArea ? parseFloat(assetArea) : undefined,
-        default_value: defaultValue ? parseFloat(defaultValue) : undefined,
-        actual_value: actualValue ? parseFloat(actualValue) : undefined,
+        asset_length: assetLength ? Number.parseFloat(assetLength) : undefined,
+        asset_width: assetWidth ? Number.parseFloat(assetWidth) : undefined,
+        asset_area: assetArea ? Number.parseFloat(assetArea) : undefined,
+        actual_value: actualValue ? Number.parseFloat(actualValue) : undefined,
+        latitude: lat,
+        longitude: lng,
+        geometry_type_code: lat != null && lng != null ? 'PT' : undefined,
       };
     });
 
@@ -192,12 +189,26 @@ export function BulkAddAssetsModal({
     onCreate();
   };
 
+  const actualValueHelpText = (
+    <span>
+      Recorded value for each asset based on its purchase, construction, or
+      donation value. This amount is applied to every asset being added.
+      <br />
+      <br />
+      Example: If Actual Value = $50 and you add 10 assets, each asset will have
+      a value of $50.
+    </span>
+  );
+
   return (
     <BulkAddModalLayout
       show={show}
       title="Add assets"
       onHide={handleClose}
-      onShow={() => setAssetRows([{ ...EMPTY_ROW }])}
+      onShow={() => {
+        setAssetRows([{ ...EMPTY_ROW }]);
+        setRowErrors([{}]);
+      }}
       submitLabel={`Create ${quantity} asset${quantity !== 1 ? 's' : ''}`}
       submitDisabled={assetCode === ''}
       isPending={isPending}
@@ -218,12 +229,6 @@ export function BulkAddAssetsModal({
                 setAssetLength('');
                 setAssetWidth('');
                 setAssetArea('');
-                const selected = assetCodes.find((c) => c.asset_code === code);
-                setDefaultValue(
-                  selected?.default_value != null
-                    ? String(selected.default_value)
-                    : '',
-                );
               }}
             >
               <option value="">Choose an asset type</option>
@@ -293,18 +298,19 @@ export function BulkAddAssetsModal({
           <Form.Group controlId="bulk-asset-default-value">
             <Form.Label>
               Default value
-              <HelpPopover content="Estimated replacement cost of asset using provincial standard rates." />
+              <HelpIcon
+                id="bulk-default-value-help"
+                text="Estimated replacement cost of asset using provincial standard rates."
+              />
             </Form.Label>
             <InputGroup>
               <InputGroup.Text>$</InputGroup.Text>
               <Form.Control
                 type="number"
-                min={0}
-                step="0.01"
-                value={defaultValue}
-                onChange={(e) => setDefaultValue(e.target.value)}
-                placeholder="0.00"
+                value={selectedAssetCode?.default_value ?? ''}
+                placeholder="—"
                 disabled
+                readOnly
               />
             </InputGroup>
           </Form.Group>
@@ -314,7 +320,10 @@ export function BulkAddAssetsModal({
           <Form.Group controlId="bulk-asset-actual-value">
             <Form.Label>
               Actual value
-              <HelpPopover content="Recorded value of asset based on actual purchase, construction, or donation values." />
+              <HelpIcon
+                id="bulk-actual-value-help"
+                text={actualValueHelpText}
+              />
             </Form.Label>
             <InputGroup>
               <InputGroup.Text>$</InputGroup.Text>
@@ -343,33 +352,35 @@ export function BulkAddAssetsModal({
           heading={`Creating ${quantity} asset${quantity !== 1 ? 's' : ''}`}
         >
           {assetRows.map((row, i) => {
-            const assetTag = generateAssetTag(
-              selectedAssetCode?.description ?? String(assetCode),
-              existingCountForType + i + 1,
-              recResourceId,
-            );
             const displayName = selectedAssetCode?.description ?? 'Asset';
             const rowNumber = existingCountForType + i + 1;
+            const errors = rowErrors[i] ?? {};
 
             return (
               <BulkAssetPreviewRow
                 key={i}
                 name={`${displayName} ${rowNumber}`}
-                id={assetTag}
+                id={generateAssetTag(
+                  selectedAssetCode?.description ?? String(assetCode),
+                  rowNumber,
+                  recResourceId,
+                )}
                 showDivider={i < assetRows.length - 1}
               >
                 <Row className="gy-2 gx-3">
                   <Col xs={12} sm={5}>
-                    <Form.Group controlId={`bulk-asset-name-${i}`}>
-                      <Form.Label className="small">Asset name</Form.Label>
+                    <Form.Group controlId={`bulk-asset-comment-${i}`}>
+                      <Form.Label className="small">
+                        Asset description
+                      </Form.Label>
                       <Form.Control
                         size="sm"
                         type="text"
-                        value={row.asset_name}
+                        value={row.asset_comment}
                         onChange={(e) =>
-                          updateRow(i, 'asset_name', e.target.value)
+                          updateRow(i, 'asset_comment', e.target.value)
                         }
-                        placeholder={`${displayName} ${rowNumber}`}
+                        placeholder="Optional description"
                       />
                     </Form.Group>
                   </Col>
@@ -411,12 +422,18 @@ export function BulkAddAssetsModal({
                         size="sm"
                         type="number"
                         step="any"
+                        min={-90}
+                        max={90}
                         value={row.latitude}
                         onChange={(e) =>
                           updateRow(i, 'latitude', e.target.value)
                         }
+                        isInvalid={!!errors.latitude}
                         placeholder="Optional"
                       />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.latitude}
+                      </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
 
@@ -427,12 +444,18 @@ export function BulkAddAssetsModal({
                         size="sm"
                         type="number"
                         step="any"
+                        min={-180}
+                        max={180}
                         value={row.longitude}
                         onChange={(e) =>
                           updateRow(i, 'longitude', e.target.value)
                         }
+                        isInvalid={!!errors.longitude}
                         placeholder="Optional"
                       />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.longitude}
+                      </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
                 </Row>

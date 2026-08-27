@@ -8,7 +8,7 @@ export const DESCRIPTION_HELP_TEXT =
   'Write a short, plain‑language summary of what this resource is and what visitors can expect. Include key amenities and access notes; avoid internal jargon, staff instructions, and personal information.';
 
 export const CONTROL_ACCESS_HELP_TEXT =
-  'Select best matching subtype (Example: 2WD/4WD, trail class, boat-in).';
+  'Select the method to control access(i.e. gated or restricted use).';
 
 export const DISTRICT_HELP_TEXT =
   'Administrative district responsible for managing this recreation resource.';

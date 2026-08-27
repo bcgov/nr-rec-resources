@@ -2,6 +2,7 @@ import { computeAssetSummary } from '@/pages/rec-resource-page/components/RecRes
 import { CAMPSITE_STRUCTURE_CODE } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/campsiteGrouping';
 import type {
   Asset,
+  AssetCode,
   AssetRepair,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import { describe, expect, it } from 'vitest';
@@ -18,7 +19,6 @@ const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_length: null,
   asset_width: null,
   asset_area: null,
-  default_value: null,
   actual_value: null,
   installation_date: null,
   updated_by: null,
@@ -71,14 +71,19 @@ describe('computeAssetSummary', () => {
     expect(summary.total_campsites).toBe(1);
   });
 
-  it('sums total_value using actual_value, falling back to default_value', () => {
+  it('sums total_value using actual_value, falling back to default_value from asset code', () => {
     const assets = [
-      buildAsset({ asset_id: 1, actual_value: 100 }),
-      buildAsset({ asset_id: 2, actual_value: null, default_value: 50 }),
-      buildAsset({ asset_id: 3, actual_value: null, default_value: null }),
+      buildAsset({ asset_id: 1, asset_code: 1, actual_value: 100 }),
+      buildAsset({ asset_id: 2, asset_code: 2, actual_value: null }),
+      buildAsset({ asset_id: 3, asset_code: 3, actual_value: null }),
+    ];
+    const assetCodes: AssetCode[] = [
+      { asset_code: 1 },
+      { asset_code: 2, default_value: 50 },
+      { asset_code: 3, default_value: null },
     ];
 
-    const summary = computeAssetSummary(assets);
+    const summary = computeAssetSummary(assets, null, null, assetCodes);
 
     expect(summary.total_value).toBe(150);
   });

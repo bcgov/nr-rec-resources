@@ -6,7 +6,43 @@
 import type { ReactNode } from 'react';
 import { Form, Modal } from 'react-bootstrap';
 import { CustomButton } from '@/components';
+import {
+  validateLatitude,
+  validateLongitude,
+} from '@/utils/coordinateValidation';
 import './BulkAddModalShared.scss';
+
+// ---------------------------------------------------------------------------
+// Coordinate validation helpers (shared between both bulk modals)
+// ---------------------------------------------------------------------------
+
+export {
+  validateLatitude,
+  validateLongitude,
+} from '@/utils/coordinateValidation';
+
+export interface RowErrors {
+  latitude?: string;
+  longitude?: string;
+}
+
+export interface CoordinateRow {
+  latitude: string;
+  longitude: string;
+}
+
+export function validateCoordinateRow(row: CoordinateRow): RowErrors {
+  const errors: RowErrors = {};
+  const latError = validateLatitude(row.latitude);
+  const lngError = validateLongitude(row.longitude);
+  if (latError) errors.latitude = latError;
+  if (lngError) errors.longitude = lngError;
+  if (row.latitude !== '' && row.longitude === '')
+    errors.longitude = 'Longitude is required when latitude is set';
+  if (row.longitude !== '' && row.latitude === '')
+    errors.latitude = 'Latitude is required when longitude is set';
+  return errors;
+}
 
 // ---------------------------------------------------------------------------
 // NumberStepperInput  (− / value / + stepper)
@@ -24,7 +60,7 @@ export function NumberStepperInput({
   value,
   min = 1,
   max = 100,
-  label = 'How many do you want to add?',
+  label = 'Quantity',
   onChange,
 }: NumberStepperInputProps) {
   return (
@@ -93,7 +129,7 @@ export function BulkCreationPreview({
 
 interface BulkAssetPreviewRowProps {
   name: string;
-  id: string;
+  id?: string;
   showDivider?: boolean;
   children: ReactNode;
 }
@@ -105,10 +141,9 @@ export function BulkAssetPreviewRow({
   children,
 }: BulkAssetPreviewRowProps) {
   return (
-    <div className="bulk-modal__item-row">
+    <div id={id} className="bulk-modal__item-row">
       <div className="bulk-modal__item-row-header">
         <span className="bulk-modal__item-row-name">{name}</span>
-        <span className="bulk-modal__item-row-id">ID: {id}</span>
       </div>
       {children}
       {showDivider && <div className="bulk-modal__row-divider" />}
