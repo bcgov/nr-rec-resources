@@ -52,6 +52,7 @@ export class ResourceImagesController {
 
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
     ],
@@ -287,6 +288,7 @@ export class ResourceImagesController {
 
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
     ],

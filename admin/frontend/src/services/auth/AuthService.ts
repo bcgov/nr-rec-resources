@@ -161,9 +161,29 @@ export class AuthService {
     return this.keycloak.tokenParsed as UserInfo;
   }
 
+  /** All known RST application roles (excluding the IDIR viewer itself). */
+  private static readonly RST_ROLES = [
+    'rst-viewer',
+    'rst-admin',
+    'rst-super-admin',
+    'rst-developer',
+  ] as const;
+
   getUserRoles(): string[] {
-    const tokenParsed = this.keycloak.tokenParsed as UserInfo;
-    return tokenParsed?.client_roles || [];
+    const tokenParsed = this.keycloak.tokenParsed as UserInfo | undefined;
+    const roles: string[] = tokenParsed?.client_roles ?? [];
+
+    // Mirror the backend auto-assign: any IDIR user who holds no known RST role
+    // is automatically treated as rst-idir-viewer on the frontend too.
+    if (
+      tokenParsed?.idir_username &&
+      !AuthService.RST_ROLES.some((r) => roles.includes(r)) &&
+      !roles.includes('rst-idir-viewer')
+    ) {
+      return [...roles, 'rst-idir-viewer'];
+    }
+
+    return roles;
   }
 
   /**
@@ -175,11 +195,17 @@ export class AuthService {
   }
 
   /**
-   * Check if the user is authorized to access the application
-   * Requires at least 'rst-viewer', 'rst-admin', or 'rst-super-admin' role
+   * Check if the user is authorized to access the application.
+   * Requires at least one RST application role (including the auto-assigned
+   * IDIR read-only role for government employees).
    */
   isAuthorized(): boolean {
-    return this.hasRequiredRole(['rst-viewer', 'rst-admin', 'rst-super-admin']);
+    return this.hasRequiredRole([
+      'rst-idir-viewer',
+      'rst-viewer',
+      'rst-admin',
+      'rst-super-admin',
+    ]);
   }
 
   /**

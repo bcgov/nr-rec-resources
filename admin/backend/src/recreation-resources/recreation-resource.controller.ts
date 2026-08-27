@@ -5,6 +5,7 @@ import {
   IsSuperAdmin,
   RecreationResourceAuthRole,
   ROLE_MODE,
+  SensitiveFieldsInterceptor,
 } from '@/auth';
 import { BadRequestResponseDto } from '@/common/dtos/bad-request-response.dto';
 import {
@@ -17,6 +18,7 @@ import {
   Put,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -46,6 +48,7 @@ import { RecreationResourceRepository } from './recreation-resource.repository';
 @ApiTags('recreation-resources')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
+@UseInterceptors(SensitiveFieldsInterceptor)
 @AuthRoles(
   [
     RecreationResourceAuthRole.RST_ADMIN,
@@ -71,6 +74,7 @@ export class RecreationResourceController {
    */
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
@@ -111,6 +115,7 @@ export class RecreationResourceController {
    */
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
@@ -151,6 +156,7 @@ export class RecreationResourceController {
    */
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,

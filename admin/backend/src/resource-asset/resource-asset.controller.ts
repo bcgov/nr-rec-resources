@@ -4,6 +4,7 @@ import {
   AuthRolesGuard,
   RecreationResourceAuthRole,
   ROLE_MODE,
+  SensitiveFieldsInterceptor,
 } from '@/auth';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -20,6 +21,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -55,6 +57,7 @@ import { RecreationAssetService } from './service/resource-asset.service';
 @ApiTags('assets')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
+@UseInterceptors(SensitiveFieldsInterceptor)
 @AuthRoles(
   [
     RecreationResourceAuthRole.RST_ADMIN,
@@ -118,6 +121,7 @@ export class RecreationAssetController {
   @Get()
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
@@ -146,6 +150,7 @@ export class RecreationAssetController {
   @Get('codes')
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
@@ -172,6 +177,7 @@ export class RecreationAssetController {
   @Get('repair-codes')
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
@@ -193,6 +199,7 @@ export class RecreationAssetController {
   @Get(':id')
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
@@ -317,14 +324,7 @@ export class RecreationAssetController {
   @Get(':id/repairs')
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_VIEWER,
-      RecreationResourceAuthRole.RST_ADMIN,
-      RecreationResourceAuthRole.RST_SUPER_ADMIN,
-    ],
-    ROLE_MODE.ANY,
-  )
-  @AuthRoles(
-    [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
