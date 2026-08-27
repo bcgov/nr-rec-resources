@@ -75,7 +75,6 @@ export class RecreationAssetController {
   @Post()
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
@@ -98,7 +97,6 @@ export class RecreationAssetController {
   @Post('bulk-create')
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
@@ -232,7 +230,6 @@ export class RecreationAssetController {
   @Patch('bulk-update')
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
@@ -257,7 +254,6 @@ export class RecreationAssetController {
   @Patch(':id')
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
@@ -299,7 +295,6 @@ export class RecreationAssetController {
   @Post(':id/repairs')
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
@@ -349,7 +344,6 @@ export class RecreationAssetController {
   @Patch('repairs/:repairId')
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
@@ -374,7 +368,6 @@ export class RecreationAssetController {
   @Delete('repairs/:repairId')
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
@@ -396,7 +389,6 @@ export class RecreationAssetController {
   @Post('bulk-repairs')
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
