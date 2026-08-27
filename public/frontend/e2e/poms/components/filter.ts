@@ -168,7 +168,7 @@ export class FilterPOM {
     // auto-retrying matcher rather than a one-shot count() snapshot.
     await expect(
       this.districtFilters.locator('.form-check label').first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: DISTRICT_RENDER_TIMEOUT_MS });
     await expect(
       this.districtFilters.locator('.form-check label'),
     ).not.toHaveCount(0);
@@ -238,7 +238,7 @@ export class FilterPOM {
   async waitForFilterMenuReady() {
     await expect(
       this.districtFilters.locator('.form-check label').first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: DISTRICT_RENDER_TIMEOUT_MS });
   }
 
   async openMobileFilterMenu() {
