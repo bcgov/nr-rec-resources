@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
-import type { Asset } from './types';
+import type { Asset, AssetCode } from './types';
 import './AssetCardEditForm.scss';
 
 interface AssetEditFormState {
@@ -28,6 +28,7 @@ export interface AssetEditValues {
 
 interface AssetCardEditFormProps {
   asset: Asset;
+  assetCodes?: AssetCode[];
   onChange: (assetId: number, values: AssetEditValues) => void;
 }
 
@@ -42,8 +43,19 @@ function toFormString(value: number | null | undefined): string {
   return value != null ? String(value) : '';
 }
 
-export function AssetCardEditForm({ asset, onChange }: AssetCardEditFormProps) {
+export function AssetCardEditForm({
+  asset,
+  assetCodes = [],
+  onChange,
+}: AssetCardEditFormProps) {
   const isCampsite = asset.asset_code === CAMPSITE_STRUCTURE_CODE;
+
+  const selectedAssetCode = assetCodes.find(
+    (c) => c.asset_code === asset.asset_code,
+  );
+  const lengthEnabled = selectedAssetCode?.has_length ?? false;
+  const widthEnabled = selectedAssetCode?.has_width ?? false;
+  const areaEnabled = selectedAssetCode?.has_area ?? false;
 
   const [form, setForm] = useState<AssetEditFormState>({
     asset_name: asset.asset_name ?? '',
@@ -95,6 +107,7 @@ export function AssetCardEditForm({ asset, onChange }: AssetCardEditFormProps) {
               <Form.Control
                 type="number"
                 value={form.asset_length}
+                disabled={!lengthEnabled}
                 onChange={(e) => handleChange('asset_length', e.target.value)}
               />
               <span className="asset-card-edit-form__unit">m</span>
@@ -109,6 +122,7 @@ export function AssetCardEditForm({ asset, onChange }: AssetCardEditFormProps) {
               <Form.Control
                 type="number"
                 value={form.asset_width}
+                disabled={!widthEnabled}
                 onChange={(e) => handleChange('asset_width', e.target.value)}
               />
               <span className="asset-card-edit-form__unit">m</span>
@@ -123,6 +137,7 @@ export function AssetCardEditForm({ asset, onChange }: AssetCardEditFormProps) {
               <Form.Control
                 type="number"
                 value={form.asset_area}
+                disabled={!areaEnabled}
                 onChange={(e) => handleChange('asset_area', e.target.value)}
               />
               <span className="asset-card-edit-form__unit">m²</span>

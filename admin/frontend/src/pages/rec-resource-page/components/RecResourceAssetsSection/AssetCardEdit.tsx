@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { Card, Form, InputGroup } from 'react-bootstrap';
 import { AssetCardRepairsEdit } from './AssetCardRepairsEdit';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
-import type { Asset, RepairCode } from './types';
+import type { Asset, AssetCode, RepairCode } from './types';
 import './AssetCard.scss';
 import './AssetCardEdit.scss';
 
@@ -20,6 +20,7 @@ export interface AssetEditFormValues {
 interface AssetCardEditProps {
   asset: Asset;
   repairCodes: RepairCode[];
+  assetCodes?: AssetCode[];
   className?: string;
   recResourceId: string;
   onChange: (assetId: number, values: AssetEditFormValues) => void;
@@ -28,11 +29,19 @@ interface AssetCardEditProps {
 export function AssetCardEdit({
   asset,
   repairCodes,
+  assetCodes = [],
   className = '',
   recResourceId,
   onChange,
 }: AssetCardEditProps) {
   const isCampsite = asset.asset_code === CAMPSITE_STRUCTURE_CODE;
+
+  const selectedAssetCode = assetCodes.find(
+    (c) => c.asset_code === asset.asset_code,
+  );
+  const lengthEnabled = selectedAssetCode?.has_length ?? false;
+  const widthEnabled = selectedAssetCode?.has_width ?? false;
+  const areaEnabled = selectedAssetCode?.has_area ?? false;
   const repairs = asset.recreation_asset_repair ?? [];
 
   const { register, getValues } = useForm<AssetEditFormValues>({
@@ -86,6 +95,7 @@ export function AssetCardEdit({
                   <Form.Control
                     type="number"
                     {...register('asset_length')}
+                    disabled={!lengthEnabled}
                     onChange={(e) => {
                       void register('asset_length').onChange(e);
                       handleChange();
@@ -103,6 +113,7 @@ export function AssetCardEdit({
                   <Form.Control
                     type="number"
                     {...register('asset_width')}
+                    disabled={!widthEnabled}
                     onChange={(e) => {
                       void register('asset_width').onChange(e);
                       handleChange();
@@ -120,6 +131,7 @@ export function AssetCardEdit({
                   <Form.Control
                     type="number"
                     {...register('asset_area')}
+                    disabled={!areaEnabled}
                     onChange={(e) => {
                       void register('asset_area').onChange(e);
                       handleChange();

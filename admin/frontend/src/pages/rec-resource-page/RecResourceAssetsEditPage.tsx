@@ -222,6 +222,7 @@ export function RecResourceAssetsEditPage() {
                           key={asset.asset_id}
                           asset={asset}
                           repairCodes={repairCodes}
+                          assetCodes={assetCodes ?? []}
                           recResourceId={recResourceId}
                           onChange={handleEditChange}
                         />
