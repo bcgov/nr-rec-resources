@@ -19,4 +19,3 @@ alter table rst.recreation_asset_history
     drop column if exists default_value;
 
 select sync_temporal_table_schema('rst', 'recreation_asset_code');
-select sync_temporal_table_schema('rst', 'recreation_asset');
