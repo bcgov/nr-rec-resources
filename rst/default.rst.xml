@@ -378,14 +378,13 @@
          <column autoUpdated="false" defaultValue="null" digits="1" id="8" name="asset_length" nullable="true" remarks="Total length in metres (paths, boardwalks, fences, bridges)." size="7" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="1" id="9" name="asset_width" nullable="true" remarks="Total width in metres (parking areas, shelters, docks)." size="7" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="1" id="10" name="asset_area" nullable="true" remarks="Total area in square metres." size="7" type="numeric" typeCode="2"/>
-         <column autoUpdated="false" defaultValue="null" digits="2" id="11" name="default_value" nullable="true" remarks="Default value for the asset, derived from the structure type value/dimension." size="7" type="numeric" typeCode="2"/>
-         <column autoUpdated="false" defaultValue="null" digits="2" id="12" name="actual_value" nullable="true" remarks="Actual value of the asset; takes precedence over the default value when set." size="7" type="numeric" typeCode="2"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="installation_date" nullable="true" remarks="Date the asset was installed in the field." size="13" type="date" typeCode="91"/>
-         <column autoUpdated="false" defaultValue="now()" digits="6" id="14" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="now()" digits="6" id="16" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="18" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="11" name="actual_value" nullable="true" remarks="Actual value of the asset; takes precedence over the default value when set." size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="installation_date" nullable="true" remarks="Date the asset was installed in the field." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="13" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="15" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="17" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
          <primaryKey column="asset_id" sequenceNumberInPK="1"/>
          <index name="recreation_asset_pkey" unique="true">
             <column ascending="true" name="asset_id"/>
@@ -413,6 +412,10 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="4" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="6" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="7" name="has_length" nullable="false" remarks="Indicates whether a length measurement is applicable for this asset type (dimension code L)." size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="8" name="has_width" nullable="false" remarks="Indicates whether a width measurement is applicable for this asset type (dimension code W)." size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="9" name="has_area" nullable="false" remarks="Indicates whether an area measurement is applicable for this asset type (dimension code A)." size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="10" name="default_value" nullable="true" remarks="Default monetary value for an asset of this type, derived from the legacy structure type value/dimension (e.g., $50/m for Boardwalks)." size="7" type="numeric" typeCode="2"/>
          <primaryKey column="asset_code" sequenceNumberInPK="1"/>
          <index name="recreation_asset_code_pkey" unique="true">
             <column ascending="true" name="asset_code"/>
@@ -428,6 +431,10 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="4" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="7" name="has_length" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="8" name="has_width" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="9" name="has_area" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="10" name="default_value" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
       </table>
       <table name="recreation_asset_geom" remarks="1:1 geometry store for individual assets, separated from the main asset record for performance and schema clarity." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="asset_id" nullable="false" remarks="one geometry record per asset." size="19" type="int8" typeCode="-5">
@@ -476,14 +483,13 @@
          <column autoUpdated="false" defaultValue="null" digits="1" id="8" name="asset_length" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="1" id="9" name="asset_width" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
          <column autoUpdated="false" defaultValue="null" digits="1" id="10" name="asset_area" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
-         <column autoUpdated="false" defaultValue="null" digits="2" id="11" name="default_value" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
-         <column autoUpdated="false" defaultValue="null" digits="2" id="12" name="actual_value" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="installation_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="14" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="16" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="2" id="11" name="actual_value" nullable="true" remarks="" size="7" type="numeric" typeCode="2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="installation_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="13" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="15" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_asset_repair" remarks="Repair and cost tracking records for individual assets." schema="rst" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="repair_id" nullable="false" remarks="Unique surrogate identifier for the repair log entry." size="19" type="int8" typeCode="-5"/>
