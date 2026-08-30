@@ -9,7 +9,7 @@ export type ExportDatasetId =
   | 'campsite-list-fta'
   | 'objective-list'
   | 'objective-list-fta'
-  | 'structure-list'
+  | 'asset-list'
   | 'structure-list-fta'
   | 'access-list'
   | 'access-list-fta'
@@ -98,10 +98,9 @@ export const ALL_EXPORT_DATASETS: ExportDatasetDefinition[] = [
     info: MISSING_FTA_LEGACY_METADATA_INFO,
   },
   {
-    id: 'structure-list',
-    label: 'Structure list',
+    id: 'asset-list',
+    label: 'Asset list',
     source: 'RST',
-    info: NOT_IMPLEMENTED_INFO,
   },
   {
     id: 'structure-list-fta',
