@@ -11,8 +11,10 @@ import {
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { formatCurrency } from './formatCurrency';
 import {
+  buildRepairMutationDto,
   EMPTY_REPAIR_FORM,
   getRepairTitle,
+  parseOptionalRepairNumber,
   RepairAddForm,
   RepairExpandToggle,
 } from './repairShared';
@@ -120,12 +122,10 @@ function RepairEditRow({
       dto: {
         recreation_remed_repair_code:
           draft.recreation_remed_repair_code || null,
-        estimated_repair_cost: draft.estimated_repair_cost
-          ? Number(draft.estimated_repair_cost)
-          : null,
-        actual_repair_cost: draft.actual_repair_cost
-          ? Number(draft.actual_repair_cost)
-          : null,
+        estimated_repair_cost: parseOptionalRepairNumber(
+          draft.estimated_repair_cost,
+        ),
+        actual_repair_cost: parseOptionalRepairNumber(draft.actual_repair_cost),
         repair_completed_date: draft.repair_completed_date || null,
       },
     });
@@ -264,16 +264,7 @@ export function AssetCardRepairs({
       {
         assetId,
         recResourceId,
-        dto: {
-          recreation_remed_repair_code: form.repairCode || null,
-          estimated_repair_cost: form.estimatedCost
-            ? parseFloat(form.estimatedCost)
-            : null,
-          actual_repair_cost: form.actualCost
-            ? parseFloat(form.actualCost)
-            : null,
-          repair_completed_date: form.completedDate || null,
-        },
+        dto: buildRepairMutationDto(form),
       },
       {
         onSuccess: () => {

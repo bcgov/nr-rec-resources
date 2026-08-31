@@ -18,6 +18,28 @@ export interface RepairFormState {
   completedDate: string;
 }
 
+export interface RepairMutationDto {
+  recreation_remed_repair_code: string | null;
+  estimated_repair_cost: number | null;
+  actual_repair_cost: number | null;
+  repair_completed_date: string | null;
+}
+
+export function parseOptionalRepairNumber(value: string): number | null {
+  return value === '' ? null : parseFloat(value);
+}
+
+export function buildRepairMutationDto(
+  form: RepairFormState,
+): RepairMutationDto {
+  return {
+    recreation_remed_repair_code: form.repairCode || null,
+    estimated_repair_cost: parseOptionalRepairNumber(form.estimatedCost),
+    actual_repair_cost: parseOptionalRepairNumber(form.actualCost),
+    repair_completed_date: form.completedDate || null,
+  };
+}
+
 export const EMPTY_REPAIR_FORM: RepairFormState = {
   repairCode: '',
   estimatedCost: '',

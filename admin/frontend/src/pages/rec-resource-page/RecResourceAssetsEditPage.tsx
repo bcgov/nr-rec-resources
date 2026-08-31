@@ -17,9 +17,12 @@ import {
   useGetRepairCodes,
   useUpdateAsset,
   useUpdateAssetRepair,
+  useUpdateRecreationResource,
 } from '@/services/hooks/recreation-resource-admin';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { parseNumber, toDateInputValue } from '@/utils/assetForm';
+import { InspectionDatesEdit } from './components/RecResourceAssetsSection/InspectionDatesEdit';
 import { AssetCard } from './components/RecResourceAssetsSection/AssetCard';
 import { AssetCardEdit } from './components/RecResourceAssetsSection/AssetCardEdit';
 import { AssetSummaryCards } from './components/RecResourceAssetsSection/AssetSummaryCards';
@@ -31,13 +34,6 @@ import { groupAssetsByCampsite } from './components/RecResourceAssetsSection/cam
 import assetType from '@shared/assets/icons/asset-type-outline.svg';
 import campingType from '@shared/assets/icons/camping-type.svg';
 import type { AssetEditFormValues } from './components/RecResourceAssetsSection/AssetCardEdit';
-
-function parseNumber(value: string): number | null {
-  const trimmed = value.trim();
-  if (trimmed === '') return null;
-  const n = parseFloat(trimmed);
-  return isNaN(n) ? null : n;
-}
 
 export function RecResourceAssetsEditPage() {
   const { id: recResourceId } = useParams({ from: '/rec-resource/$id' });
@@ -58,6 +54,7 @@ export function RecResourceAssetsEditPage() {
   const { data: resource } = useGetRecreationResourceById(recResourceId);
   const { mutateAsync: updateAsset } = useUpdateAsset();
   const { mutateAsync: updateRepair } = useUpdateAssetRepair();
+  const { mutateAsync: updateResource } = useUpdateRecreationResource();
 
   const [pendingChanges, setPendingChanges] = useState<
     Map<number, AssetEditFormValues>
@@ -67,10 +64,23 @@ export function RecResourceAssetsEditPage() {
   >(new Map());
   const [isSaving, setIsSaving] = useState(false);
 
+  // Inspection edit state
+  const [isEditingInspections, setIsEditingInspections] = useState(false);
+  const [inspectionDate, setInspectionDate] = useState('');
+  const [dangerTreeDate, setDangerTreeDate] = useState('');
+  const [isSavingInspections, setIsSavingInspections] = useState(false);
+
+  const summaryInspectionDate = inspectionDate
+    ? new Date(inspectionDate)
+    : (resource?.last_rec_inspection_date ?? null);
+  const summaryDangerTreeDate = dangerTreeDate
+    ? new Date(dangerTreeDate)
+    : (resource?.last_hzrd_tree_assess_date ?? null);
+
   const summary = computeAssetSummary(
     assets ?? [],
-    resource?.last_rec_inspection_date ?? null,
-    resource?.last_hzrd_tree_assess_date ?? null,
+    summaryInspectionDate,
+    summaryDangerTreeDate,
   );
   const typeGroups = groupAssetsByType(assets ?? [], assetCodes ?? []);
   const campsiteGroups = groupAssetsByCampsite(assets ?? []);
@@ -98,6 +108,29 @@ export function RecResourceAssetsEditPage() {
     });
   }
 
+  function handleOpenInspectionEdit() {
+    setInspectionDate(toDateInputValue(resource?.last_rec_inspection_date));
+    setDangerTreeDate(toDateInputValue(resource?.last_hzrd_tree_assess_date));
+    setIsEditingInspections(true);
+  }
+
+  async function handleSaveInspections() {
+    if (!recResourceId) return;
+    setIsSavingInspections(true);
+    try {
+      await updateResource({
+        recResourceId,
+        updateRecreationResourceDto: {
+          last_rec_inspection_date: inspectionDate || null,
+          last_hzrd_tree_assess_date: dangerTreeDate || null,
+        },
+      });
+      setIsEditingInspections(false);
+    } finally {
+      setIsSavingInspections(false);
+    }
+  }
+
   async function handleSave() {
     if (!recResourceId) return;
     setIsSaving(true);
@@ -108,11 +141,11 @@ export function RecResourceAssetsEditPage() {
             assetId,
             recResourceId,
             dto: {
-              asset_name: values.asset_name || null,
-              asset_length: parseNumber(values.asset_length),
-              asset_width: parseNumber(values.asset_width),
-              asset_area: parseNumber(values.asset_area),
-              actual_value: parseNumber(values.actual_value),
+              asset_comment: values.asset_comment || null,
+              asset_length: parseNumber(values.asset_length) ?? undefined,
+              asset_width: parseNumber(values.asset_width) ?? undefined,
+              asset_area: parseNumber(values.asset_area) ?? undefined,
+              actual_value: parseNumber(values.actual_value) ?? undefined,
             },
           }),
         ),
@@ -130,17 +163,36 @@ export function RecResourceAssetsEditPage() {
     <Stack direction="vertical" className="pb-4" gap={3}>
       <div className="d-flex justify-content-between align-items-center gap-3">
         <h2 className="mb-0">Assets</h2>
-        <Dropdown>
-          <Dropdown.Toggle
-            variant="primary"
-            id="assets-actions-dropdown"
-            disabled
-          >
-            Actions
-          </Dropdown.Toggle>
-          <Dropdown.Menu align="end" />
-        </Dropdown>
+        <div className="d-flex align-items-center gap-2">
+          <Dropdown>
+            <Dropdown.Toggle variant="primary" id="assets-actions-dropdown">
+              Actions
+            </Dropdown.Toggle>
+            <Dropdown.Menu align="end">
+              <Dropdown.Item
+                onClick={handleOpenInspectionEdit}
+                disabled={isEditingInspections || !!editGroup}
+              >
+                Edit inspection dates
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
       </div>
+
+      {isEditingInspections && (
+        <InspectionDatesEdit
+          currentInspectionDate={resource?.last_rec_inspection_date}
+          currentDangerTreeDate={resource?.last_hzrd_tree_assess_date}
+          inspectionDate={inspectionDate}
+          dangerTreeDate={dangerTreeDate}
+          isSaving={isSavingInspections}
+          onInspectionDateChange={setInspectionDate}
+          onDangerTreeDateChange={setDangerTreeDate}
+          onSave={() => void handleSaveInspections()}
+          onCancel={() => setIsEditingInspections(false)}
+        />
+      )}
 
       <AssetSummaryCards summary={summary} />
 

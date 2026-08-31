@@ -8,9 +8,12 @@ export interface StyledAccordionProps {
   children: ReactNode;
   className?: string;
   defaultOpen?: boolean;
-  // Rendered as a sibling of the toggle button (not inside it), so it can
-  // hold its own interactive elements (e.g. buttons) without nesting inside
-  // and without accidentally toggling — the accordion's own button.
+  /**
+   * When provided, puts the accordion into controlled mode.
+   * Pass the eventKey to open it, or undefined to close it.
+   * Overrides defaultOpen.
+   */
+  activeKey?: string;
   headerEnd?: ReactNode;
 }
 
@@ -20,20 +23,25 @@ export const StyledAccordion = ({
   children,
   className = '',
   defaultOpen = true,
+  activeKey,
   headerEnd,
-}: StyledAccordionProps) => (
-  <Accordion
-    defaultActiveKey={defaultOpen ? eventKey : undefined}
-    className={`styled-accordion ${className}`}
-  >
-    <Accordion.Item eventKey={eventKey} className="styled-accordion__item">
-      <div className="styled-accordion__header-row">
-        <Accordion.Header className="styled-accordion__header">
-          <span className="styled-accordion__title">{title}</span>
-        </Accordion.Header>
-        {headerEnd}
-      </div>
-      <Accordion.Body>{children}</Accordion.Body>
-    </Accordion.Item>
-  </Accordion>
-);
+}: StyledAccordionProps) => {
+  const controlledProps =
+    activeKey !== undefined
+      ? { activeKey }
+      : { defaultActiveKey: defaultOpen ? eventKey : undefined };
+
+  return (
+    <Accordion {...controlledProps} className={`styled-accordion ${className}`}>
+      <Accordion.Item eventKey={eventKey} className="styled-accordion__item">
+        <div className="styled-accordion__header-row">
+          <Accordion.Header className="styled-accordion__header">
+            <span className="styled-accordion__title">{title}</span>
+          </Accordion.Header>
+          {headerEnd}
+        </div>
+        <Accordion.Body>{children}</Accordion.Body>
+      </Accordion.Item>
+    </Accordion>
+  );
+};

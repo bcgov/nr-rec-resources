@@ -6,9 +6,13 @@ import type { Asset, AssetCode, RepairCode } from './types';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import './AssetCard.scss';
 import './AssetCardEdit.scss';
+import {
+  latitudeRegisterOptions,
+  longitudeRegisterOptions,
+} from './coordinateRegisterOptions';
 
 export interface AssetEditFormValues {
-  asset_name: string;
+  asset_comment: string;
   asset_length: string;
   asset_width: string;
   asset_area: string;
@@ -24,6 +28,7 @@ interface AssetCardEditProps {
   className?: string;
   recResourceId: string;
   onChange: (assetId: number, values: AssetEditFormValues) => void;
+  onValidationChange?: (assetId: number, hasErrors: boolean) => void;
   onRepairChange?: (
     repairId: number,
     dto: Partial<UpdateRecreationAssetRepairDto>,
@@ -37,6 +42,7 @@ export function AssetCardEdit({
   className = '',
   recResourceId,
   onChange,
+  onValidationChange,
   onRepairChange,
 }: AssetCardEditProps) {
   const isCampsite = asset.asset_code === CAMPSITE_STRUCTURE_CODE;
@@ -49,9 +55,15 @@ export function AssetCardEdit({
   const areaEnabled = selectedAssetCode?.has_area ?? false;
   const repairs = asset.recreation_asset_repair ?? [];
 
-  const { register, getValues } = useForm<AssetEditFormValues>({
+  const {
+    register,
+    getValues,
+    formState: { errors },
+    trigger,
+  } = useForm<AssetEditFormValues>({
+    mode: 'onChange',
     defaultValues: {
-      asset_name: asset.asset_name ?? '',
+      asset_comment: asset.asset_comment ?? '',
       asset_length:
         asset.asset_length != null ? String(asset.asset_length) : '',
       asset_width: asset.asset_width != null ? String(asset.asset_width) : '',
@@ -64,7 +76,12 @@ export function AssetCardEdit({
   });
 
   function handleChange() {
-    onChange(asset.asset_id, getValues());
+    const values = getValues();
+    onChange(asset.asset_id, values);
+    // Re-validate lat/lng together (one required if other is set)
+    void trigger(['latitude', 'longitude']);
+    const hasErrors = Object.keys(errors).length > 0;
+    onValidationChange?.(asset.asset_id, hasErrors);
   }
 
   const id = asset.asset_id;
@@ -76,15 +93,15 @@ export function AssetCardEdit({
           <h3 className="asset-card-edit__title">{asset.asset_name}</h3>
 
           <Form.Group
-            controlId={`asset-name-${id}`}
+            controlId={`asset-comment-${id}`}
             className="asset-card-edit__name-group"
           >
-            <Form.Label>Asset name</Form.Label>
+            <Form.Label>Asset description</Form.Label>
             <Form.Control
               type="text"
-              {...register('asset_name')}
+              {...register('asset_comment')}
               onChange={(e) => {
-                void register('asset_name').onChange(e);
+                void register('asset_comment').onChange(e);
                 handleChange();
               }}
             />
@@ -152,12 +169,16 @@ export function AssetCardEdit({
               <Form.Control
                 type="number"
                 step="any"
-                {...register('longitude')}
+                isInvalid={!!errors.longitude}
+                {...register('longitude', longitudeRegisterOptions(getValues))}
                 onChange={(e) => {
                   void register('longitude').onChange(e);
                   handleChange();
                 }}
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.longitude?.message}
+              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group controlId={`asset-latitude-${id}`}>
@@ -165,12 +186,16 @@ export function AssetCardEdit({
               <Form.Control
                 type="number"
                 step="any"
-                {...register('latitude')}
+                isInvalid={!!errors.latitude}
+                {...register('latitude', latitudeRegisterOptions(getValues))}
                 onChange={(e) => {
                   void register('latitude').onChange(e);
                   handleChange();
                 }}
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.latitude?.message}
+              </Form.Control.Feedback>
             </Form.Group>
 
             {!isCampsite && (

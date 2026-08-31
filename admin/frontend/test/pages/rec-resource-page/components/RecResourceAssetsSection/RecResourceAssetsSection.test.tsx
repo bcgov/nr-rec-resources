@@ -43,6 +43,15 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
   useUpdateRepair: vi.fn().mockReturnValue({
     mutate: vi.fn(),
   }),
+  useUpdateRecreationResource: vi.fn().mockReturnValue({
+    mutateAsync: vi.fn(),
+  }),
+  useUpdateAsset: vi.fn().mockReturnValue({
+    mutateAsync: vi.fn(),
+  }),
+  useUpdateAssetRepair: vi.fn().mockReturnValue({
+    mutateAsync: vi.fn(),
+  }),
 }));
 
 const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({

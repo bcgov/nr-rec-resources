@@ -90,7 +90,7 @@ describe('AssetCardEdit', () => {
 
   it('renders edit form fields', () => {
     render(<AssetCardEdit {...defaultProps} />);
-    expect(screen.getByLabelText('Asset name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Asset description')).toBeInTheDocument();
     expect(screen.getByLabelText('Longitude')).toBeInTheDocument();
     expect(screen.getByLabelText('Latitude')).toBeInTheDocument();
   });
@@ -111,7 +111,7 @@ describe('AssetCardEdit', () => {
     const onChange = vi.fn();
     render(<AssetCardEdit {...defaultProps} onChange={onChange} />);
 
-    const nameInput = screen.getByLabelText('Asset name');
+    const nameInput = screen.getByLabelText('Asset description');
     await user.clear(nameInput);
     await user.type(nameInput, 'New Name');
 

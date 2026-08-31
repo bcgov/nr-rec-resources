@@ -6,8 +6,10 @@ import { CustomButton } from '@/components';
 import { useCreateAssetRepair } from '@/services/hooks/recreation-resource-admin';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import {
+  buildRepairMutationDto,
   EMPTY_REPAIR_FORM,
   getRepairTitle,
+  parseOptionalRepairNumber,
   RepairAddForm,
   RepairExpandToggle,
 } from './repairShared';
@@ -61,9 +63,7 @@ export function AssetCardRepairsEdit({
     const parsed =
       field === 'repair_completed_date'
         ? value || null
-        : value === ''
-          ? null
-          : parseFloat(value);
+        : parseOptionalRepairNumber(value);
 
     onRepairChange?.(repairId, { [field]: parsed });
   }
@@ -73,16 +73,7 @@ export function AssetCardRepairsEdit({
       {
         assetId,
         recResourceId,
-        dto: {
-          recreation_remed_repair_code: form.repairCode || null,
-          estimated_repair_cost: form.estimatedCost
-            ? parseFloat(form.estimatedCost)
-            : null,
-          actual_repair_cost: form.actualCost
-            ? parseFloat(form.actualCost)
-            : null,
-          repair_completed_date: form.completedDate || null,
-        },
+        dto: buildRepairMutationDto(form),
       },
       {
         onSuccess: () => {

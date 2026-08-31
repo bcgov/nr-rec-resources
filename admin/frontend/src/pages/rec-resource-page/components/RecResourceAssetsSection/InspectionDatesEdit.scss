@@ -1,0 +1,85 @@
+@import '@shared/styles/variables';
+
+.inspection-dates-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px 16px 24px;
+  border: 1px solid $colorGrey;
+  border-radius: 6px;
+  background: $colorWhite;
+}
+
+.inspection-dates-edit__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.inspection-dates-edit__title {
+  color: $colorBlack;
+  font-size: 1.44rem; // 23.04px
+  font-weight: 700;
+  line-height: 1.441;
+}
+
+.inspection-dates-edit__actions {
+  flex-shrink: 0;
+}
+
+.inspection-dates-edit__fields {
+  display: flex;
+  gap: 24px;
+}
+
+.inspection-dates-edit__field-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.inspection-dates-edit__meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 44px;
+  margin-bottom: 8px;
+}
+
+.inspection-dates-edit__meta-title-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inspection-dates-edit__meta-title {
+  color: $colorBlack;
+  font: var(--typography-bold-small-body, 700 0.833rem/1.313rem 'BC Sans');
+}
+
+.inspection-dates-edit__meta-value {
+  color: $colorBlack;
+  font: var(--typography-regular-small-body, 400 0.833rem/1.313rem 'BC Sans');
+}
+
+.inspection-dates-edit input[type='date'].form-control {
+  min-height: 44px;
+  padding: 8px 12px;
+  border-color: $colorGrey;
+  border-radius: 4px;
+}
+
+@media (max-width: ($mdBreakpoint - 0.02px)) {
+  .inspection-dates-edit__header {
+    flex-wrap: wrap;
+  }
+
+  .inspection-dates-edit__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .inspection-dates-edit__fields {
+    flex-direction: column;
+  }
+}
