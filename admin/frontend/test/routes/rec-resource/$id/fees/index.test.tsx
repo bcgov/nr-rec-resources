@@ -48,7 +48,7 @@ describe('RecResource Fees Index Route', () => {
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
         requireAll: ['rst-developer'],
-        requireAny: ['rst-viewer', 'rst-admin'],
+        requireAny: ['rst-idir-viewer', 'rst-viewer', 'rst-admin'],
         redirectTo: '/rec-resource/REC123/files',
         children: expect.anything(),
       }),

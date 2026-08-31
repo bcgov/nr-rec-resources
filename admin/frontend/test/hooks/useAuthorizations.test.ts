@@ -15,6 +15,22 @@ describe('useAuthorizations', () => {
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
       isSuperAdmin: false,
+      canViewSensitiveInfo: true,
+    });
+  });
+
+  it('idir-viewer role', () => {
+    const { result } = renderHook(() => useAuthorizations(), {
+      wrapper: createAuthWrapper(['rst-idir-viewer']),
+    });
+
+    expect(result.current).toEqual({
+      canView: true,
+      canEdit: false,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
+      isSuperAdmin: false,
+      canViewSensitiveInfo: false,
     });
   });
 
@@ -29,6 +45,7 @@ describe('useAuthorizations', () => {
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
       isSuperAdmin: false,
+      canViewSensitiveInfo: true,
     });
   });
 
@@ -43,6 +60,7 @@ describe('useAuthorizations', () => {
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
       isSuperAdmin: true,
+      canViewSensitiveInfo: true,
     });
   });
 
@@ -57,6 +75,7 @@ describe('useAuthorizations', () => {
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
       isSuperAdmin: false,
+      canViewSensitiveInfo: false,
     });
   });
 
@@ -71,6 +90,7 @@ describe('useAuthorizations', () => {
       canViewFeatureFlag: true,
       canEditFeatureFlag: false,
       isSuperAdmin: false,
+      canViewSensitiveInfo: true,
     });
   });
 
@@ -85,6 +105,7 @@ describe('useAuthorizations', () => {
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
       isSuperAdmin: false,
+      canViewSensitiveInfo: true,
     });
   });
 
@@ -99,6 +120,7 @@ describe('useAuthorizations', () => {
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
       isSuperAdmin: true,
+      canViewSensitiveInfo: true,
     });
   });
 });

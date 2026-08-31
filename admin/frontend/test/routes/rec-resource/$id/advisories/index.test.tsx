@@ -34,7 +34,7 @@ describe('RecResource Advisories Index Route', () => {
     ).toBeInTheDocument();
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        requireAny: ['rst-viewer', 'rst-admin'],
+        requireAny: ['rst-idir-viewer', 'rst-viewer', 'rst-admin'],
         redirectTo: '/rec-resource/REC123/files',
         children: expect.anything(),
       }),
