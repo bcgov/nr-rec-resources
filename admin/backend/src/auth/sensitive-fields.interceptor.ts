@@ -13,10 +13,13 @@ import { RecreationResourceAuthRole } from './auth.constants';
  * Fields redacted from responses when the user holds only the IDIR_VIEWER role.
  * These correspond to the sensitive-information restrictions in AC3 and AC4.
  */
-const REPAIR_COST_FIELDS = ['estimated_repair_cost', 'actual_repair_cost'];
-const AGREEMENT_HOLDER_FIELD = 'recreation_agreement_holder';
+const SENSITIVE_FIELD_KEYS = new Set([
+  'estimated_repair_cost',
+  'actual_repair_cost',
+  'recreation_agreement_holder',
+]);
 
-function isIdirViewerOnly(roles: string[]): boolean {
+export function isIdirViewerOnly(roles: string[]): boolean {
   const rstRoles = Object.values(RecreationResourceAuthRole).filter(
     (r) => r !== RecreationResourceAuthRole.ACT_SERVICE,
   );
@@ -28,27 +31,29 @@ function isIdirViewerOnly(roles: string[]): boolean {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function redactSensitiveFields(data: any): unknown {
+/**
+ * Targeted in-place redaction of sensitive fields.
+ * Mutates the response object directly to avoid the cost of a deep clone.
+ * Skips Date instances (typeof Date === 'object' but Dates have no plain keys).
+ */
+function redactSensitiveFields(data: unknown): void {
   if (Array.isArray(data)) {
-    return data.map(redactSensitiveFields);
+    for (const item of data) {
+      redactSensitiveFields(item);
+    }
+    return;
   }
 
-  if (data !== null && typeof data === 'object') {
-    const result: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(data)) {
-      if (REPAIR_COST_FIELDS.includes(key)) {
-        result[key] = null;
-      } else if (key === AGREEMENT_HOLDER_FIELD) {
-        result[key] = null;
+  if (data !== null && typeof data === 'object' && !(data instanceof Date)) {
+    const obj = data as Record<string, unknown>;
+    for (const key of Object.keys(obj)) {
+      if (SENSITIVE_FIELD_KEYS.has(key)) {
+        obj[key] = null;
       } else {
-        result[key] = redactSensitiveFields(value);
+        redactSensitiveFields(obj[key]);
       }
     }
-    return result;
   }
-
-  return data;
 }
 
 /**
@@ -77,6 +82,11 @@ export class SensitiveFieldsInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    return next.handle().pipe(map(redactSensitiveFields));
+    return next.handle().pipe(
+      map((data) => {
+        redactSensitiveFields(data);
+        return data;
+      }),
+    );
   }
 }
