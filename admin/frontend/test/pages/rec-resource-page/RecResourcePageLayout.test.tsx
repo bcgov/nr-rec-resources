@@ -261,7 +261,7 @@ describe('RecResourcePageLayout', () => {
 
     await waitFor(
       () => {
-        const mainContainer = screen.getByRole('main');
+        const mainContainer = screen.getByRole('main-container');
         expect(mainContainer).toHaveAttribute(
           'aria-label',
           'Recreation resource content',
