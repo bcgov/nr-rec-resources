@@ -496,7 +496,10 @@ export function BulkAssetEditModal({
                       <div className="d-flex flex-column h-100">
                         <div className="bold-field">Assign to Campsite</div>
                         <div className="mt-auto">
-                          {asset.parent_id ? asset.parent_id : 'N/A'} →{' '}
+                          {asset.parent_id
+                            ? showCampsideNumber(Number(asset.parent_id))
+                            : 'N/A'}{' '}
+                          →{' '}
                           <span className="bold-field">
                             {editFields.campsiteId
                               ? showCampsideNumber(
