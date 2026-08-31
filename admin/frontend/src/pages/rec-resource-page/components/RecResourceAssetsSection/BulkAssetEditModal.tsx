@@ -242,7 +242,7 @@ export function BulkAssetEditModal({
 
   const step1 = (
     <>
-      <div className="bulk-asset-edit-modal__panel px-4 py-3 rounded-3">
+      <div className="bulk-asset-edit-modal__panel px-4 py-3">
         <div className="d-flex justify-content-between align-items-center">
           <h3 className="bulk-asset-edit-modal__subtitle panel-title mb-0">
             Select Assets ({selectedAssetIds.length} of{' '}
