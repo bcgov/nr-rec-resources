@@ -19,6 +19,15 @@ const SENSITIVE_FIELD_KEYS = new Set([
   'recreation_agreement_holder',
 ]);
 
+// Large geospatial branches cannot contain the sensitive keys we redact.
+const SKIP_DESCENT_KEYS = new Set(['geometry', 'shape', 'coordinates']);
+
+function isTraversableObject(value: unknown): value is Record<string, unknown> {
+  return (
+    value !== null && typeof value === 'object' && !(value instanceof Date)
+  );
+}
+
 export function isIdirViewerOnly(roles: string[]): boolean {
   const rstRoles = Object.values(RecreationResourceAuthRole).filter(
     (r) => r !== RecreationResourceAuthRole.ACT_SERVICE,
@@ -37,20 +46,47 @@ export function isIdirViewerOnly(roles: string[]): boolean {
  * Skips Date instances (typeof Date === 'object' but Dates have no plain keys).
  */
 function redactSensitiveFields(data: unknown): void {
-  if (Array.isArray(data)) {
-    for (const item of data) {
-      redactSensitiveFields(item);
-    }
+  if (!isTraversableObject(data) && !Array.isArray(data)) {
     return;
   }
 
-  if (data !== null && typeof data === 'object' && !(data instanceof Date)) {
-    const obj = data as Record<string, unknown>;
-    for (const key of Object.keys(obj)) {
+  const stack: unknown[] = [data];
+  const visited = new WeakSet<object>();
+
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) continue;
+
+    if (Array.isArray(current)) {
+      for (const item of current) {
+        if (isTraversableObject(item) || Array.isArray(item)) {
+          stack.push(item);
+        }
+      }
+      continue;
+    }
+
+    if (!isTraversableObject(current)) {
+      continue;
+    }
+
+    if (visited.has(current)) {
+      continue;
+    }
+    visited.add(current);
+
+    for (const [key, value] of Object.entries(current)) {
       if (SENSITIVE_FIELD_KEYS.has(key)) {
-        obj[key] = null;
-      } else {
-        redactSensitiveFields(obj[key]);
+        current[key] = null;
+        continue;
+      }
+
+      if (SKIP_DESCENT_KEYS.has(key)) {
+        continue;
+      }
+
+      if (Array.isArray(value) || isTraversableObject(value)) {
+        stack.push(value);
       }
     }
   }

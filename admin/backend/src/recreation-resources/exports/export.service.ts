@@ -12,8 +12,6 @@ import { ExportPreviewRow, ExportRepository } from './export.repository';
  * CSV export columns that must not be visible to IDIR viewer-only users.
  * CLIENT_NUMBER contains agreement holder identity information.
  * ESTIMATED_REPAIR_COST is a financial field restricted to higher roles.
- * TODO: Confirm with the ticket whether AGREEMENT_START_DATE / AGREEMENT_END_DATE
- *       should also be redacted for IDIR viewers.
  */
 const VIEWER_REDACTED_COLUMNS = new Set([
   'CLIENT_NUMBER',
