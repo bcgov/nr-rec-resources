@@ -13,9 +13,9 @@
 }
 
 .bulk-asset-edit-modal__panel {
-  margin-top: 1rem;
-  background-color: $colorBlueLight;
-  border: solid 1px $colorBlue;
+  background-color: #{$colorIceBlue};
+  border: 1px solid #{$colorGreyLight};
+  border-radius: var(--bs-border-radius, 0.375rem);
 }
 
 .bulk-asset-edit-modal__subtitle {
@@ -71,7 +71,7 @@ input[type='number'] {
 }
 
 .bottom-border {
-  border-bottom: solid 2px $colorBlue;
+  border-bottom: solid 2px $colorGreyLight;
 }
 
 .asset-title {
