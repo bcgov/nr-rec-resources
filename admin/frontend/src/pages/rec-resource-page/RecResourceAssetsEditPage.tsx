@@ -275,6 +275,8 @@ export function RecResourceAssetsEditPage() {
                         key={asset.asset_id}
                         asset={asset}
                         repairCodes={repairCodes}
+                        recResourceId={recResourceId}
+                        isAddRepairDisabled={!!editGroup}
                       />
                     ))}
                   </Stack>

@@ -11,6 +11,7 @@ interface AssetCardProps {
   assetCodes?: AssetCode[];
   className?: string;
   recResourceId?: string;
+  isAddRepairDisabled?: boolean;
 }
 
 interface AssetField {
@@ -93,6 +94,7 @@ export function AssetCard({
   assetCodes = [],
   className = '',
   recResourceId,
+  isAddRepairDisabled = false,
 }: AssetCardProps) {
   const fields = getAssetFields(asset, assetCodes);
   const repairs = asset.recreation_asset_repair ?? [];
@@ -124,6 +126,7 @@ export function AssetCard({
             repairCodes={repairCodes}
             assetId={asset.asset_id}
             recResourceId={recResourceId}
+            isAddRepairDisabled={isAddRepairDisabled}
           />
         </div>
       </Card.Body>

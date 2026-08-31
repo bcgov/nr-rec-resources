@@ -24,6 +24,7 @@ interface AssetCardRepairsProps {
   repairCodes: RepairCode[];
   assetId?: number;
   isEditing?: boolean;
+  isAddRepairDisabled?: boolean;
   recResourceId?: string;
 }
 
@@ -233,6 +234,7 @@ export function AssetCardRepairs({
   assetId,
   recResourceId,
   isEditing = false,
+  isAddRepairDisabled = false,
 }: AssetCardRepairsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { canViewSensitiveInfo } = useAuthorizations();
@@ -379,7 +381,7 @@ export function AssetCardRepairs({
               className="asset-summary-action-btn asset-card-repairs__add-btn"
               leftIcon={<FontAwesomeIcon icon={faPlus} />}
               onClick={() => setShowAddForm(true)}
-              disabled={isEditing}
+              disabled={isEditing || isAddRepairDisabled}
             >
               Add repair
             </CustomButton>
