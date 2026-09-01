@@ -76,14 +76,14 @@ export const RecResourcePageLayout = () => {
 
       <ResourceHeaderSection recResource={recResource} />
 
-      <div className="d-flex gap-4 align-items-start">
-        <aside className="flex-shrink-0">
+      <div className="d-flex flex-column flex-md-row gap-4 align-items-start">
+        <aside className="w-100 w-md-auto flex-shrink-0">
           <RecResourceVerticalNav
             activeTab={activeTab}
             resourceId={rec_resource_id}
           />
         </aside>
-        <main className="flex-grow-1 min-vw-0">
+        <main className="flex-grow-1 min-w-0">
           <Outlet />
         </main>
       </div>
