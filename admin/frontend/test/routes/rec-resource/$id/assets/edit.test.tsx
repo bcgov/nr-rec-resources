@@ -1,19 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { Route } from '@/routes/rec-resource/$id/assets/edit';
-import { Route as ParentRoute } from '@/routes/rec-resource/$id/index';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
+import { Route as ParentRoute } from '@/routes/rec-resource/$id';
 import { ROLES } from '@/hooks/useAuthorizations';
 import { ROUTE_PATHS } from '@/constants/routes';
-
-// Define explicit types for route hooks/options to avoid `never` or `Function` type errors
-type BeforeLoadFn = (args: {
-  params: { id: string };
-  context: Record<string, unknown>;
-}) => {
-  tab: RecResourceNavKey;
-  breadcrumb: (loaderData?: unknown) => Array<{ label: string; href: string }>;
-};
 
 type SearchFn = (search: Record<string, unknown>) => { editGroup?: string };
 
@@ -53,26 +44,17 @@ vi.mock('@/components/auth', () => ({
   ),
 }));
 
-// Mock the parent route with explicit function signature for vi.fn
-vi.mock('@/routes/rec-resource/$id/index', () => ({
+// Mock parent route file directly
+vi.mock('@/routes/rec-resource/$id', () => ({
   Route: {
     options: {
-      beforeLoad: vi.fn<
-        (args?: any) =>
-          | {
-              breadcrumb?: (
-                loaderData?: unknown,
-              ) => Array<{ label: string; href: string }>;
-            }
-          | undefined
-      >(),
+      beforeLoad: vi.fn(),
     },
   },
 }));
 
 describe('RecResourceAssetsEditRoute', () => {
   const validateSearch = Route.options.validateSearch as unknown as SearchFn;
-  const beforeLoad = Route.options.beforeLoad as unknown as BeforeLoadFn;
 
   describe('Route Configuration Options', () => {
     it('should validate search params correctly when editGroup is a string', () => {
@@ -93,16 +75,16 @@ describe('RecResourceAssetsEditRoute', () => {
     it('should execute beforeLoad and return tab and breadcrumbs when parent beforeLoad returns breadcrumbs', () => {
       const mockParentBreadcrumbs = [{ label: 'Parent', href: '/parent' }];
 
-      vi.mocked(
-        ParentRoute.options.beforeLoad as ReturnType<typeof vi.fn>,
-      ).mockReturnValue({
+      // Mock ParentRoute.options.beforeLoad return value BEFORE calling beforeLoad
+      vi.mocked(ParentRoute.options.beforeLoad as any).mockReturnValueOnce({
         breadcrumb: () => mockParentBreadcrumbs,
       });
 
-      const params = { id: 'resource-456' };
-      const context = {};
-
-      const result = beforeLoad({ params, context });
+      const beforeLoadFn = Route.options.beforeLoad as any;
+      const result = beforeLoadFn({
+        params: { id: 'resource-456' },
+        context: {},
+      });
 
       expect(result.tab).toBe(RecResourceNavKey.ASSETS);
 
@@ -123,15 +105,17 @@ describe('RecResourceAssetsEditRoute', () => {
       ]);
     });
 
-    it('should return empty breadcrumb array if parent beforeLoad returns no breadcrumb function', () => {
-      vi.mocked(
-        ParentRoute.options.beforeLoad as ReturnType<typeof vi.fn>,
-      ).mockReturnValue(undefined);
+    it('should return empty breadcrumb array if parent beforeLoad returns undefined or has no breadcrumb function', () => {
+      // Mock ParentRoute.options.beforeLoad to return undefined
+      vi.mocked(ParentRoute.options.beforeLoad as any).mockReturnValueOnce(
+        undefined,
+      );
 
-      const params = { id: 'resource-456' };
-      const context = {};
-
-      const result = beforeLoad({ params, context });
+      const beforeLoadFn = Route.options.beforeLoad as any;
+      const result = beforeLoadFn({
+        params: { id: 'resource-456' },
+        context: {},
+      });
 
       expect(result.tab).toBe(RecResourceNavKey.ASSETS);
       expect(result.breadcrumb()).toEqual([]);
