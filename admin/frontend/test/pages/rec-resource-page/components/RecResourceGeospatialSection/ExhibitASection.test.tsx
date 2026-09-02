@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ExhibitASection } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/ExhibitASection/ExhibitASection';
 
 // ── Mock hooks ────────────────────────────────────────────────────────────────
 const mockUseAuthorizations = vi.fn();
@@ -84,18 +85,17 @@ vi.mock('@tanstack/react-query', async () => {
   };
 });
 
+const mockAddSuccessNotification = vi.fn();
+const mockAddErrorNotification = vi.fn();
 vi.mock('@/store/notificationStore', () => ({
-  addSuccessNotification: vi.fn(),
-  addErrorNotification: vi.fn(),
+  addSuccessNotification: (...args: any[]) =>
+    mockAddSuccessNotification(...args),
+  addErrorNotification: (...args: any[]) => mockAddErrorNotification(...args),
 }));
 
 vi.mock('@shared/utils', () => ({
   formatDateTimeReadable: (d: string) => d || '',
 }));
-
-// ── Import component ──────────────────────────────────────────────────────────
-import { ExhibitASection } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/ExhibitASection/ExhibitASection';
-
 const mockDoc = {
   document_id: 'doc-1',
   file_name: 'exhibit-a.pdf',
@@ -109,6 +109,8 @@ describe('ExhibitASection', () => {
     vi.clearAllMocks();
     mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
     mockUseGetExhibitADocs.mockReturnValue({ data: [], isFetching: false });
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true } as Response);
+    vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue('pending-uuid');
   });
 
   it('renders the Exhibit A heading', () => {
@@ -196,6 +198,24 @@ describe('ExhibitASection', () => {
     });
   });
 
+  it('calls delete error notification when delete fails', async () => {
+    mockDeleteMutateAsync.mockRejectedValue(new Error('delete failed'));
+    mockUseGetExhibitADocs.mockReturnValue({
+      data: [mockDoc],
+      isFetching: false,
+    });
+    render(<ExhibitASection recResourceId="REC123" />);
+
+    fireEvent.click(screen.getByTitle('Delete'));
+    fireEvent.click(screen.getByText('Confirm Delete'));
+
+    await waitFor(() => {
+      expect(mockAddErrorNotification).toHaveBeenCalledWith(
+        'Failed to delete document. Please try again.',
+      );
+    });
+  });
+
   it('opens file in new tab when View is clicked', () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
     mockUseGetExhibitADocs.mockReturnValue({
@@ -231,6 +251,16 @@ describe('ExhibitASection', () => {
     expect(screen.queryByText('Upload')).toBeNull();
   });
 
+  it('triggers hidden file input click when Upload button is clicked', () => {
+    const clickSpy = vi.spyOn(HTMLInputElement.prototype, 'click');
+    render(<ExhibitASection recResourceId="REC123" />);
+
+    fireEvent.click(screen.getByText('Upload'));
+
+    expect(clickSpy).toHaveBeenCalled();
+    clickSpy.mockRestore();
+  });
+
   it('shows upload modal when a file is selected', async () => {
     render(<ExhibitASection recResourceId="REC123" />);
 
@@ -248,5 +278,116 @@ describe('ExhibitASection', () => {
       expect(screen.getByTestId('upload-modal')).toBeDefined();
     });
     expect(screen.getByText('Upload Exhibit A document')).toBeDefined();
+  });
+
+  it('updates upload modal file name and closes on cancel', async () => {
+    render(<ExhibitASection recResourceId="REC123" />);
+
+    const fileInput = screen.getByLabelText(
+      'Upload Exhibit A document',
+    ) as HTMLInputElement;
+
+    const file = new File(['content'], 'my-exhibit.pdf', {
+      type: 'application/pdf',
+    });
+    Object.defineProperty(fileInput, 'files', { value: [file] });
+    fireEvent.change(fileInput);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('upload-modal')).toBeDefined();
+    });
+
+    const fileNameInput = screen.getByTestId('file-name-input');
+    fireEvent.change(fileNameInput, { target: { value: 'renamed-exhibit' } });
+    expect((fileNameInput as HTMLInputElement).value).toBe('renamed-exhibit');
+
+    fireEvent.click(screen.getByText('Cancel Upload'));
+    expect(screen.queryByTestId('upload-modal')).toBeNull();
+  });
+
+  it('uploads successfully and finalizes exhibit A document', async () => {
+    mockPresignMutateAsync.mockResolvedValue({
+      url: 'https://upload.example.com/signed-url',
+      document_id: 'doc-upload-1',
+    });
+    mockFinalizeMutateAsync.mockResolvedValue(undefined);
+
+    render(<ExhibitASection recResourceId="REC123" />);
+
+    const fileInput = screen.getByLabelText(
+      'Upload Exhibit A document',
+    ) as HTMLInputElement;
+
+    const file = new File(['content'], 'my-exhibit.pdf', {
+      type: 'application/pdf',
+    });
+    Object.defineProperty(fileInput, 'files', { value: [file] });
+    fireEvent.change(fileInput);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('upload-modal')).toBeDefined();
+    });
+
+    fireEvent.change(screen.getByTestId('file-name-input'), {
+      target: { value: 'final-name' },
+    });
+    fireEvent.click(screen.getByText('Confirm Upload'));
+
+    await waitFor(() => {
+      expect(mockPresignMutateAsync).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        fileName: 'final-name.pdf',
+      });
+    });
+
+    expect(mockFinalizeMutateAsync).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      document_id: 'doc-upload-1',
+      file_name: 'final-name',
+      extension: 'pdf',
+      file_size: file.size,
+    });
+    expect(mockInvalidateQueries).toHaveBeenCalled();
+    expect(mockAddSuccessNotification).toHaveBeenCalledWith(
+      'File "final-name" uploaded successfully.',
+    );
+  });
+
+  it('shows pending upload failure state and error notification when upload fails', async () => {
+    mockPresignMutateAsync.mockResolvedValue({
+      url: 'https://upload.example.com/signed-url',
+      document_id: 'doc-upload-2',
+    });
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: 'Server Error',
+    } as Response);
+
+    render(<ExhibitASection recResourceId="REC123" />);
+
+    const fileInput = screen.getByLabelText(
+      'Upload Exhibit A document',
+    ) as HTMLInputElement;
+
+    const file = new File(['content'], 'failed-exhibit.pdf', {
+      type: 'application/pdf',
+    });
+    Object.defineProperty(fileInput, 'files', { value: [file] });
+    fireEvent.change(fileInput);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('upload-modal')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByText('Confirm Upload'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Upload failed')).toBeDefined();
+    });
+
+    expect(mockAddErrorNotification).toHaveBeenCalledWith(
+      'Failed to upload "failed-exhibit". Please try again.',
+    );
   });
 });
