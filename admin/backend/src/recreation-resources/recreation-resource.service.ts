@@ -154,6 +154,8 @@ export class RecreationResourceService {
       await this.recreationResourceRepository.findOneById(rec_resource_id);
     if (!resource) return null;
 
+    console.log(resource);
+
     const naturalresource: RecreationNaturalResourceDto | null =
       await this.prisma.natural_resource_org_unit.findUnique({
         where: { rec_resource_id },

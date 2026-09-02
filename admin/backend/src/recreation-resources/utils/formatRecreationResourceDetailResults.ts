@@ -150,5 +150,7 @@ export function formatRecreationResourceDetailResults(
     rec_status_description:
       result.recreation_resource_status_code_rel?.description ?? null,
     natural_resource_org_unit_name: naturalresource?.org_unit_name ?? undefined,
+    access_status_grouplabel:
+      result.act_advisories_flat[0]?.access_status_grouplabel,
   };
 }
