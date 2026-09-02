@@ -4,6 +4,7 @@ import { COLOR_AMBER_DARK, COLOR_AMBER_LIGHT } from '@/styles/colors';
 import { AssetCardRepairs } from './AssetCardRepairs';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
 import { formatCurrency } from './formatCurrency';
+import { isTrailAssetCode } from './trailStations';
 import type { Asset, AssetCode, RepairCode } from './types';
 import './AssetCard.scss';
 
@@ -103,6 +104,7 @@ export function AssetCard({
   const outstandingRepairsCount = repairs.filter(
     (repair) => !repair.repair_completed_date,
   ).length;
+  const isTrailAsset = isTrailAssetCode(asset.asset_code, assetCodes);
 
   return (
     <Card className={`asset-card ${className}`}>
@@ -141,6 +143,7 @@ export function AssetCard({
             repairCodes={repairCodes}
             assetId={asset.asset_id}
             recResourceId={recResourceId}
+            isTrailAsset={isTrailAsset}
             isAddRepairDisabled={isAddRepairDisabled}
           />
         </div>

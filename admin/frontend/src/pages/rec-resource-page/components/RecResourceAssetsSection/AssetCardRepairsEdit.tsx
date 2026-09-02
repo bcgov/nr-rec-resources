@@ -13,6 +13,7 @@ import {
   RepairAddForm,
   RepairExpandToggle,
 } from './repairShared';
+import { isValidStationValue, STATION_COORDINATE_ERROR } from './trailStations';
 import type { AssetRepair, RepairCode } from './types';
 import './AssetCardRepairs.scss';
 
@@ -21,23 +22,54 @@ interface AssetCardRepairsEditProps {
   repairCodes: RepairCode[];
   recResourceId: string;
   assetId: number;
+  /** Trail repairs also expose the repaired segment's start/end station */
+  isTrailAsset?: boolean;
   /** Called on every repair field blur so the parent can batch-save on Save */
   onRepairChange?: (
     repairId: number,
     dto: Partial<UpdateRecreationAssetRepairDto>,
   ) => void;
+  /** Called when a station value becomes (in)valid so the parent can block Save */
+  onValidationChange?: (hasErrors: boolean) => void;
 }
+
+type StationField = 'trail_segment_start' | 'trail_segment_end';
+
+const stationErrorKey = (repairId: number, field: StationField) =>
+  `${repairId}:${field}`;
+
+const STATION_FIELDS: {
+  field: StationField;
+  label: string;
+  placeholder: string;
+}[] = [
+  {
+    field: 'trail_segment_start',
+    label: 'Start station',
+    placeholder: 'e.g. 49.232423, -128.334343',
+  },
+  {
+    field: 'trail_segment_end',
+    label: 'End station',
+    placeholder: 'e.g. 49.234561, -128.331872',
+  },
+];
 
 export function AssetCardRepairsEdit({
   repairs,
   repairCodes,
   recResourceId,
   assetId,
+  isTrailAsset = false,
   onRepairChange,
+  onValidationChange,
 }: AssetCardRepairsEditProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [form, setForm] = useState(EMPTY_REPAIR_FORM);
+  const [stationErrors, setStationErrors] = useState<Record<string, boolean>>(
+    {},
+  );
   const { mutate: createRepair, isPending: isCreating } =
     useCreateAssetRepair();
 
@@ -66,6 +98,28 @@ export function AssetCardRepairsEdit({
         : parseOptionalRepairNumber(value);
 
     onRepairChange?.(repairId, { [field]: parsed });
+  }
+
+  // Stations are free text, so an invalid coordinate is never handed to the
+  // parent — it is flagged inline and reported so Save can be blocked.
+  function handleStationBlur(
+    repairId: number,
+    field: StationField,
+    value: string,
+  ) {
+    const trimmed = value.trim();
+    const isValid = isValidStationValue(trimmed);
+
+    const nextErrors = {
+      ...stationErrors,
+      [stationErrorKey(repairId, field)]: !isValid,
+    };
+    setStationErrors(nextErrors);
+    onValidationChange?.(Object.values(nextErrors).some(Boolean));
+
+    if (isValid) {
+      onRepairChange?.(repairId, { [field]: trimmed || null });
+    }
   }
 
   function handleSaveRepair() {
@@ -156,6 +210,44 @@ export function AssetCardRepairsEdit({
                         }
                       />
                     </Form.Group>
+
+                    {isTrailAsset &&
+                      STATION_FIELDS.map(({ field, label, placeholder }) => {
+                        const hasError =
+                          stationErrors[
+                            stationErrorKey(repair.repair_id, field)
+                          ];
+                        return (
+                          <Form.Group
+                            key={field}
+                            controlId={`${field}-${repair.repair_id}`}
+                            className="asset-card-repairs__station-group"
+                          >
+                            <Form.Label>{label}</Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder={placeholder}
+                              isInvalid={hasError}
+                              defaultValue={repair[field] ?? ''}
+                              onBlur={(e) =>
+                                handleStationBlur(
+                                  repair.repair_id,
+                                  field,
+                                  e.target.value,
+                                )
+                              }
+                            />
+                            {hasError && (
+                              <Form.Control.Feedback
+                                type="invalid"
+                                className="d-block"
+                              >
+                                {STATION_COORDINATE_ERROR}
+                              </Form.Control.Feedback>
+                            )}
+                          </Form.Group>
+                        );
+                      })}
                   </div>
                 </div>
               ))}
