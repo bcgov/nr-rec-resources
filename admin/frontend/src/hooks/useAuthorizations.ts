@@ -2,6 +2,12 @@ import { useContext, useMemo } from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 
 export const ROLES = {
+  /**
+   * Automatically assigned to any IDIR user with no other RST role.
+   * Read-only access; cannot view Client info (except name) or Estimated Repair Costs.
+   */
+  IDIR_VIEWER: 'rst-idir-viewer',
+  /** Program Read-Only — read access including sensitive info (client details, repair costs). */
   VIEWER: 'rst-viewer',
   ADMIN: 'rst-admin',
   SUPER_ADMIN: 'rst-super-admin',
@@ -18,8 +24,11 @@ const getUserRoles = (context: React.ContextType<typeof AuthContext>) => {
     return [];
   }
 
-  const { user, authService } = context;
-  return user?.client_roles ?? authService.getUserRoles();
+  const { authService } = context;
+  // Always go through authService.getUserRoles() so the IDIR auto-assign
+  // logic (injecting 'rst-idir-viewer' for IDIR users with no other RST role)
+  // is applied consistently.
+  return authService.getUserRoles();
 };
 
 export const useUserRoles = () => {
@@ -32,7 +41,8 @@ export type AuthorizationKey =
   | 'canEdit'
   | 'isSuperAdmin'
   | 'canViewFeatureFlag'
-  | 'canEditFeatureFlag';
+  | 'canEditFeatureFlag'
+  | 'canViewSensitiveInfo';
 
 export const useAuthorizations = () => {
   const context = useContext(AuthContext);
@@ -40,6 +50,7 @@ export const useAuthorizations = () => {
   return useMemo(() => {
     const roles = getUserRoles(context);
     const canView = hasAnyRole(roles, [
+      ROLES.IDIR_VIEWER,
       ROLES.VIEWER,
       ROLES.ADMIN,
       ROLES.SUPER_ADMIN,
@@ -47,6 +58,16 @@ export const useAuthorizations = () => {
     const canEdit = hasAnyRole(roles, [ROLES.ADMIN, ROLES.SUPER_ADMIN]);
     const hasDeveloperAccess = hasAnyRole(roles, [ROLES.DEVELOPER]);
     const isSuperAdmin = hasAnyRole(roles, [ROLES.SUPER_ADMIN]);
+    /**
+     * True for Program Read-Only, Admin, and Super Admin roles.
+     * False for IDIR Read-Only — these users cannot see Client details
+     * (beyond the publicly-shown name) or Estimated / Actual Repair Costs.
+     */
+    const canViewSensitiveInfo = hasAnyRole(roles, [
+      ROLES.VIEWER,
+      ROLES.ADMIN,
+      ROLES.SUPER_ADMIN,
+    ]);
 
     return {
       canView,
@@ -54,6 +75,7 @@ export const useAuthorizations = () => {
       canViewFeatureFlag: hasDeveloperAccess && canView,
       canEditFeatureFlag: hasDeveloperAccess && canEdit,
       isSuperAdmin,
+      canViewSensitiveInfo,
     };
   }, [context]);
 };

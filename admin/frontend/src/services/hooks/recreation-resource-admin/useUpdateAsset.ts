@@ -10,12 +10,15 @@ interface UpdateAssetVariables {
 }
 
 export function useUpdateAsset() {
-  const api = useAssetsApiClient();
+  const apiClient = useAssetsApiClient();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ assetId, dto }: UpdateAssetVariables) =>
-      api.updateRecreationAsset({ id: assetId, updateRecreationAssetDto: dto }),
+      apiClient.updateRecreationAsset({
+        id: assetId,
+        updateRecreationAssetDto: dto,
+      }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.assets(

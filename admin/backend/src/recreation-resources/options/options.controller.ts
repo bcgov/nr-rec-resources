@@ -39,6 +39,7 @@ export class OptionsController {
 
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
     ],
@@ -66,6 +67,7 @@ export class OptionsController {
 
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
     ],

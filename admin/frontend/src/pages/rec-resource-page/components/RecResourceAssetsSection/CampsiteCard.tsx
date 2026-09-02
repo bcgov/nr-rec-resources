@@ -10,6 +10,12 @@ interface CampsiteCardProps {
   structureCount: number;
   totalValue: number;
   children?: ReactNode;
+  isDisabled?: boolean;
+  isEditing?: boolean;
+  isSaving?: boolean;
+  onEdit?: () => void;
+  onSave?: () => void;
+  onCancel?: () => void;
 }
 
 export function CampsiteCard({
@@ -18,12 +24,19 @@ export function CampsiteCard({
   structureCount,
   totalValue,
   children,
+  isDisabled = false,
+  isEditing = false,
+  isSaving = false,
+  onEdit,
+  onSave,
+  onCancel,
 }: CampsiteCardProps) {
   return (
     <StyledAccordion
       eventKey={eventKey}
       defaultOpen={false}
-      className="campsite-card"
+      activeKey={isEditing ? eventKey : undefined}
+      className={`campsite-card${isEditing ? ' campsite-card--editing' : ''}`}
       title={<span className="campsite-card__description">{description}</span>}
       headerEnd={
         <>
@@ -41,12 +54,46 @@ export function CampsiteCard({
               {formatCurrency(totalValue)} total value
             </span>
           </div>
-          <CustomButton
-            variant="secondary"
-            className="asset-summary-action-btn campsite-card__bulk-update-btn"
-          >
-            Edit
-          </CustomButton>
+          {isEditing ? (
+            <div className="d-flex gap-2">
+              <CustomButton
+                variant="outline-primary"
+                className="asset-summary-action-btn"
+                disabled={isSaving}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCancel?.();
+                }}
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton
+                variant="primary"
+                className="asset-summary-action-btn"
+                disabled={isSaving}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSave?.();
+                }}
+              >
+                {isSaving ? 'Saving…' : 'Save changes'}
+              </CustomButton>
+            </div>
+          ) : (
+            onEdit && (
+              <CustomButton
+                variant="secondary"
+                className="asset-summary-action-btn"
+                disabled={isDisabled}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+              >
+                Edit
+              </CustomButton>
+            )
+          )}
         </>
       }
     >

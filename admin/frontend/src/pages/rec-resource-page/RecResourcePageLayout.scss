@@ -36,4 +36,12 @@
       font-size: 1rem;
     }
   }
+
+  aside {
+    // Force the sidebar to fit its exact content width on desktop
+    @media (min-width: 768px) {
+      width: max-content !important;
+      max-width: 100%;
+    }
+  }
 }

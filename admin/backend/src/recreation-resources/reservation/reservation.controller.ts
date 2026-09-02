@@ -42,6 +42,7 @@ export class ReservationController {
 
   @AuthRoles(
     [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
     ],

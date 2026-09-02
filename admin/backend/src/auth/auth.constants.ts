@@ -8,6 +8,15 @@ export enum RecreationResourceAuthRole {
   RST_ADMIN = 'rst-admin',
   RST_VIEWER = 'rst-viewer',
   /**
+   * Read-only role automatically assigned to any user who authenticates with
+   * a valid IDIR account and holds no other RST role.
+   *
+   * This role restricts access to sensitive information:
+   *  - Client / agreement-holder details (except the client name shown publicly)
+   *  - Estimated and actual repair costs
+   */
+  RST_IDIR_VIEWER = 'rst-idir-viewer',
+  /**
    * Service account role assigned (via CSS) to the Act integration client.
    * Act authenticates using the OAuth2 Client Credentials grant flow,
    * obtains a bearer token from CSS, and the token must carry this role

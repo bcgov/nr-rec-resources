@@ -99,6 +99,18 @@ export interface UpdateRecreationResourceDto {
    * @memberof UpdateRecreationResourceDto
    */
   name?: string | null;
+  /**
+   * Date of the last recreation inspection for the resource
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  last_rec_inspection_date?: string | null;
+  /**
+   * Date of the last hazard tree assessment for the resource
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  last_hzrd_tree_assess_date?: string | null;
 }
 
 /**
@@ -160,6 +172,14 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
         ? undefined
         : json['driving_directions'],
     name: json['name'] == null ? undefined : json['name'],
+    last_rec_inspection_date:
+      json['last_rec_inspection_date'] == null
+        ? undefined
+        : json['last_rec_inspection_date'],
+    last_hzrd_tree_assess_date:
+      json['last_hzrd_tree_assess_date'] == null
+        ? undefined
+        : json['last_hzrd_tree_assess_date'],
   };
 }
 
@@ -195,5 +215,7 @@ export function UpdateRecreationResourceDtoToJSONTyped(
     site_description: value['site_description'],
     driving_directions: value['driving_directions'],
     name: value['name'],
+    last_rec_inspection_date: value['last_rec_inspection_date'],
+    last_hzrd_tree_assess_date: value['last_hzrd_tree_assess_date'],
   };
 }

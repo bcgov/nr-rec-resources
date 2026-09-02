@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi, type Mocked } from 'vitest';
 
 describe('ExportService', () => {
   let exportRepository: Mocked<ExportRepository>;
+  let userContext: { getCurrentUser: ReturnType<typeof vi.fn> };
   let service: ExportService;
 
   beforeEach(() => {
@@ -13,7 +14,11 @@ describe('ExportService', () => {
       getDownloadRows: vi.fn(),
     } as unknown as Mocked<ExportRepository>;
 
-    service = new ExportService(exportRepository);
+    userContext = {
+      getCurrentUser: vi.fn(() => ({ client_roles: [] })),
+    };
+
+    service = new ExportService(exportRepository, userContext as any);
   });
 
   describe('getPreview', () => {
@@ -65,6 +70,57 @@ describe('ExportService', () => {
         rows: [],
       });
     });
+
+    it('redacts restricted columns for viewer-only users', async () => {
+      userContext.getCurrentUser.mockReturnValue({
+        client_roles: ['rst-idir-viewer'],
+      });
+      exportRepository.getPreviewRows.mockResolvedValue([
+        {
+          REC_RESOURCE_ID: 'REC0001',
+          CLIENT_NUMBER: 'C-123',
+          ESTIMATED_REPAIR_COST: '999',
+          STATUS: 'Open',
+        },
+      ]);
+
+      const result = await service.getPreview({
+        dataset: 'file-details',
+        limit: 10,
+      });
+
+      expect(result.columns).toEqual(['REC_RESOURCE_ID', 'STATUS']);
+      expect(result.rows).toEqual([
+        {
+          REC_RESOURCE_ID: 'REC0001',
+          STATUS: 'Open',
+        },
+      ]);
+    });
+
+    it('does not redact restricted columns for admin users', async () => {
+      userContext.getCurrentUser.mockReturnValue({
+        client_roles: ['rst-admin'],
+      });
+      exportRepository.getPreviewRows.mockResolvedValue([
+        {
+          REC_RESOURCE_ID: 'REC0001',
+          CLIENT_NUMBER: 'C-123',
+          ESTIMATED_REPAIR_COST: '999',
+        },
+      ]);
+
+      const result = await service.getPreview({
+        dataset: 'file-details',
+        limit: 10,
+      });
+
+      expect(result.columns).toEqual([
+        'REC_RESOURCE_ID',
+        'CLIENT_NUMBER',
+        'ESTIMATED_REPAIR_COST',
+      ]);
+    });
   });
 
   describe('getDownload', () => {
@@ -105,6 +161,9 @@ describe('ExportService', () => {
     });
 
     it('returns an empty CSV when no rows are available', async () => {
+      userContext.getCurrentUser.mockImplementation(() => {
+        throw new Error('no auth context');
+      });
       exportRepository.getDownloadRows.mockResolvedValue([]);
 
       const result = await service.getDownload({

@@ -1,5 +1,6 @@
 import { StyledAccordion } from '@/pages/rec-resource-page/components/StyledAccordion/StyledAccordion';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
 describe('StyledAccordion', () => {
   it('renders the title and children', () => {
@@ -73,5 +74,73 @@ describe('StyledAccordion', () => {
     );
 
     expect(screen.getAllByRole('button')).toHaveLength(1);
+  });
+
+  it('is forced open when activeKey matches eventKey, regardless of defaultOpen', () => {
+    render(
+      <StyledAccordion
+        eventKey="0"
+        title="Title"
+        defaultOpen={false}
+        activeKey="0"
+      >
+        <div>Content</div>
+      </StyledAccordion>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Title' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
+
+  it('is collapsed when activeKey is undefined, regardless of defaultOpen', () => {
+    render(
+      <StyledAccordion
+        eventKey="0"
+        title="Title"
+        defaultOpen={true}
+        activeKey={undefined}
+      >
+        <div>Content</div>
+      </StyledAccordion>,
+    );
+
+    // activeKey=undefined → uncontrolled, defaultOpen=true wins
+    expect(screen.getByRole('button', { name: 'Title' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
+
+  it('is closed when activeKey does not match eventKey', () => {
+    render(
+      <StyledAccordion
+        eventKey="0"
+        title="Title"
+        defaultOpen={true}
+        activeKey="other"
+      >
+        <div>Content</div>
+      </StyledAccordion>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Title' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+  });
+
+  it('uses uncontrolled mode when activeKey is not provided', () => {
+    render(
+      <StyledAccordion eventKey="0" title="Title" defaultOpen={true}>
+        <div>Content</div>
+      </StyledAccordion>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Title' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
   });
 });

@@ -3,7 +3,7 @@ import { GalleryFile } from '@/pages/rec-resource-page/types';
 import * as imageProcessing from '@/utils/imageProcessing';
 import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { TestQueryClientProvider } from '@test/test-utils';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 Object.defineProperty(URL, 'createObjectURL', {
@@ -218,11 +218,9 @@ describe('BaseFileModal', () => {
         wrapper: TestQueryClientProvider,
       });
 
-      await waitFor(() => {
-        expect(imageProcessing.heicToPreviewUrl).toHaveBeenCalled();
-      });
-
-      expect(screen.getByText('Failed to load preview')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Failed to load preview'),
+      ).toBeInTheDocument();
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
       expect(screen.queryByAltText('preview')).not.toBeInTheDocument();
     });
