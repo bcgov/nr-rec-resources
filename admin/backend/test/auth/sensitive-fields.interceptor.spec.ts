@@ -32,6 +32,10 @@ describe('isIdirViewerOnly', () => {
       false,
     );
   });
+
+  it('returns false for empty roles', () => {
+    expect(isIdirViewerOnly([])).toBe(false);
+  });
 });
 
 describe('SensitiveFieldsInterceptor', () => {
@@ -67,6 +71,16 @@ describe('SensitiveFieldsInterceptor', () => {
       actual_repair_cost: 456,
       recreation_agreement_holder: 'Name',
     });
+  });
+
+  it('does not redact when user has no roles', async () => {
+    const payload = {
+      estimated_repair_cost: 123,
+    };
+
+    await runIntercept({}, payload);
+
+    expect(payload.estimated_repair_cost).toBe(123);
   });
 
   it('does not redact when user has a non-viewer role', async () => {
@@ -161,5 +175,34 @@ describe('SensitiveFieldsInterceptor', () => {
     ).resolves.toBe(payload);
 
     expect(payload.estimated_repair_cost).toBeNull();
+  });
+
+  it('leaves primitive payloads unchanged', async () => {
+    await expect(
+      runIntercept(
+        { client_roles: [RecreationResourceAuthRole.RST_IDIR_VIEWER] },
+        'hello',
+      ),
+    ).resolves.toBe('hello');
+  });
+
+  it('does not traverse Date instances', async () => {
+    const asDateWithField = new Date('2026-01-01T00:00:00.000Z') as Date & {
+      estimated_repair_cost?: number;
+    };
+    asDateWithField.estimated_repair_cost = 999;
+
+    const payload = {
+      metadata: asDateWithField,
+      estimated_repair_cost: 123,
+    };
+
+    await runIntercept(
+      { client_roles: [RecreationResourceAuthRole.RST_IDIR_VIEWER] },
+      payload,
+    );
+
+    expect(payload.estimated_repair_cost).toBeNull();
+    expect(payload.metadata.estimated_repair_cost).toBe(999);
   });
 });
