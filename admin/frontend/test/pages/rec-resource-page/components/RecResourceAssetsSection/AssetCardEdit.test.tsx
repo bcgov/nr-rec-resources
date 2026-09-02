@@ -1,6 +1,7 @@
 import { AssetCardEdit } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCardEdit';
 import type {
   Asset,
+  AssetCode,
   AssetRepair,
   RepairCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
@@ -62,6 +63,17 @@ const buildRepair = (overrides: Partial<AssetRepair> = {}): AssetRepair => ({
 
 const repairCodes: RepairCode[] = [
   { recreation_remed_repair_code: 'R1', description: 'Paint touch-up' },
+];
+
+const assetCodes: AssetCode[] = [
+  {
+    asset_code: 100,
+    description: 'Bridge',
+    has_length: true,
+    has_width: false,
+    has_area: true,
+    default_value: 2500,
+  },
 ];
 
 const defaultProps = {
@@ -147,5 +159,29 @@ describe('AssetCardEdit', () => {
       <AssetCardEdit {...defaultProps} className="my-custom-class" />,
     );
     expect(container.querySelector('.my-custom-class')).toBeTruthy();
+  });
+
+  it('enables or disables dimensions and shows default value from selected asset code', () => {
+    render(<AssetCardEdit {...defaultProps} assetCodes={assetCodes} />);
+
+    expect(screen.getByLabelText('Length')).toBeEnabled();
+    expect(screen.getByLabelText('Width')).toBeDisabled();
+    expect(screen.getByLabelText('Area')).toBeEnabled();
+    expect(screen.getByDisplayValue('2500')).toBeInTheDocument();
+  });
+
+  it('reports validation state after lat/lng edits', async () => {
+    const user = userEvent.setup();
+    const onValidationChange = vi.fn();
+    render(
+      <AssetCardEdit
+        {...defaultProps}
+        onValidationChange={onValidationChange}
+      />,
+    );
+
+    await user.type(screen.getByLabelText('Latitude'), '49.2');
+
+    expect(onValidationChange).toHaveBeenCalledWith(1, expect.any(Boolean));
   });
 });

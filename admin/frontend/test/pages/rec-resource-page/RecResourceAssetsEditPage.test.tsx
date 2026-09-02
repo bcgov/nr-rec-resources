@@ -316,4 +316,30 @@ describe('RecResourceAssetsEditPage', () => {
       });
     });
   });
+
+  it('disables edit inspection dates action while a type group is in edit mode', async () => {
+    const user = userEvent.setup();
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    expect(
+      screen.getByRole('button', { name: 'Edit inspection dates' }),
+    ).toHaveClass('disabled');
+  });
+
+  it('does not save changes when recResourceId is missing', async () => {
+    const user = userEvent.setup();
+    vi.mocked(useParams).mockReturnValue({ id: undefined } as any);
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'queue-asset-10' }));
+    await user.click(screen.getByRole('button', { name: 'save-group-100' }));
+
+    expect(mockUpdateAsset).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
 });
