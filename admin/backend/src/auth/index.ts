@@ -6,3 +6,4 @@ export * from './auth-roles.decorator';
 export * from './auth-papssport-keycloak-strategy.service';
 export * from './is-super-admin.decorator';
 export * from './super-admin.guard';
+export * from './sensitive-fields.interceptor';

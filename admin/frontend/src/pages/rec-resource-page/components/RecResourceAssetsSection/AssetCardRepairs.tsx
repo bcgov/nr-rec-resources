@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { formatDateReadable } from '@shared/utils';
 import { CustomButton } from '@/components';
 import { useUpdateRepair } from '@/services/hooks/recreation-resource-admin';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { formatCurrency } from './formatCurrency';
 import type { AssetRepair, RepairCode } from './types';
 import './AssetCardRepairs.scss';
@@ -35,27 +36,35 @@ function getRepairTitle(
   );
 }
 
-function getRepairFields(repair: AssetRepair): RepairField[] {
-  const fields: RepairField[] = [
-    {
-      label: 'Estimated cost',
-      value:
-        repair.estimated_repair_cost != null
-          ? formatCurrency(repair.estimated_repair_cost)
-          : null,
-    },
-    {
-      label: 'Actual cost',
-      value:
-        repair.actual_repair_cost != null
-          ? formatCurrency(repair.actual_repair_cost)
-          : null,
-    },
-    {
-      label: 'Completed date',
-      value: formatDateReadable(repair.repair_completed_date),
-    },
-  ];
+function getRepairFields(
+  repair: AssetRepair,
+  canViewSensitiveInfo: boolean,
+): RepairField[] {
+  const fields: RepairField[] = [];
+
+  if (canViewSensitiveInfo) {
+    fields.push(
+      {
+        label: 'Estimated cost',
+        value:
+          repair.estimated_repair_cost != null
+            ? formatCurrency(repair.estimated_repair_cost)
+            : null,
+      },
+      {
+        label: 'Actual cost',
+        value:
+          repair.actual_repair_cost != null
+            ? formatCurrency(repair.actual_repair_cost)
+            : null,
+      },
+    );
+  }
+
+  fields.push({
+    label: 'Completed date',
+    value: formatDateReadable(repair.repair_completed_date),
+  });
 
   return fields.filter((field) => !!field.value);
 }
@@ -71,10 +80,12 @@ function RepairEditRow({
   repair,
   repairCodes,
   recResourceId,
+  canViewSensitiveInfo,
 }: {
   repair: AssetRepair;
   repairCodes: RepairCode[];
   recResourceId?: string;
+  canViewSensitiveInfo: boolean;
 }) {
   const [draft, setDraft] = useState<RepairEditState>({
     recreation_remed_repair_code: repair.recreation_remed_repair_code ?? '',
@@ -140,39 +151,48 @@ function RepairEditRow({
           </Form.Group>
         </Col>
         <Col xs={6} sm={3}>
-          <Form.Group controlId={`repair-estimated-${repair.repair_id}`}>
-            <Form.Label className="fw-bold small mb-1">
-              Estimated cost
-            </Form.Label>
-            <Form.Control
-              size="sm"
-              type="number"
-              step="any"
-              value={draft.estimated_repair_cost}
-              onChange={(e) =>
-                setDraft((d) => ({
-                  ...d,
-                  estimated_repair_cost: e.target.value,
-                }))
-              }
-              onBlur={handleBlur}
-            />
-          </Form.Group>
+          {canViewSensitiveInfo && (
+            <Form.Group controlId={`repair-estimated-${repair.repair_id}`}>
+              <Form.Label className="fw-bold small mb-1">
+                Estimated cost
+              </Form.Label>
+              <Form.Control
+                size="sm"
+                type="number"
+                step="any"
+                value={draft.estimated_repair_cost}
+                onChange={(e) =>
+                  setDraft((d) => ({
+                    ...d,
+                    estimated_repair_cost: e.target.value,
+                  }))
+                }
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          )}
         </Col>
         <Col xs={6} sm={3}>
-          <Form.Group controlId={`repair-actual-${repair.repair_id}`}>
-            <Form.Label className="fw-bold small mb-1">Actual cost</Form.Label>
-            <Form.Control
-              size="sm"
-              type="number"
-              step="any"
-              value={draft.actual_repair_cost}
-              onChange={(e) =>
-                setDraft((d) => ({ ...d, actual_repair_cost: e.target.value }))
-              }
-              onBlur={handleBlur}
-            />
-          </Form.Group>
+          {canViewSensitiveInfo && (
+            <Form.Group controlId={`repair-actual-${repair.repair_id}`}>
+              <Form.Label className="fw-bold small mb-1">
+                Actual cost
+              </Form.Label>
+              <Form.Control
+                size="sm"
+                type="number"
+                step="any"
+                value={draft.actual_repair_cost}
+                onChange={(e) =>
+                  setDraft((d) => ({
+                    ...d,
+                    actual_repair_cost: e.target.value,
+                  }))
+                }
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          )}
         </Col>
         <Col xs={6} sm={3}>
           <Form.Group controlId={`repair-completed-${repair.repair_id}`}>
@@ -205,6 +225,7 @@ export function AssetCardRepairs({
   recResourceId,
 }: AssetCardRepairsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { canViewSensitiveInfo } = useAuthorizations();
 
   const visibleRepairs = repairs
     .map((repair) => ({
@@ -243,6 +264,7 @@ export function AssetCardRepairs({
                       repair={repair}
                       repairCodes={repairCodes}
                       recResourceId={recResourceId}
+                      canViewSensitiveInfo={canViewSensitiveInfo}
                     />
                   ))}
                 </div>
@@ -257,7 +279,10 @@ export function AssetCardRepairs({
               {visibleRepairs.length > 0 ? (
                 <div className="asset-card-repairs__list">
                   {visibleRepairs.map(({ repair, title }) => {
-                    const fields = getRepairFields(repair);
+                    const fields = getRepairFields(
+                      repair,
+                      canViewSensitiveInfo,
+                    );
                     return (
                       <div
                         key={repair.repair_id}

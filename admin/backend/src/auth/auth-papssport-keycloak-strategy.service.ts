@@ -3,8 +3,19 @@ import { UserContextService } from '@/common/modules/user-context/user-context.s
 import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import KeycloakBearerStrategy from 'passport-keycloak-bearer';
-import { AUTH_STRATEGY, LOG_MESSAGES } from './auth.constants';
+import {
+  AUTH_STRATEGY,
+  LOG_MESSAGES,
+  RecreationResourceAuthRole,
+} from './auth.constants';
 import { KeycloakUserToken } from './auth.types';
+
+/** All known RST application roles. Any IDIR user missing all of these gets auto-assigned IDIR_VIEWER. */
+const RST_ROLES = new Set<string>(
+  Object.values(RecreationResourceAuthRole).filter(
+    (r) => r !== RecreationResourceAuthRole.ACT_SERVICE,
+  ),
+);
 
 /**
  * Passport strategy for Keycloak Bearer authentication
@@ -43,6 +54,23 @@ export class AuthPassportKeycloakStrategy extends PassportStrategy(
    * @returns The user token information
    */
   async validate(payload: KeycloakUserToken): Promise<KeycloakUserToken> {
+    // Auto-assign IDIR_VIEWER to any IDIR user who holds no other RST role.
+    // This implements the "automatic read-only access for IDIR" requirement
+    // without requiring CSS / Keycloak admin changes.
+    if (payload.idir_username) {
+      const existingRoles = payload.client_roles ?? [];
+      const hasRstRole = existingRoles.some((r) => RST_ROLES.has(r));
+      if (!hasRstRole) {
+        payload = {
+          ...payload,
+          client_roles: [
+            ...existingRoles,
+            RecreationResourceAuthRole.RST_IDIR_VIEWER,
+          ],
+        };
+      }
+    }
+
     this.userContextService.setCurrentUser(payload);
     return payload;
   }

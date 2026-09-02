@@ -1,5 +1,6 @@
 import { AssetCardRepairs } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCardRepairs';
 import * as useUpdateRepairModule from '@/services/hooks/recreation-resource-admin/useUpdateRepair';
+import * as useAuthorizationsModule from '@/hooks/useAuthorizations';
 import type {
   AssetRepair,
   RepairCode,
@@ -10,6 +11,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/services/hooks/recreation-resource-admin/useUpdateRepair', () => ({
   useUpdateRepair: vi.fn(),
+}));
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: vi.fn(),
 }));
 
 const buildRepair = (overrides: Partial<AssetRepair> = {}): AssetRepair => ({
@@ -41,6 +46,14 @@ describe('AssetCardRepairs', () => {
     vi.mocked(useUpdateRepairModule.useUpdateRepair).mockReturnValue({
       mutate: mockUpdateRepair,
     } as any);
+    vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
+      isSuperAdmin: false,
+      canViewSensitiveInfo: true,
+    });
   });
 
   it('starts collapsed, showing "Show repairs"', () => {
