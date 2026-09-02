@@ -167,4 +167,26 @@ export class UpdateRecreationResourceDto {
   @IsString()
   @MaxLength(200)
   name?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Date of the last recreation inspection for the resource',
+    example: '2024-06-15',
+    type: String,
+    nullable: true,
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  last_rec_inspection_date?: Date | null;
+
+  @ApiPropertyOptional({
+    description: 'Date of the last hazard tree assessment for the resource',
+    example: '2024-06-15',
+    type: String,
+    nullable: true,
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  last_hzrd_tree_assess_date?: Date | null;
 }

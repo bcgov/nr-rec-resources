@@ -5,6 +5,7 @@ import {
 } from '@/services';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { mapRecreationResourceDetail } from './helpers';
+import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 import { useRecreationResourceAdminApiClient } from './useRecreationResourceAdminApiClient';
 
 export interface UpdateRecreationResourceRequest {
@@ -29,11 +30,17 @@ export function useUpdateRecreationResource() {
       return mapRecreationResourceDetail(response);
     },
     onSuccess: (data, variables) => {
-      // Update the query cache
+      // Keep the detail query in sync so "Last inspected" labels and summary cards refresh immediately.
       queryClient.setQueryData(
-        ['recreation-resource', variables.recResourceId],
+        RECREATION_RESOURCE_QUERY_KEYS.detail(variables.recResourceId),
         data,
       );
+      // Also refetch to guarantee consistency with server-side transforms/normalization.
+      void queryClient.invalidateQueries({
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail(
+          variables.recResourceId,
+        ),
+      });
     },
   });
 }

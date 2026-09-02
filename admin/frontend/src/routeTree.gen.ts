@@ -25,6 +25,7 @@ import { Route as RecResourceIdReservationEditRouteImport } from './routes/rec-r
 import { Route as RecResourceIdOverviewEditRouteImport } from './routes/rec-resource/$id/overview/edit'
 import { Route as RecResourceIdGeospatialEditRouteImport } from './routes/rec-resource/$id/geospatial/edit'
 import { Route as RecResourceIdFeesAddRouteImport } from './routes/rec-resource/$id/fees/add'
+import { Route as RecResourceIdAssetsEditRouteImport } from './routes/rec-resource/$id/assets/edit'
 import { Route as RecResourceIdActivitiesFeaturesEditRouteImport } from './routes/rec-resource/$id/activities-features/edit'
 import { Route as RecResourceIdFeesFeeIdEditRouteImport } from './routes/rec-resource/$id/fees/$feeId/edit'
 
@@ -117,6 +118,11 @@ const RecResourceIdFeesAddRoute = RecResourceIdFeesAddRouteImport.update({
   path: '/fees/add',
   getParentRoute: () => RecResourceIdRoute,
 } as any)
+const RecResourceIdAssetsEditRoute = RecResourceIdAssetsEditRouteImport.update({
+  id: '/assets/edit',
+  path: '/assets/edit',
+  getParentRoute: () => RecResourceIdRoute,
+} as any)
 const RecResourceIdActivitiesFeaturesEditRoute =
   RecResourceIdActivitiesFeaturesEditRouteImport.update({
     id: '/activities-features/edit',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
   '/rec-resource/$id/activities-features/edit': typeof RecResourceIdActivitiesFeaturesEditRoute
+  '/rec-resource/$id/assets/edit': typeof RecResourceIdAssetsEditRoute
   '/rec-resource/$id/fees/add': typeof RecResourceIdFeesAddRoute
   '/rec-resource/$id/geospatial/edit': typeof RecResourceIdGeospatialEditRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id': typeof RecResourceIdIndexRoute
   '/rec-resource/$id/activities-features/edit': typeof RecResourceIdActivitiesFeaturesEditRoute
+  '/rec-resource/$id/assets/edit': typeof RecResourceIdAssetsEditRoute
   '/rec-resource/$id/fees/add': typeof RecResourceIdFeesAddRoute
   '/rec-resource/$id/geospatial/edit': typeof RecResourceIdGeospatialEditRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
   '/rec-resource/$id/activities-features/edit': typeof RecResourceIdActivitiesFeaturesEditRoute
+  '/rec-resource/$id/assets/edit': typeof RecResourceIdAssetsEditRoute
   '/rec-resource/$id/fees/add': typeof RecResourceIdFeesAddRoute
   '/rec-resource/$id/geospatial/edit': typeof RecResourceIdGeospatialEditRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
     | '/rec-resource/$id/activities-features/edit'
+    | '/rec-resource/$id/assets/edit'
     | '/rec-resource/$id/fees/add'
     | '/rec-resource/$id/geospatial/edit'
     | '/rec-resource/$id/overview/edit'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/rec-resource/$id/files'
     | '/rec-resource/$id'
     | '/rec-resource/$id/activities-features/edit'
+    | '/rec-resource/$id/assets/edit'
     | '/rec-resource/$id/fees/add'
     | '/rec-resource/$id/geospatial/edit'
     | '/rec-resource/$id/overview/edit'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
     | '/rec-resource/$id/activities-features/edit'
+    | '/rec-resource/$id/assets/edit'
     | '/rec-resource/$id/fees/add'
     | '/rec-resource/$id/geospatial/edit'
     | '/rec-resource/$id/overview/edit'
@@ -372,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecResourceIdFeesAddRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
+    '/rec-resource/$id/assets/edit': {
+      id: '/rec-resource/$id/assets/edit'
+      path: '/assets/edit'
+      fullPath: '/rec-resource/$id/assets/edit'
+      preLoaderRoute: typeof RecResourceIdAssetsEditRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
     '/rec-resource/$id/activities-features/edit': {
       id: '/rec-resource/$id/activities-features/edit'
       path: '/activities-features/edit'
@@ -393,6 +412,7 @@ interface RecResourceIdRouteChildren {
   RecResourceIdFilesRoute: typeof RecResourceIdFilesRoute
   RecResourceIdIndexRoute: typeof RecResourceIdIndexRoute
   RecResourceIdActivitiesFeaturesEditRoute: typeof RecResourceIdActivitiesFeaturesEditRoute
+  RecResourceIdAssetsEditRoute: typeof RecResourceIdAssetsEditRoute
   RecResourceIdFeesAddRoute: typeof RecResourceIdFeesAddRoute
   RecResourceIdGeospatialEditRoute: typeof RecResourceIdGeospatialEditRoute
   RecResourceIdOverviewEditRoute: typeof RecResourceIdOverviewEditRoute
@@ -412,6 +432,7 @@ const RecResourceIdRouteChildren: RecResourceIdRouteChildren = {
   RecResourceIdIndexRoute: RecResourceIdIndexRoute,
   RecResourceIdActivitiesFeaturesEditRoute:
     RecResourceIdActivitiesFeaturesEditRoute,
+  RecResourceIdAssetsEditRoute: RecResourceIdAssetsEditRoute,
   RecResourceIdFeesAddRoute: RecResourceIdFeesAddRoute,
   RecResourceIdGeospatialEditRoute: RecResourceIdGeospatialEditRoute,
   RecResourceIdOverviewEditRoute: RecResourceIdOverviewEditRoute,

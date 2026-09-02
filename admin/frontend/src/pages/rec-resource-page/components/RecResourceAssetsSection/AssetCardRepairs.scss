@@ -70,3 +70,141 @@
   color: #{$colorGreyMed};
   font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');
 }
+
+.asset-card-repairs__add-form {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.asset-card-repairs__add-form-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+
+  .form-group {
+    flex: 0 1 auto;
+
+    label {
+      font: var(
+        --typography-regular-small-body,
+        400 0.875rem/1.313rem 'BC Sans'
+      );
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .form-select,
+    .form-control {
+      min-width: 140px;
+    }
+
+    .input-group .form-control {
+      min-width: 100px;
+    }
+
+    .input-group-text {
+      background-color: #{$colorBackgroundGrey};
+      font: var(
+        --typography-regular-small-body,
+        400 0.875rem/1.313rem 'BC Sans'
+      );
+      color: #{$colorGreyMed};
+    }
+  }
+}
+
+.asset-card-repairs__add-form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.asset-card-repairs__item-edit-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  .form-group {
+    flex: 0 1 auto;
+
+    label {
+      font: var(
+        --typography-regular-small-body,
+        400 0.875rem/1.313rem 'BC Sans'
+      );
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .form-control {
+      width: 100px;
+    }
+
+    .input-group-text {
+      background-color: #{$colorBackgroundGrey};
+      font: var(
+        --typography-regular-small-body,
+        400 0.875rem/1.313rem 'BC Sans'
+      );
+      color: #{$colorGreyMed};
+    }
+  }
+}
+
+.asset-card-repairs__item-edit-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  .form-group {
+    flex: 0 1 auto;
+
+    label {
+      font: var(
+        --typography-regular-small-body,
+        400 0.875rem/1.313rem 'BC Sans'
+      );
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .form-control {
+      min-width: 80px;
+      width: auto;
+    }
+  }
+}
+
+.asset-card-repairs__input-with-unit {
+  display: flex;
+  align-items: center;
+
+  &.asset-card-repairs__input-with-unit--prefix {
+    .form-control {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-left: none;
+    }
+
+    .asset-card-repairs__unit {
+      display: flex;
+      align-items: center;
+      padding: 0 0.5rem;
+      height: 38px;
+      background-color: #{$colorBackgroundGrey};
+      border: 1px solid var(--bs-border-color, #ced4da);
+      border-right: none;
+      border-top-left-radius: var(--bs-border-radius, 0.375rem);
+      border-bottom-left-radius: var(--bs-border-radius, 0.375rem);
+      font: var(
+        --typography-regular-small-body,
+        400 0.875rem/1.313rem 'BC Sans'
+      );
+      color: #{$colorGreyMed};
+    }
+  }
+}

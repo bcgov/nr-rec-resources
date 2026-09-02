@@ -1,23 +1,23 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAssetsApiClient } from './useAssetsApiClient';
 import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
-import type { UpdateRecreationAssetDto } from '@/services/recreation-resource-admin';
+import type { CreateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 
-interface UpdateAssetVariables {
+interface CreateAssetRepairVariables {
   assetId: number;
   recResourceId: string;
-  dto: UpdateRecreationAssetDto;
+  dto: CreateRecreationAssetRepairDto;
 }
 
-export function useUpdateAsset() {
+export function useCreateAssetRepair() {
   const apiClient = useAssetsApiClient();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ assetId, dto }: UpdateAssetVariables) =>
-      apiClient.updateRecreationAsset({
+    mutationFn: ({ assetId, dto }: CreateAssetRepairVariables) =>
+      apiClient.createAssetRepair({
         id: assetId,
-        updateRecreationAssetDto: dto,
+        createRecreationAssetRepairDto: dto,
       }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({

@@ -1,20 +1,31 @@
 import { useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
-import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { formatDateReadable } from '@shared/utils';
 import { CustomButton } from '@/components';
-import { useUpdateRepair } from '@/services/hooks/recreation-resource-admin';
+import {
+  useCreateAssetRepair,
+  useUpdateRepair,
+} from '@/services/hooks/recreation-resource-admin';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { formatCurrency } from './formatCurrency';
+import {
+  buildRepairMutationDto,
+  EMPTY_REPAIR_FORM,
+  parseOptionalRepairNumber,
+  RepairAddForm,
+  RepairExpandToggle,
+} from './repairShared';
 import type { AssetRepair, RepairCode } from './types';
 import './AssetCardRepairs.scss';
 
 interface AssetCardRepairsProps {
   repairs: AssetRepair[];
   repairCodes: RepairCode[];
+  assetId?: number;
   isEditing?: boolean;
+  isAddRepairDisabled?: boolean;
   recResourceId?: string;
 }
 
@@ -110,12 +121,10 @@ function RepairEditRow({
       dto: {
         recreation_remed_repair_code:
           draft.recreation_remed_repair_code || null,
-        estimated_repair_cost: draft.estimated_repair_cost
-          ? Number(draft.estimated_repair_cost)
-          : null,
-        actual_repair_cost: draft.actual_repair_cost
-          ? Number(draft.actual_repair_cost)
-          : null,
+        estimated_repair_cost: parseOptionalRepairNumber(
+          draft.estimated_repair_cost,
+        ),
+        actual_repair_cost: parseOptionalRepairNumber(draft.actual_repair_cost),
         repair_completed_date: draft.repair_completed_date || null,
       },
     });
@@ -221,11 +230,18 @@ function RepairEditRow({
 export function AssetCardRepairs({
   repairs,
   repairCodes,
-  isEditing = false,
+  assetId,
   recResourceId,
+  isEditing = false,
+  isAddRepairDisabled = false,
 }: AssetCardRepairsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { canViewSensitiveInfo } = useAuthorizations();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [form, setForm] = useState(EMPTY_REPAIR_FORM);
+
+  const { mutate: createRepair, isPending: isCreating } =
+    useCreateAssetRepair();
 
   const visibleRepairs = repairs
     .map((repair) => ({
@@ -236,21 +252,34 @@ export function AssetCardRepairs({
       (entry): entry is { repair: AssetRepair; title: string } => !!entry.title,
     );
 
+  function handleCancelAdd() {
+    setShowAddForm(false);
+    setForm(EMPTY_REPAIR_FORM);
+  }
+
+  function handleSaveRepair() {
+    if (!assetId || !recResourceId) return;
+    createRepair(
+      {
+        assetId,
+        recResourceId,
+        dto: buildRepairMutationDto(form),
+      },
+      {
+        onSuccess: () => {
+          setShowAddForm(false);
+          setForm(EMPTY_REPAIR_FORM);
+        },
+      },
+    );
+  }
+
   return (
     <div className="asset-card-repairs">
-      <button
-        type="button"
-        aria-label={isExpanded ? 'Hide repairs' : 'Show repairs'}
-        aria-expanded={isExpanded}
-        className="btn btn-link expand-link asset-card__expand-link"
-        onClick={() => setIsExpanded((expanded) => !expanded)}
-      >
-        {isExpanded ? 'Hide repairs' : 'Show repairs'}
-        <FontAwesomeIcon
-          icon={isExpanded ? faChevronUp : faChevronDown}
-          className="ms-2"
-        />
-      </button>
+      <RepairExpandToggle
+        isExpanded={isExpanded}
+        onToggle={() => setIsExpanded((prev) => !prev)}
+      />
 
       {isExpanded && (
         <div className="asset-card-repairs__expandable">
@@ -258,15 +287,18 @@ export function AssetCardRepairs({
             <>
               {repairs.length > 0 ? (
                 <div className="asset-card-repairs__list">
-                  {repairs.map((repair) => (
-                    <RepairEditRow
-                      key={repair.repair_id}
-                      repair={repair}
-                      repairCodes={repairCodes}
-                      recResourceId={recResourceId}
-                      canViewSensitiveInfo={canViewSensitiveInfo}
-                    />
-                  ))}
+                  {repairs
+                    .slice()
+                    .sort((a, b) => a.repair_id - b.repair_id)
+                    .map((repair) => (
+                      <RepairEditRow
+                        key={repair.repair_id}
+                        repair={repair}
+                        repairCodes={repairCodes}
+                        recResourceId={recResourceId}
+                        canViewSensitiveInfo={canViewSensitiveInfo}
+                      />
+                    ))}
                 </div>
               ) : (
                 <div className="asset-card-repairs__empty">
@@ -311,20 +343,38 @@ export function AssetCardRepairs({
                   })}
                 </div>
               ) : (
-                <div className="asset-card-repairs__empty">
-                  This asset has no repairs
-                </div>
+                !showAddForm && (
+                  <div className="asset-card-repairs__empty">
+                    This asset has no repairs
+                  </div>
+                )
               )}
             </>
           )}
 
-          <CustomButton
-            variant="secondary"
-            className="asset-summary-action-btn asset-card-repairs__add-btn"
-            leftIcon={<FontAwesomeIcon icon={faPlus} />}
-          >
-            Add repair
-          </CustomButton>
+          {showAddForm && !isEditing && (
+            <RepairAddForm
+              idSuffix={assetId ?? 'new'}
+              repairCodes={repairCodes}
+              form={form}
+              isCreating={isCreating}
+              onFormChange={(updates) => setForm((f) => ({ ...f, ...updates }))}
+              onCancel={handleCancelAdd}
+              onSave={handleSaveRepair}
+            />
+          )}
+
+          {(!showAddForm || isEditing) && (
+            <CustomButton
+              variant="secondary"
+              className="asset-summary-action-btn asset-card-repairs__add-btn"
+              leftIcon={<FontAwesomeIcon icon={faPlus} />}
+              onClick={() => setShowAddForm(true)}
+              disabled={isEditing || isAddRepairDisabled}
+            >
+              Add repair
+            </CustomButton>
+          )}
         </div>
       )}
     </div>

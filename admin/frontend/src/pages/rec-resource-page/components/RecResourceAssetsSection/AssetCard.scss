@@ -45,6 +45,22 @@
   flex: none;
 }
 
+.asset-card__repair-count {
+  display: inline-flex;
+  align-items: center;
+}
+
+.asset-card__repair-count .custom-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2625rem 0.4875rem;
+  border-radius: var(--bs-border-radius-sm, 0.25rem);
+  font-weight: var(--typography-font-weights-bold, 700);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 .asset-card__fields {
   display: flex;
   flex-wrap: wrap;
