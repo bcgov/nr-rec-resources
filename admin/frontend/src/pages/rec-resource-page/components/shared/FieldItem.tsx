@@ -1,14 +1,15 @@
+import { ReactNode } from 'react';
 import { Stack } from 'react-bootstrap';
 import { SafeHtml } from '@shared/components/safe-html';
 
 type FieldItemProps =
   | {
-      label: string;
+      label: ReactNode;
       value: string;
       isHtml: true;
     }
   | {
-      label: string;
+      label: ReactNode;
       value: React.ReactNode;
       isHtml?: false;
     };
@@ -32,7 +33,7 @@ export const FieldItem = ({ label, value, isHtml }: FieldItemProps) => {
       className="border-start border-2 border-primary ps-3 h-100"
       as="section"
       role="region"
-      aria-labelledby={`overview-${label.toLowerCase()}`}
+      aria-labelledby={`overview-${typeof label === 'string' ? label.toLowerCase() : ''}`}
     >
       <span className="text-primary fw-bold">{label}</span>
       <div className="text-secondary">{renderContent()}</div>

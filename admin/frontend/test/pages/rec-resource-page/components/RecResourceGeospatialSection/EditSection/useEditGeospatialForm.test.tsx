@@ -1,5 +1,5 @@
-import { render } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockNavigate = vi.fn();
 const mockAddSuccessNotification = vi.fn();
@@ -31,24 +31,49 @@ vi.mock('@/services/utils/errorHandler', () => ({
 import useEditGeospatialForm from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/hooks/useEditGeospatialForm';
 import { ROUTE_PATHS } from '@/constants/routes';
 
+const mockValidateUtm = vi.fn();
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/utils/validateUtmAgainstSpatialFeatures',
+  () => ({
+    validateUtmAgainstSpatialFeatures: (...args: any[]) =>
+      mockValidateUtm(...args),
+    utmToAlbers: vi.fn(),
+    utmToWgs84: vi.fn(),
+    utmToSitePointGeometry: vi.fn(),
+  }),
+);
+
+let mockConsoleError: ReturnType<typeof vi.spyOn>;
+
 beforeEach(() => {
   vi.clearAllMocks();
+  mockValidateUtm.mockReturnValue(true); // default: validation passes
+  mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  mockConsoleError.mockRestore();
 });
 
 describe('useEditGeospatialForm', () => {
   it('returns undefined when recResourceId is missing', async () => {
-    function Expose() {
-      const { onSubmit } = useEditGeospatialForm(undefined, undefined);
-      (globalThis as any).__onSubmit = onSubmit;
-      return null;
-    }
-    render(<Expose />);
-    const result = await (globalThis as any).__onSubmit({
-      utm_zone: 10,
-      utm_easting: 500000,
-      utm_northing: 5480000,
+    const { result: hookResult } = renderHook(() =>
+      useEditGeospatialForm(undefined, undefined),
+    );
+
+    let result: unknown;
+    await act(async () => {
+      result = await hookResult.current.onSubmit({
+        utm_zone: 10,
+        utm_easting: 500000,
+        utm_northing: 5480000,
+      });
     });
+
     expect(result).toBeUndefined();
+    expect(mockConsoleError).toHaveBeenCalledWith(
+      'Missing rec_resource_id; cannot submit geospatial update',
+    );
     expect(mockAddSuccessNotification).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
@@ -61,18 +86,17 @@ describe('useEditGeospatialForm', () => {
     };
     mockMutateAsync.mockResolvedValue(returned);
 
-    function Expose() {
-      const { onSubmit } = useEditGeospatialForm(undefined, 'REC123');
-      (globalThis as any).__onSubmit = onSubmit;
-      return null;
-    }
+    const { result: hookResult } = renderHook(() =>
+      useEditGeospatialForm(undefined, 'REC123'),
+    );
 
-    render(<Expose />);
-
-    const result = await (globalThis as any).__onSubmit({
-      utm_zone: 10,
-      utm_easting: 500000,
-      utm_northing: 5480000,
+    let result: unknown;
+    await act(async () => {
+      result = await hookResult.current.onSubmit({
+        utm_zone: 10,
+        utm_easting: 500000,
+        utm_northing: 5480000,
+      });
     });
 
     expect(mockMutateAsync).toHaveBeenCalled();
@@ -91,16 +115,12 @@ describe('useEditGeospatialForm', () => {
     mockMutateAsync.mockRejectedValue(error);
     mockHandleApiError.mockResolvedValue({ message: 'something went wrong' });
 
-    function Expose() {
-      const { onSubmit } = useEditGeospatialForm(undefined, 'REC123');
-      (globalThis as any).__onSubmit = onSubmit;
-      return null;
-    }
-
-    render(<Expose />);
+    const { result: hookResult } = renderHook(() =>
+      useEditGeospatialForm(undefined, 'REC123'),
+    );
 
     await expect(
-      (globalThis as any).__onSubmit({
+      hookResult.current.onSubmit({
         utm_zone: 10,
         utm_easting: 500000,
         utm_northing: 5480000,
@@ -108,6 +128,36 @@ describe('useEditGeospatialForm', () => {
     ).rejects.toBe(error);
 
     expect(mockHandleApiError).toHaveBeenCalledWith(error);
-    expect(mockAddErrorNotification).toHaveBeenCalled();
+    expect(mockAddErrorNotification).toHaveBeenCalledWith(
+      'Failed to update geospatial data: something went wrong. Please try again.',
+    );
+    expect(mockConsoleError).toHaveBeenCalledWith(
+      'Failed to update geospatial data',
+      error,
+    );
+  });
+
+  it('sets root error and returns undefined when UTM spatial validation fails', async () => {
+    mockValidateUtm.mockReturnValue(false);
+
+    const geospatialData = {
+      spatial_feature_geometry: ['{"type":"Point","coordinates":[0,0]}'],
+    };
+
+    const { result: hookResult } = renderHook(() =>
+      useEditGeospatialForm(geospatialData as any, 'REC123'),
+    );
+
+    let result: unknown;
+    await act(async () => {
+      result = await hookResult.current.onSubmit({
+        utm_zone: 10,
+        utm_easting: 500000,
+        utm_northing: 5480000,
+      });
+    });
+
+    expect(result).toBeUndefined();
+    expect(mockMutateAsync).not.toHaveBeenCalled();
   });
 });

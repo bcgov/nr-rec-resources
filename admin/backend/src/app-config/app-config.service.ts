@@ -84,6 +84,12 @@ export class AppConfigService {
     })!;
   }
 
+  get exhibitADocsBucket(): string {
+    return this.configService.get('EXHIBIT_A_DOCS_BUCKET', {
+      infer: true,
+    })!;
+  }
+
   get recResourceImagesBucket(): string {
     return this.configService.get('RST_STORAGE_IMAGES_BUCKET', {
       infer: true,

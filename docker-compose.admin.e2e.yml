@@ -94,6 +94,7 @@ services:
       ACT_CSS_CLIENT_ID: rst-admin-local-act
       # S3 vars required by config validation; not exercised by auth/search e2e tests
       ESTABLISHMENT_ORDER_DOCS_BUCKET: rst-local-establishment-order-docs
+      EXHIBIT_A_DOCS_BUCKET: rst-local-exhibit-a-docs
       RST_STORAGE_IMAGES_BUCKET: rst-local-images
       RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET: rst-local-public-documents
       RST_STORAGE_CONSENT_FORMS_BUCKET: rst-local-consent-forms

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from '@tanstack/react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,10 @@ import {
   addErrorNotification,
   addSuccessNotification,
 } from '@/store/notificationStore';
+import { validateUtmAgainstSpatialFeatures } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/utils/validateUtmAgainstSpatialFeatures';
+
+const UTM_SPATIAL_ERROR_MESSAGE =
+  'The UTM coordinates must be within 10 m of the linear trail or inside the polygon for this recreation resource. Please verify the UTM values and try again.';
 
 /**
  * Hook encapsulating form state and submission for the RecResource geospatial edit form.
@@ -47,7 +51,8 @@ export const useEditGeospatialForm = (
   const form = useForm<EditResourceGeospatialFormData>({
     resolver: zodResolver(schema),
     defaultValues,
-    mode: 'onChange',
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
   });
 
   const {
@@ -55,7 +60,14 @@ export const useEditGeospatialForm = (
     control,
     formState: { isDirty, errors, isSubmitting },
     reset,
+    setError,
+    clearErrors,
   } = form;
+
+  // Keep form in sync when geospatialData arrives (e.g. after initial render)
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const onSubmit = async (
     data: EditResourceGeospatialFormData,
@@ -73,6 +85,26 @@ export const useEditGeospatialForm = (
     const zone = toNumberOrUndefined(data.utm_zone);
     const easting = toNumberOrUndefined(data.utm_easting);
     const northing = toNumberOrUndefined(data.utm_northing);
+
+    // ── Front-end spatial validation ─────────────────────────────────────────
+    if (zone !== undefined && easting !== undefined && northing !== undefined) {
+      const isValid = validateUtmAgainstSpatialFeatures(
+        zone,
+        easting,
+        northing,
+        geospatialData?.spatial_feature_geometry,
+      );
+
+      if (!isValid) {
+        setError('root', {
+          type: 'utm_spatial',
+          message: UTM_SPATIAL_ERROR_MESSAGE,
+        });
+        return undefined;
+      }
+    }
+
+    clearErrors('root');
 
     if (zone !== undefined) dto.utm_zone = zone;
     if (easting !== undefined) dto.utm_easting = easting;

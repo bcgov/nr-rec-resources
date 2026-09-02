@@ -84,6 +84,7 @@ LOCALSTACK_ENDPOINT=http://localhost:4566
 IMAGES_BUCKET=rst-storage-images-dev
 DOCUMENTS_BUCKET=rst-storage-public-documents-dev
 CONSENT_BUCKET=rst-storage-consent-forms-dev
+EXHIBIT_A_BUCKET=rst-lza-exhibit-a-docs-dev
 CORS_CONFIG='{"CORSRules":[{"AllowedHeaders":["*"],"AllowedMethods":["PUT","GET","HEAD"],"AllowedOrigins":["http://localhost:3001"],"ExposeHeaders":["ETag"],"MaxAgeSeconds":3000}]}'
 
 .PHONY: localstack
@@ -111,6 +112,7 @@ localstack-buckets: ## Create S3 buckets in LocalStack
 	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(IMAGES_BUCKET) 2>/dev/null || true
 	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(DOCUMENTS_BUCKET) 2>/dev/null || true
 	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(CONSENT_BUCKET) 2>/dev/null || true
+	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(EXHIBIT_A_BUCKET) 2>/dev/null || true
 	@echo "Buckets created."
 
 .PHONY: localstack-cors
@@ -119,6 +121,7 @@ localstack-cors: ## Configure CORS rules for LocalStack S3 buckets
 	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3api put-bucket-cors --bucket $(IMAGES_BUCKET) --cors-configuration $(CORS_CONFIG)
 	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3api put-bucket-cors --bucket $(DOCUMENTS_BUCKET) --cors-configuration $(CORS_CONFIG)
 	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3api put-bucket-cors --bucket $(CONSENT_BUCKET) --cors-configuration $(CORS_CONFIG)
+	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3api put-bucket-cors --bucket $(EXHIBIT_A_BUCKET) --cors-configuration $(CORS_CONFIG)
 	@echo "CORS configured."
 
 .PHONY: localstack-setup

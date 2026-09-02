@@ -106,6 +106,12 @@ export interface RecreationResourceDetailDto {
    */
   rec_resource_type: string;
   /**
+   * Code identifying the type of recreation resource (e.g. SIT for site, TRL for trail)
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
+   */
+  rec_resource_type_code?: string | null;
+  /**
    * Detailed description of the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceDetailDto
@@ -318,6 +324,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
+    rec_resource_type_code:
+      json['rec_resource_type_code'] == null
+        ? undefined
+        : json['rec_resource_type_code'],
     description: json['description'],
     driving_directions: json['driving_directions'],
     maintenance_standard: json['maintenance_standard'],
@@ -397,6 +407,7 @@ export function RecreationResourceDetailDtoToJSONTyped(
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
+    rec_resource_type_code: value['rec_resource_type_code'],
     description: value['description'],
     driving_directions: value['driving_directions'],
     maintenance_standard: value['maintenance_standard'],
