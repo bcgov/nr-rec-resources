@@ -13,7 +13,6 @@ import { formatCurrency } from './formatCurrency';
 import {
   buildRepairMutationDto,
   EMPTY_REPAIR_FORM,
-  getRepairTitle,
   parseOptionalRepairNumber,
   RepairAddForm,
   RepairExpandToggle,
@@ -298,7 +297,6 @@ export function AssetCardRepairs({
                         repairCodes={repairCodes}
                         recResourceId={recResourceId}
                         canViewSensitiveInfo={canViewSensitiveInfo}
-
                       />
                     ))}
                 </div>

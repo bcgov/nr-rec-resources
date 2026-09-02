@@ -72,6 +72,38 @@ describe('AssetCard', () => {
     expect(screen.getByText('Main bridge')).toBeInTheDocument();
   });
 
+  it('shows outstanding repairs badge beside the asset name', () => {
+    render(
+      <AssetCard
+        asset={buildAsset({
+          recreation_asset_repair: [
+            buildRepair({ repair_id: 1, repair_completed_date: null }),
+            buildRepair({ repair_id: 2, repair_completed_date: null }),
+            buildRepair({ repair_id: 3, repair_completed_date: '2024-04-01' }),
+          ],
+        })}
+        repairCodes={[]}
+      />,
+    );
+
+    expect(screen.getByText('2 repairs')).toBeInTheDocument();
+  });
+
+  it('does not show outstanding repairs count when all repairs are completed', () => {
+    render(
+      <AssetCard
+        asset={buildAsset({
+          recreation_asset_repair: [
+            buildRepair({ repair_completed_date: '2024-04-01' }),
+          ],
+        })}
+        repairCodes={[]}
+      />,
+    );
+
+    expect(screen.queryByText(/\d+ repairs?/)).not.toBeInTheDocument();
+  });
+
   it('renders all fields, in order, when populated', () => {
     render(
       <AssetCard

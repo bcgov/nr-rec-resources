@@ -1,4 +1,6 @@
 import { Card } from 'react-bootstrap';
+import { CustomBadge } from '@/components';
+import { COLOR_AMBER_DARK, COLOR_AMBER_LIGHT } from '@/styles/colors';
 import { AssetCardRepairs } from './AssetCardRepairs';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
 import { formatCurrency } from './formatCurrency';
@@ -98,6 +100,9 @@ export function AssetCard({
 }: AssetCardProps) {
   const fields = getAssetFields(asset, assetCodes);
   const repairs = asset.recreation_asset_repair ?? [];
+  const outstandingRepairsCount = repairs.filter(
+    (repair) => !repair.repair_completed_date,
+  ).length;
 
   return (
     <Card className={`asset-card ${className}`}>
@@ -106,9 +111,19 @@ export function AssetCard({
           <div className="d-flex justify-content-between align-items-center">
             <div className="asset-card__title">
               <span className="asset-card__title-name">{asset.asset_name}</span>
+
               {asset.asset_comment && (
                 <span className="asset-card__comment">
                   {asset.asset_comment}
+                </span>
+              )}
+              {outstandingRepairsCount > 0 && (
+                <span className="asset-card__repair-count">
+                  <CustomBadge
+                    label={`${outstandingRepairsCount} repair${outstandingRepairsCount === 1 ? '' : 's'}`}
+                    bgColor={COLOR_AMBER_LIGHT}
+                    textColor={COLOR_AMBER_DARK}
+                  />
                 </span>
               )}
             </div>
