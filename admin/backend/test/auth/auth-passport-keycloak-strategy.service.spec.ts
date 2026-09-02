@@ -1,5 +1,6 @@
 import { AppConfigModule } from '@/app-config/app-config.module';
 import { AuthPassportKeycloakStrategy } from '@/auth';
+import { RecreationResourceAuthRole } from '@/auth/auth.constants';
 import { UserContextService } from '@/common/modules/user-context/user-context.service';
 import { Test } from '@nestjs/testing';
 import { describe, expect, it } from 'vitest';
@@ -36,7 +37,10 @@ describe('AuthPassportKeycloakStrategy', () => {
       idir_username: 'TEST\\some.user',
     };
 
-    expect(await strategy.validate(mockPayload)).toEqual(mockPayload);
+    expect(await strategy.validate(mockPayload)).toEqual({
+      ...mockPayload,
+      client_roles: [RecreationResourceAuthRole.RST_IDIR_VIEWER],
+    });
   });
 
   describe('configuration validation', () => {
