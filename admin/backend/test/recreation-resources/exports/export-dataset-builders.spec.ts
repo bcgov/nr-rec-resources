@@ -1,5 +1,6 @@
 import { type ExportDatasetBuilderContext } from '@/recreation-resources/exports/datasets/types';
 import { assetListDataset } from '@/recreation-resources/exports/datasets/asset-list.dataset';
+import { assetRepairListDataset } from '@/recreation-resources/exports/datasets/asset-repair-list.dataset';
 import { closureListFtaDataset } from '@/recreation-resources/exports/datasets/closure-list-fta.dataset';
 import { feeListFtaDataset } from '@/recreation-resources/exports/datasets/fee-list-fta.dataset';
 import { fileDetailsDataset } from '@/recreation-resources/exports/datasets/file-details.dataset';
@@ -193,6 +194,58 @@ describe('export dataset builders', () => {
     // Groups each parent campsite with its children, parent row first.
     expect(sql).toContain(
       'ORDER BY rr.rec_resource_id, COALESCE(ra.parent_id, ra.asset_id), ra.parent_id NULLS FIRST, ra.asset_name, ra.asset_id',
+    );
+  });
+
+  it('builds the RST asset repair list query joined through its asset', () => {
+    const sql = normalizeDatasetSql(
+      assetRepairListDataset.buildQuery,
+      createBuilderContext({
+        dataset: 'asset-repair-list',
+        district: 'D01',
+        resourceType: 'TRAIL',
+      }),
+    );
+
+    expect(sql).toContain('FROM recreation_asset_repair rap');
+    // recreation_asset_repair has no rec_resource_id, so the resource is
+    // reached through the asset -- which is also what the filters need.
+    expect(sql).toContain(
+      'INNER JOIN recreation_asset ra ON ra.asset_id = rap.asset_id',
+    );
+    expect(sql).toContain(
+      'INNER JOIN recreation_resource rr ON rr.rec_resource_id = ra.rec_resource_id',
+    );
+    expect(sql).toContain(
+      'WHERE 1 = 1 AND rr.district_code = ? AND rrtva.rec_resource_type_code = ?',
+    );
+  });
+
+  it('exposes repair attributes and owning asset context in the repair list query', () => {
+    const sql = normalizeDatasetSql(
+      assetRepairListDataset.buildQuery,
+      createBuilderContext({
+        dataset: 'asset-repair-list',
+      }),
+    );
+
+    expect(sql).toContain('"ASSET_ID"');
+    expect(sql).toContain('"ASSET_NAME"');
+    expect(sql).toContain('"ASSET_COMMENT"');
+    expect(sql).toContain('"REPAIR_ID"');
+    expect(sql).toContain('"REPAIR_TYPE"');
+    expect(sql).toContain('"ESTIMATED_REPAIR_COST"');
+    expect(sql).toContain('"ACTUAL_REPAIR_COST"');
+    expect(sql).toContain('"REPAIR_COMPLETED_DATE"');
+    expect(sql).toContain('"URGENCY"');
+    // The repair code is resolved to its description, per the FK-name rule.
+    // Aliased rrc, not rrrc, which sharedJoins already binds to the risk rating code.
+    expect(sql).toContain(
+      'LEFT JOIN recreation_remed_repair_code rrc ON rrc.recreation_remed_repair_code = rap.recreation_remed_repair_code',
+    );
+    expect(sql).not.toContain('"RECREATION_REMED_REPAIR_CODE"');
+    expect(sql).toContain(
+      'ORDER BY rr.rec_resource_id, ra.asset_id, rap.repair_id',
     );
   });
 });
