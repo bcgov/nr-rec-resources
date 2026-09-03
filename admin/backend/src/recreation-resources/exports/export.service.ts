@@ -11,11 +11,14 @@ import { ExportPreviewRow, ExportRepository } from './export.repository';
 /**
  * CSV export columns that must not be visible to IDIR viewer-only users.
  * CLIENT_NUMBER contains agreement holder identity information.
- * ESTIMATED_REPAIR_COST is a financial field restricted to higher roles.
+ * ESTIMATED_REPAIR_COST, ACTUAL_REPAIR_COST, and ACTUAL_VALUE (the asset's
+ * own monetary value) are financial fields restricted to higher roles.
  */
 const VIEWER_REDACTED_COLUMNS = new Set([
   'CLIENT_NUMBER',
   'ESTIMATED_REPAIR_COST',
+  'ACTUAL_REPAIR_COST',
+  'ACTUAL_VALUE',
 ]);
 
 interface ExportDownloadResult {

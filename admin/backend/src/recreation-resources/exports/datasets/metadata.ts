@@ -18,7 +18,8 @@ export type ExportDatasetId =
   | 'site-inspection'
   | 'site-inspection-fta'
   | 'closure-list'
-  | 'closure-list-fta';
+  | 'closure-list-fta'
+  | 'asset-repair-list';
 
 export type ExportDatasetSource = 'RST' | 'FTA';
 
@@ -149,6 +150,11 @@ export const ALL_EXPORT_DATASETS: ExportDatasetDefinition[] = [
     label: 'Closure list',
     source: 'FTA',
     info: 'Includes only non-archived resources that are closed and have closure comment text.',
+  },
+  {
+    id: 'asset-repair-list',
+    label: 'Asset repair list',
+    source: 'RST',
   },
 ];
 
