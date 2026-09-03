@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Card, Form, InputGroup } from 'react-bootstrap';
 import { AssetCardRepairsEdit } from './AssetCardRepairsEdit';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
+import { isTrailAssetCode } from './trailStations';
 import type { Asset, AssetCode, RepairCode } from './types';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import './AssetCard.scss';
@@ -54,6 +56,8 @@ export function AssetCardEdit({
   const widthEnabled = selectedAssetCode?.has_width ?? false;
   const areaEnabled = selectedAssetCode?.has_area ?? false;
   const repairs = asset.recreation_asset_repair ?? [];
+  const isTrailAsset = isTrailAssetCode(asset.asset_code, assetCodes);
+  const [hasRepairErrors, setHasRepairErrors] = useState(false);
 
   const {
     register,
@@ -81,7 +85,17 @@ export function AssetCardEdit({
     // Re-validate lat/lng together (one required if other is set)
     void trigger(['latitude', 'longitude']);
     const hasErrors = Object.keys(errors).length > 0;
-    onValidationChange?.(asset.asset_id, hasErrors);
+    onValidationChange?.(asset.asset_id, hasErrors || hasRepairErrors);
+  }
+
+  // Repair station coordinates validate inside AssetCardRepairsEdit; fold their
+  // result into this card's validity so an invalid station blocks Save too.
+  function handleRepairValidationChange(repairHasErrors: boolean) {
+    setHasRepairErrors(repairHasErrors);
+    onValidationChange?.(
+      asset.asset_id,
+      repairHasErrors || Object.keys(errors).length > 0,
+    );
   }
 
   const id = asset.asset_id;
@@ -239,7 +253,9 @@ export function AssetCardEdit({
             repairCodes={repairCodes}
             recResourceId={recResourceId}
             assetId={asset.asset_id}
+            isTrailAsset={isTrailAsset}
             onRepairChange={onRepairChange}
+            onValidationChange={handleRepairValidationChange}
           />
         </div>
       </Card.Body>

@@ -5,6 +5,11 @@ import { Col, Form, Row } from 'react-bootstrap';
 import Select from 'react-select';
 import { CurrencyInput } from '@/components/form';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
+import {
+  isTrailAssetTypeDescription,
+  isValidStationValue,
+  STATION_COORDINATE_ERROR,
+} from './trailStations';
 import type { Asset, AssetCode } from './types';
 import './RepairAssetEntry.scss';
 
@@ -13,25 +18,9 @@ interface AssetTypeOption {
   label: string;
 }
 
-// Asset type descriptions (rst.recreation_asset_code) that require per-trail
-// start/end station coordinates when repaired.
-const TRAIL_ASSET_TYPE_DESCRIPTIONS = new Set([
-  'Trail',
-  'Trail - Wheelchair Accessible',
-]);
-
 interface TrailStationState {
   startStation: string;
   endStation: string;
-}
-
-// Station fields are optional, but when filled must be "lat,long" — two
-// decimal numbers separated by a comma, e.g. "49.1232,-128.3030".
-const STATION_COORDINATE_REGEX = /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/;
-
-function isValidStationValue(value: string | undefined): boolean {
-  const trimmed = value?.trim();
-  return !trimmed || STATION_COORDINATE_REGEX.test(trimmed);
 }
 
 export interface RepairGroupFormState {
@@ -76,10 +65,7 @@ export function getRepairGroupContext(
   const assetTypeDescription = assetCodes.find(
     (code) => String(code.asset_code) === entry.assetTypeCode,
   )?.description;
-  const isTrailAssetType = Boolean(
-    assetTypeDescription &&
-      TRAIL_ASSET_TYPE_DESCRIPTIONS.has(assetTypeDescription),
-  );
+  const isTrailAssetType = isTrailAssetTypeDescription(assetTypeDescription);
 
   return { matchingAssets, selectedAssets, isTrailAssetType };
 }
@@ -348,8 +334,7 @@ export function RepairAssetEntry({
                                 type="invalid"
                                 className="d-block"
                               >
-                                Enter coordinates as lat,long (e.g.
-                                49.1232,-128.3030)
+                                {STATION_COORDINATE_ERROR}
                               </Form.Control.Feedback>
                             )}
                           </Form.Group>
@@ -379,8 +364,7 @@ export function RepairAssetEntry({
                                 type="invalid"
                                 className="d-block"
                               >
-                                Enter coordinates as lat,long (e.g.
-                                49.1232,-128.3030)
+                                {STATION_COORDINATE_ERROR}
                               </Form.Control.Feedback>
                             )}
                           </Form.Group>

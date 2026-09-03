@@ -5,6 +5,7 @@ import type {
   AssetRepair,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/services/hooks/recreation-resource-admin/useUpdateRepair', () => ({
@@ -285,6 +286,51 @@ describe('AssetCard', () => {
     );
 
     expect(container.querySelector('.asset-card--campsite')).toBeTruthy();
+  });
+
+  it('shows repair stations when the asset type is a trail', async () => {
+    const user = userEvent.setup();
+    render(
+      <AssetCard
+        asset={buildAsset({
+          asset_code: 1,
+          recreation_asset_repair: [
+            buildRepair({ trail_segment_start: '49.232423,-128.334343' }),
+          ],
+        })}
+        assetCodes={[{ asset_code: 1, description: 'Trail' }]}
+        repairCodes={[
+          { recreation_remed_repair_code: 'R1', description: 'Paint touch-up' },
+        ]}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Show repairs/ }));
+
+    expect(screen.getByText('Start station:')).toBeInTheDocument();
+    expect(screen.getByText('49.232423,-128.334343')).toBeInTheDocument();
+  });
+
+  it('omits repair stations when the asset type is not a trail', async () => {
+    const user = userEvent.setup();
+    render(
+      <AssetCard
+        asset={buildAsset({
+          asset_code: 1,
+          recreation_asset_repair: [
+            buildRepair({ trail_segment_start: '49.232423,-128.334343' }),
+          ],
+        })}
+        assetCodes={[{ asset_code: 1, description: 'Bridge' }]}
+        repairCodes={[
+          { recreation_remed_repair_code: 'R1', description: 'Paint touch-up' },
+        ]}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Show repairs/ }));
+
+    expect(screen.queryByText('Start station:')).not.toBeInTheDocument();
   });
 
   it('passes repairs and repair codes through to AssetCardRepairs', () => {

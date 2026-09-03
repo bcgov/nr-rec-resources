@@ -208,3 +208,12 @@
     }
   }
 }
+
+// Stations hold "lat,long" text, so they need more room than the numeric
+// cost/date fields they share the edit row with.
+.asset-card-repairs__item-edit-fields .asset-card-repairs__station-group {
+  .form-control {
+    min-width: 220px;
+    width: auto;
+  }
+}

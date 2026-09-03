@@ -76,6 +76,10 @@ const assetCodes: AssetCode[] = [
   },
 ];
 
+const trailAssetCodes: AssetCode[] = [
+  { asset_code: 100, description: 'Trail' },
+];
+
 const defaultProps = {
   asset: buildAsset(),
   repairCodes,
@@ -168,6 +172,98 @@ describe('AssetCardEdit', () => {
     expect(screen.getByLabelText('Width')).toBeDisabled();
     expect(screen.getByLabelText('Area')).toBeEnabled();
     expect(screen.getByDisplayValue('2500')).toBeInTheDocument();
+  });
+
+  describe('trail repair stations', () => {
+    const trailProps = {
+      ...defaultProps,
+      asset: buildAsset({
+        recreation_asset_repair: [buildRepair({ repair_id: 7 })],
+      }),
+      assetCodes: trailAssetCodes,
+    };
+
+    it('exposes station inputs when the asset type is a trail', async () => {
+      const user = userEvent.setup();
+      render(<AssetCardEdit {...trailProps} />);
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      expect(screen.getByLabelText('Start station')).toBeInTheDocument();
+      expect(screen.getByLabelText('End station')).toBeInTheDocument();
+    });
+
+    it('hides station inputs when the asset type is not a trail', async () => {
+      const user = userEvent.setup();
+      render(<AssetCardEdit {...trailProps} assetCodes={assetCodes} />);
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      expect(screen.queryByLabelText('Start station')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('End station')).not.toBeInTheDocument();
+    });
+
+    it('hides station inputs when no asset codes are supplied', async () => {
+      const user = userEvent.setup();
+      render(<AssetCardEdit {...trailProps} assetCodes={undefined} />);
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      expect(screen.queryByLabelText('Start station')).not.toBeInTheDocument();
+    });
+
+    it('reports an invalid station as a card level validation error', async () => {
+      const user = userEvent.setup();
+      const onValidationChange = vi.fn();
+      render(
+        <AssetCardEdit
+          {...trailProps}
+          onValidationChange={onValidationChange}
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+      await user.type(screen.getByLabelText('Start station'), 'bad-value');
+      await user.tab();
+
+      expect(onValidationChange).toHaveBeenLastCalledWith(1, true);
+    });
+
+    it('clears the card level error once the station is corrected', async () => {
+      const user = userEvent.setup();
+      const onValidationChange = vi.fn();
+      render(
+        <AssetCardEdit
+          {...trailProps}
+          onValidationChange={onValidationChange}
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      const startInput = screen.getByLabelText('Start station');
+      await user.type(startInput, 'bad-value');
+      await user.tab();
+      await user.clear(startInput);
+      await user.type(startInput, '49.1,-128.2');
+      await user.tab();
+
+      expect(onValidationChange).toHaveBeenLastCalledWith(1, false);
+    });
+
+    it('forwards station edits to onRepairChange', async () => {
+      const user = userEvent.setup();
+      const onRepairChange = vi.fn();
+      render(<AssetCardEdit {...trailProps} onRepairChange={onRepairChange} />);
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+      await user.type(screen.getByLabelText('End station'), '49.2,-128.2');
+      await user.tab();
+
+      expect(onRepairChange).toHaveBeenCalledWith(7, {
+        trail_segment_end: '49.2,-128.2',
+      });
+    });
   });
 
   it('reports validation state after lat/lng edits', async () => {
