@@ -100,6 +100,24 @@ export interface RecreationAssetDto {
    */
   installation_date?: string | null;
   /**
+   * Point geometry type code, if this asset has a location
+   * @type {object}
+   * @memberof RecreationAssetDto
+   */
+  geometry_type_code?: object | null;
+  /**
+   * Latitude in WGS84 (derived from recreation_asset_geom)
+   * @type {object}
+   * @memberof RecreationAssetDto
+   */
+  latitude?: object | null;
+  /**
+   * Longitude in WGS84 (derived from recreation_asset_geom)
+   * @type {object}
+   * @memberof RecreationAssetDto
+   */
+  longitude?: object | null;
+  /**
    * Unique surrogate identifier for the asset
    * @type {number}
    * @memberof RecreationAssetDto
@@ -117,24 +135,6 @@ export interface RecreationAssetDto {
    * @memberof RecreationAssetDto
    */
   updated_at?: string | null;
-  /**
-   * Point geometry type code, if this asset has a location
-   * @type {string}
-   * @memberof RecreationAssetDto
-   */
-  geometry_type_code?: string | null;
-  /**
-   * Latitude in WGS84 (derived from recreation_asset_geom)
-   * @type {number}
-   * @memberof RecreationAssetDto
-   */
-  latitude?: number | null;
-  /**
-   * Longitude in WGS84 (derived from recreation_asset_geom)
-   * @type {number}
-   * @memberof RecreationAssetDto
-   */
-  longitude?: number | null;
   /**
    * List of repairs associated with this asset
    * @type {Array<RecreationAssetRepairDto>}
@@ -193,15 +193,15 @@ export function RecreationAssetDtoFromJSONTyped(
       json['actual_value'] == null ? undefined : json['actual_value'],
     installation_date:
       json['installation_date'] == null ? undefined : json['installation_date'],
-    asset_id: json['asset_id'],
-    updated_by: json['updated_by'] == null ? undefined : json['updated_by'],
-    updated_at: json['updated_at'] == null ? undefined : json['updated_at'],
     geometry_type_code:
       json['geometry_type_code'] == null
         ? undefined
         : json['geometry_type_code'],
     latitude: json['latitude'] == null ? undefined : json['latitude'],
     longitude: json['longitude'] == null ? undefined : json['longitude'],
+    asset_id: json['asset_id'],
+    updated_by: json['updated_by'] == null ? undefined : json['updated_by'],
+    updated_at: json['updated_at'] == null ? undefined : json['updated_at'],
     recreation_asset_repair: (
       json['recreation_asset_repair'] as Array<any>
     ).map(RecreationAssetRepairDtoFromJSON),
@@ -233,12 +233,12 @@ export function RecreationAssetDtoToJSONTyped(
     asset_area: value['asset_area'],
     actual_value: value['actual_value'],
     installation_date: value['installation_date'],
-    asset_id: value['asset_id'],
-    updated_by: value['updated_by'],
-    updated_at: value['updated_at'],
     geometry_type_code: value['geometry_type_code'],
     latitude: value['latitude'],
     longitude: value['longitude'],
+    asset_id: value['asset_id'],
+    updated_by: value['updated_by'],
+    updated_at: value['updated_at'],
     recreation_asset_repair: (
       value['recreation_asset_repair'] as Array<any>
     ).map(RecreationAssetRepairDtoToJSON),

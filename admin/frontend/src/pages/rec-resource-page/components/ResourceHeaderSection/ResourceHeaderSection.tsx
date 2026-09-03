@@ -1,4 +1,9 @@
-import { AdminStatusBadge, CustomBadge, FileStatusBadge } from '@/components';
+import {
+  AdminStatusBadge,
+  CustomBadge,
+  FileStatusBadge,
+  PublicAccessStatusBadge,
+} from '@/components';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { COLOR_BLUE, COLOR_BLUE_LIGHT } from '@/styles/colors';
 import { FC } from 'react';
@@ -13,6 +18,7 @@ interface ResourceHeaderSectionProps {
 export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
+  console.log(recResource.access_status_grouplabel);
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
       {/* section: name, rec id, status */}
@@ -46,6 +52,11 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
                 recResource.rec_status_description ??
                 recResource.rec_status_code
               }
+            />
+          )}
+          {recResource.access_status_grouplabel && (
+            <PublicAccessStatusBadge
+              label={recResource.access_status_grouplabel}
             />
           )}
         </Stack>

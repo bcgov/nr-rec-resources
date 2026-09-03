@@ -16,94 +16,106 @@ import { mapValues } from '../runtime';
 /**
  *
  * @export
- * @interface FinalizeDocUploadRequestDto
+ * @interface ExhibitADocDto
  */
-export interface FinalizeDocUploadRequestDto {
+export interface ExhibitADocDto {
   /**
-   * Document ID (returned from presign endpoint)
+   * Document UUID
    * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
+   * @memberof ExhibitADocDto
    */
   document_id: string;
   /**
-   * Document file name
+   * Recreation Resource ID
    * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
+   * @memberof ExhibitADocDto
+   */
+  rec_resource_id: string;
+  /**
+   * File name without extension
+   * @type {string}
+   * @memberof ExhibitADocDto
    */
   file_name: string;
   /**
-   * File extension without dot
+   * File extension
    * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
+   * @memberof ExhibitADocDto
    */
   extension: string;
   /**
    * File size in bytes
    * @type {number}
-   * @memberof FinalizeDocUploadRequestDto
+   * @memberof ExhibitADocDto
    */
-  file_size: number;
+  file_size?: number;
   /**
-   * Document type code (e.g. RM for Recreation Map, EA for Exhibit A). Defaults to RM.
+   * S3 object key
    * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
+   * @memberof ExhibitADocDto
    */
-  doc_code?: FinalizeDocUploadRequestDtoDocCodeEnum;
+  s3_key: string;
+  /**
+   * Presigned download URL
+   * @type {string}
+   * @memberof ExhibitADocDto
+   */
+  url: string;
+  /**
+   * When the document was created
+   * @type {Date}
+   * @memberof ExhibitADocDto
+   */
+  created_at?: Date;
 }
 
 /**
- * @export
+ * Check if a given object implements the ExhibitADocDto interface.
  */
-export const FinalizeDocUploadRequestDtoDocCodeEnum = {
-  Rm: 'RM',
-} as const;
-export type FinalizeDocUploadRequestDtoDocCodeEnum =
-  (typeof FinalizeDocUploadRequestDtoDocCodeEnum)[keyof typeof FinalizeDocUploadRequestDtoDocCodeEnum];
-
-/**
- * Check if a given object implements the FinalizeDocUploadRequestDto interface.
- */
-export function instanceOfFinalizeDocUploadRequestDto(
+export function instanceOfExhibitADocDto(
   value: object,
-): value is FinalizeDocUploadRequestDto {
+): value is ExhibitADocDto {
   if (!('document_id' in value) || value['document_id'] === undefined)
+    return false;
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
   if (!('file_name' in value) || value['file_name'] === undefined) return false;
   if (!('extension' in value) || value['extension'] === undefined) return false;
-  if (!('file_size' in value) || value['file_size'] === undefined) return false;
+  if (!('s3_key' in value) || value['s3_key'] === undefined) return false;
+  if (!('url' in value) || value['url'] === undefined) return false;
   return true;
 }
 
-export function FinalizeDocUploadRequestDtoFromJSON(
-  json: any,
-): FinalizeDocUploadRequestDto {
-  return FinalizeDocUploadRequestDtoFromJSONTyped(json, false);
+export function ExhibitADocDtoFromJSON(json: any): ExhibitADocDto {
+  return ExhibitADocDtoFromJSONTyped(json, false);
 }
 
-export function FinalizeDocUploadRequestDtoFromJSONTyped(
+export function ExhibitADocDtoFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean,
-): FinalizeDocUploadRequestDto {
+): ExhibitADocDto {
   if (json == null) {
     return json;
   }
   return {
     document_id: json['document_id'],
+    rec_resource_id: json['rec_resource_id'],
     file_name: json['file_name'],
     extension: json['extension'],
-    file_size: json['file_size'],
-    doc_code: json['doc_code'] == null ? undefined : json['doc_code'],
+    file_size: json['file_size'] == null ? undefined : json['file_size'],
+    s3_key: json['s3_key'],
+    url: json['url'],
+    created_at:
+      json['created_at'] == null ? undefined : new Date(json['created_at']),
   };
 }
 
-export function FinalizeDocUploadRequestDtoToJSON(
-  json: any,
-): FinalizeDocUploadRequestDto {
-  return FinalizeDocUploadRequestDtoToJSONTyped(json, false);
+export function ExhibitADocDtoToJSON(json: any): ExhibitADocDto {
+  return ExhibitADocDtoToJSONTyped(json, false);
 }
 
-export function FinalizeDocUploadRequestDtoToJSONTyped(
-  value?: FinalizeDocUploadRequestDto | null,
+export function ExhibitADocDtoToJSONTyped(
+  value?: ExhibitADocDto | null,
   ignoreDiscriminator: boolean = false,
 ): any {
   if (value == null) {
@@ -112,9 +124,15 @@ export function FinalizeDocUploadRequestDtoToJSONTyped(
 
   return {
     document_id: value['document_id'],
+    rec_resource_id: value['rec_resource_id'],
     file_name: value['file_name'],
     extension: value['extension'],
     file_size: value['file_size'],
-    doc_code: value['doc_code'],
+    s3_key: value['s3_key'],
+    url: value['url'],
+    created_at:
+      value['created_at'] == null
+        ? undefined
+        : value['created_at'].toISOString(),
   };
 }

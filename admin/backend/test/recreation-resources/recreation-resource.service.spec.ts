@@ -205,6 +205,7 @@ describe('RecreationResourceService', () => {
           _count: {
             recreation_defined_campsite: 5,
           },
+          act_advisories_flat: [{ access_status_grouplabel: 'Open' }],
         },
       ],
     });
@@ -240,7 +241,7 @@ describe('RecreationResourceService', () => {
           established_date: '2024-06-10',
           updated_at: '2024-06-10',
           campsite_count: 5,
-          access_status_grouplabel: null,
+          access_status_grouplabel: 'Open',
         },
       ],
       total: 1,
@@ -612,6 +613,7 @@ describe('RecreationResourceService - findOne', () => {
         description: 'District',
         district_code: 'D1',
       },
+      act_advisories_flat: [{ access_status_grouplabel: 'Closed' }],
     };
     const geometryData = [
       {
@@ -719,6 +721,7 @@ describe('RecreationResourceService - update', () => {
       recreation_structure: [],
       recreation_district_code: null,
       recreation_control_access_code: null,
+      act_advisories_flat: [{ access_status_grouplabel: 'Closed' }],
     };
 
     const mockGeometry = [
@@ -784,6 +787,7 @@ describe('RecreationResourceService - update', () => {
         description: 'Controlled',
         control_access_code: 'Y',
       },
+      act_advisories_flat: [{ access_status_grouplabel: 'Closed' }],
     };
 
     const mockGeometry = [

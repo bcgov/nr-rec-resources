@@ -461,4 +461,13 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     nullable: true,
   })
   natural_resource_org_unit_name?: string | null;
+
+  @ApiProperty({
+    description: 'Public access status group label from ACT advisories',
+    example: 'Open',
+    required: false,
+    nullable: true,
+    type: String,
+  })
+  access_status_grouplabel?: string | null;
 }

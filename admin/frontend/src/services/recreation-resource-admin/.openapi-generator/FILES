@@ -28,15 +28,18 @@ models/BcgwRecreationPolygonsFeatureCollectionDto.ts
 models/BcgwRecreationPolygonsFeatureDto.ts
 models/BcgwRecreationResourceDto.ts
 models/BulkAssetUpdateResponseDto.ts
+models/BulkCreateRecreationAssetsDto.ts
 models/ConsentFormDownloadResponseDto.ts
 models/CreateRecreationAssetDto.ts
 models/CreateRecreationAssetRepairDto.ts
 models/CreateRecreationFeeDto.ts
 models/CreateTrailDto.ts
 models/EstablishmentOrderDocDto.ts
+models/ExhibitADocDto.ts
 models/ExportDatasetDto.ts
 models/ExportPreviewResponseDto.ts
 models/FinalizeDocUploadRequestDto.ts
+models/FinalizeExhibitAUploadRequestDto.ts
 models/GenericErrorResponseDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
@@ -47,6 +50,7 @@ models/OptionDto.ts
 models/OptionsByTypeDto.ts
 models/PaginatedRecreationAssetDto.ts
 models/PresignDocUploadResponseDto.ts
+models/PresignExhibitAUploadResponseDto.ts
 models/PresignImageUploadResponseDto.ts
 models/RecreationAccessCodeDto.ts
 models/RecreationActivityDto.ts
