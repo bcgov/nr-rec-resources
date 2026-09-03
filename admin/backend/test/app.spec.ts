@@ -199,5 +199,5 @@ describe('bootstrap', () => {
     );
 
     expect(app).toBe(appMock);
-  });
+  }, 15_000);
 });

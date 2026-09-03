@@ -14,10 +14,10 @@ interface ExportMapFileBtnProps {
 export const ExportMapFileBtn = ({ onClick }: ExportMapFileBtnProps) => {
   return (
     <IconButton
-      variant="outline"
+      variant="outline-primary"
       onClick={onClick}
       aria-label="Export map file"
-      leftIcon={
+      rightIcon={
         <img
           src={DownloadIcon}
           alt={DOWNLOAD_ICON_CONFIG.ALT}

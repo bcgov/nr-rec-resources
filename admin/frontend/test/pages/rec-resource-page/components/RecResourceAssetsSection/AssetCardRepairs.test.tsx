@@ -1,5 +1,7 @@
 import { AssetCardRepairs } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCardRepairs';
 import * as useUpdateRepairModule from '@/services/hooks/recreation-resource-admin/useUpdateRepair';
+import * as useCreateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useCreateAssetRepair';
+import * as useAuthorizationsModule from '@/hooks/useAuthorizations';
 import type {
   AssetRepair,
   RepairCode,
@@ -11,6 +13,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/services/hooks/recreation-resource-admin/useUpdateRepair', () => ({
   useUpdateRepair: vi.fn(),
 }));
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: vi.fn(),
+}));
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useCreateAssetRepair',
+  () => ({
+    useCreateAssetRepair: vi.fn(),
+  }),
+);
 
 const buildRepair = (overrides: Partial<AssetRepair> = {}): AssetRepair => ({
   repair_id: 1,
@@ -34,6 +47,7 @@ const repairCodes: RepairCode[] = [
 ];
 
 const mockUpdateRepair = vi.fn();
+const mockCreateRepair = vi.fn();
 
 describe('AssetCardRepairs', () => {
   beforeEach(() => {
@@ -41,6 +55,18 @@ describe('AssetCardRepairs', () => {
     vi.mocked(useUpdateRepairModule.useUpdateRepair).mockReturnValue({
       mutate: mockUpdateRepair,
     } as any);
+    vi.mocked(useCreateAssetRepairModule.useCreateAssetRepair).mockReturnValue({
+      mutate: mockCreateRepair,
+      isPending: false,
+    } as any);
+    vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
+      isSuperAdmin: false,
+      canViewSensitiveInfo: true,
+    });
   });
 
   it('starts collapsed, showing "Show repairs"', () => {
@@ -134,7 +160,9 @@ describe('AssetCardRepairs', () => {
 
   it('renders the Add repair button', async () => {
     const user = userEvent.setup();
-    render(<AssetCardRepairs repairs={[]} repairCodes={[]} />);
+    render(
+      <AssetCardRepairs repairs={[]} repairCodes={[]} recResourceId="REC001" />,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Show repairs' }));
 
@@ -233,6 +261,193 @@ describe('AssetCardRepairs', () => {
       await user.tab();
 
       expect(mockUpdateRepair).not.toHaveBeenCalled();
+    });
+
+    it('renders multiple repairs in stable repair_id order regardless of prop order', async () => {
+      const user = userEvent.setup();
+      const repairCodesMulti: RepairCode[] = [
+        { recreation_remed_repair_code: 'R1', description: 'Paint touch-up' },
+        { recreation_remed_repair_code: 'R2', description: 'Structural fix' },
+        { recreation_remed_repair_code: 'R3', description: 'Deck replacement' },
+      ];
+
+      // Pass repairs in reverse id order to simulate server returning them out-of-order
+      render(
+        <AssetCardRepairs
+          repairs={[
+            buildRepair({ repair_id: 3, recreation_remed_repair_code: 'R3' }),
+            buildRepair({ repair_id: 1, recreation_remed_repair_code: 'R1' }),
+            buildRepair({ repair_id: 2, recreation_remed_repair_code: 'R2' }),
+          ]}
+          repairCodes={repairCodesMulti}
+          isEditing
+          recResourceId="REC0001"
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      const selects = screen.getAllByLabelText(
+        'Repair type',
+      ) as HTMLSelectElement[];
+      expect(selects).toHaveLength(3);
+      // Should appear sorted by repair_id: R1, R2, R3
+      expect(selects[0].value).toBe('R1');
+      expect(selects[1].value).toBe('R2');
+      expect(selects[2].value).toBe('R3');
+    });
+  });
+
+  describe('Add repair form and save/cancel flows', () => {
+    it('opens the add form when "Add repair" button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <AssetCardRepairs
+          repairs={[]}
+          repairCodes={repairCodes}
+          assetId={10}
+          recResourceId="REC001"
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+      await user.click(screen.getByRole('button', { name: /Add repair/ }));
+
+      expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /cancel/i }),
+      ).toBeInTheDocument();
+    });
+
+    it('cancels adding a repair when Cancel is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <AssetCardRepairs
+          repairs={[]}
+          repairCodes={repairCodes}
+          assetId={10}
+          recResourceId="REC001"
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+      await user.click(screen.getByRole('button', { name: /Add repair/ }));
+
+      await user.click(screen.getByRole('button', { name: /cancel/i }));
+
+      expect(
+        screen.queryByRole('button', { name: /save/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Add repair/ }),
+      ).toBeInTheDocument();
+    });
+
+    it('submits createRepair onSave and resets form on success', async () => {
+      const user = userEvent.setup();
+      mockCreateRepair.mockImplementation((_data, options) => {
+        options?.onSuccess?.();
+      });
+
+      render(
+        <AssetCardRepairs
+          repairs={[]}
+          repairCodes={repairCodes}
+          assetId={10}
+          recResourceId="REC001"
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+      await user.click(screen.getByRole('button', { name: /Add repair/ }));
+
+      // Select repair type so the form is valid and Save button is enabled
+      const repairTypeSelect = screen.getByRole('combobox');
+      await user.selectOptions(repairTypeSelect, 'R1');
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      expect(mockCreateRepair).toHaveBeenCalledWith(
+        expect.objectContaining({
+          assetId: 10,
+          recResourceId: 'REC001',
+        }),
+        expect.any(Object),
+      );
+
+      expect(
+        screen.queryByRole('button', { name: /save/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not call createRepair on save if assetId or recResourceId is missing', async () => {
+      const user = userEvent.setup();
+      render(<AssetCardRepairs repairs={[]} repairCodes={repairCodes} />);
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+      await user.click(screen.getByRole('button', { name: /Add repair/ }));
+
+      const repairTypeSelect = screen.getByRole('combobox');
+      await user.selectOptions(repairTypeSelect, 'R1');
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      expect(mockCreateRepair).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('RepairEditRow complete field interactions on blur', () => {
+    it('triggers updateRepair on blur for repair type, actual cost, and completed date', async () => {
+      const user = userEvent.setup();
+      render(
+        <AssetCardRepairs
+          repairs={[
+            buildRepair({
+              repair_id: 12,
+              recreation_remed_repair_code: 'R1',
+              actual_repair_cost: 50,
+              repair_completed_date: '2024-01-01',
+            }),
+          ]}
+          repairCodes={repairCodes}
+          isEditing
+          recResourceId="REC0001"
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      // 1. Change Actual cost & trigger blur
+      const actualCostInput = screen.getByLabelText('Actual cost');
+      await user.clear(actualCostInput);
+      await user.type(actualCostInput, '150');
+      await user.tab();
+
+      expect(mockUpdateRepair).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          repairId: 12,
+          recResourceId: 'REC0001',
+          dto: expect.objectContaining({
+            actual_repair_cost: 150,
+          }),
+        }),
+      );
+
+      // 2. Change Completed date & trigger blur
+      const dateInput = screen.getByLabelText('Completed date');
+      await user.clear(dateInput);
+      await user.type(dateInput, '2024-05-20');
+      await user.tab();
+
+      expect(mockUpdateRepair).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          repairId: 12,
+          recResourceId: 'REC0001',
+          dto: expect.objectContaining({
+            repair_completed_date: '2024-05-20',
+          }),
+        }),
+      );
     });
   });
 });

@@ -20,6 +20,8 @@ vi.mock('react-hook-form', async () => {
       };
       return render({ field });
     },
+    // Return null for all watched fields so previewLatLon falls back to saved values
+    useWatch: () => [undefined, undefined, undefined],
   };
 });
 
@@ -72,6 +74,15 @@ vi.mock(
   }),
 );
 
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceGeospatialSection/ExhibitASection/ExhibitASection',
+  () => ({
+    ExhibitASection: () => (
+      <div data-testid="mock-exhibit-a">ExhibitASection rendered</div>
+    ),
+  }),
+);
+
 describe('RecResourceGeospatialEditSection', () => {
   it('renders header and action buttons', () => {
     mockUseGetRecreationResourceGeospatial.mockReturnValue({
@@ -100,8 +111,8 @@ describe('RecResourceGeospatialEditSection', () => {
 
     render(<RecResourceGeospatialEditSection />);
 
-    expect(screen.getByText('Latitude')).toBeDefined();
-    expect(screen.getByText('Longitude')).toBeDefined();
+    expect(screen.getByText(/Latitude/)).toBeDefined();
+    expect(screen.getByText(/Longitude/)).toBeDefined();
 
     const latitudeInput = screen.getByDisplayValue(
       '49.123456',
@@ -112,5 +123,25 @@ describe('RecResourceGeospatialEditSection', () => {
 
     expect(latitudeInput.disabled).toBe(true);
     expect(longitudeInput.disabled).toBe(true);
+  });
+
+  it('renders UTM form fields', () => {
+    mockUseGetRecreationResourceGeospatial.mockReturnValue({ data: {} });
+
+    render(<RecResourceGeospatialEditSection />);
+
+    expect(screen.getByText('UTM Zone')).toBeDefined();
+    expect(screen.getByText('UTM Easting')).toBeDefined();
+    expect(screen.getByText('UTM Northing')).toBeDefined();
+  });
+
+  it('renders map section when recResource is available', () => {
+    mockUseGetRecreationResourceGeospatial.mockReturnValue({
+      data: { latitude: 49.123456, longitude: -123.654321 },
+    });
+
+    render(<RecResourceGeospatialEditSection />);
+
+    expect(screen.getByTestId('mock-location')).toBeDefined();
   });
 });

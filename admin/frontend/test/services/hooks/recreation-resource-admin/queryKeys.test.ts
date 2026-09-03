@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
 
 describe('RECREATION_RESOURCE_QUERY_KEYS', () => {
@@ -95,6 +96,11 @@ describe('RECREATION_RESOURCE_QUERY_KEYS', () => {
     ]);
     expect(RECREATION_RESOURCE_QUERY_KEYS.all).toEqual([
       'recreation-resource-admin',
+    ]);
+    expect(RECREATION_RESOURCE_QUERY_KEYS.exhibitADocs('abc')).toEqual([
+      'recreation-resource-admin',
+      'exhibit-a-docs',
+      'abc',
     ]);
     expect(RECREATION_RESOURCE_QUERY_KEYS.assets('abc')).toEqual([
       'recreation-resource-admin',

@@ -6,17 +6,21 @@ import {
   DownloadMapModal,
   getMapFeaturesFromRecResource,
   getLayerStyleForRecResource,
-  getExtentFromRecResource,
   StyleContext,
   ExportMapFileBtn,
 } from '@shared/components/recreation-resource-map';
-import { ExternalLink } from '@shared/components/links';
+import { CustomButton } from '@/components/custom-button/CustomButton';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { trackEvent } from '@shared/utils';
+import { IMAP_URL } from '@/constants/urls';
 import '@/pages/rec-resource-page/components/RecResourceLocationSection/RecResourceLocationSection.scss';
 
 type RecResourceLocationSectionProps = {
   recResource: RecreationResourceDetailUIModel;
+  showHeading?: boolean;
+  imapUrl?: string;
 };
 
 const TRACKING_ACTIONS = {
@@ -29,11 +33,10 @@ const MAP_STYLES: CSSProperties = {
   maxHeight: '500px',
 };
 
-const ARC_MAPS_BASE_URL =
-  'https://arcmaps.gov.bc.ca/ess/hm/mapview/?runWorkflow=Startup&Theme=TEN';
-
 export const RecResourceLocationSection = ({
   recResource,
+  showHeading = true,
+  imapUrl = IMAP_URL,
 }: RecResourceLocationSectionProps) => {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
@@ -72,24 +75,13 @@ export const RecResourceLocationSection = ({
   const hasGeometry =
     recResource?.site_point_geometry || recResource?.spatial_feature_geometry;
 
-  const mapviewUrl = useMemo(() => {
-    const extent = getExtentFromRecResource(recResource);
-    if (!extent) {
-      return null;
-    }
-
-    // Format extent as minX,minY,maxX,maxY (rounded to integers)
-    const extentStr = extent.map((val) => Math.round(val)).join(',');
-    return `${ARC_MAPS_BASE_URL}&extent=${extentStr}`;
-  }, [recResource]);
-
   if (!hasGeometry) {
     return null;
   }
 
   return (
     <Stack direction="vertical" gap={3}>
-      <h2>Location</h2>
+      {showHeading && <h2>Location</h2>}
 
       {recResource && (
         <RecreationResourceMap
@@ -98,11 +90,19 @@ export const RecResourceLocationSection = ({
         />
       )}
 
-      <Stack className="map-links" direction="horizontal" gap={1}>
+      <Stack className="map-links" direction="horizontal" gap={2}>
         <ExportMapFileBtn onClick={handleDownloadClick} />
-        {mapviewUrl && (
-          <ExternalLink url={mapviewUrl} label="Open in Mapview" />
-        )}
+        <CustomButton
+          as="a"
+          href={imapUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="outline-primary"
+          aria-label="Open iMap (opens in a new tab)"
+          rightIcon={<FontAwesomeIcon icon={faExternalLink as any} />}
+        >
+          iMap
+        </CustomButton>
       </Stack>
 
       <DownloadMapModal

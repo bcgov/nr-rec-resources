@@ -9,7 +9,7 @@ import {
   RecResourceRouteContext,
 } from '@/pages/rec-resource-page/types';
 import { Breadcrumbs } from '@shared/index';
-import { Col, Row, Spinner, Stack } from 'react-bootstrap';
+import { Spinner, Stack } from 'react-bootstrap';
 import {
   Outlet,
   useLayoutEffect,
@@ -68,7 +68,7 @@ export const RecResourcePageLayout = () => {
       direction="vertical"
       gap={4}
       className="rec-resource-page"
-      role="main"
+      role="main-container"
       aria-label="Recreation resource content"
     >
       <Breadcrumbs />
@@ -76,17 +76,17 @@ export const RecResourcePageLayout = () => {
 
       <ResourceHeaderSection recResource={recResource} />
 
-      <Row>
-        <Col md={3}>
+      <div className="d-flex flex-column flex-md-row gap-4 align-items-start">
+        <aside className="w-100 w-md-auto flex-shrink-0">
           <RecResourceVerticalNav
             activeTab={activeTab}
             resourceId={rec_resource_id}
           />
-        </Col>
-        <Col md={9}>
+        </aside>
+        <main className="flex-grow-1 min-w-0">
           <Outlet />
-        </Col>
-      </Row>
+        </main>
+      </div>
     </Stack>
   );
 };

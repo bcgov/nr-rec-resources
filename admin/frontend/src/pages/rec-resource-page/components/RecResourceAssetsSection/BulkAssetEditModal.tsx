@@ -242,7 +242,7 @@ export function BulkAssetEditModal({
 
   const step1 = (
     <>
-      <div className="bulk-asset-edit-modal__panel px-4 py-3 rounded-3">
+      <div className="bulk-asset-edit-modal__panel px-4 py-3">
         <div className="d-flex justify-content-between align-items-center">
           <h3 className="bulk-asset-edit-modal__subtitle panel-title mb-0">
             Select Assets ({selectedAssetIds.length} of{' '}
@@ -496,7 +496,10 @@ export function BulkAssetEditModal({
                       <div className="d-flex flex-column h-100">
                         <div className="bold-field">Assign to Campsite</div>
                         <div className="mt-auto">
-                          {asset.parent_id ? asset.parent_id : 'N/A'} →{' '}
+                          {asset.parent_id
+                            ? showCampsideNumber(Number(asset.parent_id))
+                            : 'N/A'}{' '}
+                          →{' '}
                           <span className="bold-field">
                             {editFields.campsiteId
                               ? showCampsideNumber(

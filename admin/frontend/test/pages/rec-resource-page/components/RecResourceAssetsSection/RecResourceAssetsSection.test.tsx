@@ -10,7 +10,14 @@ import {
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
   useGetRepairCodes,
+  useUpdateAsset,
+  useUpdateAssetRepair,
+  useUpdateRecreationResource,
 } from '@/services/hooks/recreation-resource-admin';
+import {
+  addErrorNotification,
+  addSuccessNotification,
+} from '@/store/notificationStore';
 import { useParams } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -36,6 +43,27 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
     mutateAsync: vi.fn(),
     isPending: false,
   }),
+  useCreateAssetRepair: vi.fn().mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+  useUpdateRepair: vi.fn().mockReturnValue({
+    mutate: vi.fn(),
+  }),
+  useUpdateRecreationResource: vi.fn().mockReturnValue({
+    mutateAsync: vi.fn(),
+  }),
+  useUpdateAsset: vi.fn().mockReturnValue({
+    mutateAsync: vi.fn(),
+  }),
+  useUpdateAssetRepair: vi.fn().mockReturnValue({
+    mutateAsync: vi.fn(),
+  }),
+}));
+
+vi.mock('@/store/notificationStore', () => ({
+  addErrorNotification: vi.fn(),
+  addSuccessNotification: vi.fn(),
 }));
 
 const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
@@ -62,6 +90,9 @@ const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
 });
 
 const assetCodes: AssetCode[] = [{ asset_code: 100, description: 'Bridge' }];
+const mockUpdateAsset = vi.fn().mockResolvedValue(undefined);
+const mockUpdateRepair = vi.fn().mockResolvedValue(undefined);
+const mockUpdateResource = vi.fn().mockResolvedValue(undefined);
 
 describe('RecResourceAssetsSection', () => {
   beforeEach(() => {
@@ -88,6 +119,15 @@ describe('RecResourceAssetsSection', () => {
     vi.mocked(useBulkUpdateAssets).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
+    } as any);
+    vi.mocked(useUpdateAsset).mockReturnValue({
+      mutateAsync: mockUpdateAsset,
+    } as any);
+    vi.mocked(useUpdateAssetRepair).mockReturnValue({
+      mutateAsync: mockUpdateRepair,
+    } as any);
+    vi.mocked(useUpdateRecreationResource).mockReturnValue({
+      mutateAsync: mockUpdateResource,
     } as any);
   });
 
@@ -368,5 +408,93 @@ describe('RecResourceAssetsSection', () => {
     expect(
       screen.queryByRole('heading', { name: 'Add campsites' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('shows validation error and blocks save when campsite form is invalid', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+    });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await user.clear(screen.getByLabelText('Latitude'));
+    await user.type(screen.getByLabelText('Latitude'), '91');
+    await user.clear(screen.getByLabelText('Longitude'));
+    await user.type(screen.getByLabelText('Longitude'), '-123.1');
+    await user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    expect(addErrorNotification).toHaveBeenCalledWith(
+      'Please fix validation errors before saving.',
+      'saveCampsite-validation',
+    );
+    expect(mockUpdateAsset).not.toHaveBeenCalled();
+  });
+
+  it('saves campsite edits and sets point geometry when latitude and longitude are present', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+    });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await user.clear(screen.getByLabelText('Latitude'));
+    await user.type(screen.getByLabelText('Latitude'), '49.2');
+    await user.clear(screen.getByLabelText('Longitude'));
+    await user.type(screen.getByLabelText('Longitude'), '-123.1');
+    await user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    expect(mockUpdateAsset).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assetId: 10,
+        recResourceId: 'REC123',
+        dto: expect.objectContaining({
+          latitude: 49.2,
+          longitude: -123.1,
+          geometry_type_code: 'PT',
+        }),
+      }),
+    );
+    expect(addSuccessNotification).toHaveBeenCalledWith(
+      'Campsite assets updated successfully.',
+      'saveCampsite-success',
+    );
+  });
+
+  it('shows an error notification when inspection date update fails', async () => {
+    const user = userEvent.setup();
+    mockUpdateResource.mockRejectedValueOnce(new Error('boom'));
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Edit inspection dates' }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(addErrorNotification).toHaveBeenCalledWith(
+      'Failed to update inspection dates. Please try again.',
+      'updateInspections-error',
+    );
   });
 });

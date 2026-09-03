@@ -4,6 +4,7 @@ import { useUpdateRecreationResource } from '@/services/hooks/recreation-resourc
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
 
 // Helper function to flush promises
 const flushPromises = () => new Promise(setImmediate);
@@ -144,19 +145,16 @@ describe('useUpdateRecreationResource', () => {
       wrapper,
     });
 
-    // Trigger the mutation
+    // Trigger the mutation using mutateAsync for cleaner async handling
     await act(async () => {
-      result.current.mutate(mockUpdateRequest);
-      await flushPromises();
+      await result.current.mutateAsync(mockUpdateRequest);
     });
 
-    // Wait for the mutation to complete
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    });
+    // Check that the query cache was updated using the same key generator as the hook
+    const cachedData = queryClient.getQueryData(
+      RECREATION_RESOURCE_QUERY_KEYS.detail(mockUpdateRequest.recResourceId),
+    );
 
-    // Check that the query cache was updated
-    const cachedData = queryClient.getQueryData(['recreation-resource', '123']);
     expect(cachedData).toEqual(mockMappedResponse);
   });
 
