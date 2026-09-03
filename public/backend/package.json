@@ -60,7 +60,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
     "@types/supertest": "^6.0.2",
-    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/coverage-v8": "^4.1.11",
     "istanbul-badges-readme": "^1.9.0",
     "prettier": "^3.4.2",
     "prisma": "^7.4.0",
@@ -71,7 +71,7 @@
     "typescript": "^5.9.3",
     "unplugin-swc": "^1.5.1",
     "vite-tsconfig-paths": "^6.0.0",
-    "vitest": "^4.0.16"
+    "vitest": "^4.1.11"
   },
   "overrides": {
     "minimist@<1.2.6": "1.2.6"
