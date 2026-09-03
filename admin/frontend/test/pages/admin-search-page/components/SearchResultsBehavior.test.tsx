@@ -7,13 +7,14 @@ import { SearchResultsPagination } from '@/pages/search/components/SearchResults
 import { SearchResultsSummary } from '@/pages/search/components/SearchResultsSummary';
 
 let canViewFeatureFlag = false;
+let isSuperAdmin = true;
 
 // Treat all tests in this file as super-admin so the implicit "Issued (HI)"
 // default is not injected, keeping assertions clean and focused.
 vi.mock('@/hooks/useAuthorizations', () => ({
   useAuthorizations: () => ({
     canViewFeatureFlag,
-    isSuperAdmin: true,
+    isSuperAdmin,
   }),
 }));
 
@@ -169,6 +170,53 @@ describe('FilterAccordion', () => {
       publicAccessStatus: [],
       recStatus: [],
     });
+  });
+
+  it('hides the status filter for users who are not super admins', () => {
+    const controller = {
+      isFilterPanelOpen: true,
+      closeFilterPanel: vi.fn(),
+      toggleFilterPanel: vi.fn(),
+      typeOptions: [{ id: 'RTR', label: 'Rustic', is_archived: false }],
+      closestCommunityOptions: [],
+      districtOptions: [],
+      activityOptions: [],
+      statusOptions: [{ id: '1', label: 'Open', is_archived: false }],
+      accessOptions: [],
+      establishedOptions,
+      publicAccessStatusOptions: [],
+      recStatusOptions: [],
+      applyFilters: vi.fn(),
+      resetFilters: vi.fn(),
+    };
+
+    const { unmount } = render(
+      <FilterAccordion
+        search={DEFAULT_ADMIN_SEARCH_STATE}
+        controller={controller}
+        showTrigger={false}
+      />,
+    );
+
+    expect(screen.getByLabelText('Status')).toBeInTheDocument();
+
+    unmount();
+    isSuperAdmin = false;
+
+    try {
+      render(
+        <FilterAccordion
+          search={DEFAULT_ADMIN_SEARCH_STATE}
+          controller={controller}
+          showTrigger={false}
+        />,
+      );
+
+      expect(screen.queryByLabelText('Status')).not.toBeInTheDocument();
+      expect(screen.getByLabelText('Resource type')).toBeInTheDocument();
+    } finally {
+      isSuperAdmin = true;
+    }
   });
 
   it('resets filters and restores the route state when canceling', async () => {

@@ -141,6 +141,12 @@ export const FEATURE_FLAGGED_COLUMN_IDS = new Set<AdminSearchColumnId>([
   'public_access_status',
 ]);
 
+// Columns only super admins may see. The FTA 'Status' is hidden from everyone
+// else so the ACT 'Public access status' is the single status users work with.
+export const SUPER_ADMIN_ONLY_COLUMN_IDS = new Set<AdminSearchColumnId>([
+  'status',
+]);
+
 export const ADMIN_SEARCH_COLUMN_LABELS = Object.fromEntries(
   ADMIN_SEARCH_COLUMN_DEFINITIONS.map(({ id, label }) => [id, label]),
 ) as Record<AdminSearchColumnId, string>;

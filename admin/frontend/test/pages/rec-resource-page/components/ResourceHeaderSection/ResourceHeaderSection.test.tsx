@@ -1,7 +1,13 @@
 import { ResourceHeaderSection } from '@/pages/rec-resource-page/components/ResourceHeaderSection';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const mockUseAuthorizations = vi.fn();
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
 
 vi.mock('@/components', () => ({
   CustomBadge: ({ label }: any) => (
@@ -38,6 +44,10 @@ const baseResource = {
 } as unknown as RecreationResourceDetailUIModel;
 
 describe('ResourceHeaderSection', () => {
+  beforeEach(() => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
+  });
+
   it('renders resource name, id, and type', () => {
     render(<ResourceHeaderSection recResource={baseResource} />);
     expect(screen.getByText('Test Resource')).toBeInTheDocument();
@@ -73,6 +83,19 @@ describe('ResourceHeaderSection', () => {
     expect(screen.getByTestId('admin-status-badge')).toHaveTextContent(
       'Currently Open',
     );
+  });
+
+  it('hides the admin status badge for users who are not super admins', () => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
+    const resourceWithAdminStatus = {
+      ...baseResource,
+      recreation_status_description: 'Currently Open',
+      recreation_status_code: 1,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resourceWithAdminStatus} />);
+
+    expect(screen.queryByTestId('admin-status-badge')).not.toBeInTheDocument();
   });
 
   it('falls back to status code when description is not provided', () => {

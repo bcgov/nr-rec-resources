@@ -53,7 +53,10 @@ const rows: AdminSearchResultRow[] = [
 describe('useSearchResultsTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: false });
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
+      isSuperAdmin: true,
+    });
   });
 
   it('returns the visible columns and loading or empty status message', () => {
@@ -159,8 +162,50 @@ describe('useSearchResultsTable', () => {
     });
   });
 
+  it('hides the status column for users who are not super admins', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
+      isSuperAdmin: false,
+    });
+
+    const { result } = renderHook(() =>
+      useSearchResultsTable({
+        rows,
+        visibleColumns: ['rec_resource_id', 'status'],
+        sort: 'name:asc',
+        pagination: createPagination(),
+        isLoading: false,
+        onSortChange: vi.fn(),
+      }),
+    );
+
+    expect(
+      result.current.visibleLeafColumns.map((column) => column.id),
+    ).not.toContain('status');
+  });
+
+  it('shows the status column for super admins', () => {
+    const { result } = renderHook(() =>
+      useSearchResultsTable({
+        rows,
+        visibleColumns: ['rec_resource_id', 'status'],
+        sort: 'name:asc',
+        pagination: createPagination(),
+        isLoading: false,
+        onSortChange: vi.fn(),
+      }),
+    );
+
+    expect(
+      result.current.visibleLeafColumns.map((column) => column.id),
+    ).toContain('status');
+  });
+
   it('shows feature-flagged public access columns when authorized and renders the badge cell', () => {
-    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: true });
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: true,
+      isSuperAdmin: true,
+    });
 
     const { result } = renderHook(() =>
       useSearchResultsTable({
