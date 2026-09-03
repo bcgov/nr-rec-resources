@@ -57,6 +57,7 @@ const baseResource = {
     { recreation_structure_code: { description: 'Toilet' } },
     { recreation_structure_code: { description: 'Table' } },
   ],
+  act_advisories_flat: [{ access_status_grouplabel: 'Open' }],
 };
 
 const mockGeometryResult = [
@@ -183,6 +184,7 @@ describe('formatRecreationResourceDetailResults', () => {
       _count: {},
       recreation_structure: undefined,
       recreation_district_code: undefined,
+      act_advisories_flat: [],
     };
 
     const result = formatRecreationResourceDetailResults(input as any, []);

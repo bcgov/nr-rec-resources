@@ -37,8 +37,6 @@ export function SearchPage() {
     controller.addClosestCommunity(communityId);
   };
 
-  console.log(controller.results);
-
   return (
     <PageLayout>
       <Stack gap={4} className="search-page">
