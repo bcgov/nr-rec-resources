@@ -485,10 +485,10 @@ describe('FilterAccordion', () => {
         ),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('link', { name: /View guidance documentation/i }),
+        screen.getByRole('link', { name: /guidance documentation/i }),
       ).toHaveAttribute(
         'href',
-        'https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/Access-status?',
+        'https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/Access-status',
       );
     } finally {
       canViewFeatureFlag = false;

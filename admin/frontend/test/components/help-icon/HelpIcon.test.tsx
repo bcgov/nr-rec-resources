@@ -67,7 +67,7 @@ describe('HelpIcon', () => {
           id="link-help"
           text={
             <a href="https://example.com" target="_blank" rel="noreferrer">
-              View guidance documentation
+              guidance documentation
             </a>
           }
         />
@@ -76,7 +76,7 @@ describe('HelpIcon', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Help' }));
     fireEvent.click(
-      screen.getByRole('link', { name: 'View guidance documentation' }),
+      screen.getByRole('link', { name: 'guidance documentation' }),
     );
 
     expect(parentClick).not.toHaveBeenCalled();
