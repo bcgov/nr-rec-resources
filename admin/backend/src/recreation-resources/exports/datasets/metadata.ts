@@ -9,7 +9,7 @@ export type ExportDatasetId =
   | 'campsite-list-fta'
   | 'objective-list'
   | 'objective-list-fta'
-  | 'structure-list'
+  | 'asset-list'
   | 'structure-list-fta'
   | 'access-list'
   | 'access-list-fta'
@@ -18,7 +18,8 @@ export type ExportDatasetId =
   | 'site-inspection'
   | 'site-inspection-fta'
   | 'closure-list'
-  | 'closure-list-fta';
+  | 'closure-list-fta'
+  | 'asset-repair-list';
 
 export type ExportDatasetSource = 'RST' | 'FTA';
 
@@ -98,10 +99,9 @@ export const ALL_EXPORT_DATASETS: ExportDatasetDefinition[] = [
     info: MISSING_FTA_LEGACY_METADATA_INFO,
   },
   {
-    id: 'structure-list',
-    label: 'Structure list',
+    id: 'asset-list',
+    label: 'Asset list',
     source: 'RST',
-    info: NOT_IMPLEMENTED_INFO,
   },
   {
     id: 'structure-list-fta',
@@ -150,6 +150,11 @@ export const ALL_EXPORT_DATASETS: ExportDatasetDefinition[] = [
     label: 'Closure list',
     source: 'FTA',
     info: 'Includes only non-archived resources that are closed and have closure comment text.',
+  },
+  {
+    id: 'asset-repair-list',
+    label: 'Asset repair list',
+    source: 'RST',
   },
 ];
 

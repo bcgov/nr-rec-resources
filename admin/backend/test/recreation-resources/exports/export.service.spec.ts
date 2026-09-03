@@ -80,6 +80,8 @@ describe('ExportService', () => {
           REC_RESOURCE_ID: 'REC0001',
           CLIENT_NUMBER: 'C-123',
           ESTIMATED_REPAIR_COST: '999',
+          ACTUAL_REPAIR_COST: '850',
+          ACTUAL_VALUE: '1200',
           STATUS: 'Open',
         },
       ]);
@@ -107,6 +109,8 @@ describe('ExportService', () => {
           REC_RESOURCE_ID: 'REC0001',
           CLIENT_NUMBER: 'C-123',
           ESTIMATED_REPAIR_COST: '999',
+          ACTUAL_REPAIR_COST: '850',
+          ACTUAL_VALUE: '1200',
         },
       ]);
 
@@ -119,6 +123,8 @@ describe('ExportService', () => {
         'REC_RESOURCE_ID',
         'CLIENT_NUMBER',
         'ESTIMATED_REPAIR_COST',
+        'ACTUAL_REPAIR_COST',
+        'ACTUAL_VALUE',
       ]);
     });
   });
