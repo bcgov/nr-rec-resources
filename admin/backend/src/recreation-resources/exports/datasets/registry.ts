@@ -4,6 +4,7 @@ import { accessListFtaDataset } from './access-list-fta.dataset';
 import { accessListDataset } from './access-list.dataset';
 import { activitiesListFtaDataset } from './activities-list-fta.dataset';
 import { activitiesListDataset } from './activities-list.dataset';
+import { assetListDataset } from './asset-list.dataset';
 import { campsiteListFtaDataset } from './campsite-list-fta.dataset';
 import { campsiteListDataset } from './campsite-list.dataset';
 import { closureListFtaDataset } from './closure-list-fta.dataset';
@@ -26,6 +27,7 @@ export const EXPORT_DATASET_BUILDERS: Partial<
   [accessListFtaDataset.id]: accessListFtaDataset,
   [activitiesListDataset.id]: activitiesListDataset,
   [activitiesListFtaDataset.id]: activitiesListFtaDataset,
+  [assetListDataset.id]: assetListDataset,
   [campsiteListDataset.id]: campsiteListDataset,
   [campsiteListFtaDataset.id]: campsiteListFtaDataset,
   [closureListFtaDataset.id]: closureListFtaDataset,
