@@ -6,11 +6,13 @@ import { FilterAccordion } from '@/pages/search/components/FilterAccordion';
 import { SearchResultsPagination } from '@/pages/search/components/SearchResultsPagination';
 import { SearchResultsSummary } from '@/pages/search/components/SearchResultsSummary';
 
+let canViewFeatureFlag = false;
+
 // Treat all tests in this file as super-admin so the implicit "Issued (HI)"
 // default is not injected, keeping assertions clean and focused.
 vi.mock('@/hooks/useAuthorizations', () => ({
   useAuthorizations: () => ({
-    canViewFeatureFlag: false,
+    canViewFeatureFlag,
     isSuperAdmin: true,
   }),
 }));
@@ -443,5 +445,53 @@ describe('FilterAccordion', () => {
 
     expect(resetFilters).toHaveBeenCalledTimes(1);
     expect(screen.getByDisplayValue('Established')).toBeInTheDocument();
+  });
+
+  it('shows the Public access status help tooltip on click', async () => {
+    const user = userEvent.setup();
+    canViewFeatureFlag = true;
+
+    try {
+      render(
+        <FilterAccordion
+          search={DEFAULT_ADMIN_SEARCH_STATE}
+          controller={{
+            isFilterPanelOpen: true,
+            closeFilterPanel: vi.fn(),
+            toggleFilterPanel: vi.fn(),
+            typeOptions: [],
+            districtOptions: [],
+            activityOptions: [],
+            statusOptions: [],
+            accessOptions: [],
+            establishedOptions,
+            publicAccessStatusOptions: [{ id: 'Open', label: 'Open' }],
+            closestCommunityOptions: [],
+            recStatusOptions: [],
+            applyFilters: vi.fn(),
+            resetFilters: vi.fn(),
+          }}
+          showTrigger={false}
+        />,
+      );
+
+      expect(screen.getByText('Public access status')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Help' }));
+
+      expect(
+        await screen.findByText(
+          /Public Access Status indicates the current level of public access/i,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: /View guidance documentation/i }),
+      ).toHaveAttribute(
+        'href',
+        'https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/Access-status?',
+      );
+    } finally {
+      canViewFeatureFlag = false;
+    }
   });
 });
