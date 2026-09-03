@@ -1,19 +1,25 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
 import { FilterAccordion } from '@/pages/search/components/FilterAccordion';
 import { SearchResultsPagination } from '@/pages/search/components/SearchResultsPagination';
 import { SearchResultsSummary } from '@/pages/search/components/SearchResultsSummary';
 
+const mockUseAuthorizations = vi.fn();
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 // Treat all tests in this file as super-admin so the implicit "Issued (HI)"
 // default is not injected, keeping assertions clean and focused.
-vi.mock('@/hooks/useAuthorizations', () => ({
-  useAuthorizations: () => ({
+beforeEach(() => {
+  mockUseAuthorizations.mockReturnValue({
     canViewFeatureFlag: false,
     isSuperAdmin: true,
-  }),
-}));
+  });
+});
 
 const establishedOptions = [
   { id: 'yes', label: 'Yes' },
@@ -167,6 +173,52 @@ describe('FilterAccordion', () => {
       publicAccessStatus: [],
       recStatus: [],
     });
+  });
+
+  it('hides the status filter for users who are not super admins', () => {
+    const controller = {
+      isFilterPanelOpen: true,
+      closeFilterPanel: vi.fn(),
+      toggleFilterPanel: vi.fn(),
+      typeOptions: [{ id: 'RTR', label: 'Rustic', is_archived: false }],
+      closestCommunityOptions: [],
+      districtOptions: [],
+      activityOptions: [],
+      statusOptions: [{ id: '1', label: 'Open', is_archived: false }],
+      accessOptions: [],
+      establishedOptions,
+      publicAccessStatusOptions: [],
+      recStatusOptions: [],
+      applyFilters: vi.fn(),
+      resetFilters: vi.fn(),
+    };
+
+    const { unmount } = render(
+      <FilterAccordion
+        search={DEFAULT_ADMIN_SEARCH_STATE}
+        controller={controller}
+        showTrigger={false}
+      />,
+    );
+
+    expect(screen.getByLabelText('Status')).toBeInTheDocument();
+
+    unmount();
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
+      isSuperAdmin: false,
+    });
+
+    render(
+      <FilterAccordion
+        search={DEFAULT_ADMIN_SEARCH_STATE}
+        controller={controller}
+        showTrigger={false}
+      />,
+    );
+
+    expect(screen.queryByLabelText('Status')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Resource type')).toBeInTheDocument();
   });
 
   it('resets filters and restores the route state when canceling', async () => {

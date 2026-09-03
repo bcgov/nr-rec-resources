@@ -85,6 +85,7 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     label: 'Status',
     controlId: 'admin-search-filter-status',
     optionsKey: 'statusOptions',
+    isSuperAdminOnly: true,
   },
   {
     key: 'activities',

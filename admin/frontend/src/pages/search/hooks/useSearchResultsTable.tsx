@@ -24,6 +24,7 @@ import type { SearchResultsPaginationModel } from '@/pages/search/hooks/useAdmin
 import {
   ADMIN_SEARCH_COLUMN_DEFINITIONS,
   FEATURE_FLAGGED_COLUMN_IDS,
+  SUPER_ADMIN_ONLY_COLUMN_IDS,
 } from '@/pages/search/searchDefinitions';
 import type {
   AdminSearchResultRow,
@@ -45,10 +46,14 @@ const getSortParts = (sort: AdminSearchRouteState['sort']) => sort.split(':');
 const buildColumnVisibility = (
   visibleColumns: AdminSearchColumnId[],
   canViewFeatureFlag: boolean,
+  isSuperAdmin: boolean,
 ) =>
   Object.fromEntries(
     ADMIN_SEARCH_COLUMN_IDS.map((columnId) => {
       if (FEATURE_FLAGGED_COLUMN_IDS.has(columnId) && !canViewFeatureFlag) {
+        return [columnId, false];
+      }
+      if (SUPER_ADMIN_ONLY_COLUMN_IDS.has(columnId) && !isSuperAdmin) {
         return [columnId, false];
       }
       return [columnId, visibleColumns.includes(columnId)];
@@ -118,7 +123,7 @@ export function useSearchResultsTable({
   onSortChange,
 }: UseSearchResultsTableParams) {
   const navigate = useNavigate();
-  const { canViewFeatureFlag } = useAuthorizations();
+  const { canViewFeatureFlag, isSuperAdmin } = useAuthorizations();
   const [sortField, sortDirection] = getSortParts(sort);
 
   const navigateToResource = (recResourceId: string) =>
@@ -148,6 +153,7 @@ export function useSearchResultsTable({
       columnVisibility: buildColumnVisibility(
         visibleColumns,
         canViewFeatureFlag,
+        isSuperAdmin,
       ),
       pagination: pagination.state,
     },

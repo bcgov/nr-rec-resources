@@ -68,7 +68,7 @@ export function FilterAccordion({
   controller,
   showTrigger = true,
 }: Readonly<FilterAccordionProps>) {
-  const { canViewFeatureFlag } = useAuthorizations();
+  const { canViewFeatureFlag, isSuperAdmin } = useAuthorizations();
   const {
     isFilterPanelOpen: isOpen,
     closeFilterPanel: onClose,
@@ -136,6 +136,13 @@ export function FilterAccordion({
                 'isFeatureFlagged' in field &&
                 field.isFeatureFlagged &&
                 !canViewFeatureFlag
+              ) {
+                return null;
+              }
+              if (
+                'isSuperAdminOnly' in field &&
+                field.isSuperAdminOnly &&
+                !isSuperAdmin
               ) {
                 return null;
               }
