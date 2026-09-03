@@ -33,6 +33,14 @@ export function HelpIcon({ text, id }: HelpIconProps) {
     e.stopPropagation();
   };
 
+  const stopPropagation = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+  };
+
+  const toggle = () => {
+    store.setActiveId(show ? null : id);
+  };
+
   return (
     <OverlayTrigger
       placement="top"
@@ -42,7 +50,9 @@ export function HelpIcon({ text, id }: HelpIconProps) {
       rootClose
       overlay={
         <Tooltip id={`tooltip-${id}`} className="help-icon__tooltip">
-          {text}
+          <div onClick={stopPropagation} onMouseDown={stopPropagation}>
+            {text}
+          </div>
         </Tooltip>
       }
     >
@@ -51,12 +61,15 @@ export function HelpIcon({ text, id }: HelpIconProps) {
         aria-label="Help"
         role="button"
         tabIndex={0}
-        onClick={stop}
+        onClick={(e) => {
+          stop(e);
+          toggle();
+        }}
         onMouseDown={stop}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             stop(e);
-            store.setActiveId(show ? null : id);
+            toggle();
           }
         }}
       >

@@ -194,7 +194,11 @@ export function FilterAccordion({
                   <Form.Group controlId={field.controlId}>
                     <Form.Label>{label}</Form.Label>
                     <CheckboxDropdownField
-                      label={field.label}
+                      label={
+                        field.key === 'publicAccessStatus'
+                          ? 'Select public access status'
+                          : field.label
+                      }
                       items={typedOptions.flatMap((option) =>
                         option.id
                           ? [{ value: option.id, label: option.label }]

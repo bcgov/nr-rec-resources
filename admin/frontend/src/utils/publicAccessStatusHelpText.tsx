@@ -9,16 +9,16 @@ export function getPublicAccessStatusHelpText(): ReactNode {
         or other access impacts.
       </p>
       <p className="mb-0 mt-2">
-        Refer to the guidance documentation for definitions of each access
-        status.
+        Refer to the{' '}
+        <a
+          href="https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/Access-status"
+          target="_blank"
+          rel="noreferrer"
+        >
+          guidance documentation
+        </a>{' '}
+        for definitions of each access status.
       </p>
-      <a
-        href="https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/Access-status"
-        target="_blank"
-        rel="noreferrer"
-      >
-        View guidance documentation
-      </a>
     </>
   );
 }
