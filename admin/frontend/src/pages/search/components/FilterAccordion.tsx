@@ -3,6 +3,8 @@ import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { CheckboxDropdownField } from '@/components/form';
+import { HelpIcon } from '@/components/help-icon';
+import { getPublicAccessStatusHelpText } from '@/utils/publicAccessStatusHelpText';
 import {
   ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS,
   EMPTY_ADMIN_SEARCH_FILTERS,
@@ -175,10 +177,22 @@ export function FilterAccordion({
                   </Col>
                 );
               }
+              const label =
+                field.key === 'publicAccessStatus' ? (
+                  <span className="d-inline-flex align-items-center flex-wrap gap-1">
+                    <span>{field.label}</span>
+                    <HelpIcon
+                      id="public-access-status-help"
+                      text={getPublicAccessStatusHelpText()}
+                    />
+                  </span>
+                ) : (
+                  field.label
+                );
               return (
                 <Col key={field.key} md={6} xl={3}>
                   <Form.Group controlId={field.controlId}>
-                    <Form.Label>{field.label}</Form.Label>
+                    <Form.Label>{label}</Form.Label>
                     <CheckboxDropdownField
                       label={field.label}
                       items={typedOptions.flatMap((option) =>
@@ -305,7 +319,10 @@ export function FilterAccordion({
             onClick={onToggle}
             className="d-flex align-items-center gap-2"
           >
-            <FontAwesomeIcon icon={faFilter} className="d-none d-sm-inline" />
+            <FontAwesomeIcon
+              icon={faFilter as any}
+              className="d-none d-sm-inline"
+            />
             Filters
           </Button>
         </div>
