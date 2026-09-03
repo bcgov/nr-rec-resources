@@ -11,7 +11,10 @@ vi.mock('@/hooks/useAuthorizations', () => ({
 
 describe('ColumnVisibilityMenu', () => {
   beforeEach(() => {
-    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: false });
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
+      isSuperAdmin: true,
+    });
   });
 
   it('stays open while toggling columns and closes on outside click', async () => {
@@ -82,8 +85,49 @@ describe('ColumnVisibilityMenu', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('hides the status column when the user is not a super admin', async () => {
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
+      isSuperAdmin: false,
+    });
+    const user = userEvent.setup();
+
+    render(
+      <ColumnVisibilityMenu
+        visibleColumns={['rec_resource_id', 'name']}
+        onToggle={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Columns' }));
+
+    expect(
+      screen.queryByRole('button', { name: /^status$/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the status column when the user is a super admin', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ColumnVisibilityMenu
+        visibleColumns={['rec_resource_id', 'name']}
+        onToggle={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Columns' }));
+
+    expect(
+      screen.getByRole('button', { name: /^status$/i }),
+    ).toBeInTheDocument();
+  });
+
   it('shows the public access status column when canViewFeatureFlag is true', async () => {
-    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: true });
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: true,
+      isSuperAdmin: true,
+    });
     const user = userEvent.setup();
 
     render(

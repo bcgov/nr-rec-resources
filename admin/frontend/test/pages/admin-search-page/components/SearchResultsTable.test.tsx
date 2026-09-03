@@ -54,7 +54,10 @@ describe('SearchResultsTable', () => {
     vi.clearAllMocks();
     // Default to no feature-flag access, matching production behaviour with no
     // AuthContext provider. The public access status column stays hidden.
-    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: false });
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
+      isSuperAdmin: true,
+    });
   });
 
   it('hides the public access status column without feature-flag access', () => {
@@ -75,7 +78,10 @@ describe('SearchResultsTable', () => {
   });
 
   it('renders the public access status as a badge when feature-flag access is granted', () => {
-    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: true });
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: true,
+      isSuperAdmin: true,
+    });
 
     render(
       <SearchResultsTable
@@ -94,7 +100,10 @@ describe('SearchResultsTable', () => {
   });
 
   it('falls back to an Open badge when the public access status is null', () => {
-    mockUseAuthorizations.mockReturnValue({ canViewFeatureFlag: true });
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: true,
+      isSuperAdmin: true,
+    });
 
     render(
       <SearchResultsTable
