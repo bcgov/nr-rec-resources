@@ -657,6 +657,8 @@
       <table name="recreation_establishment_order_docs" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="s3_key" nullable="false" remarks="S3 object key (path) for the establishment order document" size="2147483647" type="varchar" typeCode="12">
             <child column="s3_key" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_establishment_order_docs_history"/>
+            <child column="s3_key" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_exhibit_a_doc"/>
+            <child column="s3_key" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_exhibit_a_doc_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="true" remarks="Recreation Resource ID" size="10" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="recreation_establishment_order_docs_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
@@ -690,6 +692,48 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="7" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
+      <table name="recreation_exhibit_a_doc" remarks="Exhibit A documents for a recreation resource, stored in a dedicated S3 bucket" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="doc_id" nullable="false" remarks="Unique UUID identifier for the Exhibit A document" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="false" remarks="Recreation Resource ID this document belongs to" size="10" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="recreation_exhibit_a_doc_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="file_name" nullable="false" remarks="Display file name of the document (without extension)" size="2147483647" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="extension" nullable="false" remarks="File extension (e.g. pdf)" size="2147483647" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="file_size" nullable="true" remarks="File size in bytes" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="s3_key" nullable="false" remarks="S3 object key (path) in the Exhibit A bucket" size="2147483647" type="varchar" typeCode="12">
+            <parent column="s3_key" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_establishment_order_docs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="6" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="8" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="10" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="doc_id" sequenceNumberInPK="1"/>
+         <index name="recreation_exhibit_a_doc_pkey" unique="true">
+            <column ascending="true" name="doc_id"/>
+         </index>
+         <index name="idx_recreation_exhibit_a_doc_rec_resource_id" unique="false">
+            <column ascending="true" name="rec_resource_id"/>
+         </index>
+         <index name="recreation_exhibit_a_doc_s3_key_key" unique="true">
+            <column ascending="true" name="s3_key"/>
+         </index>
+      </table>
+      <table name="recreation_exhibit_a_doc_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="doc_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="false" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="file_name" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="extension" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="file_size" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="s3_key" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12">
+            <parent column="s3_key" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_establishment_order_docs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="6" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="8" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_feature" remarks="Associates recreation resources with one or more recreation feature codes." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="Identification assigned to a Recreation Resource." size="20" type="varchar" typeCode="12">
@@ -758,8 +802,8 @@
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="9" name="saturday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="10" name="sunday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="recreation_fee_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12">
-            <parent column="recreation_fee_code" foreignKey="recreation_fee_recreation_fee_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_code"/>
             <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
+            <parent column="recreation_fee_code" foreignKey="recreation_fee_recreation_fee_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_code"/>
          </column>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="12" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
@@ -935,9 +979,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="image_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="image_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_image"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="doc_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
-            <parent column="doc_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_document"/>
-         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="doc_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="photographer_type_code" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12">
             <parent column="photographer_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_photographer_type_code"/>
          </column>
@@ -1146,6 +1188,7 @@
             <child column="rec_resource_id" foreignKey="recreation_defined_campsite_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_defined_campsite"/>
             <child column="rec_resource_id" foreignKey="recreation_driving_direction_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_driving_direction"/>
             <child column="rec_resource_id" foreignKey="recreation_establishment_order_docs_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_establishment_order_docs"/>
+            <child column="rec_resource_id" foreignKey="recreation_exhibit_a_doc_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_exhibit_a_doc"/>
             <child column="rec_resource_id" foreignKey="recreation_feature_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_feature"/>
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_feature_history"/>
             <child column="rec_resource_id" foreignKey="recreation_fee_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee"/>
@@ -1256,8 +1299,6 @@
       <table name="recreation_resource_document" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="doc_id" nullable="false" remarks="Unique UUID identifier for the document" size="2147483647" type="uuid" typeCode="1111">
             <child column="doc_id" foreignKey="recreation_image_consent_form_doc_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_image_consent_form"/>
-            <child column="doc_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_image_consent_form_history"/>
-            <child column="doc_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_document_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="false" remarks="Recreation Resource ID" size="10" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="recreation_resource_document_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
@@ -1282,9 +1323,7 @@
          </index>
       </table>
       <table name="recreation_resource_document_history" remarks="" schema="rst" type="TABLE">
-         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="doc_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
-            <parent column="doc_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_document"/>
-         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="doc_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="false" remarks="" size="10" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="doc_code" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12">
             <parent column="doc_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_doc_code"/>
