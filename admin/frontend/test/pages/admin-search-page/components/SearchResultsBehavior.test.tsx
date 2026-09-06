@@ -198,7 +198,9 @@ describe('FilterAccordion', () => {
       />,
     );
 
-    expect(screen.getByLabelText('Status')).toBeInTheDocument();
+    // Each filter renders as a dropdown toggle button rather than a labelled
+    // form control, so it is queried by accessible name like the others here.
+    expect(screen.getByRole('button', { name: 'Status' })).toBeInTheDocument();
 
     unmount();
     isSuperAdmin = false;
@@ -212,8 +214,12 @@ describe('FilterAccordion', () => {
         />,
       );
 
-      expect(screen.queryByLabelText('Status')).not.toBeInTheDocument();
-      expect(screen.getByLabelText('Resource type')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Status' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Resource type' }),
+      ).toBeInTheDocument();
     } finally {
       isSuperAdmin = true;
     }
