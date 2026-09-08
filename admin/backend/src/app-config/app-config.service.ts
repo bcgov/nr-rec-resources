@@ -77,6 +77,14 @@ export class AppConfigService {
     return this.configService.get('BCGW_CSS_CLIENT_ID', { infer: true }) ?? '';
   }
 
+  get forestClientApiUrl(): string {
+    return this.configService.get('FOREST_CLIENT_API_URL', { infer: true })!;
+  }
+
+  get forestClientApiKey(): string {
+    return this.configService.get('FOREST_CLIENT_API_KEY', { infer: true })!;
+  }
+
   // AWS S3 Configuration
   get establishmentOrderDocsBucket(): string {
     return this.configService.get('ESTABLISHMENT_ORDER_DOCS_BUCKET', {

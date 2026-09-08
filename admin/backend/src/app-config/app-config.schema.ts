@@ -61,6 +61,15 @@ export class EnvironmentVariables {
   @IsString()
   BCGW_CSS_CLIENT_ID?: string;
 
+  // Forest Client API configuration
+  @IsUrl({ require_tld: false })
+  @IsNotEmpty()
+  FOREST_CLIENT_API_URL: string;
+
+  @IsString()
+  @IsNotEmpty()
+  FOREST_CLIENT_API_KEY: string;
+
   // AWS S3 configuration
   @IsString()
   @IsNotEmpty()
