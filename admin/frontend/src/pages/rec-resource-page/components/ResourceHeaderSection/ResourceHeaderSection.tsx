@@ -54,11 +54,13 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
               }
             />
           )}
-          {recResource.access_status_grouplabel && (
-            <PublicAccessStatusBadge
-              label={recResource.access_status_grouplabel}
-            />
-          )}
+          {recResource.access_status_grouplabel &&
+            recResource.access_status_grouplabel !==
+              recResource.recreation_status_description && (
+              <PublicAccessStatusBadge
+                label={recResource.access_status_grouplabel}
+              />
+            )}
         </Stack>
       </Stack>
       <span className="fw-bold">{recResource.rec_resource_type}</span>
