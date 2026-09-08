@@ -109,7 +109,14 @@ vi.mock(
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCard',
   () => ({
-    AssetCard: ({ asset }: any) => <div>asset-view-{asset.asset_id}</div>,
+    AssetCard: ({ asset, assetCodes: codes }: any) => (
+      <div>
+        <span>asset-view-{asset.asset_id}</span>
+        <span data-testid={`asset-view-codes-${asset.asset_id}`}>
+          {(codes ?? []).map((code: any) => code.description).join(',')}
+        </span>
+      </div>
+    ),
   }),
 );
 
@@ -310,6 +317,16 @@ describe('RecResourceAssetsEditPage', () => {
       params: { id: 'REC123' },
       search: { editGroup: '100' },
     });
+  });
+
+  // AssetCard needs the code list to resolve default values and to tell whether
+  // the asset is a trail (which decides if repair stations are shown).
+  it('passes asset codes through to the view mode AssetCard', () => {
+    render(<RecResourceAssetsEditPage />);
+
+    expect(screen.getByTestId('asset-view-codes-10')).toHaveTextContent(
+      'Bridge',
+    );
   });
 
   it('saves queued asset and repair changes in edit mode, then navigates back to assets', async () => {
