@@ -11,6 +11,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CustomButton } from '@/components';
 import {
+  useDeleteAsset,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -93,6 +94,7 @@ export function RecResourceAssetsSection() {
   const { mutateAsync: updateResource } = useUpdateRecreationResource();
   const { mutateAsync: updateAsset } = useUpdateAsset();
   const { mutateAsync: updateRepair } = useUpdateAssetRepair();
+  const { mutateAsync: deleteAsset } = useDeleteAsset();
 
   const summaryInspectionDate = inspectionDate
     ? new Date(inspectionDate)
@@ -257,6 +259,20 @@ export function RecResourceAssetsSection() {
     setInspectionDate(toDateInputValue(resource?.last_rec_inspection_date));
     setDangerTreeDate(toDateInputValue(resource?.last_hzrd_tree_assess_date));
     setIsInspectionEditOpen(false);
+  }
+
+  async function handleDeleteAsset(assetId: number) {
+    if (!recResourceId) return;
+
+    try {
+      await deleteAsset({ recResourceId, assetId });
+      setPendingChanges(new Map());
+      setPendingRepairChanges(new Map());
+      setAssetValidationErrors(new Map());
+      setEditingCampsiteId(null);
+    } catch {
+      // Deletion errors are surfaced by the mutation hook.
+    }
   }
 
   return (
@@ -462,6 +478,7 @@ export function RecResourceAssetsSection() {
                             onChange={handleEditChange}
                             onValidationChange={handleValidationChange}
                             onRepairChange={handleRepairChange}
+                            onDelete={handleDeleteAsset}
                           />
                           <div className="campsite-children">
                             <div className="campsite-children__divider" />
@@ -480,6 +497,7 @@ export function RecResourceAssetsSection() {
                                   onChange={handleEditChange}
                                   onValidationChange={handleValidationChange}
                                   onRepairChange={handleRepairChange}
+                                  onDelete={handleDeleteAsset}
                                 />
                               ))}
                             </Stack>

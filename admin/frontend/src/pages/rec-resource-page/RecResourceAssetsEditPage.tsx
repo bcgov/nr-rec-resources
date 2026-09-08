@@ -11,6 +11,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CustomButton } from '@/components';
 import {
+  useDeleteAsset,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -55,6 +56,7 @@ export function RecResourceAssetsEditPage() {
   const { mutateAsync: updateAsset } = useUpdateAsset();
   const { mutateAsync: updateRepair } = useUpdateAssetRepair();
   const { mutateAsync: updateResource } = useUpdateRecreationResource();
+  const { mutateAsync: deleteAsset } = useDeleteAsset();
 
   const [pendingChanges, setPendingChanges] = useState<
     Map<number, AssetEditFormValues>
@@ -157,6 +159,20 @@ export function RecResourceAssetsEditPage() {
     } finally {
       setIsSaving(false);
     }
+  }
+
+  async function handleDeleteAsset(assetId: number) {
+    if (!recResourceId) return;
+
+    try {
+      await deleteAsset({ recResourceId, assetId });
+      setPendingChanges((prev) => {
+        const updated = new Map(prev);
+        updated.delete(assetId);
+        return updated;
+      });
+      navigateToView();
+    } catch {}
   }
 
   return (
@@ -297,6 +313,7 @@ export function RecResourceAssetsEditPage() {
                           recResourceId={recResourceId}
                           onChange={handleEditChange}
                           onRepairChange={handleRepairChange}
+                          onDelete={handleDeleteAsset}
                         />
                       ))}
                     </Stack>

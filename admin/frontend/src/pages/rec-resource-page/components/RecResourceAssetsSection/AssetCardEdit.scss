@@ -58,3 +58,17 @@
     }
   }
 }
+
+.asset-card-edit__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.asset-card-edit__delete-btn {
+  flex-shrink: 0;
+  border-radius: 0.375rem;
+  font-weight: var(--typography-font-weights-bold, 700);
+  padding: 0.375rem 0.75rem;
+}
