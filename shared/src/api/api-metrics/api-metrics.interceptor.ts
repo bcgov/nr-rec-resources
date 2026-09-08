@@ -33,7 +33,6 @@ export class ApiMetricsInterceptor implements NestInterceptor {
     const res = context.switchToHttp().getResponse<Response>();
     const operation = this.operationNameUtil.get(context);
     const requestId = this.cls.getId();
-
     this.logger.log(
       `[API Metrics] Starting request: ${req.method} ${req.url} - Operation: ${operation}`,
     );

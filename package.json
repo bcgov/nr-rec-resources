@@ -33,7 +33,7 @@
     "@types/k6": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
-    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-import": "^2.31.0",
@@ -44,9 +44,10 @@
     "k6": "^0.0.0",
     "prettier": "^3.4.1",
     "vite-tsconfig-paths": "^6.0.0",
-    "vitest": "^4.0.16"
+    "vitest": "^4.1.11"
   },
   "overrides": {
+    "@xhmikosr/decompress": "10.2.1",
     "@fortawesome/fontawesome-common-types": "7.2.0"
   }
 }
