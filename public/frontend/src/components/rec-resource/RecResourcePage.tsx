@@ -26,7 +26,7 @@ const RecResourcePage = () => {
   const { recResource } = Route.useLoaderData();
 
   const {
-    data: siteOperator,
+    data: siteOperators,
     isLoading: isOperatorLoading,
     error: operatorError,
     refetch: refetchOperator,
@@ -187,7 +187,7 @@ const RecResourcePage = () => {
                     ref={sectionRefs[refIndex++]}
                     error={operatorError}
                     isLoading={isOperatorLoading}
-                    siteOperator={siteOperator}
+                    siteOperators={siteOperators}
                     refetchData={refetchOperator}
                     rec_resource_id={rec_resource_id}
                   />

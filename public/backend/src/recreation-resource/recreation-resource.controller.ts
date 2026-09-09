@@ -322,7 +322,7 @@ export class RecreationResourceController {
 
   @Get(':id/site-operator')
   @ApiOperation({
-    summary: 'Find site operator by resource ID',
+    summary: 'Find publicly visible partners by resource ID',
     operationId: 'getSiteOperatorById',
   })
   @ApiParam({
@@ -334,25 +334,32 @@ export class RecreationResourceController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Site operator found',
+    description:
+      'Partners for the resource that are visible on the public site. Empty when the resource has none.',
     type: SiteOperatorDto,
+    isArray: true,
   })
-  @ApiResponse({ status: 404, description: 'Site operator not found' })
-  async findSiteOperator(@Param('id') id: string): Promise<SiteOperatorDto> {
-    const clientNumber =
-      await this.recreationResourceService.findClientNumber(id);
-    if (!clientNumber)
-      throw new HttpException({ data: 'Site operator not found' }, 404);
+  async findSiteOperator(@Param('id') id: string): Promise<SiteOperatorDto[]> {
+    const clientNumbers =
+      await this.recreationResourceService.findClientNumbers(id);
 
-    const r = await this.fsaResourceService.findByClientNumber(clientNumber);
-    return {
-      clientName: r.clientName,
-      clientNumber: r.clientNumber,
-      clientStatusCode: r.clientStatusCode,
-      clientTypeCode: r.clientTypeCode,
-      legalFirstName: r.legalFirstName,
-      legalMiddleName: r.legalMiddleName,
-      acronym: r.acronym,
-    } as SiteOperatorDto;
+    const operators = await Promise.all(
+      clientNumbers.map((clientNumber) =>
+        this.fsaResourceService.findByClientNumber(clientNumber),
+      ),
+    );
+
+    return operators.map(
+      (operator) =>
+        ({
+          clientName: operator.clientName,
+          clientNumber: operator.clientNumber,
+          clientStatusCode: operator.clientStatusCode,
+          clientTypeCode: operator.clientTypeCode,
+          legalFirstName: operator.legalFirstName,
+          legalMiddleName: operator.legalMiddleName,
+          acronym: operator.acronym,
+        }) as SiteOperatorDto,
+    );
   }
 }

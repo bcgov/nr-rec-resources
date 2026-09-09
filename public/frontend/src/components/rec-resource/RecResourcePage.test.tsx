@@ -146,15 +146,17 @@ describe('RecResourcePage', () => {
     sectionOverrides?: any,
   ) => {
     (useGetSiteOperatorById as any).mockReturnValue({
-      data: {
-        acronym: undefined,
-        clientName: 'SITE OPERATOR NAME',
-        clientNumber: '0001',
-        clientStatusCode: 'ACT',
-        clientTypeCode: 'C',
-        legalFirstName: undefined,
-        legalMiddleName: undefined,
-      },
+      data: [
+        {
+          acronym: undefined,
+          clientName: 'SITE OPERATOR NAME',
+          clientNumber: '0001',
+          clientStatusCode: 'ACT',
+          clientTypeCode: 'C',
+          legalFirstName: undefined,
+          legalMiddleName: undefined,
+        },
+      ],
       error: undefined,
       isLoading: false,
       refetch: vi.fn(),

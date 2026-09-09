@@ -100,15 +100,17 @@ describe('useGetSiteOperatorById', () => {
   });
 
   it('should fetch site operator data', async () => {
-    const mockResponse = {
-      acronym: undefined,
-      clientName: 'SITE OPERATOR NAME',
-      clientNumber: '0001',
-      clientStatusCode: 'ACT',
-      clientTypeCode: 'C',
-      legalFirstName: undefined,
-      legalMiddleName: undefined,
-    };
+    const mockResponse = [
+      {
+        acronym: undefined,
+        clientName: 'SITE OPERATOR NAME',
+        clientNumber: '0001',
+        clientStatusCode: 'ACT',
+        clientTypeCode: 'C',
+        legalFirstName: undefined,
+        legalMiddleName: undefined,
+      },
+    ];
 
     mockApi.getSiteOperatorById.mockResolvedValueOnce(mockResponse);
 
