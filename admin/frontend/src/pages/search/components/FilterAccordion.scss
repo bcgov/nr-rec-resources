@@ -18,7 +18,8 @@
     grid-template-rows: 1fr;
     opacity: 1;
     transform: translateY(0);
-    z-index: 2;
+    // Keep open filters and their dropdown menus above sticky table headers.
+    z-index: 10;
 
     .filters__content {
       overflow: visible;

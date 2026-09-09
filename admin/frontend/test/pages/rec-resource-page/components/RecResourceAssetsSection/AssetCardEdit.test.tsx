@@ -97,6 +97,7 @@ describe('AssetCardEdit', () => {
     vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
       canView: true,
       canEdit: true,
+      canDelete: true,
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
       isSuperAdmin: true,
@@ -170,8 +171,8 @@ describe('AssetCardEdit', () => {
       />,
     );
     expect(
-      screen.queryByRole('button', { name: 'Show repairs' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'Show repairs' }),
+    ).toBeInTheDocument();
   });
 
   it('applies custom className to the card', () => {
@@ -252,5 +253,60 @@ describe('AssetCardEdit', () => {
     );
 
     expect(onDelete).toHaveBeenCalledWith(1, 'delete-with-campsite');
+  });
+
+  it('does not render a Delete button when no onDelete handler is provided', () => {
+    render(<AssetCardEdit {...defaultProps} />);
+
+    expect(
+      screen.queryByRole('button', { name: 'Delete' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the simple delete confirmation text for a non-campsite asset', async () => {
+    const user = userEvent.setup();
+
+    render(<AssetCardEdit {...defaultProps} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(
+      screen.getByText(/Are you sure you want to delete/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Delete campsite and unassign linked assets'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows Delete for developer role', () => {
+    vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: false,
+      canDelete: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: false,
+      isSuperAdmin: false,
+      canViewSensitiveInfo: true,
+    });
+
+    render(<AssetCardEdit {...defaultProps} onDelete={vi.fn()} />);
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  });
+
+  it('hides Delete when user has no delete access', () => {
+    vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: false,
+      canDelete: false,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
+      isSuperAdmin: false,
+      canViewSensitiveInfo: true,
+    });
+
+    render(<AssetCardEdit {...defaultProps} onDelete={vi.fn()} />);
+
+    expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
   });
 });

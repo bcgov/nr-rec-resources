@@ -364,7 +364,7 @@ export function AssetCardRepairs({
             />
           )}
 
-          {(!showAddForm || isEditing) && (
+          {!showAddForm && (
             <CustomButton
               variant="secondary"
               className="asset-summary-action-btn asset-card-repairs__add-btn"

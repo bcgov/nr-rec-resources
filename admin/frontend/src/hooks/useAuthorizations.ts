@@ -39,6 +39,7 @@ export const useUserRoles = () => {
 export type AuthorizationKey =
   | 'canView'
   | 'canEdit'
+  | 'canDelete'
   | 'isSuperAdmin'
   | 'canViewFeatureFlag'
   | 'canEditFeatureFlag'
@@ -56,6 +57,11 @@ export const useAuthorizations = () => {
       ROLES.SUPER_ADMIN,
     ]);
     const canEdit = hasAnyRole(roles, [ROLES.ADMIN, ROLES.SUPER_ADMIN]);
+    const canDelete = hasAnyRole(roles, [
+      ROLES.ADMIN,
+      ROLES.SUPER_ADMIN,
+      ROLES.DEVELOPER,
+    ]);
     const hasDeveloperAccess = hasAnyRole(roles, [ROLES.DEVELOPER]);
     const isSuperAdmin = hasAnyRole(roles, [ROLES.SUPER_ADMIN]);
     /**
@@ -72,6 +78,7 @@ export const useAuthorizations = () => {
     return {
       canView,
       canEdit,
+      canDelete,
       canViewFeatureFlag: hasDeveloperAccess && canView,
       canEditFeatureFlag: hasDeveloperAccess && canEdit,
       isSuperAdmin,

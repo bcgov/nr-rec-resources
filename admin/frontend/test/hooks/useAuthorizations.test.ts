@@ -12,6 +12,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: false,
+      canDelete: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
       isSuperAdmin: false,
@@ -27,6 +28,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: false,
+      canDelete: false,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
       isSuperAdmin: false,
@@ -42,6 +44,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
+      canDelete: true,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
       isSuperAdmin: false,
@@ -57,6 +60,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
+      canDelete: true,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
       isSuperAdmin: true,
@@ -72,6 +76,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: false,
       canEdit: false,
+      canDelete: true,
       canViewFeatureFlag: false,
       canEditFeatureFlag: false,
       isSuperAdmin: false,
@@ -87,6 +92,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: false,
+      canDelete: true,
       canViewFeatureFlag: true,
       canEditFeatureFlag: false,
       isSuperAdmin: false,
@@ -102,6 +108,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
+      canDelete: true,
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
       isSuperAdmin: false,
@@ -117,6 +124,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
+      canDelete: true,
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
       isSuperAdmin: true,

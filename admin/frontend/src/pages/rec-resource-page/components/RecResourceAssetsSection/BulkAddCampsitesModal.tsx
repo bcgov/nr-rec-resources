@@ -21,7 +21,9 @@ interface BulkAddCampsitesModalProps {
   onCreate: () => void;
 }
 
-type CampsiteRow = CoordinateRow;
+interface CampsiteRow extends CoordinateRow {
+  description: string;
+}
 
 /**
  * Generates a campsite identifier.
@@ -56,7 +58,7 @@ export function BulkAddCampsitesModal({
 }: BulkAddCampsitesModalProps) {
   const [quantity, setQuantity] = useState<number>(1);
   const [campsiteRows, setCampsiteRows] = useState<CampsiteRow[]>([
-    { latitude: '', longitude: '' },
+    { description: '', latitude: '', longitude: '' },
   ]);
   const [rowErrors, setRowErrors] = useState<RowErrors[]>([{}]);
 
@@ -78,7 +80,7 @@ export function BulkAddCampsitesModal({
     setCampsiteRows((prev) => {
       const updated = [...prev];
       while (updated.length < qty)
-        updated.push({ latitude: '', longitude: '' });
+        updated.push({ description: '', latitude: '', longitude: '' });
       return updated.slice(0, qty);
     });
     setRowErrors((prev) => {
@@ -98,17 +100,19 @@ export function BulkAddCampsitesModal({
       updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
-    // Clear the error for this field as soon as the user starts editing
-    setRowErrors((errs) => {
-      const updated = [...errs];
-      updated[index] = { ...updated[index], [field]: undefined };
-      return updated;
-    });
+    // Only coordinates have row-level validation errors.
+    if (field === 'latitude' || field === 'longitude') {
+      setRowErrors((errs) => {
+        const updated = [...errs];
+        updated[index] = { ...updated[index], [field]: undefined };
+        return updated;
+      });
+    }
   };
 
   const handleClose = () => {
     setQuantity(1);
-    setCampsiteRows([{ latitude: '', longitude: '' }]);
+    setCampsiteRows([{ description: '', latitude: '', longitude: '' }]);
     setRowErrors([{}]);
     onCancel();
   };
@@ -136,6 +140,7 @@ export function BulkAddCampsitesModal({
         asset_code: CAMPSITE_STRUCTURE_CODE,
         asset_name: `Campsite ${campsiteNumber}`,
         asset_tag: tag,
+        asset_comment: row.description.trim() || undefined,
         parent_id: null,
         asset_length: null,
         asset_width: null,
@@ -158,7 +163,7 @@ export function BulkAddCampsitesModal({
       title="Add campsites"
       onHide={handleClose}
       onShow={() => {
-        setCampsiteRows([{ latitude: '', longitude: '' }]);
+        setCampsiteRows([{ description: '', latitude: '', longitude: '' }]);
         setRowErrors([{}]);
       }}
       submitLabel={`Create ${quantity} campsite${quantity !== 1 ? 's' : ''}`}
@@ -194,6 +199,24 @@ export function BulkAddCampsitesModal({
                 id={generateCampsiteId(campsiteNumber, recResourceId)}
                 showDivider={i < campsiteRows.length - 1}
               >
+                <Row className="g-0">
+                  <Col xs={12} className="bulk-modal__field-col">
+                    <Form.Group controlId={`bulk-campsite-description-${i}`}>
+                      <Form.Label className="bulk-modal__field-label">
+                        Description
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={row.description}
+                        onChange={(e) =>
+                          updateRow(i, 'description', e.target.value)
+                        }
+                        className="bulk-modal__field-input"
+                        placeholder="Optional description"
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
                 <Row className="g-0">
                   <Col xs={12} md={6} className="bulk-modal__field-col">
                     <Form.Group controlId={`bulk-campsite-lat-${i}`}>

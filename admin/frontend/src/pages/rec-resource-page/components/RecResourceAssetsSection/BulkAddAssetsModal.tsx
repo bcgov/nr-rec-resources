@@ -92,6 +92,28 @@ export function BulkAddAssetsModal({
     [existingAssets],
   );
 
+  const sortedAssetTypeOptions = useMemo(
+    () =>
+      [
+        ...assetCodes.filter(
+          (code) => code.asset_code !== CAMPSITE_STRUCTURE_CODE,
+        ),
+      ].sort((a, b) =>
+        (a.description ?? '').localeCompare(b.description ?? ''),
+      ),
+    [assetCodes],
+  );
+
+  const sortedCampsites = useMemo(
+    () =>
+      [...campsites].sort((a, b) =>
+        (a.asset_name ?? `Campsite ${a.asset_id}`).localeCompare(
+          b.asset_name ?? `Campsite ${b.asset_id}`,
+        ),
+      ),
+    [campsites],
+  );
+
   // Continue numbering from the highest existing suffix to avoid reusing deleted numbers.
   const highestNumberForType = useMemo(
     () =>
@@ -247,13 +269,11 @@ export function BulkAddAssetsModal({
               }}
             >
               <option value="">Choose an asset type</option>
-              {assetCodes
-                .filter((code) => code.asset_code !== CAMPSITE_STRUCTURE_CODE)
-                .map((code) => (
-                  <option key={code.asset_code} value={code.asset_code}>
-                    {code.description}
-                  </option>
-                ))}
+              {sortedAssetTypeOptions.map((code) => (
+                <option key={code.asset_code} value={code.asset_code}>
+                  {code.description}
+                </option>
+              ))}
             </Form.Select>
           </Form.Group>
         </Col>
@@ -417,7 +437,7 @@ export function BulkAddAssetsModal({
                         }
                       >
                         <option value="">—</option>
-                        {campsites.map((campsite) => (
+                        {sortedCampsites.map((campsite) => (
                           <option
                             key={campsite.asset_id}
                             value={campsite.asset_id}

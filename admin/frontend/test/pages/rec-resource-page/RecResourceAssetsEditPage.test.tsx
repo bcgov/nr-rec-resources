@@ -107,7 +107,7 @@ vi.mock(
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCardEdit',
   () => ({
-    AssetCardEdit: ({ asset, onChange, onRepairChange }: any) => {
+    AssetCardEdit: ({ asset, onChange, onRepairChange, onDelete }: any) => {
       const payload: AssetEditFormValues = {
         asset_comment: 'Updated comment',
         asset_length: '11',
@@ -132,6 +132,23 @@ vi.mock(
           >
             queue-repair-{asset.asset_id}
           </button>
+          {onDelete && (
+            <>
+              <button onClick={() => onDelete(asset.asset_id)}>
+                delete-asset-{asset.asset_id}
+              </button>
+              <button
+                onClick={() => onDelete(asset.asset_id, 'unassign-children')}
+              >
+                delete-unassign-{asset.asset_id}
+              </button>
+              <button
+                onClick={() => onDelete(asset.asset_id, 'delete-with-campsite')}
+              >
+                delete-cascade-{asset.asset_id}
+              </button>
+            </>
+          )}
         </div>
       );
     },
@@ -347,5 +364,105 @@ describe('RecResourceAssetsEditPage', () => {
 
     expect(mockUpdateAsset).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('deletes an edited asset and clears its queued repair changes', async () => {
+    const user = userEvent.setup();
+    const repairedAsset = buildAsset({
+      asset_id: 10,
+      recreation_asset_repair: [
+        {
+          repair_id: 710,
+          asset_id: 10,
+          recreation_remed_repair_code: 'R1',
+          estimated_repair_cost: null,
+          actual_repair_cost: null,
+          repair_completed_date: null,
+          urgency: null,
+          trail_segment_start: null,
+          trail_segment_end: null,
+          created_by: null,
+          created_at: null,
+          updated_by: null,
+          updated_at: null,
+        },
+      ],
+    });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [repairedAsset],
+      isLoading: false,
+      isError: false,
+    } as any);
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'queue-asset-10' }));
+    await user.click(screen.getByRole('button', { name: 'queue-repair-10' }));
+    await user.click(screen.getByRole('button', { name: 'delete-asset-10' }));
+
+    await waitFor(() => {
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 10,
+      });
+    });
+  });
+
+  it('unassigns linked children before deleting a parent asset', async () => {
+    const user = userEvent.setup();
+    const parent = buildAsset({ asset_id: 10 });
+    const child = buildAsset({ asset_id: 20, parent_id: 10 });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [parent, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'delete-unassign-10' }),
+    );
+
+    await waitFor(() => {
+      expect(mockUpdateAsset).toHaveBeenCalledWith({
+        assetId: 20,
+        recResourceId: 'REC123',
+        dto: { parent_id: null },
+      });
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 10,
+      });
+    });
+  });
+
+  it('deletes linked children before deleting a parent asset when cascading', async () => {
+    const user = userEvent.setup();
+    const parent = buildAsset({ asset_id: 10 });
+    const child = buildAsset({ asset_id: 20, parent_id: 10 });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [parent, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'delete-cascade-10' }));
+
+    await waitFor(() => {
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 20,
+      });
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 10,
+      });
+    });
   });
 });

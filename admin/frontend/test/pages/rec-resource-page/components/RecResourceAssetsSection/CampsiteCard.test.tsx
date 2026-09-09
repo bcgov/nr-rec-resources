@@ -6,39 +6,23 @@ import { describe, expect, it, vi } from 'vitest';
 describe('CampsiteCard', () => {
   it('renders the description', () => {
     render(
-      <CampsiteCard
-        eventKey="1"
-        description="Campsite A"
-        structureCount={2}
-        totalValue={1500}
-      />,
+      <CampsiteCard eventKey="1" description="Campsite A" structureCount={2} />,
     );
 
     expect(screen.getByText('Campsite A')).toBeInTheDocument();
   });
 
-  it('renders the structure count and formatted total value', () => {
+  it('renders the structure count', () => {
     render(
-      <CampsiteCard
-        eventKey="1"
-        description="Campsite A"
-        structureCount={2}
-        totalValue={1500}
-      />,
+      <CampsiteCard eventKey="1" description="Campsite A" structureCount={2} />,
     );
 
     expect(screen.getByText('2 assets')).toBeInTheDocument();
-    expect(screen.getByText('$1,500 total value')).toBeInTheDocument();
   });
 
   it('renders the singular "asset" label when the structure count is 1', () => {
     render(
-      <CampsiteCard
-        eventKey="1"
-        description="Campsite A"
-        structureCount={1}
-        totalValue={1500}
-      />,
+      <CampsiteCard eventKey="1" description="Campsite A" structureCount={1} />,
     );
 
     expect(screen.getByText('1 asset')).toBeInTheDocument();
@@ -46,12 +30,7 @@ describe('CampsiteCard', () => {
 
   it('renders children content', () => {
     render(
-      <CampsiteCard
-        eventKey="1"
-        description="Campsite A"
-        structureCount={2}
-        totalValue={1500}
-      >
+      <CampsiteCard eventKey="1" description="Campsite A" structureCount={2}>
         <div>Child campsite content</div>
       </CampsiteCard>,
     );
@@ -61,12 +40,7 @@ describe('CampsiteCard', () => {
 
   it('is collapsed by default', () => {
     render(
-      <CampsiteCard
-        eventKey="1"
-        description="Campsite A"
-        structureCount={2}
-        totalValue={1500}
-      />,
+      <CampsiteCard eventKey="1" description="Campsite A" structureCount={2} />,
     );
 
     expect(screen.getByRole('button', { name: /Campsite A/ })).toHaveAttribute(
@@ -84,7 +58,6 @@ describe('CampsiteCard', () => {
         eventKey="1"
         description="Campsite A"
         structureCount={2}
-        totalValue={1500}
         onEdit={onEdit}
       />,
     );
@@ -104,7 +77,6 @@ describe('CampsiteCard', () => {
         eventKey="1"
         description="Campsite A"
         structureCount={2}
-        totalValue={1500}
         isDisabled={true}
         onEdit={onEdit}
       />,
@@ -123,7 +95,6 @@ describe('CampsiteCard', () => {
         eventKey="1"
         description="Campsite A"
         structureCount={2}
-        totalValue={1500}
         isEditing={true}
         onCancel={onCancel}
         onSave={onSave}
@@ -149,7 +120,6 @@ describe('CampsiteCard', () => {
         eventKey="1"
         description="Campsite A"
         structureCount={2}
-        totalValue={1500}
         isEditing={true}
         isSaving={true}
       />,

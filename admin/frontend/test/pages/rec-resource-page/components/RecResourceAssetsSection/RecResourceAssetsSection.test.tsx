@@ -7,6 +7,7 @@ import {
   useBulkInsertAssetRepairs,
   useBulkUpdateAssets,
   useDeleteAsset,
+  useDeleteAssetRepair,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -56,6 +57,10 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
     isPending: false,
   }),
   useCreateAssetRepair: vi.fn().mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+  useDeleteAssetRepair: vi.fn().mockReturnValue({
     mutate: vi.fn(),
     isPending: false,
   }),
@@ -133,6 +138,10 @@ describe('RecResourceAssetsSection', () => {
       isPending: false,
     } as any);
     vi.mocked(useBulkUpdateAssets).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as any);
+    vi.mocked(useDeleteAssetRepair).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     } as any);
@@ -362,7 +371,7 @@ describe('RecResourceAssetsSection', () => {
     expect(screen.getByText('Child Asset')).toBeInTheDocument();
   });
 
-  it('shows total value combining campsite and child assets in campsite view', async () => {
+  it('does not show campsite total value in campsite view', async () => {
     const user = userEvent.setup();
     const campsite = buildAsset({
       asset_id: 10,
@@ -389,15 +398,12 @@ describe('RecResourceAssetsSection', () => {
 
     await user.click(screen.getByText('By campsite'));
 
-    // The CampsiteCard header shows the total value directly in the accordion toggle
-    expect(
-      screen.getByRole('button', { name: /Campsite A/ }),
-    ).toBeInTheDocument();
-    // Total value (1000 + 500) should appear somewhere in the rendered output
-    expect(screen.getAllByText(/1,500/).length).toBeGreaterThanOrEqual(1);
+    const campsiteToggle = screen.getByRole('button', { name: /Campsite A/ });
+    expect(campsiteToggle).toBeInTheDocument();
+    expect(campsiteToggle).not.toHaveTextContent(/total value/i);
   });
 
-  it('sums campsite totals numerically when actual value is missing and defaults are strings', async () => {
+  it('still renders campsite grouping when asset defaults are strings', async () => {
     const user = userEvent.setup();
     const campsite = buildAsset({
       asset_id: 10,
@@ -430,11 +436,9 @@ describe('RecResourceAssetsSection', () => {
 
     await user.click(screen.getByText('By campsite'));
 
-    expect(
-      screen.getByRole('button', { name: /Campsite A/ }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByText(/1,500/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText(/100,500/)).not.toBeInTheDocument();
+    const campsiteToggle = screen.getByRole('button', { name: /Campsite A/ });
+    expect(campsiteToggle).toBeInTheDocument();
+    expect(campsiteToggle).not.toHaveTextContent(/total value/i);
   });
 
   it('closes the Add assets modal via cancel', async () => {

@@ -3,7 +3,7 @@ import { CustomButton } from '@/components';
 import './BulkAssetEditModal.scss';
 import { AssetTypeGroup } from './assetTypeGrouping';
 import { Checkbox } from '@bcgov/design-system-react-components';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CampsiteGroup } from './campsiteGrouping';
 import { useBulkUpdateAssets } from '@/services/hooks/recreation-resource-admin';
 import { AssetCode } from './types';
@@ -49,6 +49,24 @@ export function BulkAssetEditModal({
   });
 
   const END_DIGITS_REGEX = /\d+$/;
+
+  const sortedAssetTypes = useMemo(
+    () =>
+      [...assetTypes].sort((a, b) =>
+        (a.description ?? '').localeCompare(b.description ?? ''),
+      ),
+    [assetTypes],
+  );
+
+  const sortedCampsites = useMemo(
+    () =>
+      [...campsites].sort((a, b) => {
+        const nameA = a.campsite.asset_name ?? '';
+        const nameB = b.campsite.asset_name ?? '';
+        return nameA.localeCompare(nameB);
+      }),
+    [campsites],
+  );
 
   const getEndNumberOrString = (text: string | null) => {
     if (!text) return text;
@@ -228,7 +246,7 @@ export function BulkAssetEditModal({
               onChange={(e) => selectAssetGroup(e.target.value)}
             >
               <option value="">Select asset type...</option>
-              {assetTypes.map((type) => (
+              {sortedAssetTypes.map((type) => (
                 <option key={type.structureCode} value={type.structureCode}>
                   {type.description}
                 </option>
@@ -387,7 +405,7 @@ export function BulkAssetEditModal({
                 }
               >
                 <option value="">Select campsite...</option>
-                {campsites.map((c) => {
+                {sortedCampsites.map((c) => {
                   return (
                     <option
                       value={c.campsite.asset_id}

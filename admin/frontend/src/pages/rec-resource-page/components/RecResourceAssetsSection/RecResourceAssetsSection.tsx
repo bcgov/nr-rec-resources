@@ -28,6 +28,12 @@ import {
 import { ROUTE_PATHS } from '@/constants/routes';
 import { parseNumber, toDateInputValue } from '@/utils/assetForm';
 import { buildAssetUpdateDto, buildInspectionDatesDto } from './editPayloads';
+import {
+  buildPendingAssetChanges,
+  buildPendingAssetRepairChanges,
+  buildPendingValidationErrors,
+  deleteAssetWithLinkedChildren,
+} from './assetEditShared';
 import { AddRepairModal } from './AddRepairModal';
 import { BulkAssetEditModal } from './BulkAssetEditModal';
 import { AssetCard } from './AssetCard';
@@ -115,7 +121,6 @@ export function RecResourceAssetsSection() {
   const typeGroups = groupAssetsByType(assets ?? [], assetCodes ?? []);
   const campsiteGroups = groupAssetsByCampsite(assets ?? []);
   const hasCampsites = campsiteGroups.length > 0;
-  const codeMap = new Map((assetCodes ?? []).map((c) => [c.asset_code, c]));
 
   function handleEditChange(assetId: number, values: AssetEditFormValues) {
     setPendingChanges((prev) => new Map(prev).set(assetId, values));
@@ -268,60 +273,29 @@ export function RecResourceAssetsSection() {
     if (!recResourceId) return;
 
     try {
-      const linkedChildren = (assets ?? []).filter(
-        (asset) => asset.parent_id === assetId,
-      );
-
-      if (mode === 'unassign-children' && linkedChildren.length > 0) {
-        await Promise.all(
-          linkedChildren.map((child) =>
-            updateAsset({
-              assetId: child.asset_id,
-              recResourceId,
-              dto: { parent_id: null },
-            }),
-          ),
-        );
-      }
-
-      if (mode === 'delete-with-campsite' && linkedChildren.length > 0) {
-        await Promise.all(
-          linkedChildren.map((child) =>
-            deleteAssetMutation({ recResourceId, assetId: child.asset_id }),
-          ),
-        );
-      }
-
-      await deleteAssetMutation({ recResourceId, assetId });
-      // Only remove pending changes for the deleted asset, preserve edits for other assets
-      setPendingChanges((prev) => {
-        const updated = new Map(prev);
-        updated.delete(assetId);
-        return updated;
+      await deleteAssetWithLinkedChildren({
+        assets,
+        assetId,
+        mode,
+        recResourceId,
+        updateAsset,
+        deleteAssetMutation,
       });
-      // Also remove any pending repair changes for repairs belonging to this asset
+      setPendingChanges((prev) => buildPendingAssetChanges(prev, assetId));
       setPendingRepairChanges((prev) => {
-        const deletedAsset = assets?.find((a) => a.asset_id === assetId);
-        if (!deletedAsset) return prev;
-
-        const updated = new Map(prev);
-        deletedAsset.recreation_asset_repair?.forEach((repair) => {
-          updated.delete(repair.repair_id);
-        });
-        return updated;
+        return buildPendingAssetRepairChanges(prev, assets, assetId);
       });
-      // Clear validation errors for the deleted asset
-      setAssetValidationErrors((prev) => {
-        const updated = new Map(prev);
-        updated.delete(assetId);
-        return updated;
-      });
-      // If we were editing the deleted asset's campsite, exit edit mode
+      setAssetValidationErrors((prev) =>
+        buildPendingValidationErrors(prev, assetId),
+      );
       if (editingCampsiteId === assetId) {
         setEditingCampsiteId(null);
       }
     } catch {
-      // Deletion errors are surfaced by the mutation hook.
+      addErrorNotification(
+        'Failed to delete asset. Please try again.',
+        'deleteAsset-error',
+      );
     }
   }
 
@@ -495,19 +469,6 @@ export function RecResourceAssetsSection() {
                     eventKey={String(campsite.asset_id)}
                     description={campsite.asset_name ?? ''}
                     structureCount={children.length}
-                    totalValue={
-                      (campsite.actual_value ??
-                        codeMap.get(campsite.asset_code)?.default_value ??
-                        0) +
-                      children.reduce(
-                        (sum, child) =>
-                          sum +
-                          (child.actual_value ??
-                            codeMap.get(child.asset_code)?.default_value ??
-                            0),
-                        0,
-                      )
-                    }
                     isEditing={isEditing}
                     isSaving={isSavingCampsite}
                     isDisabled={editingCampsiteId !== null && !isEditing}

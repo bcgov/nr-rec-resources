@@ -22,7 +22,7 @@ import {
 } from '@/services/hooks/recreation-resource-admin';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import { ROUTE_PATHS } from '@/constants/routes';
-import { parseNumber, toDateInputValue } from '@/utils/assetForm';
+import { toDateInputValue } from '@/utils/assetForm';
 import { InspectionDatesEdit } from './components/RecResourceAssetsSection/InspectionDatesEdit';
 import { AssetCard } from './components/RecResourceAssetsSection/AssetCard';
 import { AssetCardEdit } from './components/RecResourceAssetsSection/AssetCardEdit';
@@ -32,6 +32,15 @@ import { AssetTypeCardEdit } from './components/RecResourceAssetsSection/AssetTy
 import { computeAssetSummary } from './components/RecResourceAssetsSection/assetSummary';
 import { groupAssetsByType } from './components/RecResourceAssetsSection/assetTypeGrouping';
 import { groupAssetsByCampsite } from './components/RecResourceAssetsSection/campsiteGrouping';
+import {
+  buildAssetUpdateDto,
+  buildInspectionDatesDto,
+} from './components/RecResourceAssetsSection/editPayloads';
+import {
+  buildPendingAssetChanges,
+  buildPendingAssetRepairChanges,
+  deleteAssetWithLinkedChildren,
+} from './components/RecResourceAssetsSection/assetEditShared';
 import assetType from '@shared/assets/icons/asset-type-outline.svg';
 import campingType from '@shared/assets/icons/camping-type.svg';
 import type {
@@ -125,10 +134,10 @@ export function RecResourceAssetsEditPage() {
     try {
       await updateResource({
         recResourceId,
-        updateRecreationResourceDto: {
-          last_rec_inspection_date: inspectionDate || null,
-          last_hzrd_tree_assess_date: dangerTreeDate || null,
-        },
+        updateRecreationResourceDto: buildInspectionDatesDto(
+          inspectionDate,
+          dangerTreeDate,
+        ),
       });
       setIsEditingInspections(false);
     } finally {
@@ -145,13 +154,7 @@ export function RecResourceAssetsEditPage() {
           updateAsset({
             assetId,
             recResourceId,
-            dto: {
-              asset_comment: values.asset_comment || null,
-              asset_length: parseNumber(values.asset_length) ?? undefined,
-              asset_width: parseNumber(values.asset_width) ?? undefined,
-              asset_area: parseNumber(values.asset_area) ?? undefined,
-              actual_value: parseNumber(values.actual_value) ?? undefined,
-            },
+            dto: buildAssetUpdateDto(values),
           }),
         ),
         ...Array.from(pendingRepairChanges.entries()).map(([repairId, dto]) =>
@@ -168,49 +171,20 @@ export function RecResourceAssetsEditPage() {
     if (!recResourceId) return;
 
     try {
-      const linkedChildren = (assets ?? []).filter(
-        (asset) => asset.parent_id === assetId,
-      );
-
-      if (mode === 'unassign-children' && linkedChildren.length > 0) {
-        await Promise.all(
-          linkedChildren.map((child) =>
-            updateAsset({
-              assetId: child.asset_id,
-              recResourceId,
-              dto: { parent_id: null },
-            }),
-          ),
-        );
-      }
-
-      if (mode === 'delete-with-campsite' && linkedChildren.length > 0) {
-        await Promise.all(
-          linkedChildren.map((child) =>
-            deleteAssetMutation({ recResourceId, assetId: child.asset_id }),
-          ),
-        );
-      }
-
-      await deleteAssetMutation({ recResourceId, assetId });
-      // Only remove pending changes for the deleted asset, preserve edits for other assets
-      setPendingChanges((prev) => {
-        const updated = new Map(prev);
-        updated.delete(assetId);
-        return updated;
+      await deleteAssetWithLinkedChildren({
+        assets,
+        assetId,
+        mode,
+        recResourceId,
+        updateAsset,
+        deleteAssetMutation,
       });
+      // Only remove pending changes for the deleted asset, preserve edits for other assets
+      setPendingChanges((prev) => buildPendingAssetChanges(prev, assetId));
       // Also remove any pending repair changes for repairs belonging to this asset
       setPendingRepairChanges((prev) => {
-        const deletedAsset = assets?.find((a) => a.asset_id === assetId);
-        if (!deletedAsset) return prev;
-
-        const updated = new Map(prev);
-        deletedAsset.recreation_asset_repair?.forEach((repair) => {
-          updated.delete(repair.repair_id);
-        });
-        return updated;
+        return buildPendingAssetRepairChanges(prev, assets, assetId);
       });
-      navigateToView();
     } catch {}
   }
 
