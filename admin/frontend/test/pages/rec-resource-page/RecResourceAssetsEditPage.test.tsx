@@ -15,6 +15,10 @@ import {
   useUpdateAssetRepair,
   useUpdateRecreationResource,
 } from '@/services/hooks/recreation-resource-admin';
+import {
+  validateLatitude,
+  validateLongitude,
+} from '@/utils/coordinateValidation';
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -40,6 +44,11 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
   useUpdateAsset: vi.fn(),
   useUpdateAssetRepair: vi.fn(),
   useUpdateRecreationResource: vi.fn(),
+}));
+
+vi.mock('@/store/notificationStore', () => ({
+  addErrorNotification: vi.fn(),
+  addSuccessNotification: vi.fn(),
 }));
 
 vi.mock(
@@ -104,23 +113,38 @@ vi.mock(
   }),
 );
 
+let queuedAssetPayload: AssetEditFormValues = {
+  asset_comment: 'Updated comment',
+  asset_length: '11',
+  asset_width: '',
+  asset_area: '33.5',
+  longitude: '-123.4',
+  latitude: '49.2',
+  actual_value: '88.1',
+};
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCardEdit',
   () => ({
-    AssetCardEdit: ({ asset, onChange, onRepairChange, onDelete }: any) => {
-      const payload: AssetEditFormValues = {
-        asset_comment: 'Updated comment',
-        asset_length: '11',
-        asset_width: '',
-        asset_area: '33.5',
-        longitude: '-123.4',
-        latitude: '49.2',
-        actual_value: '88.1',
-      };
+    AssetCardEdit: ({
+      asset,
+      onChange,
+      onRepairChange,
+      onDelete,
+      saveAttemptCount = 0,
+    }: any) => {
+      const latitudeError =
+        saveAttemptCount > 0
+          ? validateLatitude(queuedAssetPayload.latitude)
+          : '';
+      const longitudeError =
+        saveAttemptCount > 0
+          ? validateLongitude(queuedAssetPayload.longitude)
+          : '';
 
       return (
         <div>
-          <button onClick={() => onChange(asset.asset_id, payload)}>
+          <button onClick={() => onChange(asset.asset_id, queuedAssetPayload)}>
             queue-asset-{asset.asset_id}
           </button>
           <button
@@ -149,6 +173,8 @@ vi.mock(
               </button>
             </>
           )}
+          {latitudeError && <div>{latitudeError}</div>}
+          {longitudeError && <div>{longitudeError}</div>}
         </div>
       );
     },
@@ -200,6 +226,15 @@ describe('RecResourceAssetsEditPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    queuedAssetPayload = {
+      asset_comment: 'Updated comment',
+      asset_length: '11',
+      asset_width: '',
+      asset_area: '33.5',
+      longitude: '-123.4',
+      latitude: '49.2',
+      actual_value: '88.1',
+    };
 
     vi.mocked(useParams).mockReturnValue({ id: 'REC123' } as any);
     vi.mocked(useSearch).mockReturnValue({} as any);
@@ -297,6 +332,9 @@ describe('RecResourceAssetsEditPage', () => {
           asset_width: undefined,
           asset_area: 33.5,
           actual_value: 88.1,
+          latitude: 49.2,
+          longitude: -123.4,
+          geometry_type_code: 'PT',
         },
       });
       expect(mockUpdateRepair).toHaveBeenCalledWith({
@@ -309,6 +347,26 @@ describe('RecResourceAssetsEditPage', () => {
         params: { id: 'REC123' },
       });
     });
+  });
+
+  it('shows a submit-time longitude validation error below the field and blocks save for invalid grouped edits', async () => {
+    const user = userEvent.setup();
+    queuedAssetPayload = {
+      ...queuedAssetPayload,
+      longitude: '-181',
+    };
+
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'queue-asset-10' }));
+    await user.click(screen.getByRole('button', { name: 'save-group-100' }));
+
+    expect(
+      await screen.findByText('Must be between -180 and 180'),
+    ).toBeInTheDocument();
+    expect(mockUpdateAsset).not.toHaveBeenCalled();
   });
 
   it('opens inspection edit and saves inspection dates', async () => {

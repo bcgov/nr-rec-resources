@@ -107,10 +107,10 @@ export interface RecreationResourceDetailDto {
   rec_resource_type: string;
   /**
    * Code identifying the type of recreation resource (e.g. SIT for site, TRL for trail)
-   * @type {string}
+   * @type {object}
    * @memberof RecreationResourceDetailDto
    */
-  rec_resource_type_code?: string | null;
+  rec_resource_type_code?: object | null;
   /**
    * Detailed description of the Recreation Resource
    * @type {string}

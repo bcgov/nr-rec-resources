@@ -16,10 +16,7 @@ import {
   useUpdateAssetRepair,
   useUpdateRecreationResource,
 } from '@/services/hooks/recreation-resource-admin';
-import {
-  addErrorNotification,
-  addSuccessNotification,
-} from '@/store/notificationStore';
+import * as notificationStore from '@/store/notificationStore';
 import { useParams } from '@tanstack/react-router';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -473,7 +470,7 @@ describe('RecResourceAssetsSection', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shows validation error and blocks save when campsite form is invalid', async () => {
+  it('shows a submit-time latitude validation error below the field and blocks save when campsite coordinates are invalid', async () => {
     const user = userEvent.setup();
     const campsite = buildAsset({
       asset_id: 10,
@@ -496,10 +493,9 @@ describe('RecResourceAssetsSection', () => {
     await user.type(screen.getByLabelText('Longitude'), '-123.1');
     await user.click(screen.getByRole('button', { name: 'Save changes' }));
 
-    expect(addErrorNotification).toHaveBeenCalledWith(
-      'Please fix validation errors before saving.',
-      'saveCampsite-validation',
-    );
+    expect(
+      await screen.findByText('Must be between -90 and 90'),
+    ).toBeInTheDocument();
     expect(mockUpdateAsset).not.toHaveBeenCalled();
   });
 
@@ -537,7 +533,7 @@ describe('RecResourceAssetsSection', () => {
         }),
       }),
     );
-    expect(addSuccessNotification).toHaveBeenCalledWith(
+    expect(notificationStore.addSuccessNotification).toHaveBeenCalledWith(
       'Campsite assets updated successfully.',
       'saveCampsite-success',
     );
@@ -555,7 +551,7 @@ describe('RecResourceAssetsSection', () => {
     );
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    expect(addErrorNotification).toHaveBeenCalledWith(
+    expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
       'Failed to update inspection dates. Please try again.',
       'updateInspections-error',
     );

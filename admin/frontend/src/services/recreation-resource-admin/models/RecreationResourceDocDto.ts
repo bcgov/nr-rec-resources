@@ -74,7 +74,6 @@ export interface RecreationResourceDocDto {
  */
 export const RecreationResourceDocDtoDocCodeEnum = {
   Rm: 'RM',
-  Ea: 'EA',
 } as const;
 export type RecreationResourceDocDtoDocCodeEnum =
   (typeof RecreationResourceDocDtoDocCodeEnum)[keyof typeof RecreationResourceDocDtoDocCodeEnum];

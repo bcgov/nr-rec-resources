@@ -112,7 +112,11 @@ export class RecreationAssetService {
       },
     });
 
-    if (dto.geometry_type_code && dto.latitude && dto.longitude) {
+    if (
+      dto.geometry_type_code &&
+      dto.latitude != null &&
+      dto.longitude != null
+    ) {
       await this.upsertAssetGeometry(
         Number(created.asset_id),
         dto.geometry_type_code,
@@ -343,7 +347,11 @@ export class RecreationAssetService {
       data,
     });
 
-    if (dto.geometry_type_code && dto.latitude && dto.longitude) {
+    if (
+      dto.geometry_type_code &&
+      dto.latitude != null &&
+      dto.longitude != null
+    ) {
       await this.upsertAssetGeometry(
         Number(updated.asset_id),
         dto.geometry_type_code,

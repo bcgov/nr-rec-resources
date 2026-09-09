@@ -1,6 +1,47 @@
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
+import {
+  validateLatitude,
+  validateLongitude,
+} from '@/utils/coordinateValidation';
 import type { AssetEditFormValues, AssetDeleteMode } from './AssetCardEdit';
 import type { Asset } from './types';
+
+export function getCoordinateValidationError(values: AssetEditFormValues): {
+  message: string;
+  id: string;
+} | null {
+  const latitude = values.latitude.trim();
+  const longitude = values.longitude.trim();
+  const hasLatitude = latitude !== '';
+  const hasLongitude = longitude !== '';
+
+  if (hasLatitude !== hasLongitude) {
+    return {
+      message: 'Both latitude and longitude must be set together.',
+      id: 'saveCampsite-latlng-error',
+    };
+  }
+
+  if (!hasLatitude) {
+    return null;
+  }
+
+  if (validateLatitude(latitude)) {
+    return {
+      message: 'Latitude must be between -90 and 90.',
+      id: 'saveCampsite-lat-error',
+    };
+  }
+
+  if (validateLongitude(longitude)) {
+    return {
+      message: 'Longitude must be between -180 and 180.',
+      id: 'saveCampsite-lng-error',
+    };
+  }
+
+  return null;
+}
 
 export function buildPendingAssetRepairChanges(
   prev: Map<number, Partial<UpdateRecreationAssetRepairDto>>,
@@ -19,15 +60,6 @@ export function buildPendingAssetRepairChanges(
 
 export function buildPendingAssetChanges(
   prev: Map<number, AssetEditFormValues>,
-  assetId: number,
-) {
-  const updated = new Map(prev);
-  updated.delete(assetId);
-  return updated;
-}
-
-export function buildPendingValidationErrors(
-  prev: Map<number, boolean>,
   assetId: number,
 ) {
   const updated = new Map(prev);

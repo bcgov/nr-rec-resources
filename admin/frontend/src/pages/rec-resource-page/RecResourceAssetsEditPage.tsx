@@ -22,6 +22,7 @@ import {
 } from '@/services/hooks/recreation-resource-admin';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { addErrorNotification } from '@/store/notificationStore';
 import { toDateInputValue } from '@/utils/assetForm';
 import { InspectionDatesEdit } from './components/RecResourceAssetsSection/InspectionDatesEdit';
 import { AssetCard } from './components/RecResourceAssetsSection/AssetCard';
@@ -40,6 +41,7 @@ import {
   buildPendingAssetChanges,
   buildPendingAssetRepairChanges,
   deleteAssetWithLinkedChildren,
+  getCoordinateValidationError,
 } from './components/RecResourceAssetsSection/assetEditShared';
 import assetType from '@shared/assets/icons/asset-type-outline.svg';
 import campingType from '@shared/assets/icons/camping-type.svg';
@@ -77,6 +79,7 @@ export function RecResourceAssetsEditPage() {
     Map<number, Partial<UpdateRecreationAssetRepairDto>>
   >(new Map());
   const [isSaving, setIsSaving] = useState(false);
+  const [saveAttemptCount, setSaveAttemptCount] = useState(0);
 
   // Inspection edit state
   const [isEditingInspections, setIsEditingInspections] = useState(false);
@@ -116,6 +119,7 @@ export function RecResourceAssetsEditPage() {
   }
 
   function navigateToView() {
+    setSaveAttemptCount(0);
     void navigate({
       to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
       params: { id: recResourceId },
@@ -147,6 +151,21 @@ export function RecResourceAssetsEditPage() {
 
   async function handleSave() {
     if (!recResourceId) return;
+
+    setSaveAttemptCount((count) => count + 1);
+
+    if (pendingChanges.size === 0 && pendingRepairChanges.size === 0) {
+      addErrorNotification('No changes to save.', 'saveAssets-no-changes');
+      return;
+    }
+
+    for (const [, values] of pendingChanges) {
+      const coordinateError = getCoordinateValidationError(values);
+      if (coordinateError) {
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       await Promise.all([
@@ -334,6 +353,7 @@ export function RecResourceAssetsEditPage() {
                           }
                           recResourceId={recResourceId}
                           onChange={handleEditChange}
+                          saveAttemptCount={saveAttemptCount}
                           onRepairChange={handleRepairChange}
                           onDelete={handleDeleteAsset}
                         />

@@ -93,22 +93,22 @@ export interface CreateRecreationAssetDto {
   installation_date?: string | null;
   /**
    * Point geometry type code, if this asset has a location
-   * @type {string}
+   * @type {object}
    * @memberof CreateRecreationAssetDto
    */
-  geometry_type_code?: string | null;
+  geometry_type_code?: object | null;
   /**
-   * Latitude in WGS84
-   * @type {number}
+   * Latitude in WGS84 (derived from recreation_asset_geom)
+   * @type {object}
    * @memberof CreateRecreationAssetDto
    */
-  latitude?: number | null;
+  latitude?: object | null;
   /**
-   * Longitude in WGS84
-   * @type {number}
+   * Longitude in WGS84 (derived from recreation_asset_geom)
+   * @type {object}
    * @memberof CreateRecreationAssetDto
    */
-  longitude?: number | null;
+  longitude?: object | null;
 }
 
 /**

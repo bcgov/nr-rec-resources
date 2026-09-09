@@ -31,8 +31,8 @@ import { buildAssetUpdateDto, buildInspectionDatesDto } from './editPayloads';
 import {
   buildPendingAssetChanges,
   buildPendingAssetRepairChanges,
-  buildPendingValidationErrors,
   deleteAssetWithLinkedChildren,
+  getCoordinateValidationError,
 } from './assetEditShared';
 import { AddRepairModal } from './AddRepairModal';
 import { BulkAssetEditModal } from './BulkAssetEditModal';
@@ -82,9 +82,7 @@ export function RecResourceAssetsSection() {
     Map<number, Partial<UpdateRecreationAssetRepairDto>>
   >(new Map());
   const [isSavingCampsite, setIsSavingCampsite] = useState(false);
-  const [assetValidationErrors, setAssetValidationErrors] = useState<
-    Map<number, boolean>
-  >(new Map());
+  const [campsiteSaveAttemptCount, setCampsiteSaveAttemptCount] = useState(0);
 
   // Inspection edit state
   const [isInspectionEditOpen, setIsInspectionEditOpen] = useState(false);
@@ -126,14 +124,6 @@ export function RecResourceAssetsSection() {
     setPendingChanges((prev) => new Map(prev).set(assetId, values));
   }
 
-  function handleValidationChange(assetId: number, hasErrors: boolean) {
-    setAssetValidationErrors((prev) => {
-      const updated = new Map(prev);
-      updated.set(assetId, hasErrors);
-      return updated;
-    });
-  }
-
   function handleRepairChange(
     repairId: number,
     dto: Partial<UpdateRecreationAssetRepairDto>,
@@ -149,42 +139,20 @@ export function RecResourceAssetsSection() {
     setEditingCampsiteId(null);
     setPendingChanges(new Map());
     setPendingRepairChanges(new Map());
-    setAssetValidationErrors(new Map());
+    setCampsiteSaveAttemptCount(0);
   }
 
   async function handleSaveCampsiteEdit() {
-    // Block save if any asset has validation errors
-    if (Array.from(assetValidationErrors.values()).some(Boolean)) {
-      addErrorNotification(
-        'Please fix validation errors before saving.',
-        'saveCampsite-validation',
-      );
+    setCampsiteSaveAttemptCount((count) => count + 1);
+
+    if (pendingChanges.size === 0 && pendingRepairChanges.size === 0) {
+      addErrorNotification('No changes to save.', 'saveCampsite-no-changes');
       return;
     }
 
-    // Also validate lat/lng from pending changes directly
     for (const [, values] of pendingChanges) {
-      const lat = parseNumber(values.latitude);
-      const lng = parseNumber(values.longitude);
-      if (lat !== null && (lat < -90 || lat > 90)) {
-        addErrorNotification(
-          'Latitude must be between -90 and 90.',
-          'saveCampsite-lat-error',
-        );
-        return;
-      }
-      if (lng !== null && (lng < -180 || lng > 180)) {
-        addErrorNotification(
-          'Longitude must be between -180 and 180.',
-          'saveCampsite-lng-error',
-        );
-        return;
-      }
-      if ((lat !== null) !== (lng !== null)) {
-        addErrorNotification(
-          'Both latitude and longitude must be set together.',
-          'saveCampsite-latlng-error',
-        );
+      const coordinateError = getCoordinateValidationError(values);
+      if (coordinateError) {
         return;
       }
     }
@@ -218,7 +186,7 @@ export function RecResourceAssetsSection() {
       setEditingCampsiteId(null);
       setPendingChanges(new Map());
       setPendingRepairChanges(new Map());
-      setAssetValidationErrors(new Map());
+      setCampsiteSaveAttemptCount(0);
     } catch {
       addErrorNotification(
         'Failed to save campsite changes. Please try again.',
@@ -285,9 +253,6 @@ export function RecResourceAssetsSection() {
       setPendingRepairChanges((prev) => {
         return buildPendingAssetRepairChanges(prev, assets, assetId);
       });
-      setAssetValidationErrors((prev) =>
-        buildPendingValidationErrors(prev, assetId),
-      );
       if (editingCampsiteId === assetId) {
         setEditingCampsiteId(null);
       }
@@ -487,7 +452,7 @@ export function RecResourceAssetsSection() {
                             className="asset-card--campsite"
                             recResourceId={recResourceId}
                             onChange={handleEditChange}
-                            onValidationChange={handleValidationChange}
+                            saveAttemptCount={campsiteSaveAttemptCount}
                             onRepairChange={handleRepairChange}
                             onDelete={handleDeleteAsset}
                           />
@@ -506,7 +471,7 @@ export function RecResourceAssetsSection() {
                                   assetCodes={assetCodes}
                                   recResourceId={recResourceId}
                                   onChange={handleEditChange}
-                                  onValidationChange={handleValidationChange}
+                                  saveAttemptCount={campsiteSaveAttemptCount}
                                   onRepairChange={handleRepairChange}
                                   onDelete={handleDeleteAsset}
                                 />

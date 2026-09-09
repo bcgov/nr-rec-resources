@@ -21,8 +21,10 @@ describe('Asset DTO Builders', () => {
         asset_length: '10',
         asset_width: '20',
         asset_area: '200',
+        longitude: '-123.1',
+        latitude: '49.2',
         actual_value: '5000',
-      } as unknown as AssetEditFormValues;
+      };
 
       const result = buildAssetUpdateDto(input);
 
@@ -32,6 +34,9 @@ describe('Asset DTO Builders', () => {
         asset_width: 20,
         asset_area: 200,
         actual_value: 5000,
+        latitude: 49.2,
+        longitude: -123.1,
+        geometry_type_code: 'PT',
       });
     });
 
@@ -43,8 +48,10 @@ describe('Asset DTO Builders', () => {
         asset_length: '',
         asset_width: '',
         asset_area: '',
+        longitude: '',
+        latitude: '',
         actual_value: '',
-      } as unknown as AssetEditFormValues;
+      };
 
       const result = buildAssetUpdateDto(input);
 
@@ -59,8 +66,10 @@ describe('Asset DTO Builders', () => {
         asset_length: 'invalid',
         asset_width: 'invalid',
         asset_area: 'invalid',
+        longitude: 'invalid',
+        latitude: 'invalid',
         actual_value: 'invalid',
-      } as unknown as AssetEditFormValues;
+      };
 
       const resultNull = buildAssetUpdateDto(inputNull);
 
@@ -70,6 +79,9 @@ describe('Asset DTO Builders', () => {
         asset_width: undefined,
         asset_area: undefined,
         actual_value: undefined,
+        latitude: null,
+        longitude: null,
+        geometry_type_code: null,
       });
     });
   });

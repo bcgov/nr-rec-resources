@@ -191,19 +191,23 @@ describe('AssetCardEdit', () => {
     expect(screen.getByDisplayValue('2500')).toBeInTheDocument();
   });
 
-  it('reports validation state after lat/lng edits', async () => {
+  it('queues the latest latitude and longitude values on change', async () => {
     const user = userEvent.setup();
-    const onValidationChange = vi.fn();
-    render(
-      <AssetCardEdit
-        {...defaultProps}
-        onValidationChange={onValidationChange}
-      />,
-    );
+    const onChange = vi.fn();
+    render(<AssetCardEdit {...defaultProps} onChange={onChange} />);
 
+    await user.clear(screen.getByLabelText('Longitude'));
+    await user.type(screen.getByLabelText('Longitude'), '-123.1');
+    await user.clear(screen.getByLabelText('Latitude'));
     await user.type(screen.getByLabelText('Latitude'), '49.2');
 
-    expect(onValidationChange).toHaveBeenCalledWith(1, expect.any(Boolean));
+    expect(onChange).toHaveBeenLastCalledWith(
+      1,
+      expect.objectContaining({
+        longitude: '-123.1',
+        latitude: '49.2',
+      }),
+    );
   });
 
   it('shows campsite delete options when linked assets exist', async () => {

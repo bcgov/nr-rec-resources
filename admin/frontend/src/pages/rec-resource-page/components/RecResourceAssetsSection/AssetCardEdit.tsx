@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Card, Form, InputGroup, Button } from 'react-bootstrap';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
@@ -33,13 +33,13 @@ interface AssetCardEditProps {
   className?: string;
   recResourceId: string;
   onChange: (assetId: number, values: AssetEditFormValues) => void;
-  onValidationChange?: (assetId: number, hasErrors: boolean) => void;
   onRepairChange?: (
     repairId: number,
     dto: Partial<UpdateRecreationAssetRepairDto>,
   ) => void;
   onDelete?: (assetId: number, mode?: AssetDeleteMode) => void;
   linkedAssetCount?: number;
+  saveAttemptCount?: number;
 }
 
 export function AssetCardEdit({
@@ -49,10 +49,10 @@ export function AssetCardEdit({
   className = '',
   recResourceId,
   onChange,
-  onValidationChange,
   onRepairChange,
   onDelete,
   linkedAssetCount = 0,
+  saveAttemptCount = 0,
 }: AssetCardEditProps) {
   const { canDelete, canEdit, isSuperAdmin } = useAuthorizations();
   const isCampsite = asset.asset_code === CAMPSITE_STRUCTURE_CODE;
@@ -73,10 +73,11 @@ export function AssetCardEdit({
   const {
     register,
     getValues,
-    formState: { errors },
     trigger,
+    formState: { errors },
   } = useForm<AssetEditFormValues>({
-    mode: 'onChange',
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     defaultValues: {
       asset_comment: asset.asset_comment ?? '',
       asset_length:
@@ -90,14 +91,35 @@ export function AssetCardEdit({
     },
   });
 
-  function handleChange() {
-    const values = getValues();
-    onChange(asset.asset_id, values);
-    // Re-validate lat/lng together (one required if other is set)
-    void trigger(['latitude', 'longitude']);
-    const hasErrors = Object.keys(errors).length > 0;
-    onValidationChange?.(asset.asset_id, hasErrors);
+  useEffect(() => {
+    if (saveAttemptCount > 0) {
+      void trigger(['latitude', 'longitude']);
+    }
+  }, [saveAttemptCount, trigger]);
+
+  function handleChange(
+    field: keyof AssetEditFormValues,
+    value: AssetEditFormValues[keyof AssetEditFormValues],
+  ) {
+    onChange(asset.asset_id, {
+      ...getValues(),
+      [field]: value,
+    });
   }
+
+  const assetCommentField = register('asset_comment');
+  const assetLengthField = register('asset_length');
+  const assetWidthField = register('asset_width');
+  const assetAreaField = register('asset_area');
+  const longitudeField = register(
+    'longitude',
+    longitudeRegisterOptions(getValues),
+  );
+  const latitudeField = register(
+    'latitude',
+    latitudeRegisterOptions(getValues),
+  );
+  const actualValueField = register('actual_value');
 
   const id = asset.asset_id;
 
@@ -128,10 +150,10 @@ export function AssetCardEdit({
               <Form.Label>Asset description</Form.Label>
               <Form.Control
                 type="text"
-                {...register('asset_comment')}
+                {...assetCommentField}
                 onChange={(e) => {
-                  void register('asset_comment').onChange(e);
-                  handleChange();
+                  void assetCommentField.onChange(e);
+                  handleChange('asset_comment', e.target.value);
                 }}
               />
             </Form.Group>
@@ -143,11 +165,11 @@ export function AssetCardEdit({
                   <InputGroup>
                     <Form.Control
                       type="number"
-                      {...register('asset_length')}
+                      {...assetLengthField}
                       disabled={!lengthEnabled}
                       onChange={(e) => {
-                        void register('asset_length').onChange(e);
-                        handleChange();
+                        void assetLengthField.onChange(e);
+                        handleChange('asset_length', e.target.value);
                       }}
                     />
                     <InputGroup.Text>m</InputGroup.Text>
@@ -161,11 +183,11 @@ export function AssetCardEdit({
                   <InputGroup>
                     <Form.Control
                       type="number"
-                      {...register('asset_width')}
+                      {...assetWidthField}
                       disabled={!widthEnabled}
                       onChange={(e) => {
-                        void register('asset_width').onChange(e);
-                        handleChange();
+                        void assetWidthField.onChange(e);
+                        handleChange('asset_width', e.target.value);
                       }}
                     />
                     <InputGroup.Text>m</InputGroup.Text>
@@ -179,11 +201,11 @@ export function AssetCardEdit({
                   <InputGroup>
                     <Form.Control
                       type="number"
-                      {...register('asset_area')}
+                      {...assetAreaField}
                       disabled={!areaEnabled}
                       onChange={(e) => {
-                        void register('asset_area').onChange(e);
-                        handleChange();
+                        void assetAreaField.onChange(e);
+                        handleChange('asset_area', e.target.value);
                       }}
                     />
                     <InputGroup.Text>
@@ -193,40 +215,37 @@ export function AssetCardEdit({
                 </Form.Group>
               )}
 
-              <Form.Group controlId={`asset-longitude-${id}`}>
-                <Form.Label>Longitude</Form.Label>
-                <Form.Control
-                  type="number"
-                  step="any"
-                  isInvalid={!!errors.longitude}
-                  {...register(
-                    'longitude',
-                    longitudeRegisterOptions(getValues),
-                  )}
-                  onChange={(e) => {
-                    void register('longitude').onChange(e);
-                    handleChange();
-                  }}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.longitude?.message}
-                </Form.Control.Feedback>
-              </Form.Group>
-
               <Form.Group controlId={`asset-latitude-${id}`}>
                 <Form.Label>Latitude</Form.Label>
                 <Form.Control
                   type="number"
                   step="any"
                   isInvalid={!!errors.latitude}
-                  {...register('latitude', latitudeRegisterOptions(getValues))}
+                  {...latitudeField}
                   onChange={(e) => {
-                    void register('latitude').onChange(e);
-                    handleChange();
+                    void latitudeField.onChange(e);
+                    handleChange('latitude', e.target.value);
                   }}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.latitude?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group controlId={`asset-longitude-${id}`}>
+                <Form.Label>Longitude</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="any"
+                  isInvalid={!!errors.longitude}
+                  {...longitudeField}
+                  onChange={(e) => {
+                    void longitudeField.onChange(e);
+                    handleChange('longitude', e.target.value);
+                  }}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.longitude?.message}
                 </Form.Control.Feedback>
               </Form.Group>
 
@@ -254,10 +273,10 @@ export function AssetCardEdit({
                     <Form.Control
                       type="number"
                       step="any"
-                      {...register('actual_value')}
+                      {...actualValueField}
                       onChange={(e) => {
-                        void register('actual_value').onChange(e);
-                        handleChange();
+                        void actualValueField.onChange(e);
+                        handleChange('actual_value', e.target.value);
                       }}
                     />
                   </InputGroup>

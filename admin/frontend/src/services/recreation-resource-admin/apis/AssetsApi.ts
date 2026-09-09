@@ -15,6 +15,7 @@
 import * as runtime from '../runtime';
 import type {
   BulkAssetUpdateResponseDto,
+  BulkCreateRecreationAssetsDto,
   CreateRecreationAssetDto,
   CreateRecreationAssetRepairDto,
   PaginatedRecreationAssetDto,
@@ -30,6 +31,8 @@ import type {
 import {
   BulkAssetUpdateResponseDtoFromJSON,
   BulkAssetUpdateResponseDtoToJSON,
+  BulkCreateRecreationAssetsDtoFromJSON,
+  BulkCreateRecreationAssetsDtoToJSON,
   CreateRecreationAssetDtoFromJSON,
   CreateRecreationAssetDtoToJSON,
   CreateRecreationAssetRepairDtoFromJSON,
@@ -53,6 +56,10 @@ import {
   UpdateRecreationAssetRepairDtoFromJSON,
   UpdateRecreationAssetRepairDtoToJSON,
 } from '../models/index';
+
+export interface BulkCreateRecreationAssetsRequest {
+  bulkCreateRecreationAssetsDto: BulkCreateRecreationAssetsDto;
+}
 
 export interface BulkInsertAssetRepairsRequest {
   recreationAssetBulkRepairDto: RecreationAssetBulkRepairDto;
@@ -116,6 +123,69 @@ export interface UpdateRecreationAssetRequest {
  *
  */
 export class AssetsApi extends runtime.BaseAPI {
+  /**
+   * Bulk create multiple recreation assets in a single request
+   */
+  async bulkCreateRecreationAssetsRaw(
+    requestParameters: BulkCreateRecreationAssetsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationAssetDto>>> {
+    if (requestParameters['bulkCreateRecreationAssetsDto'] == null) {
+      throw new runtime.RequiredError(
+        'bulkCreateRecreationAssetsDto',
+        'Required parameter "bulkCreateRecreationAssetsDto" was null or undefined when calling bulkCreateRecreationAssets().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/assets/bulk-create`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: BulkCreateRecreationAssetsDtoToJSON(
+          requestParameters['bulkCreateRecreationAssetsDto'],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationAssetDtoFromJSON),
+    );
+  }
+
+  /**
+   * Bulk create multiple recreation assets in a single request
+   */
+  async bulkCreateRecreationAssets(
+    requestParameters: BulkCreateRecreationAssetsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationAssetDto>> {
+    const response = await this.bulkCreateRecreationAssetsRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
   /**
    * Applies a common repair code and completion date across multiple grouped asset IDs with varying costs.
    * Bulk create repairs across multiple recreation assets
@@ -236,41 +306,6 @@ export class AssetsApi extends runtime.BaseAPI {
       initOverrides,
     );
     return await response.value();
-  }
-
-  /**
-   * Bulk create multiple recreation assets
-   */
-  async bulkCreateRecreationAssets(
-    assets: CreateRecreationAssetDto[],
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationAssetDto[]> {
-    const headerParameters: runtime.HTTPHeaders = {};
-    headerParameters['Content-Type'] = 'application/json';
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-
-    const response = await this.request(
-      {
-        path: `/api/v1/assets/bulk-create`,
-        method: 'POST',
-        headers: headerParameters,
-        query: {},
-        body: { assets: assets.map((a) => CreateRecreationAssetDtoToJSON(a)) },
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse<RecreationAssetDto[]>(
-      response,
-      (jsonValue) => (jsonValue as any[]).map(RecreationAssetDtoFromJSON),
-    ).value();
   }
 
   /**

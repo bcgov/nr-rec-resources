@@ -16,56 +16,41 @@ import { mapValues } from '../runtime';
 /**
  *
  * @export
- * @interface FinalizeDocUploadRequestDto
+ * @interface FinalizeExhibitAUploadRequestDto
  */
-export interface FinalizeDocUploadRequestDto {
+export interface FinalizeExhibitAUploadRequestDto {
   /**
-   * Document ID (returned from presign endpoint)
+   * Document ID returned from presign endpoint
    * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
+   * @memberof FinalizeExhibitAUploadRequestDto
    */
   document_id: string;
   /**
-   * Document file name
+   * File name without extension
    * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
+   * @memberof FinalizeExhibitAUploadRequestDto
    */
   file_name: string;
   /**
    * File extension without dot
    * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
+   * @memberof FinalizeExhibitAUploadRequestDto
    */
   extension: string;
   /**
    * File size in bytes
    * @type {number}
-   * @memberof FinalizeDocUploadRequestDto
+   * @memberof FinalizeExhibitAUploadRequestDto
    */
   file_size: number;
-  /**
-   * Document type code (e.g. RM for Recreation Map, EA for Exhibit A). Defaults to RM.
-   * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
-   */
-  doc_code?: FinalizeDocUploadRequestDtoDocCodeEnum;
 }
 
 /**
- * @export
+ * Check if a given object implements the FinalizeExhibitAUploadRequestDto interface.
  */
-export const FinalizeDocUploadRequestDtoDocCodeEnum = {
-  Rm: 'RM',
-} as const;
-export type FinalizeDocUploadRequestDtoDocCodeEnum =
-  (typeof FinalizeDocUploadRequestDtoDocCodeEnum)[keyof typeof FinalizeDocUploadRequestDtoDocCodeEnum];
-
-/**
- * Check if a given object implements the FinalizeDocUploadRequestDto interface.
- */
-export function instanceOfFinalizeDocUploadRequestDto(
+export function instanceOfFinalizeExhibitAUploadRequestDto(
   value: object,
-): value is FinalizeDocUploadRequestDto {
+): value is FinalizeExhibitAUploadRequestDto {
   if (!('document_id' in value) || value['document_id'] === undefined)
     return false;
   if (!('file_name' in value) || value['file_name'] === undefined) return false;
@@ -74,16 +59,16 @@ export function instanceOfFinalizeDocUploadRequestDto(
   return true;
 }
 
-export function FinalizeDocUploadRequestDtoFromJSON(
+export function FinalizeExhibitAUploadRequestDtoFromJSON(
   json: any,
-): FinalizeDocUploadRequestDto {
-  return FinalizeDocUploadRequestDtoFromJSONTyped(json, false);
+): FinalizeExhibitAUploadRequestDto {
+  return FinalizeExhibitAUploadRequestDtoFromJSONTyped(json, false);
 }
 
-export function FinalizeDocUploadRequestDtoFromJSONTyped(
+export function FinalizeExhibitAUploadRequestDtoFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean,
-): FinalizeDocUploadRequestDto {
+): FinalizeExhibitAUploadRequestDto {
   if (json == null) {
     return json;
   }
@@ -92,18 +77,17 @@ export function FinalizeDocUploadRequestDtoFromJSONTyped(
     file_name: json['file_name'],
     extension: json['extension'],
     file_size: json['file_size'],
-    doc_code: json['doc_code'] == null ? undefined : json['doc_code'],
   };
 }
 
-export function FinalizeDocUploadRequestDtoToJSON(
+export function FinalizeExhibitAUploadRequestDtoToJSON(
   json: any,
-): FinalizeDocUploadRequestDto {
-  return FinalizeDocUploadRequestDtoToJSONTyped(json, false);
+): FinalizeExhibitAUploadRequestDto {
+  return FinalizeExhibitAUploadRequestDtoToJSONTyped(json, false);
 }
 
-export function FinalizeDocUploadRequestDtoToJSONTyped(
-  value?: FinalizeDocUploadRequestDto | null,
+export function FinalizeExhibitAUploadRequestDtoToJSONTyped(
+  value?: FinalizeExhibitAUploadRequestDto | null,
   ignoreDiscriminator: boolean = false,
 ): any {
   if (value == null) {
@@ -115,6 +99,5 @@ export function FinalizeDocUploadRequestDtoToJSONTyped(
     file_name: value['file_name'],
     extension: value['extension'],
     file_size: value['file_size'],
-    doc_code: value['doc_code'],
   };
 }
