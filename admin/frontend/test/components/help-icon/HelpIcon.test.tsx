@@ -3,12 +3,22 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { HelpIcon } from '@/components/help-icon/HelpIcon';
 
 vi.mock('react-bootstrap', () => ({
-  OverlayTrigger: ({ children, overlay, show, onToggle }: any) => (
-    <div data-testid="mock-overlay-trigger" data-show={String(show)}>
-      {show && <div data-testid="mock-overlay-container">{overlay}</div>}
-      <div onClick={() => onToggle?.(!show)}>{children}</div>
-    </div>
-  ),
+  OverlayTrigger: ({ children, overlay, show, onToggle, trigger }: any) => {
+    const triggers = Array.isArray(trigger) ? trigger : [trigger];
+
+    return (
+      <div data-testid="mock-overlay-trigger" data-show={String(show)}>
+        {show && <div data-testid="mock-overlay-container">{overlay}</div>}
+        <div
+          onClick={() => onToggle?.(!show)}
+          onMouseEnter={() => triggers.includes('hover') && onToggle?.(true)}
+          onMouseLeave={() => triggers.includes('hover') && onToggle?.(false)}
+        >
+          {children}
+        </div>
+      </div>
+    );
+  },
   Tooltip: ({ children, id, className }: any) => (
     <div role="tooltip" id={id} className={className}>
       {children}
@@ -46,6 +56,29 @@ describe('HelpIcon', () => {
       </div>,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Help' }));
+    expect(parentClick).not.toHaveBeenCalled();
+  });
+
+  it('tooltip link click does not bubble to the parent container', () => {
+    const parentClick = vi.fn();
+    render(
+      <div onClick={parentClick}>
+        <HelpIcon
+          id="link-help"
+          text={
+            <a href="https://example.com" target="_blank" rel="noreferrer">
+              guidance documentation
+            </a>
+          }
+        />
+      </div>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Help' }));
+    fireEvent.click(
+      screen.getByRole('link', { name: 'guidance documentation' }),
+    );
+
     expect(parentClick).not.toHaveBeenCalled();
   });
 
