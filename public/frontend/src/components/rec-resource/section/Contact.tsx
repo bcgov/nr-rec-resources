@@ -10,19 +10,21 @@ import {
 import { ROUTE_PATHS } from '@/constants/routes';
 
 interface SiteOperatorProps {
-  siteOperator?: SiteOperatorDto;
+  siteOperators?: SiteOperatorDto[];
   error: ResponseError | null;
   isLoading: boolean;
   refetchData: any;
   rec_resource_id: string;
 }
 
+const formatOperatorName = (operator: SiteOperatorDto) =>
+  `${Boolean(operator.legalFirstName) && operator.legalFirstName !== '' ? operator.legalFirstName + ' ' : ''}${operator.clientName}`
+    .toLowerCase()
+    .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
+
 const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
-  ({ siteOperator, error, isLoading, refetchData, rec_resource_id }, ref) => {
-    const formattedName =
-      `${Boolean(siteOperator?.legalFirstName) && siteOperator?.legalFirstName !== '' ? siteOperator?.legalFirstName + ' ' : ''}${siteOperator?.clientName}`
-        .toLowerCase()
-        .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
+  ({ siteOperators, error, isLoading, refetchData, rec_resource_id }, ref) => {
+    const operators = siteOperators ?? [];
 
     const callRefetch = () => {
       refetchData();
@@ -61,20 +63,28 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                   </p>
                 </td>
               </tr>
-              {!error && (
+              {!error && isLoading && (
                 <tr>
                   <th>Site operator</th>
                   <td>
                     <p data-testid="operator-result">
-                      {isLoading ? (
-                        <span className="not-found-message">Loading ...</span>
-                      ) : (
-                        <span>{formattedName}</span>
-                      )}
+                      <span className="not-found-message">Loading ...</span>
                     </p>
                   </td>
                 </tr>
               )}
+              {!error &&
+                !isLoading &&
+                operators.map((operator) => (
+                  <tr key={operator.clientNumber}>
+                    <th>Site operator</th>
+                    <td>
+                      <p data-testid="operator-result">
+                        <span>{formatOperatorName(operator)}</span>
+                      </p>
+                    </td>
+                  </tr>
+                ))}
               {error?.response &&
                 error?.response.status >= 500 &&
                 error?.response.status < 600 && (

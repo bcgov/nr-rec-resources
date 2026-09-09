@@ -31,7 +31,7 @@ describe('RecreationResourceService', () => {
           useValue: {
             $transaction: vi.fn(),
             recreation_resource: { findUnique: vi.fn(), findMany: vi.fn() },
-            recreation_agreement_holder: { findUnique: vi.fn() },
+            recreation_agreement_holder: { findMany: vi.fn() },
             $queryRawTyped: vi.fn(),
           },
         },
@@ -91,34 +91,49 @@ describe('RecreationResourceService', () => {
     });
   });
 
-  describe('findClientNumber', () => {
-    it('should return an agreement holder', async () => {
-      const mockedAgreementHolder = {
-        rec_resource_id: '00033837',
-        client_number: '01',
-        agreement_end_date: new Date(),
-        agreement_start_date: new Date(),
-        revision_count: 0,
-        updated_at: undefined,
-        updated_by: '',
-        created_at: undefined,
-        created_by: '',
-      };
+  describe('findClientNumbers', () => {
+    it('should return every publicly visible client number', async () => {
       vi.mocked(
-        prismaService.recreation_agreement_holder.findUnique,
-      ).mockResolvedValueOnce(mockedAgreementHolder);
+        prismaService.recreation_agreement_holder.findMany,
+      ).mockResolvedValueOnce([
+        { client_number: '01' },
+        { client_number: '02' },
+      ] as any);
 
-      const result = await service.findClientNumber('REC0001');
+      const result = await service.findClientNumbers('REC0001');
 
-      expect(result).toMatch(mockedAgreementHolder.client_number);
+      expect(result).toStrictEqual(['01', '02']);
+      expect(
+        prismaService.recreation_agreement_holder.findMany,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            rec_resource_id: 'REC0001',
+            visible_on_public_website: true,
+          }),
+        }),
+      );
     });
 
-    it('should return null if resource not found', async () => {
+    it('should drop partners without a client number', async () => {
       vi.mocked(
-        prismaService.recreation_agreement_holder.findUnique,
-      ).mockResolvedValueOnce(null);
-      const result = await service.findClientNumber('NONEXISTENT');
-      expect(result).toBeNull();
+        prismaService.recreation_agreement_holder.findMany,
+      ).mockResolvedValueOnce([
+        { client_number: null },
+        { client_number: '02' },
+      ] as any);
+
+      const result = await service.findClientNumbers('REC0001');
+
+      expect(result).toStrictEqual(['02']);
+    });
+
+    it('should return an empty list if the resource has no partners', async () => {
+      vi.mocked(
+        prismaService.recreation_agreement_holder.findMany,
+      ).mockResolvedValueOnce([]);
+      const result = await service.findClientNumbers('NONEXISTENT');
+      expect(result).toStrictEqual([]);
     });
   });
 

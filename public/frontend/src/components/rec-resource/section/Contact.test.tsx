@@ -37,12 +37,37 @@ describe('Contact component', () => {
   });
 
   it('renders component with site operator name', async () => {
-    await renderContact({ siteOperator });
+    await renderContact({ siteOperators: [siteOperator] });
     const operatorName = screen.getByText(/Site Operator Name/);
     const operatorLabel = screen.getByText(/Site operator/);
 
     expect(operatorName).toBeInTheDocument();
     expect(operatorLabel).toBeInTheDocument();
+  });
+
+  it('renders a row for every partner', async () => {
+    await renderContact({
+      siteOperators: [
+        siteOperator,
+        {
+          ...siteOperator,
+          clientNumber: '0002',
+          clientName: 'SECOND PARTNER',
+          legalFirstName: '',
+        },
+      ],
+    });
+
+    expect(screen.getByText(/Site Operator Name/)).toBeInTheDocument();
+    expect(screen.getByText('Second Partner')).toBeInTheDocument();
+    expect(screen.getAllByTestId('operator-result')).toHaveLength(2);
+  });
+
+  it('renders no partner rows when the resource has none', async () => {
+    await renderContact({ siteOperators: [] });
+
+    expect(screen.queryByTestId('operator-result')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Site operator/)).not.toBeInTheDocument();
   });
 
   it('renders loading state', async () => {
@@ -110,7 +135,7 @@ describe('Contact component', () => {
       clientName: 'test operator name',
     };
 
-    await renderContact({ siteOperator: operatorWithLowercase });
+    await renderContact({ siteOperators: [operatorWithLowercase] });
     const operatorName = screen.getByText('Firstname Test Operator Name');
     expect(operatorName).toBeInTheDocument();
   });

@@ -35,7 +35,7 @@ model recreation_resource {
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
   recreation_activity_code_trails      recreation_activity_code_trails[]
-  recreation_agreement_holder          recreation_agreement_holder?
+  recreation_agreement_holder          recreation_agreement_holder[]
   recreation_defined_campsite          recreation_defined_campsite[]
   recreation_driving_direction         recreation_driving_direction?
   recreation_establishment_order_docs  recreation_establishment_order_docs[]
@@ -864,37 +864,67 @@ model recreation_site_description_history {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_agreement_holder {
-  rec_resource_id      String                   @id @db.VarChar(10)
-  client_number        String?                  @db.VarChar(8)
-  agreement_start_date DateTime?                @db.Date
-  agreement_end_date   DateTime?                @db.Date
-  revision_count       Int?
-  updated_at           DateTime?                @default(now()) @db.Timestamp(6)
-  updated_by           String?
-  created_at           DateTime?                @default(now()) @db.Timestamp(6)
-  created_by           String?
-  sys_period           Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource  recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  rec_resource_id                           String                                    @db.VarChar(10)
+  client_number                             String?                                   @db.VarChar(8)
+  agreement_start_date                      DateTime?                                 @db.Date
+  agreement_end_date                        DateTime?                                 @db.Date
+  revision_count                            Int?
+  updated_at                                DateTime?                                 @default(now()) @db.Timestamp(6)
+  updated_by                                String?
+  created_at                                DateTime?                                 @default(now()) @db.Timestamp(6)
+  created_by                                String?
+  sys_period                                Unsupported("tstzrange")                  @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  agreement_holder_id                       Int                                       @id @default(autoincrement())
+  visible_on_public_website                 Boolean                                   @default(false)
+  partner_relationship_type_code            String                                    @default("SITE_OPERATOR") @db.VarChar(20)
+  recreation_partner_relationship_type_code recreation_partner_relationship_type_code @relation(fields: [partner_relationship_type_code], references: [partner_relationship_type_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource                       recreation_resource                       @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
+  @@index([client_number])
+  @@index([rec_resource_id])
   @@schema("rst")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_agreement_holder_history {
-  rec_resource_id      String                   @db.VarChar(10)
-  client_number        String?                  @db.VarChar(8)
-  agreement_start_date DateTime?                @db.Date
-  agreement_end_date   DateTime?                @db.Date
-  revision_count       Int?
-  updated_at           DateTime?                @db.Timestamp(6)
-  updated_by           String?
-  created_at           DateTime?                @db.Timestamp(6)
-  created_by           String?
-  sys_period           Unsupported("tstzrange")
+  rec_resource_id                String                   @db.VarChar(10)
+  client_number                  String?                  @db.VarChar(8)
+  agreement_start_date           DateTime?                @db.Date
+  agreement_end_date             DateTime?                @db.Date
+  revision_count                 Int?
+  updated_at                     DateTime?                @db.Timestamp(6)
+  updated_by                     String?
+  created_at                     DateTime?                @db.Timestamp(6)
+  created_by                     String?
+  sys_period                     Unsupported("tstzrange")
+  agreement_holder_id            Int?
+  visible_on_public_website      Boolean?
+  partner_relationship_type_code String?                  @db.VarChar(20)
 
   @@ignore
   @@schema("rst")
 }
+model recreation_partner_relationship_type_code {
+  partner_relationship_type_code String                        @id @db.VarChar(20)
+  description                    String                        @db.VarChar(120)
+  updated_at                     DateTime?                     @default(now()) @db.Timestamp(6)
+  sys_period                     Unsupported("tstzrange")      @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_agreement_holder    recreation_agreement_holder[]
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_partner_relationship_type_code_history {
+  partner_relationship_type_code String                   @db.VarChar(20)
+  description                    String                   @db.VarChar(120)
+  updated_at                     DateTime?                @db.Timestamp(6)
+  sys_period                     Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_resource_reservation_info {

@@ -169,40 +169,42 @@ describe('RecreationResourceController', () => {
   });
 
   describe('findSiteOperator', () => {
-    it('should return a Site Operator object', async () => {
-      const result = {
-        clientNumber: '01',
-        clientName: 'CLIENT 01',
+    const client = (clientNumber: string) =>
+      ({
+        clientNumber,
+        clientName: `CLIENT ${clientNumber}`,
         clientStatusCode: 'ACT',
         clientTypeCode: 'C',
         legalFirstName: 'FIRST NAME',
         legalMiddleName: 'MIDDLE NAME',
         acronym: 'ACR',
-      } as SiteOperatorDto;
-      vi.spyOn(recService, 'findClientNumber').mockResolvedValue('01');
-      vi.spyOn(resourceService, 'findByClientNumber').mockResolvedValue(result);
-      expect(await controller.findSiteOperator('REC0001')).toStrictEqual(
-        result,
+      }) as SiteOperatorDto;
+
+    it('should return every visible partner', async () => {
+      vi.spyOn(recService, 'findClientNumbers').mockResolvedValue(['01', '02']);
+      vi.spyOn(resourceService, 'findByClientNumber').mockImplementation(
+        async (clientNumber: string) => client(clientNumber),
       );
+
+      expect(await controller.findSiteOperator('REC0001')).toStrictEqual([
+        client('01'),
+        client('02'),
+      ]);
     });
 
-    it("should return an error if the client number isn't found", async () => {
-      vi.spyOn(recService, 'findClientNumber').mockResolvedValue(null);
-      try {
-        await controller.findSiteOperator('REC0001');
-      } catch (error) {
-        expect(error).toBeInstanceOf(HttpException);
-        expect((error as HttpException).getStatus()).toBe(404);
-      }
+    it('should return an empty list when the resource has no visible partners', async () => {
+      vi.spyOn(recService, 'findClientNumbers').mockResolvedValue([]);
+      expect(await controller.findSiteOperator('REC0001')).toStrictEqual([]);
     });
 
     it('should return an error if the api call fails', async () => {
-      vi.spyOn(recService, 'findClientNumber').mockResolvedValue('01');
+      vi.spyOn(recService, 'findClientNumbers').mockResolvedValue(['01']);
       vi.spyOn(resourceService, 'findByClientNumber').mockRejectedValue(
         new HttpException('error', 500),
       );
       try {
         await controller.findSiteOperator('REC0001');
+        expect.unreachable('findSiteOperator should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(HttpException);
         expect((error as HttpException).getStatus()).toBe(500);
