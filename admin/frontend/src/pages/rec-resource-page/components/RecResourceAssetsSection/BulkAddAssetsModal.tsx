@@ -31,6 +31,19 @@ interface AssetRow {
   longitude: string;
 }
 
+function getHighestAssetNumber(assets: Asset[]): number {
+  if (assets.length === 0) return 0;
+
+  const numbers = assets
+    .map((asset) => {
+      const match = asset.asset_name?.match(/(\d+)\s*$/);
+      return match ? Number.parseInt(match[1], 10) : null;
+    })
+    .filter((n): n is number => n !== null);
+
+  return numbers.length > 0 ? Math.max(...numbers) : assets.length;
+}
+
 function generateAssetTag(
   description: string,
   index: number,
@@ -79,11 +92,13 @@ export function BulkAddAssetsModal({
     [existingAssets],
   );
 
-  // Count of existing assets of the selected type (for sequential tag generation)
-  const existingCountForType = useMemo(
+  // Continue numbering from the highest existing suffix to avoid reusing deleted numbers.
+  const highestNumberForType = useMemo(
     () =>
       assetCode !== ''
-        ? existingAssets.filter((a) => a.asset_code === assetCode).length
+        ? getHighestAssetNumber(
+            existingAssets.filter((a) => a.asset_code === assetCode),
+          )
         : 0,
     [existingAssets, assetCode],
   );
@@ -155,7 +170,7 @@ export function BulkAddAssetsModal({
       return;
 
     const assets: CreateRecreationAssetDto[] = assetRows.map((row, i) => {
-      const rowNumber = existingCountForType + i + 1;
+      const rowNumber = highestNumberForType + i + 1;
       const displayName = selectedAssetCode?.description ?? 'Asset';
       const defaultName = `${displayName} ${rowNumber}`;
       const tag = generateAssetTag(
@@ -353,7 +368,7 @@ export function BulkAddAssetsModal({
         >
           {assetRows.map((row, i) => {
             const displayName = selectedAssetCode?.description ?? 'Asset';
-            const rowNumber = existingCountForType + i + 1;
+            const rowNumber = highestNumberForType + i + 1;
             const errors = rowErrors[i] ?? {};
 
             return (

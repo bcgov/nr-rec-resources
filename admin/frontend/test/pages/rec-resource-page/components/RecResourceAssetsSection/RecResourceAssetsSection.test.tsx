@@ -6,6 +6,7 @@ import type {
 import {
   useBulkInsertAssetRepairs,
   useBulkUpdateAssets,
+  useDeleteAsset,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -19,7 +20,7 @@ import {
   addSuccessNotification,
 } from '@/store/notificationStore';
 import { useParams } from '@tanstack/react-router';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -59,6 +60,9 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
   useUpdateAssetRepair: vi.fn().mockReturnValue({
     mutateAsync: vi.fn(),
   }),
+  useDeleteAsset: vi.fn().mockReturnValue({
+    mutateAsync: vi.fn(),
+  }),
 }));
 
 vi.mock('@/store/notificationStore', () => ({
@@ -93,6 +97,7 @@ const assetCodes: AssetCode[] = [{ asset_code: 100, description: 'Bridge' }];
 const mockUpdateAsset = vi.fn().mockResolvedValue(undefined);
 const mockUpdateRepair = vi.fn().mockResolvedValue(undefined);
 const mockUpdateResource = vi.fn().mockResolvedValue(undefined);
+const mockDeleteAsset = vi.fn().mockResolvedValue(undefined);
 
 describe('RecResourceAssetsSection', () => {
   beforeEach(() => {
@@ -128,6 +133,9 @@ describe('RecResourceAssetsSection', () => {
     } as any);
     vi.mocked(useUpdateRecreationResource).mockReturnValue({
       mutateAsync: mockUpdateResource,
+    } as any);
+    vi.mocked(useDeleteAsset).mockReturnValue({
+      mutateAsync: mockDeleteAsset,
     } as any);
   });
 
@@ -496,5 +504,96 @@ describe('RecResourceAssetsSection', () => {
       'Failed to update inspection dates. Please try again.',
       'updateInspections-error',
     );
+  });
+
+  it('unassigns linked assets before deleting a campsite when selected', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+    });
+    const child = buildAsset({
+      asset_id: 20,
+      asset_code: 100,
+      asset_name: 'Fire Ring 1',
+      parent_id: 10,
+    });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+    await user.click(screen.getByRole('button', { name: /Campsite A/ }));
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await user.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+    await user.click(
+      screen.getByLabelText('Delete campsite and unassign linked assets'),
+    );
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
+    );
+
+    expect(mockUpdateAsset).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assetId: 20,
+        recResourceId: 'REC123',
+        dto: { parent_id: null },
+      }),
+    );
+    expect(mockDeleteAsset).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      assetId: 10,
+    });
+  });
+
+  it('deletes linked assets before deleting a campsite when selected', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+    });
+    const child = buildAsset({
+      asset_id: 20,
+      asset_code: 100,
+      asset_name: 'Fire Ring 1',
+      parent_id: 10,
+    });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+    await user.click(screen.getByRole('button', { name: /Campsite A/ }));
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await user.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+    await user.click(
+      screen.getByLabelText('Delete campsite and all linked assets'),
+    );
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
+    );
+
+    expect(mockDeleteAsset).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      assetId: 20,
+    });
+    expect(mockDeleteAsset).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      assetId: 10,
+    });
   });
 });

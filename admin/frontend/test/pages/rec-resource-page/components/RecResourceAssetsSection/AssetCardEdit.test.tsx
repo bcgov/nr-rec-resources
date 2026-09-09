@@ -5,9 +5,12 @@ import type {
   AssetRepair,
   RepairCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as useUpdateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair';
+import * as useCreateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useCreateAssetRepair';
+import * as useDeleteAssetRepairModule from '@/services/hooks/recreation-resource-admin/useDeleteAssetRepair';
 
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair',
@@ -17,9 +20,10 @@ vi.mock(
   '@/services/hooks/recreation-resource-admin/useCreateAssetRepair',
   () => ({ useCreateAssetRepair: vi.fn() }),
 );
-
-import * as useUpdateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair';
-import * as useCreateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useCreateAssetRepair';
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useDeleteAssetRepair',
+  () => ({ useDeleteAssetRepair: vi.fn() }),
+);
 
 const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_id: 1,
@@ -93,6 +97,10 @@ describe('AssetCardEdit', () => {
       mutate: vi.fn(),
       isPending: false,
     } as any);
+    vi.mocked(useDeleteAssetRepairModule.useDeleteAssetRepair).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as any);
   });
 
   it('renders the asset name in the card title', () => {
@@ -142,7 +150,7 @@ describe('AssetCardEdit', () => {
     ).toBeInTheDocument();
   });
 
-  it('uses empty repairs array when recreation_asset_repair is null', () => {
+  it('does not render repairs section when recreation_asset_repair is null', () => {
     render(
       <AssetCardEdit
         {...defaultProps}
@@ -150,8 +158,8 @@ describe('AssetCardEdit', () => {
       />,
     );
     expect(
-      screen.getByRole('button', { name: 'Show repairs' }),
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: 'Show repairs' }),
+    ).not.toBeInTheDocument();
   });
 
   it('applies custom className to the card', () => {
@@ -183,5 +191,54 @@ describe('AssetCardEdit', () => {
     await user.type(screen.getByLabelText('Latitude'), '49.2');
 
     expect(onValidationChange).toHaveBeenCalledWith(1, expect.any(Boolean));
+  });
+
+  it('shows campsite delete options when linked assets exist', async () => {
+    const user = userEvent.setup();
+    render(
+      <AssetCardEdit
+        {...defaultProps}
+        asset={buildAsset({ asset_code: 227, asset_name: 'Campsite 2' })}
+        linkedAssetCount={2}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(
+      screen.getByText(/will affect 2 linked assets/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Delete campsite and unassign linked assets'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Delete campsite and all linked assets'),
+    ).toBeInTheDocument();
+  });
+
+  it('passes selected delete mode when confirming campsite deletion', async () => {
+    const user = userEvent.setup();
+    const onDelete = vi.fn();
+    render(
+      <AssetCardEdit
+        {...defaultProps}
+        asset={buildAsset({ asset_code: 227, asset_name: 'Campsite 2' })}
+        linkedAssetCount={1}
+        onDelete={onDelete}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(
+      screen.getByLabelText('Delete campsite and all linked assets'),
+    );
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
+    );
+
+    expect(onDelete).toHaveBeenCalledWith(1, 'delete-with-campsite');
   });
 });

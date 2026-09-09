@@ -23,6 +23,8 @@ export interface AssetEditFormValues {
   actual_value: string;
 }
 
+export type AssetDeleteMode = 'unassign-children' | 'delete-with-campsite';
+
 interface AssetCardEditProps {
   asset: Asset;
   repairCodes: RepairCode[];
@@ -35,7 +37,8 @@ interface AssetCardEditProps {
     repairId: number,
     dto: Partial<UpdateRecreationAssetRepairDto>,
   ) => void;
-  onDelete?: (assetId: number) => void;
+  onDelete?: (assetId: number, mode?: AssetDeleteMode) => void;
+  linkedAssetCount?: number;
 }
 
 export function AssetCardEdit({
@@ -48,9 +51,12 @@ export function AssetCardEdit({
   onValidationChange,
   onRepairChange,
   onDelete,
+  linkedAssetCount = 0,
 }: AssetCardEditProps) {
   const isCampsite = asset.asset_code === CAMPSITE_STRUCTURE_CODE;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteMode, setDeleteMode] =
+    useState<AssetDeleteMode>('unassign-children');
 
   const selectedAssetCode = assetCodes.find(
     (c) => c.asset_code === asset.asset_code,
@@ -60,6 +66,7 @@ export function AssetCardEdit({
   const areaEnabled = selectedAssetCode?.has_area ?? false;
   const repairs = asset.recreation_asset_repair ?? [];
   const assetName = asset.asset_name?.trim() || 'this asset';
+  const hasLinkedAssets = isCampsite && linkedAssetCount > 0;
 
   const {
     register,
@@ -190,7 +197,10 @@ export function AssetCardEdit({
                   type="number"
                   step="any"
                   isInvalid={!!errors.longitude}
-                  {...register('longitude', longitudeRegisterOptions(getValues))}
+                  {...register(
+                    'longitude',
+                    longitudeRegisterOptions(getValues),
+                  )}
                   onChange={(e) => {
                     void register('longitude').onChange(e);
                     handleChange();
@@ -258,7 +268,8 @@ export function AssetCardEdit({
                 assetId={asset.asset_id}
                 repairs={repairs}
                 repairCodes={repairCodes}
-                onChange={onRepairChange}
+                recResourceId={recResourceId}
+                onRepairChange={onRepairChange}
               />
             )}
           </div>
@@ -268,20 +279,55 @@ export function AssetCardEdit({
       {onDelete && (
         <DeleteConfirmationModal
           show={showDeleteConfirm}
-          title="Delete asset?"
+          title={isCampsite ? 'Delete campsite?' : 'Delete asset?'}
           description={
-            <>
-              Are you sure you want to delete <strong>{assetName}</strong>?
-            </>
+            hasLinkedAssets ? (
+              <>
+                Deleting <strong>{assetName}</strong> will affect{' '}
+                {linkedAssetCount} linked asset
+                {linkedAssetCount === 1 ? '' : 's'}.
+              </>
+            ) : (
+              <>
+                Are you sure you want to delete <strong>{assetName}</strong>?
+              </>
+            )
           }
-          onCancel={() => setShowDeleteConfirm(false)}
+          onCancel={() => {
+            setShowDeleteConfirm(false);
+            setDeleteMode('unassign-children');
+          }}
           onConfirm={() => {
             setShowDeleteConfirm(false);
-            onDelete(asset.asset_id);
+            onDelete(asset.asset_id, hasLinkedAssets ? deleteMode : undefined);
+            setDeleteMode('unassign-children');
           }}
           confirmText="Delete"
           confirmVariant="outline-primary"
-        />
+          confirmButtonClassName="delete-confirmation-modal__confirm-button--blue-outline"
+        >
+          {hasLinkedAssets && (
+            <div className="mt-3">
+              <Form.Check
+                type="radio"
+                id={`delete-mode-unassign-${asset.asset_id}`}
+                name={`delete-mode-${asset.asset_id}`}
+                label="Delete campsite and unassign linked assets"
+                checked={deleteMode === 'unassign-children'}
+                onChange={() => setDeleteMode('unassign-children')}
+              />
+              <Form.Check
+                className="mt-2"
+                type="radio"
+                id={`delete-mode-cascade-${asset.asset_id}`}
+                name={`delete-mode-${asset.asset_id}`}
+                label="Delete campsite and all linked assets"
+                checked={deleteMode === 'delete-with-campsite'}
+                onChange={() => setDeleteMode('delete-with-campsite')}
+              />
+            </div>
+          )}
+        </DeleteConfirmationModal>
       )}
     </>
   );

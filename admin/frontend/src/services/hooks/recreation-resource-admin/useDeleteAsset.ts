@@ -18,7 +18,8 @@ export function useDeleteAsset() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, DeleteAssetRequest>({
-    mutationFn: ({ assetId }) => apiClient.deleteRecreationAsset({ id: assetId }),
+    mutationFn: ({ assetId }) =>
+      apiClient.deleteRecreationAsset({ id: assetId }),
     retry: createRetryHandler({
       onFail: () =>
         addErrorNotification(
@@ -27,13 +28,19 @@ export function useDeleteAsset() {
         ),
     }),
     onSuccess: (_, variables) => {
-      addSuccessNotification('Asset deleted successfully.', 'deleteAsset-success');
+      addSuccessNotification(
+        'Asset deleted successfully.',
+        'deleteAsset-success',
+      );
       queryClient.setQueryData<Asset[]>(
         RECREATION_RESOURCE_QUERY_KEYS.assets(variables.recResourceId),
-        (old) => old?.filter((asset) => asset.asset_id !== variables.assetId) ?? [],
+        (old) =>
+          old?.filter((asset) => asset.asset_id !== variables.assetId) ?? [],
       );
       void queryClient.invalidateQueries({
-        queryKey: RECREATION_RESOURCE_QUERY_KEYS.assets(variables.recResourceId),
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.assets(
+          variables.recResourceId,
+        ),
       });
     },
     onError: () => {
@@ -41,4 +48,3 @@ export function useDeleteAsset() {
     },
   });
 }
-

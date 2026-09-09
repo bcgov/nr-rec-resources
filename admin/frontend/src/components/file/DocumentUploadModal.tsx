@@ -66,7 +66,7 @@ export const DocumentUploadModal: FC<DocumentUploadModalProps> = ({
     {
       variant: 'info' as const,
       icon: faInfoCircle,
-      text: 'Uploading files will directly publish to the public website within 15 minutess.',
+      text: 'Uploading files will directly publish to the public website within 15 minutes.',
     },
   ];
 

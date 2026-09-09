@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Form, InputGroup } from 'react-bootstrap';
+import { Form, InputGroup, Button } from 'react-bootstrap';
 import { CustomButton } from '@/components';
-import { useCreateAssetRepair } from '@/services/hooks/recreation-resource-admin';
+import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal/DeleteConfirmationModal';
+import {
+  useCreateAssetRepair,
+  useDeleteAssetRepair,
+} from '@/services/hooks/recreation-resource-admin';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import {
   buildRepairMutationDto,
@@ -38,8 +42,14 @@ export function AssetCardRepairsEdit({
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [form, setForm] = useState(EMPTY_REPAIR_FORM);
+  const [repairToDelete, setRepairToDelete] = useState<{
+    repairId: number;
+    title: string;
+  } | null>(null);
   const { mutate: createRepair, isPending: isCreating } =
     useCreateAssetRepair();
+  const { mutate: deleteRepair, isPending: isDeletingRepair } =
+    useDeleteAssetRepair();
 
   const visibleRepairs = repairs
     .slice()
@@ -80,6 +90,20 @@ export function AssetCardRepairsEdit({
           setShowAddForm(false);
           setForm(EMPTY_REPAIR_FORM);
         },
+      },
+    );
+  }
+
+  function handleConfirmDeleteRepair() {
+    if (!repairToDelete) return;
+
+    deleteRepair(
+      {
+        repairId: repairToDelete.repairId,
+        recResourceId,
+      },
+      {
+        onSuccess: () => setRepairToDelete(null),
       },
     );
   }
@@ -157,6 +181,19 @@ export function AssetCardRepairsEdit({
                       />
                     </Form.Group>
                   </div>
+                  <div className="d-flex justify-content-end mt-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline-primary"
+                      className="asset-card-repairs__delete-btn"
+                      onClick={() =>
+                        setRepairToDelete({ repairId: repair.repair_id, title })
+                      }
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -195,6 +232,23 @@ export function AssetCardRepairsEdit({
           )}
         </div>
       )}
+
+      <DeleteConfirmationModal
+        show={repairToDelete !== null}
+        title="Delete repair?"
+        description={
+          <>
+            Are you sure you want to delete{' '}
+            <strong>{repairToDelete?.title ?? 'this repair'}</strong>?
+          </>
+        }
+        isDeleting={isDeletingRepair}
+        onCancel={() => setRepairToDelete(null)}
+        onConfirm={handleConfirmDeleteRepair}
+        confirmText="Delete"
+        confirmVariant="outline-primary"
+        confirmButtonClassName="delete-confirmation-modal__confirm-button--blue-outline"
+      />
     </div>
   );
 }

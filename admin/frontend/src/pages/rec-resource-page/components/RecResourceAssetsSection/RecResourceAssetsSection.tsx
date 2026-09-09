@@ -31,8 +31,11 @@ import { buildAssetUpdateDto, buildInspectionDatesDto } from './editPayloads';
 import { AddRepairModal } from './AddRepairModal';
 import { BulkAssetEditModal } from './BulkAssetEditModal';
 import { AssetCard } from './AssetCard';
-import { AssetCardEdit } from './AssetCardEdit';
-import type { AssetEditFormValues } from './AssetCardEdit';
+import {
+  AssetCardEdit,
+  type AssetDeleteMode,
+  type AssetEditFormValues,
+} from './AssetCardEdit';
 import { AssetSummaryCards } from './AssetSummaryCards';
 import { AssetTypeCard } from './AssetTypeCard';
 import { BulkAddAssetsModal } from './BulkAddAssetsModal';
@@ -94,7 +97,7 @@ export function RecResourceAssetsSection() {
   const { mutateAsync: updateResource } = useUpdateRecreationResource();
   const { mutateAsync: updateAsset } = useUpdateAsset();
   const { mutateAsync: updateRepair } = useUpdateAssetRepair();
-  const { mutateAsync: deleteAsset } = useDeleteAsset();
+  const { mutateAsync: deleteAssetMutation } = useDeleteAsset();
 
   const summaryInspectionDate = inspectionDate
     ? new Date(inspectionDate)
@@ -261,11 +264,35 @@ export function RecResourceAssetsSection() {
     setIsInspectionEditOpen(false);
   }
 
-  async function handleDeleteAsset(assetId: number) {
+  async function handleDeleteAsset(assetId: number, mode?: AssetDeleteMode) {
     if (!recResourceId) return;
 
     try {
-      await deleteAsset({ recResourceId, assetId });
+      const linkedChildren = (assets ?? []).filter(
+        (asset) => asset.parent_id === assetId,
+      );
+
+      if (mode === 'unassign-children' && linkedChildren.length > 0) {
+        await Promise.all(
+          linkedChildren.map((child) =>
+            updateAsset({
+              assetId: child.asset_id,
+              recResourceId,
+              dto: { parent_id: null },
+            }),
+          ),
+        );
+      }
+
+      if (mode === 'delete-with-campsite' && linkedChildren.length > 0) {
+        await Promise.all(
+          linkedChildren.map((child) =>
+            deleteAssetMutation({ recResourceId, assetId: child.asset_id }),
+          ),
+        );
+      }
+
+      await deleteAssetMutation({ recResourceId, assetId });
       setPendingChanges(new Map());
       setPendingRepairChanges(new Map());
       setAssetValidationErrors(new Map());
@@ -296,7 +323,6 @@ export function RecResourceAssetsSection() {
               >
                 Add campsites
               </Dropdown.Item>
-              <Dropdown.Divider />
               <Dropdown.Item
                 onClick={() => setIsInspectionEditOpen(true)}
                 disabled={isInspectionEditOpen}
@@ -473,6 +499,7 @@ export function RecResourceAssetsSection() {
                             asset={campsite}
                             repairCodes={repairCodes}
                             assetCodes={assetCodes}
+                            linkedAssetCount={children.length}
                             className="asset-card--campsite"
                             recResourceId={recResourceId}
                             onChange={handleEditChange}

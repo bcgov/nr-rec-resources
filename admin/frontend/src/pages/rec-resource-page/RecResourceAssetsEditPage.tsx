@@ -34,7 +34,10 @@ import { groupAssetsByType } from './components/RecResourceAssetsSection/assetTy
 import { groupAssetsByCampsite } from './components/RecResourceAssetsSection/campsiteGrouping';
 import assetType from '@shared/assets/icons/asset-type-outline.svg';
 import campingType from '@shared/assets/icons/camping-type.svg';
-import type { AssetEditFormValues } from './components/RecResourceAssetsSection/AssetCardEdit';
+import type {
+  AssetDeleteMode,
+  AssetEditFormValues,
+} from './components/RecResourceAssetsSection/AssetCardEdit';
 
 export function RecResourceAssetsEditPage() {
   const { id: recResourceId } = useParams({ from: '/rec-resource/$id' });
@@ -56,7 +59,7 @@ export function RecResourceAssetsEditPage() {
   const { mutateAsync: updateAsset } = useUpdateAsset();
   const { mutateAsync: updateRepair } = useUpdateAssetRepair();
   const { mutateAsync: updateResource } = useUpdateRecreationResource();
-  const { mutateAsync: deleteAsset } = useDeleteAsset();
+  const { mutateAsync: deleteAssetMutation } = useDeleteAsset();
 
   const [pendingChanges, setPendingChanges] = useState<
     Map<number, AssetEditFormValues>
@@ -161,11 +164,35 @@ export function RecResourceAssetsEditPage() {
     }
   }
 
-  async function handleDeleteAsset(assetId: number) {
+  async function handleDeleteAsset(assetId: number, mode?: AssetDeleteMode) {
     if (!recResourceId) return;
 
     try {
-      await deleteAsset({ recResourceId, assetId });
+      const linkedChildren = (assets ?? []).filter(
+        (asset) => asset.parent_id === assetId,
+      );
+
+      if (mode === 'unassign-children' && linkedChildren.length > 0) {
+        await Promise.all(
+          linkedChildren.map((child) =>
+            updateAsset({
+              assetId: child.asset_id,
+              recResourceId,
+              dto: { parent_id: null },
+            }),
+          ),
+        );
+      }
+
+      if (mode === 'delete-with-campsite' && linkedChildren.length > 0) {
+        await Promise.all(
+          linkedChildren.map((child) =>
+            deleteAssetMutation({ recResourceId, assetId: child.asset_id }),
+          ),
+        );
+      }
+
+      await deleteAssetMutation({ recResourceId, assetId });
       setPendingChanges((prev) => {
         const updated = new Map(prev);
         updated.delete(assetId);
@@ -310,6 +337,11 @@ export function RecResourceAssetsEditPage() {
                           asset={asset}
                           repairCodes={repairCodes}
                           assetCodes={assetCodes ?? []}
+                          linkedAssetCount={
+                            (assets ?? []).filter(
+                              (a) => a.parent_id === asset.asset_id,
+                            ).length
+                          }
                           recResourceId={recResourceId}
                           onChange={handleEditChange}
                           onRepairChange={handleRepairChange}

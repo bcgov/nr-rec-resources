@@ -463,7 +463,7 @@ describe('BulkAddAssetsModal', () => {
     );
   });
 
-  it('counts existing assets of the selected type for sequential numbering', async () => {
+  it('continues numbering from the highest existing suffix', async () => {
     const user = userEvent.setup();
     const existing = buildAsset({ asset_id: 10, asset_code: 100 });
     render(
@@ -476,5 +476,21 @@ describe('BulkAddAssetsModal', () => {
     );
 
     expect(screen.getByText('Bridge 2')).toBeInTheDocument();
+  });
+
+  it('does not reuse deleted numbers when bulk adding assets', async () => {
+    const user = userEvent.setup();
+    const existing = [
+      buildAsset({ asset_id: 10, asset_code: 100, asset_name: 'Fire Ring 2' }),
+    ];
+
+    render(<BulkAddAssetsModal {...defaultProps} existingAssets={existing} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    expect(screen.getByText('Bridge 3')).toBeInTheDocument();
   });
 });
