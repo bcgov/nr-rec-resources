@@ -18,7 +18,6 @@ interface ResourceHeaderSectionProps {
 export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
-  console.log(recResource.access_status_grouplabel);
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
       {/* section: name, rec id, status */}
