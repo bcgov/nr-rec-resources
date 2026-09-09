@@ -50,7 +50,11 @@ export function HelpIcon({ text, id }: HelpIconProps) {
       rootClose
       overlay={
         <Tooltip id={`tooltip-${id}`} className="help-icon__tooltip">
-          <div onClick={stopPropagation} onMouseDown={stopPropagation}>
+          <div
+            onClick={stopPropagation}
+            onMouseDown={stopPropagation}
+            onKeyDown={stopPropagation}
+          >
             {text}
           </div>
         </Tooltip>
