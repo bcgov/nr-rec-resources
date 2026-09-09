@@ -94,22 +94,24 @@ export class RecreationResourceService {
     return response.filter((i) => i !== undefined);
   }
 
-  async findClientNumber(id: string): Promise<string> {
-    const agreementHolder =
-      await this.prisma.recreation_agreement_holder.findUnique({
-        where: {
-          rec_resource_id: id,
-        },
-        select: {
-          client_number: true,
-        },
-      });
+  async findClientNumbers(id: string): Promise<string[]> {
+    const partners = await this.prisma.recreation_agreement_holder.findMany({
+      where: {
+        rec_resource_id: id,
+        visible_on_public_website: true,
+        client_number: { not: null },
+      },
+      select: {
+        client_number: true,
+      },
+      orderBy: {
+        agreement_holder_id: 'asc',
+      },
+    });
 
-    if (!agreementHolder) {
-      return null;
-    }
-
-    return agreementHolder.client_number;
+    return partners
+      .map((partner) => partner.client_number)
+      .filter((clientNumber): clientNumber is string => clientNumber !== null);
   }
 
   async searchRecreationResources(

@@ -200,6 +200,7 @@ describe('SearchMap', () => {
   beforeEach(() => {
     vi.spyOn(Storage.prototype, 'setItem');
     vi.clearAllMocks();
+    vi.mocked(trackClickEvent).mockReturnValue(vi.fn());
     Cookies.remove('hidemap-feedback-card');
     mockUseMapFocus.mockReturnValue({
       isMapFocusLoading: false,
@@ -322,6 +323,34 @@ describe('SearchMap', () => {
     expect(setCookieSpy).toHaveBeenCalledWith('hidemap-feedback-card', 'true', {
       expires: 30,
     });
+  });
+
+  it('tracks feedback event when survey button is clicked', async () => {
+    const mockTracker = vi.fn();
+    vi.mocked(trackClickEvent).mockReturnValue(mockTracker);
+
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(120_000);
+    });
+
+    fireEvent.click(screen.getByTestId('feedback-card-survey-button'));
+
+    expect(trackClickEvent).toHaveBeenCalledWith({
+      category: 'Feedback',
+      action: 'Map',
+      name: 'Feedback - Map',
+    });
+    expect(mockTracker).toHaveBeenCalled();
   });
 
   it('can interact with disclaimer modal', async () => {

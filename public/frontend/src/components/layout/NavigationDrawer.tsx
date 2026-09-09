@@ -35,7 +35,7 @@ const NavigationDrawer = ({
     trackClickEvent({
       category: 'Mobile Navigation',
       name: `Hamburger Menu - ${linkLabel}`,
-    });
+    })();
     onClose();
   };
 
