@@ -164,43 +164,55 @@ export function RecResourceAssetsEditPage() {
     }
   }
 
-  async function handleDeleteAsset(assetId: number, mode?: AssetDeleteMode) {
-    if (!recResourceId) return;
+   async function handleDeleteAsset(assetId: number, mode?: AssetDeleteMode) {
+     if (!recResourceId) return;
 
-    try {
-      const linkedChildren = (assets ?? []).filter(
-        (asset) => asset.parent_id === assetId,
-      );
+     try {
+       const linkedChildren = (assets ?? []).filter(
+         (asset) => asset.parent_id === assetId,
+       );
 
-      if (mode === 'unassign-children' && linkedChildren.length > 0) {
-        await Promise.all(
-          linkedChildren.map((child) =>
-            updateAsset({
-              assetId: child.asset_id,
-              recResourceId,
-              dto: { parent_id: null },
-            }),
-          ),
-        );
-      }
+       if (mode === 'unassign-children' && linkedChildren.length > 0) {
+         await Promise.all(
+           linkedChildren.map((child) =>
+             updateAsset({
+               assetId: child.asset_id,
+               recResourceId,
+               dto: { parent_id: null },
+             }),
+           ),
+         );
+       }
 
-      if (mode === 'delete-with-campsite' && linkedChildren.length > 0) {
-        await Promise.all(
-          linkedChildren.map((child) =>
-            deleteAssetMutation({ recResourceId, assetId: child.asset_id }),
-          ),
-        );
-      }
+       if (mode === 'delete-with-campsite' && linkedChildren.length > 0) {
+         await Promise.all(
+           linkedChildren.map((child) =>
+             deleteAssetMutation({ recResourceId, assetId: child.asset_id }),
+           ),
+         );
+       }
 
-      await deleteAssetMutation({ recResourceId, assetId });
-      setPendingChanges((prev) => {
-        const updated = new Map(prev);
-        updated.delete(assetId);
-        return updated;
-      });
-      navigateToView();
-    } catch {}
-  }
+       await deleteAssetMutation({ recResourceId, assetId });
+       // Only remove pending changes for the deleted asset, preserve edits for other assets
+       setPendingChanges((prev) => {
+         const updated = new Map(prev);
+         updated.delete(assetId);
+         return updated;
+       });
+       // Also remove any pending repair changes for repairs belonging to this asset
+       setPendingRepairChanges((prev) => {
+         const deletedAsset = assets?.find((a) => a.asset_id === assetId);
+         if (!deletedAsset) return prev;
+
+         const updated = new Map(prev);
+         deletedAsset.recreation_asset_repair?.forEach((repair) => {
+           updated.delete(repair.repair_id);
+         });
+         return updated;
+       });
+       navigateToView();
+     } catch {}
+   }
 
   return (
     <Stack direction="vertical" className="pb-4" gap={3}>
@@ -300,16 +312,20 @@ export function RecResourceAssetsEditPage() {
                 </ToggleButtonGroup>
               )}
             </div>
-            <div className="d-flex align-items-center gap-2 asset-summary-action-buttons">
-              <CustomButton
-                variant="secondary"
-                className="asset-summary-action-btn"
-                leftIcon={<FontAwesomeIcon icon={faPlus as any} />}
-                disabled
-              >
-                Add repair
-              </CustomButton>
-            </div>
+             <div className="d-flex align-items-center gap-2 asset-summary-action-buttons">
+               <CustomButton
+                 variant="secondary"
+                 className="asset-summary-action-btn"
+                 leftIcon={<FontAwesomeIcon icon={faPlus as any} />}
+                 disabled={!editGroup}
+                 onClick={() => {
+                   // Navigate to RecResourceAssetsSection's add repair modal
+                   // For now, this is a placeholder - the feature should be implemented in RecResourceAssetsSection
+                 }}
+               >
+                 Add repair
+               </CustomButton>
+             </div>
           </div>
 
           <Stack direction="vertical" gap={3}>

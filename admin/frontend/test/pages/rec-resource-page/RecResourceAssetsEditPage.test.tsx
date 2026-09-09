@@ -6,6 +6,7 @@ import type {
   AssetCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import {
+  useDeleteAsset,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -31,6 +32,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 });
 
 vi.mock('@/services/hooks/recreation-resource-admin', () => ({
+  useDeleteAsset: vi.fn(),
   useGetAssetCodes: vi.fn(),
   useGetAssetsByRecResourceId: vi.fn(),
   useGetRecreationResourceById: vi.fn(),
@@ -177,6 +179,7 @@ describe('RecResourceAssetsEditPage', () => {
   const mockUpdateAsset = vi.fn().mockResolvedValue(undefined);
   const mockUpdateRepair = vi.fn().mockResolvedValue(undefined);
   const mockUpdateResource = vi.fn().mockResolvedValue(undefined);
+  const mockDeleteAsset = vi.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -199,6 +202,9 @@ describe('RecResourceAssetsEditPage', () => {
       },
     } as any);
 
+    vi.mocked(useDeleteAsset).mockReturnValue({
+      mutateAsync: mockDeleteAsset,
+    } as any);
     vi.mocked(useUpdateAsset).mockReturnValue({
       mutateAsync: mockUpdateAsset,
     } as any);

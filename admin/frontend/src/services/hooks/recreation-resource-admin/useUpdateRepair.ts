@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAssetsApiClient } from './useAssetsApiClient';
 import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
+import { addErrorNotification } from '@/store/notificationStore';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 
 interface UpdateRepairVariables {
@@ -25,6 +26,9 @@ export function useUpdateRepair() {
           variables.recResourceId,
         ),
       });
+    },
+    onError: () => {
+      addErrorNotification('Failed to update repair.', 'updateRepair-error');
     },
   });
 }

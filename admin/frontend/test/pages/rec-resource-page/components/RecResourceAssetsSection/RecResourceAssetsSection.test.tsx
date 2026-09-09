@@ -20,6 +20,7 @@ import {
   addSuccessNotification,
 } from '@/store/notificationStore';
 import { useParams } from '@tanstack/react-router';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -32,6 +33,17 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     useParams: vi.fn(),
   };
 });
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: vi.fn().mockReturnValue({
+    canView: true,
+    canEdit: true,
+    isSuperAdmin: true,
+    canViewFeatureFlag: false,
+    canEditFeatureFlag: false,
+    canViewSensitiveInfo: true,
+  }),
+}));
 
 vi.mock('@/services/hooks/recreation-resource-admin', () => ({
   useBulkInsertAssetRepairs: vi.fn(),

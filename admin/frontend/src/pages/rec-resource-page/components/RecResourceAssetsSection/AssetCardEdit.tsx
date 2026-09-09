@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Card, Form, InputGroup, Button } from 'react-bootstrap';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal/DeleteConfirmationModal';
 import { AssetCardRepairsEdit } from './AssetCardRepairsEdit';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
@@ -53,6 +54,7 @@ export function AssetCardEdit({
   onDelete,
   linkedAssetCount = 0,
 }: AssetCardEditProps) {
+  const { isSuperAdmin } = useAuthorizations();
   const isCampsite = asset.asset_code === CAMPSITE_STRUCTURE_CODE;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteMode, setDeleteMode] =
@@ -106,7 +108,7 @@ export function AssetCardEdit({
           <div className="asset-card__header asset-card-edit__body">
             <div className="asset-card-edit__header-row">
               <h3 className="asset-card-edit__title">{asset.asset_name}</h3>
-              {onDelete && (
+              {onDelete && isSuperAdmin && (
                 <Button
                   type="button"
                   variant="outline-primary"
