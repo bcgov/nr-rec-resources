@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as useUpdateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair';
 import * as useCreateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useCreateAssetRepair';
 import * as useDeleteAssetRepairModule from '@/services/hooks/recreation-resource-admin/useDeleteAssetRepair';
+import * as useAuthorizationsModule from '@/hooks/useAuthorizations';
 
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair',
@@ -24,6 +25,9 @@ vi.mock(
   '@/services/hooks/recreation-resource-admin/useDeleteAssetRepair',
   () => ({ useDeleteAssetRepair: vi.fn() }),
 );
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: vi.fn(),
+}));
 
 const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_id: 1,
@@ -90,6 +94,14 @@ const defaultProps = {
 describe('AssetCardEdit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
+      isSuperAdmin: true,
+      canViewSensitiveInfo: true,
+    });
     vi.mocked(useUpdateAssetRepairModule.useUpdateAssetRepair).mockReturnValue({
       mutate: vi.fn(),
     } as any);

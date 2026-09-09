@@ -17,22 +17,26 @@ describe('useImageUploadForm', () => {
   });
 
   describe('initialization', () => {
-    it('initializes with display name without extension and syncs to store', () => {
+    it('initializes with display name without extension and syncs to store', async () => {
       renderHook(() => useImageUploadForm('test-image.jpg'));
 
-      expect(setUploadFileName).toHaveBeenCalledWith('test-image');
+      await waitFor(() => {
+        expect(setUploadFileName).toHaveBeenCalledWith('test-image');
+      });
     });
 
-    it('handles undefined initialDisplayName without setting store', () => {
+    it('handles undefined initialDisplayName without setting store', async () => {
       renderHook(() => useImageUploadForm(undefined));
 
-      // Hook doesn't call setUploadFileName when no name is provided
-      expect(setUploadFileName).not.toHaveBeenCalled();
+      await waitFor(() => {
+        // Hook doesn't call setUploadFileName when no name is provided
+        expect(setUploadFileName).not.toHaveBeenCalled();
+      });
     });
   });
 
   describe('resetForm', () => {
-    it('resets form and resyncs name to store', () => {
+    it('resets form and resyncs name to store', async () => {
       const { result } = renderHook(() => useImageUploadForm('test-image.jpg'));
 
       vi.clearAllMocks();
@@ -41,7 +45,9 @@ describe('useImageUploadForm', () => {
         result.current.resetForm();
       });
 
-      expect(setUploadFileName).toHaveBeenCalledWith('test-image');
+      await waitFor(() => {
+        expect(setUploadFileName).toHaveBeenCalledWith('test-image');
+      });
     });
   });
 
@@ -64,36 +70,46 @@ describe('useImageUploadForm', () => {
   });
 
   describe('staff field visibility (default)', () => {
-    it('shows "working hours" question for staff', () => {
+    it('shows "working hours" question for staff', async () => {
       const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
-      expect(result.current.showTakenDuringWorkingHours).toBe(true);
+      await waitFor(() => {
+        expect(result.current.showTakenDuringWorkingHours).toBe(true);
+      });
     });
 
-    it('hides name field for staff', () => {
+    it('hides name field for staff', async () => {
       const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
-      expect(result.current.showNameField).toBe(false);
+      await waitFor(() => {
+        expect(result.current.showNameField).toBe(false);
+      });
     });
 
-    it('hides consent upload by default for staff (before questions answered)', () => {
+    it('hides consent upload by default for staff (before questions answered)', async () => {
       const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
-      expect(result.current.showConsentUpload).toBe(false);
+      await waitFor(() => {
+        expect(result.current.showConsentUpload).toBe(false);
+      });
     });
 
-    it('identifies as staff by default', () => {
+    it('identifies as staff by default', async () => {
       const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
-      expect(result.current.isStaff).toBe(true);
+      await waitFor(() => {
+        expect(result.current.isStaff).toBe(true);
+      });
     });
   });
 
   describe('not-accepted alert visibility', () => {
-    it('does not show not-accepted alert by default (staff, no answer yet)', () => {
+    it('does not show not-accepted alert by default (staff, no answer yet)', async () => {
       const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
-      expect(result.current.showNotAcceptedAlert).toBe(false);
+      await waitFor(() => {
+        expect(result.current.showNotAcceptedAlert).toBe(false);
+      });
     });
 
     it('shows not-accepted alert when staff answers "No" to regular duties', async () => {
@@ -217,11 +233,13 @@ describe('useImageUploadForm', () => {
   });
 
   describe('form state', () => {
-    it('returns isUploadEnabled based on form validity', () => {
+    it('returns isUploadEnabled based on form validity', async () => {
       const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
-      // Form is initially invalid (required fields not filled)
-      expect(result.current.isUploadEnabled).toBe(false);
+      await waitFor(() => {
+        // Form is initially invalid (required fields not filled)
+        expect(result.current.isUploadEnabled).toBe(false);
+      });
     });
   });
 });

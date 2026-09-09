@@ -24,6 +24,10 @@ export function useUpdateAsset() {
         updateRecreationAssetDto: dto,
       }),
     onSuccess: (_data, variables) => {
+      addSuccessNotification(
+        'Asset updated successfully.',
+        'updateAsset-success',
+      );
       queryClient.invalidateQueries({
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.assets(
           variables.recResourceId,

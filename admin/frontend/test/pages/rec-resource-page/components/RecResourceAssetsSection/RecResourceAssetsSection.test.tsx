@@ -20,7 +20,6 @@ import {
   addSuccessNotification,
 } from '@/store/notificationStore';
 import { useParams } from '@tanstack/react-router';
-import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -396,6 +395,46 @@ describe('RecResourceAssetsSection', () => {
     ).toBeInTheDocument();
     // Total value (1000 + 500) should appear somewhere in the rendered output
     expect(screen.getAllByText(/1,500/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('sums campsite totals numerically when actual value is missing and defaults are strings', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+      actual_value: null,
+      parent_id: null,
+    });
+    const child = buildAsset({
+      asset_id: 20,
+      asset_code: 100,
+      asset_name: 'Child Asset',
+      actual_value: null,
+      parent_id: 10,
+    });
+
+    vi.mocked(useGetAssetCodes).mockReturnValue({
+      data: [
+        { asset_code: 227, description: 'Campsite', default_value: '1000' },
+        { asset_code: 100, description: 'Bridge', default_value: '500' },
+      ],
+    } as any);
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+
+    expect(
+      screen.getByRole('button', { name: /Campsite A/ }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/1,500/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText(/100,500/)).not.toBeInTheDocument();
   });
 
   it('closes the Add assets modal via cancel', async () => {

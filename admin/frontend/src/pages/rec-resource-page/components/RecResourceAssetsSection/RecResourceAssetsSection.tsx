@@ -264,66 +264,66 @@ export function RecResourceAssetsSection() {
     setIsInspectionEditOpen(false);
   }
 
-   async function handleDeleteAsset(assetId: number, mode?: AssetDeleteMode) {
-     if (!recResourceId) return;
+  async function handleDeleteAsset(assetId: number, mode?: AssetDeleteMode) {
+    if (!recResourceId) return;
 
-     try {
-       const linkedChildren = (assets ?? []).filter(
-         (asset) => asset.parent_id === assetId,
-       );
+    try {
+      const linkedChildren = (assets ?? []).filter(
+        (asset) => asset.parent_id === assetId,
+      );
 
-       if (mode === 'unassign-children' && linkedChildren.length > 0) {
-         await Promise.all(
-           linkedChildren.map((child) =>
-             updateAsset({
-               assetId: child.asset_id,
-               recResourceId,
-               dto: { parent_id: null },
-             }),
-           ),
-         );
-       }
+      if (mode === 'unassign-children' && linkedChildren.length > 0) {
+        await Promise.all(
+          linkedChildren.map((child) =>
+            updateAsset({
+              assetId: child.asset_id,
+              recResourceId,
+              dto: { parent_id: null },
+            }),
+          ),
+        );
+      }
 
-       if (mode === 'delete-with-campsite' && linkedChildren.length > 0) {
-         await Promise.all(
-           linkedChildren.map((child) =>
-             deleteAssetMutation({ recResourceId, assetId: child.asset_id }),
-           ),
-         );
-       }
+      if (mode === 'delete-with-campsite' && linkedChildren.length > 0) {
+        await Promise.all(
+          linkedChildren.map((child) =>
+            deleteAssetMutation({ recResourceId, assetId: child.asset_id }),
+          ),
+        );
+      }
 
-       await deleteAssetMutation({ recResourceId, assetId });
-       // Only remove pending changes for the deleted asset, preserve edits for other assets
-       setPendingChanges((prev) => {
-         const updated = new Map(prev);
-         updated.delete(assetId);
-         return updated;
-       });
-       // Also remove any pending repair changes for repairs belonging to this asset
-       setPendingRepairChanges((prev) => {
-         const deletedAsset = assets?.find((a) => a.asset_id === assetId);
-         if (!deletedAsset) return prev;
+      await deleteAssetMutation({ recResourceId, assetId });
+      // Only remove pending changes for the deleted asset, preserve edits for other assets
+      setPendingChanges((prev) => {
+        const updated = new Map(prev);
+        updated.delete(assetId);
+        return updated;
+      });
+      // Also remove any pending repair changes for repairs belonging to this asset
+      setPendingRepairChanges((prev) => {
+        const deletedAsset = assets?.find((a) => a.asset_id === assetId);
+        if (!deletedAsset) return prev;
 
-         const updated = new Map(prev);
-         deletedAsset.recreation_asset_repair?.forEach((repair) => {
-           updated.delete(repair.repair_id);
-         });
-         return updated;
-       });
-       // Clear validation errors for the deleted asset
-       setAssetValidationErrors((prev) => {
-         const updated = new Map(prev);
-         updated.delete(assetId);
-         return updated;
-       });
-       // If we were editing the deleted asset's campsite, exit edit mode
-       if (editingCampsiteId === assetId) {
-         setEditingCampsiteId(null);
-       }
-     } catch {
-       // Deletion errors are surfaced by the mutation hook.
-     }
-   }
+        const updated = new Map(prev);
+        deletedAsset.recreation_asset_repair?.forEach((repair) => {
+          updated.delete(repair.repair_id);
+        });
+        return updated;
+      });
+      // Clear validation errors for the deleted asset
+      setAssetValidationErrors((prev) => {
+        const updated = new Map(prev);
+        updated.delete(assetId);
+        return updated;
+      });
+      // If we were editing the deleted asset's campsite, exit edit mode
+      if (editingCampsiteId === assetId) {
+        setEditingCampsiteId(null);
+      }
+    } catch {
+      // Deletion errors are surfaced by the mutation hook.
+    }
+  }
 
   return (
     <Stack direction="vertical" className="pb-4" gap={3}>

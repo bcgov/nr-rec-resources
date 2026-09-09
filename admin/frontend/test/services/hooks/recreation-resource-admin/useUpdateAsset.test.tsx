@@ -1,6 +1,7 @@
 import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
 import * as AssetsApiClientModule from '@/services/hooks/recreation-resource-admin/useAssetsApiClient';
 import { useUpdateAsset } from '@/services/hooks/recreation-resource-admin/useUpdateAsset';
+import { addSuccessNotification } from '@/store/notificationStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { ReactNode } from 'react';
@@ -10,6 +11,11 @@ vi.mock(
   '@/services/hooks/recreation-resource-admin/useAssetsApiClient',
   () => ({ useAssetsApiClient: vi.fn() }),
 );
+
+vi.mock('@/store/notificationStore', () => ({
+  addSuccessNotification: vi.fn(),
+  addErrorNotification: vi.fn(),
+}));
 
 describe('useUpdateAsset', () => {
   const mockUpdateRecreationAsset = vi.fn();
@@ -72,6 +78,10 @@ describe('useUpdateAsset', () => {
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: RECREATION_RESOURCE_QUERY_KEYS.assets('REC0001'),
     });
+    expect(addSuccessNotification).toHaveBeenCalledWith(
+      'Asset updated successfully.',
+      'updateAsset-success',
+    );
   });
 
   it('sets isError to true when the API call fails', async () => {
