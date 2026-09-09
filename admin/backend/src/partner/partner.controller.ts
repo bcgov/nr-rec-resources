@@ -66,6 +66,7 @@ export class PartnerController {
 
   @Get('search/by')
   @ApiOperation({
+    operationId: 'searchPartners',
     summary: 'Search for partners',
     description:
       'Search for partners based on the provided parameters. It uses a fuzzy match to search for the partner name. The cutout for the fuzzy match is 0.8. The search is case insensitive.',
@@ -101,6 +102,7 @@ export class PartnerController {
 
   @Get('search')
   @ApiOperation({
+    operationId: 'searchPartnerByClientId',
     summary: 'Search for partner by client id',
     description:
       'Looks up a single partner by client id using the forest client findByClientNumber API. Returns active and inactive clients.',
@@ -128,6 +130,7 @@ export class PartnerController {
 
   @Get('recreation-resources/:rec_resource_id')
   @ApiOperation({
+    operationId: 'getPartnersByRecreationResourceId',
     summary: 'Get partners by recreation resource ID',
     description:
       'Looks up the agreement holder for the given recreation resource and returns partner details for the associated client number.',
@@ -160,6 +163,7 @@ export class PartnerController {
 
   @Post('recreation-resources/:rec_resource_id')
   @ApiOperation({
+    operationId: 'createRecreationResourceAgreementHolder',
     summary: 'Add agreement holder for a recreation resource',
     description:
       'Creates a new agreement holder record for the recreation resource when a client is assigned.',
@@ -204,6 +208,7 @@ export class PartnerController {
 
   @Put('recreation-resources/:rec_resource_id')
   @ApiOperation({
+    operationId: 'updateRecreationResourceAgreementHolder',
     summary: 'Edit agreement holder dates for a recreation resource',
     description:
       'Updates the agreement start date and/or agreement end date for an existing agreement holder record.',
@@ -242,7 +247,10 @@ export class PartnerController {
   }
 
   @Get(':client_id')
-  @ApiOperation({ summary: 'Get partner locations by client id' })
+  @ApiOperation({
+    operationId: 'getPartnerLocationsByClientId',
+    summary: 'Get partner locations by client id',
+  })
   @ApiParam({
     name: 'client_id',
     required: true,

@@ -5,4 +5,5 @@ export * from './AppApi';
 export * from './AssetsApi';
 export * from './BcgwApi';
 export * from './HealthApi';
+export * from './PartnersApi';
 export * from './RecreationResourcesApi';
