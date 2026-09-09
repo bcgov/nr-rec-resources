@@ -246,7 +246,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             name: feature
               ? `${feature.get('FOREST_FILE_ID')} | ${feature.get(`PROJECT_NAME`)} | ${feature.get(`PROJECT_TYPE`)}`
               : 'None',
-          });
+          })();
         },
       },
       {
@@ -260,7 +260,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             name: feature
               ? `Wildfire id: ${feature.get('FIRE_NUMBER')}`
               : 'None',
-          });
+          })();
         },
         selectedStyle: (feature: Feature) => {
           const status = feature.get('FIRE_STATUS') || 'Out of Control';
@@ -278,7 +278,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             name: feature
               ? `Wildfire perimeter #: ${feature.get('FIRE_NUMBER')}`
               : 'None',
-          });
+          })();
         },
       },
       {
@@ -292,7 +292,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             name: feature
               ? `Evacuation: ${feature.get('ORDER_ALERT_NAME') || feature.get('EVENT_NAME')}`
               : 'None',
-          });
+          })();
         },
       },
     ],
@@ -394,8 +394,8 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     trackClickEvent({
       category: 'Feedback',
       action: 'Map',
-      name: `Map - Feedback card`,
-    });
+      name: 'Feedback - Map',
+    })();
     window.open(EXTERNAL_LINKS.FEEDBACK_FORM, '_blank', 'noopener,noreferrer');
     setFeedbackCardCookie();
   };
