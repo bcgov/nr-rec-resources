@@ -358,12 +358,12 @@ export class RecreationResourceApi extends runtime.BaseAPI {
   }
 
   /**
-   * Find site operator by resource ID
+   * Find publicly visible partners by resource ID
    */
   async getSiteOperatorByIdRaw(
     requestParameters: GetSiteOperatorByIdRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<SiteOperatorDto>> {
+  ): Promise<runtime.ApiResponse<Array<SiteOperatorDto>>> {
     if (requestParameters['id'] == null) {
       throw new runtime.RequiredError(
         'id',
@@ -392,17 +392,17 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      SiteOperatorDtoFromJSON(jsonValue),
+      jsonValue.map(SiteOperatorDtoFromJSON),
     );
   }
 
   /**
-   * Find site operator by resource ID
+   * Find publicly visible partners by resource ID
    */
   async getSiteOperatorById(
     requestParameters: GetSiteOperatorByIdRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<SiteOperatorDto> {
+  ): Promise<Array<SiteOperatorDto>> {
     const response = await this.getSiteOperatorByIdRaw(
       requestParameters,
       initOverrides,

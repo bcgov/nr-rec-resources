@@ -105,7 +105,7 @@ export const useGetSiteOperatorById = ({
   id,
 }: Partial<GetSiteOperatorByIdRequest>) => {
   const api = useRecreationResourceApi();
-  return useQuery<SiteOperatorDto | undefined, ResponseError>({
+  return useQuery<SiteOperatorDto[] | undefined, ResponseError>({
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.siteOperator(id!),
 
     // Fetch function that calls the API and returns the response

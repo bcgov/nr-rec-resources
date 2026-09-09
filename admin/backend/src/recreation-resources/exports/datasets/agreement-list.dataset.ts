@@ -19,6 +19,6 @@ export const agreementListDataset: ExportDatasetBuilder = {
       ON rr.rec_resource_id = rah.rec_resource_id
     ${sql.sharedJoins}
     WHERE ${sql.rstFilters}
-    ORDER BY rr.rec_resource_id
+    ORDER BY rr.rec_resource_id, rah.agreement_holder_id
   `,
 };
