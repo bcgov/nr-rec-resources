@@ -13,6 +13,7 @@ import '@/components/layout/Header.scss';
 import '@shared/components/environment-banner/EnvironmentBanner.scss';
 import {
   MATOMO_ACTION_MAPVIEW_HOME,
+  MATOMO_CATEGORY_FEEDBACK,
   MATOMO_CATEGORY_MAP_VIEW,
   MATOMO_NAME_MAPVIEW_HOME,
 } from '@/constants/analytics';
@@ -25,7 +26,7 @@ const Header = () => {
     trackClickEvent({
       category: 'Header Navigation',
       name: `Sub Header - ${linkLabel}`,
-    });
+    })();
 
     if (linkLabel === 'Search by map') {
       trackClickEvent({
@@ -40,7 +41,18 @@ const Header = () => {
     trackClickEvent({
       category: 'outlinks',
       name: `Sub Header - ${link.label}`,
-    });
+    })();
+
+    if (link.label === 'Website feedback') {
+      const [pageTitleSegment = ''] =
+        typeof document !== 'undefined' ? document.title.split('|') : [];
+
+      trackClickEvent({
+        category: MATOMO_CATEGORY_FEEDBACK,
+        action: 'Header',
+        name: `Header - ${pageTitleSegment.trim() || 'Unknown page'}`,
+      })();
+    }
   };
 
   const handleHamburgerMenuToggle = () => {

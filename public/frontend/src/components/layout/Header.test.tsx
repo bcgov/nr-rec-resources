@@ -161,6 +161,28 @@ describe('Header component', () => {
     });
   });
 
+  it('tracks feedback analytics with page title when website feedback is clicked', async () => {
+    const mockTracker = vi.fn();
+    mockTrackClickEvent.mockReturnValue(mockTracker);
+    document.title = 'Find a site or trail | Sites and Trails BC';
+
+    await renderWithRouter(<Header />);
+
+    const desktopNav = screen.getByRole('navigation', {
+      name: /secondary header site navigation/i,
+    });
+    const feedbackLink = within(desktopNav).getByText('Website feedback');
+
+    fireEvent.click(feedbackLink);
+
+    expect(mockTrackClickEvent).toHaveBeenCalledWith({
+      category: 'Feedback',
+      action: 'Header',
+      name: 'Header - Find a site or trail',
+    });
+    expect(mockTracker).toHaveBeenCalled();
+  });
+
   it('renders logo link correctly', async () => {
     await renderWithRouter(<Header />);
 
