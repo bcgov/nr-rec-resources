@@ -44,8 +44,11 @@ const Header = () => {
     })();
 
     if (link.label === 'Website feedback') {
-      const [pageTitleSegment = ''] =
-        typeof document !== 'undefined' ? document.title.split('|') : [];
+      const pageTitle =
+        typeof document !== 'undefined' && typeof document.title === 'string'
+          ? document.title
+          : '';
+      const [pageTitleSegment = ''] = pageTitle.split('|');
 
       trackClickEvent({
         category: MATOMO_CATEGORY_FEEDBACK,

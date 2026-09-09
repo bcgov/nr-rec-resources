@@ -1,4 +1,5 @@
 import { screen, within, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '@/test-utils';
 import Header from '@/components/layout/Header';
 import { HEADER_LINKS } from '@/components/layout/constants';
@@ -125,6 +126,7 @@ describe('Header component', () => {
   });
 
   it('tracks analytics when header links are clicked', async () => {
+    const user = userEvent.setup();
     await renderWithRouter(<Header />);
 
     const firstLink = HEADER_LINKS[0];
@@ -133,7 +135,7 @@ describe('Header component', () => {
     });
     const linkElement = within(desktopNav).getByText(firstLink.label);
 
-    fireEvent.click(linkElement);
+    await user.click(linkElement);
 
     expect(mockTrackClickEvent).toHaveBeenCalledWith({
       category: 'Header Navigation',
@@ -142,6 +144,7 @@ describe('Header component', () => {
   });
 
   it('tracks analytics when mobile navigation links are clicked', async () => {
+    const user = userEvent.setup();
     await renderWithRouter(<Header />);
 
     const hamburgerButton = screen.getByRole('button', { name: /open menu/i });
@@ -153,7 +156,7 @@ describe('Header component', () => {
     });
     const mobileLink = within(mobileNav).getByText(firstLink.label);
 
-    fireEvent.click(mobileLink);
+    await user.click(mobileLink);
 
     expect(mockTrackClickEvent).toHaveBeenCalledWith({
       category: 'Mobile Navigation',
@@ -163,6 +166,7 @@ describe('Header component', () => {
 
   it('tracks feedback analytics with page title when website feedback is clicked', async () => {
     const mockTracker = vi.fn();
+    const user = userEvent.setup();
     mockTrackClickEvent.mockReturnValue(mockTracker);
     document.title = 'Find a site or trail | Sites and Trails BC';
 
@@ -173,7 +177,7 @@ describe('Header component', () => {
     });
     const feedbackLink = within(desktopNav).getByText('Website feedback');
 
-    fireEvent.click(feedbackLink);
+    await user.click(feedbackLink);
 
     expect(mockTrackClickEvent).toHaveBeenCalledWith({
       category: 'Feedback',
@@ -197,5 +201,87 @@ describe('Header component', () => {
   it('renders environment banner', async () => {
     await renderWithRouter(<Header />);
     expect(screen.getByTestId('environment-banner')).toBeInTheDocument();
+  });
+
+  it('tracks search map view analytics when search by map link is clicked', async () => {
+    const mockTracker = vi.fn();
+    const user = userEvent.setup();
+    mockTrackClickEvent.mockReturnValue(mockTracker);
+
+    await renderWithRouter(<Header />);
+
+    const desktopNav = screen.getByRole('navigation', {
+      name: /secondary header site navigation/i,
+    });
+    const searchByMapLink = within(desktopNav).getByText('Search by map');
+
+    await user.click(searchByMapLink);
+
+    expect(mockTrackClickEvent).toHaveBeenCalledWith({
+      category: 'Header Navigation',
+      name: 'Sub Header - Search by map',
+    });
+    expect(mockTrackClickEvent).toHaveBeenCalledWith({
+      category: 'MapView',
+      action: 'MapView_home',
+      name: 'MapView_home',
+    });
+  });
+
+  it('tracks feedback analytics when website feedback link is clicked on non-feedback page', async () => {
+    const mockTracker = vi.fn();
+    const user = userEvent.setup();
+    mockTrackClickEvent.mockReturnValue(mockTracker);
+    document.title = 'Home | Sites and Trails BC';
+
+    await renderWithRouter(<Header />);
+
+    const desktopNav = screen.getByRole('navigation', {
+      name: /secondary header site navigation/i,
+    });
+    const feedbackLink = within(desktopNav).getByText('Website feedback');
+
+    await user.click(feedbackLink);
+
+    expect(mockTrackClickEvent).toHaveBeenCalledWith({
+      category: 'outlinks',
+      name: 'Sub Header - Website feedback',
+    });
+    expect(mockTrackClickEvent).toHaveBeenCalledWith({
+      category: 'Feedback',
+      action: 'Header',
+      name: 'Header - Home',
+    });
+  });
+
+  it('handles missing document title gracefully', async () => {
+    const mockTracker = vi.fn();
+    const user = userEvent.setup();
+    mockTrackClickEvent.mockReturnValue(mockTracker);
+    const originalTitle = document.title;
+    Object.defineProperty(document, 'title', {
+      value: undefined,
+      configurable: true,
+    });
+
+    await renderWithRouter(<Header />);
+
+    const desktopNav = screen.getByRole('navigation', {
+      name: /secondary header site navigation/i,
+    });
+    const feedbackLink = within(desktopNav).getByText('Website feedback');
+
+    await user.click(feedbackLink);
+
+    expect(mockTrackClickEvent).toHaveBeenCalledWith({
+      category: 'Feedback',
+      action: 'Header',
+      name: 'Header - Unknown page',
+    });
+
+    Object.defineProperty(document, 'title', {
+      value: originalTitle,
+      configurable: true,
+    });
   });
 });
