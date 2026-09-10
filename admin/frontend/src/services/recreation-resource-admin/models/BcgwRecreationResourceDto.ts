@@ -12,7 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
+import {
+  mapValues,
+  parseDate,
+  parseDateTime,
+  serializeDate,
+  serializeDateTime,
+} from '../runtime';
 /**
  *
  * @export
@@ -21,206 +27,138 @@ import { mapValues } from '../runtime';
 export interface BcgwRecreationResourceDto {
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   forest_file_id: string;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   project_name: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   project_type_code: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   project_type: string | null;
   /**
    *
-   * @type {Date}
-   * @memberof BcgwRecreationResourceDto
    */
   project_established_date: Date | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   closure_ind: BcgwRecreationResourceDtoClosureIndEnum;
   /**
    *
-   * @type {Date}
-   * @memberof BcgwRecreationResourceDto
    */
   closure_date: Date | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   closure_type: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   closure_comment: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   recreation_view_ind: BcgwRecreationResourceDtoRecreationViewIndEnum;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   file_status_st: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   status_description: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   site_location: string | null;
   /**
    *
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
    */
   defined_campsites: number;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   site_description_brief: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   arch_impact_assess_ind: BcgwRecreationResourceDtoArchImpactAssessIndEnum | null;
   /**
    * Total area in hectares
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
    */
   tenure_app_total_area: number | null;
   /**
    * Total length in kilometres
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
    */
   tenure_app_total_length: number | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   site_description: string | null;
   /**
    *
-   * @type {Date}
-   * @memberof BcgwRecreationResourceDto
    */
   site_description_date: Date | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   driving_directions: string | null;
   /**
    *
-   * @type {Date}
-   * @memberof BcgwRecreationResourceDto
    */
   driving_directions_date: Date | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   rec_feature_code: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   rec_feature_description: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   recreation_district_code: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   recreation_district_name: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   org_unit_code: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   org_unit_name: string | null;
   /**
    *
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
    */
   utm_zone: number | null;
   /**
    * UTM easting in metres
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
    */
   utm_easting: number | null;
   /**
    * UTM northing in metres
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
    */
   utm_northing: number | null;
   /**
    * Latitude in decimal degrees (WGS84)
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
    */
   latitude: number | null;
   /**
    * Longitude in decimal degrees (WGS84)
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
    */
   longitude: number | null;
   /**
    * GeoJSON Point geometry (WGS84)
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
    */
   shape: string | null;
 }
@@ -394,10 +332,10 @@ export function BcgwRecreationResourceDtoFromJSONTyped(
     project_established_date:
       json['project_established_date'] == null
         ? null
-        : new Date(json['project_established_date']),
+        : parseDate(json['project_established_date']),
     closure_ind: json['closure_ind'],
     closure_date:
-      json['closure_date'] == null ? null : new Date(json['closure_date']),
+      json['closure_date'] == null ? null : parseDate(json['closure_date']),
     closure_type: json['closure_type'],
     closure_comment: json['closure_comment'],
     recreation_view_ind: json['recreation_view_ind'],
@@ -413,12 +351,12 @@ export function BcgwRecreationResourceDtoFromJSONTyped(
     site_description_date:
       json['site_description_date'] == null
         ? null
-        : new Date(json['site_description_date']),
+        : parseDate(json['site_description_date']),
     driving_directions: json['driving_directions'],
     driving_directions_date:
       json['driving_directions_date'] == null
         ? null
-        : new Date(json['driving_directions_date']),
+        : parseDate(json['driving_directions_date']),
     rec_feature_code: json['rec_feature_code'],
     rec_feature_description: json['rec_feature_description'],
     recreation_district_code: json['recreation_district_code'],
@@ -453,11 +391,15 @@ export function BcgwRecreationResourceDtoToJSONTyped(
     project_name: value['project_name'],
     project_type_code: value['project_type_code'],
     project_type: value['project_type'],
-    project_established_date: (value['project_established_date'] as any)
-      .toISOString()
-      .substring(0, 10),
+    project_established_date:
+      value['project_established_date'] == null
+        ? value['project_established_date']
+        : serializeDate(value['project_established_date']),
     closure_ind: value['closure_ind'],
-    closure_date: (value['closure_date'] as any).toISOString().substring(0, 10),
+    closure_date:
+      value['closure_date'] == null
+        ? value['closure_date']
+        : serializeDate(value['closure_date']),
     closure_type: value['closure_type'],
     closure_comment: value['closure_comment'],
     recreation_view_ind: value['recreation_view_ind'],
@@ -470,13 +412,15 @@ export function BcgwRecreationResourceDtoToJSONTyped(
     tenure_app_total_area: value['tenure_app_total_area'],
     tenure_app_total_length: value['tenure_app_total_length'],
     site_description: value['site_description'],
-    site_description_date: (value['site_description_date'] as any)
-      .toISOString()
-      .substring(0, 10),
+    site_description_date:
+      value['site_description_date'] == null
+        ? value['site_description_date']
+        : serializeDate(value['site_description_date']),
     driving_directions: value['driving_directions'],
-    driving_directions_date: (value['driving_directions_date'] as any)
-      .toISOString()
-      .substring(0, 10),
+    driving_directions_date:
+      value['driving_directions_date'] == null
+        ? value['driving_directions_date']
+        : serializeDate(value['driving_directions_date']),
     rec_feature_code: value['rec_feature_code'],
     rec_feature_description: value['rec_feature_description'],
     recreation_district_code: value['recreation_district_code'],

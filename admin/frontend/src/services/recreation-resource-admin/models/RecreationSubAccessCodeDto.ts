@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface RecreationSubAccessCodeDto {
   /**
    * Unique code identifying the sub-access method
-   * @type {string}
-   * @memberof RecreationSubAccessCodeDto
    */
   code: string;
   /**
    * Description of the sub-access method
-   * @type {string}
-   * @memberof RecreationSubAccessCodeDto
    */
   description: string;
 }

@@ -29,20 +29,14 @@ import {
 export interface BcgwFeatureDto {
   /**
    *
-   * @type {string}
-   * @memberof BcgwFeatureDto
    */
   type: string;
   /**
    * GeoJSON Point geometry (WGS84), null when no site point exists
-   * @type {object}
-   * @memberof BcgwFeatureDto
    */
   geometry: object | null;
   /**
    *
-   * @type {BcgwRecreationResourceDto}
-   * @memberof BcgwFeatureDto
    */
   properties: BcgwRecreationResourceDto;
 }

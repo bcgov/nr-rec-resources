@@ -21,26 +21,18 @@ import { mapValues } from '../runtime';
 export interface RecreationResourceReservationInfoDto {
   /**
    * Rec resource id for the resource this geospatial data belongs to
-   * @type {string}
-   * @memberof RecreationResourceReservationInfoDto
    */
   rec_resource_id: string;
   /**
    * Reservation website of designed resource
-   * @type {string}
-   * @memberof RecreationResourceReservationInfoDto
    */
   reservation_website?: string;
   /**
    * Reservation phone number of designed resource
-   * @type {string}
-   * @memberof RecreationResourceReservationInfoDto
    */
   reservation_phone_number?: string;
   /**
    * Reservation email of designed resource
-   * @type {string}
-   * @memberof RecreationResourceReservationInfoDto
    */
   reservation_email?: string;
 }

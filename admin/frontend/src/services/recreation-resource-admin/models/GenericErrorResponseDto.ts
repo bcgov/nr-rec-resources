@@ -21,32 +21,22 @@ import { mapValues } from '../runtime';
 export interface GenericErrorResponseDto {
   /**
    * The HTTP status code of the error response.
-   * @type {number}
-   * @memberof GenericErrorResponseDto
    */
   statusCode: GenericErrorResponseDtoStatusCodeEnum;
   /**
    * A general message describing the error.
-   * @type {string}
-   * @memberof GenericErrorResponseDto
    */
   message: string;
   /**
    * The error type or short description of the HTTP status.
-   * @type {string}
-   * @memberof GenericErrorResponseDto
    */
   error: string;
   /**
    * The timestamp of when the error occurred (ISO 8601 format).
-   * @type {string}
-   * @memberof GenericErrorResponseDto
    */
   timestamp: string;
   /**
    * The request path that caused the error.
-   * @type {string}
-   * @memberof GenericErrorResponseDto
    */
   path: string;
 }

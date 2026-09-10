@@ -29,20 +29,14 @@ import {
 export interface BcgwRecreationLinesFeatureDto {
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationLinesFeatureDto
    */
   type: string;
   /**
    * GeoJSON LineString geometry (WGS84), null when no geometry exists.
-   * @type {object}
-   * @memberof BcgwRecreationLinesFeatureDto
    */
   geometry: object | null;
   /**
    *
-   * @type {BcgwRecreationLinesDto}
-   * @memberof BcgwRecreationLinesFeatureDto
    */
   properties: BcgwRecreationLinesDto;
 }

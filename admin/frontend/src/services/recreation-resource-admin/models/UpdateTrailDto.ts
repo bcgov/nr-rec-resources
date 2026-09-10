@@ -21,20 +21,14 @@ import { mapValues } from '../runtime';
 export interface UpdateTrailDto {
   /**
    * Difficulty classification of the trail
-   * @type {string}
-   * @memberof UpdateTrailDto
    */
   trail_type?: UpdateTrailDtoTrailTypeEnum | null;
   /**
    * Name of the trail
-   * @type {string}
-   * @memberof UpdateTrailDto
    */
   name?: string;
   /**
    * Description of the trail
-   * @type {object}
-   * @memberof UpdateTrailDto
    */
   description?: object | null;
 }
@@ -71,9 +65,19 @@ export function UpdateTrailDtoFromJSONTyped(
     return json;
   }
   return {
-    trail_type: json['trail_type'] == null ? undefined : json['trail_type'],
+    trail_type:
+      json['trail_type'] === undefined
+        ? undefined
+        : json['trail_type'] === null
+          ? null
+          : json['trail_type'],
     name: json['name'] == null ? undefined : json['name'],
-    description: json['description'] == null ? undefined : json['description'],
+    description:
+      json['description'] === undefined
+        ? undefined
+        : json['description'] === null
+          ? null
+          : json['description'],
   };
 }
 

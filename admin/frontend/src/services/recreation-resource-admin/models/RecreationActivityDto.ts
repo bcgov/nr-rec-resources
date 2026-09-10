@@ -21,26 +21,18 @@ import { mapValues } from '../runtime';
 export interface RecreationActivityDto {
   /**
    * Unique code identifying the recreation activity
-   * @type {number}
-   * @memberof RecreationActivityDto
    */
   recreation_activity_code: number;
   /**
    * Detailed description of the activity
-   * @type {string}
-   * @memberof RecreationActivityDto
    */
   description: string;
   /**
    * Whether this activity is an accessible activity
-   * @type {boolean}
-   * @memberof RecreationActivityDto
    */
   is_accessible?: boolean | null;
   /**
    * Additional details about the accessible activity
-   * @type {string}
-   * @memberof RecreationActivityDto
    */
   details?: string | null;
 }
@@ -78,8 +70,17 @@ export function RecreationActivityDtoFromJSONTyped(
     recreation_activity_code: json['recreation_activity_code'],
     description: json['description'],
     is_accessible:
-      json['is_accessible'] == null ? undefined : json['is_accessible'],
-    details: json['details'] == null ? undefined : json['details'],
+      json['is_accessible'] === undefined
+        ? undefined
+        : json['is_accessible'] === null
+          ? null
+          : json['is_accessible'],
+    details:
+      json['details'] === undefined
+        ? undefined
+        : json['details'] === null
+          ? null
+          : json['details'],
   };
 }
 

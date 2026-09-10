@@ -12,7 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
+import {
+  mapValues,
+  parseDate,
+  parseDateTime,
+  serializeDate,
+  serializeDateTime,
+} from '../runtime';
 /**
  *
  * @export
@@ -21,104 +27,70 @@ import { mapValues } from '../runtime';
 export interface BcgwClosuresShortDto {
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   forest_file_id: string;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   project_name: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   project_type: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   closure_ind: BcgwClosuresShortDtoClosureIndEnum;
   /**
    *
-   * @type {Date}
-   * @memberof BcgwClosuresShortDto
    */
   closure_date: Date | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   closure_type: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   site_location: string | null;
   /**
    *
-   * @type {number}
-   * @memberof BcgwClosuresShortDto
    */
   defined_campsites: number;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   recreation_district_code: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   recreation_district_name: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   org_unit_name: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   closure_comment: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   site_description: string | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   driving_directions: string | null;
   /**
    * Latitude in decimal degrees (WGS84)
-   * @type {number}
-   * @memberof BcgwClosuresShortDto
    */
   latitude: number | null;
   /**
    * Longitude in decimal degrees (WGS84)
-   * @type {number}
-   * @memberof BcgwClosuresShortDto
    */
   longitude: number | null;
   /**
    * GeoJSON Point geometry (WGS84)
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
    */
   shape: string | null;
 }
@@ -202,7 +174,7 @@ export function BcgwClosuresShortDtoFromJSONTyped(
     project_type: json['project_type'],
     closure_ind: json['closure_ind'],
     closure_date:
-      json['closure_date'] == null ? null : new Date(json['closure_date']),
+      json['closure_date'] == null ? null : parseDate(json['closure_date']),
     closure_type: json['closure_type'],
     site_location: json['site_location'],
     defined_campsites: json['defined_campsites'],
@@ -235,7 +207,10 @@ export function BcgwClosuresShortDtoToJSONTyped(
     project_name: value['project_name'],
     project_type: value['project_type'],
     closure_ind: value['closure_ind'],
-    closure_date: (value['closure_date'] as any).toISOString().substring(0, 10),
+    closure_date:
+      value['closure_date'] == null
+        ? value['closure_date']
+        : serializeDate(value['closure_date']),
     closure_type: value['closure_type'],
     site_location: value['site_location'],
     defined_campsites: value['defined_campsites'],

@@ -29,26 +29,18 @@ import {
 export interface HealthControllerCheck503Response {
   /**
    *
-   * @type {string}
-   * @memberof HealthControllerCheck503Response
    */
   status?: string;
   /**
    *
-   * @type {{ [key: string]: HealthControllerCheck200ResponseInfoValue; }}
-   * @memberof HealthControllerCheck503Response
    */
   info?: { [key: string]: HealthControllerCheck200ResponseInfoValue } | null;
   /**
    *
-   * @type {{ [key: string]: HealthControllerCheck200ResponseInfoValue; }}
-   * @memberof HealthControllerCheck503Response
    */
   error?: { [key: string]: HealthControllerCheck200ResponseInfoValue } | null;
   /**
    *
-   * @type {{ [key: string]: HealthControllerCheck200ResponseInfoValue; }}
-   * @memberof HealthControllerCheck503Response
    */
   details?: { [key: string]: HealthControllerCheck200ResponseInfoValue };
 }
@@ -78,19 +70,23 @@ export function HealthControllerCheck503ResponseFromJSONTyped(
   return {
     status: json['status'] == null ? undefined : json['status'],
     info:
-      json['info'] == null
+      json['info'] === undefined
         ? undefined
-        : mapValues(
-            json['info'],
-            HealthControllerCheck200ResponseInfoValueFromJSON,
-          ),
+        : json['info'] === null
+          ? null
+          : mapValues(
+              json['info'],
+              HealthControllerCheck200ResponseInfoValueFromJSON,
+            ),
     error:
-      json['error'] == null
+      json['error'] === undefined
         ? undefined
-        : mapValues(
-            json['error'],
-            HealthControllerCheck200ResponseInfoValueFromJSON,
-          ),
+        : json['error'] === null
+          ? null
+          : mapValues(
+              json['error'],
+              HealthControllerCheck200ResponseInfoValueFromJSON,
+            ),
     details:
       json['details'] == null
         ? undefined

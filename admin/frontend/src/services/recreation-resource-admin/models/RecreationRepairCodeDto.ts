@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface RecreationRepairCodeDto {
   /**
    * Surrogate primary key for the remedial repair code
-   * @type {string}
-   * @memberof RecreationRepairCodeDto
    */
   recreation_remed_repair_code: string;
   /**
    * Description of the repair code
-   * @type {string}
-   * @memberof RecreationRepairCodeDto
    */
   description?: string;
 }

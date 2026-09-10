@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface UpdateImageConsentPatchDto {
   /**
    * Display name for the image
-   * @type {string}
-   * @memberof UpdateImageConsentPatchDto
    */
   file_name?: string;
   /**
    * Date the photo was taken (ISO date string)
-   * @type {string}
-   * @memberof UpdateImageConsentPatchDto
    */
   date_taken?: string;
 }

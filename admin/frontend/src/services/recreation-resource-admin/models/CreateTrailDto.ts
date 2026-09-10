@@ -21,26 +21,18 @@ import { mapValues } from '../runtime';
 export interface CreateTrailDto {
   /**
    * Recreation activity code this trail belongs to
-   * @type {number}
-   * @memberof CreateTrailDto
    */
   recreation_activity_code: number;
   /**
    * Difficulty classification of the trail
-   * @type {string}
-   * @memberof CreateTrailDto
    */
   trail_type?: CreateTrailDtoTrailTypeEnum | null;
   /**
    * Name of the trail
-   * @type {string}
-   * @memberof CreateTrailDto
    */
   name: string;
   /**
    * Description of the trail
-   * @type {string}
-   * @memberof CreateTrailDto
    */
   description?: string | null;
 }
@@ -84,9 +76,19 @@ export function CreateTrailDtoFromJSONTyped(
   }
   return {
     recreation_activity_code: json['recreation_activity_code'],
-    trail_type: json['trail_type'] == null ? undefined : json['trail_type'],
+    trail_type:
+      json['trail_type'] === undefined
+        ? undefined
+        : json['trail_type'] === null
+          ? null
+          : json['trail_type'],
     name: json['name'],
-    description: json['description'] == null ? undefined : json['description'],
+    description:
+      json['description'] === undefined
+        ? undefined
+        : json['description'] === null
+          ? null
+          : json['description'],
   };
 }
 

@@ -29,14 +29,10 @@ import {
 export interface OptionsByTypeDto {
   /**
    * Option type
-   * @type {string}
-   * @memberof OptionsByTypeDto
    */
   type: OptionsByTypeDtoTypeEnum;
   /**
    * Options for the provided type
-   * @type {Array<OptionDto>}
-   * @memberof OptionsByTypeDto
    */
   options: Array<OptionDto>;
 }
