@@ -51,7 +51,7 @@ export interface RecreationAssetCodeDto {
   has_area?: boolean;
   /**
    * Default monetary value for an asset of this type
-   * @type {object}
+   * @type {number}
    * @memberof RecreationAssetCodeDto
    */
   default_value?: object;

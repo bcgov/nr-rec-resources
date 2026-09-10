@@ -64,7 +64,7 @@ export function RecResourceAssetsEditPage() {
     isLoading: isAssetsLoading,
     isError: isAssetsError,
   } = useGetAssetsByRecResourceId(recResourceId);
-  const { data: assetCodes } = useGetAssetCodes();
+  const { data: assetCodes = [] } = useGetAssetCodes();
   const { data: repairCodes = [] } = useGetRepairCodes();
   const { data: resource } = useGetRecreationResourceById(recResourceId);
   const { mutateAsync: updateAsset } = useUpdateAsset();
@@ -80,6 +80,7 @@ export function RecResourceAssetsEditPage() {
   >(new Map());
   const [isSaving, setIsSaving] = useState(false);
   const [saveAttemptCount, setSaveAttemptCount] = useState(0);
+  const [hasImmediateChanges, setHasImmediateChanges] = useState(false);
 
   // Inspection edit state
   const [isEditingInspections, setIsEditingInspections] = useState(false);
@@ -155,6 +156,12 @@ export function RecResourceAssetsEditPage() {
     setSaveAttemptCount((count) => count + 1);
 
     if (pendingChanges.size === 0 && pendingRepairChanges.size === 0) {
+      if (hasImmediateChanges) {
+        setHasImmediateChanges(false);
+        navigateToView();
+        return;
+      }
+
       addErrorNotification('No changes to save.', 'saveAssets-no-changes');
       return;
     }
@@ -180,6 +187,7 @@ export function RecResourceAssetsEditPage() {
           updateRepair({ repairId, recResourceId, dto }),
         ),
       ]);
+      setHasImmediateChanges(false);
       navigateToView();
     } finally {
       setIsSaving(false);
@@ -204,6 +212,7 @@ export function RecResourceAssetsEditPage() {
       setPendingRepairChanges((prev) => {
         return buildPendingAssetRepairChanges(prev, assets, assetId);
       });
+      setHasImmediateChanges(true);
     } catch {}
   }
 

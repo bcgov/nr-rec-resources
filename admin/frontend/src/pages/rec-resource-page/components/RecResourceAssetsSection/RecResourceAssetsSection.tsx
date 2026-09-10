@@ -120,6 +120,12 @@ export function RecResourceAssetsSection() {
   const campsiteGroups = groupAssetsByCampsite(assets ?? []);
   const hasCampsites = campsiteGroups.length > 0;
 
+  useEffect(() => {
+    if (!hasCampsites && groupMode === 'campsite') {
+      setGroupMode('type');
+    }
+  }, [groupMode, hasCampsites]);
+
   function handleEditChange(assetId: number, values: AssetEditFormValues) {
     setPendingChanges((prev) => new Map(prev).set(assetId, values));
   }
@@ -469,6 +475,11 @@ export function RecResourceAssetsSection() {
                                   asset={child}
                                   repairCodes={repairCodes}
                                   assetCodes={assetCodes}
+                                  linkedAssetCount={
+                                    (assets ?? []).filter(
+                                      (a) => a.parent_id === child.asset_id,
+                                    ).length
+                                  }
                                   recResourceId={recResourceId}
                                   onChange={handleEditChange}
                                   saveAttemptCount={campsiteSaveAttemptCount}

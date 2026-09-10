@@ -1,7 +1,10 @@
+import type { UpdateRecreationAssetDto } from '@/services/recreation-resource-admin';
 import { parseNumber } from '@/utils/assetForm';
 import type { AssetEditFormValues } from './AssetCardEdit';
 
-export function buildAssetUpdateDto(values: AssetEditFormValues) {
+export function buildAssetUpdateDto(
+  values: AssetEditFormValues,
+): UpdateRecreationAssetDto {
   const latitude = parseNumber(values.latitude);
   const longitude = parseNumber(values.longitude);
   const hasCoordinates = latitude !== null && longitude !== null;
@@ -15,7 +18,7 @@ export function buildAssetUpdateDto(values: AssetEditFormValues) {
     latitude,
     longitude,
     geometry_type_code: hasCoordinates ? 'PT' : null,
-  };
+  } as UpdateRecreationAssetDto;
 }
 
 export function buildInspectionDatesDto(

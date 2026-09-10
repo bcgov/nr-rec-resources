@@ -39,6 +39,17 @@ describe('useGetAssetCodes', () => {
       wrapper: TestQueryClientProvider,
     });
 
-    await waitFor(() => expect(result.current.data).toEqual(codes));
+    await waitFor(() =>
+      expect(result.current.data).toEqual([
+        {
+          asset_code: 100,
+          description: 'Bridge',
+          has_length: undefined,
+          has_width: undefined,
+          has_area: undefined,
+          default_value: null,
+        },
+      ]),
+    );
   });
 });

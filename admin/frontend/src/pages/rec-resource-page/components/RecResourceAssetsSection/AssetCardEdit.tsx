@@ -69,6 +69,12 @@ export function AssetCardEdit({
   const areaEnabled = selectedAssetCode?.has_area ?? false;
   const repairs = asset.recreation_asset_repair ?? [];
   const assetName = asset.asset_name?.trim() || 'this asset';
+  const unassignLinkedAssetsLabel = isCampsite
+    ? 'Delete campsite and unassign linked assets'
+    : 'Delete asset and unassign linked assets';
+  const deleteLinkedAssetsLabel = isCampsite
+    ? 'Delete campsite and all linked assets'
+    : 'Delete asset and all linked assets';
   const isTrailAsset = isTrailAssetCode(asset.asset_code, assetCodes);
   const hasLinkedAssets = isCampsite && linkedAssetCount > 0;
 
@@ -334,7 +340,7 @@ export function AssetCardEdit({
                 type="radio"
                 id={`delete-mode-unassign-${asset.asset_id}`}
                 name={`delete-mode-${asset.asset_id}`}
-                label="Delete campsite and unassign linked assets"
+                label={unassignLinkedAssetsLabel}
                 checked={deleteMode === 'unassign-children'}
                 onChange={() => setDeleteMode('unassign-children')}
               />
@@ -343,7 +349,7 @@ export function AssetCardEdit({
                 type="radio"
                 id={`delete-mode-cascade-${asset.asset_id}`}
                 name={`delete-mode-${asset.asset_id}`}
-                label="Delete campsite and all linked assets"
+                label={deleteLinkedAssetsLabel}
                 checked={deleteMode === 'delete-with-campsite'}
                 onChange={() => setDeleteMode('delete-with-campsite')}
               />

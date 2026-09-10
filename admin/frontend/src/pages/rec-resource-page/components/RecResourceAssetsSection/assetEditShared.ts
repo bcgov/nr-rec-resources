@@ -67,6 +67,52 @@ export function buildPendingAssetChanges(
   return updated;
 }
 
+function getChildrenByParentId(assets?: Asset[]): Map<number, number[]> {
+  const childrenByParentId = new Map<number, number[]>();
+
+  for (const asset of assets ?? []) {
+    if (asset.parent_id == null) continue;
+    const current = childrenByParentId.get(asset.parent_id) ?? [];
+    current.push(asset.asset_id);
+    childrenByParentId.set(asset.parent_id, current);
+  }
+
+  return childrenByParentId;
+}
+
+function getDescendantAssetIdsPostOrder(
+  assets: Asset[] | undefined,
+  rootAssetId: number,
+): number[] {
+  const childrenByParentId = getChildrenByParentId(assets);
+  const descendants: number[] = [];
+  const stack: Array<{ assetId: number; visited: boolean }> = [
+    { assetId: rootAssetId, visited: false },
+  ];
+
+  // Post-order traversal ensures children are deleted before their parents.
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) continue;
+
+    if (current.visited) {
+      if (current.assetId !== rootAssetId) {
+        descendants.push(current.assetId);
+      }
+      continue;
+    }
+
+    stack.push({ assetId: current.assetId, visited: true });
+
+    const childIds = childrenByParentId.get(current.assetId) ?? [];
+    for (let i = childIds.length - 1; i >= 0; i -= 1) {
+      stack.push({ assetId: childIds[i], visited: false });
+    }
+  }
+
+  return descendants;
+}
+
 export async function deleteAssetWithLinkedChildren({
   assets,
   assetId,
@@ -89,15 +135,16 @@ export async function deleteAssetWithLinkedChildren({
     assetId: number;
   }) => Promise<any>;
 }) {
-  const linkedChildren = (assets ?? []).filter(
-    (asset) => asset.parent_id === assetId,
-  );
+  const childrenByParentId = getChildrenByParentId(assets);
+  const linkedChildren = childrenByParentId.get(assetId) ?? [];
+  const shouldUnassignChildren =
+    linkedChildren.length > 0 && (!mode || mode === 'unassign-children');
 
-  if (mode === 'unassign-children' && linkedChildren.length > 0) {
+  if (shouldUnassignChildren) {
     await Promise.all(
-      linkedChildren.map((child) =>
+      linkedChildren.map((childAssetId) =>
         updateAsset({
-          assetId: child.asset_id,
+          assetId: childAssetId,
           recResourceId,
           dto: { parent_id: null },
         }),
@@ -106,11 +153,10 @@ export async function deleteAssetWithLinkedChildren({
   }
 
   if (mode === 'delete-with-campsite' && linkedChildren.length > 0) {
-    await Promise.all(
-      linkedChildren.map((child) =>
-        deleteAssetMutation({ recResourceId, assetId: child.asset_id }),
-      ),
-    );
+    const descendantAssetIds = getDescendantAssetIdsPostOrder(assets, assetId);
+    for (const descendantAssetId of descendantAssetIds) {
+      await deleteAssetMutation({ recResourceId, assetId: descendantAssetId });
+    }
   }
 
   await deleteAssetMutation({ recResourceId, assetId });

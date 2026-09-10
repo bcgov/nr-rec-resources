@@ -484,6 +484,34 @@ describe('RecResourceAssetsEditPage', () => {
     });
   });
 
+  it('does not show the no-changes error after a successful delete-only action', async () => {
+    const user = userEvent.setup();
+    const asset = buildAsset({ asset_id: 10 });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [asset],
+      isLoading: false,
+      isError: false,
+    } as any);
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'delete-asset-10' }));
+    await user.click(screen.getByRole('button', { name: 'save-group-100' }));
+
+    await waitFor(() => {
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 10,
+      });
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
+        params: { id: 'REC123' },
+      });
+    });
+    expect(screen.queryByText('No changes to save.')).not.toBeInTheDocument();
+  });
+
   it('unassigns linked children before deleting a parent asset', async () => {
     const user = userEvent.setup();
     const parent = buildAsset({ asset_id: 10 });
