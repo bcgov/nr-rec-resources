@@ -6,6 +6,7 @@ import type {
   AssetCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
 import {
+  useDeleteAsset,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -14,6 +15,10 @@ import {
   useUpdateAssetRepair,
   useUpdateRecreationResource,
 } from '@/services/hooks/recreation-resource-admin';
+import {
+  validateLatitude,
+  validateLongitude,
+} from '@/utils/coordinateValidation';
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -31,6 +36,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 });
 
 vi.mock('@/services/hooks/recreation-resource-admin', () => ({
+  useDeleteAsset: vi.fn(),
   useGetAssetCodes: vi.fn(),
   useGetAssetsByRecResourceId: vi.fn(),
   useGetRecreationResourceById: vi.fn(),
@@ -38,6 +44,11 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
   useUpdateAsset: vi.fn(),
   useUpdateAssetRepair: vi.fn(),
   useUpdateRecreationResource: vi.fn(),
+}));
+
+vi.mock('@/store/notificationStore', () => ({
+  addErrorNotification: vi.fn(),
+  addSuccessNotification: vi.fn(),
 }));
 
 vi.mock(
@@ -102,23 +113,38 @@ vi.mock(
   }),
 );
 
+let queuedAssetPayload: AssetEditFormValues = {
+  asset_comment: 'Updated comment',
+  asset_length: '11',
+  asset_width: '',
+  asset_area: '33.5',
+  longitude: '-123.4',
+  latitude: '49.2',
+  actual_value: '88.1',
+};
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCardEdit',
   () => ({
-    AssetCardEdit: ({ asset, onChange, onRepairChange }: any) => {
-      const payload: AssetEditFormValues = {
-        asset_comment: 'Updated comment',
-        asset_length: '11',
-        asset_width: '',
-        asset_area: '33.5',
-        longitude: '-123.4',
-        latitude: '49.2',
-        actual_value: '88.1',
-      };
+    AssetCardEdit: ({
+      asset,
+      onChange,
+      onRepairChange,
+      onDelete,
+      saveAttemptCount = 0,
+    }: any) => {
+      const latitudeError =
+        saveAttemptCount > 0
+          ? validateLatitude(queuedAssetPayload.latitude)
+          : '';
+      const longitudeError =
+        saveAttemptCount > 0
+          ? validateLongitude(queuedAssetPayload.longitude)
+          : '';
 
       return (
         <div>
-          <button onClick={() => onChange(asset.asset_id, payload)}>
+          <button onClick={() => onChange(asset.asset_id, queuedAssetPayload)}>
             queue-asset-{asset.asset_id}
           </button>
           <button
@@ -130,6 +156,25 @@ vi.mock(
           >
             queue-repair-{asset.asset_id}
           </button>
+          {onDelete && (
+            <>
+              <button onClick={() => onDelete(asset.asset_id)}>
+                delete-asset-{asset.asset_id}
+              </button>
+              <button
+                onClick={() => onDelete(asset.asset_id, 'unassign-children')}
+              >
+                delete-unassign-{asset.asset_id}
+              </button>
+              <button
+                onClick={() => onDelete(asset.asset_id, 'delete-with-campsite')}
+              >
+                delete-cascade-{asset.asset_id}
+              </button>
+            </>
+          )}
+          {latitudeError && <div>{latitudeError}</div>}
+          {longitudeError && <div>{longitudeError}</div>}
         </div>
       );
     },
@@ -177,9 +222,19 @@ describe('RecResourceAssetsEditPage', () => {
   const mockUpdateAsset = vi.fn().mockResolvedValue(undefined);
   const mockUpdateRepair = vi.fn().mockResolvedValue(undefined);
   const mockUpdateResource = vi.fn().mockResolvedValue(undefined);
+  const mockDeleteAsset = vi.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
     vi.clearAllMocks();
+    queuedAssetPayload = {
+      asset_comment: 'Updated comment',
+      asset_length: '11',
+      asset_width: '',
+      asset_area: '33.5',
+      longitude: '-123.4',
+      latitude: '49.2',
+      actual_value: '88.1',
+    };
 
     vi.mocked(useParams).mockReturnValue({ id: 'REC123' } as any);
     vi.mocked(useSearch).mockReturnValue({} as any);
@@ -199,6 +254,9 @@ describe('RecResourceAssetsEditPage', () => {
       },
     } as any);
 
+    vi.mocked(useDeleteAsset).mockReturnValue({
+      mutateAsync: mockDeleteAsset,
+    } as any);
     vi.mocked(useUpdateAsset).mockReturnValue({
       mutateAsync: mockUpdateAsset,
     } as any);
@@ -274,6 +332,9 @@ describe('RecResourceAssetsEditPage', () => {
           asset_width: undefined,
           asset_area: 33.5,
           actual_value: 88.1,
+          latitude: 49.2,
+          longitude: -123.4,
+          geometry_type_code: 'PT',
         },
       });
       expect(mockUpdateRepair).toHaveBeenCalledWith({
@@ -286,6 +347,26 @@ describe('RecResourceAssetsEditPage', () => {
         params: { id: 'REC123' },
       });
     });
+  });
+
+  it('shows a submit-time longitude validation error below the field and blocks save for invalid grouped edits', async () => {
+    const user = userEvent.setup();
+    queuedAssetPayload = {
+      ...queuedAssetPayload,
+      longitude: '-181',
+    };
+
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'queue-asset-10' }));
+    await user.click(screen.getByRole('button', { name: 'save-group-100' }));
+
+    expect(
+      await screen.findByText('Must be between -180 and 180'),
+    ).toBeInTheDocument();
+    expect(mockUpdateAsset).not.toHaveBeenCalled();
   });
 
   it('opens inspection edit and saves inspection dates', async () => {
@@ -341,5 +422,105 @@ describe('RecResourceAssetsEditPage', () => {
 
     expect(mockUpdateAsset).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('deletes an edited asset and clears its queued repair changes', async () => {
+    const user = userEvent.setup();
+    const repairedAsset = buildAsset({
+      asset_id: 10,
+      recreation_asset_repair: [
+        {
+          repair_id: 710,
+          asset_id: 10,
+          recreation_remed_repair_code: 'R1',
+          estimated_repair_cost: null,
+          actual_repair_cost: null,
+          repair_completed_date: null,
+          urgency: null,
+          trail_segment_start: null,
+          trail_segment_end: null,
+          created_by: null,
+          created_at: null,
+          updated_by: null,
+          updated_at: null,
+        },
+      ],
+    });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [repairedAsset],
+      isLoading: false,
+      isError: false,
+    } as any);
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'queue-asset-10' }));
+    await user.click(screen.getByRole('button', { name: 'queue-repair-10' }));
+    await user.click(screen.getByRole('button', { name: 'delete-asset-10' }));
+
+    await waitFor(() => {
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 10,
+      });
+    });
+  });
+
+  it('unassigns linked children before deleting a parent asset', async () => {
+    const user = userEvent.setup();
+    const parent = buildAsset({ asset_id: 10 });
+    const child = buildAsset({ asset_id: 20, parent_id: 10 });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [parent, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'delete-unassign-10' }),
+    );
+
+    await waitFor(() => {
+      expect(mockUpdateAsset).toHaveBeenCalledWith({
+        assetId: 20,
+        recResourceId: 'REC123',
+        dto: { parent_id: null },
+      });
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 10,
+      });
+    });
+  });
+
+  it('deletes linked children before deleting a parent asset when cascading', async () => {
+    const user = userEvent.setup();
+    const parent = buildAsset({ asset_id: 10 });
+    const child = buildAsset({ asset_id: 20, parent_id: 10 });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [parent, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'delete-cascade-10' }));
+
+    await waitFor(() => {
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 20,
+      });
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 10,
+      });
+    });
   });
 });

@@ -11,6 +11,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CustomButton } from '@/components';
 import {
+  useDeleteAsset,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -21,7 +22,8 @@ import {
 } from '@/services/hooks/recreation-resource-admin';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import { ROUTE_PATHS } from '@/constants/routes';
-import { parseNumber, toDateInputValue } from '@/utils/assetForm';
+import { addErrorNotification } from '@/store/notificationStore';
+import { toDateInputValue } from '@/utils/assetForm';
 import { InspectionDatesEdit } from './components/RecResourceAssetsSection/InspectionDatesEdit';
 import { AssetCard } from './components/RecResourceAssetsSection/AssetCard';
 import { AssetCardEdit } from './components/RecResourceAssetsSection/AssetCardEdit';
@@ -31,9 +33,22 @@ import { AssetTypeCardEdit } from './components/RecResourceAssetsSection/AssetTy
 import { computeAssetSummary } from './components/RecResourceAssetsSection/assetSummary';
 import { groupAssetsByType } from './components/RecResourceAssetsSection/assetTypeGrouping';
 import { groupAssetsByCampsite } from './components/RecResourceAssetsSection/campsiteGrouping';
+import {
+  buildAssetUpdateDto,
+  buildInspectionDatesDto,
+} from './components/RecResourceAssetsSection/editPayloads';
+import {
+  buildPendingAssetChanges,
+  buildPendingAssetRepairChanges,
+  deleteAssetWithLinkedChildren,
+  getCoordinateValidationError,
+} from './components/RecResourceAssetsSection/assetEditShared';
 import assetType from '@shared/assets/icons/asset-type-outline.svg';
 import campingType from '@shared/assets/icons/camping-type.svg';
-import type { AssetEditFormValues } from './components/RecResourceAssetsSection/AssetCardEdit';
+import type {
+  AssetDeleteMode,
+  AssetEditFormValues,
+} from './components/RecResourceAssetsSection/AssetCardEdit';
 
 export function RecResourceAssetsEditPage() {
   const { id: recResourceId } = useParams({ from: '/rec-resource/$id' });
@@ -55,6 +70,7 @@ export function RecResourceAssetsEditPage() {
   const { mutateAsync: updateAsset } = useUpdateAsset();
   const { mutateAsync: updateRepair } = useUpdateAssetRepair();
   const { mutateAsync: updateResource } = useUpdateRecreationResource();
+  const { mutateAsync: deleteAssetMutation } = useDeleteAsset();
 
   const [pendingChanges, setPendingChanges] = useState<
     Map<number, AssetEditFormValues>
@@ -63,6 +79,7 @@ export function RecResourceAssetsEditPage() {
     Map<number, Partial<UpdateRecreationAssetRepairDto>>
   >(new Map());
   const [isSaving, setIsSaving] = useState(false);
+  const [saveAttemptCount, setSaveAttemptCount] = useState(0);
 
   // Inspection edit state
   const [isEditingInspections, setIsEditingInspections] = useState(false);
@@ -102,6 +119,7 @@ export function RecResourceAssetsEditPage() {
   }
 
   function navigateToView() {
+    setSaveAttemptCount(0);
     void navigate({
       to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
       params: { id: recResourceId },
@@ -120,10 +138,10 @@ export function RecResourceAssetsEditPage() {
     try {
       await updateResource({
         recResourceId,
-        updateRecreationResourceDto: {
-          last_rec_inspection_date: inspectionDate || null,
-          last_hzrd_tree_assess_date: dangerTreeDate || null,
-        },
+        updateRecreationResourceDto: buildInspectionDatesDto(
+          inspectionDate,
+          dangerTreeDate,
+        ),
       });
       setIsEditingInspections(false);
     } finally {
@@ -133,6 +151,21 @@ export function RecResourceAssetsEditPage() {
 
   async function handleSave() {
     if (!recResourceId) return;
+
+    setSaveAttemptCount((count) => count + 1);
+
+    if (pendingChanges.size === 0 && pendingRepairChanges.size === 0) {
+      addErrorNotification('No changes to save.', 'saveAssets-no-changes');
+      return;
+    }
+
+    for (const [, values] of pendingChanges) {
+      const coordinateError = getCoordinateValidationError(values);
+      if (coordinateError) {
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       await Promise.all([
@@ -140,13 +173,7 @@ export function RecResourceAssetsEditPage() {
           updateAsset({
             assetId,
             recResourceId,
-            dto: {
-              asset_comment: values.asset_comment || null,
-              asset_length: parseNumber(values.asset_length) ?? undefined,
-              asset_width: parseNumber(values.asset_width) ?? undefined,
-              asset_area: parseNumber(values.asset_area) ?? undefined,
-              actual_value: parseNumber(values.actual_value) ?? undefined,
-            },
+            dto: buildAssetUpdateDto(values),
           }),
         ),
         ...Array.from(pendingRepairChanges.entries()).map(([repairId, dto]) =>
@@ -157,6 +184,27 @@ export function RecResourceAssetsEditPage() {
     } finally {
       setIsSaving(false);
     }
+  }
+
+  async function handleDeleteAsset(assetId: number, mode?: AssetDeleteMode) {
+    if (!recResourceId) return;
+
+    try {
+      await deleteAssetWithLinkedChildren({
+        assets,
+        assetId,
+        mode,
+        recResourceId,
+        updateAsset,
+        deleteAssetMutation,
+      });
+      // Only remove pending changes for the deleted asset, preserve edits for other assets
+      setPendingChanges((prev) => buildPendingAssetChanges(prev, assetId));
+      // Also remove any pending repair changes for repairs belonging to this asset
+      setPendingRepairChanges((prev) => {
+        return buildPendingAssetRepairChanges(prev, assets, assetId);
+      });
+    } catch {}
   }
 
   return (
@@ -262,7 +310,11 @@ export function RecResourceAssetsEditPage() {
                 variant="secondary"
                 className="asset-summary-action-btn"
                 leftIcon={<FontAwesomeIcon icon={faPlus as any} />}
-                disabled
+                disabled={!editGroup}
+                onClick={() => {
+                  // Navigate to RecResourceAssetsSection's add repair modal
+                  // For now, this is a placeholder - the feature should be implemented in RecResourceAssetsSection
+                }}
               >
                 Add repair
               </CustomButton>
@@ -294,9 +346,16 @@ export function RecResourceAssetsEditPage() {
                           asset={asset}
                           repairCodes={repairCodes}
                           assetCodes={assetCodes ?? []}
+                          linkedAssetCount={
+                            (assets ?? []).filter(
+                              (a) => a.parent_id === asset.asset_id,
+                            ).length
+                          }
                           recResourceId={recResourceId}
                           onChange={handleEditChange}
+                          saveAttemptCount={saveAttemptCount}
                           onRepairChange={handleRepairChange}
+                          onDelete={handleDeleteAsset}
                         />
                       ))}
                     </Stack>

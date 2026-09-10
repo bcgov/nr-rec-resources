@@ -5,9 +5,13 @@ import type {
   AssetRepair,
   RepairCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as useUpdateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair';
+import * as useCreateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useCreateAssetRepair';
+import * as useDeleteAssetRepairModule from '@/services/hooks/recreation-resource-admin/useDeleteAssetRepair';
+import * as useAuthorizationsModule from '@/hooks/useAuthorizations';
 
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair',
@@ -17,9 +21,13 @@ vi.mock(
   '@/services/hooks/recreation-resource-admin/useCreateAssetRepair',
   () => ({ useCreateAssetRepair: vi.fn() }),
 );
-
-import * as useUpdateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useUpdateAssetRepair';
-import * as useCreateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useCreateAssetRepair';
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useDeleteAssetRepair',
+  () => ({ useDeleteAssetRepair: vi.fn() }),
+);
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: vi.fn(),
+}));
 
 const buildAsset = (overrides: Partial<Asset> = {}): Asset => ({
   asset_id: 1,
@@ -86,10 +94,23 @@ const defaultProps = {
 describe('AssetCardEdit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canDelete: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
+      isSuperAdmin: true,
+      canViewSensitiveInfo: true,
+    });
     vi.mocked(useUpdateAssetRepairModule.useUpdateAssetRepair).mockReturnValue({
       mutate: vi.fn(),
     } as any);
     vi.mocked(useCreateAssetRepairModule.useCreateAssetRepair).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as any);
+    vi.mocked(useDeleteAssetRepairModule.useDeleteAssetRepair).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     } as any);
@@ -142,7 +163,7 @@ describe('AssetCardEdit', () => {
     ).toBeInTheDocument();
   });
 
-  it('uses empty repairs array when recreation_asset_repair is null', () => {
+  it('does not render repairs section when recreation_asset_repair is null', () => {
     render(
       <AssetCardEdit
         {...defaultProps}
@@ -170,18 +191,126 @@ describe('AssetCardEdit', () => {
     expect(screen.getByDisplayValue('2500')).toBeInTheDocument();
   });
 
-  it('reports validation state after lat/lng edits', async () => {
+  it('queues the latest latitude and longitude values on change', async () => {
     const user = userEvent.setup();
-    const onValidationChange = vi.fn();
+    const onChange = vi.fn();
+    render(<AssetCardEdit {...defaultProps} onChange={onChange} />);
+
+    await user.clear(screen.getByLabelText('Longitude'));
+    await user.type(screen.getByLabelText('Longitude'), '-123.1');
+    await user.clear(screen.getByLabelText('Latitude'));
+    await user.type(screen.getByLabelText('Latitude'), '49.2');
+
+    expect(onChange).toHaveBeenLastCalledWith(
+      1,
+      expect.objectContaining({
+        longitude: '-123.1',
+        latitude: '49.2',
+      }),
+    );
+  });
+
+  it('shows campsite delete options when linked assets exist', async () => {
+    const user = userEvent.setup();
     render(
       <AssetCardEdit
         {...defaultProps}
-        onValidationChange={onValidationChange}
+        asset={buildAsset({ asset_code: 227, asset_name: 'Campsite 2' })}
+        linkedAssetCount={2}
+        onDelete={vi.fn()}
       />,
     );
 
-    await user.type(screen.getByLabelText('Latitude'), '49.2');
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
 
-    expect(onValidationChange).toHaveBeenCalledWith(1, expect.any(Boolean));
+    expect(
+      screen.getByText(/will affect 2 linked assets/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Delete campsite and unassign linked assets'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Delete campsite and all linked assets'),
+    ).toBeInTheDocument();
+  });
+
+  it('passes selected delete mode when confirming campsite deletion', async () => {
+    const user = userEvent.setup();
+    const onDelete = vi.fn();
+    render(
+      <AssetCardEdit
+        {...defaultProps}
+        asset={buildAsset({ asset_code: 227, asset_name: 'Campsite 2' })}
+        linkedAssetCount={1}
+        onDelete={onDelete}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(
+      screen.getByLabelText('Delete campsite and all linked assets'),
+    );
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
+    );
+
+    expect(onDelete).toHaveBeenCalledWith(1, 'delete-with-campsite');
+  });
+
+  it('does not render a Delete button when no onDelete handler is provided', () => {
+    render(<AssetCardEdit {...defaultProps} />);
+
+    expect(
+      screen.queryByRole('button', { name: 'Delete' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the simple delete confirmation text for a non-campsite asset', async () => {
+    const user = userEvent.setup();
+
+    render(<AssetCardEdit {...defaultProps} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(
+      screen.getByText(/Are you sure you want to delete/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Delete campsite and unassign linked assets'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows Delete for developer role', () => {
+    vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: false,
+      canDelete: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: false,
+      isSuperAdmin: false,
+      canViewSensitiveInfo: true,
+    });
+
+    render(<AssetCardEdit {...defaultProps} onDelete={vi.fn()} />);
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  });
+
+  it('hides Delete when user has no delete access', () => {
+    vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: false,
+      canDelete: false,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
+      isSuperAdmin: false,
+      canViewSensitiveInfo: true,
+    });
+
+    render(<AssetCardEdit {...defaultProps} onDelete={vi.fn()} />);
+
+    expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
   });
 });

@@ -4,7 +4,7 @@ import type {
   Asset,
   AssetCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -84,6 +84,48 @@ describe('BulkAddAssetsModal', () => {
     expect(
       screen.getByRole('option', { name: 'Picnic Table' }),
     ).toBeInTheDocument();
+  });
+
+  it('sorts asset type dropdown options alphabetically', () => {
+    render(
+      <BulkAddAssetsModal
+        {...defaultProps}
+        assetCodes={[
+          {
+            asset_code: 300,
+            description: 'Zebra Crossing',
+            has_length: false,
+            has_width: false,
+            has_area: false,
+          },
+          {
+            asset_code: 100,
+            description: 'Bridge',
+            has_length: true,
+            has_width: true,
+            has_area: false,
+          },
+          {
+            asset_code: 200,
+            description: 'Camp Kitchen',
+            has_length: false,
+            has_width: false,
+            has_area: false,
+          },
+        ]}
+      />,
+    );
+
+    const select = screen.getByRole('combobox', { name: 'Asset type' });
+    const labels = Array.from(select.querySelectorAll('option')).map(
+      (option) => option.textContent,
+    );
+    expect(labels).toEqual([
+      'Choose an asset type',
+      'Bridge',
+      'Camp Kitchen',
+      'Zebra Crossing',
+    ]);
   });
 
   it('submit button is disabled when no asset type is selected', () => {
@@ -382,6 +424,41 @@ describe('BulkAddAssetsModal', () => {
     expect(campsiteSelect).toHaveValue('5');
   });
 
+  it('sorts campsites alphabetically in the assign dropdown', async () => {
+    const user = userEvent.setup();
+    render(
+      <BulkAddAssetsModal
+        {...defaultProps}
+        existingAssets={[
+          buildAsset({
+            asset_id: 7,
+            asset_code: 227,
+            asset_name: 'Campsite Z',
+          }),
+          buildAsset({
+            asset_id: 5,
+            asset_code: 227,
+            asset_name: 'Campsite A',
+          }),
+        ]}
+      />,
+    );
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    const campsiteSelect = screen.getByRole('combobox', {
+      name: 'Assign to campsite',
+    });
+    const labels = Array.from(campsiteSelect.querySelectorAll('option')).map(
+      (option) => option.textContent,
+    );
+
+    expect(labels).toEqual(['—', 'Campsite A', 'Campsite Z']);
+  });
+
   it('includes geometry_type_code PT when lat and lng are both provided', async () => {
     const user = userEvent.setup();
     mockMutateAsync.mockResolvedValueOnce(undefined);
@@ -463,7 +540,7 @@ describe('BulkAddAssetsModal', () => {
     );
   });
 
-  it('counts existing assets of the selected type for sequential numbering', async () => {
+  it('continues numbering from the highest existing suffix', async () => {
     const user = userEvent.setup();
     const existing = buildAsset({ asset_id: 10, asset_code: 100 });
     render(
@@ -476,5 +553,85 @@ describe('BulkAddAssetsModal', () => {
     );
 
     expect(screen.getByText('Bridge 2')).toBeInTheDocument();
+  });
+
+  it('does not reuse deleted numbers when bulk adding assets', async () => {
+    const user = userEvent.setup();
+    const existing = [
+      buildAsset({ asset_id: 10, asset_code: 100, asset_name: 'Fire Ring 2' }),
+    ];
+
+    render(<BulkAddAssetsModal {...defaultProps} existingAssets={existing} />);
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+
+    expect(screen.getByText('Bridge 3')).toBeInTheDocument();
+  });
+
+  it('clamps the quantity stepper between 1 and 100', async () => {
+    render(<BulkAddAssetsModal {...defaultProps} />);
+
+    const quantityInput = screen
+      .getAllByRole('spinbutton')
+      .find(
+        (el) =>
+          el.getAttribute('max') === '100' &&
+          el.getAttribute('min') === '1' &&
+          el.classList.contains('bulk-modal__stepper-input'),
+      ) as HTMLInputElement | undefined;
+
+    expect(quantityInput).toBeTruthy();
+
+    if (!quantityInput) return;
+
+    fireEvent.change(quantityInput, { target: { value: '0' } });
+    expect(quantityInput).toHaveValue(1);
+
+    fireEvent.change(quantityInput, { target: { value: '101' } });
+    expect(quantityInput).toHaveValue(100);
+  });
+
+  it('continues numbering from the asset count when existing names have no numeric suffix and sanitizes generated tags', async () => {
+    const user = userEvent.setup();
+    mockMutateAsync.mockResolvedValueOnce(undefined);
+
+    render(
+      <BulkAddAssetsModal
+        {...defaultProps}
+        existingAssets={[
+          buildAsset({ asset_id: 10, asset_code: 100, asset_name: 'Bridge' }),
+        ]}
+        assetCodes={[
+          {
+            asset_code: 100,
+            description: 'Bridge - East/West',
+            has_length: true,
+            has_width: true,
+            has_area: false,
+            default_value: 5000,
+          },
+        ]}
+      />,
+    );
+
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Asset type' }),
+      '100',
+    );
+    await user.click(screen.getByRole('button', { name: 'Create 1 asset' }));
+
+    expect(mockMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assets: expect.arrayContaining([
+          expect.objectContaining({
+            asset_name: 'Bridge - East/West 2',
+            asset_tag: 'Bridge-EastWest-02-REC123',
+          }),
+        ]),
+      }),
+    );
   });
 });

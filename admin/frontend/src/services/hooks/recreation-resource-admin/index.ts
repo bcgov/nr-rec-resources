@@ -39,3 +39,5 @@ export * from './useCreateBulkAssets';
 export * from './useUpdateAsset';
 export * from './useUpdateRepair';
 export * from './useBulkUpdateAssets';
+export * from './useDeleteAsset';
+export * from './useDeleteAssetRepair';

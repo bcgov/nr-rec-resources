@@ -1,10 +1,11 @@
 import { AssetCardRepairsEdit } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/AssetCardRepairsEdit';
 import * as useCreateAssetRepairModule from '@/services/hooks/recreation-resource-admin/useCreateAssetRepair';
+import * as useDeleteAssetRepairModule from '@/services/hooks/recreation-resource-admin/useDeleteAssetRepair';
 import type {
   AssetRepair,
   RepairCode,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/types';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -12,6 +13,13 @@ vi.mock(
   '@/services/hooks/recreation-resource-admin/useCreateAssetRepair',
   () => ({
     useCreateAssetRepair: vi.fn(),
+  }),
+);
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useDeleteAssetRepair',
+  () => ({
+    useDeleteAssetRepair: vi.fn(),
   }),
 );
 
@@ -38,6 +46,7 @@ const repairCodes: RepairCode[] = [
 ];
 
 const mockCreateRepair = vi.fn();
+const mockDeleteRepair = vi.fn();
 
 const defaultProps = {
   repairs: [],
@@ -51,6 +60,10 @@ describe('AssetCardRepairsEdit', () => {
     vi.clearAllMocks();
     vi.mocked(useCreateAssetRepairModule.useCreateAssetRepair).mockReturnValue({
       mutate: mockCreateRepair,
+      isPending: false,
+    } as any);
+    vi.mocked(useDeleteAssetRepairModule.useDeleteAssetRepair).mockReturnValue({
+      mutate: mockDeleteRepair,
       isPending: false,
     } as any);
   });
@@ -193,6 +206,29 @@ describe('AssetCardRepairsEdit', () => {
     });
   });
 
+  it('calls onRepairChange with parsed actual cost when actual cost blurs', async () => {
+    const user = userEvent.setup();
+    const onRepairChange = vi.fn();
+    render(
+      <AssetCardRepairsEdit
+        {...defaultProps}
+        repairs={[buildRepair({ repair_id: 4, actual_repair_cost: 10 })]}
+        onRepairChange={onRepairChange}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+    const actualInput = screen.getByLabelText('Actual cost');
+    await user.clear(actualInput);
+    await user.type(actualInput, '125.5');
+    await user.tab();
+
+    expect(onRepairChange).toHaveBeenCalledWith(4, {
+      actual_repair_cost: 125.5,
+    });
+  });
+
   it('sorts repairs by repair_id ascending', async () => {
     const user = userEvent.setup();
     render(
@@ -301,5 +337,53 @@ describe('AssetCardRepairsEdit', () => {
       screen.getByRole('button', { name: /Add repair/ }),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText('Repair type')).not.toBeInTheDocument();
+  });
+
+  it('deletes a repair after confirmation', async () => {
+    const user = userEvent.setup();
+    render(
+      <AssetCardRepairsEdit
+        {...defaultProps}
+        repairs={[buildRepair({ repair_id: 5, estimated_repair_cost: 150 })]}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
+    );
+
+    expect(mockDeleteRepair).toHaveBeenCalledWith(
+      { repairId: 5, recResourceId: 'REC001' },
+      expect.any(Object),
+    );
+  });
+
+  it('closes the delete dialog after a successful repair delete', async () => {
+    const user = userEvent.setup();
+    vi.mocked(useDeleteAssetRepairModule.useDeleteAssetRepair).mockReturnValue({
+      mutate: (_vars: any, options: any) => options?.onSuccess?.(),
+      isPending: false,
+    } as any);
+
+    render(
+      <AssetCardRepairsEdit
+        {...defaultProps}
+        repairs={[buildRepair({ repair_id: 6 })]}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
+    );
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

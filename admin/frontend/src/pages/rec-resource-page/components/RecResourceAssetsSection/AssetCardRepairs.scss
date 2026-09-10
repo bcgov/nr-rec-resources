@@ -66,6 +66,19 @@
   margin-top: 1rem;
 }
 
+.asset-card-repairs__delete-btn {
+  color: #003366;
+  border-color: #003366;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: #fff;
+    background-color: #003366;
+    border-color: #003366;
+  }
+}
+
 .asset-card-repairs__empty {
   color: #{$colorGreyMed};
   font: var(--typography-regular-small-body, 400 0.875rem/1.313rem 'BC Sans');

@@ -11,6 +11,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CustomButton } from '@/components';
 import {
+  useDeleteAsset,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -27,11 +28,20 @@ import {
 import { ROUTE_PATHS } from '@/constants/routes';
 import { parseNumber, toDateInputValue } from '@/utils/assetForm';
 import { buildAssetUpdateDto, buildInspectionDatesDto } from './editPayloads';
+import {
+  buildPendingAssetChanges,
+  buildPendingAssetRepairChanges,
+  deleteAssetWithLinkedChildren,
+  getCoordinateValidationError,
+} from './assetEditShared';
 import { AddRepairModal } from './AddRepairModal';
 import { BulkAssetEditModal } from './BulkAssetEditModal';
 import { AssetCard } from './AssetCard';
-import { AssetCardEdit } from './AssetCardEdit';
-import type { AssetEditFormValues } from './AssetCardEdit';
+import {
+  AssetCardEdit,
+  type AssetDeleteMode,
+  type AssetEditFormValues,
+} from './AssetCardEdit';
 import { AssetSummaryCards } from './AssetSummaryCards';
 import { AssetTypeCard } from './AssetTypeCard';
 import { BulkAddAssetsModal } from './BulkAddAssetsModal';
@@ -72,9 +82,7 @@ export function RecResourceAssetsSection() {
     Map<number, Partial<UpdateRecreationAssetRepairDto>>
   >(new Map());
   const [isSavingCampsite, setIsSavingCampsite] = useState(false);
-  const [assetValidationErrors, setAssetValidationErrors] = useState<
-    Map<number, boolean>
-  >(new Map());
+  const [campsiteSaveAttemptCount, setCampsiteSaveAttemptCount] = useState(0);
 
   // Inspection edit state
   const [isInspectionEditOpen, setIsInspectionEditOpen] = useState(false);
@@ -93,6 +101,7 @@ export function RecResourceAssetsSection() {
   const { mutateAsync: updateResource } = useUpdateRecreationResource();
   const { mutateAsync: updateAsset } = useUpdateAsset();
   const { mutateAsync: updateRepair } = useUpdateAssetRepair();
+  const { mutateAsync: deleteAssetMutation } = useDeleteAsset();
 
   const summaryInspectionDate = inspectionDate
     ? new Date(inspectionDate)
@@ -110,18 +119,9 @@ export function RecResourceAssetsSection() {
   const typeGroups = groupAssetsByType(assets ?? [], assetCodes ?? []);
   const campsiteGroups = groupAssetsByCampsite(assets ?? []);
   const hasCampsites = campsiteGroups.length > 0;
-  const codeMap = new Map((assetCodes ?? []).map((c) => [c.asset_code, c]));
 
   function handleEditChange(assetId: number, values: AssetEditFormValues) {
     setPendingChanges((prev) => new Map(prev).set(assetId, values));
-  }
-
-  function handleValidationChange(assetId: number, hasErrors: boolean) {
-    setAssetValidationErrors((prev) => {
-      const updated = new Map(prev);
-      updated.set(assetId, hasErrors);
-      return updated;
-    });
   }
 
   function handleRepairChange(
@@ -139,42 +139,20 @@ export function RecResourceAssetsSection() {
     setEditingCampsiteId(null);
     setPendingChanges(new Map());
     setPendingRepairChanges(new Map());
-    setAssetValidationErrors(new Map());
+    setCampsiteSaveAttemptCount(0);
   }
 
   async function handleSaveCampsiteEdit() {
-    // Block save if any asset has validation errors
-    if (Array.from(assetValidationErrors.values()).some(Boolean)) {
-      addErrorNotification(
-        'Please fix validation errors before saving.',
-        'saveCampsite-validation',
-      );
+    setCampsiteSaveAttemptCount((count) => count + 1);
+
+    if (pendingChanges.size === 0 && pendingRepairChanges.size === 0) {
+      addErrorNotification('No changes to save.', 'saveCampsite-no-changes');
       return;
     }
 
-    // Also validate lat/lng from pending changes directly
     for (const [, values] of pendingChanges) {
-      const lat = parseNumber(values.latitude);
-      const lng = parseNumber(values.longitude);
-      if (lat !== null && (lat < -90 || lat > 90)) {
-        addErrorNotification(
-          'Latitude must be between -90 and 90.',
-          'saveCampsite-lat-error',
-        );
-        return;
-      }
-      if (lng !== null && (lng < -180 || lng > 180)) {
-        addErrorNotification(
-          'Longitude must be between -180 and 180.',
-          'saveCampsite-lng-error',
-        );
-        return;
-      }
-      if ((lat !== null) !== (lng !== null)) {
-        addErrorNotification(
-          'Both latitude and longitude must be set together.',
-          'saveCampsite-latlng-error',
-        );
+      const coordinateError = getCoordinateValidationError(values);
+      if (coordinateError) {
         return;
       }
     }
@@ -208,7 +186,7 @@ export function RecResourceAssetsSection() {
       setEditingCampsiteId(null);
       setPendingChanges(new Map());
       setPendingRepairChanges(new Map());
-      setAssetValidationErrors(new Map());
+      setCampsiteSaveAttemptCount(0);
     } catch {
       addErrorNotification(
         'Failed to save campsite changes. Please try again.',
@@ -259,6 +237,33 @@ export function RecResourceAssetsSection() {
     setIsInspectionEditOpen(false);
   }
 
+  async function handleDeleteAsset(assetId: number, mode?: AssetDeleteMode) {
+    if (!recResourceId) return;
+
+    try {
+      await deleteAssetWithLinkedChildren({
+        assets,
+        assetId,
+        mode,
+        recResourceId,
+        updateAsset,
+        deleteAssetMutation,
+      });
+      setPendingChanges((prev) => buildPendingAssetChanges(prev, assetId));
+      setPendingRepairChanges((prev) => {
+        return buildPendingAssetRepairChanges(prev, assets, assetId);
+      });
+      if (editingCampsiteId === assetId) {
+        setEditingCampsiteId(null);
+      }
+    } catch {
+      addErrorNotification(
+        'Failed to delete asset. Please try again.',
+        'deleteAsset-error',
+      );
+    }
+  }
+
   return (
     <Stack direction="vertical" className="pb-4" gap={3}>
       <div className="d-flex justify-content-between align-items-center gap-3">
@@ -280,7 +285,6 @@ export function RecResourceAssetsSection() {
               >
                 Add campsites
               </Dropdown.Item>
-              <Dropdown.Divider />
               <Dropdown.Item
                 onClick={() => setIsInspectionEditOpen(true)}
                 disabled={isInspectionEditOpen}
@@ -430,19 +434,6 @@ export function RecResourceAssetsSection() {
                     eventKey={String(campsite.asset_id)}
                     description={campsite.asset_name ?? ''}
                     structureCount={children.length}
-                    totalValue={
-                      (campsite.actual_value ??
-                        codeMap.get(campsite.asset_code)?.default_value ??
-                        0) +
-                      children.reduce(
-                        (sum, child) =>
-                          sum +
-                          (child.actual_value ??
-                            codeMap.get(child.asset_code)?.default_value ??
-                            0),
-                        0,
-                      )
-                    }
                     isEditing={isEditing}
                     isSaving={isSavingCampsite}
                     isDisabled={editingCampsiteId !== null && !isEditing}
@@ -457,11 +448,13 @@ export function RecResourceAssetsSection() {
                             asset={campsite}
                             repairCodes={repairCodes}
                             assetCodes={assetCodes}
+                            linkedAssetCount={children.length}
                             className="asset-card--campsite"
                             recResourceId={recResourceId}
                             onChange={handleEditChange}
-                            onValidationChange={handleValidationChange}
+                            saveAttemptCount={campsiteSaveAttemptCount}
                             onRepairChange={handleRepairChange}
+                            onDelete={handleDeleteAsset}
                           />
                           <div className="campsite-children">
                             <div className="campsite-children__divider" />
@@ -478,8 +471,9 @@ export function RecResourceAssetsSection() {
                                   assetCodes={assetCodes}
                                   recResourceId={recResourceId}
                                   onChange={handleEditChange}
-                                  onValidationChange={handleValidationChange}
+                                  saveAttemptCount={campsiteSaveAttemptCount}
                                   onRepairChange={handleRepairChange}
+                                  onDelete={handleDeleteAsset}
                                 />
                               ))}
                             </Stack>

@@ -11,6 +11,19 @@
   }
 }
 
+.delete-confirmation-modal__confirm-button--blue-outline {
+  color: #003366;
+  border-color: #003366;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: #fff;
+    background-color: #003366;
+    border-color: #003366;
+  }
+}
+
 .delete-fee-confirmation-modal {
   .modal-dialog {
     max-width: 686px;

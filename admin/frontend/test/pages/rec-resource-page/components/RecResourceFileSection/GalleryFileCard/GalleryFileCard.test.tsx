@@ -3,7 +3,7 @@ import type { GalleryFile } from '@/pages/rec-resource-page/types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
 vi.mock('@/components/clamp-lines', () => ({
@@ -133,19 +133,20 @@ describe('GalleryFileCard', () => {
       expect(mockHandler).toHaveBeenCalled();
     });
 
-    it('handles actions via dropdown menu', () => {
+    it('handles actions via dropdown menu', async () => {
+      const user = userEvent.setup();
       const mockHandler = vi.fn();
       const getFileActionHandler = vi.fn(() => mockHandler);
       renderCard({}, getFileActionHandler);
 
       const menuButton = screen.getByLabelText('File actions menu');
-      fireEvent.click(menuButton);
+      await user.click(menuButton);
 
       const dropdownItems = screen.getAllByText('View');
       const dropdownView = dropdownItems.find((el) =>
         el.closest('.dropdown-item'),
       );
-      fireEvent.click(dropdownView!);
+      await user.click(dropdownView!);
 
       expect(getFileActionHandler).toHaveBeenCalledWith(
         'view',
@@ -206,19 +207,20 @@ describe('GalleryFileCard', () => {
       expect(found).toBe(true);
     });
 
-    it('shows retry and dismiss in dropdown for failed uploads', () => {
+    it('shows retry and dismiss in dropdown for failed uploads', async () => {
+      const user = userEvent.setup();
       const mockHandler = vi.fn();
       const getFileActionHandler = vi.fn(() => mockHandler);
       renderCard({ uploadFailed: true }, getFileActionHandler);
 
       const menuButton = screen.getByLabelText('File actions menu');
-      fireEvent.click(menuButton);
+      await user.click(menuButton);
 
       // Test retry dropdown item
       const retryItem = screen
         .getAllByText('Retry')
         .find((el) => el.closest('.dropdown-item'));
-      fireEvent.click(retryItem!);
+      await user.click(retryItem!);
 
       expect(getFileActionHandler).toHaveBeenCalledWith(
         'retry',
@@ -229,7 +231,7 @@ describe('GalleryFileCard', () => {
       const dismissItem = screen
         .getAllByText('Dismiss')
         .find((el) => el.closest('.dropdown-item'));
-      fireEvent.click(dismissItem!);
+      await user.click(dismissItem!);
 
       expect(getFileActionHandler).toHaveBeenCalledWith(
         'dismiss',

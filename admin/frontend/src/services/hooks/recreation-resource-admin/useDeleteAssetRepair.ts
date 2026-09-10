@@ -5,28 +5,23 @@ import {
   addErrorNotification,
   addSuccessNotification,
 } from '@/store/notificationStore';
-import type { UpdateRecreationAssetDto } from '@/services/recreation-resource-admin';
 
-interface UpdateAssetVariables {
-  assetId: number;
+interface DeleteAssetRepairVariables {
+  repairId: number;
   recResourceId: string;
-  dto: UpdateRecreationAssetDto;
 }
 
-export function useUpdateAsset() {
+export function useDeleteAssetRepair() {
   const apiClient = useAssetsApiClient();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ assetId, dto }: UpdateAssetVariables) =>
-      apiClient.updateRecreationAsset({
-        id: assetId,
-        updateRecreationAssetDto: dto,
-      }),
+    mutationFn: ({ repairId }: DeleteAssetRepairVariables) =>
+      apiClient.deleteAssetRepair({ repairId }),
     onSuccess: (_data, variables) => {
       addSuccessNotification(
-        'Asset updated successfully.',
-        'updateAsset-success',
+        'Repair deleted successfully.',
+        'deleteRepair-success',
       );
       queryClient.invalidateQueries({
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.assets(
@@ -35,7 +30,7 @@ export function useUpdateAsset() {
       });
     },
     onError: () => {
-      addErrorNotification('Failed to update asset.', 'updateAsset-error');
+      addErrorNotification('Failed to delete repair.', 'deleteRepair-error');
     },
   });
 }

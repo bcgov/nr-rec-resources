@@ -278,4 +278,26 @@ describe('BulkAddCampsitesModal', () => {
       }),
     );
   });
+
+  it('includes campsite description in payload when provided', async () => {
+    const user = userEvent.setup();
+    mockMutateAsync.mockResolvedValueOnce(undefined);
+    render(<BulkAddCampsitesModal {...defaultProps} />);
+
+    await user.type(
+      screen.getByLabelText('Description'),
+      'Lakefront spot near dock',
+    );
+    await user.click(screen.getByRole('button', { name: 'Create 1 campsite' }));
+
+    expect(mockMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assets: expect.arrayContaining([
+          expect.objectContaining({
+            asset_comment: 'Lakefront spot near dock',
+          }),
+        ]),
+      }),
+    );
+  });
 });

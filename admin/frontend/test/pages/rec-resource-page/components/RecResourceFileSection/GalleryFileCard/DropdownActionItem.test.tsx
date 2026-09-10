@@ -1,16 +1,8 @@
 import { DropdownActionItem } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/DropdownActionItem';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { Dropdown } from 'react-bootstrap';
-import { vi } from 'vitest';
-
-// Helper wrapper for Dropdown context
-const DropdownWrapper = ({ children }: { children: React.ReactNode }) => (
-  <Dropdown show>
-    <Dropdown.Toggle>Toggle</Dropdown.Toggle>
-    <Dropdown.Menu>{children}</Dropdown.Menu>
-  </Dropdown>
-);
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('DropdownActionItem', () => {
   const defaultProps = {
@@ -24,36 +16,25 @@ describe('DropdownActionItem', () => {
   });
 
   it('renders with correct label and icon', () => {
-    render(
-      <DropdownWrapper>
-        <DropdownActionItem {...defaultProps} />
-      </DropdownWrapper>,
-    );
+    render(<DropdownActionItem {...defaultProps} />);
 
     expect(screen.getByText('Delete Item')).toBeInTheDocument();
   });
 
-  it('calls onClick when clicked', () => {
+  it('calls onClick when clicked', async () => {
+    const user = userEvent.setup();
     const onClick = vi.fn();
-    render(
-      <DropdownWrapper>
-        <DropdownActionItem {...defaultProps} onClick={onClick} />
-      </DropdownWrapper>,
-    );
+    render(<DropdownActionItem {...defaultProps} onClick={onClick} />);
 
     const dropdownItem = screen
       .getByText('Delete Item')
       .closest('.dropdown-item');
-    fireEvent.click(dropdownItem!);
+    await user.click(dropdownItem!);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('renders FontAwesome icon correctly', () => {
-    render(
-      <DropdownWrapper>
-        <DropdownActionItem {...defaultProps} />
-      </DropdownWrapper>,
-    );
+    render(<DropdownActionItem {...defaultProps} />);
 
     // Check that SVG icon is rendered
     const icon = document.querySelector('svg');
@@ -61,11 +42,7 @@ describe('DropdownActionItem', () => {
   });
 
   it('has correct layout structure', () => {
-    render(
-      <DropdownWrapper>
-        <DropdownActionItem {...defaultProps} />
-      </DropdownWrapper>,
-    );
+    render(<DropdownActionItem {...defaultProps} />);
 
     const stack = document.querySelector('.align-items-center');
     expect(stack).toBeInTheDocument();
@@ -82,21 +59,17 @@ describe('DropdownActionItem', () => {
       onClick: vi.fn(),
     };
 
-    render(
-      <DropdownWrapper>
-        <DropdownActionItem {...customProps} />
-      </DropdownWrapper>,
-    );
+    render(<DropdownActionItem {...customProps} />);
 
     expect(screen.getByText('Remove File')).toBeInTheDocument();
   });
 
   it('can be rendered multiple times in same dropdown', () => {
     render(
-      <DropdownWrapper>
+      <>
         <DropdownActionItem icon={faTrash} label="Item 1" onClick={vi.fn()} />
         <DropdownActionItem icon={faTrash} label="Item 2" onClick={vi.fn()} />
-      </DropdownWrapper>,
+      </>,
     );
 
     expect(screen.getByText('Item 1')).toBeInTheDocument();
@@ -104,11 +77,7 @@ describe('DropdownActionItem', () => {
   });
 
   it('maintains Bootstrap dropdown styling', () => {
-    render(
-      <DropdownWrapper>
-        <DropdownActionItem {...defaultProps} />
-      </DropdownWrapper>,
-    );
+    render(<DropdownActionItem {...defaultProps} />);
 
     const dropdownItem = document.querySelector('.dropdown-item');
     expect(dropdownItem).toHaveClass('dropdown-item');

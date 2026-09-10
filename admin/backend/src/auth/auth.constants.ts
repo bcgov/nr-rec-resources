@@ -24,6 +24,7 @@ export enum RecreationResourceAuthRole {
    */
   ACT_SERVICE = 'test-act',
   RST_SUPER_ADMIN = 'rst-super-admin',
+  RST_DEVELOPER = 'rst-developer',
 }
 
 // Role validation modes

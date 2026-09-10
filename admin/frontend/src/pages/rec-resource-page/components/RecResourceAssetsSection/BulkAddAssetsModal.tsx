@@ -31,6 +31,19 @@ interface AssetRow {
   longitude: string;
 }
 
+function getHighestAssetNumber(assets: Asset[]): number {
+  if (assets.length === 0) return 0;
+
+  const numbers = assets
+    .map((asset) => {
+      const match = asset.asset_name?.match(/(\d+)\s*$/);
+      return match ? Number.parseInt(match[1], 10) : null;
+    })
+    .filter((n): n is number => n !== null);
+
+  return numbers.length > 0 ? Math.max(...numbers) : assets.length;
+}
+
 function generateAssetTag(
   description: string,
   index: number,
@@ -79,11 +92,35 @@ export function BulkAddAssetsModal({
     [existingAssets],
   );
 
-  // Count of existing assets of the selected type (for sequential tag generation)
-  const existingCountForType = useMemo(
+  const sortedAssetTypeOptions = useMemo(
+    () =>
+      [
+        ...assetCodes.filter(
+          (code) => code.asset_code !== CAMPSITE_STRUCTURE_CODE,
+        ),
+      ].sort((a, b) =>
+        (a.description ?? '').localeCompare(b.description ?? ''),
+      ),
+    [assetCodes],
+  );
+
+  const sortedCampsites = useMemo(
+    () =>
+      [...campsites].sort((a, b) =>
+        (a.asset_name ?? `Campsite ${a.asset_id}`).localeCompare(
+          b.asset_name ?? `Campsite ${b.asset_id}`,
+        ),
+      ),
+    [campsites],
+  );
+
+  // Continue numbering from the highest existing suffix to avoid reusing deleted numbers.
+  const highestNumberForType = useMemo(
     () =>
       assetCode !== ''
-        ? existingAssets.filter((a) => a.asset_code === assetCode).length
+        ? getHighestAssetNumber(
+            existingAssets.filter((a) => a.asset_code === assetCode),
+          )
         : 0,
     [existingAssets, assetCode],
   );
@@ -155,7 +192,7 @@ export function BulkAddAssetsModal({
       return;
 
     const assets: CreateRecreationAssetDto[] = assetRows.map((row, i) => {
-      const rowNumber = existingCountForType + i + 1;
+      const rowNumber = highestNumberForType + i + 1;
       const displayName = selectedAssetCode?.description ?? 'Asset';
       const defaultName = `${displayName} ${rowNumber}`;
       const tag = generateAssetTag(
@@ -232,13 +269,11 @@ export function BulkAddAssetsModal({
               }}
             >
               <option value="">Choose an asset type</option>
-              {assetCodes
-                .filter((code) => code.asset_code !== CAMPSITE_STRUCTURE_CODE)
-                .map((code) => (
-                  <option key={code.asset_code} value={code.asset_code}>
-                    {code.description}
-                  </option>
-                ))}
+              {sortedAssetTypeOptions.map((code) => (
+                <option key={code.asset_code} value={code.asset_code}>
+                  {code.description}
+                </option>
+              ))}
             </Form.Select>
           </Form.Group>
         </Col>
@@ -353,7 +388,7 @@ export function BulkAddAssetsModal({
         >
           {assetRows.map((row, i) => {
             const displayName = selectedAssetCode?.description ?? 'Asset';
-            const rowNumber = existingCountForType + i + 1;
+            const rowNumber = highestNumberForType + i + 1;
             const errors = rowErrors[i] ?? {};
 
             return (
@@ -402,7 +437,7 @@ export function BulkAddAssetsModal({
                         }
                       >
                         <option value="">—</option>
-                        {campsites.map((campsite) => (
+                        {sortedCampsites.map((campsite) => (
                           <option
                             key={campsite.asset_id}
                             value={campsite.asset_id}

@@ -21,9 +21,9 @@ interface AssetField {
   value: string | null;
 }
 
-// Campsites don't have area/length/width or an outstanding-repair estimate,
-// so their card shows a reduced field set.
-const CAMPSITE_FIELD_LABELS = new Set(['Value', 'Repair spend', 'Location']);
+// Campsites don't have area/length/width/value fields, so only keep repair and
+// location details in campsite context.
+const CAMPSITE_FIELD_LABELS = new Set(['Actual Repair Cost', 'Location']);
 
 function getAssetFields(asset: Asset, assetCodes: AssetCode[]): AssetField[] {
   const codeMap = new Map(assetCodes.map((c) => [c.asset_code, c]));
@@ -41,12 +41,6 @@ function getAssetFields(asset: Asset, assetCodes: AssetCode[]): AssetField[] {
           0,
         )
     : null;
-  const outstandingEstimate = hasRepairs
-    ? repairs
-        .filter((repair) => !repair.repair_completed_date)
-        .reduce((sum, repair) => sum + (repair.estimated_repair_cost ?? 0), 0)
-    : null;
-
   const fields: AssetField[] = [
     {
       label: 'Area',
@@ -65,15 +59,8 @@ function getAssetFields(asset: Asset, assetCodes: AssetCode[]): AssetField[] {
       value: value != null ? formatCurrency(value) : null,
     },
     {
-      label: 'Repair spend',
+      label: 'Actual Repair Cost',
       value: repairSpend != null ? formatCurrency(repairSpend) : null,
-    },
-    {
-      label: 'Outstanding estimate',
-      value:
-        outstandingEstimate != null
-          ? formatCurrency(outstandingEstimate)
-          : null,
     },
     {
       label: 'Location',

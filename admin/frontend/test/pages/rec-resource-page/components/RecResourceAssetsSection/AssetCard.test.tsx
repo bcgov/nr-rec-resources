@@ -141,8 +141,7 @@ describe('AssetCard', () => {
       'Length',
       'Width',
       'Value',
-      'Repair spend',
-      'Outstanding estimate',
+      'Actual Repair Cost',
       'Location',
     ]);
 
@@ -151,11 +150,9 @@ describe('AssetCard', () => {
     expect(screen.getByText('5')).toBeInTheDocument();
     // actual_value takes precedence over default_value
     expect(screen.getByText('$900')).toBeInTheDocument();
-    // repair spend sums actual_repair_cost for completed repairs only (repair 1
+    // actual repair cost sums actual_repair_cost for completed repairs only (repair 1
     // is excluded here since it has no completion date)
     expect(screen.getByText('$200')).toBeInTheDocument();
-    // outstanding estimate sums estimated_repair_cost for repairs with no completion date
-    expect(screen.getByText('$50')).toBeInTheDocument();
     expect(screen.getByText('49.1,-123.1')).toBeInTheDocument();
   });
 
@@ -175,10 +172,10 @@ describe('AssetCard', () => {
   it('shows a dash for every field with no value', () => {
     render(<AssetCard asset={buildAsset()} repairCodes={[]} />);
 
-    expect(screen.getAllByText('-')).toHaveLength(7);
+    expect(screen.getAllByText('-')).toHaveLength(6);
   });
 
-  it('shows a dash for repair spend and outstanding estimate when there are no repairs', () => {
+  it('shows a dash for actual repair cost when there are no repairs', () => {
     render(
       <AssetCard
         asset={buildAsset({ recreation_asset_repair: [] })}
@@ -186,7 +183,7 @@ describe('AssetCard', () => {
       />,
     );
 
-    expect(screen.getAllByText('-')).toHaveLength(7);
+    expect(screen.getAllByText('-')).toHaveLength(6);
   });
 
   it('shows a dash for location when only one of latitude/longitude is set', () => {
@@ -199,7 +196,7 @@ describe('AssetCard', () => {
 
     expect(screen.getByText('Location:')).toBeInTheDocument();
     expect(screen.queryByText(/^49\.1/)).not.toBeInTheDocument();
-    expect(screen.getAllByText('-')).toHaveLength(7);
+    expect(screen.getAllByText('-')).toHaveLength(6);
   });
 
   it('excludes repairs with no completion date from repair spend', () => {
@@ -218,7 +215,7 @@ describe('AssetCard', () => {
     );
 
     const repairSpendField = screen
-      .getByText('Repair spend:')
+      .getByText('Actual Repair Cost:')
       .closest('.asset-card__field');
     expect(repairSpendField).toHaveTextContent('$0');
   });
@@ -242,7 +239,7 @@ describe('AssetCard', () => {
     expect(screen.getByText('$25')).toBeInTheDocument();
   });
 
-  it('only shows value, repair spend, and location for campsites', () => {
+  it('only shows actual repair cost and location for campsites', () => {
     render(
       <AssetCard
         asset={buildAsset({
@@ -267,12 +264,12 @@ describe('AssetCard', () => {
     const labels = screen
       .getAllByText(/:$/)
       .map((el) => el.textContent?.replace(':', ''));
-    expect(labels).toEqual(['Value', 'Repair spend', 'Location']);
+    expect(labels).toEqual(['Actual Repair Cost', 'Location']);
 
     expect(screen.queryByText('Area:')).not.toBeInTheDocument();
     expect(screen.queryByText('Length:')).not.toBeInTheDocument();
     expect(screen.queryByText('Width:')).not.toBeInTheDocument();
-    expect(screen.queryByText('Outstanding estimate:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Value:')).not.toBeInTheDocument();
   });
 
   it('applies an additional className', () => {

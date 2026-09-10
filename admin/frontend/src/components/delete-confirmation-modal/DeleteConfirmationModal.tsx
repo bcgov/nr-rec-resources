@@ -15,11 +15,14 @@ interface DeleteConfirmationModalProps {
   onCancel: () => void;
   onConfirm: () => void;
   className?: string;
+  bodyClassName?: string;
   confirmText?: string;
   deletingText?: string;
   cancelText?: string;
   cancelVariant?: ButtonProps['variant'];
   confirmVariant?: ButtonProps['variant'];
+  cancelButtonClassName?: string;
+  confirmButtonClassName?: string;
   confirmIcon?: IconProp;
   children?: ReactNode;
 }
@@ -32,11 +35,14 @@ export const DeleteConfirmationModal = ({
   onCancel,
   onConfirm,
   className,
+  bodyClassName,
   confirmText = 'Delete',
   deletingText = 'Deleting...',
   cancelText = 'Cancel',
   cancelVariant = 'outline-primary',
   confirmVariant = 'danger',
+  cancelButtonClassName,
+  confirmButtonClassName,
   confirmIcon = defaultConfirmIcon,
   children,
 }: DeleteConfirmationModalProps) => {
@@ -45,18 +51,23 @@ export const DeleteConfirmationModal = ({
       <Modal.Header closeButton>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body className={bodyClassName}>
         {description}
         {children}
       </Modal.Body>
       <Modal.Footer>
-        <Button variant={cancelVariant} onClick={onCancel}>
+        <Button
+          variant={cancelVariant}
+          onClick={onCancel}
+          className={cancelButtonClassName}
+        >
           {cancelText}
         </Button>
         <Button
           variant={confirmVariant}
           onClick={onConfirm}
           disabled={isDeleting}
+          className={confirmButtonClassName}
         >
           {!isDeleting && confirmIcon && (
             <FontAwesomeIcon icon={confirmIcon} className="me-2" />

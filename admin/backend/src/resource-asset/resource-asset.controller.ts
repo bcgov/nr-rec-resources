@@ -276,7 +276,14 @@ export class RecreationAssetController {
   }
 
   @Delete(':id')
-  @AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN])
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+      RecreationResourceAuthRole.RST_DEVELOPER,
+    ],
+    ROLE_MODE.ANY,
+  )
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete a recreation asset',

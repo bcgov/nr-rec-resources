@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Card, Form, InputGroup } from 'react-bootstrap';
+import { Card, Form, InputGroup, Button } from 'react-bootstrap';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
+import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal/DeleteConfirmationModal';
 import { AssetCardRepairsEdit } from './AssetCardRepairsEdit';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
 import type { Asset, AssetCode, RepairCode } from './types';
@@ -21,6 +24,8 @@ export interface AssetEditFormValues {
   actual_value: string;
 }
 
+export type AssetDeleteMode = 'unassign-children' | 'delete-with-campsite';
+
 interface AssetCardEditProps {
   asset: Asset;
   repairCodes: RepairCode[];
@@ -28,11 +33,13 @@ interface AssetCardEditProps {
   className?: string;
   recResourceId: string;
   onChange: (assetId: number, values: AssetEditFormValues) => void;
-  onValidationChange?: (assetId: number, hasErrors: boolean) => void;
   onRepairChange?: (
     repairId: number,
     dto: Partial<UpdateRecreationAssetRepairDto>,
   ) => void;
+  onDelete?: (assetId: number, mode?: AssetDeleteMode) => void;
+  linkedAssetCount?: number;
+  saveAttemptCount?: number;
 }
 
 export function AssetCardEdit({
@@ -42,10 +49,16 @@ export function AssetCardEdit({
   className = '',
   recResourceId,
   onChange,
-  onValidationChange,
   onRepairChange,
+  onDelete,
+  linkedAssetCount = 0,
+  saveAttemptCount = 0,
 }: AssetCardEditProps) {
+  const { canDelete, canEdit, isSuperAdmin } = useAuthorizations();
   const isCampsite = asset.asset_code === CAMPSITE_STRUCTURE_CODE;
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteMode, setDeleteMode] =
+    useState<AssetDeleteMode>('unassign-children');
 
   const selectedAssetCode = assetCodes.find(
     (c) => c.asset_code === asset.asset_code,
@@ -54,14 +67,17 @@ export function AssetCardEdit({
   const widthEnabled = selectedAssetCode?.has_width ?? false;
   const areaEnabled = selectedAssetCode?.has_area ?? false;
   const repairs = asset.recreation_asset_repair ?? [];
+  const assetName = asset.asset_name?.trim() || 'this asset';
+  const hasLinkedAssets = isCampsite && linkedAssetCount > 0;
 
   const {
     register,
     getValues,
-    formState: { errors },
     trigger,
+    formState: { errors },
   } = useForm<AssetEditFormValues>({
-    mode: 'onChange',
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     defaultValues: {
       asset_comment: asset.asset_comment ?? '',
       asset_length:
@@ -75,174 +91,263 @@ export function AssetCardEdit({
     },
   });
 
-  function handleChange() {
-    const values = getValues();
-    onChange(asset.asset_id, values);
-    // Re-validate lat/lng together (one required if other is set)
-    void trigger(['latitude', 'longitude']);
-    const hasErrors = Object.keys(errors).length > 0;
-    onValidationChange?.(asset.asset_id, hasErrors);
+  useEffect(() => {
+    if (saveAttemptCount > 0) {
+      void trigger(['latitude', 'longitude']);
+    }
+  }, [saveAttemptCount, trigger]);
+
+  function handleChange(
+    field: keyof AssetEditFormValues,
+    value: AssetEditFormValues[keyof AssetEditFormValues],
+  ) {
+    onChange(asset.asset_id, {
+      ...getValues(),
+      [field]: value,
+    });
   }
+
+  const assetCommentField = register('asset_comment');
+  const assetLengthField = register('asset_length');
+  const assetWidthField = register('asset_width');
+  const assetAreaField = register('asset_area');
+  const longitudeField = register(
+    'longitude',
+    longitudeRegisterOptions(getValues),
+  );
+  const latitudeField = register(
+    'latitude',
+    latitudeRegisterOptions(getValues),
+  );
+  const actualValueField = register('actual_value');
 
   const id = asset.asset_id;
 
   return (
-    <Card className={`asset-card ${className}`}>
-      <Card.Body>
-        <div className="asset-card__header asset-card-edit__body">
-          <h3 className="asset-card-edit__title">{asset.asset_name}</h3>
+    <>
+      <Card className={`asset-card ${className}`}>
+        <Card.Body>
+          <div className="asset-card__header asset-card-edit__body">
+            <div className="asset-card-edit__header-row">
+              <h3 className="asset-card-edit__title">{asset.asset_name}</h3>
+              {onDelete && (canDelete || canEdit || isSuperAdmin) && (
+                <Button
+                  type="button"
+                  variant="outline-primary"
+                  size="sm"
+                  className="asset-card-edit__delete-btn"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  Delete
+                </Button>
+              )}
+            </div>
 
-          <Form.Group
-            controlId={`asset-comment-${id}`}
-            className="asset-card-edit__name-group"
-          >
-            <Form.Label>Asset description</Form.Label>
-            <Form.Control
-              type="text"
-              {...register('asset_comment')}
-              onChange={(e) => {
-                void register('asset_comment').onChange(e);
-                handleChange();
-              }}
+            <Form.Group
+              controlId={`asset-comment-${id}`}
+              className="asset-card-edit__name-group"
+            >
+              <Form.Label>Asset description</Form.Label>
+              <Form.Control
+                type="text"
+                {...assetCommentField}
+                onChange={(e) => {
+                  void assetCommentField.onChange(e);
+                  handleChange('asset_comment', e.target.value);
+                }}
+              />
+            </Form.Group>
+
+            <div className="asset-card-edit__fields">
+              {!isCampsite && (
+                <Form.Group controlId={`asset-length-${id}`}>
+                  <Form.Label>Length</Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type="number"
+                      {...assetLengthField}
+                      disabled={!lengthEnabled}
+                      onChange={(e) => {
+                        void assetLengthField.onChange(e);
+                        handleChange('asset_length', e.target.value);
+                      }}
+                    />
+                    <InputGroup.Text>m</InputGroup.Text>
+                  </InputGroup>
+                </Form.Group>
+              )}
+
+              {!isCampsite && (
+                <Form.Group controlId={`asset-width-${id}`}>
+                  <Form.Label>Width</Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type="number"
+                      {...assetWidthField}
+                      disabled={!widthEnabled}
+                      onChange={(e) => {
+                        void assetWidthField.onChange(e);
+                        handleChange('asset_width', e.target.value);
+                      }}
+                    />
+                    <InputGroup.Text>m</InputGroup.Text>
+                  </InputGroup>
+                </Form.Group>
+              )}
+
+              {!isCampsite && (
+                <Form.Group controlId={`asset-area-${id}`}>
+                  <Form.Label>Area</Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type="number"
+                      {...assetAreaField}
+                      disabled={!areaEnabled}
+                      onChange={(e) => {
+                        void assetAreaField.onChange(e);
+                        handleChange('asset_area', e.target.value);
+                      }}
+                    />
+                    <InputGroup.Text>
+                      m<sup>2</sup>
+                    </InputGroup.Text>
+                  </InputGroup>
+                </Form.Group>
+              )}
+
+              <Form.Group controlId={`asset-latitude-${id}`}>
+                <Form.Label>Latitude</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="any"
+                  isInvalid={!!errors.latitude}
+                  {...latitudeField}
+                  onChange={(e) => {
+                    void latitudeField.onChange(e);
+                    handleChange('latitude', e.target.value);
+                  }}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.latitude?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group controlId={`asset-longitude-${id}`}>
+                <Form.Label>Longitude</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="any"
+                  isInvalid={!!errors.longitude}
+                  {...longitudeField}
+                  onChange={(e) => {
+                    void longitudeField.onChange(e);
+                    handleChange('longitude', e.target.value);
+                  }}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.longitude?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              {!isCampsite && (
+                <Form.Group controlId={`asset-default-value-${id}`}>
+                  <Form.Label>Default Value</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text>$</InputGroup.Text>
+
+                    <Form.Control
+                      type="number"
+                      step="any"
+                      disabled
+                      value={selectedAssetCode?.default_value ?? ''}
+                    />
+                  </InputGroup>
+                </Form.Group>
+              )}
+
+              {!isCampsite && (
+                <Form.Group controlId={`asset-actual-value-${id}`}>
+                  <Form.Label>Actual Value</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text>$</InputGroup.Text>
+                    <Form.Control
+                      type="number"
+                      step="any"
+                      {...actualValueField}
+                      onChange={(e) => {
+                        void actualValueField.onChange(e);
+                        handleChange('actual_value', e.target.value);
+                      }}
+                    />
+                  </InputGroup>
+                </Form.Group>
+              )}
+            </div>
+
+            <AssetCardRepairsEdit
+              assetId={asset.asset_id}
+              repairs={repairs}
+              repairCodes={repairCodes}
+              recResourceId={recResourceId}
+              onRepairChange={onRepairChange}
             />
-          </Form.Group>
-
-          <div className="asset-card-edit__fields">
-            {!isCampsite && (
-              <Form.Group controlId={`asset-length-${id}`}>
-                <Form.Label>Length</Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type="number"
-                    {...register('asset_length')}
-                    disabled={!lengthEnabled}
-                    onChange={(e) => {
-                      void register('asset_length').onChange(e);
-                      handleChange();
-                    }}
-                  />
-                  <InputGroup.Text>m</InputGroup.Text>
-                </InputGroup>
-              </Form.Group>
-            )}
-
-            {!isCampsite && (
-              <Form.Group controlId={`asset-width-${id}`}>
-                <Form.Label>Width</Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type="number"
-                    {...register('asset_width')}
-                    disabled={!widthEnabled}
-                    onChange={(e) => {
-                      void register('asset_width').onChange(e);
-                      handleChange();
-                    }}
-                  />
-                  <InputGroup.Text>m</InputGroup.Text>
-                </InputGroup>
-              </Form.Group>
-            )}
-
-            {!isCampsite && (
-              <Form.Group controlId={`asset-area-${id}`}>
-                <Form.Label>Area</Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type="number"
-                    {...register('asset_area')}
-                    disabled={!areaEnabled}
-                    onChange={(e) => {
-                      void register('asset_area').onChange(e);
-                      handleChange();
-                    }}
-                  />
-                  <InputGroup.Text>
-                    m<sup>2</sup>
-                  </InputGroup.Text>
-                </InputGroup>
-              </Form.Group>
-            )}
-
-            <Form.Group controlId={`asset-longitude-${id}`}>
-              <Form.Label>Longitude</Form.Label>
-              <Form.Control
-                type="number"
-                step="any"
-                isInvalid={!!errors.longitude}
-                {...register('longitude', longitudeRegisterOptions(getValues))}
-                onChange={(e) => {
-                  void register('longitude').onChange(e);
-                  handleChange();
-                }}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.longitude?.message}
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            <Form.Group controlId={`asset-latitude-${id}`}>
-              <Form.Label>Latitude</Form.Label>
-              <Form.Control
-                type="number"
-                step="any"
-                isInvalid={!!errors.latitude}
-                {...register('latitude', latitudeRegisterOptions(getValues))}
-                onChange={(e) => {
-                  void register('latitude').onChange(e);
-                  handleChange();
-                }}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.latitude?.message}
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            {!isCampsite && (
-              <Form.Group controlId={`asset-default-value-${id}`}>
-                <Form.Label>Default Value</Form.Label>
-                <InputGroup>
-                  <InputGroup.Text>$</InputGroup.Text>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    placeholder="–"
-                    value={selectedAssetCode?.default_value ?? ''}
-                    disabled
-                    readOnly
-                  />
-                </InputGroup>
-              </Form.Group>
-            )}
-
-            {!isCampsite && (
-              <Form.Group controlId={`asset-actual-value-${id}`}>
-                <Form.Label>Actual Value</Form.Label>
-                <InputGroup>
-                  <InputGroup.Text>$</InputGroup.Text>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    {...register('actual_value')}
-                    onChange={(e) => {
-                      void register('actual_value').onChange(e);
-                      handleChange();
-                    }}
-                  />
-                </InputGroup>
-              </Form.Group>
-            )}
           </div>
+        </Card.Body>
+      </Card>
 
-          <AssetCardRepairsEdit
-            repairs={repairs}
-            repairCodes={repairCodes}
-            recResourceId={recResourceId}
-            assetId={asset.asset_id}
-            onRepairChange={onRepairChange}
-          />
-        </div>
-      </Card.Body>
-    </Card>
+      {onDelete && (
+        <DeleteConfirmationModal
+          show={showDeleteConfirm}
+          title={isCampsite ? 'Delete campsite?' : 'Delete asset?'}
+          description={
+            hasLinkedAssets ? (
+              <>
+                Deleting <strong>{assetName}</strong> will affect{' '}
+                {linkedAssetCount} linked asset
+                {linkedAssetCount === 1 ? '' : 's'}.
+              </>
+            ) : (
+              <>
+                Are you sure you want to delete <strong>{assetName}</strong>?
+              </>
+            )
+          }
+          onCancel={() => {
+            setShowDeleteConfirm(false);
+            setDeleteMode('unassign-children');
+          }}
+          onConfirm={() => {
+            setShowDeleteConfirm(false);
+            onDelete(asset.asset_id, hasLinkedAssets ? deleteMode : undefined);
+            setDeleteMode('unassign-children');
+          }}
+          confirmText="Delete"
+          confirmVariant="outline-primary"
+          confirmButtonClassName="delete-confirmation-modal__confirm-button--blue-outline"
+        >
+          {hasLinkedAssets && (
+            <div className="mt-3">
+              <Form.Check
+                type="radio"
+                id={`delete-mode-unassign-${asset.asset_id}`}
+                name={`delete-mode-${asset.asset_id}`}
+                label="Delete campsite and unassign linked assets"
+                checked={deleteMode === 'unassign-children'}
+                onChange={() => setDeleteMode('unassign-children')}
+              />
+              <Form.Check
+                className="mt-2"
+                type="radio"
+                id={`delete-mode-cascade-${asset.asset_id}`}
+                name={`delete-mode-${asset.asset_id}`}
+                label="Delete campsite and all linked assets"
+                checked={deleteMode === 'delete-with-campsite'}
+                onChange={() => setDeleteMode('delete-with-campsite')}
+              />
+            </div>
+          )}
+        </DeleteConfirmationModal>
+      )}
+    </>
   );
 }

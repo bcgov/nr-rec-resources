@@ -18,8 +18,9 @@ export function longitudeRegisterOptions(
       const rangeError = validateLongitude(val);
       if (rangeError) return rangeError;
       const lat = getValues('latitude');
-      if (lat !== '' && val === '')
+      if (lat !== '' && val === '') {
         return 'Longitude is required when latitude is set';
+      }
       return true;
     },
   };
@@ -38,8 +39,9 @@ export function latitudeRegisterOptions(
       const rangeError = validateLatitude(val);
       if (rangeError) return rangeError;
       const lng = getValues('longitude');
-      if (lng !== '' && val === '')
+      if (lng !== '' && val === '') {
         return 'Latitude is required when longitude is set';
+      }
       return true;
     },
   };

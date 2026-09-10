@@ -6,6 +6,8 @@ import type {
 import {
   useBulkInsertAssetRepairs,
   useBulkUpdateAssets,
+  useDeleteAsset,
+  useDeleteAssetRepair,
   useGetAssetCodes,
   useGetAssetsByRecResourceId,
   useGetRecreationResourceById,
@@ -14,12 +16,9 @@ import {
   useUpdateAssetRepair,
   useUpdateRecreationResource,
 } from '@/services/hooks/recreation-resource-admin';
-import {
-  addErrorNotification,
-  addSuccessNotification,
-} from '@/store/notificationStore';
+import * as notificationStore from '@/store/notificationStore';
 import { useParams } from '@tanstack/react-router';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -31,6 +30,17 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     useParams: vi.fn(),
   };
 });
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: vi.fn().mockReturnValue({
+    canView: true,
+    canEdit: true,
+    isSuperAdmin: true,
+    canViewFeatureFlag: false,
+    canEditFeatureFlag: false,
+    canViewSensitiveInfo: true,
+  }),
+}));
 
 vi.mock('@/services/hooks/recreation-resource-admin', () => ({
   useBulkInsertAssetRepairs: vi.fn(),
@@ -47,6 +57,10 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
     mutate: vi.fn(),
     isPending: false,
   }),
+  useDeleteAssetRepair: vi.fn().mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
   useUpdateRepair: vi.fn().mockReturnValue({
     mutate: vi.fn(),
   }),
@@ -57,6 +71,9 @@ vi.mock('@/services/hooks/recreation-resource-admin', () => ({
     mutateAsync: vi.fn(),
   }),
   useUpdateAssetRepair: vi.fn().mockReturnValue({
+    mutateAsync: vi.fn(),
+  }),
+  useDeleteAsset: vi.fn().mockReturnValue({
     mutateAsync: vi.fn(),
   }),
 }));
@@ -93,6 +110,7 @@ const assetCodes: AssetCode[] = [{ asset_code: 100, description: 'Bridge' }];
 const mockUpdateAsset = vi.fn().mockResolvedValue(undefined);
 const mockUpdateRepair = vi.fn().mockResolvedValue(undefined);
 const mockUpdateResource = vi.fn().mockResolvedValue(undefined);
+const mockDeleteAsset = vi.fn().mockResolvedValue(undefined);
 
 describe('RecResourceAssetsSection', () => {
   beforeEach(() => {
@@ -120,6 +138,10 @@ describe('RecResourceAssetsSection', () => {
       mutate: vi.fn(),
       isPending: false,
     } as any);
+    vi.mocked(useDeleteAssetRepair).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as any);
     vi.mocked(useUpdateAsset).mockReturnValue({
       mutateAsync: mockUpdateAsset,
     } as any);
@@ -128,6 +150,9 @@ describe('RecResourceAssetsSection', () => {
     } as any);
     vi.mocked(useUpdateRecreationResource).mockReturnValue({
       mutateAsync: mockUpdateResource,
+    } as any);
+    vi.mocked(useDeleteAsset).mockReturnValue({
+      mutateAsync: mockDeleteAsset,
     } as any);
   });
 
@@ -343,7 +368,7 @@ describe('RecResourceAssetsSection', () => {
     expect(screen.getByText('Child Asset')).toBeInTheDocument();
   });
 
-  it('shows total value combining campsite and child assets in campsite view', async () => {
+  it('does not show campsite total value in campsite view', async () => {
     const user = userEvent.setup();
     const campsite = buildAsset({
       asset_id: 10,
@@ -370,12 +395,47 @@ describe('RecResourceAssetsSection', () => {
 
     await user.click(screen.getByText('By campsite'));
 
-    // The CampsiteCard header shows the total value directly in the accordion toggle
-    expect(
-      screen.getByRole('button', { name: /Campsite A/ }),
-    ).toBeInTheDocument();
-    // Total value (1000 + 500) should appear somewhere in the rendered output
-    expect(screen.getAllByText(/1,500/).length).toBeGreaterThanOrEqual(1);
+    const campsiteToggle = screen.getByRole('button', { name: /Campsite A/ });
+    expect(campsiteToggle).toBeInTheDocument();
+    expect(campsiteToggle).not.toHaveTextContent(/total value/i);
+  });
+
+  it('still renders campsite grouping when asset defaults are strings', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+      actual_value: null,
+      parent_id: null,
+    });
+    const child = buildAsset({
+      asset_id: 20,
+      asset_code: 100,
+      asset_name: 'Child Asset',
+      actual_value: null,
+      parent_id: 10,
+    });
+
+    vi.mocked(useGetAssetCodes).mockReturnValue({
+      data: [
+        { asset_code: 227, description: 'Campsite', default_value: '1000' },
+        { asset_code: 100, description: 'Bridge', default_value: '500' },
+      ],
+    } as any);
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+
+    const campsiteToggle = screen.getByRole('button', { name: /Campsite A/ });
+    expect(campsiteToggle).toBeInTheDocument();
+    expect(campsiteToggle).not.toHaveTextContent(/total value/i);
   });
 
   it('closes the Add assets modal via cancel', async () => {
@@ -410,7 +470,7 @@ describe('RecResourceAssetsSection', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shows validation error and blocks save when campsite form is invalid', async () => {
+  it('shows a submit-time latitude validation error below the field and blocks save when campsite coordinates are invalid', async () => {
     const user = userEvent.setup();
     const campsite = buildAsset({
       asset_id: 10,
@@ -433,10 +493,9 @@ describe('RecResourceAssetsSection', () => {
     await user.type(screen.getByLabelText('Longitude'), '-123.1');
     await user.click(screen.getByRole('button', { name: 'Save changes' }));
 
-    expect(addErrorNotification).toHaveBeenCalledWith(
-      'Please fix validation errors before saving.',
-      'saveCampsite-validation',
-    );
+    expect(
+      await screen.findByText('Must be between -90 and 90'),
+    ).toBeInTheDocument();
     expect(mockUpdateAsset).not.toHaveBeenCalled();
   });
 
@@ -474,7 +533,7 @@ describe('RecResourceAssetsSection', () => {
         }),
       }),
     );
-    expect(addSuccessNotification).toHaveBeenCalledWith(
+    expect(notificationStore.addSuccessNotification).toHaveBeenCalledWith(
       'Campsite assets updated successfully.',
       'saveCampsite-success',
     );
@@ -492,9 +551,100 @@ describe('RecResourceAssetsSection', () => {
     );
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    expect(addErrorNotification).toHaveBeenCalledWith(
+    expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
       'Failed to update inspection dates. Please try again.',
       'updateInspections-error',
     );
+  });
+
+  it('unassigns linked assets before deleting a campsite when selected', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+    });
+    const child = buildAsset({
+      asset_id: 20,
+      asset_code: 100,
+      asset_name: 'Fire Ring 1',
+      parent_id: 10,
+    });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+    await user.click(screen.getByRole('button', { name: /Campsite A/ }));
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await user.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+    await user.click(
+      screen.getByLabelText('Delete campsite and unassign linked assets'),
+    );
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
+    );
+
+    expect(mockUpdateAsset).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assetId: 20,
+        recResourceId: 'REC123',
+        dto: { parent_id: null },
+      }),
+    );
+    expect(mockDeleteAsset).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      assetId: 10,
+    });
+  });
+
+  it('deletes linked assets before deleting a campsite when selected', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+    });
+    const child = buildAsset({
+      asset_id: 20,
+      asset_code: 100,
+      asset_name: 'Fire Ring 1',
+      parent_id: 10,
+    });
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [campsite, child],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+    await user.click(screen.getByRole('button', { name: /Campsite A/ }));
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await user.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+    await user.click(
+      screen.getByLabelText('Delete campsite and all linked assets'),
+    );
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
+    );
+
+    expect(mockDeleteAsset).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      assetId: 20,
+    });
+    expect(mockDeleteAsset).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      assetId: 10,
+    });
   });
 });
