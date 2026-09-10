@@ -29,14 +29,20 @@ import {
 export interface BcgwRecreationPolygonsFeatureDto {
   /**
    *
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsFeatureDto
    */
   type: string;
   /**
    * GeoJSON Polygon geometry (WGS84), null when no geometry exists.
+   * @type {object}
+   * @memberof BcgwRecreationPolygonsFeatureDto
    */
   geometry: object | null;
   /**
    *
+   * @type {BcgwRecreationPolygonsDto}
+   * @memberof BcgwRecreationPolygonsFeatureDto
    */
   properties: BcgwRecreationPolygonsDto;
 }

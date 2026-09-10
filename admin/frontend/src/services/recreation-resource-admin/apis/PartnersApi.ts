@@ -13,100 +13,56 @@
  */
 
 import * as runtime from '../runtime';
+import type {
+  AgreementHolderClientPublicViewDto,
+  BadRequestResponseDto,
+  ClientLocationDto,
+  ClientPublicViewDto,
+  CreateAgreementHolderDto,
+  UpdateAgreementHolderDto,
+} from '../models/index';
 import {
-  type AgreementHolderClientPublicViewDto,
   AgreementHolderClientPublicViewDtoFromJSON,
   AgreementHolderClientPublicViewDtoToJSON,
-} from '../models/AgreementHolderClientPublicViewDto';
-import {
-  type BadRequestResponseDto,
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
-} from '../models/BadRequestResponseDto';
-import {
-  type ClientLocationDto,
   ClientLocationDtoFromJSON,
   ClientLocationDtoToJSON,
-} from '../models/ClientLocationDto';
-import {
-  type ClientPublicViewDto,
   ClientPublicViewDtoFromJSON,
   ClientPublicViewDtoToJSON,
-} from '../models/ClientPublicViewDto';
-import {
-  type CreateAgreementHolderDto,
   CreateAgreementHolderDtoFromJSON,
   CreateAgreementHolderDtoToJSON,
-} from '../models/CreateAgreementHolderDto';
-import {
-  type UpdateAgreementHolderDto,
   UpdateAgreementHolderDtoFromJSON,
   UpdateAgreementHolderDtoToJSON,
-} from '../models/UpdateAgreementHolderDto';
+} from '../models/index';
 
 export interface CreateRecreationResourceAgreementHolderRequest {
-  /**
-   * Resource identifier
-   */
   recResourceId: string;
-  /**
-   *
-   */
   createAgreementHolderDto: CreateAgreementHolderDto;
 }
 
 export interface GetPartnerLocationsByClientIdRequest {
-  /**
-   *
-   */
   clientId: string;
 }
 
 export interface GetPartnersByRecreationResourceIdRequest {
-  /**
-   * Resource identifier
-   */
   recResourceId: string;
 }
 
 export interface SearchPartnerByClientIdRequest {
-  /**
-   * A single client id, for example 00000002.
-   */
   clientId: string;
 }
 
 export interface SearchPartnersRequest {
-  /**
-   *
-   */
   page?: number;
-  /**
-   *
-   */
   size?: number;
-  /**
-   *
-   */
   name?: string;
-  /**
-   *
-   */
   acronym?: string;
-  /**
-   *
-   */
   number?: string;
 }
 
 export interface UpdateRecreationResourceAgreementHolderRequest {
-  /**
-   * Resource identifier
-   */
   recResourceId: string;
-  /**
-   *
-   */
   updateAgreementHolderDto: UpdateAgreementHolderDto;
 }
 
@@ -115,11 +71,13 @@ export interface UpdateRecreationResourceAgreementHolderRequest {
  */
 export class PartnersApi extends runtime.BaseAPI {
   /**
-   * Creates request options for createRecreationResourceAgreementHolder without sending the request
+   * Creates a new agreement holder record for the recreation resource when a client is assigned.
+   * Add agreement holder for a recreation resource
    */
-  async createRecreationResourceAgreementHolderRequestOpts(
+  async createRecreationResourceAgreementHolderRaw(
     requestParameters: CreateRecreationResourceAgreementHolderRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<AgreementHolderClientPublicViewDto>> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -151,34 +109,22 @@ export class PartnersApi extends runtime.BaseAPI {
 
     let urlPath = `/api/partners/recreation-resources/{rec_resource_id}`;
     urlPath = urlPath.replace(
-      '{rec_resource_id}',
+      `{${'rec_resource_id'}}`,
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    return {
-      path: urlPath,
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-      body: CreateAgreementHolderDtoToJSON(
-        requestParameters['createAgreementHolderDto'],
-      ),
-    };
-  }
-
-  /**
-   * Creates a new agreement holder record for the recreation resource when a client is assigned.
-   * Add agreement holder for a recreation resource
-   */
-  async createRecreationResourceAgreementHolderRaw(
-    requestParameters: CreateRecreationResourceAgreementHolderRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<AgreementHolderClientPublicViewDto>> {
-    const requestOptions =
-      await this.createRecreationResourceAgreementHolderRequestOpts(
-        requestParameters,
-      );
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: CreateAgreementHolderDtoToJSON(
+          requestParameters['createAgreementHolderDto'],
+        ),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       AgreementHolderClientPublicViewDtoFromJSON(jsonValue),
@@ -201,11 +147,12 @@ export class PartnersApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for getPartnerLocationsByClientId without sending the request
+   * Get partner locations by client id
    */
-  async getPartnerLocationsByClientIdRequestOpts(
+  async getPartnerLocationsByClientIdRaw(
     requestParameters: GetPartnerLocationsByClientIdRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<ClientLocationDto>>> {
     if (requestParameters['clientId'] == null) {
       throw new runtime.RequiredError(
         'clientId',
@@ -228,28 +175,19 @@ export class PartnersApi extends runtime.BaseAPI {
 
     let urlPath = `/api/partners/{client_id}`;
     urlPath = urlPath.replace(
-      '{client_id}',
+      `{${'client_id'}}`,
       encodeURIComponent(String(requestParameters['clientId'])),
     );
 
-    return {
-      path: urlPath,
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Get partner locations by client id
-   */
-  async getPartnerLocationsByClientIdRaw(
-    requestParameters: GetPartnerLocationsByClientIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<ClientLocationDto>>> {
-    const requestOptions =
-      await this.getPartnerLocationsByClientIdRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(ClientLocationDtoFromJSON),
@@ -271,11 +209,13 @@ export class PartnersApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for getPartnersByRecreationResourceId without sending the request
+   * Looks up the agreement holder for the given recreation resource and returns partner details for the associated client number.
+   * Get partners by recreation resource ID
    */
-  async getPartnersByRecreationResourceIdRequestOpts(
+  async getPartnersByRecreationResourceIdRaw(
     requestParameters: GetPartnersByRecreationResourceIdRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<AgreementHolderClientPublicViewDto>>> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -298,31 +238,19 @@ export class PartnersApi extends runtime.BaseAPI {
 
     let urlPath = `/api/partners/recreation-resources/{rec_resource_id}`;
     urlPath = urlPath.replace(
-      '{rec_resource_id}',
+      `{${'rec_resource_id'}}`,
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    return {
-      path: urlPath,
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Looks up the agreement holder for the given recreation resource and returns partner details for the associated client number.
-   * Get partners by recreation resource ID
-   */
-  async getPartnersByRecreationResourceIdRaw(
-    requestParameters: GetPartnersByRecreationResourceIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<AgreementHolderClientPublicViewDto>>> {
-    const requestOptions =
-      await this.getPartnersByRecreationResourceIdRequestOpts(
-        requestParameters,
-      );
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(AgreementHolderClientPublicViewDtoFromJSON),
@@ -345,11 +273,13 @@ export class PartnersApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for searchPartnerByClientId without sending the request
+   * Looks up a single partner by client id using the forest client findByClientNumber API. Returns active and inactive clients.
+   * Search for partner by client id
    */
-  async searchPartnerByClientIdRequestOpts(
+  async searchPartnerByClientIdRaw(
     requestParameters: SearchPartnerByClientIdRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ClientPublicViewDto>> {
     if (requestParameters['clientId'] == null) {
       throw new runtime.RequiredError(
         'clientId',
@@ -376,25 +306,15 @@ export class PartnersApi extends runtime.BaseAPI {
 
     let urlPath = `/api/partners/search`;
 
-    return {
-      path: urlPath,
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Looks up a single partner by client id using the forest client findByClientNumber API. Returns active and inactive clients.
-   * Search for partner by client id
-   */
-  async searchPartnerByClientIdRaw(
-    requestParameters: SearchPartnerByClientIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ClientPublicViewDto>> {
-    const requestOptions =
-      await this.searchPartnerByClientIdRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ClientPublicViewDtoFromJSON(jsonValue),
@@ -417,11 +337,13 @@ export class PartnersApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for searchPartners without sending the request
+   * Search for partners based on the provided parameters. It uses a fuzzy match to search for the partner name. The cutout for the fuzzy match is 0.8. The search is case insensitive.
+   * Search for partners
    */
-  async searchPartnersRequestOpts(
+  async searchPartnersRaw(
     requestParameters: SearchPartnersRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<ClientPublicViewDto>>> {
     const queryParameters: any = {};
 
     if (requestParameters['page'] != null) {
@@ -457,25 +379,15 @@ export class PartnersApi extends runtime.BaseAPI {
 
     let urlPath = `/api/partners/search/by`;
 
-    return {
-      path: urlPath,
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Search for partners based on the provided parameters. It uses a fuzzy match to search for the partner name. The cutout for the fuzzy match is 0.8. The search is case insensitive.
-   * Search for partners
-   */
-  async searchPartnersRaw(
-    requestParameters: SearchPartnersRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<ClientPublicViewDto>>> {
-    const requestOptions =
-      await this.searchPartnersRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(ClientPublicViewDtoFromJSON),
@@ -498,11 +410,13 @@ export class PartnersApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for updateRecreationResourceAgreementHolder without sending the request
+   * Updates the agreement start date and/or agreement end date for an existing agreement holder record.
+   * Edit agreement holder dates for a recreation resource
    */
-  async updateRecreationResourceAgreementHolderRequestOpts(
+  async updateRecreationResourceAgreementHolderRaw(
     requestParameters: UpdateRecreationResourceAgreementHolderRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<AgreementHolderClientPublicViewDto>> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -534,34 +448,22 @@ export class PartnersApi extends runtime.BaseAPI {
 
     let urlPath = `/api/partners/recreation-resources/{rec_resource_id}`;
     urlPath = urlPath.replace(
-      '{rec_resource_id}',
+      `{${'rec_resource_id'}}`,
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    return {
-      path: urlPath,
-      method: 'PUT',
-      headers: headerParameters,
-      query: queryParameters,
-      body: UpdateAgreementHolderDtoToJSON(
-        requestParameters['updateAgreementHolderDto'],
-      ),
-    };
-  }
-
-  /**
-   * Updates the agreement start date and/or agreement end date for an existing agreement holder record.
-   * Edit agreement holder dates for a recreation resource
-   */
-  async updateRecreationResourceAgreementHolderRaw(
-    requestParameters: UpdateRecreationResourceAgreementHolderRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<AgreementHolderClientPublicViewDto>> {
-    const requestOptions =
-      await this.updateRecreationResourceAgreementHolderRequestOpts(
-        requestParameters,
-      );
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: UpdateAgreementHolderDtoToJSON(
+          requestParameters['updateAgreementHolderDto'],
+        ),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       AgreementHolderClientPublicViewDtoFromJSON(jsonValue),

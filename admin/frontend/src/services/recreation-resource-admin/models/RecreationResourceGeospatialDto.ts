@@ -21,46 +21,68 @@ import { mapValues } from '../runtime';
 export interface RecreationResourceGeospatialDto {
   /**
    * Rec resource id for the resource this geospatial data belongs to
+   * @type {string}
+   * @memberof RecreationResourceGeospatialDto
    */
   rec_resource_id: string;
   /**
    * Array of GeoJSON geometry strings representing spatial features (polygons, lines) for the recreation resource
+   * @type {Array<string>}
+   * @memberof RecreationResourceGeospatialDto
    */
   spatial_feature_geometry?: Array<string>;
   /**
    * Total length in km: perimeter for polygon/multi-polygon features plus length for linear features.
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
    */
   total_length_km?: number | null;
   /**
    * Total area in hectares: polygon area plus trail area (length × right_of_way) when applicable.
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
    */
   total_area_hectares?: number | null;
   /**
    * Right-of-way width in metres (from recreation resource).
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
    */
   right_of_way_m?: number | null;
   /**
    * GeoJSON geometry string representing the point location of the recreation site
+   * @type {string}
+   * @memberof RecreationResourceGeospatialDto
    */
   site_point_geometry?: string;
   /**
    * UTM (Universal Transverse Mercator) zone number for the site location
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
    */
   utm_zone?: number | null;
   /**
    * UTM easting coordinate (meters east of the UTM zone central meridian)
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
    */
   utm_easting?: number | null;
   /**
    * UTM northing coordinate (meters north of the equator in northern hemisphere)
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
    */
   utm_northing?: number | null;
   /**
    * Latitude in decimal degrees (WGS84 coordinate system, EPSG:4326)
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
    */
   latitude?: number | null;
   /**
    * Longitude in decimal degrees (WGS84 coordinate system, EPSG:4326)
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
    */
   longitude?: number | null;
 }
@@ -96,57 +118,23 @@ export function RecreationResourceGeospatialDtoFromJSONTyped(
         ? undefined
         : json['spatial_feature_geometry'],
     total_length_km:
-      json['total_length_km'] === undefined
-        ? undefined
-        : json['total_length_km'] === null
-          ? null
-          : json['total_length_km'],
+      json['total_length_km'] == null ? undefined : json['total_length_km'],
     total_area_hectares:
-      json['total_area_hectares'] === undefined
+      json['total_area_hectares'] == null
         ? undefined
-        : json['total_area_hectares'] === null
-          ? null
-          : json['total_area_hectares'],
+        : json['total_area_hectares'],
     right_of_way_m:
-      json['right_of_way_m'] === undefined
-        ? undefined
-        : json['right_of_way_m'] === null
-          ? null
-          : json['right_of_way_m'],
+      json['right_of_way_m'] == null ? undefined : json['right_of_way_m'],
     site_point_geometry:
       json['site_point_geometry'] == null
         ? undefined
         : json['site_point_geometry'],
-    utm_zone:
-      json['utm_zone'] === undefined
-        ? undefined
-        : json['utm_zone'] === null
-          ? null
-          : json['utm_zone'],
-    utm_easting:
-      json['utm_easting'] === undefined
-        ? undefined
-        : json['utm_easting'] === null
-          ? null
-          : json['utm_easting'],
+    utm_zone: json['utm_zone'] == null ? undefined : json['utm_zone'],
+    utm_easting: json['utm_easting'] == null ? undefined : json['utm_easting'],
     utm_northing:
-      json['utm_northing'] === undefined
-        ? undefined
-        : json['utm_northing'] === null
-          ? null
-          : json['utm_northing'],
-    latitude:
-      json['latitude'] === undefined
-        ? undefined
-        : json['latitude'] === null
-          ? null
-          : json['latitude'],
-    longitude:
-      json['longitude'] === undefined
-        ? undefined
-        : json['longitude'] === null
-          ? null
-          : json['longitude'],
+      json['utm_northing'] == null ? undefined : json['utm_northing'],
+    latitude: json['latitude'] == null ? undefined : json['latitude'],
+    longitude: json['longitude'] == null ? undefined : json['longitude'],
   };
 }
 

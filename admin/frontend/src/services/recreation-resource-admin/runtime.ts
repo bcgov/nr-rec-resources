@@ -101,8 +101,10 @@ export const DefaultConfig = new Configuration();
  * This is the base class for all generated API classes.
  */
 export class BaseAPI {
-  private static readonly jsonRegex =
-    /^(:?application\/json|[^;/ \t]+\/[^;/ \t]+[+]json)[ \t]*(:?;.*)?$/i;
+  private static readonly jsonRegex = new RegExp(
+    '^(:?application\/json|[^;/ \t]+\/[^;/ \t]+[+]json)[ \t]*(:?;.*)?$',
+    'i',
+  );
   private middleware: Middleware[];
 
   constructor(protected configuration = DefaultConfig) {
@@ -307,12 +309,6 @@ export class ResponseError extends Error {
     msg?: string,
   ) {
     super(msg);
-
-    // restore prototype chain
-    const actualProto = new.target.prototype;
-    if (Object.setPrototypeOf) {
-      Object.setPrototypeOf(this, actualProto);
-    }
   }
 }
 
@@ -323,12 +319,6 @@ export class FetchError extends Error {
     msg?: string,
   ) {
     super(msg);
-
-    // restore prototype chain
-    const actualProto = new.target.prototype;
-    if (Object.setPrototypeOf) {
-      Object.setPrototypeOf(this, actualProto);
-    }
   }
 }
 
@@ -339,12 +329,6 @@ export class RequiredError extends Error {
     msg?: string,
   ) {
     super(msg);
-
-    // restore prototype chain
-    const actualProto = new.target.prototype;
-    if (Object.setPrototypeOf) {
-      Object.setPrototypeOf(this, actualProto);
-    }
   }
 }
 
@@ -440,7 +424,7 @@ function querystringSingleKey(
     return querystringSingleKey(key, valueAsArray, keyPrefix);
   }
   if (value instanceof Date) {
-    return `${encodeURIComponent(fullKey)}=${encodeURIComponent(serializeDateTime(value))}`;
+    return `${encodeURIComponent(fullKey)}=${encodeURIComponent(value.toISOString())}`;
   }
   if (value instanceof Object) {
     return querystring(value as HTTPQuery, fullKey);
@@ -453,60 +437,6 @@ export function exists(json: any, key: string) {
   return value !== null && value !== undefined;
 }
 
-/**
- * Every generated date call site routes through these.
- *
- * `format: date` is a calendar date, with no time and no offset, so it is converted
- * against the local calendar on both ends: they have to agree or the date shifts by
- * a day. `format: date-time` is an instant and uses UTC.
- */
-export function serializeDateTime(value: Date): string {
-  return value.toISOString();
-}
-
-export function serializeDate(value: Date): string {
-  if (isNaN(value.getTime())) {
-    throw new RangeError('Invalid time value');
-  }
-  const year = ('000' + value.getFullYear()).slice(-4);
-  const month = ('0' + (value.getMonth() + 1)).slice(-2);
-  const day = ('0' + value.getDate()).slice(-2);
-  return `${year}-${month}-${day}`;
-}
-
-export function parseDate(value: Date | string): Date {
-  if (value instanceof Date) {
-    return value;
-  }
-  // `new Date("2026-08-05")` would parse as UTC midnight: a different day west of UTC.
-  // Local midnight is the stated day everywhere. setFullYear avoids the 1900 offset the
-  // multi-argument constructor applies to years 0-99.
-  const fullDate = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value));
-  if (fullDate) {
-    const year = Number(fullDate[1]);
-    const month = Number(fullDate[2]) - 1;
-    const day = Number(fullDate[3]);
-    const date = new Date(0);
-    date.setFullYear(year, month, day);
-    date.setHours(0, 0, 0, 0);
-    // Out-of-range components (or a day the local zone skipped) silently roll over,
-    // which would hand back a date the server never sent.
-    if (
-      date.getFullYear() !== year ||
-      date.getMonth() !== month ||
-      date.getDate() !== day
-    ) {
-      return new Date(NaN);
-    }
-    return date;
-  }
-  return new Date(value);
-}
-
-export function parseDateTime(value: any): Date {
-  return new Date(value);
-}
-
 export function mapValues(data: any, fn: (item: any) => any) {
   const result: { [key: string]: any } = {};
   for (const key of Object.keys(data)) {
@@ -515,14 +445,9 @@ export function mapValues(data: any, fn: (item: any) => any) {
   return result;
 }
 
-// Pass-through serializer for `any`-typed properties in form data. See #1877.
-export function anyToJSON(value: any): any {
-  return value;
-}
-
 export function canConsumeForm(consumes: Consume[]): boolean {
   for (const consume of consumes) {
-    if (consume.contentType?.startsWith('multipart/form-data') == true) {
+    if ('multipart/form-data' === consume.contentType) {
       return true;
     }
   }

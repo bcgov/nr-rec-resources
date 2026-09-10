@@ -12,13 +12,7 @@
  * Do not edit the class manually.
  */
 
-import {
-  mapValues,
-  parseDate,
-  parseDateTime,
-  serializeDate,
-  serializeDateTime,
-} from '../runtime';
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -27,74 +21,110 @@ import {
 export interface RecreationFeeDto {
   /**
    * Unique identifier for the fee
+   * @type {number}
+   * @memberof RecreationFeeDto
    */
   fee_id: number;
   /**
    * Amount charged for the recreation resource
+   * @type {number}
+   * @memberof RecreationFeeDto
    */
   fee_amount?: number;
   /**
    * Start date for the fee applicability
+   * @type {Date}
+   * @memberof RecreationFeeDto
    */
   fee_start_date?: Date;
   /**
    * End date for the fee applicability
+   * @type {Date}
+   * @memberof RecreationFeeDto
    */
   fee_end_date?: Date;
   /**
    * Type of fee applicable represented by code (C, D, H, P, T)
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   recreation_fee_code: string;
   /**
    * Description of the fee type
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   fee_type_description: string;
   /**
    * Subtype of fee represented by code
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   recreation_fee_sub_code?: string;
   /**
    * Description of the fee sub-type
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   fee_sub_type_description?: string;
   /**
    * Indicates if the fee applies on Monday
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   monday_ind?: string;
   /**
    * Indicates if the fee applies on Tuesday
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   tuesday_ind?: string;
   /**
    * Indicates if the fee applies on Wednesday
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   wednesday_ind?: string;
   /**
    * Indicates if the fee applies on Thursday
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   thursday_ind?: string;
   /**
    * Indicates if the fee applies on Friday
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   friday_ind?: string;
   /**
    * Indicates if the fee applies on Saturday
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   saturday_ind?: string;
   /**
    * Indicates if the fee applies on Sunday
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   sunday_ind?: string;
   /**
    * Whether this fee recurs yearly for the given month/day range
+   * @type {boolean}
+   * @memberof RecreationFeeDto
    */
   recurring_ind: boolean;
   /**
    * Start month-day of the recurring fee period (MM-DD format, e.g. 06-01)
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   recurring_start_mmdd?: string;
   /**
    * End month-day of the recurring fee period (MM-DD format, e.g. 08-31)
+   * @type {string}
+   * @memberof RecreationFeeDto
    */
   recurring_end_mmdd?: string;
 }
@@ -138,11 +168,9 @@ export function RecreationFeeDtoFromJSONTyped(
     fee_start_date:
       json['fee_start_date'] == null
         ? undefined
-        : parseDateTime(json['fee_start_date']),
+        : new Date(json['fee_start_date']),
     fee_end_date:
-      json['fee_end_date'] == null
-        ? undefined
-        : parseDateTime(json['fee_end_date']),
+      json['fee_end_date'] == null ? undefined : new Date(json['fee_end_date']),
     recreation_fee_code: json['recreation_fee_code'],
     fee_type_description: json['fee_type_description'],
     recreation_fee_sub_code:
@@ -192,12 +220,12 @@ export function RecreationFeeDtoToJSONTyped(
     fee_amount: value['fee_amount'],
     fee_start_date:
       value['fee_start_date'] == null
-        ? value['fee_start_date']
-        : serializeDateTime(value['fee_start_date']),
+        ? undefined
+        : value['fee_start_date'].toISOString(),
     fee_end_date:
       value['fee_end_date'] == null
-        ? value['fee_end_date']
-        : serializeDateTime(value['fee_end_date']),
+        ? undefined
+        : value['fee_end_date'].toISOString(),
     recreation_fee_code: value['recreation_fee_code'],
     fee_type_description: value['fee_type_description'],
     recreation_fee_sub_code: value['recreation_fee_sub_code'],

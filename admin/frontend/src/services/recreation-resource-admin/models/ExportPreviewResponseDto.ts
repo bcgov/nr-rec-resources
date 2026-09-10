@@ -21,10 +21,14 @@ import { mapValues } from '../runtime';
 export interface ExportPreviewResponseDto {
   /**
    * Column names returned by the preview query
+   * @type {Array<string>}
+   * @memberof ExportPreviewResponseDto
    */
   columns: Array<string>;
   /**
    * Preview rows keyed by column name
+   * @type {Array<{ [key: string]: string | null; }>}
+   * @memberof ExportPreviewResponseDto
    */
   rows: Array<{ [key: string]: string | null }>;
 }

@@ -21,18 +21,26 @@ import { mapValues } from '../runtime';
 export interface ExportDatasetDto {
   /**
    * Stable dataset identifier used by export endpoints
+   * @type {string}
+   * @memberof ExportDatasetDto
    */
   id: ExportDatasetDtoIdEnum;
   /**
    * Human-readable dataset label shown in the admin UI
+   * @type {string}
+   * @memberof ExportDatasetDto
    */
   label: string;
   /**
    * Dataset source system for this export variant
+   * @type {string}
+   * @memberof ExportDatasetDto
    */
   source: ExportDatasetDtoSourceEnum;
   /**
    * Dataset note or sentinel value such as 'not-implemented' for unavailable datasets
+   * @type {string}
+   * @memberof ExportDatasetDto
    */
   info?: string;
 }

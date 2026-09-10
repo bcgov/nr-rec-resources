@@ -12,13 +12,7 @@
  * Do not edit the class manually.
  */
 
-import {
-  mapValues,
-  parseDate,
-  parseDateTime,
-  serializeDate,
-  serializeDateTime,
-} from '../runtime';
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -27,102 +21,152 @@ import {
 export interface BcgwRecreationPolygonsDto {
   /**
    * The number of times a feature has been amended over its lifetime.
+   * @type {number}
+   * @memberof BcgwRecreationPolygonsDto
    */
   amendment_id: number | null;
   /**
    * The closest town or city to the recreation feature, e.g., KELOWNA, BELLA COOLA.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   site_location: string | null;
   /**
    * For a retired recreation feature, the date and time the feature was retired.
+   * @type {Date}
+   * @memberof BcgwRecreationPolygonsDto
    */
   retirement_date: Date | null;
   /**
    * Indicates whether this is a resource feature established under the Government Action Regulation.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   resource_feature_ind: BcgwRecreationPolygonsDtoResourceFeatureIndEnum | null;
   /**
    * Indicates if an archaeological impact assessment has been performed for the given project.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   arch_impact_assess_ind: BcgwRecreationPolygonsDtoArchImpactAssessIndEnum | null;
   /**
    * The date on which the recreation project was legally established.
+   * @type {Date}
+   * @memberof BcgwRecreationPolygonsDto
    */
   project_established_date: Date | null;
   /**
    *
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   recreation_view_ind: BcgwRecreationPolygonsDtoRecreationViewIndEnum | null;
   /**
    * The total number of campsites.
+   * @type {number}
+   * @memberof BcgwRecreationPolygonsDto
    */
   defined_campsites: number;
   /**
    * The life cycle state of the feature.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   life_cycle_status_code: BcgwRecreationPolygonsDtoLifeCycleStatusCodeEnum | null;
   /**
    * The current status of the recreation tenure, e.g., AR (archived), HI (issued), PI (pending issuance).
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   file_status_code: string | null;
   /**
    * The unique identifier (SKEY) for the Recreation Map Feature.
+   * @type {number}
+   * @memberof BcgwRecreationPolygonsDto
    */
   rmf_skey: number;
   /**
    * An identifier assigned to the recreation file, e.g., REC230971.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   forest_file_id: string;
   /**
    * An identifier assigned to a section of a recreation feature. Not used for polygon features.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   section_id: string | null;
   /**
    * Code that identifies the type of recreation feature, e.g., IF (interpretive forest), RR (recreation reserve), SIT (recreation site).
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   recreation_map_feature_code: string | null;
   /**
    * Description of the type of recreation feature, e.g., Interpretative Forest, Recreation Reserve.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   project_type: string | null;
   /**
    * The default label used when displaying the feature on a map, consisting of the FOREST FILE ID only, e.g., REC230971.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   map_label: string | null;
   /**
    * The name of the recreation project, e.g., KASLO INTERPRETIVE FOREST.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   project_name: string | null;
   /**
    * Code describing the type of natural or man-made recreation feature, e.g., E5 (mixed forest), H3 (historic site).
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   recreation_feature_code: string | null;
   /**
    * A comma-separated list of codes relating to the recreation districts that the feature is within, e.g., RDCC,RDCS.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   recreation_district_code: string | null;
   /**
    * The code of the natural resource district associated with this feature.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   geographic_district_code: string | null;
   /**
    * The name of the natural resource district associated with this feature.
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   geographic_district_name: string | null;
   /**
    * Spatial feature area in hectares. Calculated in the source system.
+   * @type {number}
+   * @memberof BcgwRecreationPolygonsDto
    */
   feature_area: number | null;
   /**
    * Spatial perimeter length in kilometres. Calculated in the source system.
+   * @type {number}
+   * @memberof BcgwRecreationPolygonsDto
    */
   feature_perimeter: number | null;
   /**
    * The system-calculated area of the polygon in square metres (returned as a string, matching BCGW VARCHAR2 type).
+   * @type {string}
+   * @memberof BcgwRecreationPolygonsDto
    */
   feature_area_sqm: string | null;
   /**
    * The system-calculated perimeter of the polygon in metres.
+   * @type {number}
+   * @memberof BcgwRecreationPolygonsDto
    */
   feature_length_m: number | null;
 }
@@ -280,13 +324,13 @@ export function BcgwRecreationPolygonsDtoFromJSONTyped(
     retirement_date:
       json['retirement_date'] == null
         ? null
-        : parseDate(json['retirement_date']),
+        : new Date(json['retirement_date']),
     resource_feature_ind: json['resource_feature_ind'],
     arch_impact_assess_ind: json['arch_impact_assess_ind'],
     project_established_date:
       json['project_established_date'] == null
         ? null
-        : parseDate(json['project_established_date']),
+        : new Date(json['project_established_date']),
     recreation_view_ind: json['recreation_view_ind'],
     defined_campsites: json['defined_campsites'],
     life_cycle_status_code: json['life_cycle_status_code'],
@@ -326,16 +370,14 @@ export function BcgwRecreationPolygonsDtoToJSONTyped(
   return {
     amendment_id: value['amendment_id'],
     site_location: value['site_location'],
-    retirement_date:
-      value['retirement_date'] == null
-        ? value['retirement_date']
-        : serializeDate(value['retirement_date']),
+    retirement_date: (value['retirement_date'] as any)
+      .toISOString()
+      .substring(0, 10),
     resource_feature_ind: value['resource_feature_ind'],
     arch_impact_assess_ind: value['arch_impact_assess_ind'],
-    project_established_date:
-      value['project_established_date'] == null
-        ? value['project_established_date']
-        : serializeDate(value['project_established_date']),
+    project_established_date: (value['project_established_date'] as any)
+      .toISOString()
+      .substring(0, 10),
     recreation_view_ind: value['recreation_view_ind'],
     defined_campsites: value['defined_campsites'],
     life_cycle_status_code: value['life_cycle_status_code'],

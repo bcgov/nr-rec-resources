@@ -29,6 +29,8 @@ import {
 export interface ListExportDatasetsResponseDto {
   /**
    * Known export datasets and any availability notes
+   * @type {Array<ExportDatasetDto>}
+   * @memberof ListExportDatasetsResponseDto
    */
   datasets: Array<ExportDatasetDto>;
 }

@@ -13,79 +13,48 @@
  */
 
 import * as runtime from '../runtime';
+import type {
+  ActAdvisoryBulkResponseDto,
+  ActAdvisoryBulkUpsertDto,
+  ActAdvisoryResponseDto,
+  ActAdvisoryUpdateDto,
+  ActAdvisoryUpsertDto,
+  BadRequestResponseDto,
+  GenericErrorResponseDto,
+} from '../models/index';
 import {
-  type ActAdvisoryBulkResponseDto,
   ActAdvisoryBulkResponseDtoFromJSON,
   ActAdvisoryBulkResponseDtoToJSON,
-} from '../models/ActAdvisoryBulkResponseDto';
-import {
-  type ActAdvisoryBulkUpsertDto,
   ActAdvisoryBulkUpsertDtoFromJSON,
   ActAdvisoryBulkUpsertDtoToJSON,
-} from '../models/ActAdvisoryBulkUpsertDto';
-import {
-  type ActAdvisoryResponseDto,
   ActAdvisoryResponseDtoFromJSON,
   ActAdvisoryResponseDtoToJSON,
-} from '../models/ActAdvisoryResponseDto';
-import {
-  type ActAdvisoryUpdateDto,
   ActAdvisoryUpdateDtoFromJSON,
   ActAdvisoryUpdateDtoToJSON,
-} from '../models/ActAdvisoryUpdateDto';
-import {
-  type ActAdvisoryUpsertDto,
   ActAdvisoryUpsertDtoFromJSON,
   ActAdvisoryUpsertDtoToJSON,
-} from '../models/ActAdvisoryUpsertDto';
-import {
-  type BadRequestResponseDto,
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
-} from '../models/BadRequestResponseDto';
-import {
-  type GenericErrorResponseDto,
   GenericErrorResponseDtoFromJSON,
   GenericErrorResponseDtoToJSON,
-} from '../models/GenericErrorResponseDto';
+} from '../models/index';
 
 export interface BulkUpsertActAdvisoryRequest {
-  /**
-   *
-   */
   actAdvisoryBulkUpsertDto: ActAdvisoryBulkUpsertDto;
 }
 
 export interface DeleteActAdvisoryRequest {
-  /**
-   * Recreation resource ID the advisory applies to.
-   */
   recResourceId: string;
-  /**
-   * Act advisory number.
-   */
   advisoryNumber: number;
 }
 
 export interface UpdateActAdvisoryRequest {
-  /**
-   * Recreation resource ID the advisory applies to.
-   */
   recResourceId: string;
-  /**
-   * Act advisory number.
-   */
   advisoryNumber: number;
-  /**
-   *
-   */
   actAdvisoryUpdateDto: ActAdvisoryUpdateDto;
 }
 
 export interface UpsertActAdvisoryRequest {
-  /**
-   *
-   */
   actAdvisoryUpsertDto: ActAdvisoryUpsertDto;
 }
 
@@ -94,11 +63,13 @@ export interface UpsertActAdvisoryRequest {
  */
 export class ActApi extends runtime.BaseAPI {
   /**
-   * Creates request options for bulkUpsertActAdvisory without sending the request
+   * Create or update the same advisory across multiple recreation resources in `rst.act_advisories_flat`. The request carries one advisory payload plus a `rec_resource_ids` array, and the backend creates or updates one row per `(rec_resource_id, advisory_number)`. Single-resource PUT and DELETE endpoints remain intentionally scoped to one natural key at a time.
+   * Create or update the same advisory for multiple resources.
    */
-  async bulkUpsertActAdvisoryRequestOpts(
+  async bulkUpsertActAdvisoryRaw(
     requestParameters: BulkUpsertActAdvisoryRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ActAdvisoryBulkResponseDto>> {
     if (requestParameters['actAdvisoryBulkUpsertDto'] == null) {
       throw new runtime.RequiredError(
         'actAdvisoryBulkUpsertDto',
@@ -122,28 +93,18 @@ export class ActApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/act/advisories/bulk`;
 
-    return {
-      path: urlPath,
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-      body: ActAdvisoryBulkUpsertDtoToJSON(
-        requestParameters['actAdvisoryBulkUpsertDto'],
-      ),
-    };
-  }
-
-  /**
-   * Create or update the same advisory across multiple recreation resources in `rst.act_advisories_flat`. The request carries one advisory payload plus a `rec_resource_ids` array, and the backend creates or updates one row per `(rec_resource_id, advisory_number)`. Single-resource PUT and DELETE endpoints remain intentionally scoped to one natural key at a time.
-   * Create or update the same advisory for multiple resources.
-   */
-  async bulkUpsertActAdvisoryRaw(
-    requestParameters: BulkUpsertActAdvisoryRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ActAdvisoryBulkResponseDto>> {
-    const requestOptions =
-      await this.bulkUpsertActAdvisoryRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: ActAdvisoryBulkUpsertDtoToJSON(
+          requestParameters['actAdvisoryBulkUpsertDto'],
+        ),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ActAdvisoryBulkResponseDtoFromJSON(jsonValue),
@@ -166,11 +127,13 @@ export class ActApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for deleteActAdvisory without sending the request
+   * Removes the advisory row in `rst.act_advisories_flat` for the given natural key. This is invoked by Act when the advisory is deleted on their side.
+   * Delete an advisory pushed from Act.
    */
-  async deleteActAdvisoryRequestOpts(
+  async deleteActAdvisoryRaw(
     requestParameters: DeleteActAdvisoryRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ActAdvisoryResponseDto>> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -199,33 +162,23 @@ export class ActApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/act/advisories/{rec_resource_id}/{advisory_number}`;
     urlPath = urlPath.replace(
-      '{rec_resource_id}',
+      `{${'rec_resource_id'}}`,
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      '{advisory_number}',
+      `{${'advisory_number'}}`,
       encodeURIComponent(String(requestParameters['advisoryNumber'])),
     );
 
-    return {
-      path: urlPath,
-      method: 'DELETE',
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Removes the advisory row in `rst.act_advisories_flat` for the given natural key. This is invoked by Act when the advisory is deleted on their side.
-   * Delete an advisory pushed from Act.
-   */
-  async deleteActAdvisoryRaw(
-    requestParameters: DeleteActAdvisoryRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ActAdvisoryResponseDto>> {
-    const requestOptions =
-      await this.deleteActAdvisoryRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ActAdvisoryResponseDtoFromJSON(jsonValue),
@@ -248,11 +201,13 @@ export class ActApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for updateActAdvisory without sending the request
+   * Partial update of an existing advisory in `rst.act_advisories_flat`. The composite natural key is supplied via URL path parameters.
+   * Update an existing advisory pushed from Act.
    */
-  async updateActAdvisoryRequestOpts(
+  async updateActAdvisoryRaw(
     requestParameters: UpdateActAdvisoryRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ActAdvisoryResponseDto>> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -290,36 +245,26 @@ export class ActApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/act/advisories/{rec_resource_id}/{advisory_number}`;
     urlPath = urlPath.replace(
-      '{rec_resource_id}',
+      `{${'rec_resource_id'}}`,
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      '{advisory_number}',
+      `{${'advisory_number'}}`,
       encodeURIComponent(String(requestParameters['advisoryNumber'])),
     );
 
-    return {
-      path: urlPath,
-      method: 'PUT',
-      headers: headerParameters,
-      query: queryParameters,
-      body: ActAdvisoryUpdateDtoToJSON(
-        requestParameters['actAdvisoryUpdateDto'],
-      ),
-    };
-  }
-
-  /**
-   * Partial update of an existing advisory in `rst.act_advisories_flat`. The composite natural key is supplied via URL path parameters.
-   * Update an existing advisory pushed from Act.
-   */
-  async updateActAdvisoryRaw(
-    requestParameters: UpdateActAdvisoryRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ActAdvisoryResponseDto>> {
-    const requestOptions =
-      await this.updateActAdvisoryRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: ActAdvisoryUpdateDtoToJSON(
+          requestParameters['actAdvisoryUpdateDto'],
+        ),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ActAdvisoryResponseDtoFromJSON(jsonValue),
@@ -342,11 +287,13 @@ export class ActApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for upsertActAdvisory without sending the request
+   * Idempotent upsert of an advisory in `rst.act_advisories_flat`. The composite natural key (rec_resource_id, advisory_number) determines whether a record is created or updated.
+   * Create or update an advisory pushed from Act (upsert).
    */
-  async upsertActAdvisoryRequestOpts(
+  async upsertActAdvisoryRaw(
     requestParameters: UpsertActAdvisoryRequest,
-  ): Promise<runtime.RequestOpts> {
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ActAdvisoryResponseDto>> {
     if (requestParameters['actAdvisoryUpsertDto'] == null) {
       throw new runtime.RequiredError(
         'actAdvisoryUpsertDto',
@@ -370,28 +317,18 @@ export class ActApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/act/advisories`;
 
-    return {
-      path: urlPath,
-      method: 'POST',
-      headers: headerParameters,
-      query: queryParameters,
-      body: ActAdvisoryUpsertDtoToJSON(
-        requestParameters['actAdvisoryUpsertDto'],
-      ),
-    };
-  }
-
-  /**
-   * Idempotent upsert of an advisory in `rst.act_advisories_flat`. The composite natural key (rec_resource_id, advisory_number) determines whether a record is created or updated.
-   * Create or update an advisory pushed from Act (upsert).
-   */
-  async upsertActAdvisoryRaw(
-    requestParameters: UpsertActAdvisoryRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ActAdvisoryResponseDto>> {
-    const requestOptions =
-      await this.upsertActAdvisoryRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: ActAdvisoryUpsertDtoToJSON(
+          requestParameters['actAdvisoryUpsertDto'],
+        ),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ActAdvisoryResponseDtoFromJSON(jsonValue),

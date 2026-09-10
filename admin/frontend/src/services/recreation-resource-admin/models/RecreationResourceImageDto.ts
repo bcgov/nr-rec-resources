@@ -29,54 +29,80 @@ import {
 export interface RecreationResourceImageDto {
   /**
    * Reference ID for the image
+   * @type {string}
+   * @memberof RecreationResourceImageDto
    */
   ref_id: string;
   /**
    * Image ID (UUID)
+   * @type {string}
+   * @memberof RecreationResourceImageDto
    */
   image_id?: string;
   /**
    * Image file name
+   * @type {string}
+   * @memberof RecreationResourceImageDto
    */
   file_name: string;
   /**
    * Available image variants
+   * @type {Array<RecreationResourceImageVariantDto>}
+   * @memberof RecreationResourceImageDto
    */
   recreation_resource_image_variants?: Array<RecreationResourceImageVariantDto>;
   /**
    * File upload date
+   * @type {string}
+   * @memberof RecreationResourceImageDto
    */
   created_at: string;
   /**
    * Size of the original image in bytes
+   * @type {number}
+   * @memberof RecreationResourceImageDto
    */
   file_size?: number;
   /**
    * Date the photo was taken
+   * @type {string}
+   * @memberof RecreationResourceImageDto
    */
   date_taken?: string;
   /**
    * Photographer type code
+   * @type {string}
+   * @memberof RecreationResourceImageDto
    */
   photographer_type?: string;
   /**
    * Photographer type description
+   * @type {string}
+   * @memberof RecreationResourceImageDto
    */
   photographer_type_description?: string;
   /**
    * Photographer name for attribution
+   * @type {string}
+   * @memberof RecreationResourceImageDto
    */
   photographer_name?: string;
   /**
    * Whether the image contains personally identifiable information
+   * @type {boolean}
+   * @memberof RecreationResourceImageDto
    */
   contains_pii?: boolean;
   /**
    * Display name for photographer (photographer_name, or updated_by, or created_by)
+   * @type {string}
+   * @memberof RecreationResourceImageDto
    */
   photographer_display_name?: string;
   /**
    * Whether consent metadata record exists for this image
+   * @type {boolean}
+   * @memberof RecreationResourceImageDto
    */
   has_consent_metadata?: boolean;
 }
