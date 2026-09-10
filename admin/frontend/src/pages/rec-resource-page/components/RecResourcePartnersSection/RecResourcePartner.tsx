@@ -1,5 +1,4 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import { PartnerListItem } from './interfaces';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
 import { CustomBadge } from '@/components';
 import { COLOR_GREEN_DARKER, COLOR_GREEN_LIGHTEST } from '@/styles/colors';
@@ -13,9 +12,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useGetPartnerLocations } from '@/services/hooks/recreation-resource-admin/useGetPartnerLocationsByClientId';
 import { useState } from 'react';
+import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin/models/AgreementHolderClientPublicViewDto';
+import { CopyButton } from '@shared/components/copy-button';
 
 interface RecResourcePartnerProps {
-  partner: PartnerListItem;
+  partner: AgreementHolderClientPublicViewDto;
 }
 
 export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
@@ -28,9 +29,9 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
 
   const togglePartnerDetails = (clientNumber: string) => async () => {
     setIsExpanded((prev) => !prev);
-    await fetchLocations(clientNumber);
-    // add the fetched locations to the corresponding partner
-    partner.locations = locations || [];
+    if (!isExpanded && !locations) {
+      await fetchLocations(clientNumber);
+    }
   };
 
   return (
@@ -115,28 +116,27 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
               {isPending ? (
                 <p>Loading locations...</p>
               ) : (
-                locations?.map((loc) => (
-                  <>
-                    <Row
-                      className="align-items-center border-bottom"
-                      key={`loc-${loc.clientNumber}`}
-                    >
+                locations?.map((loc, index) => (
+                  <div
+                    className={
+                      index < locations.length - 1 ? 'border-bottom' : ''
+                    }
+                    key={`loc-${loc.clientNumber}-${index}`}
+                  >
+                    <Row className="align-items-center border-bottom">
                       <Col xs={6} className="my-2">
                         <span className="fw-bold">Email</span>
                       </Col>
                       <Col xs={6}>
-                        <span>{loc.email}</span>
+                        <CopyButton text={loc.email || ''} />
                       </Col>
                     </Row>
-                    <Row
-                      className="align-items-center border-bottom"
-                      key={`loc-${loc.clientNumber}`}
-                    >
+                    <Row className="align-items-center border-bottom">
                       <Col xs={6} className="my-2">
                         <span className="fw-bold">Phone</span>
                       </Col>
                       <Col xs={6}>
-                        <span>{loc.businessPhone}</span>
+                        <CopyButton text={loc.businessPhone || ''} />
                       </Col>
                     </Row>
                     <Row
@@ -147,6 +147,20 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                         <span className="fw-bold">Address</span>
                       </Col>
                       <Col xs={6} className="align-items-start my-2">
+                        <CopyButton
+                          text={
+                            <>
+                              <span>
+                                {capitalizeWords(loc.address1 || '')},{' '}
+                                {capitalizeWords(loc.city || '')}
+                              </span>
+                              <br />
+                              <span>
+                                {loc.province}, {loc.postalCode}
+                              </span>
+                            </>
+                          }
+                        />
                         <span>
                           {capitalizeWords(loc.address1 || '')},{' '}
                           {capitalizeWords(loc.city || '')}
@@ -157,7 +171,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                         </span>
                       </Col>
                     </Row>
-                  </>
+                  </div>
                 ))
               )}
             </Col>

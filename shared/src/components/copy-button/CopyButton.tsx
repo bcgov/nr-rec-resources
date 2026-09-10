@@ -1,19 +1,43 @@
-import { FC, useState } from 'react';
+import { FC, ReactNode, ReactElement, isValidElement, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import './CopyButton.scss';
 
 export interface CopyButtonProps {
-  text: string;
+  text: ReactNode;
 }
+
+// Helper to extract plain text string from any ReactNode
+const extractText = (node: ReactNode): string => {
+  if (node === null || node === undefined || typeof node === 'boolean') {
+    return '';
+  }
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(extractText).join('');
+  }
+  if (isValidElement(node)) {
+    // Type assertion to access props.children safely
+    const element = node as ReactElement<{ children?: ReactNode }>;
+    // Convert <br /> elements into a newline character for clipboard copy
+    if (element.type === 'br') {
+      return '\n';
+    }
+    return extractText(element.props.children);
+  }
+  return '';
+};
 
 export const CopyButton: FC<CopyButtonProps> = ({ text }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      const plainText = extractText(text);
+      await navigator.clipboard.writeText(plainText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
@@ -39,7 +63,7 @@ export const CopyButton: FC<CopyButtonProps> = ({ text }) => {
           aria-label="Copy to clipboard"
           data-testid="copy-button"
         >
-          <FontAwesomeIcon icon={faCopy} />
+          <FontAwesomeIcon icon={faCopy as any} />
         </button>
       </OverlayTrigger>
     </div>

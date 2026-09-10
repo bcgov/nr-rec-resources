@@ -12,10 +12,7 @@ export const RecResourcePartnersSection = () => {
 
   return (
     <RecResourcePartnersContent
-      partners={partners.map((partner) => ({
-        ...partner,
-        locations: [],
-      }))}
+      partners={partners}
       recResourceId={recResourceId}
     />
   );

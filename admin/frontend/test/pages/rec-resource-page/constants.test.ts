@@ -42,6 +42,7 @@ describe('rec-resource-page constants', () => {
         'activities',
         'fees',
         'assets',
+        'partners',
         'geospatial',
         'reservation',
         'advisories',

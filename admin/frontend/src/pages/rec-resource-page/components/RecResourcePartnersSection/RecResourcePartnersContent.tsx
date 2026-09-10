@@ -2,14 +2,14 @@ import { Stack } from 'react-bootstrap';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { Link } from '@tanstack/react-router';
 import './RecResourcePartnersContent.scss';
-import { PartnerListItem } from './interfaces';
 import { RecResourcePartner } from './RecResourcePartner';
+import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin/models/AgreementHolderClientPublicViewDto';
 
 export const RecResourcePartnersContent = ({
   partners,
   recResourceId,
 }: {
-  partners: PartnerListItem[];
+  partners: AgreementHolderClientPublicViewDto[];
   recResourceId?: string;
 }) => {
   return (
