@@ -568,4 +568,24 @@ describe('RecResourceAssetsEditPage', () => {
       });
     });
   });
+
+  it('returns to the asset list when the deleted asset was the last item in the edited type group', async () => {
+    const user = userEvent.setup();
+    vi.mocked(useSearch).mockReturnValue({ editGroup: '100' } as any);
+
+    render(<RecResourceAssetsEditPage />);
+
+    await user.click(screen.getByRole('button', { name: 'delete-asset-10' }));
+
+    await waitFor(() => {
+      expect(mockDeleteAsset).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        assetId: 10,
+      });
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
+        params: { id: 'REC123' },
+      });
+    });
+  });
 });
