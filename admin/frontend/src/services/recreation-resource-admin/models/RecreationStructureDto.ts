@@ -21,10 +21,14 @@ import { mapValues } from '../runtime';
 export interface RecreationStructureDto {
   /**
    * Indicates if the recreation resource has at least one toilet
+   * @type {boolean}
+   * @memberof RecreationStructureDto
    */
   has_toilet: boolean;
   /**
    * Indicates if the recreation resource has at least one table
+   * @type {boolean}
+   * @memberof RecreationStructureDto
    */
   has_table: boolean;
 }

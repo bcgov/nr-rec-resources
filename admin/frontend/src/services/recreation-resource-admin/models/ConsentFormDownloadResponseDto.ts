@@ -21,6 +21,8 @@ import { mapValues } from '../runtime';
 export interface ConsentFormDownloadResponseDto {
   /**
    * Presigned URL for downloading the consent form PDF
+   * @type {string}
+   * @memberof ConsentFormDownloadResponseDto
    */
   url: string;
 }

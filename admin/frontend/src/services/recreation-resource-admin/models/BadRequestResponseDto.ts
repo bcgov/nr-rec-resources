@@ -29,26 +29,38 @@ import {
 export interface BadRequestResponseDto {
   /**
    * The HTTP status code of the error response.
+   * @type {number}
+   * @memberof BadRequestResponseDto
    */
   statusCode: BadRequestResponseDtoStatusCodeEnum;
   /**
    * A general message describing the error.
+   * @type {string}
+   * @memberof BadRequestResponseDto
    */
   message: string;
   /**
    * The error type or short description of the HTTP status.
+   * @type {string}
+   * @memberof BadRequestResponseDto
    */
   error: string;
   /**
    * The timestamp of when the error occurred (ISO 8601 format).
+   * @type {string}
+   * @memberof BadRequestResponseDto
    */
   timestamp: string;
   /**
    * The request path that caused the error.
+   * @type {string}
+   * @memberof BadRequestResponseDto
    */
   path: string;
   /**
    * An array of detailed validation errors specific to this bad request.
+   * @type {Array<ValidationErrorDetailDto>}
+   * @memberof BadRequestResponseDto
    */
   details: Array<ValidationErrorDetailDto>;
 }
@@ -70,8 +82,6 @@ export function instanceOfBadRequestResponseDto(
 ): value is BadRequestResponseDto {
   if (!('statusCode' in value) || value['statusCode'] === undefined)
     return false;
-
-  if (value['statusCode'] !== 400) return false;
   if (!('message' in value) || value['message'] === undefined) return false;
   if (!('error' in value) || value['error'] === undefined) return false;
   if (!('timestamp' in value) || value['timestamp'] === undefined) return false;

@@ -21,10 +21,14 @@ import { mapValues } from '../runtime';
 export interface RecreationRiskRatingDto {
   /**
    * Risk rating code
+   * @type {string}
+   * @memberof RecreationRiskRatingDto
    */
   risk_rating_code: string;
   /**
    * Description of the risk rating
+   * @type {string}
+   * @memberof RecreationRiskRatingDto
    */
   description: string;
 }

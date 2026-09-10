@@ -12,13 +12,7 @@
  * Do not edit the class manually.
  */
 
-import {
-  mapValues,
-  parseDate,
-  parseDateTime,
-  serializeDate,
-  serializeDateTime,
-} from '../runtime';
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -27,98 +21,146 @@ import {
 export interface BcgwRecreationLinesDto {
   /**
    * The number of times a feature has been amended over its lifetime.
+   * @type {number}
+   * @memberof BcgwRecreationLinesDto
    */
   amendment_id: number | null;
   /**
    * The closest town or city to the recreation feature, e.g., KELOWNA, BELLA COOLA.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   site_location: string | null;
   /**
    * For a retired recreation feature, the date and time the feature was retired.
+   * @type {Date}
+   * @memberof BcgwRecreationLinesDto
    */
   retirement_date: Date | null;
   /**
    * Indicates whether this is a resource feature established under the Government Action Regulation.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   resource_feature_ind: BcgwRecreationLinesDtoResourceFeatureIndEnum | null;
   /**
    * Indicates if an archaeological impact assessment has been performed for the given project.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   arch_impact_assess_ind: BcgwRecreationLinesDtoArchImpactAssessIndEnum | null;
   /**
    * The date on which the recreation project was legally established.
+   * @type {Date}
+   * @memberof BcgwRecreationLinesDto
    */
   project_established_date: Date | null;
   /**
    *
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   recreation_view_ind: BcgwRecreationLinesDtoRecreationViewIndEnum | null;
   /**
    * The total number of campsites.
+   * @type {number}
+   * @memberof BcgwRecreationLinesDto
    */
   defined_campsites: number;
   /**
    * The life cycle state of the feature.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   life_cycle_status_code: BcgwRecreationLinesDtoLifeCycleStatusCodeEnum | null;
   /**
    * The current status of the recreation tenure, e.g., AR (archived), HI (issued), PI (pending issuance).
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   file_status_code: string | null;
   /**
    * The unique identifier (SKEY) for the Recreation Map Feature.
+   * @type {number}
+   * @memberof BcgwRecreationLinesDto
    */
   rmf_skey: number;
   /**
    * An identifier assigned to the recreation file, e.g., REC16098.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   forest_file_id: string;
   /**
    * An identifier assigned to a section of a recreation trail, e.g., 1, 10, A, B, EATON LAKE.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   section_id: string | null;
   /**
    * Code that identifies the type of recreation feature, e.g., IF, RTR.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   recreation_map_feature_code: string | null;
   /**
    * Description of the type of recreation feature, e.g., Interpretative Forest, Recreation Trail.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   project_type: string | null;
   /**
    * The default label used when displaying the feature on a map, consisting of the FOREST FILE ID and SECTION ID separated by a space.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   map_label: string | null;
   /**
    * The name of the area or trail network, usually a geographic name, e.g., OKEOVER TRAILS.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   project_name: string | null;
   /**
    * Code describing the type of natural or man-made recreation feature, e.g., H3 (Historic Route).
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   recreation_feature_code: string | null;
   /**
    * The entire width of the Right of Way for the linear feature.
+   * @type {number}
+   * @memberof BcgwRecreationLinesDto
    */
   right_of_way: number | null;
   /**
    * A comma-separated list of codes relating to the recreation districts that the feature is within, e.g., RDCO,RDKB,RDOS.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   recreation_district_code: string | null;
   /**
    * The code of the natural resource district associated with this feature.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   district_code: string | null;
   /**
    * The code of the natural resource district associated with this feature (VARCHAR2(6) in BCGW; holds the district code, not the full name).
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
    */
   district_name: string | null;
   /**
    * Spatial length in kilometres. Calculated in the source system.
+   * @type {number}
+   * @memberof BcgwRecreationLinesDto
    */
   feature_length: number | null;
   /**
    * System-calculated length of the geometry in metres.
+   * @type {number}
+   * @memberof BcgwRecreationLinesDto
    */
   feature_length_m: number | null;
 }
@@ -265,13 +307,13 @@ export function BcgwRecreationLinesDtoFromJSONTyped(
     retirement_date:
       json['retirement_date'] == null
         ? null
-        : parseDate(json['retirement_date']),
+        : new Date(json['retirement_date']),
     resource_feature_ind: json['resource_feature_ind'],
     arch_impact_assess_ind: json['arch_impact_assess_ind'],
     project_established_date:
       json['project_established_date'] == null
         ? null
-        : parseDate(json['project_established_date']),
+        : new Date(json['project_established_date']),
     recreation_view_ind: json['recreation_view_ind'],
     defined_campsites: json['defined_campsites'],
     life_cycle_status_code: json['life_cycle_status_code'],
@@ -310,16 +352,14 @@ export function BcgwRecreationLinesDtoToJSONTyped(
   return {
     amendment_id: value['amendment_id'],
     site_location: value['site_location'],
-    retirement_date:
-      value['retirement_date'] == null
-        ? value['retirement_date']
-        : serializeDate(value['retirement_date']),
+    retirement_date: (value['retirement_date'] as any)
+      .toISOString()
+      .substring(0, 10),
     resource_feature_ind: value['resource_feature_ind'],
     arch_impact_assess_ind: value['arch_impact_assess_ind'],
-    project_established_date:
-      value['project_established_date'] == null
-        ? value['project_established_date']
-        : serializeDate(value['project_established_date']),
+    project_established_date: (value['project_established_date'] as any)
+      .toISOString()
+      .substring(0, 10),
     recreation_view_ind: value['recreation_view_ind'],
     defined_campsites: value['defined_campsites'],
     life_cycle_status_code: value['life_cycle_status_code'],

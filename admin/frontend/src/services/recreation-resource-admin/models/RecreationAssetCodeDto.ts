@@ -21,26 +21,38 @@ import { mapValues } from '../runtime';
 export interface RecreationAssetCodeDto {
   /**
    * Surrogate primary key for the asset type code
+   * @type {number}
+   * @memberof RecreationAssetCodeDto
    */
   asset_code: number;
   /**
    * Description of the asset type
+   * @type {string}
+   * @memberof RecreationAssetCodeDto
    */
   description?: string;
   /**
    * Indicates whether a length measurement is applicable for this asset type
+   * @type {boolean}
+   * @memberof RecreationAssetCodeDto
    */
   has_length?: boolean;
   /**
    * Indicates whether a width measurement is applicable for this asset type
+   * @type {boolean}
+   * @memberof RecreationAssetCodeDto
    */
   has_width?: boolean;
   /**
    * Indicates whether an area measurement is applicable for this asset type
+   * @type {boolean}
+   * @memberof RecreationAssetCodeDto
    */
   has_area?: boolean;
   /**
    * Default monetary value for an asset of this type
+   * @type {object}
+   * @memberof RecreationAssetCodeDto
    */
   default_value?: object;
 }

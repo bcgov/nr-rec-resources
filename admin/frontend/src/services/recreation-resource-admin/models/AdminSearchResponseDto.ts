@@ -29,18 +29,26 @@ import {
 export interface AdminSearchResponseDto {
   /**
    * Search result rows
+   * @type {Array<AdminSearchResultRowDto>}
+   * @memberof AdminSearchResponseDto
    */
   data: Array<AdminSearchResultRowDto>;
   /**
    * Total number of matching resources
+   * @type {number}
+   * @memberof AdminSearchResponseDto
    */
   total: number;
   /**
    * Current page number
+   * @type {number}
+   * @memberof AdminSearchResponseDto
    */
   page: number;
   /**
    * Page size used for the response
+   * @type {number}
+   * @memberof AdminSearchResponseDto
    */
   page_size: number;
 }

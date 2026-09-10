@@ -12,13 +12,7 @@
  * Do not edit the class manually.
  */
 
-import {
-  mapValues,
-  parseDate,
-  parseDateTime,
-  serializeDate,
-  serializeDateTime,
-} from '../runtime';
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -27,30 +21,44 @@ import {
 export interface EstablishmentOrderDocDto {
   /**
    * S3 object key for the document
+   * @type {string}
+   * @memberof EstablishmentOrderDocDto
    */
   s3_key: string;
   /**
    * Recreation Resource ID
+   * @type {string}
+   * @memberof EstablishmentOrderDocDto
    */
   rec_resource_id: string;
   /**
    * Title of the establishment order document
+   * @type {string}
+   * @memberof EstablishmentOrderDocDto
    */
   title: string;
   /**
    * File size in bytes
+   * @type {number}
+   * @memberof EstablishmentOrderDocDto
    */
   file_size?: number;
   /**
    * File extension
+   * @type {string}
+   * @memberof EstablishmentOrderDocDto
    */
   extension?: string;
   /**
    * Presigned URL for downloading the document
+   * @type {string}
+   * @memberof EstablishmentOrderDocDto
    */
   url: string;
   /**
    * When the document was created
+   * @type {Date}
+   * @memberof EstablishmentOrderDocDto
    */
   created_at?: Date;
 }
@@ -90,9 +98,7 @@ export function EstablishmentOrderDocDtoFromJSONTyped(
     extension: json['extension'] == null ? undefined : json['extension'],
     url: json['url'],
     created_at:
-      json['created_at'] == null
-        ? undefined
-        : parseDateTime(json['created_at']),
+      json['created_at'] == null ? undefined : new Date(json['created_at']),
   };
 }
 
@@ -119,7 +125,7 @@ export function EstablishmentOrderDocDtoToJSONTyped(
     url: value['url'],
     created_at:
       value['created_at'] == null
-        ? value['created_at']
-        : serializeDateTime(value['created_at']),
+        ? undefined
+        : value['created_at'].toISOString(),
   };
 }
