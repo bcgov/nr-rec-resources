@@ -21,18 +21,26 @@ import { mapValues } from '../runtime';
 export interface BulkAssetUpdateResponseDto {
   /**
    * Status response from Bulk Update operation
+   * @type {string}
+   * @memberof BulkAssetUpdateResponseDto
    */
   status: string;
   /**
    * FK to the parent Recreation Resource
+   * @type {string}
+   * @memberof BulkAssetUpdateResponseDto
    */
   rec_resource_id: string;
   /**
    * Number of updated rows
+   * @type {number}
+   * @memberof BulkAssetUpdateResponseDto
    */
   updated_count: number;
   /**
    * List of updated assets
+   * @type {Array<string>}
+   * @memberof BulkAssetUpdateResponseDto
    */
   updated_asset_ids: Array<string>;
 }

@@ -21,62 +21,92 @@ import { mapValues } from '../runtime';
 export interface CreateRecreationAssetDto {
   /**
    * ID of the parent container asset
+   * @type {number}
+   * @memberof CreateRecreationAssetDto
    */
   parent_id?: number | null;
   /**
    * Physical barcode or field tag
+   * @type {string}
+   * @memberof CreateRecreationAssetDto
    */
   asset_tag?: string | null;
   /**
    * FK to the parent Recreation Resource
+   * @type {string}
+   * @memberof CreateRecreationAssetDto
    */
   rec_resource_id: string;
   /**
    * FK to the parent Recreation Structure
+   * @type {number}
+   * @memberof CreateRecreationAssetDto
    */
   asset_code: number;
   /**
    * Optional display name
+   * @type {string}
+   * @memberof CreateRecreationAssetDto
    */
   asset_name?: string | null;
   /**
    * Free-text note
+   * @type {string}
+   * @memberof CreateRecreationAssetDto
    */
   asset_comment?: string | null;
   /**
    * Legacy aggregate structure reference ID
+   * @type {string}
+   * @memberof CreateRecreationAssetDto
    */
   legacy_structure_id?: string | null;
   /**
    * Total length in metres
+   * @type {number}
+   * @memberof CreateRecreationAssetDto
    */
   asset_length?: number | null;
   /**
    * Total width in metres
+   * @type {number}
+   * @memberof CreateRecreationAssetDto
    */
   asset_width?: number | null;
   /**
    * Total area in square metres
+   * @type {number}
+   * @memberof CreateRecreationAssetDto
    */
   asset_area?: number | null;
   /**
    * Actual monetary value
+   * @type {number}
+   * @memberof CreateRecreationAssetDto
    */
   actual_value?: number | null;
   /**
    * Date the asset was installed (YYYY-MM-DD)
+   * @type {string}
+   * @memberof CreateRecreationAssetDto
    */
   installation_date?: string | null;
   /**
    * Point geometry type code, if this asset has a location
+   * @type {object}
+   * @memberof CreateRecreationAssetDto
    */
   geometry_type_code?: object | null;
   /**
    * Latitude in WGS84 (derived from recreation_asset_geom)
+   * @type {object}
+   * @memberof CreateRecreationAssetDto
    */
   latitude?: object | null;
   /**
    * Longitude in WGS84 (derived from recreation_asset_geom)
+   * @type {object}
+   * @memberof CreateRecreationAssetDto
    */
   longitude?: object | null;
 }
@@ -108,86 +138,31 @@ export function CreateRecreationAssetDtoFromJSONTyped(
     return json;
   }
   return {
-    parent_id:
-      json['parent_id'] === undefined
-        ? undefined
-        : json['parent_id'] === null
-          ? null
-          : json['parent_id'],
-    asset_tag:
-      json['asset_tag'] === undefined
-        ? undefined
-        : json['asset_tag'] === null
-          ? null
-          : json['asset_tag'],
+    parent_id: json['parent_id'] == null ? undefined : json['parent_id'],
+    asset_tag: json['asset_tag'] == null ? undefined : json['asset_tag'],
     rec_resource_id: json['rec_resource_id'],
     asset_code: json['asset_code'],
-    asset_name:
-      json['asset_name'] === undefined
-        ? undefined
-        : json['asset_name'] === null
-          ? null
-          : json['asset_name'],
+    asset_name: json['asset_name'] == null ? undefined : json['asset_name'],
     asset_comment:
-      json['asset_comment'] === undefined
-        ? undefined
-        : json['asset_comment'] === null
-          ? null
-          : json['asset_comment'],
+      json['asset_comment'] == null ? undefined : json['asset_comment'],
     legacy_structure_id:
-      json['legacy_structure_id'] === undefined
+      json['legacy_structure_id'] == null
         ? undefined
-        : json['legacy_structure_id'] === null
-          ? null
-          : json['legacy_structure_id'],
+        : json['legacy_structure_id'],
     asset_length:
-      json['asset_length'] === undefined
-        ? undefined
-        : json['asset_length'] === null
-          ? null
-          : json['asset_length'],
-    asset_width:
-      json['asset_width'] === undefined
-        ? undefined
-        : json['asset_width'] === null
-          ? null
-          : json['asset_width'],
-    asset_area:
-      json['asset_area'] === undefined
-        ? undefined
-        : json['asset_area'] === null
-          ? null
-          : json['asset_area'],
+      json['asset_length'] == null ? undefined : json['asset_length'],
+    asset_width: json['asset_width'] == null ? undefined : json['asset_width'],
+    asset_area: json['asset_area'] == null ? undefined : json['asset_area'],
     actual_value:
-      json['actual_value'] === undefined
-        ? undefined
-        : json['actual_value'] === null
-          ? null
-          : json['actual_value'],
+      json['actual_value'] == null ? undefined : json['actual_value'],
     installation_date:
-      json['installation_date'] === undefined
-        ? undefined
-        : json['installation_date'] === null
-          ? null
-          : json['installation_date'],
+      json['installation_date'] == null ? undefined : json['installation_date'],
     geometry_type_code:
-      json['geometry_type_code'] === undefined
+      json['geometry_type_code'] == null
         ? undefined
-        : json['geometry_type_code'] === null
-          ? null
-          : json['geometry_type_code'],
-    latitude:
-      json['latitude'] === undefined
-        ? undefined
-        : json['latitude'] === null
-          ? null
-          : json['latitude'],
-    longitude:
-      json['longitude'] === undefined
-        ? undefined
-        : json['longitude'] === null
-          ? null
-          : json['longitude'],
+        : json['geometry_type_code'],
+    latitude: json['latitude'] == null ? undefined : json['latitude'],
+    longitude: json['longitude'] == null ? undefined : json['longitude'],
   };
 }
 

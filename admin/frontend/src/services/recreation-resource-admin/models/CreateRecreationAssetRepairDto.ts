@@ -21,34 +21,50 @@ import { mapValues } from '../runtime';
 export interface CreateRecreationAssetRepairDto {
   /**
    * Remedial repair classification code (FK to recreation_remed_repair_code)
+   * @type {string}
+   * @memberof CreateRecreationAssetRepairDto
    */
   recreation_remed_repair_code?: string | null;
   /**
    * Estimated financial cost for repair
+   * @type {number}
+   * @memberof CreateRecreationAssetRepairDto
    */
   estimated_repair_cost?: number | null;
   /**
    * Final actual cost incurred
+   * @type {number}
+   * @memberof CreateRecreationAssetRepairDto
    */
   actual_repair_cost?: number | null;
   /**
    * Date completed (YYYY-MM-DD)
+   * @type {string}
+   * @memberof CreateRecreationAssetRepairDto
    */
   repair_completed_date?: string | null;
   /**
    * Urgency/priority of repair
+   * @type {string}
+   * @memberof CreateRecreationAssetRepairDto
    */
   urgency?: string | null;
   /**
    * Trail segment start reference
+   * @type {string}
+   * @memberof CreateRecreationAssetRepairDto
    */
   trail_segment_start?: string | null;
   /**
    * Trail segment end reference
+   * @type {string}
+   * @memberof CreateRecreationAssetRepairDto
    */
   trail_segment_end?: string | null;
   /**
    * FK linking to the individual asset being repaired (populated automatically from URL param)
+   * @type {number}
+   * @memberof CreateRecreationAssetRepairDto
    */
   asset_id?: number;
 }
@@ -77,47 +93,28 @@ export function CreateRecreationAssetRepairDtoFromJSONTyped(
   }
   return {
     recreation_remed_repair_code:
-      json['recreation_remed_repair_code'] === undefined
+      json['recreation_remed_repair_code'] == null
         ? undefined
-        : json['recreation_remed_repair_code'] === null
-          ? null
-          : json['recreation_remed_repair_code'],
+        : json['recreation_remed_repair_code'],
     estimated_repair_cost:
-      json['estimated_repair_cost'] === undefined
+      json['estimated_repair_cost'] == null
         ? undefined
-        : json['estimated_repair_cost'] === null
-          ? null
-          : json['estimated_repair_cost'],
+        : json['estimated_repair_cost'],
     actual_repair_cost:
-      json['actual_repair_cost'] === undefined
+      json['actual_repair_cost'] == null
         ? undefined
-        : json['actual_repair_cost'] === null
-          ? null
-          : json['actual_repair_cost'],
+        : json['actual_repair_cost'],
     repair_completed_date:
-      json['repair_completed_date'] === undefined
+      json['repair_completed_date'] == null
         ? undefined
-        : json['repair_completed_date'] === null
-          ? null
-          : json['repair_completed_date'],
-    urgency:
-      json['urgency'] === undefined
-        ? undefined
-        : json['urgency'] === null
-          ? null
-          : json['urgency'],
+        : json['repair_completed_date'],
+    urgency: json['urgency'] == null ? undefined : json['urgency'],
     trail_segment_start:
-      json['trail_segment_start'] === undefined
+      json['trail_segment_start'] == null
         ? undefined
-        : json['trail_segment_start'] === null
-          ? null
-          : json['trail_segment_start'],
+        : json['trail_segment_start'],
     trail_segment_end:
-      json['trail_segment_end'] === undefined
-        ? undefined
-        : json['trail_segment_end'] === null
-          ? null
-          : json['trail_segment_end'],
+      json['trail_segment_end'] == null ? undefined : json['trail_segment_end'],
     asset_id: json['asset_id'] == null ? undefined : json['asset_id'],
   };
 }

@@ -21,22 +21,32 @@ import { mapValues } from '../runtime';
 export interface RecreationResourceImageVariantDto {
   /**
    * Size code of the image variant
+   * @type {string}
+   * @memberof RecreationResourceImageVariantDto
    */
   size_code: RecreationResourceImageVariantDtoSizeCodeEnum;
   /**
    * Image URL
+   * @type {string}
+   * @memberof RecreationResourceImageVariantDto
    */
   url: string;
   /**
    * Width of the image in pixels
+   * @type {number}
+   * @memberof RecreationResourceImageVariantDto
    */
   width: number;
   /**
    * Height of the image in pixels
+   * @type {number}
+   * @memberof RecreationResourceImageVariantDto
    */
   height: number;
   /**
    * File extension
+   * @type {string}
+   * @memberof RecreationResourceImageVariantDto
    */
   extension: string;
 }

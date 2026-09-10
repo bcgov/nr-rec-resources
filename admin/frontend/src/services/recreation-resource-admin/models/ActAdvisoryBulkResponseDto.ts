@@ -29,10 +29,14 @@ import {
 export interface ActAdvisoryBulkResponseDto {
   /**
    * Number of advisory rows processed.
+   * @type {number}
+   * @memberof ActAdvisoryBulkResponseDto
    */
   count: number;
   /**
    * One result per recreation resource ID that was processed during the bulk upsert.
+   * @type {Array<ActAdvisoryResponseDto>}
+   * @memberof ActAdvisoryBulkResponseDto
    */
   results: Array<ActAdvisoryResponseDto>;
 }

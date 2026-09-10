@@ -12,13 +12,7 @@
  * Do not edit the class manually.
  */
 
-import {
-  mapValues,
-  parseDate,
-  parseDateTime,
-  serializeDate,
-  serializeDateTime,
-} from '../runtime';
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -27,34 +21,50 @@ import {
 export interface ExhibitADocDto {
   /**
    * Document UUID
+   * @type {string}
+   * @memberof ExhibitADocDto
    */
   document_id: string;
   /**
    * Recreation Resource ID
+   * @type {string}
+   * @memberof ExhibitADocDto
    */
   rec_resource_id: string;
   /**
    * File name without extension
+   * @type {string}
+   * @memberof ExhibitADocDto
    */
   file_name: string;
   /**
    * File extension
+   * @type {string}
+   * @memberof ExhibitADocDto
    */
   extension: string;
   /**
    * File size in bytes
+   * @type {number}
+   * @memberof ExhibitADocDto
    */
   file_size?: number;
   /**
    * S3 object key
+   * @type {string}
+   * @memberof ExhibitADocDto
    */
   s3_key: string;
   /**
    * Presigned download URL
+   * @type {string}
+   * @memberof ExhibitADocDto
    */
   url: string;
   /**
    * When the document was created
+   * @type {Date}
+   * @memberof ExhibitADocDto
    */
   created_at?: Date;
 }
@@ -96,9 +106,7 @@ export function ExhibitADocDtoFromJSONTyped(
     s3_key: json['s3_key'],
     url: json['url'],
     created_at:
-      json['created_at'] == null
-        ? undefined
-        : parseDateTime(json['created_at']),
+      json['created_at'] == null ? undefined : new Date(json['created_at']),
   };
 }
 
@@ -124,7 +132,7 @@ export function ExhibitADocDtoToJSONTyped(
     url: value['url'],
     created_at:
       value['created_at'] == null
-        ? value['created_at']
-        : serializeDateTime(value['created_at']),
+        ? undefined
+        : value['created_at'].toISOString(),
   };
 }

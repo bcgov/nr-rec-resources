@@ -29,10 +29,14 @@ import {
 export interface SuggestionsResponseDto {
   /**
    * Total number of matching resources
+   * @type {number}
+   * @memberof SuggestionsResponseDto
    */
   total: number;
   /**
    * List of up to 30 matching resources
+   * @type {Array<SuggestionDto>}
+   * @memberof SuggestionsResponseDto
    */
   suggestions: Array<SuggestionDto>;
 }

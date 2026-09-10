@@ -21,34 +21,50 @@ import { mapValues } from '../runtime';
 export interface SuggestionDto {
   /**
    * Name of the recreation resource
+   * @type {string}
+   * @memberof SuggestionDto
    */
   name: string;
   /**
    * Unique resource ID
+   * @type {string}
+   * @memberof SuggestionDto
    */
   rec_resource_id: string;
   /**
    * Type of recreation resource (e.g., Recreation site, Recreation trail, etc.)
+   * @type {string}
+   * @memberof SuggestionDto
    */
   recreation_resource_type: string;
   /**
    * Resource type code (e.g., RR, IF, etc.)
+   * @type {string}
+   * @memberof SuggestionDto
    */
   recreation_resource_type_code: string;
   /**
    * Description of the district (e.g., Chilliwack, Okanagan, etc.)
+   * @type {string}
+   * @memberof SuggestionDto
    */
   district_description: string;
   /**
    * Description of the closest community (e.g., Chilliwack, Merrit, etc.)
+   * @type {string}
+   * @memberof SuggestionDto
    */
   closest_community: string;
   /**
    * Defines if the resource should be displayed on public site.
+   * @type {boolean}
+   * @memberof SuggestionDto
    */
   display_on_public_site: boolean;
   /**
    * Resource archive status code
+   * @type {string}
+   * @memberof SuggestionDto
    */
   rec_status_code?: string | null;
 }
@@ -108,11 +124,7 @@ export function SuggestionDtoFromJSONTyped(
     closest_community: json['closest_community'],
     display_on_public_site: json['display_on_public_site'],
     rec_status_code:
-      json['rec_status_code'] === undefined
-        ? undefined
-        : json['rec_status_code'] === null
-          ? null
-          : json['rec_status_code'],
+      json['rec_status_code'] == null ? undefined : json['rec_status_code'],
   };
 }
 

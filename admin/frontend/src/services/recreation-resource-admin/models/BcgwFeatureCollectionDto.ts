@@ -36,14 +36,20 @@ import {
 export interface BcgwFeatureCollectionDto {
   /**
    *
+   * @type {string}
+   * @memberof BcgwFeatureCollectionDto
    */
   type: string;
   /**
    * Array of GeoJSON Feature objects
+   * @type {Array<BcgwFeatureDto>}
+   * @memberof BcgwFeatureCollectionDto
    */
   features: Array<BcgwFeatureDto>;
   /**
    *
+   * @type {BcgwPaginationMetaDto}
+   * @memberof BcgwFeatureCollectionDto
    */
   meta: BcgwPaginationMetaDto;
 }

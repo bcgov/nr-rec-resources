@@ -21,6 +21,8 @@ import { mapValues } from '../runtime';
 export interface UpdateFeaturesDto {
   /**
    * Array of recreation feature codes
+   * @type {Array<string>}
+   * @memberof UpdateFeaturesDto
    */
   feature_codes: Array<string>;
 }

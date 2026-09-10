@@ -21,14 +21,20 @@ import { mapValues } from '../runtime';
 export interface ImagePresignedUrlDto {
   /**
    * S3 object key for this variant
+   * @type {string}
+   * @memberof ImagePresignedUrlDto
    */
   key: string;
   /**
    * Presigned PUT URL for uploading to S3
+   * @type {string}
+   * @memberof ImagePresignedUrlDto
    */
   url: string;
   /**
    * Size code of the image variant
+   * @type {string}
+   * @memberof ImagePresignedUrlDto
    */
   size_code: ImagePresignedUrlDtoSizeCodeEnum;
 }

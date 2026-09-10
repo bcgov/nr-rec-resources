@@ -1,7 +1,12 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
 import { CustomBadge } from '@/components';
-import { COLOR_GREEN_DARKER, COLOR_GREEN_LIGHTEST } from '@/styles/colors';
+import {
+  COLOR_GREEN_DARKER,
+  COLOR_GREEN_LIGHTEST,
+  COLOR_BACKGROUND_GREY,
+  COLOR_GREY_DARK,
+} from '@/styles/colors';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEye,
@@ -33,7 +38,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
       await fetchLocations(clientNumber);
     }
   };
-
+  const isActive = partner.clientStatusDescription === 'Active';
   return (
     <div key={partner.clientNumber} className="partner-panel">
       <Row className="align-items-center mb-2">
@@ -46,8 +51,8 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
         <Col xs={2} className="text-end">
           <CustomBadge
             label={partner.clientStatusDescription || ''}
-            bgColor={COLOR_GREEN_LIGHTEST}
-            textColor={COLOR_GREEN_DARKER}
+            bgColor={isActive ? COLOR_GREEN_LIGHTEST : COLOR_BACKGROUND_GREY}
+            textColor={isActive ? COLOR_GREEN_DARKER : COLOR_GREY_DARK}
           />
         </Col>
       </Row>
@@ -76,8 +81,16 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
           </span>
         </Col>
         <Col xs={4}>
-          <FontAwesomeIcon icon={faEye as any} className="me-2" />
-          <span className="fw-bold">Website</span> <span>Visible</span>
+          <FontAwesomeIcon
+            icon={
+              (partner.visible_on_public_website ? faEye : faEyeSlash) as any
+            }
+            className="me-2"
+          />
+          <span className="fw-bold">Website</span>{' '}
+          <span>
+            {partner.visible_on_public_website ? 'Visible' : 'Not Visible'}
+          </span>
         </Col>
       </Row>
       <Row className="align-items-center mb-2">
@@ -161,14 +174,6 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                             </>
                           }
                         />
-                        <span>
-                          {capitalizeWords(loc.address1 || '')},{' '}
-                          {capitalizeWords(loc.city || '')}
-                        </span>
-                        <br />
-                        <span>
-                          {loc.province}, {loc.postalCode}
-                        </span>
                       </Col>
                     </Row>
                   </div>

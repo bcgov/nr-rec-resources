@@ -21,10 +21,14 @@ import { mapValues } from '../runtime';
 export interface ValidationErrorDetailDto {
   /**
    * The name of the field that failed validation.
+   * @type {string}
+   * @memberof ValidationErrorDetailDto
    */
   field: string;
   /**
    * An array of error messages for the field.
+   * @type {Array<string>}
+   * @memberof ValidationErrorDetailDto
    */
   messages: Array<string>;
 }

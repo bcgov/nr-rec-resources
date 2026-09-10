@@ -12,13 +12,7 @@
  * Do not edit the class manually.
  */
 
-import {
-  mapValues,
-  parseDate,
-  parseDateTime,
-  serializeDate,
-  serializeDateTime,
-} from '../runtime';
+import { mapValues } from '../runtime';
 import type { RecreationAccessCodeDto } from './RecreationAccessCodeDto';
 import {
   RecreationAccessCodeDtoFromJSON,
@@ -77,106 +71,158 @@ import {
 export interface RecreationResourceDetailDto {
   /**
    * Unique identifier of the Recreation Resource
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   rec_resource_id: string;
   /**
    * Official name of the Recreation Resource
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   name: string;
   /**
    * Physical location of the Recreation Resource
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   closest_community: string;
   /**
    * List of recreational activities available at this resource
+   * @type {Array<RecreationActivityDto>}
+   * @memberof RecreationResourceDetailDto
    */
   recreation_activity: Array<RecreationActivityDto>;
   /**
    * Current operational status of the Recreation Resource
+   * @type {RecreationStatusDto}
+   * @memberof RecreationResourceDetailDto
    */
   recreation_status: RecreationStatusDto;
   /**
    * Code representing a specific feature associated with the recreation resource
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   rec_resource_type: string;
   /**
    * Code identifying the type of recreation resource (e.g. SIT for site, TRL for trail)
+   * @type {object}
+   * @memberof RecreationResourceDetailDto
    */
   rec_resource_type_code?: object | null;
   /**
    * Detailed description of the Recreation Resource
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   description: string;
   /**
    * Driving directions to the Recreation Resource
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   driving_directions: string;
   /**
    * The maintenance standard code for the recreation resource
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   maintenance_standard: RecreationResourceDetailDtoMaintenanceStandardEnum;
   /**
    * Number of campsites available in the recreation site or trail
+   * @type {number}
+   * @memberof RecreationResourceDetailDto
    */
   campsite_count: number;
   /**
    * List of access codes with their associated sub-access codes
+   * @type {Array<RecreationAccessCodeDto>}
+   * @memberof RecreationResourceDetailDto
    */
   access_codes: Array<RecreationAccessCodeDto>;
   /**
    * Structure-related facilities available at the recreation resource (e.g., toilets, tables)
+   * @type {RecreationStructureDto}
+   * @memberof RecreationResourceDetailDto
    */
   recreation_structure: RecreationStructureDto;
   /**
    * GeoJSON geometry data for the rec resource in string format
+   * @type {Array<string>}
+   * @memberof RecreationResourceDetailDto
    */
   spatial_feature_geometry?: Array<string>;
   /**
    * GeoJSON geometry data for the point location for the rec resource in string format
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   site_point_geometry?: string;
   /**
    * Recreation district
+   * @type {RecreationResourceDistrictDto}
+   * @memberof RecreationResourceDetailDto
    */
   recreation_district?: RecreationResourceDistrictDto;
   /**
    * Date when the project was established
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
    */
   project_established_date?: Date;
   /**
    * Date of the last recreation inspection for the resource
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
    */
   last_rec_inspection_date?: Date;
   /**
    * Date of the last hazard tree assessment for the resource
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
    */
   last_hzrd_tree_assess_date?: Date;
   /**
    * Recreation control access code
+   * @type {RecreationControlAccessDto}
+   * @memberof RecreationResourceDetailDto
    */
   recreation_control_access_code?: RecreationControlAccessDto;
   /**
    * Risk rating for the recreation resource
+   * @type {RecreationRiskRatingDto}
+   * @memberof RecreationResourceDetailDto
    */
   risk_rating?: RecreationRiskRatingDto;
   /**
    * Indicates if the resource should be displayed on the public site
+   * @type {boolean}
+   * @memberof RecreationResourceDetailDto
    */
   display_on_public_site?: boolean;
   /**
    * Right-of-way width in metres for linear features (both lanes combined)
+   * @type {number}
+   * @memberof RecreationResourceDetailDto
    */
   right_of_way?: number | null;
   /**
    * Recreation resource status code (e.g., AR for Archived, HI for Issued)
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   rec_status_code: string | null;
   /**
    * Description of the recreation resource status code
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   rec_status_description: string | null;
   /**
    * Full descriptive name of the organization unit
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
    */
   natural_resource_org_unit_name: string | null;
   /**
@@ -285,11 +331,9 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
     rec_resource_type_code:
-      json['rec_resource_type_code'] === undefined
+      json['rec_resource_type_code'] == null
         ? undefined
-        : json['rec_resource_type_code'] === null
-          ? null
-          : json['rec_resource_type_code'],
+        : json['rec_resource_type_code'],
     description: json['description'],
     driving_directions: json['driving_directions'],
     maintenance_standard: json['maintenance_standard'],
@@ -315,15 +359,15 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     project_established_date:
       json['project_established_date'] == null
         ? undefined
-        : parseDateTime(json['project_established_date']),
+        : new Date(json['project_established_date']),
     last_rec_inspection_date:
       json['last_rec_inspection_date'] == null
         ? undefined
-        : parseDateTime(json['last_rec_inspection_date']),
+        : new Date(json['last_rec_inspection_date']),
     last_hzrd_tree_assess_date:
       json['last_hzrd_tree_assess_date'] == null
         ? undefined
-        : parseDateTime(json['last_hzrd_tree_assess_date']),
+        : new Date(json['last_hzrd_tree_assess_date']),
     recreation_control_access_code:
       json['recreation_control_access_code'] == null
         ? undefined
@@ -339,11 +383,7 @@ export function RecreationResourceDetailDtoFromJSONTyped(
         ? undefined
         : json['display_on_public_site'],
     right_of_way:
-      json['right_of_way'] === undefined
-        ? undefined
-        : json['right_of_way'] === null
-          ? null
-          : json['right_of_way'],
+      json['right_of_way'] == null ? undefined : json['right_of_way'],
     rec_status_code: json['rec_status_code'],
     rec_status_description: json['rec_status_description'],
     natural_resource_org_unit_name: json['natural_resource_org_unit_name'],
@@ -395,16 +435,16 @@ export function RecreationResourceDetailDtoToJSONTyped(
     ),
     project_established_date:
       value['project_established_date'] == null
-        ? value['project_established_date']
-        : serializeDateTime(value['project_established_date']),
+        ? undefined
+        : value['project_established_date'].toISOString(),
     last_rec_inspection_date:
       value['last_rec_inspection_date'] == null
-        ? value['last_rec_inspection_date']
-        : serializeDateTime(value['last_rec_inspection_date']),
+        ? undefined
+        : value['last_rec_inspection_date'].toISOString(),
     last_hzrd_tree_assess_date:
       value['last_hzrd_tree_assess_date'] == null
-        ? value['last_hzrd_tree_assess_date']
-        : serializeDateTime(value['last_hzrd_tree_assess_date']),
+        ? undefined
+        : value['last_hzrd_tree_assess_date'].toISOString(),
     recreation_control_access_code: RecreationControlAccessDtoToJSON(
       value['recreation_control_access_code'],
     ),

@@ -21,18 +21,26 @@ import { mapValues } from '../runtime';
 export interface ActAdvisoryResponseDto {
   /**
    * Recreation resource identifier (REC ID) the advisory applies to.
+   * @type {string}
+   * @memberof ActAdvisoryResponseDto
    */
   rec_resource_id: string;
   /**
    * Act advisory number.
+   * @type {number}
+   * @memberof ActAdvisoryResponseDto
    */
   advisory_number: number;
   /**
    * The action that was performed.
+   * @type {string}
+   * @memberof ActAdvisoryResponseDto
    */
   action: ActAdvisoryResponseDtoActionEnum;
   /**
    * Timestamp (ISO 8601) at which the action was performed.
+   * @type {string}
+   * @memberof ActAdvisoryResponseDto
    */
   timestamp: string;
 }

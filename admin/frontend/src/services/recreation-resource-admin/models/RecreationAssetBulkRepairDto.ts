@@ -29,14 +29,20 @@ import {
 export interface RecreationAssetBulkRepairDto {
   /**
    * Remedial repair classification code (FK to recreation_remed_repair_code)
+   * @type {string}
+   * @memberof RecreationAssetBulkRepairDto
    */
   recreation_remed_repair_code: string;
   /**
    * Date when the repairs were completed
+   * @type {string}
+   * @memberof RecreationAssetBulkRepairDto
    */
   completed_date?: string | null;
   /**
    * Array of repair changes to be applied across multiple assets
+   * @type {Array<RepairChange>}
+   * @memberof RecreationAssetBulkRepairDto
    */
   changes: Array<RepairChange>;
 }
@@ -72,11 +78,7 @@ export function RecreationAssetBulkRepairDtoFromJSONTyped(
   return {
     recreation_remed_repair_code: json['recreation_remed_repair_code'],
     completed_date:
-      json['completed_date'] === undefined
-        ? undefined
-        : json['completed_date'] === null
-          ? null
-          : json['completed_date'],
+      json['completed_date'] == null ? undefined : json['completed_date'],
     changes: (json['changes'] as Array<any>).map(RepairChangeFromJSON),
   };
 }

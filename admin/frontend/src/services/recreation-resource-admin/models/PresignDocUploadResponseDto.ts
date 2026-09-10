@@ -21,14 +21,20 @@ import { mapValues } from '../runtime';
 export interface PresignDocUploadResponseDto {
   /**
    * Allocated document ID (UUID)
+   * @type {string}
+   * @memberof PresignDocUploadResponseDto
    */
   document_id: string;
   /**
    * S3 object key for the document
+   * @type {string}
+   * @memberof PresignDocUploadResponseDto
    */
   key: string;
   /**
    * Presigned PUT URL for uploading to S3
+   * @type {string}
+   * @memberof PresignDocUploadResponseDto
    */
   url: string;
 }

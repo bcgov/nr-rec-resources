@@ -29,14 +29,20 @@ import {
 export interface RecreationAssetBulkUpdateDto {
   /**
    * FK to the parent Recreation Resource
+   * @type {string}
+   * @memberof RecreationAssetBulkUpdateDto
    */
   rec_resource_id: string;
   /**
    * List of asset IDs to update
+   * @type {Array<number>}
+   * @memberof RecreationAssetBulkUpdateDto
    */
   asset_ids: Array<number>;
   /**
    * Fields to update for the specified assets
+   * @type {UpdateAssetFieldsDto}
+   * @memberof RecreationAssetBulkUpdateDto
    */
   update_fields: UpdateAssetFieldsDto;
 }

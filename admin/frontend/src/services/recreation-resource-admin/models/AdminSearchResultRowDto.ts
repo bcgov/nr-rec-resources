@@ -21,74 +21,110 @@ import { mapValues } from '../runtime';
 export interface AdminSearchResultRowDto {
   /**
    * Recreation resource identifier
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   rec_resource_id: string;
   /**
    * Recreation resource name
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   name: string;
   /**
    * Recreation resource type description
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   recreation_resource_type: string;
   /**
    * Recreation resource type code
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   recreation_resource_type_code: string;
   /**
    * District description
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   district_description: string;
   /**
    * Whether the resource is displayed on the public site
+   * @type {boolean}
+   * @memberof AdminSearchResultRowDto
    */
   display_on_public_site: boolean;
   /**
    * Closest community
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   closest_community: string;
   /**
    * Recreation status description
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   status: string;
   /**
    * Recreation status code
+   * @type {number}
+   * @memberof AdminSearchResultRowDto
    */
   status_code: number;
   /**
    * Resource file status code
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   rec_status_code?: string | null;
   /**
    * Resource file status description
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   rec_status_description?: string | null;
   /**
    * Access types associated with the resource
+   * @type {Array<string>}
+   * @memberof AdminSearchResultRowDto
    */
   access_types: Array<string>;
   /**
    * Activities associated with the resource
+   * @type {Array<string>}
+   * @memberof AdminSearchResultRowDto
    */
   activities: Array<string>;
   /**
    * Derived fee indicators associated with the resource
+   * @type {Array<string>}
+   * @memberof AdminSearchResultRowDto
    */
   fee_indicators: Array<string>;
   /**
    * Project established date
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   established_date?: string | null;
   /**
    * Last updated date
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   updated_at?: string | null;
   /**
    * Number of campsites
+   * @type {number}
+   * @memberof AdminSearchResultRowDto
    */
   campsite_count: number;
   /**
    * Public access status group label from ACT advisories
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
    */
   access_status_grouplabel?: string | null;
 }
@@ -165,39 +201,22 @@ export function AdminSearchResultRowDtoFromJSONTyped(
     status: json['status'],
     status_code: json['status_code'],
     rec_status_code:
-      json['rec_status_code'] === undefined
-        ? undefined
-        : json['rec_status_code'] === null
-          ? null
-          : json['rec_status_code'],
+      json['rec_status_code'] == null ? undefined : json['rec_status_code'],
     rec_status_description:
-      json['rec_status_description'] === undefined
+      json['rec_status_description'] == null
         ? undefined
-        : json['rec_status_description'] === null
-          ? null
-          : json['rec_status_description'],
+        : json['rec_status_description'],
     access_types: json['access_types'],
     activities: json['activities'],
     fee_indicators: json['fee_indicators'],
     established_date:
-      json['established_date'] === undefined
-        ? undefined
-        : json['established_date'] === null
-          ? null
-          : json['established_date'],
-    updated_at:
-      json['updated_at'] === undefined
-        ? undefined
-        : json['updated_at'] === null
-          ? null
-          : json['updated_at'],
+      json['established_date'] == null ? undefined : json['established_date'],
+    updated_at: json['updated_at'] == null ? undefined : json['updated_at'],
     campsite_count: json['campsite_count'],
     access_status_grouplabel:
-      json['access_status_grouplabel'] === undefined
+      json['access_status_grouplabel'] == null
         ? undefined
-        : json['access_status_grouplabel'] === null
-          ? null
-          : json['access_status_grouplabel'],
+        : json['access_status_grouplabel'],
   };
 }
 

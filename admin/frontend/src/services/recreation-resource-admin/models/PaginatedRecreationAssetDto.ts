@@ -29,22 +29,32 @@ import {
 export interface PaginatedRecreationAssetDto {
   /**
    *
+   * @type {Array<RecreationAssetDto>}
+   * @memberof PaginatedRecreationAssetDto
    */
   data: Array<RecreationAssetDto>;
   /**
    *
+   * @type {number}
+   * @memberof PaginatedRecreationAssetDto
    */
   total: number;
   /**
    *
+   * @type {number}
+   * @memberof PaginatedRecreationAssetDto
    */
   page: number;
   /**
    *
+   * @type {number}
+   * @memberof PaginatedRecreationAssetDto
    */
   limit: number;
   /**
    *
+   * @type {number}
+   * @memberof PaginatedRecreationAssetDto
    */
   totalPages: number;
 }

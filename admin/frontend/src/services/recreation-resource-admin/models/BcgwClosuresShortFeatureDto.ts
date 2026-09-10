@@ -29,14 +29,20 @@ import {
 export interface BcgwClosuresShortFeatureDto {
   /**
    *
+   * @type {string}
+   * @memberof BcgwClosuresShortFeatureDto
    */
   type: string;
   /**
    * GeoJSON Point geometry (WGS84), null when no site point exists
+   * @type {object}
+   * @memberof BcgwClosuresShortFeatureDto
    */
   geometry: object | null;
   /**
    *
+   * @type {BcgwClosuresShortDto}
+   * @memberof BcgwClosuresShortFeatureDto
    */
   properties: BcgwClosuresShortDto;
 }

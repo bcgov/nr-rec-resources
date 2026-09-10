@@ -21,10 +21,14 @@ import { mapValues } from '../runtime';
 export interface RecreationControlAccessDto {
   /**
    * Recreation control access code
+   * @type {string}
+   * @memberof RecreationControlAccessDto
    */
   recreation_control_access_code?: string;
   /**
    * Recreation control access description
+   * @type {string}
+   * @memberof RecreationControlAccessDto
    */
   description?: string;
 }

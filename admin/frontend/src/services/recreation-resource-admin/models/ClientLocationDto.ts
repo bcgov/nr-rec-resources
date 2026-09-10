@@ -21,114 +21,170 @@ import { mapValues } from '../runtime';
 export interface ClientLocationDto {
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   clientNumber?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   clientName?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   legalFirstName?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   legalMiddleName?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   clientStatusCode?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   clientStatusDescription?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   clientTypeCode?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   clientTypeDescription?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   acronym?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   locationCode?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   locationName?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   companyCode?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   address1?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   address2?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   address3?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   city?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   province?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   postalCode?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   country?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   homePhone?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   businessPhone?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   cellPhone?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   faxNumber?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   email?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   expired?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   trusted?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   returnedMailDate?: string;
   /**
    *
+   * @type {string}
+   * @memberof ClientLocationDto
    */
   comment?: string;
 }

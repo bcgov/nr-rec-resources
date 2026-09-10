@@ -13,46 +13,41 @@
  */
 
 import * as runtime from '../runtime';
+import type {
+  HealthControllerCheck200Response,
+  HealthControllerCheck503Response,
+} from '../models/index';
 import {
-  type HealthControllerCheck200Response,
   HealthControllerCheck200ResponseFromJSON,
   HealthControllerCheck200ResponseToJSON,
-} from '../models/HealthControllerCheck200Response';
-import {
-  type HealthControllerCheck503Response,
   HealthControllerCheck503ResponseFromJSON,
   HealthControllerCheck503ResponseToJSON,
-} from '../models/HealthControllerCheck503Response';
+} from '../models/index';
 
 /**
  *
  */
 export class HealthApi extends runtime.BaseAPI {
   /**
-   * Creates request options for healthControllerCheck without sending the request
    */
-  async healthControllerCheckRequestOpts(): Promise<runtime.RequestOpts> {
+  async healthControllerCheckRaw(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<HealthControllerCheck200Response>> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
 
     let urlPath = `/api/health`;
 
-    return {
-      path: urlPath,
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   */
-  async healthControllerCheckRaw(
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<HealthControllerCheck200Response>> {
-    const requestOptions = await this.healthControllerCheckRequestOpts();
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       HealthControllerCheck200ResponseFromJSON(jsonValue),
