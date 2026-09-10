@@ -286,6 +286,19 @@ export function AssetCardRepairsEdit({
                       Delete
                     </Button>
                   </div>
+                  <div className="d-flex justify-content-end mt-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline-primary"
+                      className="asset-card-repairs__delete-btn"
+                      onClick={() =>
+                        setRepairToDelete({ repairId: repair.repair_id, title })
+                      }
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
