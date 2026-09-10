@@ -57,8 +57,11 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
             />
           )}
           {recResource.access_status_grouplabel &&
-            recResource.access_status_grouplabel !==
-              recResource.recreation_status_description && (
+            // Deduped against the admin status badge only when that badge is
+            // actually rendered; otherwise non-super-admins would see neither.
+            (!isSuperAdmin ||
+              recResource.access_status_grouplabel !==
+                recResource.recreation_status_description) && (
               <PublicAccessStatusBadge
                 label={recResource.access_status_grouplabel}
               />
