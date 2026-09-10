@@ -22,18 +22,7 @@ on:
         default: false
 
 jobs:
-  # TODO: Remove this job once admin e2e tests are set up for deployed environments.
-  playwright-e2e-skip:
-    if: ${{ inputs.app == 'admin' && !inputs.local }}
-    name: Skip Playwright e2e (admin deployed)
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Skip
-        run: echo "Skipping admin e2e tests for deployed environment - to be removed once admin e2e tests are set up for deployed environments."
-
   playwright-e2e:
-    # Skip admin e2e when not local — requires a Canadian IP runner or additional secrets
-    if: ${{ !(inputs.app == 'admin' && !inputs.local) }}
     name: Playwright e2e
     timeout-minutes: 60
     runs-on: ubuntu-24.04
@@ -96,16 +85,23 @@ jobs:
         HAPPO_PROJECT: "${{ inputs.local && secrets.HAPPO_PROJECT_LOCAL || secrets.HAPPO_PROJECT }}"
         # Use 127.0.0.1 explicitly — on Ubuntu 24.04 `localhost` can resolve to
         # ::1 (IPv6), causing "Premature close" errors against IPv4 Docker containers.
+        # Deployed runs pull the base URL from environment secrets. Public and admin
+        # share the same GitHub environment (dev/test), so admin uses its own
+        # E2E_ADMIN_BASE_URL secret; public keeps E2E_BASE_URL. If E2E_ADMIN_BASE_URL
+        # is unset, admin falls back to E2E_BASE_URL (the public URL) — so make sure
+        # it is populated when enabling admin e2e for an environment.
         E2E_BASE_URL: "${{
             inputs.local && inputs.app == 'admin' && 'http://127.0.0.1:3001' ||
             inputs.local && inputs.app != 'admin' && 'http://127.0.0.1:3000' ||
+            inputs.app == 'admin' && secrets.E2E_ADMIN_BASE_URL ||
             secrets.E2E_BASE_URL
           }}"
         E2E_TARGET: ${{ inputs.local && 'local' || 'deployed' }}
         E2E_ADMIN_USERNAME: ${{ secrets.E2E_ADMIN_USERNAME }}
         E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
-        E2E_VIEWER_USERNAME: ${{ secrets.E2E_VIEWER_USERNAME }}
-        E2E_VIEWER_PASSWORD: ${{ secrets.E2E_VIEWER_PASSWORD }}
+        # TOTP secret for the deployed IDIR account, consumed by the otplib MFA flow
+        # in e2e/auth/loginFlow.ts. Admin-only: the suite performs a single login.
+        E2E_ADMIN_TOTP_SECRET: ${{ secrets.E2E_ADMIN_TOTP_SECRET }}
     - name: Dump docker logs on failure
       if: failure() && inputs.local
       uses: jwalton/gh-docker-logs@v2
