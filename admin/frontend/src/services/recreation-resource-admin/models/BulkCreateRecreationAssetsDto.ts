@@ -29,8 +29,6 @@ import {
 export interface BulkCreateRecreationAssetsDto {
   /**
    * List of assets to create
-   * @type {Array<CreateRecreationAssetDto>}
-   * @memberof BulkCreateRecreationAssetsDto
    */
   assets: Array<CreateRecreationAssetDto>;
 }

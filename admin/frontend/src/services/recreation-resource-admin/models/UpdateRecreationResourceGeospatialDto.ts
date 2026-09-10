@@ -21,20 +21,14 @@ import { mapValues } from '../runtime';
 export interface UpdateRecreationResourceGeospatialDto {
   /**
    * UTM zone number for the site point (integer). Must be between 1 and 60.
-   * @type {number}
-   * @memberof UpdateRecreationResourceGeospatialDto
    */
   utm_zone: number;
   /**
    * UTM easting value (meters) for the site point. Positive numeric value expected.
-   * @type {number}
-   * @memberof UpdateRecreationResourceGeospatialDto
    */
   utm_easting: number;
   /**
    * UTM northing value (meters) for the site point. Positive numeric value expected.
-   * @type {number}
-   * @memberof UpdateRecreationResourceGeospatialDto
    */
   utm_northing: number;
 }

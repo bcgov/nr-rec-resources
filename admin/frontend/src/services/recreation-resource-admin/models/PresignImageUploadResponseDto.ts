@@ -29,14 +29,10 @@ import {
 export interface PresignImageUploadResponseDto {
   /**
    * Allocated image ID (UUID)
-   * @type {string}
-   * @memberof PresignImageUploadResponseDto
    */
   image_id: string;
   /**
    * Array of presigned URLs for 4 image variants
-   * @type {Array<ImagePresignedUrlDto>}
-   * @memberof PresignImageUploadResponseDto
    */
   presigned_urls: Array<ImagePresignedUrlDto>;
 }

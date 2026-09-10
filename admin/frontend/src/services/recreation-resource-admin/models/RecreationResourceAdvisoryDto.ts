@@ -12,7 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from '../runtime';
+import {
+  mapValues,
+  parseDate,
+  parseDateTime,
+  serializeDate,
+  serializeDateTime,
+} from '../runtime';
 /**
  *
  * @export
@@ -21,98 +27,66 @@ import { mapValues } from '../runtime';
 export interface RecreationResourceAdvisoryDto {
   /**
    * Advisory number
-   * @type {number}
-   * @memberof RecreationResourceAdvisoryDto
    */
   advisory_number: number;
   /**
    * Event type
-   * @type {string}
-   * @memberof RecreationResourceAdvisoryDto
    */
   event_type: string;
   /**
    * Access status name
-   * @type {string}
-   * @memberof RecreationResourceAdvisoryDto
    */
   access_status_name: string;
   /**
    * Advisory status
-   * @type {string}
-   * @memberof RecreationResourceAdvisoryDto
    */
   advisory_status: string;
   /**
    * Urgency level
-   * @type {string}
-   * @memberof RecreationResourceAdvisoryDto
    */
   urgency: string;
   /**
    * Advisory date (posted date)
-   * @type {Date}
-   * @memberof RecreationResourceAdvisoryDto
    */
   advisory_date: Date;
   /**
    * Effective date (event start)
-   * @type {Date}
-   * @memberof RecreationResourceAdvisoryDto
    */
   effective_date?: Date | null;
   /**
    * End date (event end)
-   * @type {Date}
-   * @memberof RecreationResourceAdvisoryDto
    */
   end_date?: Date | null;
   /**
    * Expiry date
-   * @type {Date}
-   * @memberof RecreationResourceAdvisoryDto
    */
   expiry_date?: Date | null;
   /**
    * Last updated date
-   * @type {Date}
-   * @memberof RecreationResourceAdvisoryDto
    */
   updated_date?: Date | null;
   /**
    * Published at date
-   * @type {Date}
-   * @memberof RecreationResourceAdvisoryDto
    */
   published_at?: Date | null;
   /**
    * Submitted by (published by)
-   * @type {string}
-   * @memberof RecreationResourceAdvisoryDto
    */
   submitted_by: string;
   /**
    * Whether to display the advisory date
-   * @type {boolean}
-   * @memberof RecreationResourceAdvisoryDto
    */
   is_advisory_date_displayed: boolean;
   /**
    * Whether to display the effective date
-   * @type {boolean}
-   * @memberof RecreationResourceAdvisoryDto
    */
   is_effective_date_displayed: boolean;
   /**
    * Whether to display the end date
-   * @type {boolean}
-   * @memberof RecreationResourceAdvisoryDto
    */
   is_end_date_displayed: boolean;
   /**
    * Whether to display the last updated date
-   * @type {boolean}
-   * @memberof RecreationResourceAdvisoryDto
    */
   is_updated_date_displayed: boolean;
 }
@@ -181,18 +155,40 @@ export function RecreationResourceAdvisoryDtoFromJSONTyped(
     access_status_name: json['access_status_name'],
     advisory_status: json['advisory_status'],
     urgency: json['urgency'],
-    advisory_date: new Date(json['advisory_date']),
+    advisory_date:
+      json['advisory_date'] == null
+        ? json['advisory_date']
+        : parseDateTime(json['advisory_date']),
     effective_date:
-      json['effective_date'] == null
+      json['effective_date'] === undefined
         ? undefined
-        : new Date(json['effective_date']),
-    end_date: json['end_date'] == null ? undefined : new Date(json['end_date']),
+        : json['effective_date'] === null
+          ? null
+          : parseDateTime(json['effective_date']),
+    end_date:
+      json['end_date'] === undefined
+        ? undefined
+        : json['end_date'] === null
+          ? null
+          : parseDateTime(json['end_date']),
     expiry_date:
-      json['expiry_date'] == null ? undefined : new Date(json['expiry_date']),
+      json['expiry_date'] === undefined
+        ? undefined
+        : json['expiry_date'] === null
+          ? null
+          : parseDateTime(json['expiry_date']),
     updated_date:
-      json['updated_date'] == null ? undefined : new Date(json['updated_date']),
+      json['updated_date'] === undefined
+        ? undefined
+        : json['updated_date'] === null
+          ? null
+          : parseDateTime(json['updated_date']),
     published_at:
-      json['published_at'] == null ? undefined : new Date(json['published_at']),
+      json['published_at'] === undefined
+        ? undefined
+        : json['published_at'] === null
+          ? null
+          : parseDateTime(json['published_at']),
     submitted_by: json['submitted_by'],
     is_advisory_date_displayed: json['is_advisory_date_displayed'],
     is_effective_date_displayed: json['is_effective_date_displayed'],
@@ -221,27 +217,30 @@ export function RecreationResourceAdvisoryDtoToJSONTyped(
     access_status_name: value['access_status_name'],
     advisory_status: value['advisory_status'],
     urgency: value['urgency'],
-    advisory_date: value['advisory_date'].toISOString(),
+    advisory_date:
+      value['advisory_date'] == null
+        ? value['advisory_date']
+        : serializeDateTime(value['advisory_date']),
     effective_date:
-      value['effective_date'] === null
-        ? null
-        : (value['effective_date'] as any)?.toISOString(),
+      value['effective_date'] == null
+        ? value['effective_date']
+        : serializeDateTime(value['effective_date']),
     end_date:
-      value['end_date'] === null
-        ? null
-        : (value['end_date'] as any)?.toISOString(),
+      value['end_date'] == null
+        ? value['end_date']
+        : serializeDateTime(value['end_date']),
     expiry_date:
-      value['expiry_date'] === null
-        ? null
-        : (value['expiry_date'] as any)?.toISOString(),
+      value['expiry_date'] == null
+        ? value['expiry_date']
+        : serializeDateTime(value['expiry_date']),
     updated_date:
-      value['updated_date'] === null
-        ? null
-        : (value['updated_date'] as any)?.toISOString(),
+      value['updated_date'] == null
+        ? value['updated_date']
+        : serializeDateTime(value['updated_date']),
     published_at:
-      value['published_at'] === null
-        ? null
-        : (value['published_at'] as any)?.toISOString(),
+      value['published_at'] == null
+        ? value['published_at']
+        : serializeDateTime(value['published_at']),
     submitted_by: value['submitted_by'],
     is_advisory_date_displayed: value['is_advisory_date_displayed'],
     is_effective_date_displayed: value['is_effective_date_displayed'],

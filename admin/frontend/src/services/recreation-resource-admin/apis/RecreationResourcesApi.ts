@@ -13,346 +13,724 @@
  */
 
 import * as runtime from '../runtime';
-import type {
-  AdminSearchResponseDto,
-  BadRequestResponseDto,
-  ConsentFormDownloadResponseDto,
-  CreateRecreationFeeDto,
-  CreateTrailDto,
-  EstablishmentOrderDocDto,
-  ExhibitADocDto,
-  ExportPreviewResponseDto,
-  FinalizeDocUploadRequestDto,
-  FinalizeExhibitAUploadRequestDto,
-  ListExportDatasetsResponseDto,
-  OptionDto,
-  OptionsByTypeDto,
-  PresignDocUploadResponseDto,
-  PresignExhibitAUploadResponseDto,
-  PresignImageUploadResponseDto,
-  RecreationActivityDto,
-  RecreationFeatureDto,
-  RecreationFeeDto,
-  RecreationResourceAdvisoryDto,
-  RecreationResourceDetailDto,
-  RecreationResourceDocDto,
-  RecreationResourceGeospatialDto,
-  RecreationResourceImageDto,
-  RecreationResourceReservationInfoDto,
-  RecreationTrailDto,
-  SuggestionsResponseDto,
-  UpdateActivitiesDto,
-  UpdateFeaturesDto,
-  UpdateImageConsentPatchDto,
-  UpdateRecreationFeeDto,
-  UpdateRecreationResourceDto,
-  UpdateRecreationResourceGeospatialDto,
-  UpdateRecreationResourceReservationDto,
-  UpdateTrailDto,
-} from '../models/index';
 import {
+  type AdminSearchResponseDto,
   AdminSearchResponseDtoFromJSON,
   AdminSearchResponseDtoToJSON,
+} from '../models/AdminSearchResponseDto';
+import {
+  type BadRequestResponseDto,
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
+} from '../models/BadRequestResponseDto';
+import {
+  type ConsentFormDownloadResponseDto,
   ConsentFormDownloadResponseDtoFromJSON,
   ConsentFormDownloadResponseDtoToJSON,
+} from '../models/ConsentFormDownloadResponseDto';
+import {
+  type CreateRecreationFeeDto,
   CreateRecreationFeeDtoFromJSON,
   CreateRecreationFeeDtoToJSON,
+} from '../models/CreateRecreationFeeDto';
+import {
+  type CreateTrailDto,
   CreateTrailDtoFromJSON,
   CreateTrailDtoToJSON,
+} from '../models/CreateTrailDto';
+import {
+  type EstablishmentOrderDocDto,
   EstablishmentOrderDocDtoFromJSON,
   EstablishmentOrderDocDtoToJSON,
+} from '../models/EstablishmentOrderDocDto';
+import {
+  type ExhibitADocDto,
   ExhibitADocDtoFromJSON,
   ExhibitADocDtoToJSON,
+} from '../models/ExhibitADocDto';
+import {
+  type ExportPreviewResponseDto,
   ExportPreviewResponseDtoFromJSON,
   ExportPreviewResponseDtoToJSON,
+} from '../models/ExportPreviewResponseDto';
+import {
+  type FinalizeDocUploadRequestDto,
   FinalizeDocUploadRequestDtoFromJSON,
   FinalizeDocUploadRequestDtoToJSON,
+} from '../models/FinalizeDocUploadRequestDto';
+import {
+  type FinalizeExhibitAUploadRequestDto,
   FinalizeExhibitAUploadRequestDtoFromJSON,
   FinalizeExhibitAUploadRequestDtoToJSON,
+} from '../models/FinalizeExhibitAUploadRequestDto';
+import {
+  type ListExportDatasetsResponseDto,
   ListExportDatasetsResponseDtoFromJSON,
   ListExportDatasetsResponseDtoToJSON,
+} from '../models/ListExportDatasetsResponseDto';
+import {
+  type OptionDto,
   OptionDtoFromJSON,
   OptionDtoToJSON,
+} from '../models/OptionDto';
+import {
+  type OptionsByTypeDto,
   OptionsByTypeDtoFromJSON,
   OptionsByTypeDtoToJSON,
+} from '../models/OptionsByTypeDto';
+import {
+  type PresignDocUploadResponseDto,
   PresignDocUploadResponseDtoFromJSON,
   PresignDocUploadResponseDtoToJSON,
+} from '../models/PresignDocUploadResponseDto';
+import {
+  type PresignExhibitAUploadResponseDto,
   PresignExhibitAUploadResponseDtoFromJSON,
   PresignExhibitAUploadResponseDtoToJSON,
+} from '../models/PresignExhibitAUploadResponseDto';
+import {
+  type PresignImageUploadResponseDto,
   PresignImageUploadResponseDtoFromJSON,
   PresignImageUploadResponseDtoToJSON,
+} from '../models/PresignImageUploadResponseDto';
+import {
+  type RecreationActivityDto,
   RecreationActivityDtoFromJSON,
   RecreationActivityDtoToJSON,
+} from '../models/RecreationActivityDto';
+import {
+  type RecreationFeatureDto,
   RecreationFeatureDtoFromJSON,
   RecreationFeatureDtoToJSON,
+} from '../models/RecreationFeatureDto';
+import {
+  type RecreationFeeDto,
   RecreationFeeDtoFromJSON,
   RecreationFeeDtoToJSON,
+} from '../models/RecreationFeeDto';
+import {
+  type RecreationResourceAdvisoryDto,
   RecreationResourceAdvisoryDtoFromJSON,
   RecreationResourceAdvisoryDtoToJSON,
+} from '../models/RecreationResourceAdvisoryDto';
+import {
+  type RecreationResourceDetailDto,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
+} from '../models/RecreationResourceDetailDto';
+import {
+  type RecreationResourceDocDto,
   RecreationResourceDocDtoFromJSON,
   RecreationResourceDocDtoToJSON,
+} from '../models/RecreationResourceDocDto';
+import {
+  type RecreationResourceGeospatialDto,
   RecreationResourceGeospatialDtoFromJSON,
   RecreationResourceGeospatialDtoToJSON,
+} from '../models/RecreationResourceGeospatialDto';
+import {
+  type RecreationResourceImageDto,
   RecreationResourceImageDtoFromJSON,
   RecreationResourceImageDtoToJSON,
+} from '../models/RecreationResourceImageDto';
+import {
+  type RecreationResourceReservationInfoDto,
   RecreationResourceReservationInfoDtoFromJSON,
   RecreationResourceReservationInfoDtoToJSON,
+} from '../models/RecreationResourceReservationInfoDto';
+import {
+  type RecreationTrailDto,
   RecreationTrailDtoFromJSON,
   RecreationTrailDtoToJSON,
+} from '../models/RecreationTrailDto';
+import {
+  type SuggestionsResponseDto,
   SuggestionsResponseDtoFromJSON,
   SuggestionsResponseDtoToJSON,
+} from '../models/SuggestionsResponseDto';
+import {
+  type UpdateActivitiesDto,
   UpdateActivitiesDtoFromJSON,
   UpdateActivitiesDtoToJSON,
+} from '../models/UpdateActivitiesDto';
+import {
+  type UpdateFeaturesDto,
   UpdateFeaturesDtoFromJSON,
   UpdateFeaturesDtoToJSON,
+} from '../models/UpdateFeaturesDto';
+import {
+  type UpdateImageConsentPatchDto,
   UpdateImageConsentPatchDtoFromJSON,
   UpdateImageConsentPatchDtoToJSON,
+} from '../models/UpdateImageConsentPatchDto';
+import {
+  type UpdateRecreationFeeDto,
   UpdateRecreationFeeDtoFromJSON,
   UpdateRecreationFeeDtoToJSON,
+} from '../models/UpdateRecreationFeeDto';
+import {
+  type UpdateRecreationResourceDto,
   UpdateRecreationResourceDtoFromJSON,
   UpdateRecreationResourceDtoToJSON,
+} from '../models/UpdateRecreationResourceDto';
+import {
+  type UpdateRecreationResourceGeospatialDto,
   UpdateRecreationResourceGeospatialDtoFromJSON,
   UpdateRecreationResourceGeospatialDtoToJSON,
+} from '../models/UpdateRecreationResourceGeospatialDto';
+import {
+  type UpdateRecreationResourceReservationDto,
   UpdateRecreationResourceReservationDtoFromJSON,
   UpdateRecreationResourceReservationDtoToJSON,
+} from '../models/UpdateRecreationResourceReservationDto';
+import {
+  type UpdateTrailDto,
   UpdateTrailDtoFromJSON,
   UpdateTrailDtoToJSON,
-} from '../models/index';
+} from '../models/UpdateTrailDto';
 
 export interface CreateEstablishmentOrderDocRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   *
+   */
   file: Blob;
+  /**
+   *
+   */
   title: string;
 }
 
 export interface CreateImageConsentRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   * Image identifier (UUID)
+   */
   imageId: string;
+  /**
+   * Date the photo was taken (ISO date string)
+   */
   dateTaken?: string;
+  /**
+   * Whether the image contains personally identifiable information
+   */
   containsPii?: boolean;
+  /**
+   * Type of photographer (database code)
+   */
   photographerType?: string;
+  /**
+   * Name of the photographer for attribution
+   */
   photographerName?: string;
+  /**
+   * Consent form PDF file
+   */
   consentForm?: Blob;
+  /**
+   * Display name for the image
+   */
   fileName?: string;
 }
 
 export interface CreateRecreationResourceFeeRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   *
+   */
   createRecreationFeeDto: CreateRecreationFeeDto;
 }
 
 export interface CreateTrailRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   *
+   */
   createTrailDto: CreateTrailDto;
 }
 
 export interface DeleteDocumentResourceRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   * Document identifier
+   */
   documentId: string;
 }
 
 export interface DeleteEstablishmentOrderDocRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   * S3 key (URL-encoded, e.g., REC0001%2Ffilename.pdf)
+   */
   s3Key: string;
 }
 
 export interface DeleteExhibitADocRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   * Document UUID
+   */
   documentId: string;
 }
 
 export interface DeleteImageResourceRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   * Image identifier (UUID)
+   */
   imageId: string;
 }
 
 export interface DeleteRecreationResourceFeeRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   * Fee ID
+   */
   feeId: number;
 }
 
 export interface DeleteTrailRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   * Trail ID
+   */
   trailId: number;
 }
 
 export interface DownloadExportCsvRequest {
+  /**
+   * Implemented dataset identifier
+   */
   dataset: DownloadExportCsvDatasetEnum;
+  /**
+   * Optional district code filter
+   */
   district?: string;
+  /**
+   * Optional resource type code filter
+   */
   resourceType?: string;
 }
 
 export interface FinalizeDocUploadRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   *
+   */
   finalizeDocUploadRequestDto: FinalizeDocUploadRequestDto;
 }
 
 export interface FinalizeExhibitAUploadRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   *
+   */
   finalizeExhibitAUploadRequestDto: FinalizeExhibitAUploadRequestDto;
 }
 
 export interface FinalizeImageUploadRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   * Image ID (returned from presign endpoint)
+   */
   imageId: string;
+  /**
+   * Original image file name
+   */
   fileName: string;
+  /**
+   * Size of the original image variant in bytes
+   */
   fileSizeOriginal: number;
+  /**
+   * Date the photo was taken (ISO date string)
+   */
   dateTaken?: string;
+  /**
+   * Whether the image contains personally identifiable information
+   */
   containsPii?: boolean;
+  /**
+   * Type of photographer (database code)
+   */
   photographerType?: string;
+  /**
+   * Name of the photographer for attribution
+   */
   photographerName?: string;
+  /**
+   * Consent form PDF file
+   */
   consentForm?: Blob;
 }
 
 export interface GetActivitiesByRecResourceIdRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
 }
 
 export interface GetAllEstablishmentOrderDocsRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
 }
 
 export interface GetAllExhibitADocsRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
 }
 
 export interface GetConsentFormDownloadUrlRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   * Image identifier (UUID)
+   */
   imageId: string;
 }
 
 export interface GetDocumentsByRecResourceIdRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
 }
 
 export interface GetExportPreviewRequest {
+  /**
+   * Implemented dataset identifier
+   */
   dataset: GetExportPreviewDatasetEnum;
+  /**
+   * Optional district code filter
+   */
   district?: string;
+  /**
+   * Optional resource type code filter
+   */
   resourceType?: string;
+  /**
+   * Preview row limit
+   */
   limit?: number;
 }
 
 export interface GetFeaturesByRecResourceIdRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
 }
 
 export interface GetImagesByRecResourceIdRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
 }
 
 export interface GetOptionsByTypeRequest {
+  /**
+   * Option type
+   */
   type: GetOptionsByTypeTypeEnum;
 }
 
 export interface GetOptionsByTypesRequest {
+  /**
+   * Comma-separated list of option types. The response preserves the order of types in this list and returns one entry per requested type.
+   */
   types: Array<GetOptionsByTypesTypesEnum>;
 }
 
 export interface GetRecreationResourceAdvisoriesRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
 }
 
 export interface GetRecreationResourceByIdRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
 }
 
 export interface GetRecreationResourceFeesRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
 }
 
 export interface GetRecreationResourceGeospatialRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
 }
 
 export interface GetRecreationResourceReservationRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
 }
 
 export interface GetRecreationResourceSuggestionsRequest {
+  /**
+   * Search term used to search by name or ID.
+   */
   searchTerm: string;
 }
 
 export interface GetTrailsByRecResourceIdRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
 }
 
 export interface PresignDocUploadRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   * Document file name with extension (e.g., map.pdf)
+   */
   fileName: string;
 }
 
 export interface PresignExhibitAUploadRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   * File name with extension
+   */
   fileName: string;
 }
 
 export interface PresignImageUploadRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   * User-edited filename (without extension) to tag on original.webp
+   */
   fileName: string;
 }
 
 export interface SearchRecreationResourcesRequest {
+  /**
+   * Free-text search query
+   */
   q?: string;
+  /**
+   * Sort field and direction
+   */
   sort?: SearchRecreationResourcesSortEnum;
+  /**
+   * 1-based page number
+   */
   page?: number;
+  /**
+   * Page size
+   */
   pageSize?: SearchRecreationResourcesPageSizeEnum;
+  /**
+   * Recreation resource type codes
+   */
   type?: Array<string>;
+  /**
+   * Recreation district codes
+   */
   district?: Array<string>;
+  /**
+   * Recreation activity codes
+   */
   activities?: Array<string>;
+  /**
+   * Access codes
+   */
   access?: Array<string>;
+  /**
+   * Closest communities
+   */
   closestCommunity?: Array<string>;
+  /**
+   * Recreation status codes
+   */
   status?: Array<string>;
+  /**
+   * Project established date range start
+   */
   establishmentDateFrom?: string;
+  /**
+   * Project established date range end
+   */
   establishmentDateTo?: string;
+  /**
+   * Filter by establishment date presence (yes/no)
+   */
   established?: SearchRecreationResourcesEstablishedEnum;
+  /**
+   * Public access status group labels
+   */
   publicAccessStatus?: Array<string>;
+  /**
+   * Resource file status codes (rec_status_code)
+   */
   recStatus?: Array<string>;
 }
 
 export interface UpdateActivitiesRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   *
+   */
   updateActivitiesDto: UpdateActivitiesDto;
 }
 
 export interface UpdateFeaturesRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   *
+   */
   updateFeaturesDto: UpdateFeaturesDto;
 }
 
 export interface UpdateImageConsentRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   * Image identifier (UUID)
+   */
   imageId: string;
+  /**
+   *
+   */
   updateImageConsentPatchDto: UpdateImageConsentPatchDto;
 }
 
 export interface UpdateRecreationResourceByIdRequest {
+  /**
+   * Resource identifier
+   */
   recResourceId: string;
+  /**
+   *
+   */
   updateRecreationResourceDto: UpdateRecreationResourceDto;
 }
 
 export interface UpdateRecreationResourceFeeRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   * Fee ID
+   */
   feeId: number;
+  /**
+   *
+   */
   updateRecreationFeeDto: UpdateRecreationFeeDto;
 }
 
 export interface UpdateRecreationResourceGeospatialRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   *
+   */
   updateRecreationResourceGeospatialDto: UpdateRecreationResourceGeospatialDto;
 }
 
 export interface UpdateRecreationResourceReservationRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   *
+   */
   updateRecreationResourceReservationDto: UpdateRecreationResourceReservationDto;
 }
 
 export interface UpdateTrailRequest {
+  /**
+   * Recreation Resource ID
+   */
   recResourceId: string;
+  /**
+   * Trail ID
+   */
   trailId: number;
+  /**
+   *
+   */
   updateTrailDto: UpdateTrailDto;
 }
 
@@ -361,13 +739,11 @@ export interface UpdateTrailRequest {
  */
 export class RecreationResourcesApi extends runtime.BaseAPI {
   /**
-   * Uploads a PDF document to S3 and creates a database record
-   * Create a new establishment order document
+   * Creates request options for createEstablishmentOrderDoc without sending the request
    */
-  async createEstablishmentOrderDocRaw(
+  async createEstablishmentOrderDocRequestOpts(
     requestParameters: CreateEstablishmentOrderDocRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<EstablishmentOrderDocDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -427,20 +803,30 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: formParams,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: formParams,
+    };
+  }
+
+  /**
+   * Uploads a PDF document to S3 and creates a database record
+   * Create a new establishment order document
+   */
+  async createEstablishmentOrderDocRaw(
+    requestParameters: CreateEstablishmentOrderDocRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<EstablishmentOrderDocDto>> {
+    const requestOptions =
+      await this.createEstablishmentOrderDocRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       EstablishmentOrderDocDtoFromJSON(jsonValue),
@@ -463,12 +849,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Create consent metadata for an existing image
+   * Creates request options for createImageConsent without sending the request
    */
-  async createImageConsentRaw(
+  async createImageConsentRequestOpts(
     requestParameters: CreateImageConsentRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -549,24 +934,33 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}/consent`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'image_id'}}`,
+      '{image_id}',
       encodeURIComponent(String(requestParameters['imageId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: formParams,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: formParams,
+    };
+  }
+
+  /**
+   * Create consent metadata for an existing image
+   */
+  async createImageConsentRaw(
+    requestParameters: CreateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    const requestOptions =
+      await this.createImageConsentRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceImageDtoFromJSON(jsonValue),
@@ -588,13 +982,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates a new fee and associates it with the recreation resource
-   * Create a new fee for a recreation resource
+   * Creates request options for createRecreationResourceFee without sending the request
    */
-  async createRecreationResourceFeeRaw(
+  async createRecreationResourceFeeRequestOpts(
     requestParameters: CreateRecreationResourceFeeRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationFeeDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -626,22 +1018,32 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreateRecreationFeeDtoToJSON(
-          requestParameters['createRecreationFeeDto'],
-        ),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: CreateRecreationFeeDtoToJSON(
+        requestParameters['createRecreationFeeDto'],
+      ),
+    };
+  }
+
+  /**
+   * Creates a new fee and associates it with the recreation resource
+   * Create a new fee for a recreation resource
+   */
+  async createRecreationResourceFeeRaw(
+    requestParameters: CreateRecreationResourceFeeRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationFeeDto>> {
+    const requestOptions =
+      await this.createRecreationResourceFeeRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationFeeDtoFromJSON(jsonValue),
@@ -664,12 +1066,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Create a new trail for a recreation resource
+   * Creates request options for createTrail without sending the request
    */
-  async createTrailRaw(
+  async createTrailRequestOpts(
     requestParameters: CreateTrailRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationTrailDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -701,20 +1102,28 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/trails`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreateTrailDtoToJSON(requestParameters['createTrailDto']),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: CreateTrailDtoToJSON(requestParameters['createTrailDto']),
+    };
+  }
+
+  /**
+   * Create a new trail for a recreation resource
+   */
+  async createTrailRaw(
+    requestParameters: CreateTrailRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationTrailDto>> {
+    const requestOptions = await this.createTrailRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationTrailDtoFromJSON(jsonValue),
@@ -736,12 +1145,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Delete a Document Resource
+   * Creates request options for deleteDocumentResource without sending the request
    */
-  async deleteDocumentResourceRaw(
+  async deleteDocumentResourceRequestOpts(
     requestParameters: DeleteDocumentResourceRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -771,23 +1179,32 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/{document_id}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'document_id'}}`,
+      '{document_id}',
       encodeURIComponent(String(requestParameters['documentId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'DELETE',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'DELETE',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Delete a Document Resource
+   */
+  async deleteDocumentResourceRaw(
+    requestParameters: DeleteDocumentResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+    const requestOptions =
+      await this.deleteDocumentResourceRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceDocDtoFromJSON(jsonValue),
@@ -809,13 +1226,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Deletes the document from S3 and removes the database record. The s3_key should be URL-encoded.
-   * Delete an establishment order document
+   * Creates request options for deleteEstablishmentOrderDoc without sending the request
    */
-  async deleteEstablishmentOrderDocRaw(
+  async deleteEstablishmentOrderDocRequestOpts(
     requestParameters: DeleteEstablishmentOrderDocRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<EstablishmentOrderDocDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -845,23 +1260,33 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs/{s3_key}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'s3_key'}}`,
+      '{s3_key}',
       encodeURIComponent(String(requestParameters['s3Key'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'DELETE',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'DELETE',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Deletes the document from S3 and removes the database record. The s3_key should be URL-encoded.
+   * Delete an establishment order document
+   */
+  async deleteEstablishmentOrderDocRaw(
+    requestParameters: DeleteEstablishmentOrderDocRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<EstablishmentOrderDocDto>> {
+    const requestOptions =
+      await this.deleteEstablishmentOrderDocRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       EstablishmentOrderDocDtoFromJSON(jsonValue),
@@ -884,12 +1309,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Delete an Exhibit A document
+   * Creates request options for deleteExhibitADoc without sending the request
    */
-  async deleteExhibitADocRaw(
+  async deleteExhibitADocRequestOpts(
     requestParameters: DeleteExhibitADocRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ExhibitADocDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -919,23 +1343,32 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/exhibit-a-docs/{document_id}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'document_id'}}`,
+      '{document_id}',
       encodeURIComponent(String(requestParameters['documentId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'DELETE',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'DELETE',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Delete an Exhibit A document
+   */
+  async deleteExhibitADocRaw(
+    requestParameters: DeleteExhibitADocRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ExhibitADocDto>> {
+    const requestOptions =
+      await this.deleteExhibitADocRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ExhibitADocDtoFromJSON(jsonValue),
@@ -957,12 +1390,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Delete an image Resource
+   * Creates request options for deleteImageResource without sending the request
    */
-  async deleteImageResourceRaw(
+  async deleteImageResourceRequestOpts(
     requestParameters: DeleteImageResourceRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -992,23 +1424,32 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'image_id'}}`,
+      '{image_id}',
       encodeURIComponent(String(requestParameters['imageId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'DELETE',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'DELETE',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Delete an image Resource
+   */
+  async deleteImageResourceRaw(
+    requestParameters: DeleteImageResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    const requestOptions =
+      await this.deleteImageResourceRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceImageDtoFromJSON(jsonValue),
@@ -1030,13 +1471,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Marks an existing fee as deleted so it no longer appears in active admin or public responses
-   * Soft-delete an existing fee for a recreation resource
+   * Creates request options for deleteRecreationResourceFee without sending the request
    */
-  async deleteRecreationResourceFeeRaw(
+  async deleteRecreationResourceFeeRequestOpts(
     requestParameters: DeleteRecreationResourceFeeRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationFeeDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1066,23 +1505,33 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'fee_id'}}`,
+      '{fee_id}',
       encodeURIComponent(String(requestParameters['feeId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'DELETE',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'DELETE',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Marks an existing fee as deleted so it no longer appears in active admin or public responses
+   * Soft-delete an existing fee for a recreation resource
+   */
+  async deleteRecreationResourceFeeRaw(
+    requestParameters: DeleteRecreationResourceFeeRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationFeeDto>> {
+    const requestOptions =
+      await this.deleteRecreationResourceFeeRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationFeeDtoFromJSON(jsonValue),
@@ -1105,12 +1554,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Delete a trail
+   * Creates request options for deleteTrail without sending the request
    */
-  async deleteTrailRaw(
+  async deleteTrailRequestOpts(
     requestParameters: DeleteTrailRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<void>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1140,23 +1588,31 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/trails/{trail_id}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'trail_id'}}`,
+      '{trail_id}',
       encodeURIComponent(String(requestParameters['trailId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'DELETE',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'DELETE',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Delete a trail
+   */
+  async deleteTrailRaw(
+    requestParameters: DeleteTrailRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<void>> {
+    const requestOptions = await this.deleteTrailRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.VoidApiResponse(response);
   }
@@ -1172,13 +1628,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns the full CSV payload for the requested export dataset
-   * Download a CSV export dataset
+   * Creates request options for downloadExportCsv without sending the request
    */
-  async downloadExportCsvRaw(
+  async downloadExportCsvRequestOpts(
     requestParameters: DownloadExportCsvRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Blob>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['dataset'] == null) {
       throw new runtime.RequiredError(
         'dataset',
@@ -1213,15 +1667,25 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/exports/download`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Returns the full CSV payload for the requested export dataset
+   * Download a CSV export dataset
+   */
+  async downloadExportCsvRaw(
+    requestParameters: DownloadExportCsvRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Blob>> {
+    const requestOptions =
+      await this.downloadExportCsvRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.BlobApiResponse(response);
   }
@@ -1242,13 +1706,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates database record for uploaded document. Should be called after S3 upload completes successfully. No S3 verification is performed.
-   * Finalize document upload and create database record
+   * Creates request options for finalizeDocUpload without sending the request
    */
-  async finalizeDocUploadRaw(
+  async finalizeDocUploadRequestOpts(
     requestParameters: FinalizeDocUploadRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1280,22 +1742,32 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/finalize`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: FinalizeDocUploadRequestDtoToJSON(
-          requestParameters['finalizeDocUploadRequestDto'],
-        ),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: FinalizeDocUploadRequestDtoToJSON(
+        requestParameters['finalizeDocUploadRequestDto'],
+      ),
+    };
+  }
+
+  /**
+   * Creates database record for uploaded document. Should be called after S3 upload completes successfully. No S3 verification is performed.
+   * Finalize document upload and create database record
+   */
+  async finalizeDocUploadRaw(
+    requestParameters: FinalizeDocUploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+    const requestOptions =
+      await this.finalizeDocUploadRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceDocDtoFromJSON(jsonValue),
@@ -1318,12 +1790,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Finalize Exhibit A document upload and create database record
+   * Creates request options for finalizeExhibitAUpload without sending the request
    */
-  async finalizeExhibitAUploadRaw(
+  async finalizeExhibitAUploadRequestOpts(
     requestParameters: FinalizeExhibitAUploadRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ExhibitADocDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1355,22 +1826,31 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/exhibit-a-docs/finalize`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: FinalizeExhibitAUploadRequestDtoToJSON(
-          requestParameters['finalizeExhibitAUploadRequestDto'],
-        ),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: FinalizeExhibitAUploadRequestDtoToJSON(
+        requestParameters['finalizeExhibitAUploadRequestDto'],
+      ),
+    };
+  }
+
+  /**
+   * Finalize Exhibit A document upload and create database record
+   */
+  async finalizeExhibitAUploadRaw(
+    requestParameters: FinalizeExhibitAUploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ExhibitADocDto>> {
+    const requestOptions =
+      await this.finalizeExhibitAUploadRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ExhibitADocDtoFromJSON(jsonValue),
@@ -1392,13 +1872,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates database record for uploaded image variants and optional consent form. Should be called after all S3 uploads complete successfully.
-   * Finalize image upload and create database record
+   * Creates request options for finalizeImageUpload without sending the request
    */
-  async finalizeImageUploadRaw(
+  async finalizeImageUploadRequestOpts(
     requestParameters: FinalizeImageUploadRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1504,20 +1982,30 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/finalize`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: formParams,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: formParams,
+    };
+  }
+
+  /**
+   * Creates database record for uploaded image variants and optional consent form. Should be called after all S3 uploads complete successfully.
+   * Finalize image upload and create database record
+   */
+  async finalizeImageUploadRaw(
+    requestParameters: FinalizeImageUploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    const requestOptions =
+      await this.finalizeImageUploadRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceImageDtoFromJSON(jsonValue),
@@ -1540,12 +2028,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get all activities related to the resource
+   * Creates request options for getActivitiesByRecResourceId without sending the request
    */
-  async getActivitiesByRecResourceIdRaw(
+  async getActivitiesByRecResourceIdRequestOpts(
     requestParameters: GetActivitiesByRecResourceIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationActivityDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1568,19 +2055,28 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/activities`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get all activities related to the resource
+   */
+  async getActivitiesByRecResourceIdRaw(
+    requestParameters: GetActivitiesByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationActivityDto>>> {
+    const requestOptions =
+      await this.getActivitiesByRecResourceIdRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(RecreationActivityDtoFromJSON),
@@ -1602,13 +2098,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a list of establishment order documents with presigned URLs for download
-   * Get all establishment order documents for a recreation resource
+   * Creates request options for getAllEstablishmentOrderDocs without sending the request
    */
-  async getAllEstablishmentOrderDocsRaw(
+  async getAllEstablishmentOrderDocsRequestOpts(
     requestParameters: GetAllEstablishmentOrderDocsRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<EstablishmentOrderDocDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1631,19 +2125,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Returns a list of establishment order documents with presigned URLs for download
+   * Get all establishment order documents for a recreation resource
+   */
+  async getAllEstablishmentOrderDocsRaw(
+    requestParameters: GetAllEstablishmentOrderDocsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<EstablishmentOrderDocDto>>> {
+    const requestOptions =
+      await this.getAllEstablishmentOrderDocsRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(EstablishmentOrderDocDtoFromJSON),
@@ -1666,12 +2170,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get all Exhibit A documents for a recreation resource
+   * Creates request options for getAllExhibitADocs without sending the request
    */
-  async getAllExhibitADocsRaw(
+  async getAllExhibitADocsRequestOpts(
     requestParameters: GetAllExhibitADocsRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<ExhibitADocDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1694,19 +2197,28 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/exhibit-a-docs`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get all Exhibit A documents for a recreation resource
+   */
+  async getAllExhibitADocsRaw(
+    requestParameters: GetAllExhibitADocsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<ExhibitADocDto>>> {
+    const requestOptions =
+      await this.getAllExhibitADocsRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(ExhibitADocDtoFromJSON),
@@ -1728,13 +2240,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a time-limited presigned URL for downloading the consent form PDF associated with an image.
-   * Get presigned URL for consent form download
+   * Creates request options for getConsentFormDownloadUrl without sending the request
    */
-  async getConsentFormDownloadUrlRaw(
+  async getConsentFormDownloadUrlRequestOpts(
     requestParameters: GetConsentFormDownloadUrlRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ConsentFormDownloadResponseDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1764,23 +2274,33 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}/consent-download`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'image_id'}}`,
+      '{image_id}',
       encodeURIComponent(String(requestParameters['imageId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Returns a time-limited presigned URL for downloading the consent form PDF associated with an image.
+   * Get presigned URL for consent form download
+   */
+  async getConsentFormDownloadUrlRaw(
+    requestParameters: GetConsentFormDownloadUrlRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ConsentFormDownloadResponseDto>> {
+    const requestOptions =
+      await this.getConsentFormDownloadUrlRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ConsentFormDownloadResponseDtoFromJSON(jsonValue),
@@ -1803,12 +2323,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get all documents related to the resource
+   * Creates request options for getDocumentsByRecResourceId without sending the request
    */
-  async getDocumentsByRecResourceIdRaw(
+  async getDocumentsByRecResourceIdRequestOpts(
     requestParameters: GetDocumentsByRecResourceIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationResourceDocDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1831,19 +2350,28 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get all documents related to the resource
+   */
+  async getDocumentsByRecResourceIdRaw(
+    requestParameters: GetDocumentsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationResourceDocDto>>> {
+    const requestOptions =
+      await this.getDocumentsByRecResourceIdRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(RecreationResourceDocDtoFromJSON),
@@ -1865,12 +2393,9 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns the datasets currently available for the admin CSV export workflow
-   * List CSV export datasets
+   * Creates request options for getExportDatasets without sending the request
    */
-  async getExportDatasetsRaw(
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ListExportDatasetsResponseDto>> {
+  async getExportDatasetsRequestOpts(): Promise<runtime.RequestOpts> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -1886,15 +2411,23 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/exports/datasets`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Returns the datasets currently available for the admin CSV export workflow
+   * List CSV export datasets
+   */
+  async getExportDatasetsRaw(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ListExportDatasetsResponseDto>> {
+    const requestOptions = await this.getExportDatasetsRequestOpts();
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ListExportDatasetsResponseDtoFromJSON(jsonValue),
@@ -1913,13 +2446,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a limited row preview for the requested export dataset
-   * Preview a CSV export dataset
+   * Creates request options for getExportPreview without sending the request
    */
-  async getExportPreviewRaw(
+  async getExportPreviewRequestOpts(
     requestParameters: GetExportPreviewRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ExportPreviewResponseDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['dataset'] == null) {
       throw new runtime.RequiredError(
         'dataset',
@@ -1958,15 +2489,25 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/exports/preview`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Returns a limited row preview for the requested export dataset
+   * Preview a CSV export dataset
+   */
+  async getExportPreviewRaw(
+    requestParameters: GetExportPreviewRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ExportPreviewResponseDto>> {
+    const requestOptions =
+      await this.getExportPreviewRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       ExportPreviewResponseDtoFromJSON(jsonValue),
@@ -1989,12 +2530,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get all features related to the resource
+   * Creates request options for getFeaturesByRecResourceId without sending the request
    */
-  async getFeaturesByRecResourceIdRaw(
+  async getFeaturesByRecResourceIdRequestOpts(
     requestParameters: GetFeaturesByRecResourceIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationFeatureDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2017,19 +2557,28 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/features`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get all features related to the resource
+   */
+  async getFeaturesByRecResourceIdRaw(
+    requestParameters: GetFeaturesByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationFeatureDto>>> {
+    const requestOptions =
+      await this.getFeaturesByRecResourceIdRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(RecreationFeatureDtoFromJSON),
@@ -2051,12 +2600,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get all images related to the resource
+   * Creates request options for getImagesByRecResourceId without sending the request
    */
-  async getImagesByRecResourceIdRaw(
+  async getImagesByRecResourceIdRequestOpts(
     requestParameters: GetImagesByRecResourceIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationResourceImageDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2079,19 +2627,28 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get all images related to the resource
+   */
+  async getImagesByRecResourceIdRaw(
+    requestParameters: GetImagesByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationResourceImageDto>>> {
+    const requestOptions =
+      await this.getImagesByRecResourceIdRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(RecreationResourceImageDtoFromJSON),
@@ -2113,13 +2670,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity, recStatusCode
-   * List all options for a type
+   * Creates request options for getOptionsByType without sending the request
    */
-  async getOptionsByTypeRaw(
+  async getOptionsByTypeRequestOpts(
     requestParameters: GetOptionsByTypeRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<OptionDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['type'] == null) {
       throw new runtime.RequiredError(
         'type',
@@ -2142,19 +2697,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/options/{type}`;
     urlPath = urlPath.replace(
-      `{${'type'}}`,
+      '{type}',
       encodeURIComponent(String(requestParameters['type'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity, recStatusCode
+   * List all options for a type
+   */
+  async getOptionsByTypeRaw(
+    requestParameters: GetOptionsByTypeRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<OptionDto>>> {
+    const requestOptions =
+      await this.getOptionsByTypeRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(OptionDtoFromJSON),
@@ -2177,13 +2742,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.  The order of elements in the response matches the order of types provided by the client.
-   * List options for multiple types
+   * Creates request options for getOptionsByTypes without sending the request
    */
-  async getOptionsByTypesRaw(
+  async getOptionsByTypesRequestOpts(
     requestParameters: GetOptionsByTypesRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<OptionsByTypeDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['types'] == null) {
       throw new runtime.RequiredError(
         'types',
@@ -2210,15 +2773,25 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/options`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.  The order of elements in the response matches the order of types provided by the client.
+   * List options for multiple types
+   */
+  async getOptionsByTypesRaw(
+    requestParameters: GetOptionsByTypesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<OptionsByTypeDto>>> {
+    const requestOptions =
+      await this.getOptionsByTypesRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(OptionsByTypeDtoFromJSON),
@@ -2241,13 +2814,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a priority-sorted list of advisories and closures for a recreation resource
-   * Get advisories and closures for a recreation resource
+   * Creates request options for getRecreationResourceAdvisories without sending the request
    */
-  async getRecreationResourceAdvisoriesRaw(
+  async getRecreationResourceAdvisoriesRequestOpts(
     requestParameters: GetRecreationResourceAdvisoriesRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationResourceAdvisoryDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2270,19 +2841,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/advisories`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Returns a priority-sorted list of advisories and closures for a recreation resource
+   * Get advisories and closures for a recreation resource
+   */
+  async getRecreationResourceAdvisoriesRaw(
+    requestParameters: GetRecreationResourceAdvisoriesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationResourceAdvisoryDto>>> {
+    const requestOptions =
+      await this.getRecreationResourceAdvisoriesRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(RecreationResourceAdvisoryDtoFromJSON),
@@ -2305,12 +2886,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Find recreation resource by ID
+   * Creates request options for getRecreationResourceById without sending the request
    */
-  async getRecreationResourceByIdRaw(
+  async getRecreationResourceByIdRequestOpts(
     requestParameters: GetRecreationResourceByIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceDetailDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2333,19 +2913,28 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/recreation-resources/{rec_resource_id}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Find recreation resource by ID
+   */
+  async getRecreationResourceByIdRaw(
+    requestParameters: GetRecreationResourceByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceDetailDto>> {
+    const requestOptions =
+      await this.getRecreationResourceByIdRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceDetailDtoFromJSON(jsonValue),
@@ -2367,13 +2956,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a list of fees for the recreation resource, sorted by fee type and start date
-   * Get all fees for a recreation resource
+   * Creates request options for getRecreationResourceFees without sending the request
    */
-  async getRecreationResourceFeesRaw(
+  async getRecreationResourceFeesRequestOpts(
     requestParameters: GetRecreationResourceFeesRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationFeeDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2396,19 +2983,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Returns a list of fees for the recreation resource, sorted by fee type and start date
+   * Get all fees for a recreation resource
+   */
+  async getRecreationResourceFeesRaw(
+    requestParameters: GetRecreationResourceFeesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationFeeDto>>> {
+    const requestOptions =
+      await this.getRecreationResourceFeesRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(RecreationFeeDtoFromJSON),
@@ -2431,13 +3028,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns geospatial data including spatial feature geometries and calculated coordinate values
-   * Get geospatial data for a recreation resource
+   * Creates request options for getRecreationResourceGeospatial without sending the request
    */
-  async getRecreationResourceGeospatialRaw(
+  async getRecreationResourceGeospatialRequestOpts(
     requestParameters: GetRecreationResourceGeospatialRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceGeospatialDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2460,19 +3055,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/geospatial`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Returns geospatial data including spatial feature geometries and calculated coordinate values
+   * Get geospatial data for a recreation resource
+   */
+  async getRecreationResourceGeospatialRaw(
+    requestParameters: GetRecreationResourceGeospatialRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceGeospatialDto>> {
+    const requestOptions =
+      await this.getRecreationResourceGeospatialRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceGeospatialDtoFromJSON(jsonValue),
@@ -2495,13 +3100,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns reservation data for a recreation resource
-   * Get reservation data for a recreation resource
+   * Creates request options for getRecreationResourceReservation without sending the request
    */
-  async getRecreationResourceReservationRaw(
+  async getRecreationResourceReservationRequestOpts(
     requestParameters: GetRecreationResourceReservationRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceReservationInfoDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2524,19 +3127,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/reservation`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Returns reservation data for a recreation resource
+   * Get reservation data for a recreation resource
+   */
+  async getRecreationResourceReservationRaw(
+    requestParameters: GetRecreationResourceReservationRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceReservationInfoDto>> {
+    const requestOptions =
+      await this.getRecreationResourceReservationRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceReservationInfoDtoFromJSON(jsonValue),
@@ -2559,12 +3172,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   *
+   * Creates request options for getRecreationResourceSuggestions without sending the request
    */
-  async getRecreationResourceSuggestionsRaw(
+  async getRecreationResourceSuggestionsRequestOpts(
     requestParameters: GetRecreationResourceSuggestionsRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<SuggestionsResponseDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['searchTerm'] == null) {
       throw new runtime.RequiredError(
         'searchTerm',
@@ -2591,15 +3203,24 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/recreation-resources/suggestions`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   *
+   */
+  async getRecreationResourceSuggestionsRaw(
+    requestParameters: GetRecreationResourceSuggestionsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<SuggestionsResponseDto>> {
+    const requestOptions =
+      await this.getRecreationResourceSuggestionsRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       SuggestionsResponseDtoFromJSON(jsonValue),
@@ -2621,12 +3242,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get all trails for a recreation resource
+   * Creates request options for getTrailsByRecResourceId without sending the request
    */
-  async getTrailsByRecResourceIdRaw(
+  async getTrailsByRecResourceIdRequestOpts(
     requestParameters: GetTrailsByRecResourceIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationTrailDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2649,19 +3269,28 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/trails`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get all trails for a recreation resource
+   */
+  async getTrailsByRecResourceIdRaw(
+    requestParameters: GetTrailsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationTrailDto>>> {
+    const requestOptions =
+      await this.getTrailsByRecResourceIdRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(RecreationTrailDtoFromJSON),
@@ -2683,13 +3312,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Allocates a document ID and returns a presigned PUT URL for uploading the PDF directly to S3.
-   * Request presigned URL for direct S3 document upload
+   * Creates request options for presignDocUpload without sending the request
    */
-  async presignDocUploadRaw(
+  async presignDocUploadRequestOpts(
     requestParameters: PresignDocUploadRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<PresignDocUploadResponseDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2723,19 +3350,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/presign`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Allocates a document ID and returns a presigned PUT URL for uploading the PDF directly to S3.
+   * Request presigned URL for direct S3 document upload
+   */
+  async presignDocUploadRaw(
+    requestParameters: PresignDocUploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<PresignDocUploadResponseDto>> {
+    const requestOptions =
+      await this.presignDocUploadRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       PresignDocUploadResponseDtoFromJSON(jsonValue),
@@ -2758,12 +3395,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Request presigned URL for direct S3 Exhibit A document upload
+   * Creates request options for presignExhibitAUpload without sending the request
    */
-  async presignExhibitAUploadRaw(
+  async presignExhibitAUploadRequestOpts(
     requestParameters: PresignExhibitAUploadRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<PresignExhibitAUploadResponseDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2797,19 +3433,28 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/exhibit-a-docs/presign`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Request presigned URL for direct S3 Exhibit A document upload
+   */
+  async presignExhibitAUploadRaw(
+    requestParameters: PresignExhibitAUploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<PresignExhibitAUploadResponseDto>> {
+    const requestOptions =
+      await this.presignExhibitAUploadRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       PresignExhibitAUploadResponseDtoFromJSON(jsonValue),
@@ -2831,13 +3476,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Allocates an image ID and returns 4 presigned PUT URLs for uploading WebP variants directly to S3. Variants should be generated client-side.
-   * Request presigned URLs for direct S3 image variant upload
+   * Creates request options for presignImageUpload without sending the request
    */
-  async presignImageUploadRaw(
+  async presignImageUploadRequestOpts(
     requestParameters: PresignImageUploadRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<PresignImageUploadResponseDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -2871,19 +3514,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/presign`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Allocates an image ID and returns 4 presigned PUT URLs for uploading WebP variants directly to S3. Variants should be generated client-side.
+   * Request presigned URLs for direct S3 image variant upload
+   */
+  async presignImageUploadRaw(
+    requestParameters: PresignImageUploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<PresignImageUploadResponseDto>> {
+    const requestOptions =
+      await this.presignImageUploadRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       PresignImageUploadResponseDtoFromJSON(jsonValue),
@@ -2906,12 +3559,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Search recreation resources for admin
+   * Creates request options for searchRecreationResources without sending the request
    */
-  async searchRecreationResourcesRaw(
+  async searchRecreationResourcesRequestOpts(
     requestParameters: SearchRecreationResourcesRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<AdminSearchResponseDto>> {
+  ): Promise<runtime.RequestOpts> {
     const queryParameters: any = {};
 
     if (requestParameters['q'] != null) {
@@ -2991,15 +3643,24 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/recreation-resources/search`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Search recreation resources for admin
+   */
+  async searchRecreationResourcesRaw(
+    requestParameters: SearchRecreationResourcesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<AdminSearchResponseDto>> {
+    const requestOptions =
+      await this.searchRecreationResourcesRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       AdminSearchResponseDtoFromJSON(jsonValue),
@@ -3021,12 +3682,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Update activities for a recreation resource
+   * Creates request options for updateActivities without sending the request
    */
-  async updateActivitiesRaw(
+  async updateActivitiesRequestOpts(
     requestParameters: UpdateActivitiesRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationActivityDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -3058,22 +3718,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/activities`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateActivitiesDtoToJSON(
-          requestParameters['updateActivitiesDto'],
-        ),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'PUT',
+      headers: headerParameters,
+      query: queryParameters,
+      body: UpdateActivitiesDtoToJSON(requestParameters['updateActivitiesDto']),
+    };
+  }
+
+  /**
+   * Update activities for a recreation resource
+   */
+  async updateActivitiesRaw(
+    requestParameters: UpdateActivitiesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationActivityDto>>> {
+    const requestOptions =
+      await this.updateActivitiesRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(RecreationActivityDtoFromJSON),
@@ -3095,12 +3762,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Update features for a recreation resource
+   * Creates request options for updateFeatures without sending the request
    */
-  async updateFeaturesRaw(
+  async updateFeaturesRequestOpts(
     requestParameters: UpdateFeaturesRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<RecreationFeatureDto>>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -3132,20 +3798,29 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/features`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateFeaturesDtoToJSON(requestParameters['updateFeaturesDto']),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'PUT',
+      headers: headerParameters,
+      query: queryParameters,
+      body: UpdateFeaturesDtoToJSON(requestParameters['updateFeaturesDto']),
+    };
+  }
+
+  /**
+   * Update features for a recreation resource
+   */
+  async updateFeaturesRaw(
+    requestParameters: UpdateFeaturesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationFeatureDto>>> {
+    const requestOptions =
+      await this.updateFeaturesRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       jsonValue.map(RecreationFeatureDtoFromJSON),
@@ -3167,12 +3842,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Update consent metadata for an existing image
+   * Creates request options for updateImageConsent without sending the request
    */
-  async updateImageConsentRaw(
+  async updateImageConsentRequestOpts(
     requestParameters: UpdateImageConsentRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -3211,26 +3885,35 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}/consent`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'image_id'}}`,
+      '{image_id}',
       encodeURIComponent(String(requestParameters['imageId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'PATCH',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateImageConsentPatchDtoToJSON(
-          requestParameters['updateImageConsentPatchDto'],
-        ),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'PATCH',
+      headers: headerParameters,
+      query: queryParameters,
+      body: UpdateImageConsentPatchDtoToJSON(
+        requestParameters['updateImageConsentPatchDto'],
+      ),
+    };
+  }
+
+  /**
+   * Update consent metadata for an existing image
+   */
+  async updateImageConsentRaw(
+    requestParameters: UpdateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    const requestOptions =
+      await this.updateImageConsentRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceImageDtoFromJSON(jsonValue),
@@ -3252,13 +3935,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates a recreation resource. Automatically handles both direct fields and related table fields (description, driving_directions) based on the request content.
-   * Update recreation resource by ID
+   * Creates request options for updateRecreationResourceById without sending the request
    */
-  async updateRecreationResourceByIdRaw(
+  async updateRecreationResourceByIdRequestOpts(
     requestParameters: UpdateRecreationResourceByIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceDetailDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -3290,22 +3971,32 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/recreation-resources/{rec_resource_id}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateRecreationResourceDtoToJSON(
-          requestParameters['updateRecreationResourceDto'],
-        ),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'PUT',
+      headers: headerParameters,
+      query: queryParameters,
+      body: UpdateRecreationResourceDtoToJSON(
+        requestParameters['updateRecreationResourceDto'],
+      ),
+    };
+  }
+
+  /**
+   * Updates a recreation resource. Automatically handles both direct fields and related table fields (description, driving_directions) based on the request content.
+   * Update recreation resource by ID
+   */
+  async updateRecreationResourceByIdRaw(
+    requestParameters: UpdateRecreationResourceByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceDetailDto>> {
+    const requestOptions =
+      await this.updateRecreationResourceByIdRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceDetailDtoFromJSON(jsonValue),
@@ -3328,13 +4019,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates an existing fee identified by fee_id and associated with the recreation resource
-   * Update an existing fee for a recreation resource
+   * Creates request options for updateRecreationResourceFee without sending the request
    */
-  async updateRecreationResourceFeeRaw(
+  async updateRecreationResourceFeeRequestOpts(
     requestParameters: UpdateRecreationResourceFeeRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationFeeDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -3373,26 +4062,36 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'fee_id'}}`,
+      '{fee_id}',
       encodeURIComponent(String(requestParameters['feeId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateRecreationFeeDtoToJSON(
-          requestParameters['updateRecreationFeeDto'],
-        ),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'PUT',
+      headers: headerParameters,
+      query: queryParameters,
+      body: UpdateRecreationFeeDtoToJSON(
+        requestParameters['updateRecreationFeeDto'],
+      ),
+    };
+  }
+
+  /**
+   * Updates an existing fee identified by fee_id and associated with the recreation resource
+   * Update an existing fee for a recreation resource
+   */
+  async updateRecreationResourceFeeRaw(
+    requestParameters: UpdateRecreationResourceFeeRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationFeeDto>> {
+    const requestOptions =
+      await this.updateRecreationResourceFeeRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationFeeDtoFromJSON(jsonValue),
@@ -3415,13 +4114,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates or inserts the site point geometry based on provided UTM fields (zone, easting, northing)
-   * Update geospatial data for a recreation resource
+   * Creates request options for updateRecreationResourceGeospatial without sending the request
    */
-  async updateRecreationResourceGeospatialRaw(
+  async updateRecreationResourceGeospatialRequestOpts(
     requestParameters: UpdateRecreationResourceGeospatialRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceGeospatialDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -3453,22 +4150,34 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/geospatial`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateRecreationResourceGeospatialDtoToJSON(
-          requestParameters['updateRecreationResourceGeospatialDto'],
-        ),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'PUT',
+      headers: headerParameters,
+      query: queryParameters,
+      body: UpdateRecreationResourceGeospatialDtoToJSON(
+        requestParameters['updateRecreationResourceGeospatialDto'],
+      ),
+    };
+  }
+
+  /**
+   * Updates or inserts the site point geometry based on provided UTM fields (zone, easting, northing)
+   * Update geospatial data for a recreation resource
+   */
+  async updateRecreationResourceGeospatialRaw(
+    requestParameters: UpdateRecreationResourceGeospatialRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceGeospatialDto>> {
+    const requestOptions =
+      await this.updateRecreationResourceGeospatialRequestOpts(
+        requestParameters,
+      );
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationResourceGeospatialDtoFromJSON(jsonValue),
@@ -3491,13 +4200,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates or inserts reservation data for a recreation resource
-   * Update reservation data for a recreation resource
+   * Creates request options for updateRecreationResourceReservation without sending the request
    */
-  async updateRecreationResourceReservationRaw(
+  async updateRecreationResourceReservationRequestOpts(
     requestParameters: UpdateRecreationResourceReservationRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<UpdateRecreationResourceReservationDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -3529,22 +4236,34 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/reservation`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateRecreationResourceReservationDtoToJSON(
-          requestParameters['updateRecreationResourceReservationDto'],
-        ),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'PUT',
+      headers: headerParameters,
+      query: queryParameters,
+      body: UpdateRecreationResourceReservationDtoToJSON(
+        requestParameters['updateRecreationResourceReservationDto'],
+      ),
+    };
+  }
+
+  /**
+   * Updates or inserts reservation data for a recreation resource
+   * Update reservation data for a recreation resource
+   */
+  async updateRecreationResourceReservationRaw(
+    requestParameters: UpdateRecreationResourceReservationRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<UpdateRecreationResourceReservationDto>> {
+    const requestOptions =
+      await this.updateRecreationResourceReservationRequestOpts(
+        requestParameters,
+      );
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       UpdateRecreationResourceReservationDtoFromJSON(jsonValue),
@@ -3567,12 +4286,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Update an existing trail
+   * Creates request options for updateTrail without sending the request
    */
-  async updateTrailRaw(
+  async updateTrailRequestOpts(
     requestParameters: UpdateTrailRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationTrailDto>> {
+  ): Promise<runtime.RequestOpts> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -3611,24 +4329,32 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/trails/{trail_id}`;
     urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
+      '{rec_resource_id}',
       encodeURIComponent(String(requestParameters['recResourceId'])),
     );
     urlPath = urlPath.replace(
-      `{${'trail_id'}}`,
+      '{trail_id}',
       encodeURIComponent(String(requestParameters['trailId'])),
     );
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateTrailDtoToJSON(requestParameters['updateTrailDto']),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'PUT',
+      headers: headerParameters,
+      query: queryParameters,
+      body: UpdateTrailDtoToJSON(requestParameters['updateTrailDto']),
+    };
+  }
+
+  /**
+   * Update an existing trail
+   */
+  async updateTrailRaw(
+    requestParameters: UpdateTrailRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationTrailDto>> {
+    const requestOptions = await this.updateTrailRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       RecreationTrailDtoFromJSON(jsonValue),

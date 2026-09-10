@@ -21,32 +21,22 @@ import { mapValues } from '../runtime';
 export interface RecreationTrailDto {
   /**
    * Unique identifier for the trail
-   * @type {number}
-   * @memberof RecreationTrailDto
    */
   recreation_activity_code_trails_id: number;
   /**
    * Recreation activity code this trail belongs to
-   * @type {number}
-   * @memberof RecreationTrailDto
    */
   recreation_activity_code: number;
   /**
    * Difficulty classification of the trail
-   * @type {string}
-   * @memberof RecreationTrailDto
    */
   trail_type?: RecreationTrailDtoTrailTypeEnum | null;
   /**
    * Name of the trail
-   * @type {string}
-   * @memberof RecreationTrailDto
    */
   name: string;
   /**
    * Description of the trail
-   * @type {string}
-   * @memberof RecreationTrailDto
    */
   description?: string | null;
 }
@@ -97,9 +87,19 @@ export function RecreationTrailDtoFromJSONTyped(
     recreation_activity_code_trails_id:
       json['recreation_activity_code_trails_id'],
     recreation_activity_code: json['recreation_activity_code'],
-    trail_type: json['trail_type'] == null ? undefined : json['trail_type'],
+    trail_type:
+      json['trail_type'] === undefined
+        ? undefined
+        : json['trail_type'] === null
+          ? null
+          : json['trail_type'],
     name: json['name'],
-    description: json['description'] == null ? undefined : json['description'],
+    description:
+      json['description'] === undefined
+        ? undefined
+        : json['description'] === null
+          ? null
+          : json['description'],
   };
 }
 

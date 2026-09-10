@@ -21,92 +21,62 @@ import { mapValues } from '../runtime';
 export interface UpdateRecreationFeeDto {
   /**
    * Type of fee applicable represented by code (C, D, H, P, T)
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   recreation_fee_code?: string;
   /**
    * Subtype of fee represented by code (e.g., CAMPING, HUTS, DAY_USE)
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   recreation_fee_sub_code?: string;
   /**
    * Amount charged for the recreation resource
-   * @type {number}
-   * @memberof UpdateRecreationFeeDto
    */
   fee_amount?: number;
   /**
    * Start date for the fee applicability
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   fee_start_date?: string | null;
   /**
    * End date for the fee applicability
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   fee_end_date?: string | null;
   /**
    * Indicates if the fee applies on Monday
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   monday_ind?: string;
   /**
    * Indicates if the fee applies on Tuesday
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   tuesday_ind?: string;
   /**
    * Indicates if the fee applies on Wednesday
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   wednesday_ind?: string;
   /**
    * Indicates if the fee applies on Thursday
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   thursday_ind?: string;
   /**
    * Indicates if the fee applies on Friday
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   friday_ind?: string;
   /**
    * Indicates if the fee applies on Saturday
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   saturday_ind?: string;
   /**
    * Indicates if the fee applies on Sunday
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   sunday_ind?: string;
   /**
    * Whether this fee recurs yearly for the given month/day range
-   * @type {boolean}
-   * @memberof UpdateRecreationFeeDto
    */
   recurring_ind?: boolean;
   /**
    * Start month-day of the recurring fee period (MM-DD format, e.g. 06-01)
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   recurring_start_mmdd?: string | null;
   /**
    * End month-day of the recurring fee period (MM-DD format, e.g. 08-31)
-   * @type {string}
-   * @memberof UpdateRecreationFeeDto
    */
   recurring_end_mmdd?: string | null;
 }
@@ -144,9 +114,17 @@ export function UpdateRecreationFeeDtoFromJSONTyped(
         : json['recreation_fee_sub_code'],
     fee_amount: json['fee_amount'] == null ? undefined : json['fee_amount'],
     fee_start_date:
-      json['fee_start_date'] == null ? undefined : json['fee_start_date'],
+      json['fee_start_date'] === undefined
+        ? undefined
+        : json['fee_start_date'] === null
+          ? null
+          : json['fee_start_date'],
     fee_end_date:
-      json['fee_end_date'] == null ? undefined : json['fee_end_date'],
+      json['fee_end_date'] === undefined
+        ? undefined
+        : json['fee_end_date'] === null
+          ? null
+          : json['fee_end_date'],
     monday_ind: json['monday_ind'] == null ? undefined : json['monday_ind'],
     tuesday_ind: json['tuesday_ind'] == null ? undefined : json['tuesday_ind'],
     wednesday_ind:
@@ -160,13 +138,17 @@ export function UpdateRecreationFeeDtoFromJSONTyped(
     recurring_ind:
       json['recurring_ind'] == null ? undefined : json['recurring_ind'],
     recurring_start_mmdd:
-      json['recurring_start_mmdd'] == null
+      json['recurring_start_mmdd'] === undefined
         ? undefined
-        : json['recurring_start_mmdd'],
+        : json['recurring_start_mmdd'] === null
+          ? null
+          : json['recurring_start_mmdd'],
     recurring_end_mmdd:
-      json['recurring_end_mmdd'] == null
+      json['recurring_end_mmdd'] === undefined
         ? undefined
-        : json['recurring_end_mmdd'],
+        : json['recurring_end_mmdd'] === null
+          ? null
+          : json['recurring_end_mmdd'],
   };
 }
 

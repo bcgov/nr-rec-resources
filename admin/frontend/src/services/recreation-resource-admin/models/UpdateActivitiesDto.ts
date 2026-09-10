@@ -21,8 +21,6 @@ import { mapValues } from '../runtime';
 export interface UpdateActivitiesDto {
   /**
    * Array of recreation activity codes
-   * @type {Array<number>}
-   * @memberof UpdateActivitiesDto
    */
   activity_codes: Array<number>;
 }

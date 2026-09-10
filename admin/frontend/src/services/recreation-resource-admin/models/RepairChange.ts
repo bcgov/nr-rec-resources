@@ -21,32 +21,22 @@ import { mapValues } from '../runtime';
 export interface RepairChange {
   /**
    * Estimated cost of the repair
-   * @type {number}
-   * @memberof RepairChange
    */
   estimated_repair_cost: number;
   /**
    * Actual cost of the repair, once known
-   * @type {number}
-   * @memberof RepairChange
    */
   actual_repair_cost?: number | null;
   /**
    * Trail station where the repaired segment starts
-   * @type {string}
-   * @memberof RepairChange
    */
   station_start?: string | null;
   /**
    * Trail station where the repaired segment ends
-   * @type {string}
-   * @memberof RepairChange
    */
   station_end?: string | null;
   /**
    * Array of asset IDs to which this repair change applies
-   * @type {Array<number>}
-   * @memberof RepairChange
    */
   asset_ids: Array<number>;
 }
@@ -78,12 +68,23 @@ export function RepairChangeFromJSONTyped(
   return {
     estimated_repair_cost: json['estimated_repair_cost'],
     actual_repair_cost:
-      json['actual_repair_cost'] == null
+      json['actual_repair_cost'] === undefined
         ? undefined
-        : json['actual_repair_cost'],
+        : json['actual_repair_cost'] === null
+          ? null
+          : json['actual_repair_cost'],
     station_start:
-      json['station_start'] == null ? undefined : json['station_start'],
-    station_end: json['station_end'] == null ? undefined : json['station_end'],
+      json['station_start'] === undefined
+        ? undefined
+        : json['station_start'] === null
+          ? null
+          : json['station_start'],
+    station_end:
+      json['station_end'] === undefined
+        ? undefined
+        : json['station_end'] === null
+          ? null
+          : json['station_end'],
     asset_ids: json['asset_ids'],
   };
 }

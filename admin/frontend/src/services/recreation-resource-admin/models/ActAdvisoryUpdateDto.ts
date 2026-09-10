@@ -21,165 +21,111 @@ import { mapValues } from '../runtime';
 export interface ActAdvisoryUpdateDto {
   /**
    * Advisory title.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   title?: string;
   /**
    * Long-form advisory description / body.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   description?: string | null;
   /**
    * Username / identifier of the person who submitted the advisory in Act.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   submitted_by?: string;
   /**
    * Display name of the access status.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   access_status_name?: string;
   /**
    * Access status grouping label.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   access_status_grouplabel?: string;
   /**
    * Access status description.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   access_status_description?: string | null;
   /**
    * Event type for the advisory.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   event_type?: string;
   /**
    * Urgency level (e.g. Low / Medium / High).
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   urgency?: string;
   /**
    * Advisory status (e.g. Published / Draft).
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   advisory_status?: string;
   /**
    * Whether the advisory affects reservations.
-   * @type {boolean}
-   * @memberof ActAdvisoryUpdateDto
    */
   is_reservations_affected?: boolean | null;
   /**
    * Whether the advisory_date should be displayed publicly.
-   * @type {boolean}
-   * @memberof ActAdvisoryUpdateDto
    */
   is_advisory_date_displayed?: boolean;
   /**
    * Whether the effective_date should be displayed publicly.
-   * @type {boolean}
-   * @memberof ActAdvisoryUpdateDto
    */
   is_effective_date_displayed?: boolean;
   /**
    * Whether the end_date should be displayed publicly.
-   * @type {boolean}
-   * @memberof ActAdvisoryUpdateDto
    */
   is_end_date_displayed?: boolean;
   /**
    * Whether the updated_date should be displayed publicly.
-   * @type {boolean}
-   * @memberof ActAdvisoryUpdateDto
    */
   is_updated_date_displayed?: boolean | null;
   /**
    * Date the advisory was created in Act (ISO 8601).
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   advisory_date?: string;
   /**
    * Date the advisory becomes effective (ISO 8601).
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   effective_date?: string | null;
   /**
    * Date the advisory ends, if applicable (ISO 8601).
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   end_date?: string | null;
   /**
    * Date the advisory expires, if applicable (ISO 8601).
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   expiry_date?: string | null;
   /**
    * Date the advisory was removed in Act, if applicable.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   removal_date?: string | null;
   /**
    * Date the advisory record was last updated in Act.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   updated_date?: string | null;
   /**
    * Date the advisory was last content-modified in Act.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   modified_date?: string;
   /**
    * Deprecated alias for `published_date`. Still accepted for backward compatibility; when both fields are provided, `published_date` takes precedence.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    * @deprecated
    */
   published_at?: string | null;
   /**
    * Date the advisory was published, if applicable. Preferred ACT field name; mapped internally to the existing `published_at` storage column.
-   * @type {string}
-   * @memberof ActAdvisoryUpdateDto
    */
   published_date?: string | null;
   /**
    * Listing rank used to order advisories in UIs.
-   * @type {number}
-   * @memberof ActAdvisoryUpdateDto
    */
   listing_rank?: number;
   /**
    * Urgency sequence used for ordering.
-   * @type {number}
-   * @memberof ActAdvisoryUpdateDto
    */
   urgency_sequence?: number;
   /**
    * Access-status precedence used for ordering.
-   * @type {number}
-   * @memberof ActAdvisoryUpdateDto
    */
   access_status_precedence?: number;
   /**
    * Event-type precedence used for ordering.
-   * @type {number}
-   * @memberof ActAdvisoryUpdateDto
    */
   event_type_precedence?: number;
 }
@@ -206,7 +152,12 @@ export function ActAdvisoryUpdateDtoFromJSONTyped(
   }
   return {
     title: json['title'] == null ? undefined : json['title'],
-    description: json['description'] == null ? undefined : json['description'],
+    description:
+      json['description'] === undefined
+        ? undefined
+        : json['description'] === null
+          ? null
+          : json['description'],
     submitted_by:
       json['submitted_by'] == null ? undefined : json['submitted_by'],
     access_status_name:
@@ -218,17 +169,21 @@ export function ActAdvisoryUpdateDtoFromJSONTyped(
         ? undefined
         : json['access_status_grouplabel'],
     access_status_description:
-      json['access_status_description'] == null
+      json['access_status_description'] === undefined
         ? undefined
-        : json['access_status_description'],
+        : json['access_status_description'] === null
+          ? null
+          : json['access_status_description'],
     event_type: json['event_type'] == null ? undefined : json['event_type'],
     urgency: json['urgency'] == null ? undefined : json['urgency'],
     advisory_status:
       json['advisory_status'] == null ? undefined : json['advisory_status'],
     is_reservations_affected:
-      json['is_reservations_affected'] == null
+      json['is_reservations_affected'] === undefined
         ? undefined
-        : json['is_reservations_affected'],
+        : json['is_reservations_affected'] === null
+          ? null
+          : json['is_reservations_affected'],
     is_advisory_date_displayed:
       json['is_advisory_date_displayed'] == null
         ? undefined
@@ -242,25 +197,57 @@ export function ActAdvisoryUpdateDtoFromJSONTyped(
         ? undefined
         : json['is_end_date_displayed'],
     is_updated_date_displayed:
-      json['is_updated_date_displayed'] == null
+      json['is_updated_date_displayed'] === undefined
         ? undefined
-        : json['is_updated_date_displayed'],
+        : json['is_updated_date_displayed'] === null
+          ? null
+          : json['is_updated_date_displayed'],
     advisory_date:
       json['advisory_date'] == null ? undefined : json['advisory_date'],
     effective_date:
-      json['effective_date'] == null ? undefined : json['effective_date'],
-    end_date: json['end_date'] == null ? undefined : json['end_date'],
-    expiry_date: json['expiry_date'] == null ? undefined : json['expiry_date'],
+      json['effective_date'] === undefined
+        ? undefined
+        : json['effective_date'] === null
+          ? null
+          : json['effective_date'],
+    end_date:
+      json['end_date'] === undefined
+        ? undefined
+        : json['end_date'] === null
+          ? null
+          : json['end_date'],
+    expiry_date:
+      json['expiry_date'] === undefined
+        ? undefined
+        : json['expiry_date'] === null
+          ? null
+          : json['expiry_date'],
     removal_date:
-      json['removal_date'] == null ? undefined : json['removal_date'],
+      json['removal_date'] === undefined
+        ? undefined
+        : json['removal_date'] === null
+          ? null
+          : json['removal_date'],
     updated_date:
-      json['updated_date'] == null ? undefined : json['updated_date'],
+      json['updated_date'] === undefined
+        ? undefined
+        : json['updated_date'] === null
+          ? null
+          : json['updated_date'],
     modified_date:
       json['modified_date'] == null ? undefined : json['modified_date'],
     published_at:
-      json['published_at'] == null ? undefined : json['published_at'],
+      json['published_at'] === undefined
+        ? undefined
+        : json['published_at'] === null
+          ? null
+          : json['published_at'],
     published_date:
-      json['published_date'] == null ? undefined : json['published_date'],
+      json['published_date'] === undefined
+        ? undefined
+        : json['published_date'] === null
+          ? null
+          : json['published_date'],
     listing_rank:
       json['listing_rank'] == null ? undefined : json['listing_rank'],
     urgency_sequence:

@@ -21,20 +21,14 @@ import { mapValues } from '../runtime';
 export interface UpdateRecreationResourceReservationDto {
   /**
    * Reservation website of designed resource
-   * @type {string}
-   * @memberof UpdateRecreationResourceReservationDto
    */
   reservation_website?: string;
   /**
    * Reservation phone number of designed resource
-   * @type {string}
-   * @memberof UpdateRecreationResourceReservationDto
    */
   reservation_phone_number?: string;
   /**
    * Reservation email of designed resource
-   * @type {string}
-   * @memberof UpdateRecreationResourceReservationDto
    */
   reservation_email?: string;
 }

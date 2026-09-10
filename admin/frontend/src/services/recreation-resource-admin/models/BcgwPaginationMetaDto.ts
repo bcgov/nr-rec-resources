@@ -21,26 +21,18 @@ import { mapValues } from '../runtime';
 export interface BcgwPaginationMetaDto {
   /**
    *
-   * @type {number}
-   * @memberof BcgwPaginationMetaDto
    */
   total: number;
   /**
    *
-   * @type {number}
-   * @memberof BcgwPaginationMetaDto
    */
   page: number;
   /**
    *
-   * @type {number}
-   * @memberof BcgwPaginationMetaDto
    */
   totalPages: number;
   /**
    *
-   * @type {number}
-   * @memberof BcgwPaginationMetaDto
    */
   pageSize: number;
 }

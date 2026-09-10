@@ -21,92 +21,62 @@ import { mapValues } from '../runtime';
 export interface CreateRecreationFeeDto {
   /**
    * Type of fee applicable represented by code (C, D, H, P, T)
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   recreation_fee_code: string;
   /**
    * Subtype of fee represented by code (e.g., CAMPING, HUTS, DAY_USE)
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   recreation_fee_sub_code?: string;
   /**
    * Amount charged for the recreation resource
-   * @type {number}
-   * @memberof CreateRecreationFeeDto
    */
   fee_amount?: number;
   /**
    * Start date for the fee applicability
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   fee_start_date?: string;
   /**
    * End date for the fee applicability
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   fee_end_date?: string;
   /**
    * Indicates if the fee applies on Monday
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   monday_ind?: string;
   /**
    * Indicates if the fee applies on Tuesday
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   tuesday_ind?: string;
   /**
    * Indicates if the fee applies on Wednesday
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   wednesday_ind?: string;
   /**
    * Indicates if the fee applies on Thursday
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   thursday_ind?: string;
   /**
    * Indicates if the fee applies on Friday
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   friday_ind?: string;
   /**
    * Indicates if the fee applies on Saturday
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   saturday_ind?: string;
   /**
    * Indicates if the fee applies on Sunday
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   sunday_ind?: string;
   /**
    * Whether this fee recurs yearly for the given month/day range
-   * @type {boolean}
-   * @memberof CreateRecreationFeeDto
    */
   recurring_ind?: boolean;
   /**
    * Start month-day of the recurring fee period (MM-DD format, e.g. 06-01)
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   recurring_start_mmdd?: string;
   /**
    * End month-day of the recurring fee period (MM-DD format, e.g. 08-31)
-   * @type {string}
-   * @memberof CreateRecreationFeeDto
    */
   recurring_end_mmdd?: string;
 }

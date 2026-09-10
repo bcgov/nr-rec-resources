@@ -22,8 +22,6 @@ export interface HealthControllerCheck200ResponseInfoValue {
   [key: string]: any | any;
   /**
    *
-   * @type {string}
-   * @memberof HealthControllerCheck200ResponseInfoValue
    */
   status: string;
 }

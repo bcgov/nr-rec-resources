@@ -29,20 +29,14 @@ import {
 export interface RecreationAccessCodeDto {
   /**
    * Unique code identifying the access method
-   * @type {string}
-   * @memberof RecreationAccessCodeDto
    */
   code: string;
   /**
    * Description of the access method
-   * @type {string}
-   * @memberof RecreationAccessCodeDto
    */
   description: string;
   /**
    * List of sub-access codes associated with this access code
-   * @type {Array<RecreationSubAccessCodeDto>}
-   * @memberof RecreationAccessCodeDto
    */
   sub_access_codes: Array<RecreationSubAccessCodeDto>;
 }

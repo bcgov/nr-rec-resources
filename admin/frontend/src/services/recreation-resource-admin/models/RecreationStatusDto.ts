@@ -21,20 +21,14 @@ import { mapValues } from '../runtime';
 export interface RecreationStatusDto {
   /**
    * Status code of the resource
-   * @type {number}
-   * @memberof RecreationStatusDto
    */
   status_code: number;
   /**
    * Additional status information
-   * @type {string}
-   * @memberof RecreationStatusDto
    */
   comment: string | null;
   /**
    * Detailed status description
-   * @type {string}
-   * @memberof RecreationStatusDto
    */
   description: string;
 }

@@ -21,68 +21,46 @@ import { mapValues } from '../runtime';
 export interface AgreementHolderClientPublicViewDto {
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   clientNumber?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   clientName?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   legalFirstName?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   legalMiddleName?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   clientStatusCode?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   clientStatusDescription?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   clientTypeCode?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   clientTypeDescription?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   acronym?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   agreementStartDate?: string;
   /**
    *
-   * @type {string}
-   * @memberof AgreementHolderClientPublicViewDto
    */
   agreementEndDate?: string;
   /**

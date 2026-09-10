@@ -21,26 +21,18 @@ import { mapValues } from '../runtime';
 export interface FinalizeExhibitAUploadRequestDto {
   /**
    * Document ID returned from presign endpoint
-   * @type {string}
-   * @memberof FinalizeExhibitAUploadRequestDto
    */
   document_id: string;
   /**
    * File name without extension
-   * @type {string}
-   * @memberof FinalizeExhibitAUploadRequestDto
    */
   file_name: string;
   /**
    * File extension without dot
-   * @type {string}
-   * @memberof FinalizeExhibitAUploadRequestDto
    */
   extension: string;
   /**
    * File size in bytes
-   * @type {number}
-   * @memberof FinalizeExhibitAUploadRequestDto
    */
   file_size: number;
 }
