@@ -184,6 +184,10 @@ describe('Header component', () => {
       action: 'Header',
       name: 'Header - Find a site or trail',
     });
+    expect(mockTrackClickEvent).not.toHaveBeenCalledWith({
+      category: 'outlinks',
+      name: 'Sub Header - Website feedback',
+    });
     expect(mockTracker).toHaveBeenCalled();
   });
 
@@ -244,13 +248,30 @@ describe('Header component', () => {
     await user.click(feedbackLink);
 
     expect(mockTrackClickEvent).toHaveBeenCalledWith({
-      category: 'outlinks',
-      name: 'Sub Header - Website feedback',
-    });
-    expect(mockTrackClickEvent).toHaveBeenCalledWith({
       category: 'Feedback',
       action: 'Header',
       name: 'Header - Home',
+    });
+    expect(mockTrackClickEvent).not.toHaveBeenCalledWith({
+      category: 'outlinks',
+      name: 'Sub Header - Website feedback',
+    });
+  });
+
+  it('continues tracking outlinks for non-feedback external header links', async () => {
+    const user = userEvent.setup();
+    await renderWithRouter(<Header />);
+
+    const desktopNav = screen.getByRole('navigation', {
+      name: /secondary header site navigation/i,
+    });
+    const alertsLink = within(desktopNav).getByText('Alerts');
+
+    await user.click(alertsLink);
+
+    expect(mockTrackClickEvent).toHaveBeenCalledWith({
+      category: 'outlinks',
+      name: 'Sub Header - Alerts',
     });
   });
 

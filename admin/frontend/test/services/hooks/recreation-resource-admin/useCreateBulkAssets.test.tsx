@@ -63,7 +63,7 @@ describe('useCreateBulkAssets', () => {
     });
   });
 
-  it('calls bulkCreateRecreationAssets with the provided assets', async () => {
+  it('calls bulkCreateRecreationAssets with the generated request payload', async () => {
     mockBulkCreate.mockResolvedValueOnce(undefined);
 
     const { result } = renderHook(() => useCreateBulkAssets(), {
@@ -76,7 +76,9 @@ describe('useCreateBulkAssets', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(mockBulkCreate).toHaveBeenCalledWith(assets);
+    expect(mockBulkCreate).toHaveBeenCalledWith({
+      bulkCreateRecreationAssetsDto: { assets },
+    });
   });
 
   it('shows a success notification with the asset count on success', async () => {

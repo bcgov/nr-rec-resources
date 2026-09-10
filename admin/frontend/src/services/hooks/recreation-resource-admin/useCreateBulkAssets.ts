@@ -6,11 +6,11 @@ import {
   addErrorNotification,
   addSuccessNotification,
 } from '@/store/notificationStore';
-import type { CreateRecreationAssetDto } from '@/services/recreation-resource-admin';
+import type { BulkCreateRecreationAssetsDto } from '@/services/recreation-resource-admin';
 
 export interface BulkCreateAssetsRequest {
   recResourceId: string;
-  assets: CreateRecreationAssetDto[];
+  assets: BulkCreateRecreationAssetsDto['assets'];
 }
 
 export function useCreateBulkAssets() {
@@ -19,7 +19,9 @@ export function useCreateBulkAssets() {
 
   return useMutation({
     mutationFn: ({ assets }: BulkCreateAssetsRequest) =>
-      assetsApiClient.bulkCreateRecreationAssets(assets),
+      assetsApiClient.bulkCreateRecreationAssets({
+        bulkCreateRecreationAssetsDto: { assets },
+      }),
     retry: createRetryHandler({
       onFail: () =>
         addErrorNotification(

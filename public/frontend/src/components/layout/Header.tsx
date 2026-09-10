@@ -8,6 +8,7 @@ import { trackClickEvent } from '@shared/utils';
 import { ExternalLink } from '@shared/components/links';
 import { EnvironmentBanner } from '@shared/components/environment-banner';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { EXTERNAL_LINKS } from '@/constants/urls';
 import { HEADER_LINKS, HeaderLink } from '@/components/layout/constants';
 import '@/components/layout/Header.scss';
 import '@shared/components/environment-banner/EnvironmentBanner.scss';
@@ -38,16 +39,16 @@ const Header = () => {
   };
 
   const handleHeaderExternalLinkClick = (link: HeaderLink) => {
-    trackClickEvent({
-      category: 'outlinks',
-      name: `Sub Header - ${link.label}`,
-    })();
+    if (link.url !== EXTERNAL_LINKS.FEEDBACK_FORM) {
+      trackClickEvent({
+        category: 'outlinks',
+        name: `Sub Header - ${link.label}`,
+      })();
+    }
 
-    if (link.label === 'Website feedback') {
+    if (link.url === EXTERNAL_LINKS.FEEDBACK_FORM) {
       const pageTitle =
-        typeof document !== 'undefined' && typeof document.title === 'string'
-          ? document.title
-          : '';
+        typeof document !== 'undefined' ? `${document.title ?? ''}` : '';
       const [pageTitleSegment = ''] = pageTitle.split('|');
 
       trackClickEvent({
