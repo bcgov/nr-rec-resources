@@ -1,4 +1,9 @@
-import { AdminStatusBadge, CustomBadge, FileStatusBadge } from '@/components';
+import {
+  AdminStatusBadge,
+  CustomBadge,
+  FileStatusBadge,
+  PublicAccessStatusBadge,
+} from '@/components';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { COLOR_BLUE, COLOR_BLUE_LIGHT } from '@/styles/colors';
 import { FC } from 'react';
@@ -48,6 +53,13 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
               }
             />
           )}
+          {recResource.access_status_grouplabel &&
+            recResource.access_status_grouplabel !==
+              recResource.recreation_status_description && (
+              <PublicAccessStatusBadge
+                label={recResource.access_status_grouplabel}
+              />
+            )}
         </Stack>
       </Stack>
       <span className="fw-bold">{recResource.rec_resource_type}</span>
