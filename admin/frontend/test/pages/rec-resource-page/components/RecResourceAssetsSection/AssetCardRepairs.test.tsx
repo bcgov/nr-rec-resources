@@ -298,6 +298,112 @@ describe('AssetCardRepairs', () => {
     });
   });
 
+  describe('trail stations', () => {
+    const trailRepair = buildRepair({
+      trail_segment_start: '49.232423,-128.334343',
+      trail_segment_end: '49.234561,-128.331872',
+    });
+
+    it('renders start and end station when the parent asset is a trail', async () => {
+      const user = userEvent.setup();
+      render(
+        <AssetCardRepairs
+          repairs={[trailRepair]}
+          repairCodes={repairCodes}
+          isTrailAsset
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      expect(screen.getByText('Start station:')).toBeInTheDocument();
+      expect(screen.getByText('49.232423,-128.334343')).toBeInTheDocument();
+      expect(screen.getByText('End station:')).toBeInTheDocument();
+      expect(screen.getByText('49.234561,-128.331872')).toBeInTheDocument();
+    });
+
+    it('omits stations when the parent asset is not a trail', async () => {
+      const user = userEvent.setup();
+      render(
+        <AssetCardRepairs repairs={[trailRepair]} repairCodes={repairCodes} />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      expect(screen.queryByText('Start station:')).not.toBeInTheDocument();
+      expect(screen.queryByText('End station:')).not.toBeInTheDocument();
+    });
+
+    it('omits stations on a trail asset when the repair has none recorded', async () => {
+      const user = userEvent.setup();
+      render(
+        <AssetCardRepairs
+          repairs={[buildRepair({ repair_completed_date: '2024-03-10' })]}
+          repairCodes={repairCodes}
+          isTrailAsset
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      expect(screen.queryByText('Start station:')).not.toBeInTheDocument();
+      expect(screen.queryByText('End station:')).not.toBeInTheDocument();
+    });
+
+    it('renders only the station that is recorded', async () => {
+      const user = userEvent.setup();
+      render(
+        <AssetCardRepairs
+          repairs={[
+            buildRepair({ trail_segment_start: '49.232423,-128.334343' }),
+          ]}
+          repairCodes={repairCodes}
+          isTrailAsset
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      expect(screen.getByText('Start station:')).toBeInTheDocument();
+      expect(screen.queryByText('End station:')).not.toBeInTheDocument();
+    });
+
+    // Stations locate the repaired segment rather than exposing cost, so they
+    // stay visible to users who cannot see sensitive info.
+    it('shows stations but hides costs when the user cannot view sensitive info', async () => {
+      const user = userEvent.setup();
+      vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+        canView: true,
+        canEdit: true,
+        canViewFeatureFlag: true,
+        canEditFeatureFlag: true,
+        isSuperAdmin: false,
+        canViewSensitiveInfo: false,
+      });
+
+      render(
+        <AssetCardRepairs
+          repairs={[
+            buildRepair({
+              estimated_repair_cost: 200,
+              actual_repair_cost: 250,
+              trail_segment_start: '49.232423,-128.334343',
+            }),
+          ]}
+          repairCodes={repairCodes}
+          isTrailAsset
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+      expect(screen.queryByText('$200')).not.toBeInTheDocument();
+      expect(screen.queryByText('$250')).not.toBeInTheDocument();
+      expect(screen.getByText('Start station:')).toBeInTheDocument();
+      expect(screen.getByText('49.232423,-128.334343')).toBeInTheDocument();
+    });
+  });
+
   describe('Add repair form and save/cancel flows', () => {
     it('opens the add form when "Add repair" button is clicked', async () => {
       const user = userEvent.setup();

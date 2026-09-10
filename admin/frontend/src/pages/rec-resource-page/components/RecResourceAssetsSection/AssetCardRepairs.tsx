@@ -24,6 +24,8 @@ interface AssetCardRepairsProps {
   repairs: AssetRepair[];
   repairCodes: RepairCode[];
   assetId?: number;
+  /** Trail repairs also show the repaired segment's start/end station */
+  isTrailAsset?: boolean;
   isEditing?: boolean;
   isAddRepairDisabled?: boolean;
   recResourceId?: string;
@@ -50,6 +52,7 @@ function getRepairTitle(
 function getRepairFields(
   repair: AssetRepair,
   canViewSensitiveInfo: boolean,
+  isTrailAsset: boolean,
 ): RepairField[] {
   const fields: RepairField[] = [];
 
@@ -76,6 +79,15 @@ function getRepairFields(
     label: 'Completed date',
     value: formatDateReadable(repair.repair_completed_date),
   });
+
+  // Stations locate the repaired segment rather than exposing cost, so they
+  // are shown to every user who can see the card.
+  if (isTrailAsset) {
+    fields.push(
+      { label: 'Start station', value: repair.trail_segment_start },
+      { label: 'End station', value: repair.trail_segment_end },
+    );
+  }
 
   return fields.filter((field) => !!field.value);
 }
@@ -232,6 +244,7 @@ export function AssetCardRepairs({
   repairCodes,
   assetId,
   recResourceId,
+  isTrailAsset = false,
   isEditing = false,
   isAddRepairDisabled = false,
 }: AssetCardRepairsProps) {
@@ -314,6 +327,7 @@ export function AssetCardRepairs({
                     const fields = getRepairFields(
                       repair,
                       canViewSensitiveInfo,
+                      isTrailAsset,
                     );
                     return (
                       <div

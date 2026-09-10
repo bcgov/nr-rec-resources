@@ -5,6 +5,7 @@ import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal/DeleteConfirmationModal';
 import { AssetCardRepairsEdit } from './AssetCardRepairsEdit';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
+import { isTrailAssetCode } from './trailStations';
 import type { Asset, AssetCode, RepairCode } from './types';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
 import './AssetCard.scss';
@@ -68,6 +69,7 @@ export function AssetCardEdit({
   const areaEnabled = selectedAssetCode?.has_area ?? false;
   const repairs = asset.recreation_asset_repair ?? [];
   const assetName = asset.asset_name?.trim() || 'this asset';
+  const isTrailAsset = isTrailAssetCode(asset.asset_code, assetCodes);
   const hasLinkedAssets = isCampsite && linkedAssetCount > 0;
 
   const {
@@ -289,6 +291,7 @@ export function AssetCardEdit({
               repairs={repairs}
               repairCodes={repairCodes}
               recResourceId={recResourceId}
+              isTrailAsset={isTrailAsset}
               onRepairChange={onRepairChange}
             />
           </div>
