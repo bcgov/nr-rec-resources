@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "sync-advisories": "tsx src/advisories/sync-advisories.ts",
-    "export-closed-resources": "tsx src/closures/export-closed-resources.ts"
+    "export-closed-resources": "tsx src/closures/export-closed-resources.ts",
+    "migrate-fta-assets": "tsx src/assets/sync-assets.ts",
+    "sync-assets": "tsx src/assets/sync-assets.ts",
+    "sync-assets-clean": "tsx src/assets/sync-assets.ts --clean",
+    "sync-repairs": "tsx src/assets/sync-repairs.ts"
   },
   "dependencies": {
     "@aws-sdk/client-guardduty": "^3.992.0",
