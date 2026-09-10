@@ -16,6 +16,8 @@ describe('PartnerService', () => {
     recreation_resource: { findUnique: ReturnType<typeof vi.fn> };
     recreation_agreement_holder: {
       findUnique: ReturnType<typeof vi.fn>;
+      findFirst: ReturnType<typeof vi.fn>;
+      findMany: ReturnType<typeof vi.fn>;
       create: ReturnType<typeof vi.fn>;
       update: ReturnType<typeof vi.fn>;
     };
@@ -27,6 +29,8 @@ describe('PartnerService', () => {
       recreation_resource: { findUnique: vi.fn() },
       recreation_agreement_holder: {
         findUnique: vi.fn(),
+        findFirst: vi.fn().mockResolvedValue(null),
+        findMany: vi.fn().mockResolvedValue([]),
         create: vi.fn(),
         update: vi.fn(),
       },
@@ -44,31 +48,59 @@ describe('PartnerService', () => {
   });
 
   describe('findClientsByRecResourceId', () => {
-    it('returns partner details for the agreement holder client number', async () => {
+    it('returns partner details for multiple agreement holder rows', async () => {
       prisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: 'REC0002',
       });
-      prisma.recreation_agreement_holder.findUnique.mockResolvedValue({
-        client_number: '00000002',
-        agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
-        agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
-      });
-      fetchMock.mockResolvedValue({
-        ok: true,
-        status: 200,
-        text: vi.fn().mockResolvedValue(
-          JSON.stringify({
-            clientNumber: '00000002',
-            clientName: 'BAXTER',
-            legalFirstName: 'JAMES',
-            legalMiddleName: 'Canter',
-            clientStatusCode: 'ACT',
-            clientTypeCode: 'I',
-            acronym: 'JAMES BAXTER',
-          }),
-        ),
-        headers: { get: vi.fn().mockReturnValue(null) },
-      });
+      prisma.recreation_agreement_holder.findMany.mockResolvedValue([
+        {
+          client_number: '00000002',
+          agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
+          agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+        {
+          client_number: '00000003',
+          agreement_start_date: new Date('2025-01-01T00:00:00.000Z'),
+          agreement_end_date: null,
+          visible_on_public_website: true,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+      ]);
+      fetchMock
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify({
+              clientNumber: '00000002',
+              clientName: 'BAXTER',
+              legalFirstName: 'JAMES',
+              legalMiddleName: 'Canter',
+              clientStatusCode: 'ACT',
+              clientTypeCode: 'I',
+              acronym: 'JAMES BAXTER',
+            }),
+          ),
+          headers: { get: vi.fn().mockReturnValue(null) },
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify({
+              clientNumber: '00000003',
+              clientName: 'SMITH',
+              legalFirstName: 'JANE',
+              legalMiddleName: 'ALICE',
+              clientStatusCode: 'ACT',
+              clientTypeCode: 'I',
+              acronym: 'JANE SMITH',
+            }),
+          ),
+          headers: { get: vi.fn().mockReturnValue(null) },
+        });
 
       const result = await service.findClientsByRecResourceId('REC0002');
 
@@ -76,18 +108,30 @@ describe('PartnerService', () => {
         where: { rec_resource_id: 'REC0002' },
         select: { rec_resource_id: true },
       });
-      expect(
-        prisma.recreation_agreement_holder.findUnique,
-      ).toHaveBeenCalledWith({
+      expect(prisma.recreation_agreement_holder.findMany).toHaveBeenCalledWith({
         where: { rec_resource_id: 'REC0002' },
+        orderBy: { agreement_holder_id: 'asc' },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
+          visible_on_public_website: true,
+          partner_relationship_type_code: true,
         },
       });
-      expect(fetchMock).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        1,
         'https://forest-client-api.example.com/api/clients/findByClientNumber/00000002',
+        {
+          headers: {
+            'X-API-KEY': 'test-api-key',
+            Accept: 'application/json',
+          },
+        },
+      );
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        2,
+        'https://forest-client-api.example.com/api/clients/findByClientNumber/00000003',
         {
           headers: {
             'X-API-KEY': 'test-api-key',
@@ -108,6 +152,23 @@ describe('PartnerService', () => {
           acronym: 'JAMES BAXTER',
           agreementStartDate: '2024-01-01',
           agreementEndDate: '2026-12-31',
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+        {
+          clientNumber: '00000003',
+          clientName: 'SMITH',
+          legalFirstName: 'JANE',
+          legalMiddleName: 'ALICE',
+          clientStatusCode: 'ACT',
+          clientStatusDescription: 'Active',
+          clientTypeCode: 'I',
+          clientTypeDescription: 'Individual',
+          acronym: 'JANE SMITH',
+          agreementStartDate: '2025-01-01',
+          agreementEndDate: undefined,
+          visible_on_public_website: true,
+          partner_relationship_type_code: 'SITE_OPERATOR',
         },
       ]);
     });
@@ -116,11 +177,15 @@ describe('PartnerService', () => {
       prisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: 'REC0002',
       });
-      prisma.recreation_agreement_holder.findUnique.mockResolvedValue({
-        client_number: null,
-        agreement_start_date: null,
-        agreement_end_date: null,
-      });
+      prisma.recreation_agreement_holder.findMany.mockResolvedValue([
+        {
+          client_number: null,
+          agreement_start_date: null,
+          agreement_end_date: null,
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+      ]);
 
       const result = await service.findClientsByRecResourceId('REC0002');
 
@@ -136,7 +201,7 @@ describe('PartnerService', () => {
       ).rejects.toThrow(NotFoundException);
 
       expect(
-        prisma.recreation_agreement_holder.findUnique,
+        prisma.recreation_agreement_holder.findMany,
       ).not.toHaveBeenCalled();
       expect(fetchMock).not.toHaveBeenCalled();
     });
@@ -286,6 +351,9 @@ describe('PartnerService', () => {
           },
         },
       );
+      expect(
+        prisma.recreation_agreement_holder.findFirst,
+      ).not.toHaveBeenCalled();
       expect(result).toEqual([
         {
           clientNumber: '00000002',
@@ -367,11 +435,13 @@ describe('PartnerService', () => {
       prisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: 'REC0002',
       });
-      prisma.recreation_agreement_holder.findUnique.mockResolvedValue(null);
+      prisma.recreation_agreement_holder.findFirst.mockResolvedValue(null);
       prisma.recreation_agreement_holder.create.mockResolvedValue({
         client_number: '00000002',
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
+        visible_on_public_website: false,
+        partner_relationship_type_code: 'SITE_OPERATOR',
       });
       fetchMock.mockResolvedValue({
         ok: true,
@@ -395,11 +465,15 @@ describe('PartnerService', () => {
           client_number: '00000002',
           agreement_start_date: new Date('2024-01-01'),
           agreement_end_date: new Date('2026-12-31'),
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
+          visible_on_public_website: true,
+          partner_relationship_type_code: true,
         },
       });
       expect(result).toEqual({
@@ -411,6 +485,61 @@ describe('PartnerService', () => {
         clientTypeDescription: 'Individual',
         agreementStartDate: '2024-01-01',
         agreementEndDate: '2026-12-31',
+        visible_on_public_website: false,
+        partner_relationship_type_code: 'SITE_OPERATOR',
+      });
+    });
+
+    it('uses provided visibility and relationship type values from the payload', async () => {
+      const createDto: CreateAgreementHolderDto = {
+        clientNumber: '00000002',
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
+      };
+
+      prisma.recreation_resource.findUnique.mockResolvedValue({
+        rec_resource_id: 'REC0002',
+      });
+      prisma.recreation_agreement_holder.findFirst.mockResolvedValue(null);
+      prisma.recreation_agreement_holder.create.mockResolvedValue({
+        client_number: '00000002',
+        agreement_start_date: null,
+        agreement_end_date: null,
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
+      });
+      fetchMock.mockResolvedValue({
+        ok: true,
+        status: 200,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            clientNumber: '00000002',
+            clientName: 'BAXTER',
+            clientStatusCode: 'ACT',
+            clientTypeCode: 'I',
+          }),
+        ),
+        headers: { get: vi.fn().mockReturnValue(null) },
+      });
+
+      await service.createAgreementHolder('REC0002', createDto);
+
+      expect(prisma.recreation_agreement_holder.create).toHaveBeenCalledWith({
+        data: {
+          rec_resource_id: 'REC0002',
+          client_number: '00000002',
+          agreement_start_date: null,
+          agreement_end_date: null,
+          visible_on_public_website: true,
+          partner_relationship_type_code: 'DISTRICT_MANAGER',
+        },
+        select: {
+          client_number: true,
+          agreement_start_date: true,
+          agreement_end_date: true,
+          visible_on_public_website: true,
+          partner_relationship_type_code: true,
+        },
       });
     });
 
@@ -422,7 +551,7 @@ describe('PartnerService', () => {
       prisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: 'REC0002',
       });
-      prisma.recreation_agreement_holder.findUnique.mockResolvedValue({
+      prisma.recreation_agreement_holder.findFirst.mockResolvedValue({
         client_number: '00000002',
         agreement_start_date: null,
         agreement_end_date: null,
@@ -443,7 +572,7 @@ describe('PartnerService', () => {
       prisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: 'REC0002',
       });
-      prisma.recreation_agreement_holder.findUnique.mockResolvedValue({
+      prisma.recreation_agreement_holder.findFirst.mockResolvedValue({
         client_number: '00000002',
         agreement_start_date: null,
         agreement_end_date: null,
@@ -468,7 +597,7 @@ describe('PartnerService', () => {
       ).rejects.toThrow(NotFoundException);
 
       expect(
-        prisma.recreation_agreement_holder.findUnique,
+        prisma.recreation_agreement_holder.findFirst,
       ).not.toHaveBeenCalled();
     });
   });
@@ -478,17 +607,25 @@ describe('PartnerService', () => {
       const updateDto: UpdateAgreementHolderDto = {
         agreementStartDate: '2024-02-01',
         agreementEndDate: '2026-11-30',
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
       };
 
-      prisma.recreation_agreement_holder.findUnique.mockResolvedValue({
+      prisma.recreation_agreement_holder.findFirst.mockResolvedValue({
         client_number: '00000002',
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
+        visible_on_public_website: false,
+        partner_relationship_type_code: 'SITE_OPERATOR',
+        agreement_holder_id: 1,
       });
       prisma.recreation_agreement_holder.update.mockResolvedValue({
         client_number: '00000002',
         agreement_start_date: new Date('2024-02-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-11-30T00:00:00.000Z'),
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        agreement_holder_id: 1,
       });
       fetchMock.mockResolvedValue({
         ok: true,
@@ -507,15 +644,19 @@ describe('PartnerService', () => {
       const result = await service.updateAgreementHolder('REC0002', updateDto);
 
       expect(prisma.recreation_agreement_holder.update).toHaveBeenCalledWith({
-        where: { rec_resource_id: 'REC0002' },
+        where: { agreement_holder_id: 1 },
         data: {
           agreement_start_date: new Date('2024-02-01'),
           agreement_end_date: new Date('2026-11-30'),
+          visible_on_public_website: true,
+          partner_relationship_type_code: 'DISTRICT_MANAGER',
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
+          visible_on_public_website: true,
+          partner_relationship_type_code: true,
         },
       });
       expect(result).toEqual({
@@ -527,10 +668,80 @@ describe('PartnerService', () => {
         clientTypeDescription: 'Individual',
         agreementStartDate: '2024-02-01',
         agreementEndDate: '2026-11-30',
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
       });
     });
 
-    it('throws BadRequestException when no dates are provided', async () => {
+    it('updates only agreement-holder metadata when dates are omitted', async () => {
+      const updateDto: UpdateAgreementHolderDto = {
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
+      };
+
+      prisma.recreation_agreement_holder.findFirst.mockResolvedValue({
+        client_number: '00000002',
+        agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
+        agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
+        visible_on_public_website: false,
+        partner_relationship_type_code: 'SITE_OPERATOR',
+        agreement_holder_id: 1,
+      });
+      prisma.recreation_agreement_holder.update.mockResolvedValue({
+        client_number: '00000002',
+        agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
+        agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        agreement_holder_id: 1,
+      });
+      fetchMock.mockResolvedValue({
+        ok: true,
+        status: 200,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            clientNumber: '00000002',
+            clientName: 'BAXTER',
+            clientStatusCode: 'ACT',
+            clientTypeCode: 'I',
+          }),
+        ),
+        headers: { get: vi.fn().mockReturnValue(null) },
+      });
+
+      const result = await service.updateAgreementHolder('REC0002', updateDto);
+
+      expect(prisma.recreation_agreement_holder.update).toHaveBeenCalledWith({
+        where: { agreement_holder_id: 1 },
+        data: {
+          agreement_start_date: undefined,
+          agreement_end_date: undefined,
+          visible_on_public_website: true,
+          partner_relationship_type_code: 'DISTRICT_MANAGER',
+        },
+        select: {
+          client_number: true,
+          agreement_start_date: true,
+          agreement_end_date: true,
+          visible_on_public_website: true,
+          partner_relationship_type_code: true,
+        },
+      });
+      expect(result).toEqual({
+        clientNumber: '00000002',
+        clientName: 'BAXTER',
+        clientStatusCode: 'ACT',
+        clientStatusDescription: 'Active',
+        clientTypeCode: 'I',
+        clientTypeDescription: 'Individual',
+        agreementStartDate: '2024-01-01',
+        agreementEndDate: '2026-12-31',
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
+      });
+    });
+
+    it('throws BadRequestException when no updatable fields are provided', async () => {
       await expect(
         service.updateAgreementHolder('REC0002', {}),
       ).rejects.toThrow(BadRequestException);
@@ -543,7 +754,7 @@ describe('PartnerService', () => {
         agreementStartDate: '2024-02-01',
       };
 
-      prisma.recreation_agreement_holder.findUnique.mockResolvedValue(null);
+      prisma.recreation_agreement_holder.findFirst.mockResolvedValue(null);
 
       await expect(
         service.updateAgreementHolder('REC0002', updateDto),
@@ -557,15 +768,17 @@ describe('PartnerService', () => {
         agreementEndDate: '2026-11-30',
       };
 
-      prisma.recreation_agreement_holder.findUnique.mockResolvedValue({
+      prisma.recreation_agreement_holder.findFirst.mockResolvedValue({
         client_number: null,
         agreement_start_date: null,
         agreement_end_date: null,
+        agreement_holder_id: 1,
       });
       prisma.recreation_agreement_holder.update.mockResolvedValue({
         client_number: null,
         agreement_start_date: null,
         agreement_end_date: new Date('2026-11-30T00:00:00.000Z'),
+        agreement_holder_id: 1,
       });
 
       const result = await service.updateAgreementHolder('REC0002', updateDto);

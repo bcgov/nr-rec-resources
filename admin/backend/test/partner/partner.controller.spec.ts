@@ -52,6 +52,22 @@ describe('PartnerController', () => {
           acronym: 'JAMES BAXTER',
           agreementStartDate: '2024-01-01',
           agreementEndDate: '2026-12-31',
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+        {
+          clientNumber: '00000003',
+          clientName: 'SMITH',
+          legalFirstName: 'JANE',
+          legalMiddleName: 'ALICE',
+          clientStatusCode: 'ACT',
+          clientStatusDescription: 'Active',
+          clientTypeCode: 'I',
+          clientTypeDescription: 'Individual',
+          acronym: 'JANE SMITH',
+          agreementStartDate: '2025-01-01',
+          visible_on_public_website: true,
+          partner_relationship_type_code: 'SITE_OPERATOR',
         },
       ];
 
@@ -186,6 +202,8 @@ describe('PartnerController', () => {
         clientNumber: '00000002',
         agreementStartDate: '2024-01-01',
         agreementEndDate: '2026-12-31',
+        visible_on_public_website: false,
+        partner_relationship_type_code: 'SITE_OPERATOR',
       };
       const expected: AgreementHolderClientPublicViewDto = {
         clientNumber: '00000002',
@@ -196,6 +214,8 @@ describe('PartnerController', () => {
         clientTypeDescription: 'Individual',
         agreementStartDate: '2024-01-01',
         agreementEndDate: '2026-12-31',
+        visible_on_public_website: false,
+        partner_relationship_type_code: 'SITE_OPERATOR',
       };
 
       vi.spyOn(service, 'createAgreementHolder').mockResolvedValue(expected);
@@ -218,6 +238,8 @@ describe('PartnerController', () => {
       const updateDto: UpdateAgreementHolderDto = {
         agreementStartDate: '2024-02-01',
         agreementEndDate: '2026-11-30',
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
       };
       const expected: AgreementHolderClientPublicViewDto = {
         clientNumber: '00000002',
@@ -228,6 +250,8 @@ describe('PartnerController', () => {
         clientTypeDescription: 'Individual',
         agreementStartDate: '2024-02-01',
         agreementEndDate: '2026-11-30',
+        visible_on_public_website: true,
+        partner_relationship_type_code: 'DISTRICT_MANAGER',
       };
 
       vi.spyOn(service, 'updateAgreementHolder').mockResolvedValue(expected);

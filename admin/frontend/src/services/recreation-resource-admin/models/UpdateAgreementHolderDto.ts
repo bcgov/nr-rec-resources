@@ -31,6 +31,18 @@ export interface UpdateAgreementHolderDto {
    * @memberof UpdateAgreementHolderDto
    */
   agreementEndDate?: string;
+  /**
+   * Whether the agreement holder is visible on the public website
+   * @type {boolean}
+   * @memberof UpdateAgreementHolderDto
+   */
+  visible_on_public_website?: boolean;
+  /**
+   * Relationship type code for the agreement holder
+   * @type {string}
+   * @memberof UpdateAgreementHolderDto
+   */
+  partner_relationship_type_code?: string;
 }
 
 /**
@@ -62,6 +74,14 @@ export function UpdateAgreementHolderDtoFromJSONTyped(
         : json['agreementStartDate'],
     agreementEndDate:
       json['agreementEndDate'] == null ? undefined : json['agreementEndDate'],
+    visible_on_public_website:
+      json['visible_on_public_website'] == null
+        ? undefined
+        : json['visible_on_public_website'],
+    partner_relationship_type_code:
+      json['partner_relationship_type_code'] == null
+        ? undefined
+        : json['partner_relationship_type_code'],
   };
 }
 
@@ -82,5 +102,7 @@ export function UpdateAgreementHolderDtoToJSONTyped(
   return {
     agreementStartDate: value['agreementStartDate'],
     agreementEndDate: value['agreementEndDate'],
+    visible_on_public_website: value['visible_on_public_website'],
+    partner_relationship_type_code: value['partner_relationship_type_code'],
   };
 }

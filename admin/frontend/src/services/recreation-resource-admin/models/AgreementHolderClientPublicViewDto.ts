@@ -85,6 +85,18 @@ export interface AgreementHolderClientPublicViewDto {
    * @memberof AgreementHolderClientPublicViewDto
    */
   agreementEndDate?: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof AgreementHolderClientPublicViewDto
+   */
+  visible_on_public_website?: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof AgreementHolderClientPublicViewDto
+   */
+  partner_relationship_type_code?: string;
 }
 
 /**
@@ -136,6 +148,14 @@ export function AgreementHolderClientPublicViewDtoFromJSONTyped(
         : json['agreementStartDate'],
     agreementEndDate:
       json['agreementEndDate'] == null ? undefined : json['agreementEndDate'],
+    visible_on_public_website:
+      json['visible_on_public_website'] == null
+        ? undefined
+        : json['visible_on_public_website'],
+    partner_relationship_type_code:
+      json['partner_relationship_type_code'] == null
+        ? undefined
+        : json['partner_relationship_type_code'],
   };
 }
 
@@ -165,5 +185,7 @@ export function AgreementHolderClientPublicViewDtoToJSONTyped(
     acronym: value['acronym'],
     agreementStartDate: value['agreementStartDate'],
     agreementEndDate: value['agreementEndDate'],
+    visible_on_public_website: value['visible_on_public_website'],
+    partner_relationship_type_code: value['partner_relationship_type_code'],
   };
 }

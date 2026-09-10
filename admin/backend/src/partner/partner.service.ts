@@ -29,6 +29,8 @@ type AgreementHolderRecord = {
   client_number?: string | null;
   agreement_start_date?: Date | null;
   agreement_end_date?: Date | null;
+  visible_on_public_website?: boolean;
+  partner_relationship_type_code?: string;
 };
 
 const CLIENT_STATUS_DESCRIPTIONS: Record<string, string> = {
@@ -75,39 +77,54 @@ export class PartnerService {
       );
     }
 
-    const agreementHolder =
-      await this.prisma.recreation_agreement_holder.findUnique({
+    const agreementHolders =
+      await this.prisma.recreation_agreement_holder.findMany({
         where: { rec_resource_id },
+        orderBy: { agreement_holder_id: 'asc' },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
+          visible_on_public_website: true,
+          partner_relationship_type_code: true,
         },
       });
 
-    const clientIds = this.normalizeIds(
-      agreementHolder?.client_number ?? undefined,
+    const partnerRows = await Promise.all(
+      agreementHolders.map(async (agreementHolder) => {
+        const clientIds = this.normalizeIds(
+          agreementHolder.client_number ?? undefined,
+        );
+
+        if (clientIds.length === 0) {
+          return [];
+        }
+
+        const clients = await Promise.all(
+          clientIds.map((clientId) =>
+            this.tryFetchClientByClientNumber(clientId),
+          ),
+        );
+
+        return clients
+          .filter((client): client is ClientPublicViewDto => client !== null)
+          .map((client) => ({
+            ...client,
+            agreementStartDate: this.formatDate(
+              agreementHolder.agreement_start_date ?? undefined,
+            ),
+            agreementEndDate: this.formatDate(
+              agreementHolder.agreement_end_date ?? undefined,
+            ),
+            visible_on_public_website:
+              agreementHolder.visible_on_public_website ?? undefined,
+            partner_relationship_type_code:
+              agreementHolder.partner_relationship_type_code ?? undefined,
+          }));
+      }),
     );
 
-    if (clientIds.length === 0) {
-      return [];
-    }
-
-    const clients = await Promise.all(
-      clientIds.map((clientId) => this.tryFetchClientByClientNumber(clientId)),
-    );
-
-    return clients
-      .filter((client): client is ClientPublicViewDto => client !== null)
-      .map((client) => ({
-        ...client,
-        agreementStartDate: this.formatDate(
-          agreementHolder?.agreement_start_date ?? undefined,
-        ),
-        agreementEndDate: this.formatDate(
-          agreementHolder?.agreement_end_date ?? undefined,
-        ),
-      }));
+    return partnerRows.flat();
   }
 
   async searchByAcronymNameNumber(
@@ -145,12 +162,15 @@ export class PartnerService {
   ): Promise<AgreementHolderClientPublicViewDto> {
     await this.ensureResourceExists(rec_resource_id);
 
-    const existing = await this.prisma.recreation_agreement_holder.findUnique({
+    const existing = await this.prisma.recreation_agreement_holder.findFirst({
       where: { rec_resource_id },
       select: {
+        agreement_holder_id: true,
         client_number: true,
         agreement_start_date: true,
         agreement_end_date: true,
+        visible_on_public_website: true,
+        partner_relationship_type_code: true,
       },
     });
 
@@ -178,11 +198,16 @@ export class PartnerService {
         agreement_end_date: createDto.agreementEndDate
           ? new Date(createDto.agreementEndDate)
           : null,
+        visible_on_public_website: createDto.visible_on_public_website ?? false,
+        partner_relationship_type_code:
+          createDto.partner_relationship_type_code ?? 'SITE_OPERATOR',
       },
       select: {
         client_number: true,
         agreement_start_date: true,
         agreement_end_date: true,
+        visible_on_public_website: true,
+        partner_relationship_type_code: true,
       },
     });
 
@@ -195,19 +220,24 @@ export class PartnerService {
   ): Promise<AgreementHolderClientPublicViewDto> {
     if (
       updateDto.agreementStartDate === undefined &&
-      updateDto.agreementEndDate === undefined
+      updateDto.agreementEndDate === undefined &&
+      updateDto.visible_on_public_website === undefined &&
+      updateDto.partner_relationship_type_code === undefined
     ) {
       throw new BadRequestException(
-        'At least one of agreementStartDate or agreementEndDate is required.',
+        'At least one updatable agreement-holder field is required.',
       );
     }
 
-    const existing = await this.prisma.recreation_agreement_holder.findUnique({
+    const existing = await this.prisma.recreation_agreement_holder.findFirst({
       where: { rec_resource_id },
       select: {
+        agreement_holder_id: true,
         client_number: true,
         agreement_start_date: true,
         agreement_end_date: true,
+        visible_on_public_website: true,
+        partner_relationship_type_code: true,
       },
     });
 
@@ -218,7 +248,7 @@ export class PartnerService {
     }
 
     const updated = await this.prisma.recreation_agreement_holder.update({
-      where: { rec_resource_id },
+      where: { agreement_holder_id: existing.agreement_holder_id },
       data: {
         agreement_start_date:
           updateDto.agreementStartDate !== undefined
@@ -228,11 +258,16 @@ export class PartnerService {
           updateDto.agreementEndDate !== undefined
             ? new Date(updateDto.agreementEndDate)
             : undefined,
+        visible_on_public_website: updateDto.visible_on_public_website,
+        partner_relationship_type_code:
+          updateDto.partner_relationship_type_code,
       },
       select: {
         client_number: true,
         agreement_start_date: true,
         agreement_end_date: true,
+        visible_on_public_website: true,
+        partner_relationship_type_code: true,
       },
     });
 
@@ -251,8 +286,8 @@ export class PartnerService {
       this.fetchAllClientLocations(clientNumber),
     ]);
 
-    return locations.map(
-      (location): ClientLocationDto => ({
+    return locations.map((location): ClientLocationDto => {
+      return {
         ...location,
         clientNumber: this.getClientNumber(
           clientResult,
@@ -271,8 +306,8 @@ export class PartnerService {
           clientResult.clientTypeCode,
         ),
         acronym: clientResult.acronym,
-      }),
-    );
+      };
+    });
   }
 
   private get baseUrl(): string {
@@ -369,6 +404,10 @@ export class PartnerService {
       agreementEndDate: this.formatDate(
         agreementHolder.agreement_end_date ?? undefined,
       ),
+      visible_on_public_website:
+        agreementHolder.visible_on_public_website ?? undefined,
+      partner_relationship_type_code:
+        agreementHolder.partner_relationship_type_code ?? undefined,
     };
   }
 

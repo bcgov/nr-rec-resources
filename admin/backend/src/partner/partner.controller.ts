@@ -17,6 +17,7 @@ import {
   ApiBearerAuth,
   ApiBadRequestResponse,
   ApiBody,
+  ApiExtraModels,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -24,6 +25,7 @@ import {
   ApiQuery,
   ApiResponse,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import {
@@ -44,6 +46,7 @@ import { UpdateAgreementHolderDto } from './dtos/update-agreement-holder.dto';
 @ApiTags('partners')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
+@ApiExtraModels(ClientLocationDto, AgreementHolderClientPublicViewDto)
 @AuthRoles(
   [
     RecreationResourceAuthRole.RST_ADMIN,
@@ -144,7 +147,26 @@ export class PartnerController {
   })
   @ApiOkResponse({
     description: 'Successfully retrieved partners for the recreation resource',
-    type: [AgreementHolderClientPublicViewDto],
+    schema: {
+      type: 'array',
+      items: {
+        $ref: getSchemaPath(AgreementHolderClientPublicViewDto),
+      },
+      example: [
+        {
+          clientNumber: '00167392',
+          clientName: 'TTQ ECONOMIC DEVELOPMENT CORPORATION',
+          clientStatusCode: 'ACT',
+          clientStatusDescription: 'Active',
+          clientTypeCode: 'C',
+          clientTypeDescription: 'Corporation',
+          agreementStartDate: '2024-01-01',
+          agreementEndDate: '2026-12-31',
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+      ],
+    },
   })
   @ApiNotFoundResponse({
     description: 'Recreation resource not found',
@@ -258,7 +280,33 @@ export class PartnerController {
   })
   @ApiOkResponse({
     description: 'Returns a list of partner locations',
-    type: [ClientLocationDto],
+    schema: {
+      type: 'array',
+      items: {
+        $ref: getSchemaPath(ClientLocationDto),
+      },
+      example: [
+        {
+          clientNumber: '00167392',
+          locationCode: '00',
+          locationName: 'Mailing address',
+          companyCode: ' ',
+          address1: 'PO BOX 606',
+          city: 'MOUNT CURRIE',
+          province: 'BC',
+          postalCode: 'V0N2K0',
+          country: 'CANADA',
+          businessPhone: '6048940020',
+          expired: 'N',
+          trusted: 'N',
+          clientName: 'TTQ ECONOMIC DEVELOPMENT CORPORATION',
+          clientStatusCode: 'ACT',
+          clientStatusDescription: 'Active',
+          clientTypeCode: 'C',
+          clientTypeDescription: 'Corporation',
+        },
+      ],
+    },
   })
   @ApiNotFoundResponse({
     description: 'Partner not found',
