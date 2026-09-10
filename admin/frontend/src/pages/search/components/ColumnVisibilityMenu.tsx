@@ -5,6 +5,7 @@ import { ADMIN_SEARCH_COLUMN_IDS } from '@/pages/search/constants';
 import {
   ADMIN_SEARCH_COLUMN_LABELS,
   FEATURE_FLAGGED_COLUMN_IDS,
+  SUPER_ADMIN_ONLY_COLUMN_IDS,
   type AdminSearchColumnId,
 } from '@/pages/search/searchDefinitions';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
@@ -18,11 +19,12 @@ export function ColumnVisibilityMenu({
   visibleColumns,
   onToggle,
 }: Readonly<ColumnVisibilityMenuProps>) {
-  const { canViewFeatureFlag } = useAuthorizations();
+  const { canViewFeatureFlag, isSuperAdmin } = useAuthorizations();
   const selectableColumnIds = ADMIN_SEARCH_COLUMN_IDS.filter(
     (columnId) =>
       columnId !== 'rec_resource_id' &&
-      (!FEATURE_FLAGGED_COLUMN_IDS.has(columnId) || canViewFeatureFlag),
+      (!FEATURE_FLAGGED_COLUMN_IDS.has(columnId) || canViewFeatureFlag) &&
+      (!SUPER_ADMIN_ONLY_COLUMN_IDS.has(columnId) || isSuperAdmin),
   );
 
   return (

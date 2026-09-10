@@ -4,6 +4,7 @@ import {
   FileStatusBadge,
   PublicAccessStatusBadge,
 } from '@/components';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { COLOR_BLUE, COLOR_BLUE_LIGHT } from '@/styles/colors';
 import { FC } from 'react';
@@ -18,6 +19,8 @@ interface ResourceHeaderSectionProps {
 export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
+  const { isSuperAdmin } = useAuthorizations();
+
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
       {/* section: name, rec id, status */}
@@ -38,7 +41,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
             bgColor={COLOR_BLUE_LIGHT}
             textColor={COLOR_BLUE}
           />
-          {recResource.recreation_status_description && (
+          {isSuperAdmin && recResource.recreation_status_description && (
             <AdminStatusBadge
               label={recResource.recreation_status_description!}
               statusCode={recResource.recreation_status_code ?? 1}
@@ -54,8 +57,11 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
             />
           )}
           {recResource.access_status_grouplabel &&
-            recResource.access_status_grouplabel !==
-              recResource.recreation_status_description && (
+            // Deduped against the admin status badge only when that badge is
+            // actually rendered; otherwise non-super-admins would see neither.
+            (!isSuperAdmin ||
+              recResource.access_status_grouplabel !==
+                recResource.recreation_status_description) && (
               <PublicAccessStatusBadge
                 label={recResource.access_status_grouplabel}
               />
