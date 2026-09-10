@@ -3,6 +3,7 @@ apis/AppApi.ts
 apis/AssetsApi.ts
 apis/BcgwApi.ts
 apis/HealthApi.ts
+apis/PartnersApi.ts
 apis/RecreationResourcesApi.ts
 apis/index.ts
 index.ts
@@ -13,6 +14,7 @@ models/ActAdvisoryUpdateDto.ts
 models/ActAdvisoryUpsertDto.ts
 models/AdminSearchResponseDto.ts
 models/AdminSearchResultRowDto.ts
+models/AgreementHolderClientPublicViewDto.ts
 models/BadRequestResponseDto.ts
 models/BcgwClosuresShortDto.ts
 models/BcgwClosuresShortFeatureCollectionDto.ts
@@ -29,7 +31,10 @@ models/BcgwRecreationPolygonsFeatureDto.ts
 models/BcgwRecreationResourceDto.ts
 models/BulkAssetUpdateResponseDto.ts
 models/BulkCreateRecreationAssetsDto.ts
+models/ClientLocationDto.ts
+models/ClientPublicViewDto.ts
 models/ConsentFormDownloadResponseDto.ts
+models/CreateAgreementHolderDto.ts
 models/CreateRecreationAssetDto.ts
 models/CreateRecreationAssetRepairDto.ts
 models/CreateRecreationFeeDto.ts
@@ -80,6 +85,7 @@ models/RepairChange.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts
 models/UpdateActivitiesDto.ts
+models/UpdateAgreementHolderDto.ts
 models/UpdateAssetFieldsDto.ts
 models/UpdateFeaturesDto.ts
 models/UpdateImageConsentPatchDto.ts
