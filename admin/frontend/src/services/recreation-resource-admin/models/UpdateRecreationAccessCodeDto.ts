@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface UpdateRecreationAccessCodeDto {
   /**
    * Access code (stored in recreation_access table)
-   * @type {string}
-   * @memberof UpdateRecreationAccessCodeDto
    */
   access_code: string;
   /**
    * Sub access codes related to this access code
-   * @type {Array<string>}
-   * @memberof UpdateRecreationAccessCodeDto
    */
   sub_access_codes?: Array<string>;
 }

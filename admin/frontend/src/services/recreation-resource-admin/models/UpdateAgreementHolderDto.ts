@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface UpdateAgreementHolderDto {
   /**
    * Agreement start date in YYYY-MM-DD format
-   * @type {string}
-   * @memberof UpdateAgreementHolderDto
    */
   agreementStartDate?: string;
   /**
    * Agreement end date in YYYY-MM-DD format
-   * @type {string}
-   * @memberof UpdateAgreementHolderDto
    */
   agreementEndDate?: string;
   /**

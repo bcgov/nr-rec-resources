@@ -21,50 +21,34 @@ import { mapValues } from '../runtime';
 export interface RecreationResourceDocDto {
   /**
    * Document ID
-   * @type {string}
-   * @memberof RecreationResourceDocDto
    */
   document_id: string;
   /**
    * File name
-   * @type {string}
-   * @memberof RecreationResourceDocDto
    */
   file_name: string;
   /**
    * rec_resource_id
-   * @type {string}
-   * @memberof RecreationResourceDocDto
    */
   rec_resource_id: string;
   /**
    * doc link
-   * @type {string}
-   * @memberof RecreationResourceDocDto
    */
   url: string;
   /**
    * Document code that indicates the type of document
-   * @type {string}
-   * @memberof RecreationResourceDocDto
    */
   doc_code?: RecreationResourceDocDtoDocCodeEnum;
   /**
    * Description of the document code
-   * @type {string}
-   * @memberof RecreationResourceDocDto
    */
   doc_code_description: string;
   /**
    * File extension
-   * @type {string}
-   * @memberof RecreationResourceDocDto
    */
   extension: string;
   /**
    * File upload date
-   * @type {string}
-   * @memberof RecreationResourceDocDto
    */
   created_at: string;
 }

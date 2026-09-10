@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface RecreationFeatureDto {
   /**
    * Code describing the Recreation Feature
-   * @type {string}
-   * @memberof RecreationFeatureDto
    */
   recreation_feature_code: string;
   /**
    * Description of the code value
-   * @type {string}
-   * @memberof RecreationFeatureDto
    */
   description: string;
 }

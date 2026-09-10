@@ -19,10 +19,9 @@ import * as runtime from '../runtime';
  */
 export class AppApi extends runtime.BaseAPI {
   /**
+   * Creates request options for appControllerGetHello without sending the request
    */
-  async appControllerGetHelloRaw(
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<void>> {
+  async appControllerGetHelloRequestOpts(): Promise<runtime.RequestOpts> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -38,15 +37,21 @@ export class AppApi extends runtime.BaseAPI {
 
     let urlPath = `/api`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   */
+  async appControllerGetHelloRaw(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<void>> {
+    const requestOptions = await this.appControllerGetHelloRequestOpts();
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.VoidApiResponse(response);
   }

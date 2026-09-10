@@ -21,26 +21,18 @@ import { mapValues } from '../runtime';
 export interface OptionDto {
   /**
    * Unique identifier for the option
-   * @type {string}
-   * @memberof OptionDto
    */
   id: string;
   /**
    * Human-readable label for the option
-   * @type {string}
-   * @memberof OptionDto
    */
   label: string;
   /**
    * Child options for hierarchical data (e.g., sub-access codes for access codes)
-   * @type {Array<OptionDto>}
-   * @memberof OptionDto
    */
   children?: Array<OptionDto>;
   /**
    * Indicates if the option is archived
-   * @type {boolean}
-   * @memberof OptionDto
    */
   is_archived?: boolean;
 }

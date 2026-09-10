@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface RecreationResourceDistrictDto {
   /**
    * Unique identifier for the recreation district
-   * @type {string}
-   * @memberof RecreationResourceDistrictDto
    */
   district_code: string;
   /**
    * Name of the recreation district
-   * @type {string}
-   * @memberof RecreationResourceDistrictDto
    */
   description: string;
 }

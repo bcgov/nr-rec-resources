@@ -21,32 +21,22 @@ import { mapValues } from '../runtime';
 export interface FinalizeDocUploadRequestDto {
   /**
    * Document ID (returned from presign endpoint)
-   * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
    */
   document_id: string;
   /**
    * Document file name
-   * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
    */
   file_name: string;
   /**
    * File extension without dot
-   * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
    */
   extension: string;
   /**
    * File size in bytes
-   * @type {number}
-   * @memberof FinalizeDocUploadRequestDto
    */
   file_size: number;
   /**
    * Document type code (e.g. RM for Recreation Map, EA for Exhibit A). Defaults to RM.
-   * @type {string}
-   * @memberof FinalizeDocUploadRequestDto
    */
   doc_code?: FinalizeDocUploadRequestDtoDocCodeEnum;
 }

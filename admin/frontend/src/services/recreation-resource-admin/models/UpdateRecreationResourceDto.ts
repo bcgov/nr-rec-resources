@@ -29,86 +29,58 @@ import {
 export interface UpdateRecreationResourceDto {
   /**
    * Maintenance standard code
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   maintenance_standard_code?: string;
   /**
    * Control access code (stored in recreation_control_access_code table)
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   control_access_code?: string | null;
   /**
    * Risk rating code
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   risk_rating_code?: string | null;
   /**
    * Project established date
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   project_established_date?: string | null;
   /**
    * List of access codes with their sub-access codes
-   * @type {Array<UpdateRecreationAccessCodeDto>}
-   * @memberof UpdateRecreationResourceDto
    */
   access_codes?: Array<UpdateRecreationAccessCodeDto>;
   /**
    * Status code (open or closed)
-   * @type {number}
-   * @memberof UpdateRecreationResourceDto
    */
   status_code?: number;
   /**
    * District code (recreation district)
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   district_code?: string | null;
   /**
    * Closest community to the recreation resource
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   closest_community?: string | null;
   /**
    * Indicates if the resource should be displayed on the public site
-   * @type {boolean}
-   * @memberof UpdateRecreationResourceDto
    */
   display_on_public_site?: boolean;
   /**
    * Site description (rich text)
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   site_description?: string | null;
   /**
    * Driving directions (rich text)
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   driving_directions?: string | null;
   /**
    * Name of the recreation resource
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   name?: string | null;
   /**
    * Date of the last recreation inspection for the resource
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   last_rec_inspection_date?: string | null;
   /**
    * Date of the last hazard tree assessment for the resource
-   * @type {string}
-   * @memberof UpdateRecreationResourceDto
    */
   last_hzrd_tree_assess_date?: string | null;
 }
@@ -141,15 +113,23 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
         ? undefined
         : json['maintenance_standard_code'],
     control_access_code:
-      json['control_access_code'] == null
+      json['control_access_code'] === undefined
         ? undefined
-        : json['control_access_code'],
+        : json['control_access_code'] === null
+          ? null
+          : json['control_access_code'],
     risk_rating_code:
-      json['risk_rating_code'] == null ? undefined : json['risk_rating_code'],
-    project_established_date:
-      json['project_established_date'] == null
+      json['risk_rating_code'] === undefined
         ? undefined
-        : json['project_established_date'],
+        : json['risk_rating_code'] === null
+          ? null
+          : json['risk_rating_code'],
+    project_established_date:
+      json['project_established_date'] === undefined
+        ? undefined
+        : json['project_established_date'] === null
+          ? null
+          : json['project_established_date'],
     access_codes:
       json['access_codes'] == null
         ? undefined
@@ -158,28 +138,51 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
           ),
     status_code: json['status_code'] == null ? undefined : json['status_code'],
     district_code:
-      json['district_code'] == null ? undefined : json['district_code'],
+      json['district_code'] === undefined
+        ? undefined
+        : json['district_code'] === null
+          ? null
+          : json['district_code'],
     closest_community:
-      json['closest_community'] == null ? undefined : json['closest_community'],
+      json['closest_community'] === undefined
+        ? undefined
+        : json['closest_community'] === null
+          ? null
+          : json['closest_community'],
     display_on_public_site:
       json['display_on_public_site'] == null
         ? undefined
         : json['display_on_public_site'],
     site_description:
-      json['site_description'] == null ? undefined : json['site_description'],
+      json['site_description'] === undefined
+        ? undefined
+        : json['site_description'] === null
+          ? null
+          : json['site_description'],
     driving_directions:
-      json['driving_directions'] == null
+      json['driving_directions'] === undefined
         ? undefined
-        : json['driving_directions'],
-    name: json['name'] == null ? undefined : json['name'],
+        : json['driving_directions'] === null
+          ? null
+          : json['driving_directions'],
+    name:
+      json['name'] === undefined
+        ? undefined
+        : json['name'] === null
+          ? null
+          : json['name'],
     last_rec_inspection_date:
-      json['last_rec_inspection_date'] == null
+      json['last_rec_inspection_date'] === undefined
         ? undefined
-        : json['last_rec_inspection_date'],
+        : json['last_rec_inspection_date'] === null
+          ? null
+          : json['last_rec_inspection_date'],
     last_hzrd_tree_assess_date:
-      json['last_hzrd_tree_assess_date'] == null
+      json['last_hzrd_tree_assess_date'] === undefined
         ? undefined
-        : json['last_hzrd_tree_assess_date'],
+        : json['last_hzrd_tree_assess_date'] === null
+          ? null
+          : json['last_hzrd_tree_assess_date'],
   };
 }
 
