@@ -14,7 +14,20 @@ export const useGetAssetCodes = (
   return useQuery<AssetCode[], ResponseError>({
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.assetCodes(),
     initialData: [],
-    queryFn: () => assetsApiClient.recreationAssetControllerFindAllAssetCodes(),
+    queryFn: async () => {
+      const codes =
+        await assetsApiClient.recreationAssetControllerFindAllAssetCodes();
+
+      return codes.map((code) => ({
+        asset_code: code.asset_code,
+        description: code.description,
+        has_length: code.has_length,
+        has_width: code.has_width,
+        has_area: code.has_area,
+        default_value:
+          code.default_value == null ? null : Number(code.default_value),
+      }));
+    },
     retry: createRetryHandler({
       onFail: () =>
         addErrorNotification(

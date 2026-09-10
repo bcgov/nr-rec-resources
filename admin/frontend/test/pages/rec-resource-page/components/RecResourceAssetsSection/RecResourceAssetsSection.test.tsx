@@ -298,6 +298,46 @@ describe('RecResourceAssetsSection', () => {
     ).toBeInTheDocument();
   });
 
+  it('falls back to type view when campsites disappear while campsite view is selected', async () => {
+    const user = userEvent.setup();
+    const campsite = buildAsset({
+      asset_id: 10,
+      asset_code: 227,
+      asset_name: 'Campsite A',
+    });
+    const nonCampsite = buildAsset({
+      asset_id: 20,
+      asset_code: 100,
+      asset_name: 'Other structure',
+      parent_id: null,
+    });
+
+    let mockAssets: Asset[] = [campsite, nonCampsite];
+    vi.mocked(useGetAssetsByRecResourceId).mockImplementation(
+      () =>
+        ({
+          data: mockAssets,
+          isLoading: false,
+          isError: false,
+        }) as any,
+    );
+
+    const { rerender } = render(<RecResourceAssetsSection />);
+
+    await user.click(screen.getByText('By campsite'));
+    expect(
+      screen.getByRole('button', { name: /Campsite A/ }),
+    ).toBeInTheDocument();
+
+    mockAssets = [nonCampsite];
+    rerender(<RecResourceAssetsSection />);
+
+    expect(screen.queryByText('By campsite')).not.toBeInTheDocument();
+    expect(screen.queryByText('By type')).not.toBeInTheDocument();
+    expect(screen.getByText('Bridge')).toBeInTheDocument();
+    expect(screen.getByText('Other structure')).toBeInTheDocument();
+  });
+
   it('opens and cancels the Add repair modal', async () => {
     const user = userEvent.setup();
     render(<RecResourceAssetsSection />);
