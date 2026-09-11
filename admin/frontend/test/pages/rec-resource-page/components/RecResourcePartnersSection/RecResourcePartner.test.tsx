@@ -28,7 +28,7 @@ describe('RecResourcePartner', () => {
     {
       clientNumber: '00123456',
       email: 'contact@acme.com',
-      businessPhone: '555-0199',
+      businessPhone: '5555550199',
       address1: '123 main st',
       city: 'vancouver',
       province: 'BC',
@@ -110,7 +110,7 @@ describe('RecResourcePartner', () => {
 
     // Verify contact details
     expect(screen.getByText('contact@acme.com')).toBeInTheDocument();
-    expect(screen.getByText('555-0199')).toBeInTheDocument();
+    expect(screen.getByText('555-555-0199')).toBeInTheDocument();
 
     // Verify formatted address and city capitalization
     expect(
