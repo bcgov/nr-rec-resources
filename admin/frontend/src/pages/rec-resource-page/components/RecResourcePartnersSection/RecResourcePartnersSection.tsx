@@ -3,12 +3,9 @@ import { useGetPartners } from '@/services/hooks/recreation-resource-admin/useGe
 import { RecResourcePartnersContent } from './RecResourcePartnersContent';
 
 export const RecResourcePartnersSection = () => {
-  const { partnersInfo: initialPartners } = Route.useLoaderData();
   const params = Route.useParams();
   const recResourceId = params?.id;
-  const { data: partners = [] } = useGetPartners(recResourceId, {
-    initialData: initialPartners,
-  });
+  const { data: partners = [] } = useGetPartners(recResourceId);
 
   return (
     <RecResourcePartnersContent

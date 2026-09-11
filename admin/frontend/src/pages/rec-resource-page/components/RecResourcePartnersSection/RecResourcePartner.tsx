@@ -19,6 +19,7 @@ import { useGetPartnerLocations } from '@/services/hooks/recreation-resource-adm
 import { useState } from 'react';
 import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin/models/AgreementHolderClientPublicViewDto';
 import { CopyButton } from '@shared/components/copy-button';
+import { formatPhoneNumber } from './helpers';
 
 interface RecResourcePartnerProps {
   partner: AgreementHolderClientPublicViewDto;
@@ -38,13 +39,9 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
       await fetchLocations(clientNumber);
     }
   };
-  const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '');
-    return digits.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
-  };
   const isActive = partner.clientStatusDescription === 'Active';
   return (
-    <div key={partner.clientNumber} className="partner-panel">
+    <div key={partner.clientNumber} className="partner-panel mb-3">
       <Row className="align-items-center mb-2">
         <Col xs={10}>
           <span className="fw-bold">{partner.clientNumber}</span>{' '}
@@ -145,7 +142,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                         <span className="fw-bold">Email</span>
                       </Col>
                       <Col xs={6}>
-                        {loc.email && <CopyButton text={loc.email} />}
+                        {loc.email ? <CopyButton text={loc.email} /> : 'N/A'}
                       </Col>
                     </Row>
                     <Row className="align-items-center border-bottom">
@@ -153,10 +150,12 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                         <span className="fw-bold">Phone</span>
                       </Col>
                       <Col xs={6}>
-                        {loc.businessPhone && (
+                        {loc.businessPhone ? (
                           <CopyButton
                             text={formatPhoneNumber(loc.businessPhone)}
                           />
+                        ) : (
+                          'N/A'
                         )}
                       </Col>
                     </Row>
