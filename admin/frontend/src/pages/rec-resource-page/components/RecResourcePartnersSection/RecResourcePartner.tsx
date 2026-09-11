@@ -38,6 +38,10 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
       await fetchLocations(clientNumber);
     }
   };
+  const formatPhoneNumber = (value: string): string => {
+    const digits = value.replace(/\D/g, '');
+    return digits.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
+  };
   const isActive = partner.clientStatusDescription === 'Active';
   return (
     <div key={partner.clientNumber} className="partner-panel">
@@ -141,7 +145,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                         <span className="fw-bold">Email</span>
                       </Col>
                       <Col xs={6}>
-                        <CopyButton text={loc.email || ''} />
+                        {loc.email && <CopyButton text={loc.email} />}
                       </Col>
                     </Row>
                     <Row className="align-items-center border-bottom">
@@ -149,7 +153,11 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                         <span className="fw-bold">Phone</span>
                       </Col>
                       <Col xs={6}>
-                        <CopyButton text={loc.businessPhone || ''} />
+                        {loc.businessPhone && (
+                          <CopyButton
+                            text={formatPhoneNumber(loc.businessPhone)}
+                          />
+                        )}
                       </Col>
                     </Row>
                     <Row
