@@ -213,6 +213,21 @@ export function RecResourceAssetsEditPage() {
         return buildPendingAssetRepairChanges(prev, assets, assetId);
       });
       setHasImmediateChanges(true);
+
+      const deletedAsset = assets?.find((a) => a.asset_id === assetId);
+      const isLastAssetInEditedGroup =
+        !!editGroup &&
+        deletedAsset !== undefined &&
+        String(deletedAsset.asset_code) === editGroup &&
+        !(assets ?? []).some(
+          (asset) =>
+            asset.asset_id !== assetId &&
+            asset.asset_code === deletedAsset.asset_code,
+        );
+
+      if (isLastAssetInEditedGroup) {
+        navigateToView();
+      }
     } catch {}
   }
 
