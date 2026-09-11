@@ -12,6 +12,7 @@ export const ROUTE_PATHS = {
     '/rec-resource/$id/activities-features/edit',
   REC_RESOURCE_FEES: '/rec-resource/$id/fees',
   REC_RESOURCE_PARTNERS: '/rec-resource/$id/partners',
+  REC_RESOURCE_PARTNERS_EDIT: '/rec-resource/$id/partners/edit',
   REC_RESOURCE_FEES_ADD: '/rec-resource/$id/fees/add',
   REC_RESOURCE_FEE_EDIT: '/rec-resource/$id/fees/$feeId/edit',
   REC_RESOURCE_ASSETS: '/rec-resource/$id/assets',
