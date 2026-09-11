@@ -54,6 +54,7 @@ describe('rec-resource-page navigation', () => {
         RecResourceNavKey.ACTIVITIES,
         RecResourceNavKey.FEES,
         RecResourceNavKey.ASSETS,
+        RecResourceNavKey.PARTNERS,
         RecResourceNavKey.GEOSPATIAL,
         RecResourceNavKey.RESERVATION,
         RecResourceNavKey.ADVISORIES,
@@ -82,6 +83,8 @@ describe('rec-resource-page navigation', () => {
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.GEOSPATIAL];
       const reservationTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.RESERVATION];
+      const partnersTab =
+        REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.PARTNERS];
 
       expect(overviewTab.getNavigateOptions('abc')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
@@ -105,6 +108,10 @@ describe('rec-resource-page navigation', () => {
       });
       expect(reservationTab.getNavigateOptions('xyz')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_RESERVATION,
+        params: { id: 'xyz' },
+      });
+      expect(partnersTab.getNavigateOptions('xyz')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_PARTNERS,
         params: { id: 'xyz' },
       });
     });

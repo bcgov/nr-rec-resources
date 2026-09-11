@@ -1,0 +1,37 @@
+# BulkAssetUpdateResponseDto
+
+## Properties
+
+| Name                | Type                |
+| ------------------- | ------------------- |
+| `status`            | string              |
+| `rec_resource_id`   | string              |
+| `updated_count`     | number              |
+| `updated_asset_ids` | Array&lt;string&gt; |
+
+## Example
+
+```typescript
+import type { BulkAssetUpdateResponseDto } from '';
+
+// TODO: Update the object below with actual values
+const example = {
+  status: success,
+  rec_resource_id: REC1222,
+  updated_count: 2,
+  updated_asset_ids: success,
+} satisfies BulkAssetUpdateResponseDto;
+
+console.log(example);
+
+// Convert the instance to a JSON string
+const exampleJSON: string = JSON.stringify(example);
+console.log(exampleJSON);
+
+// Parse the JSON string back to an object
+const exampleParsed = JSON.parse(exampleJSON) as BulkAssetUpdateResponseDto;
+console.log(exampleParsed);
+```
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints)
+[[Back to Model list]](../README.md#models) [[Back to README]](../README.md)

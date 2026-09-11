@@ -7,6 +7,7 @@ export enum RecResourceNavKey {
   ACTIVITIES = 'activities',
   FEES = 'fees',
   ASSETS = 'assets',
+  PARTNERS = 'partners',
   GEOSPATIAL = 'geospatial',
   RESERVATION = 'reservation',
   ADVISORIES = 'advisories',
@@ -64,6 +65,14 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
     isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
+      params: { id },
+    }),
+  },
+  [RecResourceNavKey.PARTNERS]: {
+    title: 'Partners',
+    isFeatureFlagged: true,
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_PARTNERS,
       params: { id },
     }),
   },
