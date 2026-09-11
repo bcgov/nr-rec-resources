@@ -33,7 +33,7 @@ jobs:
       tag: ${{ steps.detect-tag.outputs.tag }}
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5
         with:
           role-to-assume: ${{ secrets.AWS_LZA_DEPLOY_ROLE_ARN }}
           role-session-name: detect-dev-tag
