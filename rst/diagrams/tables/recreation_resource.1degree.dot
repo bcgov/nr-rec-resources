@@ -4,7 +4,7 @@ digraph "oneDegreeRelationshipsDiagram" {
   "recreation_access":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_activity":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_activity_code_trails":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
-  "recreation_agreement_holder":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=teeodot];
+  "recreation_agreement_holder":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_asset":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_defined_campsite":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_driving_direction":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=teeodot];
@@ -82,9 +82,12 @@ digraph "oneDegreeRelationshipsDiagram" {
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="177" HEIGHT="16"><B>recreation_agreement_holder</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="rec_resource_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="177" HEIGHT="16">rec_resource_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="rec_resource_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="188" HEIGHT="16">rec_resource_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="client_number" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="188" HEIGHT="16">client_number</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="agreement_holder_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="188" HEIGHT="16">agreement_holder_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="partner_relationship_type_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="188" HEIGHT="16">partner_relationship_type_code</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="recreation_agreement_holder.html"
     target="_top"

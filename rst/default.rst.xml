@@ -339,8 +339,19 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="7" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="9" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
-         <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
+         <column autoUpdated="true" defaultValue="null" digits="0" id="10" name="agreement_holder_id" nullable="false" remarks="Surrogate primary key. The FTA sync inserts FTA's own values explicitly; the identity sequence starts above 1000000 so RST-generated values cannot collide with them." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="11" name="visible_on_public_website" nullable="false" remarks="Whether this partner is shown on the public website. Set to true by the FTA sync on insert; not overwritten on subsequent syncs." size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="'SITE_OPERATOR'::character varying" digits="0" id="12" name="partner_relationship_type_code" nullable="false" remarks="The type of relationship this partner holds with the resource. Defaults to SITE_OPERATOR, the only relationship FTA supplies." size="20" type="varchar" typeCode="12">
+            <parent column="partner_relationship_type_code" foreignKey="recreation_agreement_holder_partner_relationship_type_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_partner_relationship_type_code"/>
+         </column>
+         <primaryKey column="agreement_holder_id" sequenceNumberInPK="1"/>
          <index name="recreation_agreement_holder_pkey" unique="true">
+            <column ascending="true" name="agreement_holder_id"/>
+         </index>
+         <index name="recreation_agreement_holder_client_number_idx" unique="false">
+            <column ascending="true" name="client_number"/>
+         </index>
+         <index name="recreation_agreement_holder_rec_resource_id_idx" unique="false">
             <column ascending="true" name="rec_resource_id"/>
          </index>
       </table>
@@ -355,6 +366,11 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="7" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="agreement_holder_id" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="visible_on_public_website" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="partner_relationship_type_code" nullable="true" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="partner_relationship_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_partner_relationship_type_code"/>
+         </column>
       </table>
       <table name="recreation_asset" remarks="Individualised asset entities with parent-child relationships (e.g., Campsite → Table). Geometry stored in recreation_asset_geom." schema="rst" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="asset_id" nullable="false" remarks="Unique surrogate identifier for the individual asset." size="19" type="int8" typeCode="-5">
@@ -1120,6 +1136,28 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="12" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
+      <table name="recreation_partner_relationship_type_code" remarks="Codes describing the type of relationship a partner holds with a recreation resource (e.g. Site Operator). Not FTA-synced; managed internally." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="partner_relationship_type_code" nullable="false" remarks="Code identifying the partner relationship type." size="20" type="varchar" typeCode="12">
+            <child column="partner_relationship_type_code" foreignKey="recreation_agreement_holder_partner_relationship_type_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_agreement_holder"/>
+            <child column="partner_relationship_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_agreement_holder_history"/>
+            <child column="partner_relationship_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_partner_relationship_type_code_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="Description of the partner relationship type." size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="3" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="partner_relationship_type_code" sequenceNumberInPK="1"/>
+         <index name="recreation_partner_relationship_type_code_pkey" unique="true">
+            <column ascending="true" name="partner_relationship_type_code"/>
+         </index>
+      </table>
+      <table name="recreation_partner_relationship_type_code_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="partner_relationship_type_code" nullable="false" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="partner_relationship_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_partner_relationship_type_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="" size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_photographer_type_code" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="photographer_type_code" nullable="false" remarks="Unique code identifier for photographer type" size="2147483647" type="varchar" typeCode="12">
