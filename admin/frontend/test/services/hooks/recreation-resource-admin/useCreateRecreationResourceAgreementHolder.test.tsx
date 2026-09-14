@@ -86,6 +86,7 @@ describe('useCreateRecreationResourceAgreementHolder', () => {
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({
       queryKey: RECREATION_RESOURCE_QUERY_KEYS.partners('res-123'),
+      refetchType: 'active',
     });
   });
 

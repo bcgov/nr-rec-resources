@@ -18,7 +18,7 @@ vi.mock('./queryKeys');
 describe('useGetPartners', () => {
   let queryClient: QueryClient;
   const mockApi = {
-    getRecreationPartnersByResourceId: vi.fn(),
+    getPartnersByRecreationResourceId: vi.fn(),
   };
 
   const createWrapper = () => {
@@ -70,14 +70,14 @@ describe('useGetPartners', () => {
       wrapper: createWrapper(),
     });
 
-    expect(result.current.data).toEqual([]);
+    expect(result.current.data).toEqual(undefined);
     expect(result.current.isFetching).toBe(false);
-    expect(mockApi.getRecreationPartnersByResourceId).not.toHaveBeenCalled();
+    expect(mockApi.getPartnersByRecreationResourceId).not.toHaveBeenCalled();
   });
 
   it('should fetch partners successfully when recResourceId is provided', async () => {
     const mockData = [{ id: '1', name: 'Partner 1' }];
-    mockApi.getRecreationPartnersByResourceId.mockResolvedValueOnce(mockData);
+    mockApi.getPartnersByRecreationResourceId.mockResolvedValueOnce(mockData);
 
     const { result } = renderHook(
       () => useGetPartners('resource-123', { initialDataUpdatedAt: 0 }),
@@ -85,7 +85,7 @@ describe('useGetPartners', () => {
     );
 
     await waitFor(() =>
-      expect(mockApi.getRecreationPartnersByResourceId).toHaveBeenCalledWith({
+      expect(mockApi.getPartnersByRecreationResourceId).toHaveBeenCalledWith({
         recResourceId: 'resource-123',
       }),
     );
@@ -116,7 +116,7 @@ describe('useGetPartners', () => {
   });
 
   it('should override default query options when queryOptions are passed', async () => {
-    mockApi.getRecreationPartnersByResourceId.mockResolvedValueOnce([]);
+    mockApi.getPartnersByRecreationResourceId.mockResolvedValueOnce([]);
 
     const customQueryOptions = {
       initialDataUpdatedAt: 0,
@@ -129,7 +129,7 @@ describe('useGetPartners', () => {
     );
 
     await waitFor(() => {
-      expect(mockApi.getRecreationPartnersByResourceId).toHaveBeenCalledWith({
+      expect(mockApi.getPartnersByRecreationResourceId).toHaveBeenCalledWith({
         recResourceId: 'resource-123',
       });
     });

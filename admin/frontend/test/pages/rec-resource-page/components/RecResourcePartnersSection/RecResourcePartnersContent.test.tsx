@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { RecResourcePartnersContent } from '@/pages/rec-resource-page/components/RecResourcePartnersSection/RecResourcePartnersContent';
 import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin/models/AgreementHolderClientPublicViewDto';
+import userEvent from '@testing-library/user-event';
 
 // Mock the hook that triggers the AuthContext dependency
 vi.mock(
@@ -12,6 +13,25 @@ vi.mock(
       data: undefined,
       isPending: false,
     }),
+  }),
+);
+
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourcePartnersSection/RecResourcePartnerAddNewModal',
+  () => ({
+    RecResourcePartnerAddNewModal: ({
+      show,
+      onCancel,
+    }: {
+      show: boolean;
+      onCancel: () => void;
+    }) =>
+      show ? (
+        <div data-testid="mock-add-partner-modal">
+          <span>Add Partner Modal</span>
+          <button onClick={onCancel}>Close Modal</button>
+        </div>
+      ) : null,
   }),
 );
 
@@ -35,7 +55,7 @@ vi.mock('@tanstack/react-router', () => ({
 // Mock route constants
 vi.mock('@/constants/routes', () => ({
   ROUTE_PATHS: {
-    REC_RESOURCE_FEES_ADD: '/rec-resource/$id/fees/add',
+    REC_RESOURCE_PARTNERS_EDIT: '/rec-resource/$id/partners/edit',
   },
 }));
 
@@ -85,14 +105,16 @@ describe('RecResourcePartnersContent', () => {
       />,
     );
 
-    const addNewLink = screen.getByRole('link', { name: 'Add New' });
+    const addNewBtn = screen.getByRole('button', { name: 'Add New' });
     const editLink = screen.getByRole('link', { name: 'Edit' });
 
-    expect(addNewLink).toBeInTheDocument();
-    expect(addNewLink).toHaveAttribute('href', '/rec-resource/12345/fees/add');
+    expect(addNewBtn).toBeInTheDocument();
 
     expect(editLink).toBeInTheDocument();
-    expect(editLink).toHaveAttribute('href', '/rec-resource/12345/fees/add');
+    expect(editLink).toHaveAttribute(
+      'href',
+      '/rec-resource/12345/partners/edit',
+    );
   });
 
   it('should render gracefully when partners array is empty', () => {
@@ -102,5 +124,39 @@ describe('RecResourcePartnersContent', () => {
       screen.getByRole('heading', { level: 2, name: 'Active Partners' }),
     ).toBeInTheDocument();
     expect(screen.queryByText('001')).not.toBeInTheDocument();
+  });
+
+  describe('RecResourcePartnerAddNewModal Interaction', () => {
+    it('should open the modal when clicking "Add New" and close it on cancel', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <RecResourcePartnersContent
+          partners={mockPartners}
+          recResourceId="12345"
+        />,
+      );
+
+      // Modal should initially be hidden
+      expect(
+        screen.queryByTestId('mock-add-partner-modal'),
+      ).not.toBeInTheDocument();
+
+      // Click "Add New" button
+      const addNewBtn = screen.getByRole('button', { name: 'Add New' });
+      await user.click(addNewBtn);
+
+      // Modal should now be visible
+      expect(screen.getByTestId('mock-add-partner-modal')).toBeInTheDocument();
+
+      // Click the close/cancel button inside the modal
+      const closeBtn = screen.getByRole('button', { name: 'Close Modal' });
+      await user.click(closeBtn);
+
+      // Modal should be hidden again
+      expect(
+        screen.queryByTestId('mock-add-partner-modal'),
+      ).not.toBeInTheDocument();
+    });
   });
 });

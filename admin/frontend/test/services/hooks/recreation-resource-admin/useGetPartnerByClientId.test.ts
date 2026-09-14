@@ -16,7 +16,7 @@ vi.mock('./helpers');
 describe('useGetPartnerByClientId', () => {
   let queryClient: QueryClient;
   const mockApi = {
-    getPartnerByClientId: vi.fn(),
+    searchPartnerByClientId: vi.fn(),
   };
 
   const createWrapper = () => {
@@ -57,7 +57,7 @@ describe('useGetPartnerByClientId', () => {
 
   it('should execute mutationFn and fetch partner locations successfully', async () => {
     const mockPartner = { id: 'loc-1', name: 'Location 1' };
-    mockApi.getPartnerByClientId.mockResolvedValueOnce(mockPartner);
+    mockApi.searchPartnerByClientId.mockResolvedValueOnce(mockPartner);
 
     const { result } = renderHook(() => useGetPartnerByClientId(), {
       wrapper: createWrapper(),
@@ -69,7 +69,7 @@ describe('useGetPartnerByClientId', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(mockApi.getPartnerByClientId).toHaveBeenCalledWith({
+    expect(mockApi.searchPartnerByClientId).toHaveBeenCalledWith({
       clientId: 'client-123',
     });
     expect(result.current.data).toEqual(mockPartner);
@@ -95,7 +95,7 @@ describe('useGetPartnerByClientId', () => {
 
   it('should handle mutation failure when api call rejects', async () => {
     const mockError = new Error('Failed to fetch');
-    mockApi.getPartnerByClientId.mockRejectedValueOnce(mockError);
+    mockApi.searchPartnerByClientId.mockRejectedValueOnce(mockError);
 
     const { result } = renderHook(() => useGetPartnerByClientId(), {
       wrapper: createWrapper(),
@@ -112,7 +112,7 @@ describe('useGetPartnerByClientId', () => {
 
   it('should override mutation default options when custom mutationOptions are provided', async () => {
     const onSuccessMock = vi.fn();
-    mockApi.getPartnerByClientId.mockResolvedValueOnce([]);
+    mockApi.searchPartnerByClientId.mockResolvedValueOnce([]);
 
     const { result } = renderHook(
       () =>
