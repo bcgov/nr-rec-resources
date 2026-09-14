@@ -92,6 +92,8 @@ services:
       KEYCLOAK_ISSUER: http://127.0.0.1:8080/realms/rst-local
       # ACT_CSS_CLIENT_ID required by config validation; not exercised by e2e tests
       ACT_CSS_CLIENT_ID: rst-admin-local-act
+      FOREST_CLIENT_API_URL: ${FOREST_CLIENT_API_URL:-http://forest-client-api.local}
+      FOREST_CLIENT_API_KEY: ${FOREST_CLIENT_API_KEY:-rst-admin-local-forest-api-key}
       # S3 vars required by config validation; not exercised by auth/search e2e tests
       ESTABLISHMENT_ORDER_DOCS_BUCKET: rst-local-establishment-order-docs
       EXHIBIT_A_DOCS_BUCKET: rst-local-exhibit-a-docs
