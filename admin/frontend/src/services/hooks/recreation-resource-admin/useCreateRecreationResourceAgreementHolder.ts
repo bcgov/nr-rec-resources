@@ -39,6 +39,7 @@ export function useCreateRecreationResourceAgreementHolder() {
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.partners(
           variables.recResourceId,
         ),
+        refetchType: 'active',
       });
     },
     onError: () => {

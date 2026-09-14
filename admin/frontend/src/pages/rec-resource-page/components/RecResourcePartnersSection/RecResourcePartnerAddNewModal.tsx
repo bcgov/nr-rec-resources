@@ -21,7 +21,9 @@ export function RecResourcePartnerAddNewModal({
   const {
     mutateAsync: fetchPartnerInfo,
     data: partnerInfo,
+    isError: isPartnerInfoError,
     isPending,
+    reset,
   } = useGetPartnerByClientId();
   const {
     mutateAsync: fetchPartnerLocations,
@@ -34,9 +36,54 @@ export function RecResourcePartnerAddNewModal({
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
+  const [startDateError, setStartDateError] = useState<string | null>(null);
+  const [endDateError, setEndDateError] = useState<string | null>(null);
+
   const clearAndCancel = () => {
+    reset();
     setStep(0);
+    setStartDate('');
+    setEndDate('');
+    setStartDateError(null);
+    setEndDateError(null);
     onCancel();
+  };
+
+  const validateDates = (): boolean => {
+    let isValid = true;
+    setStartDateError(null);
+    setEndDateError(null);
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Check empty inputs
+    if (!startDate) {
+      setStartDateError('Agreement start date is required.');
+      isValid = false;
+    }
+
+    if (!endDate) {
+      setEndDateError('Agreement end date is required.');
+      isValid = false;
+    }
+
+    if (!startDate || !endDate) {
+      return false;
+    }
+
+    // Check date ranges
+    if (endDate < today) {
+      setEndDateError('End date cannot be earlier than today.');
+      isValid = false;
+    }
+
+    if (startDate > endDate) {
+      setStartDateError('Start date cannot be after the end date.');
+      setEndDateError('End date cannot be before the start date.');
+      isValid = false;
+    }
+
+    return isValid;
   };
 
   const handleContinue = async () => {
@@ -48,17 +95,31 @@ export function RecResourcePartnerAddNewModal({
         break;
       }
       case 1:
-        mutate({
-          recResourceId: rec_resource_id,
-          partner: {
-            clientNumber: clientNumber,
-            agreementStartDate: startDate,
-            agreementEndDate: endDate,
+        if (!validateDates()) {
+          return;
+        }
+        mutate(
+          {
+            recResourceId: rec_resource_id,
+            partner: {
+              clientNumber: clientNumber,
+              agreementStartDate: startDate,
+              agreementEndDate: endDate,
+            },
           },
-        });
-        clearAndCancel();
+          {
+            onSuccess: () => {
+              clearAndCancel();
+            },
+          },
+        );
         break;
     }
+  };
+
+  const onChangeClientNumber = (value: string) => {
+    reset();
+    setClientNumber(value);
   };
 
   const step0 = (
@@ -72,7 +133,7 @@ export function RecResourcePartnerAddNewModal({
               placeholder="Enter CLIENT #"
               value={clientNumber}
               disabled={step === 1}
-              onChange={(e) => setClientNumber(e.target.value)}
+              onChange={(e) => onChangeClientNumber(e.target.value)}
             />
           </Form.Group>
         </Col>
@@ -82,9 +143,9 @@ export function RecResourcePartnerAddNewModal({
 
   const step1 = (
     <>
-      <Row className="align-items-center mb-2">
+      <Row className="align-items-center my-3">
         <Col xs={12}>
-          <span className="fw-bold">Contact Information</span>
+          <h5 className="fw-bold">Partner Information</h5>
         </Col>
       </Row>
       <Row className="align-items-center mb-2">
@@ -94,7 +155,7 @@ export function RecResourcePartnerAddNewModal({
           ) : (
             <div>
               <Row className="align-items-center border-bottom">
-                <Col xs={6} className="my-2">
+                <Col xs={6} className="my-3">
                   <span className="fw-bold">Name</span>
                 </Col>
                 <Col xs={6}>
@@ -102,7 +163,7 @@ export function RecResourcePartnerAddNewModal({
                 </Col>
               </Row>
               <Row className="align-items-center border-bottom">
-                <Col xs={6} className="my-2">
+                <Col xs={6} className="my-3">
                   <span className="fw-bold">Type</span>
                 </Col>
                 <Col xs={6}>
@@ -115,13 +176,13 @@ export function RecResourcePartnerAddNewModal({
               ) : (
                 <>
                   <Row className="align-items-center border-bottom">
-                    <Col xs={6} className="my-2">
+                    <Col xs={6} className="my-3">
                       <span className="fw-bold">Email</span>
                     </Col>
                     <Col xs={6}>{partnerLocations?.[0]?.email || 'N/A'}</Col>
                   </Row>
                   <Row className="align-items-center border-bottom">
-                    <Col xs={6} className="my-2">
+                    <Col xs={6} className="my-3">
                       <span className="fw-bold">Phone</span>
                     </Col>
                     <Col xs={6}>
@@ -133,10 +194,10 @@ export function RecResourcePartnerAddNewModal({
                     </Col>
                   </Row>
                   <Row className="align-items-start">
-                    <Col xs={6} className="my-2">
+                    <Col xs={6} className="my-3">
                       <span className="fw-bold">Address</span>
                     </Col>
-                    <Col xs={6} className="align-items-start my-2">
+                    <Col xs={6} className="align-items-start my-3">
                       <>
                         <span>
                           {capitalizeWords(
@@ -152,30 +213,53 @@ export function RecResourcePartnerAddNewModal({
                       </>
                     </Col>
                   </Row>
-                  <Row className="align-items-center mb-2">
+                  <Row className="align-items-center my-3">
                     <Col xs={12}>
-                      <span className="fw-bold">Add agreement dates</span>
+                      <h5 className="fw-bold">Add agreement dates</h5>
                     </Col>
                   </Row>
                   <Row className="align-items-start">
                     <Col xs={12} md={6}>
                       <Form.Group controlId="agreement-start-date">
-                        <Form.Label>Agreement start date</Form.Label>
+                        <Form.Label>
+                          Agreement start date{' '}
+                          <span className="text-danger">*</span>
+                        </Form.Label>
                         <Form.Control
                           type="date"
                           value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
+                          isInvalid={Boolean(startDateError)}
+                          onChange={(e) => {
+                            setStartDateError(null);
+                            setEndDateError(null);
+                            setStartDate(e.target.value);
+                          }}
                         />
+                        <Form.Control.Feedback type="invalid">
+                          {startDateError}
+                        </Form.Control.Feedback>
                       </Form.Group>
                     </Col>
                     <Col xs={12} md={6}>
                       <Form.Group controlId="agreement-end-date">
-                        <Form.Label>Agreement end date</Form.Label>
+                        <Form.Label>
+                          Agreement end date{' '}
+                          <span className="text-danger">*</span>
+                        </Form.Label>
                         <Form.Control
                           type="date"
+                          min={new Date().toISOString().split('T')[0]}
                           value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
+                          isInvalid={Boolean(endDateError)}
+                          onChange={(e) => {
+                            setStartDateError(null);
+                            setEndDateError(null);
+                            setEndDate(e.target.value);
+                          }}
                         />
+                        <Form.Control.Feedback type="invalid">
+                          {endDateError}
+                        </Form.Control.Feedback>
                       </Form.Group>
                     </Col>
                   </Row>
@@ -204,7 +288,13 @@ export function RecResourcePartnerAddNewModal({
       <Modal.Body className="bulk-asset-edit-modal__body">
         <h3 className="bulk-asset-edit-modal__subtitle">Partner details</h3>
         {step0}
-        {step === 1 && step1}
+        {isPartnerInfoError && (
+          <p className="text-danger">
+            Error loading partner information. Please check the client number
+            and try again.
+          </p>
+        )}
+        {step === 1 && !isPartnerInfoError && step1}
       </Modal.Body>
       <Modal.Footer className="bulk-asset-edit-modal__header__footer">
         {step === 1 && (
@@ -212,7 +302,11 @@ export function RecResourcePartnerAddNewModal({
             Cancel
           </CustomButton>
         )}
-        <CustomButton variant="primary" onClick={handleContinue}>
+        <CustomButton
+          variant="primary"
+          disabled={step === 1 && isPartnerInfoError}
+          onClick={handleContinue}
+        >
           {step === 0 && 'Next'}
           {step === 1 && 'Add Partner'}
         </CustomButton>
