@@ -9,43 +9,57 @@ flowchart TD
     end
     subgraph subGraphAssets["Frontend Assets (CDN)"]
       S3["AWS S3"]
-      S3@{ icon: "aws:arch-amazon-simple-storage-service", pos: "b" }
+      S3@{ icon: "aws:simple-storage-service", pos: "b" }
       CFAssets["CloudFront CDN (Assets)"]
-      CFAssets@{ icon: "aws:arch-amazon-cloudfront", pos: "b" }
+      CFAssets@{ icon: "aws:cloudfront", pos: "b" }
     end
     subgraph subGraphStorage["S3 Storage"]
       StorageCDN["CloudFront CDN (Storage)"]
-      StorageCDN@{ icon: "aws:arch-amazon-cloudfront", pos: "b" }
+      StorageCDN@{ icon: "aws:cloudfront", pos: "b" }
       ImagesS3["S3 (Images)"]
-      ImagesS3@{ icon: "aws:arch-amazon-simple-storage-service", pos: "b" }
+      ImagesS3@{ icon: "aws:simple-storage-service", pos: "b" }
       DocsS3["S3 (Documents)"]
-      DocsS3@{ icon: "aws:arch-amazon-simple-storage-service", pos: "b" }
+      DocsS3@{ icon: "aws:simple-storage-service", pos: "b" }
     end
     subgraph subGraph1["Admin Backend"]
       APICDN["API CDN"]
-      APICDN@{ icon: "aws:arch-amazon-cloudfront", pos: "b" }
+      APICDN@{ icon: "aws:cloudfront", pos: "b" }
       ALB["App Load Balancer"]
-      ALB@{ icon: "aws:arch-elastic-load-balancing", pos: "b" }
+      ALB@{ icon: "aws:elastic-load-balancing", pos: "b" }
       Gateway["API Gateway"]
-      Gateway@{ icon: "aws:arch-amazon-api-gateway", pos: "b" }
+      Gateway@{ icon: "aws:api-gateway", pos: "b" }
       API["Admin API"]
-      API@{ icon: "aws:arch-aws-fargate", pos: "b" }
+      API@{ icon: "aws:fargate", pos: "b" }
     end
     subgraph Database["Database"]
       DB[("AWS Aurora PostgreSQL<br>PostGIS")]
-      DB@{ icon: "aws:arch-amazon-aurora", pos: "b" }
+      DB@{ icon: "aws:aurora", pos: "b" }
     end
     subgraph subGraph4["External Services"]
       KeycloakExt["BcGov SSO"]
       KeycloakExt@{ icon: "azure:multifactor-authentication", pos: "b" }
+      ACTExt["ACT"]
+      ACTExt@{ icon: "mdi:cloud-outline", pos: "b" }
+      BCGWExt["BCGW"]
+      BCGWExt@{ icon: "mdi:cloud-outline", pos: "b" }
+      ForestClientExt["Forest Client API"]
+      ForestClientExt@{ icon: "mdi:cloud-outline", pos: "b" }
+      FTAMigration["Flyway Migration"]
     end
+    KeycloakExt ~~~ ForestClientExt
+    ForestClientExt ~~~ FTAMigration
     UI e1@-->|"SSO Auth"| KeycloakExt
     UI e2@-->|"API Call"| APICDN
     APICDN e5@-->|"API Routing"| Gateway
     Gateway e6@-->|"Load Balancing"| ALB
     ALB e7@--> API
     API e13@-->|"DB Query"| DB
-    API e14@-->|"User Info"| KeycloakExt
+    API e14@---->|"Auth / User Info"| KeycloakExt
+    ACTExt e15@-->|"Inbound advisory CUD API\n/api/v1/act/advisories"| APICDN
+    BCGWExt e23@-->|"Outbound GeoJSON pull\n/api/v1/bcgw/*"| APICDN
+    API e25@-->|"Partner/client lookups\n/api/clients/findByClientNumber/{clientNumber}\n/api/clients/{clientNumber}/locations"| ForestClientExt
+    FTAMigration e26@-->|"FTA import / sync"| DB
+    API e24@-->|"ACT writes + BCGW export reads"| DB
     UI e16@-->|"Asset Fetch"| CFAssets
     CFAssets e17@-->|"Asset Origin"| S3
     UI e18@-->|"File Read"| StorageCDN
@@ -60,6 +74,10 @@ flowchart TD
     ALB:::aws
     Gateway:::aws
     KeycloakExt:::external
+    ACTExt:::external
+    BCGWExt:::external
+    ForestClientExt:::external
+    FTAMigration:::external
     S3:::aws
     CFAssets:::aws
     StorageCDN:::aws
@@ -83,3 +101,7 @@ flowchart TD
   e20@{ animation: slow }
   e21@{ animation: fast }
   e22@{ animation: fast }
+  e23@{ animation: fast }
+  e24@{ animation: fast }
+  e25@{ animation: fast }
+  e26@{ animation: fast }

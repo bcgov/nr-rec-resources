@@ -1,0 +1,54 @@
+flowchart TD
+  subgraph Container[" "]
+    direction TB
+    classDef container fill:#f5f5f5,stroke:#bdbdbd,stroke-width:4px
+    classDef source fill:#ff6a00,stroke:#c14a00,color:#ffffff
+    classDef process fill:#8c4fff,stroke:#5e35b1,color:#ffffff
+    classDef storage fill:#7aa116,stroke:#4d6810,color:#ffffff
+    classDef database fill:#c925d1,stroke:#741579,color:#ffffff
+
+    subgraph SourceSystem["On Prem Oracle Source"]
+      Oracle[("On Prem Oracle DB<br>DBP01")]
+    end
+
+    subgraph OpenShift["OpenShift Silver Cluster"]
+      CronJob["Spring Boot backend process<br>runs in a CronJob"]
+    end
+
+    subgraph AwsServices["AWS services"]
+      direction LR
+
+      subgraph Storage["AWS S3"]
+        CsvBucket["FTA CSV bucket"]
+      end
+
+      subgraph ECS["AWS ECS"]
+        EcsTask["Flyway migration task"]
+      end
+    end
+
+    subgraph Aurora["Aurora PostgreSQL"]
+      Rds[("Aurora PostgreSQL")]
+      FTASchema["FTA shadow schema"]
+      RSTSchema["RST schema"]
+    end
+
+    Oracle -->|"JDBC over secured TCP"| CronJob
+    CronJob -->|"Extract data and upload CSV"| CsvBucket
+    CronJob -->|"Run ECS task"| EcsTask
+    CsvBucket ~~~ EcsTask
+    CsvBucket -->|"Read CSV from S3"| EcsTask
+    EcsTask -->|"Update Aurora PostgreSQL"| Rds
+    Rds -->|"Load raw FTA data"| FTASchema
+    FTASchema -->|"Transform and merge"| RSTSchema
+
+    Oracle:::source
+    CronJob:::process
+    CsvBucket:::storage
+    EcsTask:::process
+    Rds:::database
+    FTASchema:::database
+    RSTSchema:::database
+  end
+
+  class Container container;
