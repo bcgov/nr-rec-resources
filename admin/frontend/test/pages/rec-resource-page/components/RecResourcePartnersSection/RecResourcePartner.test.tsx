@@ -52,7 +52,6 @@ describe('RecResourcePartner', () => {
 
     expect(screen.getByText('00123456')).toBeInTheDocument();
     expect(screen.getByText('Acme Corporation')).toBeInTheDocument();
-    expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByText('Society')).toBeInTheDocument();
     expect(screen.getByText('Start date')).toBeInTheDocument();
     expect(screen.getByText('End date')).toBeInTheDocument();

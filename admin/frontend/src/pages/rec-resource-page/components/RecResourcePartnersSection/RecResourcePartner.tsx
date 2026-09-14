@@ -5,7 +5,7 @@ import {
   COLOR_GREEN_DARKER,
   COLOR_GREEN_LIGHTEST,
   COLOR_BACKGROUND_GREY,
-  COLOR_GREY_DARK,
+  COLOR_BLUE_DARK,
 } from '@/styles/colors';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -42,7 +42,9 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
     const digits = value.replace(/\D/g, '');
     return digits.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
   };
-  const isActive = partner.clientStatusDescription === 'Active';
+  const isActive =
+    partner.agreementEndDate !== undefined &&
+    new Date(`${partner.agreementEndDate}T00:00:00`) > new Date();
   return (
     <div key={partner.clientNumber} className="partner-panel">
       <Row className="align-items-center mb-2">
@@ -54,9 +56,9 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
         </Col>
         <Col xs={2} className="text-end">
           <CustomBadge
-            label={partner.clientStatusDescription || ''}
+            label={isActive ? 'Active' : 'Expired'}
             bgColor={isActive ? COLOR_GREEN_LIGHTEST : COLOR_BACKGROUND_GREY}
-            textColor={isActive ? COLOR_GREEN_DARKER : COLOR_GREY_DARK}
+            textColor={isActive ? COLOR_GREEN_DARKER : COLOR_BLUE_DARK}
           />
         </Col>
       </Row>
@@ -73,7 +75,14 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
           <span className="fw-bold">Start date</span>{' '}
           <span>
             {partner.agreementStartDate &&
-              new Date(partner.agreementStartDate).toLocaleDateString()}
+              new Date(
+                `${partner.agreementStartDate}T00:00:00`,
+              ).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                timeZone: 'UTC',
+              })}
           </span>
         </Col>
         <Col xs={4}>
@@ -81,7 +90,14 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
           <span className="fw-bold">End date</span>{' '}
           <span>
             {partner.agreementEndDate &&
-              new Date(partner.agreementEndDate).toLocaleDateString()}
+              new Date(
+                `${partner.agreementEndDate}T00:00:00`,
+              ).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                timeZone: 'UTC',
+              })}
           </span>
         </Col>
         <Col xs={4}>
