@@ -2283,6 +2283,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, naturalDistrict, photographerType, closestCommunity, recStatusCode
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -2331,6 +2332,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, naturalDistrict, photographerType, closestCommunity, recStatusCode
    * List all options for a type
    */
   async getOptionsByType(
