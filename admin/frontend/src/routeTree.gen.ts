@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CreateNewRouteImport } from './routes/create-new'
 import { Route as ExportsRouteImport } from './routes/exports'
+import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as RecResourceIdRouteImport } from './routes/rec-resource/$id'
 import { Route as RecResourceIdIndexRouteImport } from './routes/rec-resource/$id/index'
 import { Route as RecResourceIdFilesRouteImport } from './routes/rec-resource/$id/files'
@@ -55,9 +57,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CreateNewRoute = CreateNewRouteImport.update({
+  id: '/create-new',
+  path: '/create-new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExportsRoute = ExportsRouteImport.update({
   id: '/exports',
   path: '/exports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestsRoute = RequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecResourceIdRoute = RecResourceIdRouteImport.update({
@@ -338,11 +350,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/create-new': {
+      id: '/create-new'
+      path: '/create-new'
+      fullPath: '/create-new'
+      preLoaderRoute: typeof CreateNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exports': {
       id: '/exports'
       path: '/exports'
       fullPath: '/exports'
       preLoaderRoute: typeof ExportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requests': {
+      id: '/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof RequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rec-resource/$id': {

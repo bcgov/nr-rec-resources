@@ -157,6 +157,16 @@ async function handleRequest(event, requestId, requestInterceptedAt) {
       ?.toLowerCase()
       .startsWith('text/event-stream');
 
+    // Omit the body of server-sent event stream responses.
+    // Cloning such responses would prevent client-side stream cancelations
+    // from reaching the original stream (a teed stream only cancels its
+    // source once both of its branches cancel) and would buffer the
+    // entire stream into the unconsumed clone indefinitely.
+    const isEventStreamResponse = response.headers
+      .get('content-type')
+      ?.toLowerCase()
+      .startsWith('text/event-stream');
+
     // Clone the response so both the client and the library could consume it.
     const responseClone = isEventStreamResponse ? null : response.clone();
 
