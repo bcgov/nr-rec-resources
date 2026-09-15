@@ -105,8 +105,6 @@ const mockRecResource: RecreationResourceDetailUIModel = {
   name: 'Test Resource',
   closest_community: 'Test Community',
   recreation_activity: [],
-  recreation_status: { status_code: 1, comment: '', description: 'Open' },
-  recreation_status_code: 1,
   rec_resource_type: 'RR',
   description: 'Test description',
   driving_directions: 'Test directions',
@@ -127,7 +125,7 @@ const mockRecResource: RecreationResourceDetailUIModel = {
       ],
     },
   ],
-} as RecreationResourceDetailUIModel;
+} as unknown as RecreationResourceDetailUIModel;
 
 const mockResourceOptions = {
   maintenanceOptions: [
@@ -227,7 +225,6 @@ describe('RecResourceOverviewEditSection', () => {
     });
 
     const formFields = [
-      { label: 'Status', testId: 'select-field-status_code' },
       {
         label: 'Maintenance Standard',
         testId: 'select-field-maintenance_standard_code',
