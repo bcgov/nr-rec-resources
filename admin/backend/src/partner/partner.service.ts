@@ -163,7 +163,7 @@ export class PartnerService {
     await this.ensureResourceExists(rec_resource_id);
 
     const existing = await this.prisma.recreation_agreement_holder.findFirst({
-      where: { rec_resource_id },
+      where: { rec_resource_id, client_number: createDto.clientNumber },
       select: {
         agreement_holder_id: true,
         client_number: true,
