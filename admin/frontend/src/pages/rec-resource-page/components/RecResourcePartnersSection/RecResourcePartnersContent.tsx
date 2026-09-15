@@ -47,7 +47,10 @@ export const RecResourcePartnersContent = ({
         {partners.length === 0 && <h4>No active partners.</h4>}
         {partners.map((partner) => {
           return (
-            <RecResourcePartner key={partner.clientNumber} partner={partner} />
+            <RecResourcePartner
+              key={partner.agreement_holder_id}
+              partner={partner}
+            />
           );
         })}
       </div>

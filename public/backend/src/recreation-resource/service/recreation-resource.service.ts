@@ -99,6 +99,9 @@ export class RecreationResourceService {
       where: {
         rec_resource_id: id,
         visible_on_public_website: true,
+        // A cancelled agreement is never shown publicly, regardless of the
+        // visibility flag.
+        cancelled: false,
         client_number: { not: null },
       },
       select: {

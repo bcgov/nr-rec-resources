@@ -9,6 +9,11 @@ import {
   COLOR_BLUE_DARK,
   COLOR_BLUE_LIGHT,
 } from '@/styles/colors';
+import {
+  CANCELLED_BADGE,
+  formatAgreementDate,
+  getAgreementStatusBadge,
+} from './partnerStatus';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEye,
@@ -45,11 +50,9 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
     const digits = value.replace(/\D/g, '');
     return digits.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
   };
-  const isActive =
-    partner.agreementEndDate === undefined ||
-    new Date(`${partner.agreementEndDate}T00:00:00`) > new Date();
+  const statusBadge = getAgreementStatusBadge(partner.agreementEndDate);
   return (
-    <div key={partner.clientNumber} className="partner-panel mb-3">
+    <div className="partner-panel">
       <Row className="align-items-center mb-2">
         <Col xs={10}>
           <span className="fw-bold">{partner.clientNumber}</span>{' '}
@@ -59,10 +62,19 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
         </Col>
         <Col xs={2} className="text-end">
           <CustomBadge
-            label={isActive ? 'Active' : 'Expired'}
-            bgColor={isActive ? COLOR_GREEN_LIGHTEST : COLOR_BACKGROUND_GREY}
-            textColor={isActive ? COLOR_GREEN_DARKER : COLOR_BLUE_DARK}
+            label={statusBadge.label}
+            bgColor={statusBadge.bgColor}
+            textColor={statusBadge.textColor}
           />
+          {partner.cancelled && (
+            <span className="ms-2">
+              <CustomBadge
+                label={CANCELLED_BADGE.label}
+                bgColor={CANCELLED_BADGE.bgColor}
+                textColor={CANCELLED_BADGE.textColor}
+              />
+            </span>
+          )}
         </Col>
       </Row>
       <Row className="align-items-center mb-3">
@@ -94,17 +106,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
             className="me-2 calendar-icon"
           />
           <span className="fw-bold">Start date</span>{' '}
-          <span>
-            {partner.agreementStartDate &&
-              new Date(
-                `${partner.agreementStartDate}T00:00:00`,
-              ).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-                timeZone: 'UTC',
-              })}
-          </span>
+          <span>{formatAgreementDate(partner.agreementStartDate)}</span>
         </Col>
         <Col xs={4}>
           <FontAwesomeIcon
@@ -112,17 +114,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
             className="me-2 calendar-icon"
           />
           <span className="fw-bold">End date</span>{' '}
-          <span>
-            {partner.agreementEndDate &&
-              new Date(
-                `${partner.agreementEndDate}T00:00:00`,
-              ).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-                timeZone: 'UTC',
-              })}
-          </span>
+          <span>{formatAgreementDate(partner.agreementEndDate)}</span>
         </Col>
         <Col xs={4}>
           <FontAwesomeIcon
