@@ -33,14 +33,7 @@ function getAssetFields(asset: Asset, assetCodes: AssetCode[]): AssetField[] {
   const value =
     asset.actual_value ?? codeMap.get(asset.asset_code)?.default_value;
   const repairSpend = hasRepairs
-    ? repairs
-        .filter((repair) => repair.repair_completed_date)
-        .reduce(
-          (sum, repair) =>
-            sum +
-            (repair.actual_repair_cost ?? repair.estimated_repair_cost ?? 0),
-          0,
-        )
+    ? repairs.reduce((sum, repair) => sum + (repair.actual_repair_cost ?? 0), 0)
     : null;
   const fields: AssetField[] = [
     {
