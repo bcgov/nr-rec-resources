@@ -2,6 +2,7 @@ import {
   AdminStatusBadge,
   CustomBadge,
   FileStatusBadge,
+  PUBLIC_ACCESS_STATUS_OPEN,
   PublicAccessStatusBadge,
 } from '@/components';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
@@ -20,6 +21,20 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
   const { isSuperAdmin } = useAuthorizations();
+
+  // No advisory on file means the resource is open to the public, matching how
+  // the search results table resolves a missing label.
+  const publicAccessStatus =
+    recResource.access_status_grouplabel ?? PUBLIC_ACCESS_STATUS_OPEN;
+
+  // The admin status badge is super-admin only, so only dedupe against it when
+  // it is actually rendered; otherwise everyone else would see neither pill.
+  const isAdminStatusBadgeVisible = Boolean(
+    isSuperAdmin && recResource.recreation_status_description,
+  );
+  const showPublicAccessStatus =
+    !isAdminStatusBadgeVisible ||
+    publicAccessStatus !== recResource.recreation_status_description;
 
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
@@ -56,16 +71,9 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
               }
             />
           )}
-          {recResource.access_status_grouplabel &&
-            // Deduped against the admin status badge only when that badge is
-            // actually rendered; otherwise non-super-admins would see neither.
-            (!isSuperAdmin ||
-              recResource.access_status_grouplabel !==
-                recResource.recreation_status_description) && (
-              <PublicAccessStatusBadge
-                label={recResource.access_status_grouplabel}
-              />
-            )}
+          {showPublicAccessStatus && (
+            <PublicAccessStatusBadge label={publicAccessStatus} />
+          )}
         </Stack>
       </Stack>
       <span className="fw-bold">{recResource.rec_resource_type}</span>
