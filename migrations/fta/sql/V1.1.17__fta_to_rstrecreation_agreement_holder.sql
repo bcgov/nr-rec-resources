@@ -6,7 +6,7 @@ agreement_start_date,
 agreement_end_date,
 revision_count,
 visible_on_public_website,
-partner_relationship_type_code,
+recreation_operator,
 updated_at,
 updated_by,
 created_at,
@@ -22,7 +22,17 @@ select distinct on (a.forest_file_id)
   a.agreement_end_date,
   a.revision_count,
   true as visible_on_public_website,
-  'SITE_OPERATOR' as partner_relationship_type_code,
+  (
+    coalesce(a.agreement_start_date, current_date) <= current_date
+    and a.agreement_end_date is not null
+    and a.agreement_end_date > current_date
+    and exists (
+      select 1
+      from rst.recreation_fee rf
+      where rf.rec_resource_id = a.forest_file_id
+        and rf.is_deleted = false
+    )
+  ) as recreation_operator,
   a.update_timestamp as updated_at,
   a.update_userid as updated_by,
   a.entry_timestamp as created_at,
@@ -34,8 +44,6 @@ inner join (
     group by forest_file_id
 ) b on a.forest_file_id = b.forest_file_id and a.revision_count = b.revision_count and a.update_timestamp = b.update_timestamp
 order by a.forest_file_id, a.agreement_holder_id desc
--- visible_on_public_website and partner_relationship_type_code are owned by RST
--- and deliberately not refreshed here.
 on conflict (agreement_holder_id) do update
 set
   rec_resource_id = excluded.rec_resource_id,
@@ -43,6 +51,7 @@ set
   agreement_start_date = excluded.agreement_start_date,
   agreement_end_date = excluded.agreement_end_date,
   revision_count = excluded.revision_count,
+  recreation_operator = excluded.recreation_operator,
   updated_by      = excluded.updated_by,
   updated_at      = excluded.updated_at,
   created_at      = excluded.created_at,

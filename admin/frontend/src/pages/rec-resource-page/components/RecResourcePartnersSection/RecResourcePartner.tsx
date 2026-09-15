@@ -67,6 +67,11 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
           <span className="badge rounded-pill bg-primary">
             {partner.clientTypeDescription}
           </span>
+          {partner.partner_relationship_type_code === 'RECREATION_OPERATOR' ? (
+            <span className="badge rounded-pill bg-primary ms-2">
+              Recreation operator
+            </span>
+          ) : null}
         </Col>
       </Row>
       <Row className="align-items-center mb-3">
