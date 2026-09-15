@@ -1,4 +1,5 @@
 import { buildActLoginUrl } from '@/utils/actUrls';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 export const EXTERNAL_LINKS = {
   FTA: 'https://apps.nrs.gov.bc.ca/int/fta/',
@@ -9,13 +10,20 @@ export const EXTERNAL_LINKS = {
 
 export const menuLinks = [
   {
-    url: '/',
+    url: ROUTE_PATHS.LANDING,
     text: 'Search',
     icon: '/images/sidebar/search-icon.svg',
     iconAlt: 'Search Icon',
   },
   {
-    url: '/exports',
+    url: ROUTE_PATHS.CREATE_NEW,
+    text: 'Create new',
+    icon: '/images/sidebar/create-new-icon.svg',
+    iconAlt: 'Create new Icon',
+    superAdminOnly: true,
+  },
+  {
+    url: ROUTE_PATHS.EXPORTS,
     text: 'Export',
     icon: '/images/sidebar/export-icon.svg',
     iconAlt: 'Export Icon',

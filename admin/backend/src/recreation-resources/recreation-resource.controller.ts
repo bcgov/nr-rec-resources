@@ -32,6 +32,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RecreationResourceDetailDto } from './dtos/recreation-resource-detail.dto';
+import { NextRecResourceIdDto } from './dtos/next-rec-resource-id.dto';
 import { AdminSearchQueryDto } from './dtos/admin-search-query.dto';
 import { AdminSearchResponseDto } from './dtos/admin-search-response.dto';
 import { SuggestionsQueryDto } from './dtos/suggestions-query.dto';
@@ -144,6 +145,19 @@ export class RecreationResourceController {
       query.search_term,
       { includeArchived: isSuperAdmin },
     );
+  }
+
+  @Get('next-rec-resource-id')
+  @ApiOkResponse({
+    type: NextRecResourceIdDto,
+    description: 'Successfully generated the next rec resource id',
+  })
+  @ApiOperation({
+    operationId: 'getNextRecResourceId',
+    summary: 'Get next recreation resource identifier',
+  })
+  async getNextRecResourceId(): Promise<NextRecResourceIdDto> {
+    return await this.recreationResourceService.getNextRecResourceId();
   }
 
   /**

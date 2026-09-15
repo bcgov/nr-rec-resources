@@ -15,6 +15,7 @@ describe('RecreationResourceService', () => {
     repo = {
       searchResources: vi.fn(),
       findSuggestions: vi.fn(),
+      getNextRecResourceId: vi.fn(),
     } as unknown as RecreationResourceRepository;
     prisma = {
       $queryRawTyped: vi.fn(),
@@ -142,6 +143,15 @@ describe('RecreationResourceService', () => {
     expect(result.suggestions.length).toBe(2);
     expect(result.suggestions[0]?.rec_resource_id).toBe('REC125');
     expect(result.suggestions[1]?.rec_resource_id).toBe('REC126');
+  });
+
+  it('should return next recreation resource id from repository', async () => {
+    (repo.getNextRecResourceId as any).mockResolvedValue('REC000999');
+
+    const result = await service.getNextRecResourceId();
+
+    expect(repo.getNextRecResourceId).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ rec_resource_id: 'REC000999' });
   });
 
   it('should map admin search results into response DTO shape', async () => {

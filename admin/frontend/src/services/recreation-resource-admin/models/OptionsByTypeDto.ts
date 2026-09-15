@@ -58,6 +58,7 @@ export const OptionsByTypeDtoTypeEnum = {
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
+  NaturalDistrict: 'naturalDistrict',
   PhotographerType: 'photographerType',
   ClosestCommunity: 'closestCommunity',
   RecStatusCode: 'recStatusCode',

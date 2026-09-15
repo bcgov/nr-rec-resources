@@ -23,6 +23,7 @@ describe('RecreationResourceController', () => {
           useValue: {
             searchResources: vi.fn(),
             getSuggestions: vi.fn(),
+            getNextRecResourceId: vi.fn(),
             findOne: vi.fn(),
             update: vi.fn(),
           },
@@ -158,6 +159,17 @@ describe('RecreationResourceController', () => {
         includeArchived: true,
       });
     });
+  });
+
+  it('should return the next recreation resource id', async () => {
+    (service.getNextRecResourceId as any).mockResolvedValue({
+      rec_resource_id: 'REC000777',
+    });
+
+    const result = await controller.getNextRecResourceId();
+
+    expect(service.getNextRecResourceId).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ rec_resource_id: 'REC000777' });
   });
 
   it('should call service.findOne and return its result', async () => {

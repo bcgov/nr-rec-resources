@@ -104,6 +104,25 @@ describe('RecreationResourceRepository', () => {
     });
   });
 
+  describe('getNextRecResourceId', () => {
+    it('should return max rec id plus one with zero padding', async () => {
+      prisma.$queryRaw.mockResolvedValue([{ max_id: 123 }]);
+
+      const result = await repo.getNextRecResourceId();
+
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(result).toBe('REC000124');
+    });
+
+    it('should start at REC000001 when no records are found', async () => {
+      prisma.$queryRaw.mockResolvedValue([{ max_id: null }]);
+
+      const result = await repo.getNextRecResourceId();
+
+      expect(result).toBe('REC000001');
+    });
+  });
+
   describe('searchResources', () => {
     it('should query count and page data with normalized filters', async () => {
       const mockData = [{ rec_resource_id: 'REC001' }];
