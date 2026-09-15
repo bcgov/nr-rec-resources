@@ -23,7 +23,7 @@ export function RecResourcePartnerAddNewModal({
     data: partnerInfo,
     isError: isPartnerInfoError,
     isPending,
-    reset,
+    reset: resetPartnerInfo,
   } = useGetPartnerByClientId();
   const {
     mutateAsync: fetchPartnerLocations,
@@ -32,63 +32,66 @@ export function RecResourcePartnerAddNewModal({
   } = useGetPartnerLocations();
   const { mutate } = useCreateRecreationResourceAgreementHolder();
   const [step, setStep] = useState<number>(0);
-  const [clientNumber, setClientNumber] = useState<string>('00167392');
+  const [clientNumber, setClientNumber] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
-  const [startDateError, setStartDateError] = useState<string | null>(null);
-  const [endDateError, setEndDateError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{
+    clientNumber?: string;
+    startDate?: string;
+    endDate?: string;
+  }>({});
 
   const clearAndCancel = () => {
-    reset();
     setStep(0);
+    setClientNumber('');
     setStartDate('');
     setEndDate('');
-    setStartDateError(null);
-    setEndDateError(null);
+    setErrors({});
+    resetPartnerInfo();
     onCancel();
   };
 
-  const validateDates = (): boolean => {
-    let isValid = true;
-    setStartDateError(null);
-    setEndDateError(null);
-
+  const validateDates = () => {
+    const newErrors: { startDate?: string; endDate?: string } = {};
     const today = new Date().toISOString().split('T')[0];
 
-    // Check empty inputs
-    if (!startDate) {
-      setStartDateError('Agreement start date is required.');
-      isValid = false;
+    if (!startDate) newErrors.startDate = 'Agreement start date is required.';
+    if (!endDate) newErrors.endDate = 'Agreement end date is required.';
+
+    if (endDate && endDate < today) {
+      newErrors.endDate = 'End date cannot be earlier than today.';
     }
 
-    if (!endDate) {
-      setEndDateError('Agreement end date is required.');
-      isValid = false;
+    if (startDate && endDate && startDate > endDate) {
+      newErrors.startDate = 'Start date cannot be after the end date.';
+      newErrors.endDate = 'End date cannot be before the start date.';
     }
 
-    if (!startDate || !endDate) {
-      return false;
-    }
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+    return Object.keys(newErrors).length === 0;
+  };
 
-    // Check date ranges
-    if (endDate < today) {
-      setEndDateError('End date cannot be earlier than today.');
-      isValid = false;
-    }
+  const handleClientNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setClientNumber(value);
+    resetPartnerInfo();
 
-    if (startDate > endDate) {
-      setStartDateError('Start date cannot be after the end date.');
-      setEndDateError('End date cannot be before the start date.');
-      isValid = false;
+    if (errors.clientNumber && value.length === 8) {
+      setErrors((prev) => ({ ...prev, clientNumber: undefined }));
     }
-
-    return isValid;
   };
 
   const handleContinue = async () => {
     switch (step) {
       case 0: {
+        if (clientNumber.length !== 8) {
+          setErrors((prev) => ({
+            ...prev,
+            clientNumber: 'Client # needs to have 8 characters.',
+          }));
+          return;
+        }
         setStep(step + 1);
         await fetchPartnerInfo(clientNumber);
         await fetchPartnerLocations(clientNumber);
@@ -117,11 +120,6 @@ export function RecResourcePartnerAddNewModal({
     }
   };
 
-  const onChangeClientNumber = (value: string) => {
-    reset();
-    setClientNumber(value);
-  };
-
   const step0 = (
     <>
       <Row className="gy-3 mt-1">
@@ -134,8 +132,13 @@ export function RecResourcePartnerAddNewModal({
               placeholder="Enter CLIENT #"
               value={clientNumber}
               disabled={step === 1}
-              onChange={(e) => onChangeClientNumber(e.target.value)}
+              onChange={handleClientNumberChange}
+              maxLength={8}
+              isInvalid={!!errors.clientNumber}
             />
+            <Form.Control.Feedback type="invalid">
+              {errors.clientNumber}
+            </Form.Control.Feedback>
           </Form.Group>
         </Col>
       </Row>
@@ -219,51 +222,50 @@ export function RecResourcePartnerAddNewModal({
                       <h5 className="fw-bold">Add agreement dates</h5>
                     </Col>
                   </Row>
-                  <Row className="align-items-start">
-                    <Col xs={12} md={6}>
-                      <Form.Group controlId="agreement-start-date">
-                        <Form.Label>
-                          Agreement start date{' '}
-                          <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
-                          type="date"
-                          value={startDate}
-                          isInvalid={Boolean(startDateError)}
-                          onChange={(e) => {
-                            setStartDateError(null);
-                            setEndDateError(null);
-                            setStartDate(e.target.value);
-                          }}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {startDateError}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                    <Col xs={12} md={6}>
-                      <Form.Group controlId="agreement-end-date">
-                        <Form.Label>
-                          Agreement end date{' '}
-                          <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
-                          type="date"
-                          min={new Date().toISOString().split('T')[0]}
-                          value={endDate}
-                          isInvalid={Boolean(endDateError)}
-                          onChange={(e) => {
-                            setStartDateError(null);
-                            setEndDateError(null);
-                            setEndDate(e.target.value);
-                          }}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {endDateError}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                  </Row>
+                  <Form>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group controlId="startDate">
+                          <Form.Label>Agreement start date</Form.Label>
+                          <Form.Control
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => {
+                              setStartDate(e.target.value);
+                              setErrors((prev) => ({
+                                ...prev,
+                                startDate: undefined,
+                              }));
+                            }}
+                            isInvalid={!!errors.startDate}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.startDate}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group controlId="endDate">
+                          <Form.Label>Agreement end date</Form.Label>
+                          <Form.Control
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => {
+                              setEndDate(e.target.value);
+                              setErrors((prev) => ({
+                                ...prev,
+                                endDate: undefined,
+                              }));
+                            }}
+                            isInvalid={!!errors.endDate}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.endDate}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </Form>
                 </>
               )}
             </div>
@@ -305,7 +307,7 @@ export function RecResourcePartnerAddNewModal({
         )}
         <CustomButton
           variant="primary"
-          disabled={step === 1 && isPartnerInfoError}
+          disabled={step === 1 && isPartnerInfoError && isPending}
           onClick={handleContinue}
         >
           {step === 0 && 'Next'}

@@ -43,7 +43,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
     return digits.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
   };
   const isActive =
-    partner.agreementEndDate !== undefined &&
+    partner.agreementEndDate === undefined ||
     new Date(`${partner.agreementEndDate}T00:00:00`) > new Date();
   return (
     <div key={partner.clientNumber} className="partner-panel mb-3">

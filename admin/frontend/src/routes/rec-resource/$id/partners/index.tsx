@@ -38,7 +38,7 @@ function RecResourcePartnersPageRoute() {
   return (
     <RoleRouteGuard
       requireAll={[ROLES.DEVELOPER]}
-      requireAny={[ROLES.VIEWER, ROLES.ADMIN]}
+      requireAny={[ROLES.SUPER_ADMIN, ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_PARTNERS.replace('$id', id)}
     >
       <RecResourcePartnersPage />

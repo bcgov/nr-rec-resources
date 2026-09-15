@@ -125,7 +125,7 @@ describe('recResourcePartnersLoader', () => {
     });
   });
 
-  it('should return null for partnersInfo when the API call throws an error', async () => {
+  it('should return [] for partnersInfo when the API call throws an error', async () => {
     mockGetPartnersByRecreationResourceId.mockRejectedValue(
       new Error('API Failure'),
     );
@@ -134,7 +134,7 @@ describe('recResourcePartnersLoader', () => {
 
     expect(result).toEqual({
       parentKey: 'parentValue',
-      partnersInfo: null,
+      partnersInfo: [],
     });
   });
 

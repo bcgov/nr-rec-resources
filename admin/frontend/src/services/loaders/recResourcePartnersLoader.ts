@@ -21,6 +21,7 @@ export async function recResourcePartnersLoader(args: any) {
   const [partnersInfo] = await Promise.all([
     args.context.queryClient.ensureQueryData({
       queryKey: RECREATION_RESOURCE_QUERY_KEYS.partners(args.params.id),
+      initialData: [],
       queryFn: async () => {
         try {
           const response = await api.getPartnersByRecreationResourceId({
@@ -28,7 +29,7 @@ export async function recResourcePartnersLoader(args: any) {
           });
           return response;
         } catch (err) {
-          if (err) return null;
+          if (err) return [];
         }
       },
     }),

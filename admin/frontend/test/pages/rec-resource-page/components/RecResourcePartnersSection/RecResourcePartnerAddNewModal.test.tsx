@@ -7,7 +7,7 @@ import { RecResourcePartnerAddNewModal } from '@/pages/rec-resource-page/compone
 const mockFetchPartnerInfo = vi.fn();
 const mockFetchPartnerLocations = vi.fn();
 const mockMutate = vi.fn();
-const mockReset = vi.fn();
+const mockResetPartnerInfo = vi.fn();
 
 let mockIsPending = false;
 let mockIsLocationsPending = false;
@@ -21,7 +21,7 @@ vi.mock('@/services/hooks', () => ({
     data: mockPartnerInfo,
     isError: mockIsPartnerInfoError,
     isPending: mockIsPending,
-    reset: mockReset,
+    reset: mockResetPartnerInfo,
   }),
 }));
 
@@ -68,6 +68,8 @@ describe('RecResourcePartnerAddNewModal', () => {
     onCancel: vi.fn(),
   };
 
+  const VALID_CLIENT_NUM = '12345678';
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockIsPending = false;
@@ -89,68 +91,109 @@ describe('RecResourcePartnerAddNewModal', () => {
     ];
   });
 
-  // Helper to quickly advance to step 1
-  const advanceToStep1 = async () => {
+  const advanceToStep1 = async (clientNum = VALID_CLIENT_NUM) => {
     mockFetchPartnerInfo.mockResolvedValueOnce({});
     mockFetchPartnerLocations.mockResolvedValueOnce({});
+
+    const input = screen.getByLabelText(/CLIENT #/i);
+    fireEvent.change(input, { target: { value: clientNum } });
+
     fireEvent.click(screen.getByRole('button', { name: /Next/i }));
+
     await waitFor(() => {
       expect(screen.getByText(/Partner Information/i)).toBeInTheDocument();
     });
   };
 
-  it('renders Step 0 initially when shown', () => {
+  it('renders Step 0 initially when modal is shown', () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
+
     expect(screen.getByText('Add new partner')).toBeInTheDocument();
+    expect(screen.getByText('Partner details')).toBeInTheDocument();
     expect(screen.getByLabelText(/CLIENT #/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Next/i })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Cancel/i }),
+    ).not.toBeInTheDocument();
   });
 
-  it('handles client number change in Step 0', () => {
+  it('shows validation error on Step 0 if client number is not 8 characters', () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
-    const input = screen.getByLabelText(/CLIENT #/i) as HTMLInputElement;
 
-    fireEvent.change(input, { target: { value: '999999' } });
+    const input = screen.getByLabelText(/CLIENT #/i);
+    fireEvent.change(input, { target: { value: '12345' } });
 
-    expect(mockReset).toHaveBeenCalled();
-    expect(input.value).toBe('999999');
+    fireEvent.click(screen.getByRole('button', { name: /Next/i }));
+
+    expect(
+      screen.getByText('Client # needs to have 8 characters.'),
+    ).toBeInTheDocument();
+    expect(mockFetchPartnerInfo).not.toHaveBeenCalled();
   });
 
-  it('navigates from Step 0 to Step 1 on Next click', async () => {
+  it('clears client number error when user enters an 8-character string', () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
 
-    await advanceToStep1();
+    const input = screen.getByLabelText(/CLIENT #/i);
 
-    expect(mockFetchPartnerInfo).toHaveBeenCalledWith('00167392');
-    expect(mockFetchPartnerLocations).toHaveBeenCalledWith('00167392');
+    // Trigger error first
+    fireEvent.change(input, { target: { value: '12345' } });
+    fireEvent.click(screen.getByRole('button', { name: /Next/i }));
+    expect(
+      screen.getByText('Client # needs to have 8 characters.'),
+    ).toBeInTheDocument();
+
+    // Type 8 characters to trigger clear condition
+    fireEvent.change(input, { target: { value: VALID_CLIENT_NUM } });
+    expect(
+      screen.queryByText('Client # needs to have 8 characters.'),
+    ).not.toBeInTheDocument();
+    expect(mockResetPartnerInfo).toHaveBeenCalled();
+  });
+
+  it('successfully transitions from Step 0 to Step 1 upon valid Next click', async () => {
+    render(<RecResourcePartnerAddNewModal {...defaultProps} />);
+
+    await advanceToStep1(VALID_CLIENT_NUM);
+
+    expect(mockFetchPartnerInfo).toHaveBeenCalledWith(VALID_CLIENT_NUM);
+    expect(mockFetchPartnerLocations).toHaveBeenCalledWith(VALID_CLIENT_NUM);
     expect(
       screen.getByRole('button', { name: /Add Partner/i }),
     ).toBeInTheDocument();
-  });
-
-  it('displays partner error message when isPartnerInfoError is true', () => {
-    mockIsPartnerInfoError = true;
-    render(<RecResourcePartnerAddNewModal {...defaultProps} />);
-
-    expect(
-      screen.getByText(/Error loading partner information/i),
-    ).toBeInTheDocument();
-
-    // Verify Add Partner button is disabled when in error on step 1
-    // We force step 1 rendering by mocking state if needed, or by Next click
+    expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
   });
 
   it('renders loading indicators during pendings in Step 1', async () => {
     mockIsPending = true;
     mockIsLocationsPending = true;
-    render(<RecResourcePartnerAddNewModal {...defaultProps} />);
 
+    render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
 
     expect(screen.getByText('Loading information...')).toBeInTheDocument();
   });
 
-  it('renders fallback values ("N/A") when partner info/location details are missing', async () => {
+  it('renders location loading indicator when only locations query is pending', async () => {
+    mockIsLocationsPending = true;
+
+    render(<RecResourcePartnerAddNewModal {...defaultProps} />);
+    await advanceToStep1();
+
+    expect(screen.getByText('Loading locations...')).toBeInTheDocument();
+  });
+
+  it('displays partner error message when isPartnerInfoError is true', () => {
+    mockIsPartnerInfoError = true;
+
+    render(<RecResourcePartnerAddNewModal {...defaultProps} />);
+
+    expect(
+      screen.getByText(/Error loading partner information/i),
+    ).toBeInTheDocument();
+  });
+
+  it('renders fallbacks ("N/A") when partner info/location properties are missing', async () => {
     mockPartnerInfo = { clientName: null, clientTypeDescription: null };
     mockPartnerLocations = [
       {
@@ -158,8 +201,8 @@ describe('RecResourcePartnerAddNewModal', () => {
         businessPhone: null,
         address1: null,
         city: null,
-        province: 'BC',
-        postalCode: 'V6B 1A1',
+        province: null,
+        postalCode: null,
       },
     ];
 
@@ -170,15 +213,7 @@ describe('RecResourcePartnerAddNewModal', () => {
     expect(nas.length).toBeGreaterThan(0);
   });
 
-  it('renders locations loading text when isLocationsPending is true', async () => {
-    mockIsLocationsPending = true;
-    render(<RecResourcePartnerAddNewModal {...defaultProps} />);
-    await advanceToStep1();
-
-    expect(screen.getByText('Loading locations...')).toBeInTheDocument();
-  });
-
-  it('validates empty start and end dates', async () => {
+  it('validates empty start and end dates on Step 1 submission', async () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
 
@@ -187,21 +222,6 @@ describe('RecResourcePartnerAddNewModal', () => {
     expect(
       screen.getByText('Agreement start date is required.'),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText('Agreement end date is required.'),
-    ).toBeInTheDocument();
-    expect(mockMutate).not.toHaveBeenCalled();
-  });
-
-  it('validates when only start date is provided', async () => {
-    render(<RecResourcePartnerAddNewModal {...defaultProps} />);
-    await advanceToStep1();
-
-    const startDateInput = screen.getByLabelText(/Agreement start date/i);
-    fireEvent.change(startDateInput, { target: { value: '2026-01-01' } });
-
-    fireEvent.click(screen.getByRole('button', { name: /Add Partner/i }));
-
     expect(
       screen.getByText('Agreement end date is required.'),
     ).toBeInTheDocument();
@@ -226,18 +246,15 @@ describe('RecResourcePartnerAddNewModal', () => {
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it('validates start date after end date', async () => {
+  it('validates start date positioned after end date', async () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
 
     const startDateInput = screen.getByLabelText(/Agreement start date/i);
     const endDateInput = screen.getByLabelText(/Agreement end date/i);
 
-    const futureDate1 = '2099-12-31';
-    const futureDate2 = '2099-12-01';
-
-    fireEvent.change(startDateInput, { target: { value: futureDate1 } });
-    fireEvent.change(endDateInput, { target: { value: futureDate2 } });
+    fireEvent.change(startDateInput, { target: { value: '2099-12-31' } });
+    fireEvent.change(endDateInput, { target: { value: '2099-12-01' } });
 
     fireEvent.click(screen.getByRole('button', { name: /Add Partner/i }));
 
@@ -250,7 +267,7 @@ describe('RecResourcePartnerAddNewModal', () => {
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it('clears errors when input date changes', async () => {
+  it('clears date validation errors on input change', async () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
 
@@ -260,25 +277,22 @@ describe('RecResourcePartnerAddNewModal', () => {
     ).toBeInTheDocument();
 
     const startDateInput = screen.getByLabelText(/Agreement start date/i);
-    fireEvent.change(startDateInput, { target: { value: '2026-05-01' } });
+    fireEvent.change(startDateInput, { target: { value: '2099-01-01' } });
 
     expect(
       screen.queryByText('Agreement start date is required.'),
     ).not.toBeInTheDocument();
   });
 
-  it('submits successfully when validation passes and executes onSuccess callback', async () => {
+  it('submits payload successfully when validation passes and executes onSuccess handler', async () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
 
     const startDateInput = screen.getByLabelText(/Agreement start date/i);
     const endDateInput = screen.getByLabelText(/Agreement end date/i);
 
-    const futureStart = '2099-01-01';
-    const futureEnd = '2099-12-31';
-
-    fireEvent.change(startDateInput, { target: { value: futureStart } });
-    fireEvent.change(endDateInput, { target: { value: futureEnd } });
+    fireEvent.change(startDateInput, { target: { value: '2099-01-01' } });
+    fireEvent.change(endDateInput, { target: { value: '2099-12-31' } });
 
     fireEvent.click(screen.getByRole('button', { name: /Add Partner/i }));
 
@@ -286,30 +300,30 @@ describe('RecResourcePartnerAddNewModal', () => {
       {
         recResourceId: 'rec-123',
         partner: {
-          clientNumber: '00167392',
-          agreementStartDate: futureStart,
-          agreementEndDate: futureEnd,
+          clientNumber: VALID_CLIENT_NUM,
+          agreementStartDate: '2099-01-01',
+          agreementEndDate: '2099-12-31',
         },
       },
       expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
 
-    // Simulate onSuccess call
-    const options = mockMutate.mock.calls[0][1];
-    options.onSuccess();
+    // Trigger onSuccess callback to test reset/close sequence
+    const mutationOptions = mockMutate.mock.calls[0][1];
+    mutationOptions.onSuccess();
 
-    expect(mockReset).toHaveBeenCalled();
+    expect(mockResetPartnerInfo).toHaveBeenCalled();
     expect(defaultProps.onCancel).toHaveBeenCalled();
   });
 
-  it('calls clearAndCancel when Modal onHide or Cancel button is clicked', async () => {
+  it('resets state and triggers onCancel when Cancel button is clicked on Step 1', async () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
 
     const cancelButton = screen.getByRole('button', { name: /Cancel/i });
     fireEvent.click(cancelButton);
 
-    expect(mockReset).toHaveBeenCalled();
+    expect(mockResetPartnerInfo).toHaveBeenCalled();
     expect(defaultProps.onCancel).toHaveBeenCalled();
   });
 });

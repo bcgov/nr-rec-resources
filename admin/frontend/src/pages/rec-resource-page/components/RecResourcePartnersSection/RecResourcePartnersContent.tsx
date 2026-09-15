@@ -44,6 +44,7 @@ export const RecResourcePartnersContent = ({
         </Stack>
       </div>
       <div className="rounded">
+        {partners.length === 0 && <h4>No active partners.</h4>}
         {partners.map((partner) => {
           return (
             <RecResourcePartner key={partner.clientNumber} partner={partner} />
