@@ -372,6 +372,7 @@ export function AssetCardRepairs({
               repairCodes={repairCodes}
               form={form}
               isCreating={isCreating}
+              isTrailAsset={isTrailAsset}
               onFormChange={(updates) => setForm((f) => ({ ...f, ...updates }))}
               onCancel={handleCancelAdd}
               onSave={handleSaveRepair}

@@ -6,6 +6,7 @@ import {
   RepairAddForm,
   RepairExpandToggle,
 } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/repairShared';
+import { STATION_COORDINATE_ERROR } from '@/pages/rec-resource-page/components/RecResourceAssetsSection/trailStations';
 import type {
   AssetRepair,
   RepairCode,
@@ -44,6 +45,7 @@ describe('repairShared', () => {
   it('builds repair mutation dto from form state', () => {
     expect(
       buildRepairMutationDto({
+        ...EMPTY_REPAIR_FORM,
         repairCode: 'R1',
         estimatedCost: '10.1',
         actualCost: '',
@@ -54,6 +56,22 @@ describe('repairShared', () => {
       estimated_repair_cost: 10.1,
       actual_repair_cost: null,
       repair_completed_date: '2026-09-01',
+      trail_segment_start: null,
+      trail_segment_end: null,
+    });
+  });
+
+  it('trims station coordinates into the mutation dto', () => {
+    expect(
+      buildRepairMutationDto({
+        ...EMPTY_REPAIR_FORM,
+        repairCode: 'R1',
+        startStation: '  49.1232,-128.3030  ',
+        endStation: '49.2000, -128.4000',
+      }),
+    ).toMatchObject({
+      trail_segment_start: '49.1232,-128.3030',
+      trail_segment_end: '49.2000, -128.4000',
     });
   });
 
@@ -104,5 +122,117 @@ describe('repairShared', () => {
 
     await user.selectOptions(screen.getByLabelText('Repair type'), 'R1');
     expect(onFormChange).toHaveBeenCalledWith({ repairCode: 'R1' });
+  });
+
+  it('does not render station fields for non-trail assets', () => {
+    render(
+      <RepairAddForm
+        idSuffix="test"
+        repairCodes={repairCodes}
+        form={{ ...EMPTY_REPAIR_FORM, repairCode: 'R1' }}
+        isCreating={false}
+        onFormChange={vi.fn()}
+        onCancel={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByLabelText('Start station')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('End station')).not.toBeInTheDocument();
+  });
+
+  it('renders station fields for trail assets and reports edits', async () => {
+    const user = userEvent.setup();
+    const onFormChange = vi.fn();
+
+    render(
+      <RepairAddForm
+        idSuffix="test"
+        repairCodes={repairCodes}
+        form={{ ...EMPTY_REPAIR_FORM, repairCode: 'R1' }}
+        isCreating={false}
+        isTrailAsset
+        onFormChange={onFormChange}
+        onCancel={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText('Start station')).toBeInTheDocument();
+    expect(screen.getByLabelText('End station')).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText('Start station'), '4');
+    expect(onFormChange).toHaveBeenCalledWith({ startStation: '4' });
+  });
+
+  it('leaves save enabled when trail stations are left empty', () => {
+    render(
+      <RepairAddForm
+        idSuffix="test"
+        repairCodes={repairCodes}
+        form={{ ...EMPTY_REPAIR_FORM, repairCode: 'R1' }}
+        isCreating={false}
+        isTrailAsset
+        onFormChange={vi.fn()}
+        onCancel={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Save repair' })).toBeEnabled();
+  });
+
+  it('blocks save and shows an error once an invalid station is blurred', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <RepairAddForm
+        idSuffix="test"
+        repairCodes={repairCodes}
+        form={{
+          ...EMPTY_REPAIR_FORM,
+          repairCode: 'R1',
+          startStation: 'KM 0.5',
+        }}
+        isCreating={false}
+        isTrailAsset
+        onFormChange={vi.fn()}
+        onCancel={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+
+    // Blocked immediately, but the message waits for blur.
+    expect(screen.getByRole('button', { name: 'Save repair' })).toBeDisabled();
+    expect(
+      screen.queryByText(STATION_COORDINATE_ERROR),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText('Start station'));
+    await user.tab();
+
+    expect(screen.getByText(STATION_COORDINATE_ERROR)).toBeInTheDocument();
+  });
+
+  it('keeps save enabled for a valid lat,long station', () => {
+    render(
+      <RepairAddForm
+        idSuffix="test"
+        repairCodes={repairCodes}
+        form={{
+          ...EMPTY_REPAIR_FORM,
+          repairCode: 'R1',
+          startStation: '49.1232,-128.3030',
+          endStation: '49.2000, -128.4000',
+        }}
+        isCreating={false}
+        isTrailAsset
+        onFormChange={vi.fn()}
+        onCancel={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Save repair' })).toBeEnabled();
   });
 });
