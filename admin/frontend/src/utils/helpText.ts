@@ -1,6 +1,3 @@
-export const STATUS_HELP_TEXT =
-  'The current administrative state of a recreation resource within the Forest Tenure Administration (FTA) system. Status indicates whether a recreation site or trail is pending approval, issued, archived, cancelled, or otherwise undergoing administrative processing.';
-
 export const CLOSEST_COMMUNITY_HELP_TEXT =
   'Select the nearest community that visitors would recognize (e.g., the closest town/city). This helps with public search and regional browsing.';
 
