@@ -15,5 +15,3 @@ export const DRIVING_DIRECTIONS_TEXT =
 
 export const RISK_RATING_TEXT =
   'Overall risk based on hazards, remoteness, and condition.';
-
-export const STATUS_TEXT = 'Administrative status of the recreation resource.';

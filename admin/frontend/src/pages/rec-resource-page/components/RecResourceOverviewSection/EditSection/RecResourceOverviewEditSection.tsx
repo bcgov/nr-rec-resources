@@ -27,7 +27,6 @@ import {
   DESCRIPTION_TEXT,
   DRIVING_DIRECTIONS_TEXT,
   RISK_RATING_TEXT,
-  STATUS_TEXT,
 } from '@/utils/helperText';
 import {
   ACCESS_SUBACCES_HELP_TEXT,
@@ -38,7 +37,6 @@ import {
   DRIVING_DIRECTIONS_HELP_TEXT,
   PROJECT_ESTABLISHED_DATE_HELP_TEXT,
   RISK_RATING_HELP_TEXT,
-  STATUS_HELP_TEXT,
 } from '@/utils/helpText';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 
@@ -55,7 +53,6 @@ export const RecResourceOverviewEditSection = () => {
     maintenanceOptions,
     controlAccessCodeTypeOptions,
     riskRatingCodeTypeOptions,
-    recreationStatusOptions,
     groupedAccessOptions,
     districtOptions,
   } = useResourceOptions({
@@ -170,19 +167,6 @@ export const RecResourceOverviewEditSection = () => {
                 maxLength={CLOSEST_COMMUNITY_MAX_LENGTH}
                 helpText={CLOSEST_COMMUNITY_HELP_TEXT}
                 helperText={CLOSEST_COMMUNITY_TEXT}
-              />
-            </Col>
-            {/* Status */}
-            <Col xs={12} md={6}>
-              <SelectField<EditResourceFormData>
-                name="status_code"
-                label={EDIT_RESOURCE_FIELD_LABEL_MAP.status_code}
-                options={recreationStatusOptions}
-                placeholder="Search or select a status..."
-                control={control}
-                errors={errors}
-                helperText={STATUS_TEXT}
-                helpText={STATUS_HELP_TEXT}
               />
             </Col>
 
