@@ -125,11 +125,12 @@ export function RecResourcePartnerAddNewModal({
   const step0 = (
     <>
       <Row className="gy-3 mt-1">
-        <Col xs={12} md={6}>
+        <Col xs={12} md={12}>
           <Form.Group controlId="bulk-edit-type">
             <Form.Label>CLIENT #</Form.Label>
             <Form.Control
               type="string"
+              className="w-100"
               placeholder="Enter CLIENT #"
               value={clientNumber}
               disabled={step === 1}
