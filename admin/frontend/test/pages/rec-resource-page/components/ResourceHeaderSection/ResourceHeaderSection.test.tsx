@@ -24,6 +24,10 @@ vi.mock('@/components', () => ({
       </span>
     );
   },
+  PublicAccessStatusBadge: ({ label }: any) => (
+    <span data-testid="public-access-status-badge">{label}</span>
+  ),
+  PUBLIC_ACCESS_STATUS_OPEN: 'Open',
 }));
 
 vi.mock('@/components/clamp-lines', () => ({
@@ -108,6 +112,96 @@ describe('ResourceHeaderSection', () => {
     render(<ResourceHeaderSection recResource={resourceWithoutStatus} />);
 
     expect(screen.getByTestId('file-status-badge')).toHaveTextContent('PE');
+  });
+
+  it('renders the public access status pill using the advisory label', () => {
+    const resource = {
+      ...baseResource,
+      access_status_grouplabel: 'Limited access',
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resource} />);
+
+    expect(screen.getByTestId('public-access-status-badge')).toHaveTextContent(
+      'Limited access',
+    );
+  });
+
+  it('falls back to Open when the resource has no advisories on file', () => {
+    const resource = {
+      ...baseResource,
+      access_status_grouplabel: null,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resource} />);
+
+    expect(screen.getByTestId('public-access-status-badge')).toHaveTextContent(
+      'Open',
+    );
+  });
+
+  it('shows the Open fallback pill to users who are not super admins', () => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
+    const resource = {
+      ...baseResource,
+      recreation_status_description: 'Open',
+      recreation_status_code: 1,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resource} />);
+
+    expect(screen.queryByTestId('admin-status-badge')).not.toBeInTheDocument();
+    expect(screen.getByTestId('public-access-status-badge')).toHaveTextContent(
+      'Open',
+    );
+  });
+
+  it('hides the public access pill when it would duplicate a visible admin status badge', () => {
+    const resource = {
+      ...baseResource,
+      recreation_status_description: 'Open',
+      recreation_status_code: 1,
+      access_status_grouplabel: 'Open',
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resource} />);
+
+    expect(screen.getByTestId('admin-status-badge')).toHaveTextContent('Open');
+    expect(
+      screen.queryByTestId('public-access-status-badge'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides the public access pill when the Open fallback duplicates the admin status badge', () => {
+    const resource = {
+      ...baseResource,
+      recreation_status_description: 'Open',
+      recreation_status_code: 1,
+      access_status_grouplabel: null,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resource} />);
+
+    expect(screen.getByTestId('admin-status-badge')).toHaveTextContent('Open');
+    expect(
+      screen.queryByTestId('public-access-status-badge'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders both pills when the advisory label differs from the admin status', () => {
+    const resource = {
+      ...baseResource,
+      recreation_status_description: 'Open',
+      recreation_status_code: 1,
+      access_status_grouplabel: 'Closed',
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resource} />);
+
+    expect(screen.getByTestId('admin-status-badge')).toHaveTextContent('Open');
+    expect(screen.getByTestId('public-access-status-badge')).toHaveTextContent(
+      'Closed',
+    );
   });
 
   it('does not render status badge when rec status code is missing', () => {
