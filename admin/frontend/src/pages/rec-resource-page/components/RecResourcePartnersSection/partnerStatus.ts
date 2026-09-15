@@ -49,8 +49,15 @@ export const CANCELLED_BADGE = {
   textColor: COLOR_RED,
 } as const;
 
-export function getAgreementStatusBadge(agreementEndDate?: string | null) {
-  return isAgreementExpired(agreementEndDate)
+/**
+ * A cancelled agreement always reads as Expired, whatever its end date says.
+ * The separate "Cancelled" chip distinguishes it from a term that simply lapsed.
+ */
+export function getAgreementStatusBadge(
+  agreementEndDate?: string | null,
+  cancelled = false,
+) {
+  return cancelled || isAgreementExpired(agreementEndDate)
     ? AGREEMENT_STATUS_BADGE.expired
     : AGREEMENT_STATUS_BADGE.active;
 }

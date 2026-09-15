@@ -23,6 +23,7 @@ describe('PartnerController', () => {
             findClientsByRecResourceId: vi.fn(),
             createAgreementHolder: vi.fn(),
             updateAgreementHolder: vi.fn(),
+            deleteAgreementHolder: vi.fn(),
             listClientLocations: vi.fn(),
           },
         },

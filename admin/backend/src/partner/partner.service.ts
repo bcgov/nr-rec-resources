@@ -227,6 +227,25 @@ export class PartnerService {
       );
     }
 
+    // A cancelled agreement is frozen: its dates and public-website visibility
+    // can no longer change. Deleting it is still allowed, via the delete
+    // endpoint.
+    if (existing.cancelled) {
+      const frozenFields = [
+        ['agreementStartDate', updateDto.agreementStartDate],
+        ['agreementEndDate', updateDto.agreementEndDate],
+        ['visible_on_public_website', updateDto.visible_on_public_website],
+      ].filter(([, value]) => value !== undefined);
+
+      if (frozenFields.length > 0) {
+        throw new BadRequestException(
+          `A cancelled agreement cannot be edited. Remove: ${frozenFields
+            .map(([field]) => field)
+            .join(', ')}.`,
+        );
+      }
+    }
+
     const startDate = this.resolveDateUpdate(
       updateDto.agreementStartDate,
       existing.agreement_start_date,

@@ -36,6 +36,7 @@ import {
   AuthRolesGuard,
   RecreationResourceAuthRole,
   ROLE_MODE,
+  SuperAdminGuard,
 } from '@/auth';
 import { BadRequestResponseDto } from '@/common/dtos/bad-request-response.dto';
 import { AgreementHolderClientPublicViewDto } from './dtos/agreement-holder-client-public-view.dto';
@@ -285,6 +286,9 @@ export class PartnerController {
   @Delete(
     'recreation-resources/:rec_resource_id/agreement-holders/:agreement_holder_id',
   )
+  // Deleting a partner is restricted to super admins. The controller-level
+  // @AuthRoles admits RST_ADMIN too, so this guard narrows just this route.
+  @UseGuards(SuperAdminGuard)
   @HttpCode(204)
   @ApiOperation({
     operationId: 'deleteRecreationResourceAgreementHolder',
@@ -309,6 +313,10 @@ export class PartnerController {
   @ApiResponse({
     status: 204,
     description: 'Agreement holder deleted successfully',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Requires the rst-super-admin role',
   })
   @ApiResponse({
     status: 404,

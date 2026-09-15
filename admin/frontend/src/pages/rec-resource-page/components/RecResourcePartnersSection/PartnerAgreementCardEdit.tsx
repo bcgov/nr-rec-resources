@@ -9,6 +9,7 @@ import {
 } from 'react-bootstrap';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
 import { CustomBadge } from '@/components';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin';
 import { CANCELLED_BADGE, getAgreementStatusBadge } from './partnerStatus';
 import './RecResourcePartnersContent.scss';
@@ -62,7 +63,16 @@ export const PartnerAgreementCardEdit = ({
   disabled = false,
 }: PartnerAgreementCardEditProps) => {
   const [touched, setTouched] = useState(false);
-  const statusBadge = getAgreementStatusBadge(draft.agreementEndDate);
+  // Deleting a partner is a super-admin action; regular admins do not see the
+  // button at all. The API enforces this independently via SuperAdminGuard.
+  const { isSuperAdmin } = useAuthorizations();
+  // A cancelled agreement is frozen: its dates and public-website visibility
+  // are no longer editable. Delete stays available.
+  const isFrozen = disabled || partner.cancelled;
+  const statusBadge = getAgreementStatusBadge(
+    draft.agreementEndDate,
+    partner.cancelled,
+  );
   const dateError = getDateOrderError(draft);
   const toggleName = `partner-visibility-${partner.agreement_holder_id}`;
 
@@ -76,8 +86,10 @@ export const PartnerAgreementCardEdit = ({
       {/* Row 1: identity + status */}
       <Row className="align-items-center mb-3">
         <Col xs={12} md={7}>
-          <span className="fw-bold">{partner.clientNumber}</span>{' '}
-          <span>
+          <span className="partner-panel__client-id">
+            {partner.clientNumber}
+          </span>{' '}
+          <span className="partner-panel__client-name">
             {partner.clientName && capitalizeWords(partner.clientName)}
           </span>
         </Col>
@@ -103,7 +115,7 @@ export const PartnerAgreementCardEdit = ({
       <Row className="mb-3">
         <Col xs={12}>
           <Form.Label
-            className="fw-bold d-block mb-1"
+            className="partner-panel__toggle-label d-block mb-1"
             htmlFor={`${toggleName}-yes`}
           >
             Display as main contact on public website
@@ -111,6 +123,7 @@ export const PartnerAgreementCardEdit = ({
           <ToggleButtonGroup
             type="radio"
             name={toggleName}
+            className="partner-toggle"
             value={draft.visible_on_public_website ? 'yes' : 'no'}
             onChange={(value: string) =>
               update({ visible_on_public_website: value === 'yes' })
@@ -120,8 +133,8 @@ export const PartnerAgreementCardEdit = ({
               id={`${toggleName}-yes`}
               value="yes"
               variant="outline-primary"
-              size="sm"
-              disabled={disabled}
+              className="partner-toggle__btn"
+              disabled={isFrozen}
             >
               Yes
             </ToggleButton>
@@ -129,8 +142,8 @@ export const PartnerAgreementCardEdit = ({
               id={`${toggleName}-no`}
               value="no"
               variant="outline-primary"
-              size="sm"
-              disabled={disabled}
+              className="partner-toggle__btn"
+              disabled={isFrozen}
             >
               No
             </ToggleButton>
@@ -148,7 +161,7 @@ export const PartnerAgreementCardEdit = ({
             <Form.Control
               type="date"
               value={draft.agreementStartDate}
-              disabled={disabled}
+              disabled={isFrozen}
               onChange={(e) => update({ agreementStartDate: e.target.value })}
             />
           </Form.Group>
@@ -161,7 +174,7 @@ export const PartnerAgreementCardEdit = ({
             <Form.Control
               type="date"
               value={draft.agreementEndDate}
-              disabled={disabled}
+              disabled={isFrozen}
               isInvalid={touched && Boolean(dateError)}
               onChange={(e) => update({ agreementEndDate: e.target.value })}
             />
@@ -175,14 +188,16 @@ export const PartnerAgreementCardEdit = ({
       {/* Row 4: destructive actions. Immediate, not part of the section save. */}
       <Row>
         <Col xs={12} className="d-flex justify-content-end gap-2">
-          <Button
-            variant="link"
-            className="partner-panel__action-btn"
-            disabled={disabled}
-            onClick={() => onDelete(partner)}
-          >
-            Delete
-          </Button>
+          {isSuperAdmin && (
+            <Button
+              variant="link"
+              className="partner-panel__action-btn"
+              disabled={disabled}
+              onClick={() => onDelete(partner)}
+            >
+              Delete
+            </Button>
+          )}
           <Button
             variant="outline-secondary"
             className="partner-panel__action-btn partner-panel__action-btn--outlined"

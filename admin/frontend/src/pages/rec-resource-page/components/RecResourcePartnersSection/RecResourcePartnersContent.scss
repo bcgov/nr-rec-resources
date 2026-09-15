@@ -58,6 +58,100 @@ $colorPartnerAction: #2d2d2d;
   }
 }
 
+// Yes/No segmented toggle. Follows the same approach as `.asset-group-toggle`
+// in RecResourceAssetsSection (unselected grey, selected white + bold), with
+// two differences from that one: the track colour comes from the partners
+// Figma rather than $colorGreyLight, and the buttons sit inside a padded
+// track so the same colour frames the control.
+$colorPartnerToggleTrack: #eceae8;
+
+.partner-toggle {
+  display: inline-flex;
+  padding: 6px;
+  background-color: $colorPartnerToggleTrack;
+  border-radius: 8px;
+
+  // Bootstrap's .btn-group squares off the inner edges of adjacent items and
+  // overlaps them by a border width so the group reads as one joined control.
+  // This toggle is a segmented pill instead, so every item keeps its own
+  // rounding on all four corners. !important is required: the rules doing
+  // this (e.g. `.btn-group > .btn:not(:last-child):not(.dropdown-toggle)`)
+  // are more specific than a plain `.btn.partner-toggle__btn`.
+  > .btn.partner-toggle__btn {
+    border-radius: 6px !important;
+    margin-left: 0 !important;
+  }
+}
+
+// `.btn` beats .btn-outline-primary's specificity regardless of source order.
+.btn.partner-toggle__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // In rem against the 16px root so the control scales with a user's browser
+  // font-size setting instead of pinning to device pixels.
+  width: 3.7rem;
+  height: 2.1rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+  border-radius: 6px;
+  --bs-btn-padding-y: 0.25rem; // 4px
+  --bs-btn-padding-x: 1.25rem; // 20px
+
+  // !important: border-color is set per-state in multiple places otherwise.
+  border-color: transparent !important;
+
+  // Transparent so the track colour shows through when unselected.
+  background-color: transparent;
+  color: var(--typography-color-primary, #2d2d2d);
+  font-weight: var(--typography-font-weights-regular, 400);
+
+  --bs-btn-active-bg: #{$colorWhite};
+  --bs-btn-active-color: var(--typography-color-primary, #2d2d2d);
+
+  &:hover {
+    background-color: var(--surface-color-secondary-button-hover);
+    color: var(--typography-color-primary, #2d2d2d);
+  }
+}
+
+// No active-state font-weight variable in Bootstrap, so this needs its own rule.
+.btn-check:checked + .btn.partner-toggle__btn {
+  background-color: #{$colorWhite};
+  font-weight: var(--typography-font-weights-bold, 700);
+}
+
+// Client identity line, shared by the read-only and edit cards so the two
+// cannot drift. Matches the 19.2px / 27.6px step already used by
+// `.asset-type-card__description` and `.campsite-card__description`.
+// font-family is inherited from $globalFont ('BC Sans') on the body.
+.partner-panel__client-id,
+.partner-panel__client-name {
+  color: #{$colorGrey};
+  font-style: normal;
+  padding-left: 4px;
+  letter-spacing: var(--typography-letter-spacing-0, 0);
+  font-size: 1.2rem; // 19.2px
+  line-height: 1.4375; // 27.6px at this size
+}
+
+.partner-panel__client-id {
+  font-weight: var(--typography-font-weights-bold, 700);
+}
+
+.partner-panel__client-name {
+  font-weight: var(--typography-font-weights-regular, 400);
+}
+
+// Label above the visibility toggle. Not a design-system token — the same
+// value is hardcoded in DeleteConfirmationModal.scss, so it is a candidate
+// for promotion to shared/src/styles/variables.scss if a third use appears.
+$colorPartnerLabel: #474543;
+
+.partner-panel__toggle-label {
+  color: $colorPartnerLabel;
+}
+
 .calendar-icon {
   color: $colorBlue;
 }

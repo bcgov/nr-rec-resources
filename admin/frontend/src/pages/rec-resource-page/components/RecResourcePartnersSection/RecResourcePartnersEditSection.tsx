@@ -89,7 +89,9 @@ export const RecResourcePartnersEditSection = ({
     if (hasDateErrors) return;
 
     // Only changed cards produce a request; untouched ones are skipped.
+    // Cancelled agreements are frozen, so they never contribute.
     const changed = partners
+      .filter((partner) => !partner.cancelled)
       .map((partner) => ({
         partner,
         payload: buildUpdatePayload(
@@ -162,7 +164,32 @@ export const RecResourcePartnersEditSection = ({
 
   return (
     <Stack direction="vertical" gap={4}>
-      <h2>Edit Partners</h2>
+      <div className="d-flex justify-content-between align-items-center">
+        <h2 className="mb-0">Edit Partners</h2>
+        <Stack direction="horizontal" gap={2}>
+          <Button
+            variant="outline-primary"
+            onClick={navigateToView}
+            disabled={isBusy}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => void handleSave()}
+            disabled={isBusy || hasDateErrors || partners.length === 0}
+          >
+            {isSaving ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Saving...
+              </>
+            ) : (
+              'Save'
+            )}
+          </Button>
+        </Stack>
+      </div>
 
       {partners.length === 0 ? (
         <p>There are no partners to edit for this recreation resource.</p>
@@ -181,30 +208,6 @@ export const RecResourcePartnersEditSection = ({
           ))}
         </div>
       )}
-
-      <Stack direction="horizontal" gap={2} className="justify-content-end">
-        <Button
-          variant="outline-primary"
-          onClick={navigateToView}
-          disabled={isBusy}
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          onClick={() => void handleSave()}
-          disabled={isBusy || hasDateErrors || partners.length === 0}
-        >
-          {isSaving ? (
-            <>
-              <Spinner animation="border" size="sm" className="me-2" />
-              Saving...
-            </>
-          ) : (
-            'Save'
-          )}
-        </Button>
-      </Stack>
 
       <DeleteConfirmationModal
         show={Boolean(partnerToDelete)}

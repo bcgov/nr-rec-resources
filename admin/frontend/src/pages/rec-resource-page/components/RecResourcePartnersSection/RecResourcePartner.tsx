@@ -41,17 +41,22 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
     const digits = value.replace(/\D/g, '');
     return digits.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
   };
-  const statusBadge = getAgreementStatusBadge(partner.agreementEndDate);
+  const statusBadge = getAgreementStatusBadge(
+    partner.agreementEndDate,
+    partner.cancelled,
+  );
   return (
     <div className="partner-panel">
       <Row className="align-items-center mb-2">
-        <Col xs={10}>
-          <span className="fw-bold">{partner.clientNumber}</span>{' '}
-          <span>
+        <Col xs={12} md={7}>
+          <span className="partner-panel__client-id">
+            {partner.clientNumber}
+          </span>{' '}
+          <span className="partner-panel__client-name">
             {partner.clientName && capitalizeWords(partner.clientName)}
           </span>
         </Col>
-        <Col xs={2} className="text-end">
+        <Col xs={12} md={5} className="text-md-end mt-2 mt-md-0">
           <CustomBadge
             label={statusBadge.label}
             bgColor={statusBadge.bgColor}
