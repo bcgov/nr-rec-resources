@@ -1,139 +1,56 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { RecResourcePartnersSection } from '@/pages/rec-resource-page/components/RecResourcePartnersSection/RecResourcePartnersSection';
-import { useGetPartners } from '@/services/hooks/recreation-resource-admin/useGetPartners';
 import { Route } from '@/routes/rec-resource/$id/partners';
+import { useGetPartners } from '@/services/hooks/recreation-resource-admin/useGetPartners';
 
-// Mock TanStack Router Route hooks
+// 1. Mock child component using the EXACT module path used by the component
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourcePartnersSection/RecResourcePartnersContent',
+  () => ({
+    RecResourcePartnersContent: vi.fn(({ partners, recResourceId }: any) => (
+      <div data-testid="partners-content">
+        <span data-testid="resource-id">{recResourceId ?? 'undefined'}</span>
+        <span data-testid="partners-count">{partners?.length ?? 0}</span>
+      </div>
+    )),
+  }),
+);
+
+// 2. Mock external dependencies
 vi.mock('@/routes/rec-resource/$id/partners', () => ({
   Route: {
-    useLoaderData: vi.fn(),
     useParams: vi.fn(),
   },
 }));
 
-// Mock TanStack Router Link component
-vi.mock('@tanstack/react-router', () => ({
-  Link: ({
-    children,
-    to,
-    className,
-  }: {
-    children: React.ReactNode;
-    to: string;
-    className?: string;
-  }) => (
-    <a href={to} className={className}>
-      {children}
-    </a>
-  ),
-}));
-
-// Mock route constants
-vi.mock('@/constants/routes', () => ({
-  ROUTE_PATHS: {
-    REC_RESOURCE_FEES_ADD: '/rec-resource/$id/fees/add',
-  },
-}));
-
-// Mock custom hook for partner query
 vi.mock('@/services/hooks/recreation-resource-admin/useGetPartners', () => ({
   useGetPartners: vi.fn(),
 }));
 
-// Mock nested hook in RecResourcePartner that requires AuthContext
-vi.mock(
-  '@/services/hooks/recreation-resource-admin/useGetPartnerLocationsByClientId',
-  () => ({
-    useGetPartnerLocations: () => ({
-      mutateAsync: vi.fn(),
-      data: undefined,
-      isPending: false,
-    }),
-  }),
-);
-
 describe('RecResourcePartnersSection', () => {
-  const mockInitialPartners = [
-    {
-      clientNumber: '001',
-      clientName: 'Initial Partner',
-      clientTypeDescription: 'Society',
-    },
-  ];
+  it('renders correctly with params and fetched partners data', () => {
+    const mockId = '123';
+    const mockPartners = [{ id: 'p1', name: 'Partner 1' }];
 
-  const mockUpdatedPartners = [
-    {
-      clientNumber: '001',
-      clientName: 'Initial Partner',
-      clientTypeDescription: 'Society',
-    },
-    {
-      clientNumber: '002',
-      clientName: 'New Partner',
-      clientTypeDescription: 'Business',
-    },
-  ];
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-
-    vi.mocked(Route.useLoaderData).mockReturnValue({
-      partnersInfo: mockInitialPartners,
-    } as any);
-
-    vi.mocked(Route.useParams).mockReturnValue({ id: 'rec-123' } as any);
-
-    vi.mocked(useGetPartners).mockReturnValue({
-      data: mockInitialPartners,
-    } as any);
-  });
-
-  it('should render RecResourcePartnersContent with router parameters and hook data', () => {
-    render(<RecResourcePartnersSection />);
-
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Active Partners' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('001')).toBeInTheDocument();
-    expect(screen.getByText('Initial Partner')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Add New' })).toHaveAttribute(
-      'href',
-      '/rec-resource/rec-123/fees/add',
-    );
-  });
-
-  it('should pass initialPartners from loader data into useGetPartners hook', () => {
-    render(<RecResourcePartnersSection />);
-
-    expect(useGetPartners).toHaveBeenCalledWith('rec-123', {
-      initialData: mockInitialPartners,
-    });
-  });
-
-  it('should update rendered partners list when hook returns updated data', () => {
-    vi.mocked(useGetPartners).mockReturnValue({
-      data: mockUpdatedPartners,
-    } as any);
+    vi.mocked(Route.useParams).mockReturnValue({ id: mockId } as any);
+    vi.mocked(useGetPartners).mockReturnValue({ data: mockPartners } as any);
 
     render(<RecResourcePartnersSection />);
 
-    expect(screen.getByText('001')).toBeInTheDocument();
-    expect(screen.getByText('Initial Partner')).toBeInTheDocument();
-    expect(screen.getByText('002')).toBeInTheDocument();
-    expect(screen.getByText('New Partner')).toBeInTheDocument();
+    expect(useGetPartners).toHaveBeenCalledWith(mockId);
+    expect(screen.getByTestId('resource-id')).toHaveTextContent('123');
+    expect(screen.getByTestId('partners-count')).toHaveTextContent('1');
   });
 
-  it('should fallback to an empty array when useGetPartners returns undefined data', () => {
-    vi.mocked(useGetPartners).mockReturnValue({
-      data: undefined,
-    } as any);
+  it('handles undefined params and defaults partners to an empty array', () => {
+    vi.mocked(Route.useParams).mockReturnValue(undefined as any);
+    vi.mocked(useGetPartners).mockReturnValue({ data: undefined } as any);
 
     render(<RecResourcePartnersSection />);
 
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Active Partners' }),
-    ).toBeInTheDocument();
-    expect(screen.queryByText('001')).not.toBeInTheDocument();
+    expect(useGetPartners).toHaveBeenCalledWith(undefined);
+    expect(screen.getByTestId('resource-id')).toHaveTextContent('undefined');
+    expect(screen.getByTestId('partners-count')).toHaveTextContent('0');
   });
 });

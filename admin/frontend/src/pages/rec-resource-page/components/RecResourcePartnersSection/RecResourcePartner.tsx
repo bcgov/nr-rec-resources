@@ -46,7 +46,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
     partner.agreementEndDate !== undefined &&
     new Date(`${partner.agreementEndDate}T00:00:00`) > new Date();
   return (
-    <div key={partner.clientNumber} className="partner-panel">
+    <div key={partner.clientNumber} className="partner-panel mb-3">
       <Row className="align-items-center mb-2">
         <Col xs={10}>
           <span className="fw-bold">{partner.clientNumber}</span>{' '}
@@ -161,7 +161,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                         <span className="fw-bold">Email</span>
                       </Col>
                       <Col xs={6}>
-                        {loc.email && <CopyButton text={loc.email} />}
+                        {loc.email ? <CopyButton text={loc.email} /> : 'N/A'}
                       </Col>
                     </Row>
                     <Row className="align-items-center border-bottom">
@@ -169,10 +169,12 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                         <span className="fw-bold">Phone</span>
                       </Col>
                       <Col xs={6}>
-                        {loc.businessPhone && (
+                        {loc.businessPhone ? (
                           <CopyButton
                             text={formatPhoneNumber(loc.businessPhone)}
                           />
+                        ) : (
+                          'N/A'
                         )}
                       </Col>
                     </Row>
