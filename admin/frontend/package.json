@@ -20,6 +20,7 @@
     "@bcgov/bc-sans": "^2.1.0",
     "@bcgov/design-system-react-components": "^0.5.1",
     "@bcgov/prp-map": "^0.0.22",
+    "@mapbox/shp-write": "^0.4.3",
     "@fortawesome/fontawesome-free": "^7.2.0",
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
@@ -58,6 +59,8 @@
     "shapefile": "^0.6.6",
     "shpjs": "^6.2.0",
     "vitest": ">=4.1.11",
+    "shapefile": "^0.6.6",
+    "shpjs": "^6.2.0",
     "zod": "^4.0.8"
   },
   "devDependencies": {

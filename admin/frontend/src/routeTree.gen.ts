@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ExportsRouteImport } from './routes/exports'
+import { Route as CreateNewRouteImport } from './routes/create-new'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CreateNewRouteImport } from './routes/create-new'
 import { Route as ExportsRouteImport } from './routes/exports'
@@ -33,6 +35,16 @@ import { Route as RecResourceIdReservationIndexRouteImport } from './routes/rec-
 import { Route as RecResourceIdReservationEditRouteImport } from './routes/rec-resource/$id/reservation/edit'
 import { Route as RecResourceIdFeesFeeIdEditRouteImport } from './routes/rec-resource/$id/fees/$feeId/edit'
 
+const ExportsRoute = ExportsRouteImport.update({
+  id: '/exports',
+  path: '/exports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateNewRoute = CreateNewRouteImport.update({
+  id: '/create-new',
+  path: '/create-new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -324,6 +336,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/exports': {
+      id: '/exports'
+      path: '/exports'
+      fullPath: '/exports'
+      preLoaderRoute: typeof ExportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create-new': {
+      id: '/create-new'
+      path: '/create-new'
+      fullPath: '/create-new'
+      preLoaderRoute: typeof CreateNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
