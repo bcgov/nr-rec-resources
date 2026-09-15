@@ -146,17 +146,25 @@ export function RepairAddForm({
   onCancel,
   onSave,
 }: RepairAddFormProps) {
-  // Errors surface on blur rather than on every keystroke, so a half-typed
-  // coordinate doesn't flash red while the user is still entering it.
-  const [touchedStations, setTouchedStations] = useState<
-    Record<StationFormField, boolean>
-  >({ startStation: false, endStation: false });
+  // Like the bulk repair modal, coordinate errors stay hidden until the first
+  // Save attempt; after that they track edits live so a fix clears them.
+  const [hasAttemptedSave, setHasAttemptedSave] = useState(false);
 
   const hasStationErrors =
     isTrailAsset &&
     ADD_FORM_STATION_FIELDS.some(
       ({ field }) => !isValidStationValue(form[field]),
     );
+
+  function handleSaveClick() {
+    setHasAttemptedSave(true);
+
+    if (hasStationErrors) {
+      return;
+    }
+
+    onSave();
+  }
 
   return (
     <div className="asset-card-repairs__add-form">
@@ -217,7 +225,7 @@ export function RepairAddForm({
         {isTrailAsset &&
           ADD_FORM_STATION_FIELDS.map(({ field, label, placeholder }) => {
             const hasError =
-              touchedStations[field] && !isValidStationValue(form[field]);
+              hasAttemptedSave && !isValidStationValue(form[field]);
 
             return (
               <Form.Group
@@ -232,12 +240,6 @@ export function RepairAddForm({
                   isInvalid={hasError}
                   value={form[field]}
                   onChange={(e) => onFormChange({ [field]: e.target.value })}
-                  onBlur={() =>
-                    setTouchedStations((touched) => ({
-                      ...touched,
-                      [field]: true,
-                    }))
-                  }
                 />
                 {hasError && (
                   <Form.Control.Feedback type="invalid" className="d-block">
@@ -261,8 +263,8 @@ export function RepairAddForm({
         <Button
           variant="primary"
           size="sm"
-          onClick={onSave}
-          disabled={isCreating || !form.repairCode || hasStationErrors}
+          onClick={handleSaveClick}
+          disabled={isCreating || !form.repairCode}
         >
           {isCreating ? 'Saving…' : 'Save repair'}
         </Button>

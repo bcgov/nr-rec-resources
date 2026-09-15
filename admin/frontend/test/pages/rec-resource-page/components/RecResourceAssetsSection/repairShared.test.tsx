@@ -165,7 +165,10 @@ describe('repairShared', () => {
     expect(onFormChange).toHaveBeenCalledWith({ startStation: '4' });
   });
 
-  it('leaves save enabled when trail stations are left empty', () => {
+  it('saves a trail repair with the stations left empty', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+
     render(
       <RepairAddForm
         idSuffix="test"
@@ -175,46 +178,103 @@ describe('repairShared', () => {
         isTrailAsset
         onFormChange={vi.fn()}
         onCancel={vi.fn()}
-        onSave={vi.fn()}
+        onSave={onSave}
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Save repair' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Save repair' }));
+
+    expect(
+      screen.queryByText(STATION_COORDINATE_ERROR),
+    ).not.toBeInTheDocument();
+    expect(onSave).toHaveBeenCalledTimes(1);
   });
 
-  it('blocks save and shows an error once an invalid station is blurred', async () => {
+  it('hides station errors until the first save attempt', async () => {
     const user = userEvent.setup();
+    const onSave = vi.fn();
+    const invalidForm = {
+      ...EMPTY_REPAIR_FORM,
+      repairCode: 'R1',
+      startStation: 'KM 0.5',
+    };
 
     render(
       <RepairAddForm
         idSuffix="test"
         repairCodes={repairCodes}
-        form={{
-          ...EMPTY_REPAIR_FORM,
-          repairCode: 'R1',
-          startStation: 'KM 0.5',
-        }}
+        form={invalidForm}
         isCreating={false}
         isTrailAsset
         onFormChange={vi.fn()}
         onCancel={vi.fn()}
-        onSave={vi.fn()}
+        onSave={onSave}
       />,
     );
 
-    // Blocked immediately, but the message waits for blur.
-    expect(screen.getByRole('button', { name: 'Save repair' })).toBeDisabled();
+    // Blurring the field is not enough on its own.
+    await user.click(screen.getByLabelText('Start station'));
+    await user.tab();
     expect(
       screen.queryByText(STATION_COORDINATE_ERROR),
     ).not.toBeInTheDocument();
 
-    await user.click(screen.getByLabelText('Start station'));
-    await user.tab();
+    await user.click(screen.getByRole('button', { name: 'Save repair' }));
 
     expect(screen.getByText(STATION_COORDINATE_ERROR)).toBeInTheDocument();
+    expect(onSave).not.toHaveBeenCalled();
   });
 
-  it('keeps save enabled for a valid lat,long station', () => {
+  it('clears the station error once the value is corrected after a save attempt', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+    const baseForm = {
+      ...EMPTY_REPAIR_FORM,
+      repairCode: 'R1',
+      startStation: 'KM 0.5',
+    };
+
+    const { rerender } = render(
+      <RepairAddForm
+        idSuffix="test"
+        repairCodes={repairCodes}
+        form={baseForm}
+        isCreating={false}
+        isTrailAsset
+        onFormChange={vi.fn()}
+        onCancel={vi.fn()}
+        onSave={onSave}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Save repair' }));
+    expect(screen.getByText(STATION_COORDINATE_ERROR)).toBeInTheDocument();
+
+    rerender(
+      <RepairAddForm
+        idSuffix="test"
+        repairCodes={repairCodes}
+        form={{ ...baseForm, startStation: '49.1232,-128.3030' }}
+        isCreating={false}
+        isTrailAsset
+        onFormChange={vi.fn()}
+        onCancel={vi.fn()}
+        onSave={onSave}
+      />,
+    );
+
+    expect(
+      screen.queryByText(STATION_COORDINATE_ERROR),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Save repair' }));
+    expect(onSave).toHaveBeenCalledTimes(1);
+  });
+
+  it('saves without error when trail stations are valid', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+
     render(
       <RepairAddForm
         idSuffix="test"
@@ -223,16 +283,20 @@ describe('repairShared', () => {
           ...EMPTY_REPAIR_FORM,
           repairCode: 'R1',
           startStation: '49.1232,-128.3030',
-          endStation: '49.2000, -128.4000',
         }}
         isCreating={false}
         isTrailAsset
         onFormChange={vi.fn()}
         onCancel={vi.fn()}
-        onSave={vi.fn()}
+        onSave={onSave}
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Save repair' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Save repair' }));
+
+    expect(
+      screen.queryByText(STATION_COORDINATE_ERROR),
+    ).not.toBeInTheDocument();
+    expect(onSave).toHaveBeenCalledTimes(1);
   });
 });
