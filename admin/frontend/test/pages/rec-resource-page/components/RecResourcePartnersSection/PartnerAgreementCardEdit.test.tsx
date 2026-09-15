@@ -8,6 +8,20 @@ import {
 } from '@/pages/rec-resource-page/components/RecResourcePartnersSection/PartnerAgreementCardEdit';
 import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin';
 
+const mockUseAuthorizations = vi.hoisted(() =>
+  vi.fn(() => ({ isSuperAdmin: true })),
+);
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    SUPER_ADMIN: 'rst-super-admin',
+    DEVELOPER: 'rst-developer',
+  },
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 const basePartner: AgreementHolderClientPublicViewDto = {
   agreement_holder_id: 1000001,
   cancelled: false,
@@ -142,5 +156,29 @@ describe('PartnerAgreementCardEdit', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Cancel agreement' }));
     expect(props.onCancelAgreement).toHaveBeenCalledWith(basePartner);
+  });
+
+  describe('delete permission', () => {
+    it('shows Delete to a super admin', () => {
+      mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
+      renderCard();
+
+      expect(
+        screen.getByRole('button', { name: 'Delete' }),
+      ).toBeInTheDocument();
+    });
+
+    it('hides Delete from a non-super-admin', () => {
+      mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
+      renderCard();
+
+      expect(
+        screen.queryByRole('button', { name: 'Delete' }),
+      ).not.toBeInTheDocument();
+      // the other row-4 action is unaffected
+      expect(
+        screen.getByRole('button', { name: 'Cancel agreement' }),
+      ).toBeInTheDocument();
+    });
   });
 });

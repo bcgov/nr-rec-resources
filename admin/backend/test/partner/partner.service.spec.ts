@@ -70,7 +70,7 @@ describe('PartnerService', () => {
           agreement_end_date: null,
           visible_on_public_website: true,
           recreation_operator: false,
-          cancelled: false,
+          cancelled: true,
         },
       ]);
       fetchMock
@@ -148,6 +148,8 @@ describe('PartnerService', () => {
       );
       expect(result).toEqual([
         {
+          agreement_holder_id: 1000001,
+          cancelled: false,
           clientNumber: '00000002',
           clientName: 'BAXTER',
           legalFirstName: 'JAMES',
@@ -165,6 +167,8 @@ describe('PartnerService', () => {
           cancelled: false,
         },
         {
+          agreement_holder_id: 1000002,
+          cancelled: true,
           clientNumber: '00000003',
           clientName: 'SMITH',
           legalFirstName: 'JANE',
@@ -179,14 +183,15 @@ describe('PartnerService', () => {
           visible_on_public_website: true,
           partner_relationship_type_code: 'SITE_OPERATOR',
           agreement_holder_id: 1000002,
-          cancelled: false,
+          cancelled: true,
         },
       ]);
     });
 
-    // A holder with no client number is still returned, with the client fields
-    // blank, so it stays visible and editable rather than vanishing.
-    it('returns a holder with no client number, without calling the client API', async () => {
+    it('still returns a holder that has no client number, with the client fields blank', async () => {
+      // The response is 1:1 with agreement-holder rows. Dropping a holder
+      // whose client cannot be resolved would make it invisible in the admin
+      // app, and so impossible to edit or delete.
       prisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: 'REC0002',
       });
@@ -204,10 +209,47 @@ describe('PartnerService', () => {
 
       const result = await service.findClientsByRecResourceId('REC0002');
 
+      expect(result).toEqual([
+        {
+          agreement_holder_id: 1000001,
+          clientNumber: undefined,
+          agreementStartDate: undefined,
+          agreementEndDate: undefined,
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+          cancelled: false,
+        },
+      ]);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('still returns a holder whose client lookup 404s', async () => {
+      prisma.recreation_resource.findUnique.mockResolvedValue({
+        rec_resource_id: 'REC0002',
+      });
+      prisma.recreation_agreement_holder.findMany.mockResolvedValue([
+        {
+          agreement_holder_id: 1000001,
+          client_number: '00000002',
+          agreement_start_date: null,
+          agreement_end_date: null,
+          visible_on_public_website: false,
+          recreation_operator: false,
+          cancelled: false,
+        },
+      ]);
+      fetchMock.mockResolvedValue({
+        ok: false,
+        status: 404,
+        text: vi.fn().mockResolvedValue('Not found'),
+        headers: { get: vi.fn().mockReturnValue(null) },
+      });
+
+      const result = await service.findClientsByRecResourceId('REC0002');
+
       expect(result).toHaveLength(1);
       expect(result[0].agreement_holder_id).toBe(1000001);
-      expect(result[0].clientNumber).toBeUndefined();
-      expect(fetchMock).not.toHaveBeenCalled();
+      expect(result[0].clientNumber).toBe('00000002');
     });
 
     it('throws NotFoundException when the recreation resource does not exist', async () => {
@@ -455,12 +497,12 @@ describe('PartnerService', () => {
       prisma.recreation_agreement_holder.findFirst.mockResolvedValue(null);
       prisma.recreation_agreement_holder.create.mockResolvedValue({
         agreement_holder_id: 1000001,
-        cancelled: false,
         client_number: '00000002',
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
         visible_on_public_website: false,
         recreation_operator: false,
+        cancelled: false,
       });
       fetchMock.mockResolvedValue({
         ok: true,
@@ -498,6 +540,8 @@ describe('PartnerService', () => {
         },
       });
       expect(result).toEqual({
+        agreement_holder_id: 1000001,
+        cancelled: false,
         clientNumber: '00000002',
         clientName: 'BAXTER',
         clientStatusCode: 'ACT',
@@ -526,12 +570,12 @@ describe('PartnerService', () => {
       prisma.recreation_agreement_holder.findFirst.mockResolvedValue(null);
       prisma.recreation_agreement_holder.create.mockResolvedValue({
         agreement_holder_id: 1000001,
-        cancelled: false,
         client_number: '00000002',
         agreement_start_date: null,
         agreement_end_date: null,
         visible_on_public_website: true,
         recreation_operator: true,
+        cancelled: false,
       });
       fetchMock.mockResolvedValue({
         ok: true,
@@ -686,6 +730,66 @@ describe('PartnerService', () => {
         }),
       ).rejects.toThrow(NotFoundException);
       expect(prisma.recreation_agreement_holder.update).not.toHaveBeenCalled();
+    });
+
+    describe('when the agreement is cancelled', () => {
+      const cancelledHolder = () => holder({ cancelled: true });
+
+      it.each([
+        ['agreementStartDate', { agreementStartDate: '2025-01-01' }],
+        ['agreementEndDate', { agreementEndDate: '2027-01-01' }],
+        ['visible_on_public_website', { visible_on_public_website: false }],
+      ])('rejects a change to %s', async (_field, dto) => {
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          cancelledHolder(),
+        );
+
+        await expect(
+          service.updateAgreementHolder('REC0002', 1000001, dto),
+        ).rejects.toThrow(BadRequestException);
+        expect(
+          prisma.recreation_agreement_holder.update,
+        ).not.toHaveBeenCalled();
+      });
+
+      it('rejects clearing a date just as it rejects setting one', async () => {
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          cancelledHolder(),
+        );
+
+        await expect(
+          service.updateAgreementHolder('REC0002', 1000001, {
+            agreementEndDate: null,
+          }),
+        ).rejects.toThrow(BadRequestException);
+      });
+
+      it('rejects un-cancelling', async () => {
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          cancelledHolder(),
+        );
+
+        await expect(
+          service.updateAgreementHolder('REC0002', 1000001, {
+            cancelled: false,
+          }),
+        ).rejects.toThrow(BadRequestException);
+      });
+
+      it('still allows deleting it', async () => {
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          cancelledHolder(),
+        );
+        prisma.recreation_agreement_holder.delete.mockResolvedValue(
+          cancelledHolder(),
+        );
+
+        await service.deleteAgreementHolder('REC0002', 1000001);
+
+        expect(prisma.recreation_agreement_holder.delete).toHaveBeenCalledWith({
+          where: { agreement_holder_id: 1000001 },
+        });
+      });
     });
 
     it('404s when the holder does not exist', async () => {

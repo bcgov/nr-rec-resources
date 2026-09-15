@@ -38,6 +38,18 @@ describe('getAgreementStatusBadge', () => {
   it('labels a past agreement Expired', () => {
     expect(getAgreementStatusBadge('2020-01-01').label).toBe('Expired');
   });
+
+  it('labels a cancelled agreement Expired even with a future end date', () => {
+    expect(getAgreementStatusBadge('2030-12-31', true).label).toBe('Expired');
+  });
+
+  it('labels a cancelled open-ended agreement Expired', () => {
+    expect(getAgreementStatusBadge(undefined, true).label).toBe('Expired');
+  });
+
+  it('still labels an uncancelled future agreement Active', () => {
+    expect(getAgreementStatusBadge('2030-12-31', false).label).toBe('Active');
+  });
 });
 
 describe('formatAgreementDate', () => {
