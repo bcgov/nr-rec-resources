@@ -20,7 +20,6 @@ export const useGetPartners = (
 
   return useQuery<AgreementHolderClientPublicViewDto[], ResponseError>({
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.partners(recResourceId!),
-    initialData: [],
     queryFn: async () => {
       return await (api as any).getPartnersByRecreationResourceId({
         recResourceId: recResourceId!,
