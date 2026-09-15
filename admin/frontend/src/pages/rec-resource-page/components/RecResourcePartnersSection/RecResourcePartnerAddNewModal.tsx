@@ -92,8 +92,10 @@ export function RecResourcePartnerAddNewModal({
           }));
           return;
         }
-        setStep(step + 1);
         await fetchPartnerInfo(clientNumber);
+        if (!isPartnerInfoError) {
+          setStep(step + 1);
+        }
         await fetchPartnerLocations(clientNumber);
         break;
       }
@@ -307,7 +309,9 @@ export function RecResourcePartnerAddNewModal({
         )}
         <CustomButton
           variant="primary"
-          disabled={step === 1 && isPartnerInfoError && isPending}
+          disabled={
+            isPartnerInfoError || isPending || errors.clientNumber !== undefined
+          }
           onClick={handleContinue}
         >
           {step === 0 && 'Next'}

@@ -71,7 +71,10 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
       </Row>
       <Row className="align-items-center mb-3">
         <Col xs={4}>
-          <FontAwesomeIcon icon={faCalendar as any} className="me-2" />
+          <FontAwesomeIcon
+            icon={faCalendar as any}
+            className="me-2 calendar-icon"
+          />
           <span className="fw-bold">Start date</span>{' '}
           <span>
             {partner.agreementStartDate &&
@@ -86,7 +89,10 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
           </span>
         </Col>
         <Col xs={4}>
-          <FontAwesomeIcon icon={faCalendar as any} className="me-2" />
+          <FontAwesomeIcon
+            icon={faCalendar as any}
+            className="me-2 calendar-icon"
+          />
           <span className="fw-bold">End date</span>{' '}
           <span>
             {partner.agreementEndDate &&

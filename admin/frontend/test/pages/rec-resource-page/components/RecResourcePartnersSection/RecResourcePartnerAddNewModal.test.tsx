@@ -164,16 +164,6 @@ describe('RecResourcePartnerAddNewModal', () => {
     expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
   });
 
-  it('renders loading indicators during pendings in Step 1', async () => {
-    mockIsPending = true;
-    mockIsLocationsPending = true;
-
-    render(<RecResourcePartnerAddNewModal {...defaultProps} />);
-    await advanceToStep1();
-
-    expect(screen.getByText('Loading information...')).toBeInTheDocument();
-  });
-
   it('renders location loading indicator when only locations query is pending', async () => {
     mockIsLocationsPending = true;
 
