@@ -20,8 +20,8 @@ describe('RecResourcePartner', () => {
     clientName: 'acme corporation',
     clientStatusDescription: 'Active',
     clientTypeDescription: 'Society',
-    agreementStartDate: '2023-01-01T00:00:00Z',
-    agreementEndDate: '2025-12-31T00:00:00Z',
+    agreementStartDate: '2023-01-01',
+    agreementEndDate: '2099-12-31',
   };
 
   const mockLocations = [
@@ -56,6 +56,38 @@ describe('RecResourcePartner', () => {
     expect(screen.getByText('Start date')).toBeInTheDocument();
     expect(screen.getByText('End date')).toBeInTheDocument();
     expect(screen.getByText('Show additional information')).toBeInTheDocument();
+  });
+
+  it('shows recreation operator pill when backend marks relationship as recreation operator', () => {
+    render(
+      <RecResourcePartner
+        partner={{
+          ...mockPartner,
+          partner_relationship_type_code: 'RECREATION_OPERATOR',
+        }}
+      />,
+    );
+
+    expect(screen.getByText('Recreation operator')).toBeInTheDocument();
+  });
+
+  it('does not show recreation operator pill when backend marks as site operator', () => {
+    render(
+      <RecResourcePartner
+        partner={{
+          ...mockPartner,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        }}
+      />,
+    );
+
+    expect(screen.queryByText('Recreation operator')).not.toBeInTheDocument();
+  });
+
+  it('does not show recreation operator pill when relationship code is missing', () => {
+    render(<RecResourcePartner partner={mockPartner} />);
+
+    expect(screen.queryByText('Recreation operator')).not.toBeInTheDocument();
   });
 
   it('should toggle additional information and trigger fetchLocations on expand', async () => {
