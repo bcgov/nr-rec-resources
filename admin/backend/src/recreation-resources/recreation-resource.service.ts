@@ -18,6 +18,7 @@ import {
   SuggestionDto,
   SuggestionsResponseDto,
 } from './dtos/suggestions-response.dto';
+import { NextRecResourceIdDto } from './dtos/next-rec-resource-id.dto';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { OPEN_STATUS } from './recreation-resource.constants';
 import { RecreationResourceRepository } from './recreation-resource.repository';
@@ -68,6 +69,13 @@ export class RecreationResourceService {
       total: validSuggestions.length,
       suggestions: validSuggestions,
     };
+  }
+
+  async getNextRecResourceId(): Promise<NextRecResourceIdDto> {
+    const rec_resource_id =
+      await this.recreationResourceRepository.getNextRecResourceId();
+
+    return { rec_resource_id };
   }
 
   async searchResources(

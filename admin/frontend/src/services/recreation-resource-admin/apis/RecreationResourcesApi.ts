@@ -25,6 +25,7 @@ import type {
   FinalizeDocUploadRequestDto,
   FinalizeExhibitAUploadRequestDto,
   ListExportDatasetsResponseDto,
+  NextRecResourceIdDto,
   OptionDto,
   OptionsByTypeDto,
   PresignDocUploadResponseDto,
@@ -73,6 +74,8 @@ import {
   FinalizeExhibitAUploadRequestDtoToJSON,
   ListExportDatasetsResponseDtoFromJSON,
   ListExportDatasetsResponseDtoToJSON,
+  NextRecResourceIdDtoFromJSON,
+  NextRecResourceIdDtoToJSON,
   OptionDtoFromJSON,
   OptionDtoToJSON,
   OptionsByTypeDtoFromJSON,
@@ -2113,7 +2116,53 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity, recStatusCode
+   * Get next recreation resource identifier
+   */
+  async getNextRecResourceIdRaw(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<NextRecResourceIdDto>> {
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/recreation-resources/next-rec-resource-id`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      NextRecResourceIdDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Get next recreation resource identifier
+   */
+  async getNextRecResourceId(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<NextRecResourceIdDto> {
+    const response = await this.getNextRecResourceIdRaw(initOverrides);
+    return await response.value();
+  }
+
+  /**
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, naturalDistrict, photographerType, closestCommunity, recStatusCode
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -2162,7 +2211,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType, closestCommunity, recStatusCode
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, naturalDistrict, photographerType, closestCommunity, recStatusCode
    * List all options for a type
    */
   async getOptionsByType(
@@ -3717,6 +3766,7 @@ export const GetOptionsByTypeTypeEnum = {
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
+  NaturalDistrict: 'naturalDistrict',
   PhotographerType: 'photographerType',
   ClosestCommunity: 'closestCommunity',
   RecStatusCode: 'recStatusCode',
@@ -3740,6 +3790,7 @@ export const GetOptionsByTypesTypesEnum = {
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
+  NaturalDistrict: 'naturalDistrict',
   PhotographerType: 'photographerType',
   ClosestCommunity: 'closestCommunity',
   RecStatusCode: 'recStatusCode',

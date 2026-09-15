@@ -7,6 +7,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { Link } from '@tanstack/react-router';
 import SidebarTooltip from './SidebarToolTip';
 import { externalLinks, menuLinks } from '@/constants/menu-options';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 interface SidebarProps {
   className?: string;
@@ -14,6 +15,10 @@ interface SidebarProps {
 
 export const Sidebar = ({ className = '' }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const { isSuperAdmin } = useAuthorizations();
+  const visibleMenuLinks = menuLinks.filter(
+    (link) => !link.superAdminOnly || isSuperAdmin,
+  );
 
   return (
     <aside
@@ -22,7 +27,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
     >
       {/* --- TOP NAVIGATION GROUP --- */}
       <div className="d-flex flex-column gap-2 top-menu">
-        {menuLinks.map((link) => {
+        {visibleMenuLinks.map((link) => {
           return (
             <SidebarTooltip
               text={link.text}

@@ -52,6 +52,19 @@ export class RecreationResourceRepository {
     return { total: data.length, data };
   }
 
+  async getNextRecResourceId(): Promise<string> {
+    const result = await this.prisma.$queryRaw<
+      Array<{ max_id: number | null }>
+    >`
+      SELECT COALESCE(MAX((substring(rec_resource_id FROM '^REC([0-9]+)$'))::int), 0) AS max_id
+      FROM rst.recreation_resource
+      WHERE rec_resource_id ~ '^REC[0-9]+$'
+    `;
+
+    const nextId = Number(result[0]?.max_id ?? 0) + 1;
+    return `REC${String(nextId).padStart(6, '0')}`;
+  }
+
   async searchResources(
     query: AdminSearchQueryDto,
     options?: { includeArchived?: boolean },
