@@ -15,11 +15,11 @@ export const useGetPartnerLocations = (
     string
   > = {},
 ) => {
-  const api = usePartnersApiClient() as PartnersApi;
+  const api: PartnersApi = usePartnersApiClient();
 
   return useMutation<ClientLocationDto[], ResponseError, string>({
     mutationFn: async (clientId: string) => {
-      return await (api as any).getPartnerLocationsByClientId({
+      return await api.getPartnerLocationsByClientId({
         clientId,
       });
     },

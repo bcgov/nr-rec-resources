@@ -16,6 +16,8 @@ describe('RecResourcePartner', () => {
   const mockMutateAsync = vi.fn();
 
   const mockPartner: AgreementHolderClientPublicViewDto = {
+    agreement_holder_id: 1000001,
+    cancelled: false,
     clientNumber: '00123456',
     clientName: 'acme corporation',
     clientStatusDescription: 'Active',

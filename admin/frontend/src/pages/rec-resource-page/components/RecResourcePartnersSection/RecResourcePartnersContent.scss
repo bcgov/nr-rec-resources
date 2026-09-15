@@ -22,6 +22,42 @@
   margin-left: 16px;
 }
 
+// Edit view: cards stack with spacing between them, and take the full
+// available width of the section.
+.partner-panel--edit {
+  width: 100%;
+
+  & + & {
+    margin-top: 16px;
+  }
+}
+
+// Row 4 actions. Both buttons use the same text/border colour per the design.
+$colorPartnerAction: #2d2d2d;
+
+.partner-panel__action-btn {
+  color: $colorPartnerAction;
+  text-decoration: none;
+  border: none;
+
+  &:hover,
+  &:focus,
+  &:active,
+  &:disabled {
+    color: $colorPartnerAction;
+  }
+
+  &--outlined {
+    border: 1px solid $colorPartnerAction;
+
+    &:hover,
+    &:focus,
+    &:active {
+      border-color: $colorPartnerAction;
+    }
+  }
+}
+
 .calendar-icon {
   color: $colorBlue;
 }

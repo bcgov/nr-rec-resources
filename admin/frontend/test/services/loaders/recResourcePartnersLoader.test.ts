@@ -125,17 +125,24 @@ describe('recResourcePartnersLoader', () => {
     });
   });
 
-  it('should return [] for partnersInfo when the API call throws an error', async () => {
+  it('should return an empty list for partnersInfo when the API call throws an error', async () => {
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
     mockGetPartnersByRecreationResourceId.mockRejectedValue(
       new Error('API Failure'),
     );
 
     const result = await recResourcePartnersLoader(mockArgs);
 
+    // Must not be null: this value becomes initialData, and a null would
+    // survive the `= []` default in the consumers and throw on .map().
     expect(result).toEqual({
       parentKey: 'parentValue',
       partnersInfo: [],
     });
+    expect(consoleError).toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 
   it('should handle fallback basePath when VITE_API_BASE_URL is undefined', async () => {
