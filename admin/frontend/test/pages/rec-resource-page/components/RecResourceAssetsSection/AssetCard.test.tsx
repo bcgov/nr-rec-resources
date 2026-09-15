@@ -151,9 +151,8 @@ describe('AssetCard', () => {
     expect(screen.getByText('5')).toBeInTheDocument();
     // actual_value takes precedence over default_value
     expect(screen.getByText('$900')).toBeInTheDocument();
-    // actual repair cost sums actual_repair_cost for completed repairs only (repair 1
-    // is excluded here since it has no completion date)
-    expect(screen.getByText('$200')).toBeInTheDocument();
+    // actual repair cost sums actual_repair_cost across all repairs
+    expect(screen.getByText('$300')).toBeInTheDocument();
     expect(screen.getByText('49.1,-123.1')).toBeInTheDocument();
   });
 
@@ -200,7 +199,7 @@ describe('AssetCard', () => {
     expect(screen.getAllByText('-')).toHaveLength(6);
   });
 
-  it('excludes repairs with no completion date from repair spend', () => {
+  it('includes actual repair costs even when the repair has no completion date', () => {
     render(
       <AssetCard
         asset={buildAsset({
@@ -218,10 +217,10 @@ describe('AssetCard', () => {
     const repairSpendField = screen
       .getByText('Actual Repair Cost:')
       .closest('.asset-card__field');
-    expect(repairSpendField).toHaveTextContent('$0');
+    expect(repairSpendField).toHaveTextContent('$100');
   });
 
-  it('falls back to estimated cost when a completed repair has no actual cost', () => {
+  it('ignores estimated cost when actual repair cost is missing', () => {
     render(
       <AssetCard
         asset={buildAsset({
@@ -237,7 +236,7 @@ describe('AssetCard', () => {
       />,
     );
 
-    expect(screen.getByText('$25')).toBeInTheDocument();
+    expect(screen.getByText('$0')).toBeInTheDocument();
   });
 
   it('only shows actual repair cost and location for campsites', () => {
