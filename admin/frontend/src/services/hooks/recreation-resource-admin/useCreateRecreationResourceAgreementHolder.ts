@@ -42,7 +42,14 @@ export function useCreateRecreationResourceAgreementHolder() {
         refetchType: 'active',
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      if (error && error.response?.status === 409) {
+        addErrorNotification(
+          'A partner with this agreement details already exists.',
+          'createPartner-409-error',
+        );
+        return;
+      }
       addErrorNotification(
         'Failed to create partner. Please try again.',
         'createPartner-error',

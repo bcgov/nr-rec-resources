@@ -30,7 +30,8 @@ export function RecResourcePartnerAddNewModal({
     data: partnerLocations,
     isPending: isLocationsPending,
   } = useGetPartnerLocations();
-  const { mutate } = useCreateRecreationResourceAgreementHolder();
+  const { mutate, isPending: isMutatePending } =
+    useCreateRecreationResourceAgreementHolder();
   const [step, setStep] = useState<number>(0);
   const [clientNumber, setClientNumber] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
@@ -310,7 +311,9 @@ export function RecResourcePartnerAddNewModal({
         <CustomButton
           variant="primary"
           disabled={
-            isPartnerInfoError || isPending || errors.clientNumber !== undefined
+            isPartnerInfoError ||
+            isMutatePending ||
+            errors.clientNumber !== undefined
           }
           onClick={handleContinue}
         >
