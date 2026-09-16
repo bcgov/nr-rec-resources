@@ -45,6 +45,7 @@
   - [Accessing Generated Documentation](docs/open-api-swagger.md#accessing-generated-documentation)
 - [Admin Authentication & Authorization](admin/docs/auth/auth.md)
   - [Role Combinations](admin/docs/auth/auth.md#role-combinations)
+- [ACT and BCGW Integration Data Flow](#act-and-bcgw-integration-data-flow)
 
 ### CI/CD
 
@@ -325,11 +326,66 @@ Schedule job runs every saturday and keep schema documentation upto date in
 
 #### Public App
 
-![RST Public App Architecture](docs/rst-arch.drawio.svg)
+This diagram captures the public frontend with Public UI, frontend assets CDN,
+file storage CDN, public API, Aurora PostgreSQL, and the Flyway migration sync.
+
+![RST Public App Architecture](docs/public-architecture/rst-public-arch.mermaid.svg)
 
 #### Admin App (with S3)
 
 ![RST Admin App Architecture](docs/admin-architecture/rst-admin-arch.mermaid.svg)
+
+#### Flyway Migration
+
+This diagram captures the OpenShift backend process that pulls data, uploads
+CSVs to S3, triggers an ECS task to read those CSVs, and then updates FTA and
+RST in Aurora PostgreSQL.
+
+![Flyway Migration Flow](docs/admin-architecture/fta-migration-flowchart.mermaid.svg)
+
+To regenerate the admin architecture SVG with AWS, Azure, and generic external
+service icons, run the following from the repository root:
+
+```bash
+npx -y -p @mermaid-js/mermaid-cli mmdc \
+  -i docs/admin-architecture/admin-architecture-flowchart-animated.mmd \
+  -o docs/admin-architecture/rst-admin-arch.mermaid.svg \
+  --iconPacks '@iconify-json/mdi' \
+  --iconPacksNamesAndUrls "aws#https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/aws-icons-mermaid.json" \
+  "azure#https://raw.githubusercontent.com/NakayamaKento/AzureIcons/refs/heads/main/icons.json"
+```
+
+To regenerate the Flyway migration SVG, run the following from the repository
+root:
+
+```bash
+npx -y -p @mermaid-js/mermaid-cli mmdc \
+  -i docs/admin-architecture/fta-migration-flowchart.mmd \
+  -o docs/admin-architecture/fta-migration-flowchart.mermaid.svg
+```
+
+To regenerate the public architecture SVG, run the following from the repository
+root:
+
+```bash
+npx -y -p @mermaid-js/mermaid-cli mmdc \
+  -i docs/public-architecture/public-architecture-flowchart.mmd \
+  -o docs/public-architecture/rst-public-arch.mermaid.svg \
+  --iconPacks '@iconify-json/mdi' \
+  --iconPacksNamesAndUrls "aws#https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/aws-icons-mermaid.json" \
+  "azure#https://raw.githubusercontent.com/NakayamaKento/AzureIcons/refs/heads/main/icons.json"
+```
+
+## ACT and BCGW Integration Data Flow
+
+- ACT sends advisory CUD payloads to admin backend endpoints under
+  `/api/v1/act/advisories`.
+- Admin backend validates and persists ACT advisory changes to
+  `rst.act_advisories_flat` in Aurora PostgreSQL.
+- BCGW consumes paginated GeoJSON from admin backend endpoints under
+  `/api/v1/bcgw/*`, sourced from SQL export datasets/views.
+- Canonical integration details and endpoint contracts are maintained in
+  `admin/backend/README.md`.
 
 ---
 

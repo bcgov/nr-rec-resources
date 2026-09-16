@@ -14,3 +14,8 @@ This project uses
 [TanStack React Query](https://tanstack.com/query/latest/docs/framework/react/overview)
 for data fetching and caching. The `QueryClientProvider` is set up in
 `src/App.tsx`.
+
+## Integration APIs
+
+- ACT and BCGW integration endpoint contracts and data-flow behavior are
+  documented in `admin/backend/README.md`.
