@@ -255,9 +255,10 @@ export class PartnerService {
       existing.agreement_end_date,
     );
 
-    // Compared against the merged record, so editing one date still validates
-    // against the other's persisted value.
-    if (startDate && endDate && endDate <= startDate) {
+    // Checked against the merged record so editing one date still validates
+    // against the other. Skipped when cancelling — otherwise you couldn't
+    // cancel an agreement that hasn't started yet.
+    if (!updateDto.cancelled && startDate && endDate && endDate <= startDate) {
       throw new BadRequestException(
         'Agreement end date must be after the agreement start date.',
       );
@@ -267,8 +268,17 @@ export class PartnerService {
       where: { agreement_holder_id },
       data: {
         agreement_start_date: this.toDateInput(updateDto.agreementStartDate),
-        agreement_end_date: this.toDateInput(updateDto.agreementEndDate),
-        visible_on_public_website: updateDto.visible_on_public_website,
+        // Cancelling records when the agreement ended. The caller picks the
+        // date; today if they don't.
+        agreement_end_date: updateDto.cancelled
+          ? (this.toDateInput(updateDto.agreementEndDate) ??
+            this.startOfTodayUtc())
+          : this.toDateInput(updateDto.agreementEndDate),
+        // A cancelled agreement is never the public contact, whatever the
+        // payload says.
+        visible_on_public_website: updateDto.cancelled
+          ? false
+          : updateDto.visible_on_public_website,
         partner_relationship_type_code:
           updateDto.partner_relationship_type_code,
         cancelled: updateDto.cancelled,
@@ -316,6 +326,14 @@ export class PartnerService {
     }
 
     return existing;
+  }
+
+  /** Today at UTC midnight, matching how Prisma hands back date-only columns. */
+  private startOfTodayUtc(): Date {
+    const now = new Date();
+    return new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
   }
 
   /** Prisma input: undefined leaves the column alone, null clears it. */

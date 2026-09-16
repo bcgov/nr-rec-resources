@@ -770,6 +770,131 @@ describe('PartnerService', () => {
         ).rejects.toThrow(BadRequestException);
       });
 
+      it('clears public-website visibility as part of cancelling', async () => {
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          holder({ visible_on_public_website: true }),
+        );
+        prisma.recreation_agreement_holder.update.mockResolvedValue(
+          holder({ cancelled: true, visible_on_public_website: false }),
+        );
+        mockClientFetch();
+
+        await service.updateAgreementHolder('REC0002', 1000001, {
+          cancelled: true,
+        });
+
+        const data =
+          prisma.recreation_agreement_holder.update.mock.calls[0]?.[0]?.data;
+        expect(data.cancelled).toBe(true);
+        expect(data.visible_on_public_website).toBe(false);
+      });
+
+      it('overrides a payload that asks to stay visible while cancelling', async () => {
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          holder({ visible_on_public_website: true }),
+        );
+        prisma.recreation_agreement_holder.update.mockResolvedValue(
+          holder({ cancelled: true, visible_on_public_website: false }),
+        );
+        mockClientFetch();
+
+        await service.updateAgreementHolder('REC0002', 1000001, {
+          cancelled: true,
+          visible_on_public_website: true,
+        });
+
+        const data =
+          prisma.recreation_agreement_holder.update.mock.calls[0]?.[0]?.data;
+        expect(data.visible_on_public_website).toBe(false);
+      });
+
+      it('falls back to today when no cancellation date is supplied', async () => {
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          holder({ agreement_end_date: new Date('2030-12-31T00:00:00Z') }),
+        );
+        prisma.recreation_agreement_holder.update.mockResolvedValue(
+          holder({ cancelled: true }),
+        );
+        mockClientFetch();
+
+        await service.updateAgreementHolder('REC0002', 1000001, {
+          cancelled: true,
+        });
+
+        const data =
+          prisma.recreation_agreement_holder.update.mock.calls[0]?.[0]?.data;
+        const today = new Date();
+        expect(data.agreement_end_date).toBeInstanceOf(Date);
+        // today at UTC midnight, matching how date-only columns round-trip
+        expect(data.agreement_end_date.toISOString().slice(0, 10)).toBe(
+          today.toISOString().slice(0, 10),
+        );
+        expect(data.agreement_end_date.getUTCHours()).toBe(0);
+      });
+
+      it('stamps the end date with the supplied cancellation date', async () => {
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          holder(),
+        );
+        prisma.recreation_agreement_holder.update.mockResolvedValue(
+          holder({ cancelled: true }),
+        );
+        mockClientFetch();
+
+        await service.updateAgreementHolder('REC0002', 1000001, {
+          cancelled: true,
+          agreementEndDate: '2030-01-01',
+        });
+
+        const data =
+          prisma.recreation_agreement_holder.update.mock.calls[0]?.[0]?.data;
+        expect(data.agreement_end_date.toISOString().slice(0, 10)).toBe(
+          '2030-01-01',
+        );
+      });
+
+      it('falls back to today when the cancellation date is cleared', async () => {
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          holder(),
+        );
+        prisma.recreation_agreement_holder.update.mockResolvedValue(
+          holder({ cancelled: true }),
+        );
+        mockClientFetch();
+
+        await service.updateAgreementHolder('REC0002', 1000001, {
+          cancelled: true,
+          agreementEndDate: null,
+        });
+
+        const data =
+          prisma.recreation_agreement_holder.update.mock.calls[0]?.[0]?.data;
+        expect(data.agreement_end_date.toISOString().slice(0, 10)).toBe(
+          new Date().toISOString().slice(0, 10),
+        );
+      });
+
+      it('can cancel an agreement that has not started yet', async () => {
+        // The cancellation date precedes the start date, which the ordering
+        // rule would otherwise reject.
+        prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
+          holder({
+            agreement_start_date: new Date('2030-01-01T00:00:00Z'),
+            agreement_end_date: new Date('2031-01-01T00:00:00Z'),
+          }),
+        );
+        prisma.recreation_agreement_holder.update.mockResolvedValue(
+          holder({ cancelled: true }),
+        );
+        mockClientFetch();
+
+        await expect(
+          service.updateAgreementHolder('REC0002', 1000001, {
+            cancelled: true,
+          }),
+        ).resolves.toBeDefined();
+      });
+
       it('still allows deleting it', async () => {
         prisma.recreation_agreement_holder.findUnique.mockResolvedValue(
           cancelledHolder(),
