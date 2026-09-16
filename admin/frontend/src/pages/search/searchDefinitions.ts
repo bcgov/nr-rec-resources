@@ -137,15 +137,39 @@ export const STICKY_COLUMN_IDS: AdminSearchColumnId[] = [
   'name',
 ];
 
-export const FEATURE_FLAGGED_COLUMN_IDS = new Set<AdminSearchColumnId>([
+// No ACT advisories in prod yet, so everything would read as Open. Hide it
+// there until the backfill lands, then empty this set.
+export const NON_PROD_ONLY_COLUMN_IDS = new Set<AdminSearchColumnId>([
   'public_access_status',
 ]);
 
-// Columns only super admins may see. The FTA 'Status' is hidden from everyone
-// else so the ACT 'Public access status' is the single status users work with.
+// Outside prod, public access status is the one users work with, so FTA status
+// is super admins only. In prod it's the other way round: FTA is all we have,
+// so everyone gets it.
 export const SUPER_ADMIN_ONLY_COLUMN_IDS = new Set<AdminSearchColumnId>([
   'status',
 ]);
+
+export interface SearchVisibilityContext {
+  isSuperAdmin: boolean;
+  isProduction: boolean;
+}
+
+// Shared by the results table and the column picker so they can't disagree.
+export function isColumnVisibleTo(
+  columnId: AdminSearchColumnId,
+  { isSuperAdmin, isProduction }: SearchVisibilityContext,
+): boolean {
+  if (NON_PROD_ONLY_COLUMN_IDS.has(columnId)) {
+    return !isProduction;
+  }
+
+  if (SUPER_ADMIN_ONLY_COLUMN_IDS.has(columnId)) {
+    return isProduction || isSuperAdmin;
+  }
+
+  return true;
+}
 
 export const ADMIN_SEARCH_COLUMN_LABELS = Object.fromEntries(
   ADMIN_SEARCH_COLUMN_DEFINITIONS.map(({ id, label }) => [id, label]),

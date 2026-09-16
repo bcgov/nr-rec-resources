@@ -303,6 +303,7 @@ export function AssetCardRepairsEdit({
               repairCodes={repairCodes}
               form={form}
               isCreating={isCreating}
+              isTrailAsset={isTrailAsset}
               onFormChange={(updates) => setForm((f) => ({ ...f, ...updates }))}
               onCancel={() => {
                 setShowAddForm(false);

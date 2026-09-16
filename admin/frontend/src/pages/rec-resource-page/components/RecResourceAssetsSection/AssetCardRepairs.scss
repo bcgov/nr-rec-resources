@@ -95,7 +95,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  align-items: flex-end;
+  // Top-aligned like the bulk repair modal's grid: every field is the same
+  // height until one shows an error, and then only that field grows.
+  align-items: flex-start;
 
   .form-group {
     flex: 0 1 auto;
@@ -228,5 +230,18 @@
   .form-control {
     min-width: 220px;
     width: auto;
+  }
+}
+
+// Fixed column rather than content-sized: without a bound the long coordinate
+// error stretches the field to fit on one line. Constraining the group makes
+// the message wrap under the input, as it does in the bulk repair modal.
+.asset-card-repairs__add-form-fields .asset-card-repairs__station-group {
+  flex: 0 1 220px;
+  max-width: 220px;
+
+  .form-control {
+    min-width: 0;
+    width: 100%;
   }
 }

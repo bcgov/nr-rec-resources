@@ -8,6 +8,7 @@ import { getPublicAccessStatusHelpText } from '@/utils/publicAccessStatusHelpTex
 import {
   ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS,
   EMPTY_ADMIN_SEARCH_FILTERS,
+  isFilterFieldVisibleTo,
   type EditableAdminSearchFilters,
 } from '@/pages/search/constants';
 import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchController';
@@ -15,6 +16,7 @@ import { AdminSearchRouteState } from '@/pages/search/types';
 import './FilterAccordion.scss';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
+import { isProd } from '@/utils/environment';
 
 type FilterAccordionControllerProps = Pick<
   ReturnType<typeof useAdminSearchController>,
@@ -70,7 +72,8 @@ export function FilterAccordion({
   controller,
   showTrigger = true,
 }: Readonly<FilterAccordionProps>) {
-  const { canViewFeatureFlag, isSuperAdmin } = useAuthorizations();
+  const { isSuperAdmin } = useAuthorizations();
+  const filterVisibility = { isSuperAdmin, isProduction: isProd() };
   const {
     isFilterPanelOpen: isOpen,
     closeFilterPanel: onClose,
@@ -134,18 +137,7 @@ export function FilterAccordion({
         <div className="filters__panel mb-3">
           <Row className="g-3">
             {ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS.map((field) => {
-              if (
-                'isFeatureFlagged' in field &&
-                field.isFeatureFlagged &&
-                !canViewFeatureFlag
-              ) {
-                return null;
-              }
-              if (
-                'isSuperAdminOnly' in field &&
-                field.isSuperAdminOnly &&
-                !isSuperAdmin
-              ) {
+              if (!isFilterFieldVisibleTo(field, filterVisibility)) {
                 return null;
               }
               const options =
