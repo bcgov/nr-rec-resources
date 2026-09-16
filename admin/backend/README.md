@@ -35,6 +35,60 @@ The NR Rec Resources Admin backend is responsible for:
   right-of-way, and site point coordinates (see
   [Geospatial data and spatial calculations](../../docs/geospatial.md)).
 
+## Integration APIs and Data Flows
+
+This backend exposes integration APIs used by external systems with clear
+inbound and outbound data directions.
+
+### ACT Integration API (Inbound -> DB writes)
+
+- Base path: `/api/v1/act/advisories`
+- Purpose: ACT pushes advisory Create/Update/Delete changes into this service.
+- Endpoints:
+  - `POST /api/v1/act/advisories` (single advisory upsert)
+  - `POST /api/v1/act/advisories/bulk` (same advisory fan-out to multiple
+    resources)
+  - `PUT /api/v1/act/advisories/:rec_resource_id/:advisory_number` (partial
+    update)
+  - `DELETE /api/v1/act/advisories/:rec_resource_id/:advisory_number` (delete)
+- Authentication and authorization: OAuth2 Client Credentials via CSS/Keycloak;
+  token must include the `act-service` role.
+- Persistence: writes are applied to `rst.act_advisories_flat` using natural key
+  `(rec_resource_id, advisory_number)`.
+
+### BCGW Integration API (Outbound <- DB reads)
+
+- Base path: `/api/v1/bcgw`
+- Purpose: BCGW pulls paginated GeoJSON FeatureCollections for warehouse
+  ingestion.
+- Endpoints:
+  - `GET /api/v1/bcgw/closures-fully-attributed`
+  - `GET /api/v1/bcgw/closures-short`
+  - `GET /api/v1/bcgw/recreation-lines`
+  - `GET /api/v1/bcgw/recreation-polygons`
+- Response model: GeoJSON `FeatureCollection` with pagination metadata (`page`,
+  `pageSize`, `total`, `totalPages`).
+- Pagination: `page` is 1-indexed; current page size is 1000 features.
+- Data source: SQL-backed BCGW export datasets/materialized views in Aurora
+  PostgreSQL/PostGIS (closures fully-attributed is documented as refreshed every
+  5 minutes).
+- Auth note: `closures-fully-attributed` currently enforces the BCGW Keycloak
+  bearer strategy in controller guards.
+
+### Database Update and Exchange Flows
+
+- ACT -> Admin API -> `rst.act_advisories_flat` (write/update/delete flow).
+- Admin users -> Admin API -> operational RST tables (core CRUD workflows).
+- BCGW -> Admin API -> SQL export views (read-only pull flow from BCGW side).
+
+### Data Direction Quick Reference
+
+- Inbound source systems: ACT (advisory changes).
+- Outbound consumers: BCGW (warehouse ingestion pulls), Admin frontend (app
+  operations).
+- Storage boundary: all persisted records are committed to Aurora PostgreSQL;
+  integration endpoints do not write directly to external systems.
+
 ## File Storage
 
 The backend manages three types of file storage:
