@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Button, Spinner, Stack } from 'react-bootstrap';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, Form, Spinner, Stack } from 'react-bootstrap';
 import { useNavigate } from '@tanstack/react-router';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal/DeleteConfirmationModal';
@@ -18,6 +20,14 @@ import {
 import './RecResourcePartnersContent.scss';
 
 type DraftsById = Record<number, PartnerAgreementDraft>;
+
+/** Today as a date-input value, in the browser's timezone — it's the day the
+ * user sees on their own clock. */
+function todayAsInputValue(): string {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 10);
+}
 
 /** Only fields the user actually changed are sent. */
 function buildUpdatePayload(
@@ -63,6 +73,7 @@ export const RecResourcePartnersEditSection = ({
     useState<AgreementHolderClientPublicViewDto | null>(null);
   const [partnerToCancel, setPartnerToCancel] =
     useState<AgreementHolderClientPublicViewDto | null>(null);
+  const [cancelDate, setCancelDate] = useState(todayAsInputValue);
   const [isSaving, setIsSaving] = useState(false);
   const [showMainPartnerWarning, setShowMainPartnerWarning] = useState(false);
 
@@ -203,13 +214,38 @@ export const RecResourcePartnersEditSection = ({
     }
   };
 
+  /** Each open starts from today, not whatever the last one left behind. */
+  const handleRequestCancelAgreement = (
+    partner: AgreementHolderClientPublicViewDto,
+  ) => {
+    setCancelDate(todayAsInputValue());
+    setPartnerToCancel(partner);
+  };
+
   const handleConfirmCancelAgreement = async () => {
     if (!partnerToCancel) return;
+    const { agreement_holder_id } = partnerToCancel;
     try {
-      await updateAgreementHolder({
+      const updated = await updateAgreementHolder({
         recResourceId,
-        agreementHolderId: partnerToCancel.agreement_holder_id,
-        dto: { cancelled: true },
+        agreementHolderId: agreement_holder_id,
+        dto: { cancelled: true, agreementEndDate: cancelDate },
+      });
+      // The card is frozen from here on, so mirror what the server actually
+      // saved rather than guessing at it locally.
+      setDrafts((prev) => {
+        const draft = prev[agreement_holder_id];
+        if (!draft) return prev;
+        return {
+          ...prev,
+          [agreement_holder_id]: {
+            ...draft,
+            visible_on_public_website:
+              updated?.visible_on_public_website ?? false,
+            agreementEndDate:
+              updated?.agreementEndDate ?? draft.agreementEndDate,
+          },
+        };
       });
     } finally {
       setPartnerToCancel(null);
@@ -258,7 +294,7 @@ export const RecResourcePartnersEditSection = ({
               draft={drafts[partner.agreement_holder_id] ?? toDraft(partner)}
               onDraftChange={handleDraftChange}
               onDelete={setPartnerToDelete}
-              onCancelAgreement={setPartnerToCancel}
+              onCancelAgreement={handleRequestCancelAgreement}
               disabled={isBusy}
             />
           ))}
@@ -267,15 +303,30 @@ export const RecResourcePartnersEditSection = ({
 
       <DeleteConfirmationModal
         show={showMainPartnerWarning}
-        title="Change main contact on public website"
+        title="Display as main contact on public site"
         description={
-          draftedMainPartner
-            ? `${draftedMainPartner.clientName ?? draftedMainPartner.clientNumber} will become the main contact shown on the public website, replacing the current one. Only one partner can be shown at a time.`
-            : 'No partner will be shown as the main contact on the public website.'
+          <>
+            <div className="partner-main-contact-modal__warning">
+              <FontAwesomeIcon
+                icon={faExclamationTriangle as any}
+                className="partner-main-contact-modal__warning-icon"
+                aria-hidden="true"
+              />
+              <span>This will replace the current main contact.</span>
+            </div>
+            <p className="partner-main-contact-modal__detail">
+              {draftedMainPartner
+                ? `${draftedMainPartner.clientName ?? draftedMainPartner.clientNumber} will become the main contact displayed on the public site. Only one partner can be displayed at a time.`
+                : 'No partner will be displayed as the main contact on the public site. Only one partner can be displayed at a time.'}
+            </p>
+          </>
         }
+        className="partner-modal--tinted-header partner-main-contact-modal"
+        size="lg"
         confirmText="Save changes"
-        cancelText="Go back"
+        cancelText="Cancel"
         confirmVariant="primary"
+        confirmIcon={null}
         onCancel={() => setShowMainPartnerWarning(false)}
         onConfirm={() => void handleSave()}
       />
@@ -297,7 +348,21 @@ export const RecResourcePartnersEditSection = ({
         onConfirm={() => void handleConfirmCancelAgreement()}
         confirmText="Cancel agreement"
         cancelText="Keep agreement"
-      />
+        className="partner-modal--tinted-header"
+        size="lg"
+      >
+        <Form.Group controlId="cancel-agreement-date" className="mt-3">
+          <Form.Label className="fw-bold">Cancel</Form.Label>
+          <Form.Control
+            type="date"
+            value={cancelDate}
+            onChange={(e) => setCancelDate(e.target.value)}
+          />
+          <Form.Text className="partner-panel__toggle-label">
+            This date will be saved as the agreement end date.
+          </Form.Text>
+        </Form.Group>
+      </DeleteConfirmationModal>
     </Stack>
   );
 };
