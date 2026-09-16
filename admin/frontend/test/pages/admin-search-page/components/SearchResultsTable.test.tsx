@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SearchResultsTable } from '@/pages/search/components/SearchResultsTable';
 import { AdminSearchResultRow } from '@/pages/search/types';
 
@@ -52,15 +52,16 @@ describe('SearchResultsTable', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Default to no feature-flag access, matching production behaviour with no
-    // AuthContext provider. The public access status column stays hidden.
-    mockUseAuthorizations.mockReturnValue({
-      canViewFeatureFlag: false,
-      isSuperAdmin: true,
-    });
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
   });
 
-  it('hides the public access status column without feature-flag access', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('hides the public access status column in production', () => {
+    vi.stubEnv('VITE_DEPLOYMENT_ENV', 'prod');
+
     render(
       <SearchResultsTable
         rows={rows}
@@ -77,12 +78,7 @@ describe('SearchResultsTable', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders the public access status as a badge when feature-flag access is granted', () => {
-    mockUseAuthorizations.mockReturnValue({
-      canViewFeatureFlag: true,
-      isSuperAdmin: true,
-    });
-
+  it('renders the public access status as a badge', () => {
     render(
       <SearchResultsTable
         rows={[{ ...rows[0], publicAccessStatus: 'Closed' }]}
@@ -100,11 +96,6 @@ describe('SearchResultsTable', () => {
   });
 
   it('falls back to an Open badge when the public access status is null', () => {
-    mockUseAuthorizations.mockReturnValue({
-      canViewFeatureFlag: true,
-      isSuperAdmin: true,
-    });
-
     render(
       <SearchResultsTable
         rows={[{ ...rows[0], publicAccessStatus: null }]}

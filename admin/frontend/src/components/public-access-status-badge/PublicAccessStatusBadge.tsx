@@ -12,7 +12,8 @@ interface PublicAccessStatusBadgeProps {
   label: string | null;
 }
 
-const OPEN_LABEL = 'Open';
+// A resource with no advisories or closures on file is open by definition.
+export const PUBLIC_ACCESS_STATUS_OPEN = 'Open';
 
 type BadgeColors = { bgColor: string; textColor: string };
 
@@ -42,7 +43,7 @@ const DEFAULT_COLORS: BadgeColors = {
 export function PublicAccessStatusBadge({
   label,
 }: PublicAccessStatusBadgeProps) {
-  const resolvedLabel = label ?? OPEN_LABEL;
+  const resolvedLabel = label ?? PUBLIC_ACCESS_STATUS_OPEN;
   const { bgColor, textColor } =
     LABEL_COLOR_MAP[resolvedLabel] ?? DEFAULT_COLORS;
 
