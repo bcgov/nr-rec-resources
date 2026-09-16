@@ -1,7 +1,7 @@
 import { ResourceHeaderSection } from '@/pages/rec-resource-page/components/ResourceHeaderSection';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockUseAuthorizations = vi.fn();
 
@@ -50,6 +50,10 @@ const baseResource = {
 describe('ResourceHeaderSection', () => {
   beforeEach(() => {
     mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('renders resource name, id, and type', () => {
@@ -215,5 +219,62 @@ describe('ResourceHeaderSection', () => {
     expect(screen.queryByTestId('file-status-badge')).not.toBeInTheDocument();
     const badges = screen.getAllByTestId('custom-badge');
     expect(badges).toHaveLength(1);
+  });
+
+  describe('in production', () => {
+    // No ACT advisories in prod yet, so FTA status is all we have, and
+    // everyone gets it, not just super admins.
+    beforeEach(() => {
+      vi.stubEnv('VITE_DEPLOYMENT_ENV', 'prod');
+    });
+
+    it('hides the public access pill even when an advisory label exists', () => {
+      const resource = {
+        ...baseResource,
+        access_status_grouplabel: 'Closed',
+      } as unknown as RecreationResourceDetailUIModel;
+
+      render(<ResourceHeaderSection recResource={resource} />);
+
+      expect(
+        screen.queryByTestId('public-access-status-badge'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows the admin status badge to users who are not super admins', () => {
+      mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
+      const resource = {
+        ...baseResource,
+        recreation_status_description: 'Open',
+        recreation_status_code: 1,
+        access_status_grouplabel: 'Closed',
+      } as unknown as RecreationResourceDetailUIModel;
+
+      render(<ResourceHeaderSection recResource={resource} />);
+
+      expect(screen.getByTestId('admin-status-badge')).toHaveTextContent(
+        'Open',
+      );
+      expect(
+        screen.queryByTestId('public-access-status-badge'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('treats an unrecognised deployment env as production', () => {
+      vi.stubEnv('VITE_DEPLOYMENT_ENV', 'staging');
+      mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
+      const resource = {
+        ...baseResource,
+        recreation_status_description: 'Open',
+        recreation_status_code: 1,
+      } as unknown as RecreationResourceDetailUIModel;
+
+      render(<ResourceHeaderSection recResource={resource} />);
+
+      expect(screen.getByTestId('admin-status-badge')).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('public-access-status-badge'),
+      ).not.toBeInTheDocument();
+    });
   });
 });

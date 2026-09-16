@@ -53,10 +53,7 @@ const rows: AdminSearchResultRow[] = [
 describe('useSearchResultsTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseAuthorizations.mockReturnValue({
-      canViewFeatureFlag: false,
-      isSuperAdmin: true,
-    });
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
   });
 
   it('returns the visible columns and loading or empty status message', () => {
@@ -162,11 +159,8 @@ describe('useSearchResultsTable', () => {
     });
   });
 
-  it('hides the status column for users who are not super admins', () => {
-    mockUseAuthorizations.mockReturnValue({
-      canViewFeatureFlag: false,
-      isSuperAdmin: false,
-    });
+  it('hides the status column for non-super-admins outside production', () => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
 
     const { result } = renderHook(() =>
       useSearchResultsTable({
@@ -201,11 +195,8 @@ describe('useSearchResultsTable', () => {
     ).toContain('status');
   });
 
-  it('shows feature-flagged public access columns when authorized and renders the badge cell', () => {
-    mockUseAuthorizations.mockReturnValue({
-      canViewFeatureFlag: true,
-      isSuperAdmin: true,
-    });
+  it('shows the public access column outside production and renders the badge cell', () => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
 
     const { result } = renderHook(() =>
       useSearchResultsTable({

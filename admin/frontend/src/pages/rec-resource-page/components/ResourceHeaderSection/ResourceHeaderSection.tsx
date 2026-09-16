@@ -6,6 +6,7 @@ import {
   PublicAccessStatusBadge,
 } from '@/components';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
+import { isProd } from '@/utils/environment';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { COLOR_BLUE, COLOR_BLUE_LIGHT } from '@/styles/colors';
 import { FC } from 'react';
@@ -21,20 +22,24 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
   const { isSuperAdmin } = useAuthorizations();
+  const isProduction = isProd();
 
-  // No advisory on file means the resource is open to the public, matching how
-  // the search results table resolves a missing label.
+  // Prod has no ACT advisories yet, so FTA status stands in for everyone.
+  // Elsewhere public access leads and FTA is a super admin cross-check.
+  const isAdminStatusBadgeVisible = Boolean(
+    (isProduction || isSuperAdmin) && recResource.recreation_status_description,
+  );
+
+  // No advisory means open, same as the search results table.
   const publicAccessStatus =
     recResource.access_status_grouplabel ?? PUBLIC_ACCESS_STATUS_OPEN;
 
-  // The admin status badge is super-admin only, so only dedupe against it when
-  // it is actually rendered; otherwise everyone else would see neither pill.
-  const isAdminStatusBadgeVisible = Boolean(
-    isSuperAdmin && recResource.recreation_status_description,
-  );
+  // Only dedupe against a pill they can actually see, or they'd end up with no
+  // status at all.
   const showPublicAccessStatus =
-    !isAdminStatusBadgeVisible ||
-    publicAccessStatus !== recResource.recreation_status_description;
+    !isProduction &&
+    (!isAdminStatusBadgeVisible ||
+      publicAccessStatus !== recResource.recreation_status_description);
 
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
@@ -56,7 +61,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
             bgColor={COLOR_BLUE_LIGHT}
             textColor={COLOR_BLUE}
           />
-          {isSuperAdmin && recResource.recreation_status_description && (
+          {isAdminStatusBadgeVisible && (
             <AdminStatusBadge
               label={recResource.recreation_status_description!}
               statusCode={recResource.recreation_status_code ?? 1}

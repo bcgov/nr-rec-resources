@@ -2,6 +2,7 @@ import {
   ADMIN_SEARCH_COLUMN_IDS,
   type AdminSearchColumnId,
   type AdminSearchSort,
+  type SearchVisibilityContext,
 } from '@/pages/search/searchDefinitions';
 import type { AdminSearchRouteState } from '@/pages/search/types';
 
@@ -111,7 +112,7 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     label: 'Public access status',
     controlId: 'admin-search-filter-public-access-status',
     optionsKey: 'publicAccessStatusOptions',
-    isFeatureFlagged: true,
+    isNonProdOnly: true,
   },
   {
     key: 'recStatus',
@@ -134,6 +135,25 @@ export const PUBLIC_ACCESS_STATUS_OPTIONS = [
   { id: 'Restricted', label: 'Restricted' },
   { id: 'Closed', label: 'Closed' },
 ] as const;
+
+// Filter-panel version of isColumnVisibleTo. Keep them in step, or you get a
+// filter with no matching column.
+export function isFilterFieldVisibleTo(
+  // key is only here so TS doesn't call this a weak type and reject the fields
+  // that have neither flag.
+  field: { key: string; isNonProdOnly?: boolean; isSuperAdminOnly?: boolean },
+  { isSuperAdmin, isProduction }: SearchVisibilityContext,
+): boolean {
+  if (field.isNonProdOnly) {
+    return !isProduction;
+  }
+
+  if (field.isSuperAdminOnly) {
+    return isProduction || isSuperAdmin;
+  }
+
+  return true;
+}
 
 export const ADMIN_SEARCH_STORAGE_KEYS = {
   columnVisibility: 'admin-search-visible-columns',
