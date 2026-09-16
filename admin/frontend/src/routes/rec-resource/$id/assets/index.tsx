@@ -6,9 +6,11 @@ import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { RoleRouteGuard } from '@/components/auth';
 import { ROLES } from '@/hooks/useAuthorizations';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { recResourceAssetsLoader } from '@/services/loaders/recResourceAssetsLoader';
 
 export const Route = createFileRoute('/rec-resource/$id/assets/')({
   component: RecResourceAssetsPageRoute,
+  loader: recResourceAssetsLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
       params,
