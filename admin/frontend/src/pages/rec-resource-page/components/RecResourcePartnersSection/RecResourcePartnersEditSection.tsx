@@ -64,6 +64,7 @@ export const RecResourcePartnersEditSection = ({
   const [partnerToCancel, setPartnerToCancel] =
     useState<AgreementHolderClientPublicViewDto | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [showMainPartnerWarning, setShowMainPartnerWarning] = useState(false);
 
   const { mutateAsync: updateAgreementHolder } = useUpdateAgreementHolder();
   const { mutateAsync: deleteAgreementHolder, isPending: isDeleting } =
@@ -80,13 +81,59 @@ export const RecResourcePartnersEditSection = ({
     [drafts],
   );
 
+  /**
+   * At most one partner is the public-website contact, so turning the toggle
+   * on for one card turns it off for every other. Cancelled partners are left
+   * alone: they are frozen and never shown publicly anyway.
+   */
   const handleDraftChange = (
     agreementHolderId: number,
     draft: PartnerAgreementDraft,
-  ) => setDrafts((prev) => ({ ...prev, [agreementHolderId]: draft }));
+  ) =>
+    setDrafts((prev) => {
+      const next = { ...prev, [agreementHolderId]: draft };
+
+      if (draft.visible_on_public_website) {
+        for (const partner of partners) {
+          const otherId = partner.agreement_holder_id;
+          if (otherId === agreementHolderId || partner.cancelled) continue;
+
+          const otherDraft = next[otherId] ?? toDraft(partner);
+          if (otherDraft.visible_on_public_website) {
+            next[otherId] = {
+              ...otherDraft,
+              visible_on_public_website: false,
+            };
+          }
+        }
+      }
+
+      return next;
+    });
+
+  // Which partner currently holds the flag, persisted vs drafted. Used to warn
+  // before a save that moves the public contact from one partner to another.
+  const mainPartnerId = (
+    source: (p: AgreementHolderClientPublicViewDto) => boolean,
+  ) =>
+    partners.find((p) => !p.cancelled && source(p))?.agreement_holder_id ??
+    null;
+
+  const persistedMainId = mainPartnerId(
+    (p) => p.visible_on_public_website ?? false,
+  );
+  const draftedMainId = mainPartnerId(
+    (p) =>
+      (drafts[p.agreement_holder_id] ?? toDraft(p)).visible_on_public_website,
+  );
+  const hasMainPartnerChanged = persistedMainId !== draftedMainId;
+  const draftedMainPartner = partners.find(
+    (p) => p.agreement_holder_id === draftedMainId,
+  );
 
   const handleSave = async () => {
     if (hasDateErrors) return;
+    setShowMainPartnerWarning(false);
 
     // Only changed cards produce a request; untouched ones are skipped.
     // Cancelled agreements are frozen, so they never contribute.
@@ -127,6 +174,15 @@ export const RecResourcePartnersEditSection = ({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleSaveClick = () => {
+    if (hasDateErrors) return;
+    if (hasMainPartnerChanged) {
+      setShowMainPartnerWarning(true);
+      return;
+    }
+    void handleSave();
   };
 
   const handleConfirmDelete = async () => {
@@ -176,7 +232,7 @@ export const RecResourcePartnersEditSection = ({
           </Button>
           <Button
             variant="primary"
-            onClick={() => void handleSave()}
+            onClick={handleSaveClick}
             disabled={isBusy || hasDateErrors || partners.length === 0}
           >
             {isSaving ? (
@@ -208,6 +264,21 @@ export const RecResourcePartnersEditSection = ({
           ))}
         </div>
       )}
+
+      <DeleteConfirmationModal
+        show={showMainPartnerWarning}
+        title="Change main contact on public website"
+        description={
+          draftedMainPartner
+            ? `${draftedMainPartner.clientName ?? draftedMainPartner.clientNumber} will become the main contact shown on the public website, replacing the current one. Only one partner can be shown at a time.`
+            : 'No partner will be shown as the main contact on the public website.'
+        }
+        confirmText="Save changes"
+        cancelText="Go back"
+        confirmVariant="primary"
+        onCancel={() => setShowMainPartnerWarning(false)}
+        onConfirm={() => void handleSave()}
+      />
 
       <DeleteConfirmationModal
         show={Boolean(partnerToDelete)}
