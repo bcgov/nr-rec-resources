@@ -4,11 +4,11 @@ import { CheckboxDropdownField } from '@/components/form';
 import { ADMIN_SEARCH_COLUMN_IDS } from '@/pages/search/constants';
 import {
   ADMIN_SEARCH_COLUMN_LABELS,
-  FEATURE_FLAGGED_COLUMN_IDS,
-  SUPER_ADMIN_ONLY_COLUMN_IDS,
+  isColumnVisibleTo,
   type AdminSearchColumnId,
 } from '@/pages/search/searchDefinitions';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
+import { isProd } from '@/utils/environment';
 
 interface ColumnVisibilityMenuProps {
   visibleColumns: AdminSearchColumnId[];
@@ -19,12 +19,11 @@ export function ColumnVisibilityMenu({
   visibleColumns,
   onToggle,
 }: Readonly<ColumnVisibilityMenuProps>) {
-  const { canViewFeatureFlag, isSuperAdmin } = useAuthorizations();
+  const { isSuperAdmin } = useAuthorizations();
+  const visibility = { isSuperAdmin, isProduction: isProd() };
   const selectableColumnIds = ADMIN_SEARCH_COLUMN_IDS.filter(
     (columnId) =>
-      columnId !== 'rec_resource_id' &&
-      (!FEATURE_FLAGGED_COLUMN_IDS.has(columnId) || canViewFeatureFlag) &&
-      (!SUPER_ADMIN_ONLY_COLUMN_IDS.has(columnId) || isSuperAdmin),
+      columnId !== 'rec_resource_id' && isColumnVisibleTo(columnId, visibility),
   );
 
   return (

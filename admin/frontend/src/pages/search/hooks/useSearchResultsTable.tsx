@@ -23,14 +23,15 @@ import { SearchResultsTableSortableHeader } from '@/pages/search/components/Sear
 import type { SearchResultsPaginationModel } from '@/pages/search/hooks/useAdminSearchController';
 import {
   ADMIN_SEARCH_COLUMN_DEFINITIONS,
-  FEATURE_FLAGGED_COLUMN_IDS,
-  SUPER_ADMIN_ONLY_COLUMN_IDS,
+  isColumnVisibleTo,
+  type SearchVisibilityContext,
 } from '@/pages/search/searchDefinitions';
 import type {
   AdminSearchResultRow,
   AdminSearchRouteState,
 } from '@/pages/search/types';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
+import { isProd } from '@/utils/environment';
 
 interface UseSearchResultsTableParams {
   rows: AdminSearchResultRow[];
@@ -45,19 +46,14 @@ const getSortParts = (sort: AdminSearchRouteState['sort']) => sort.split(':');
 
 const buildColumnVisibility = (
   visibleColumns: AdminSearchColumnId[],
-  canViewFeatureFlag: boolean,
-  isSuperAdmin: boolean,
+  visibility: SearchVisibilityContext,
 ) =>
   Object.fromEntries(
-    ADMIN_SEARCH_COLUMN_IDS.map((columnId) => {
-      if (FEATURE_FLAGGED_COLUMN_IDS.has(columnId) && !canViewFeatureFlag) {
-        return [columnId, false];
-      }
-      if (SUPER_ADMIN_ONLY_COLUMN_IDS.has(columnId) && !isSuperAdmin) {
-        return [columnId, false];
-      }
-      return [columnId, visibleColumns.includes(columnId)];
-    }),
+    ADMIN_SEARCH_COLUMN_IDS.map((columnId) => [
+      columnId,
+      isColumnVisibleTo(columnId, visibility) &&
+        visibleColumns.includes(columnId),
+    ]),
   ) as Record<AdminSearchColumnId, boolean>;
 
 const buildColumns = (
@@ -123,7 +119,7 @@ export function useSearchResultsTable({
   onSortChange,
 }: UseSearchResultsTableParams) {
   const navigate = useNavigate();
-  const { canViewFeatureFlag, isSuperAdmin } = useAuthorizations();
+  const { isSuperAdmin } = useAuthorizations();
   const [sortField, sortDirection] = getSortParts(sort);
 
   const navigateToResource = (recResourceId: string) =>
@@ -150,11 +146,10 @@ export function useSearchResultsTable({
     pageCount: pagination.pageCount,
     rowCount: pagination.rowCount,
     state: {
-      columnVisibility: buildColumnVisibility(
-        visibleColumns,
-        canViewFeatureFlag,
+      columnVisibility: buildColumnVisibility(visibleColumns, {
         isSuperAdmin,
-      ),
+        isProduction: isProd(),
+      }),
       pagination: pagination.state,
     },
     getRowId: (row) => row.recResourceId,
