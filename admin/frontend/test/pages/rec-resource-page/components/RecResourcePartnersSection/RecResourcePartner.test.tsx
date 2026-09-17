@@ -4,6 +4,12 @@ import { RecResourcePartner } from '@/pages/rec-resource-page/components/RecReso
 import { useGetPartnerLocations } from '@/services/hooks/recreation-resource-admin/useGetPartnerLocationsByClientId';
 import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin/models/AgreementHolderClientPublicViewDto';
 
+const RECREATION_OPERATOR_HELP_TEXT =
+  'A person or organization authorized under the';
+
+const FOREST_RECREATION_REGULATION_URL =
+  'https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/16_2004#section22';
+
 // Mock the custom hook
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useGetPartnerLocationsByClientId',
@@ -20,8 +26,8 @@ describe('RecResourcePartner', () => {
     clientName: 'acme corporation',
     clientStatusDescription: 'Active',
     clientTypeDescription: 'Society',
-    agreementStartDate: '2023-01-01T00:00:00Z',
-    agreementEndDate: '2025-12-31T00:00:00Z',
+    agreementStartDate: '2023-01-01',
+    agreementEndDate: '2099-12-31',
   };
 
   const mockLocations = [
@@ -56,6 +62,70 @@ describe('RecResourcePartner', () => {
     expect(screen.getByText('Start date')).toBeInTheDocument();
     expect(screen.getByText('End date')).toBeInTheDocument();
     expect(screen.getByText('Show additional information')).toBeInTheDocument();
+  });
+
+  it('shows recreation operator pill when backend marks relationship as recreation operator', () => {
+    render(
+      <RecResourcePartner
+        partner={{
+          ...mockPartner,
+          partner_relationship_type_code: 'RECREATION_OPERATOR',
+        }}
+      />,
+    );
+
+    const recreationOperatorLabel = screen.getByText('Recreation operator');
+
+    expect(recreationOperatorLabel).toBeInTheDocument();
+    expect(
+      recreationOperatorLabel.closest('.recreation-operator-pill'),
+    ).toHaveStyle({
+      backgroundColor: 'rgb(199, 227, 253)',
+      color: 'rgb(0, 51, 102)',
+    });
+    expect(screen.getByRole('button', { name: 'Help' })).toBeInTheDocument();
+  });
+
+  it('shows recreation operator help text when the help icon is clicked', async () => {
+    render(
+      <RecResourcePartner
+        partner={{
+          ...mockPartner,
+          partner_relationship_type_code: 'RECREATION_OPERATOR',
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Help' }));
+
+    const tooltip = await screen.findByRole('tooltip');
+
+    expect(tooltip).toHaveTextContent(RECREATION_OPERATOR_HELP_TEXT);
+    expect(tooltip).toHaveTextContent(
+      /to manage and operate at a recreation resource\. "Recreation Operator" is displayed when a volunteer partner is authorized to collect fees\./,
+    );
+    expect(
+      screen.getByRole('link', { name: 'Forest Recreation Regulation' }),
+    ).toHaveAttribute('href', FOREST_RECREATION_REGULATION_URL);
+  });
+
+  it('does not show recreation operator pill when backend marks as site operator', () => {
+    render(
+      <RecResourcePartner
+        partner={{
+          ...mockPartner,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        }}
+      />,
+    );
+
+    expect(screen.queryByText('Recreation operator')).not.toBeInTheDocument();
+  });
+
+  it('does not show recreation operator pill when relationship code is missing', () => {
+    render(<RecResourcePartner partner={mockPartner} />);
+
+    expect(screen.queryByText('Recreation operator')).not.toBeInTheDocument();
   });
 
   it('should toggle additional information and trigger fetchLocations on expand', async () => {

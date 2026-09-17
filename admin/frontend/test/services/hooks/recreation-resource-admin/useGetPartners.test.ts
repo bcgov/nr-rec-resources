@@ -70,7 +70,7 @@ describe('useGetPartners', () => {
       wrapper: createWrapper(),
     });
 
-    expect(result.current.data).toEqual([]);
+    expect(result.current.data).toEqual(undefined);
     expect(result.current.isFetching).toBe(false);
     expect(mockApi.getPartnersByRecreationResourceId).not.toHaveBeenCalled();
   });

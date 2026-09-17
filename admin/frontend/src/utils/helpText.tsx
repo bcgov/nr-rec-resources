@@ -26,3 +26,18 @@ export const RESERVABLE_HELP_TEXT =
   'Indicate whether reservations are required or available for any part of this site (e.g., camping, day-use, facilities). If yes, ensure reservation details and links are maintained in the appropriate fields/system of record.';
 export const RESERVATION_METHOD_HELP_TEXT =
   'Primary contact method for reservations.';
+
+export const RECREATION_OPERATOR_HELP_TEXT = (
+  <>
+    A person or organization authorized under the{' '}
+    <a
+      href="https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/16_2004#section22"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Forest Recreation Regulation
+    </a>{' '}
+    to manage and operate at a recreation resource. "Recreation Operator" is
+    displayed when a volunteer partner is authorized to collect fees.
+  </>
+);

@@ -1,11 +1,13 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
-import { CustomBadge } from '@/components';
+import { CustomBadge, HelpIcon } from '@/components';
 import {
   COLOR_GREEN_DARKER,
   COLOR_GREEN_LIGHTEST,
   COLOR_BACKGROUND_GREY,
+  COLOR_BLUE,
   COLOR_BLUE_DARK,
+  COLOR_BLUE_LIGHT,
 } from '@/styles/colors';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -19,6 +21,7 @@ import { useGetPartnerLocations } from '@/services/hooks/recreation-resource-adm
 import { useState } from 'react';
 import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin/models/AgreementHolderClientPublicViewDto';
 import { CopyButton } from '@shared/components/copy-button';
+import { RECREATION_OPERATOR_HELP_TEXT } from '@/utils/helpText';
 
 interface RecResourcePartnerProps {
   partner: AgreementHolderClientPublicViewDto;
@@ -67,6 +70,21 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
           <span className="badge rounded-pill bg-primary">
             {partner.clientTypeDescription}
           </span>
+          {partner.partner_relationship_type_code === 'RECREATION_OPERATOR' ? (
+            <span
+              className="badge rounded-pill d-inline-flex align-items-center recreation-operator-pill ms-2"
+              style={{
+                backgroundColor: COLOR_BLUE_LIGHT,
+                color: COLOR_BLUE,
+              }}
+            >
+              <span>Recreation operator</span>
+              <HelpIcon
+                id={`recreation-operator-help-${partner.clientNumber}`}
+                text={RECREATION_OPERATOR_HELP_TEXT}
+              />
+            </span>
+          ) : null}
         </Col>
       </Row>
       <Row className="align-items-center mb-3">
