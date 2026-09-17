@@ -162,8 +162,15 @@ export class PartnerService {
   ): Promise<AgreementHolderClientPublicViewDto> {
     await this.ensureResourceExists(rec_resource_id);
 
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
     const existing = await this.prisma.recreation_agreement_holder.findFirst({
-      where: { rec_resource_id },
+      where: {
+        rec_resource_id,
+        client_number: createDto.clientNumber,
+        agreement_end_date: { gte: startOfToday },
+      },
       select: {
         agreement_holder_id: true,
         client_number: true,

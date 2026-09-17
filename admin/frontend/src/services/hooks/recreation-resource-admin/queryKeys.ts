@@ -48,6 +48,10 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
     ['recreation-resource-options', ...types] as const,
   reservation: (id: string) =>
     ['recreation-resource-admin', 'reservation', id] as const,
+  partners: (id: string) =>
+    ['recreation-resource-admin', 'partners', id] as const,
+  partnerLocations: (id: string) =>
+    ['recreation-resource-admin', 'partner-locations', id] as const,
   trails: (id: string) => ['recreation-resource-admin', 'trails', id] as const,
   advisories: (id: string) =>
     ['recreation-resource-admin', 'advisories', id] as const,
