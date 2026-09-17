@@ -35,7 +35,7 @@ describe('RecResource Partners Index Route', () => {
       expect.objectContaining({
         requireAll: ['rst-developer'],
         requireAny: ['rst-super-admin', 'rst-admin'],
-        redirectTo: '/rec-resource/REC123/partners',
+        redirectTo: '/rec-resource/REC123/files',
       }),
     );
   });
