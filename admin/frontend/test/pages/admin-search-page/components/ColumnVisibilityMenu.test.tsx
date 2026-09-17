@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ColumnVisibilityMenu } from '@/pages/search/components/ColumnVisibilityMenu';
 
 const mockUseAuthorizations = vi.fn();
@@ -11,10 +11,11 @@ vi.mock('@/hooks/useAuthorizations', () => ({
 
 describe('ColumnVisibilityMenu', () => {
   beforeEach(() => {
-    mockUseAuthorizations.mockReturnValue({
-      canViewFeatureFlag: false,
-      isSuperAdmin: true,
-    });
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('stays open while toggling columns and closes on outside click', async () => {
@@ -68,7 +69,8 @@ describe('ColumnVisibilityMenu', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('hides the public access status column when canViewFeatureFlag is false', async () => {
+  it('hides the public access status column in production', async () => {
+    vi.stubEnv('VITE_DEPLOYMENT_ENV', 'prod');
     const user = userEvent.setup();
 
     render(
@@ -85,11 +87,8 @@ describe('ColumnVisibilityMenu', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('hides the status column when the user is not a super admin', async () => {
-    mockUseAuthorizations.mockReturnValue({
-      canViewFeatureFlag: false,
-      isSuperAdmin: false,
-    });
+  it('hides the status column from non-super-admins outside production', async () => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
     const user = userEvent.setup();
 
     render(
@@ -123,11 +122,8 @@ describe('ColumnVisibilityMenu', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows the public access status column when canViewFeatureFlag is true', async () => {
-    mockUseAuthorizations.mockReturnValue({
-      canViewFeatureFlag: true,
-      isSuperAdmin: true,
-    });
+  it('shows the public access status column outside production', async () => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
     const user = userEvent.setup();
 
     render(
@@ -141,6 +137,25 @@ describe('ColumnVisibilityMenu', () => {
 
     expect(
       screen.getByRole('button', { name: /public access status/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the status column to non-super-admins in production', async () => {
+    vi.stubEnv('VITE_DEPLOYMENT_ENV', 'prod');
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
+    const user = userEvent.setup();
+
+    render(
+      <ColumnVisibilityMenu
+        visibleColumns={['rec_resource_id', 'name']}
+        onToggle={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Columns' }));
+
+    expect(
+      screen.getByRole('button', { name: /^status$/i }),
     ).toBeInTheDocument();
   });
 });
