@@ -173,13 +173,16 @@ describe('export dataset builders', () => {
 
     expect(sql).toContain('FROM rst.recreation_agreement_holder ah');
     expect(sql).toContain(
-      `INNER JOIN recreation_resource rr
-      ON rr.rec_resource_id = ah.rec_resource_id`,
+      'INNER JOIN recreation_resource rr ON rr.rec_resource_id = ah.rec_resource_id',
     );
     expect(sql).toContain(
-      `LEFT OUTER JOIN rst.recreation_fee rf
-	    ON rf.rec_resource_id = rr.rec_resource_id`,
+      `LEFT OUTER JOIN rst.recreation_fee rf ON rf.rec_resource_id = rr.rec_resource_id`,
     );
+    expect(sql).toContain('"IS_RECREATION_OPERATOR"');
+    expect(sql).toContain('"CLIENT_NUMBER"');
+    expect(sql).toContain('"DISPLAY_ON_WEBSITE"');
+    expect(sql).toContain('"AGREEMENT_START_DATE"');
+    expect(sql).toContain('"AGREEMENT_END_DATE"');
   });
 
   it('exposes asset attributes and campsite parentage in the asset list query', () => {
