@@ -17,6 +17,7 @@ import { type ExportDatasetId } from './metadata';
 import { objectiveListFtaDataset } from './objective-list-fta.dataset';
 import { siteInspectionFtaDataset } from './site-inspection-fta.dataset';
 import { structureListFtaDataset } from './structure-list-fta.dataset';
+import { partnersListDataset } from './partners-list.dataset';
 import { type ExportDatasetBuilder } from './types';
 
 export const EXPORT_DATASET_BUILDERS: Partial<
@@ -40,4 +41,5 @@ export const EXPORT_DATASET_BUILDERS: Partial<
   [objectiveListFtaDataset.id]: objectiveListFtaDataset,
   [siteInspectionFtaDataset.id]: siteInspectionFtaDataset,
   [structureListFtaDataset.id]: structureListFtaDataset,
+  [partnersListDataset.id]: partnersListDataset,
 };
