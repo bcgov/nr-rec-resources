@@ -6,7 +6,7 @@ export const partnersListDataset: ExportDatasetBuilder = {
   buildQuery: ({ sql }) => Prisma.sql`
     SELECT
       ${sql.rstPrimaryColumns()},
-      CASE 
+      CASE
         WHEN COUNT(rf.recreation_fee_code) > 0 AND agreement_end_date >= CURRENT_DATE THEN 'Yes'
         ELSE 'No'
       END AS "IS_RECREATION_OPERATOR",
