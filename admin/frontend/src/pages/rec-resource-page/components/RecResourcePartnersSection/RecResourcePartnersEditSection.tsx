@@ -348,6 +348,8 @@ export const RecResourcePartnersEditSection = ({
         onConfirm={() => void handleConfirmCancelAgreement()}
         confirmText="Cancel agreement"
         cancelText="Keep agreement"
+        confirmVariant="primary"
+        confirmIcon={null}
         className="partner-modal--tinted-header"
         size="lg"
       >
