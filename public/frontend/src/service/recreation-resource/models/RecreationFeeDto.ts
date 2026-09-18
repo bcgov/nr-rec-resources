@@ -30,21 +30,21 @@ export interface RecreationFeeDto {
    * @type {Date}
    * @memberof RecreationFeeDto
    */
-  fee_start_date: Date;
+  fee_start_date?: Date | null;
   /**
    * End date for the fee applicability
    * @type {Date}
    * @memberof RecreationFeeDto
    */
-  fee_end_date: Date;
+  fee_end_date?: Date | null;
   /**
-   * Type of fee applicable represented by code (C, D, H, P, T)
+   * Top-level fee category code: `O` (Overnight), `T` (Trail use), `A` (Additional). Sub-categorization is conveyed via `recreation_fee_sub_code`.
    * @type {string}
    * @memberof RecreationFeeDto
    */
   recreation_fee_code: string;
   /**
-   * Fee sub-type code scoped to recreation_fee_code (for example O/C, A/P, T/SK)
+   * Fee sub-type code scoped to `recreation_fee_code` (for example O/C, A/P, T/SK)
    * @type {string}
    * @memberof RecreationFeeDto
    */
@@ -115,6 +115,12 @@ export interface RecreationFeeDto {
    * @memberof RecreationFeeDto
    */
   fee_sub_type_description?: string;
+  /**
+   * Human-readable description of the fee type
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  fee_description?: string;
 }
 
 /**
@@ -124,10 +130,6 @@ export function instanceOfRecreationFeeDto(
   value: object,
 ): value is RecreationFeeDto {
   if (!('fee_amount' in value) || value['fee_amount'] === undefined)
-    return false;
-  if (!('fee_start_date' in value) || value['fee_start_date'] === undefined)
-    return false;
-  if (!('fee_end_date' in value) || value['fee_end_date'] === undefined)
     return false;
   if (
     !('recreation_fee_code' in value) ||
@@ -166,8 +168,12 @@ export function RecreationFeeDtoFromJSONTyped(
   }
   return {
     fee_amount: json['fee_amount'],
-    fee_start_date: new Date(json['fee_start_date']),
-    fee_end_date: new Date(json['fee_end_date']),
+    fee_start_date:
+      json['fee_start_date'] == null
+        ? undefined
+        : new Date(json['fee_start_date']),
+    fee_end_date:
+      json['fee_end_date'] == null ? undefined : new Date(json['fee_end_date']),
     recreation_fee_code: json['recreation_fee_code'],
     recreation_fee_sub_code:
       json['recreation_fee_sub_code'] == null
@@ -193,6 +199,8 @@ export function RecreationFeeDtoFromJSONTyped(
       json['fee_sub_type_description'] == null
         ? undefined
         : json['fee_sub_type_description'],
+    fee_description:
+      json['fee_description'] == null ? undefined : json['fee_description'],
   };
 }
 
@@ -210,8 +218,14 @@ export function RecreationFeeDtoToJSONTyped(
 
   return {
     fee_amount: value['fee_amount'],
-    fee_start_date: value['fee_start_date'].toISOString(),
-    fee_end_date: value['fee_end_date'].toISOString(),
+    fee_start_date:
+      value['fee_start_date'] === null
+        ? null
+        : (value['fee_start_date'] as any)?.toISOString(),
+    fee_end_date:
+      value['fee_end_date'] === null
+        ? null
+        : (value['fee_end_date'] as any)?.toISOString(),
     recreation_fee_code: value['recreation_fee_code'],
     recreation_fee_sub_code: value['recreation_fee_sub_code'],
     recurring_start_mmdd: value['recurring_start_mmdd'],
@@ -225,5 +239,6 @@ export function RecreationFeeDtoToJSONTyped(
     saturday_ind: value['saturday_ind'],
     sunday_ind: value['sunday_ind'],
     fee_sub_type_description: value['fee_sub_type_description'],
+    fee_description: value['fee_description'],
   };
 }

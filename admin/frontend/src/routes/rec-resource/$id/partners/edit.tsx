@@ -42,7 +42,11 @@ function RecResourcePartnersEditRoute() {
   return (
     <RoleRouteGuard
       requireAll={[ROLES.DEVELOPER]}
-      requireAny={[ROLES.ADMIN]}
+      // Mirrors the view route's roles (973). SUPER_ADMIN must be listed
+      // explicitly: useAuthorizations treats it as its own role, so a
+      // super-admin without rst-admin would otherwise be locked out of the
+      // edit page — and delete is super-admin-only, so unreachable.
+      requireAny={[ROLES.SUPER_ADMIN, ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_PARTNERS.replace('$id', id)}
     >
       <RecResourcePartnersEditPage />
