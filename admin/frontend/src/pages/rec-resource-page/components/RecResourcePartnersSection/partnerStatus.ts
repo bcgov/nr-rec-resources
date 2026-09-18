@@ -26,7 +26,19 @@ export function isAgreementExpired(
   const endDate = new Date(agreementEndDate);
   if (Number.isNaN(endDate.getTime())) return false;
 
-  return endDate.getTime() < now.getTime();
+  // Compared against today's UTC midnight rather than the current instant, so
+  // an agreement stays current through the whole of its end date instead of
+  // flipping to Expired partway through that day. This mirrors the public
+  // site's filter (`agreement_end_date >= today`) in
+  // RecreationResourceService.findSiteOperatorClientNumber, so both apps agree
+  // about the same record.
+  const todayUtc = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+  );
+
+  return endDate.getTime() < todayUtc;
 }
 
 export const AGREEMENT_STATUS_BADGE = {

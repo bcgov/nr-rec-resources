@@ -46,7 +46,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
     partner.cancelled,
   );
   return (
-    <div className="partner-panel">
+    <div className="partner-panel mb-3">
       <Row className="align-items-center mb-2">
         <Col xs={12} md={7}>
           <span className="partner-panel__client-id">
