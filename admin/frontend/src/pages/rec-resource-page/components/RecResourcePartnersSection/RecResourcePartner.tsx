@@ -1,11 +1,8 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
-import { CustomBadge } from '@/components';
-import {
-  CANCELLED_BADGE,
-  formatAgreementDate,
-  getAgreementStatusBadge,
-} from './partnerStatus';
+import { formatAgreementDate } from './partnerStatus';
+import { PartnerCardHeader } from './PartnerCardHeader';
+import { formatPhoneNumber } from './helpers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEye,
@@ -37,42 +34,15 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
       await fetchLocations(clientNumber);
     }
   };
-  const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '');
-    return digits.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
-  };
-  const statusBadge = getAgreementStatusBadge(
-    partner.agreementEndDate,
-    partner.cancelled,
-  );
   return (
     <div className="partner-panel mb-3">
-      <Row className="align-items-center mb-2">
-        <Col xs={12} md={7}>
-          <span className="partner-panel__client-id">
-            {partner.clientNumber}
-          </span>{' '}
-          <span className="partner-panel__client-name">
-            {partner.clientName && capitalizeWords(partner.clientName)}
-          </span>
-        </Col>
-        <Col xs={12} md={5} className="text-md-end mt-2 mt-md-0">
-          <CustomBadge
-            label={statusBadge.label}
-            bgColor={statusBadge.bgColor}
-            textColor={statusBadge.textColor}
-          />
-          {partner.cancelled && (
-            <span className="ms-2">
-              <CustomBadge
-                label={CANCELLED_BADGE.label}
-                bgColor={CANCELLED_BADGE.bgColor}
-                textColor={CANCELLED_BADGE.textColor}
-              />
-            </span>
-          )}
-        </Col>
-      </Row>
+      <PartnerCardHeader
+        clientNumber={partner.clientNumber}
+        clientName={partner.clientName}
+        agreementEndDate={partner.agreementEndDate}
+        cancelled={partner.cancelled}
+        className="align-items-center mb-2"
+      />
       <Row className="align-items-center mb-3">
         <Col xs={12}>
           <span className="badge rounded-pill bg-primary">

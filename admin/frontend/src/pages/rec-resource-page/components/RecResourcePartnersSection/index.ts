@@ -4,3 +4,4 @@ export * from './RecResourcePartner';
 export * from './RecResourcePartnersEditSection';
 export * from './PartnerAgreementCardEdit';
 export * from './partnerStatus';
+export * from './PartnerCardHeader';
