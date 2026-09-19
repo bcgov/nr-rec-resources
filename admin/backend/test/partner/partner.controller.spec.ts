@@ -23,6 +23,7 @@ describe('PartnerController', () => {
             findClientsByRecResourceId: vi.fn(),
             createAgreementHolder: vi.fn(),
             updateAgreementHolder: vi.fn(),
+            deleteAgreementHolder: vi.fn(),
             listClientLocations: vi.fn(),
           },
         },
@@ -41,6 +42,8 @@ describe('PartnerController', () => {
     it('delegates to the service and returns partner data', async () => {
       const expected: AgreementHolderClientPublicViewDto[] = [
         {
+          agreement_holder_id: 1000001,
+          cancelled: false,
           clientNumber: '00000002',
           clientName: 'BAXTER',
           legalFirstName: 'JAMES',
@@ -56,6 +59,8 @@ describe('PartnerController', () => {
           partner_relationship_type_code: 'SITE_OPERATOR',
         },
         {
+          agreement_holder_id: 1000002,
+          cancelled: false,
           clientNumber: '00000003',
           clientName: 'SMITH',
           legalFirstName: 'JANE',
@@ -206,6 +211,8 @@ describe('PartnerController', () => {
         partner_relationship_type_code: 'SITE_OPERATOR',
       };
       const expected: AgreementHolderClientPublicViewDto = {
+        agreement_holder_id: 1000001,
+        cancelled: false,
         clientNumber: '00000002',
         clientName: 'BAXTER',
         clientStatusCode: 'ACT',
@@ -242,6 +249,8 @@ describe('PartnerController', () => {
         partner_relationship_type_code: 'DISTRICT_MANAGER',
       };
       const expected: AgreementHolderClientPublicViewDto = {
+        agreement_holder_id: 1000001,
+        cancelled: false,
         clientNumber: '00000002',
         clientName: 'BAXTER',
         clientStatusCode: 'ACT',
@@ -258,14 +267,29 @@ describe('PartnerController', () => {
 
       const result = await controller.updateAgreementHolder(
         'REC0002',
+        1000001,
         updateDto,
       );
 
       expect(service.updateAgreementHolder).toHaveBeenCalledWith(
         'REC0002',
+        1000001,
         updateDto,
       );
       expect(result).toEqual(expected);
+    });
+  });
+
+  describe('deleteAgreementHolder', () => {
+    it('delegates to the service with the resource and holder ids', async () => {
+      vi.spyOn(service, 'deleteAgreementHolder').mockResolvedValue(undefined);
+
+      await controller.deleteAgreementHolder('REC0002', 1000001);
+
+      expect(service.deleteAgreementHolder).toHaveBeenCalledWith(
+        'REC0002',
+        1000001,
+      );
     });
   });
 });

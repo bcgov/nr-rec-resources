@@ -10,7 +10,8 @@ import {
 import { ROUTE_PATHS } from '@/constants/routes';
 
 interface SiteOperatorProps {
-  siteOperators?: SiteOperatorDto[];
+  /** At most one partner is shown publicly; null when the resource has none. */
+  siteOperator?: SiteOperatorDto | null;
   error: ResponseError | null;
   isLoading: boolean;
   refetchData: any;
@@ -23,9 +24,7 @@ const formatOperatorName = (operator: SiteOperatorDto) =>
     .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
 
 const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
-  ({ siteOperators, error, isLoading, refetchData, rec_resource_id }, ref) => {
-    const operators = siteOperators ?? [];
-
+  ({ siteOperator, error, isLoading, refetchData, rec_resource_id }, ref) => {
     const callRefetch = () => {
       refetchData();
     };
@@ -73,18 +72,16 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                   </td>
                 </tr>
               )}
-              {!error &&
-                !isLoading &&
-                operators.map((operator) => (
-                  <tr key={operator.clientNumber}>
-                    <th>Site operator</th>
-                    <td>
-                      <p data-testid="operator-result">
-                        <span>{formatOperatorName(operator)}</span>
-                      </p>
-                    </td>
-                  </tr>
-                ))}
+              {!error && !isLoading && siteOperator && (
+                <tr>
+                  <th>Site operator</th>
+                  <td>
+                    <p data-testid="operator-result">
+                      <span>{formatOperatorName(siteOperator)}</span>
+                    </p>
+                  </td>
+                </tr>
+              )}
               {error?.response &&
                 error?.response.status >= 500 &&
                 error?.response.status < 600 && (

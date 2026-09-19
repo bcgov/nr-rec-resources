@@ -23,4 +23,14 @@ export class UpdateAgreementHolderDto extends AgreementDateRangeDto {
   @IsOptional()
   @IsString()
   partner_relationship_type_code?: string;
+
+  @ApiProperty({
+    example: true,
+    required: false,
+    description:
+      'Marks the agreement as cancelled. One-way: an already-cancelled agreement cannot be un-cancelled.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  cancelled?: boolean;
 }

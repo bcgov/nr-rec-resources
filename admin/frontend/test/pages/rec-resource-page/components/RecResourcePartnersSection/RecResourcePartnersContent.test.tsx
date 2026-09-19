@@ -55,6 +55,7 @@ vi.mock('@tanstack/react-router', () => ({
 // Mock route constants
 vi.mock('@/constants/routes', () => ({
   ROUTE_PATHS: {
+    REC_RESOURCE_FEES_ADD: '/rec-resource/$id/fees/add',
     REC_RESOURCE_PARTNERS_EDIT: '/rec-resource/$id/partners/edit',
   },
 }));
@@ -62,11 +63,15 @@ vi.mock('@/constants/routes', () => ({
 describe('RecResourcePartnersContent', () => {
   const mockPartners: AgreementHolderClientPublicViewDto[] = [
     {
+      agreement_holder_id: 1000001,
+      cancelled: false,
       clientNumber: '001',
       clientName: 'Partner One',
       clientTypeDescription: 'Society',
     },
     {
+      agreement_holder_id: 1000002,
+      cancelled: false,
       clientNumber: '002',
       clientName: 'Partner Two',
       clientTypeDescription: 'Business',

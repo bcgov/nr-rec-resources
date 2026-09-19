@@ -322,7 +322,7 @@ export class RecreationResourceController {
 
   @Get(':id/site-operator')
   @ApiOperation({
-    summary: 'Find publicly visible partners by resource ID',
+    summary: 'Find the publicly visible partner for a resource',
     operationId: 'getSiteOperatorById',
   })
   @ApiParam({
@@ -335,31 +335,30 @@ export class RecreationResourceController {
   @ApiResponse({
     status: 200,
     description:
-      'Partners for the resource that are visible on the public site. Empty when the resource has none.',
+      'The partner shown publicly for the resource, or null when it has none.',
     type: SiteOperatorDto,
-    isArray: true,
   })
-  async findSiteOperator(@Param('id') id: string): Promise<SiteOperatorDto[]> {
-    const clientNumbers =
-      await this.recreationResourceService.findClientNumbers(id);
+  async findSiteOperator(
+    @Param('id') id: string,
+  ): Promise<SiteOperatorDto | null> {
+    const clientNumber =
+      await this.recreationResourceService.findSiteOperatorClientNumber(id);
 
-    const operators = await Promise.all(
-      clientNumbers.map((clientNumber) =>
-        this.fsaResourceService.findByClientNumber(clientNumber),
-      ),
-    );
+    if (!clientNumber) {
+      return null;
+    }
 
-    return operators.map(
-      (operator) =>
-        ({
-          clientName: operator.clientName,
-          clientNumber: operator.clientNumber,
-          clientStatusCode: operator.clientStatusCode,
-          clientTypeCode: operator.clientTypeCode,
-          legalFirstName: operator.legalFirstName,
-          legalMiddleName: operator.legalMiddleName,
-          acronym: operator.acronym,
-        }) as SiteOperatorDto,
-    );
+    const operator =
+      await this.fsaResourceService.findByClientNumber(clientNumber);
+
+    return {
+      clientName: operator.clientName,
+      clientNumber: operator.clientNumber,
+      clientStatusCode: operator.clientStatusCode,
+      clientTypeCode: operator.clientTypeCode,
+      legalFirstName: operator.legalFirstName,
+      legalMiddleName: operator.legalMiddleName,
+      acronym: operator.acronym,
+    } as SiteOperatorDto;
   }
 }

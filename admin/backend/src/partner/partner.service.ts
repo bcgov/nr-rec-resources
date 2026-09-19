@@ -26,12 +26,25 @@ type ForestClientPublicView = {
 type ForestClientLocation = Partial<ClientLocationDto>;
 
 type AgreementHolderRecord = {
+  agreement_holder_id: number;
   client_number?: string | null;
   agreement_start_date?: Date | null;
   agreement_end_date?: Date | null;
   visible_on_public_website?: boolean;
   partner_relationship_type_code?: string;
+  cancelled?: boolean;
 };
+
+/** Columns making up an agreement-holder response row. */
+const AGREEMENT_HOLDER_SELECT = {
+  agreement_holder_id: true,
+  client_number: true,
+  agreement_start_date: true,
+  agreement_end_date: true,
+  visible_on_public_website: true,
+  partner_relationship_type_code: true,
+  cancelled: true,
+} as const;
 
 const CLIENT_STATUS_DESCRIPTIONS: Record<string, string> = {
   ACT: 'Active',
@@ -81,50 +94,29 @@ export class PartnerService {
       await this.prisma.recreation_agreement_holder.findMany({
         where: { rec_resource_id },
         orderBy: { agreement_holder_id: 'asc' },
-        select: {
-          client_number: true,
-          agreement_start_date: true,
-          agreement_end_date: true,
-          visible_on_public_website: true,
-          partner_relationship_type_code: true,
-        },
+        select: AGREEMENT_HOLDER_SELECT,
       });
 
-    const partnerRows = await Promise.all(
+    // One response row per agreement-holder row. A holder whose client cannot
+    // be resolved in the Forest Client API is still returned, with the client
+    // fields blank, so it stays visible and editable in the admin app rather
+    // than silently disappearing.
+    return Promise.all(
       agreementHolders.map(async (agreementHolder) => {
-        const clientIds = this.normalizeIds(
-          agreementHolder.client_number ?? undefined,
+        const client = agreementHolder.client_number
+          ? await this.tryFetchClientByClientNumber(
+              agreementHolder.client_number,
+            )
+          : null;
+
+        return this.buildAgreementHolderClientResponse(
+          agreementHolder,
+          client ?? {
+            clientNumber: agreementHolder.client_number ?? undefined,
+          },
         );
-
-        if (clientIds.length === 0) {
-          return [];
-        }
-
-        const clients = await Promise.all(
-          clientIds.map((clientId) =>
-            this.tryFetchClientByClientNumber(clientId),
-          ),
-        );
-
-        return clients
-          .filter((client): client is ClientPublicViewDto => client !== null)
-          .map((client) => ({
-            ...client,
-            agreementStartDate: this.formatDate(
-              agreementHolder.agreement_start_date ?? undefined,
-            ),
-            agreementEndDate: this.formatDate(
-              agreementHolder.agreement_end_date ?? undefined,
-            ),
-            visible_on_public_website:
-              agreementHolder.visible_on_public_website ?? undefined,
-            partner_relationship_type_code:
-              agreementHolder.partner_relationship_type_code ?? undefined,
-          }));
       }),
     );
-
-    return partnerRows.flat();
   }
 
   async searchByAcronymNameNumber(
@@ -162,34 +154,24 @@ export class PartnerService {
   ): Promise<AgreementHolderClientPublicViewDto> {
     await this.ensureResourceExists(rec_resource_id);
 
+    // The schema supports multiple partners per resource (V1.1.88); only a
+    // repeat of the same client on the same resource is a conflict, and only
+    // while that agreement is still running.
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
-    const existing = await this.prisma.recreation_agreement_holder.findFirst({
+    const duplicate = await this.prisma.recreation_agreement_holder.findFirst({
       where: {
         rec_resource_id,
         client_number: createDto.clientNumber,
         agreement_end_date: { gte: startOfToday },
       },
-      select: {
-        agreement_holder_id: true,
-        client_number: true,
-        agreement_start_date: true,
-        agreement_end_date: true,
-        visible_on_public_website: true,
-        partner_relationship_type_code: true,
-      },
+      select: { agreement_holder_id: true },
     });
 
-    if (existing?.client_number === createDto.clientNumber) {
+    if (duplicate) {
       throw new ConflictException(
-        'Agreement holder already exists for this recreation resource and client id.',
-      );
-    }
-
-    if (existing) {
-      throw new ConflictException(
-        'Agreement holder already exists for this recreation resource. Use edit to update the dates or client assignment.',
+        'This client is already an agreement holder for this recreation resource.',
       );
     }
 
@@ -209,13 +191,7 @@ export class PartnerService {
         partner_relationship_type_code:
           createDto.partner_relationship_type_code ?? 'SITE_OPERATOR',
       },
-      select: {
-        client_number: true,
-        agreement_start_date: true,
-        agreement_end_date: true,
-        visible_on_public_website: true,
-        partner_relationship_type_code: true,
-      },
+      select: AGREEMENT_HOLDER_SELECT,
     });
 
     return this.buildAgreementHolderClientResponse(created, client);
@@ -223,59 +199,91 @@ export class PartnerService {
 
   async updateAgreementHolder(
     rec_resource_id: string,
+    agreement_holder_id: number,
     updateDto: UpdateAgreementHolderDto,
   ): Promise<AgreementHolderClientPublicViewDto> {
     if (
       updateDto.agreementStartDate === undefined &&
       updateDto.agreementEndDate === undefined &&
       updateDto.visible_on_public_website === undefined &&
-      updateDto.partner_relationship_type_code === undefined
+      updateDto.partner_relationship_type_code === undefined &&
+      updateDto.cancelled === undefined
     ) {
       throw new BadRequestException(
         'At least one updatable agreement-holder field is required.',
       );
     }
 
-    const existing = await this.prisma.recreation_agreement_holder.findFirst({
-      where: { rec_resource_id },
-      select: {
-        agreement_holder_id: true,
-        client_number: true,
-        agreement_start_date: true,
-        agreement_end_date: true,
-        visible_on_public_website: true,
-        partner_relationship_type_code: true,
-      },
-    });
+    const existing = await this.findOwnedAgreementHolder(
+      rec_resource_id,
+      agreement_holder_id,
+    );
 
-    if (!existing) {
-      throw new NotFoundException(
-        `Agreement holder for recreation resource ${rec_resource_id} not found`,
+    // Cancelling is one-way. Enforced here rather than only in the UI: this is
+    // a plain PUT, so a client could otherwise reverse it directly.
+    if (existing.cancelled && updateDto.cancelled === false) {
+      throw new BadRequestException(
+        'A cancelled agreement cannot be un-cancelled.',
+      );
+    }
+
+    // A cancelled agreement is frozen: its dates and public-website visibility
+    // can no longer change. Deleting it is still allowed, via the delete
+    // endpoint.
+    if (existing.cancelled) {
+      const frozenFields = [
+        ['agreementStartDate', updateDto.agreementStartDate],
+        ['agreementEndDate', updateDto.agreementEndDate],
+        ['visible_on_public_website', updateDto.visible_on_public_website],
+      ].filter(([, value]) => value !== undefined);
+
+      if (frozenFields.length > 0) {
+        throw new BadRequestException(
+          `A cancelled agreement cannot be edited. Remove: ${frozenFields
+            .map(([field]) => field)
+            .join(', ')}.`,
+        );
+      }
+    }
+
+    const startDate = this.resolveDateUpdate(
+      updateDto.agreementStartDate,
+      existing.agreement_start_date,
+    );
+    const endDate = this.resolveDateUpdate(
+      updateDto.agreementEndDate,
+      existing.agreement_end_date,
+    );
+
+    // Checked against the merged record so editing one date still validates
+    // against the other. Skipped when cancelling — otherwise you couldn't
+    // cancel an agreement that hasn't started yet.
+    if (!updateDto.cancelled && startDate && endDate && endDate <= startDate) {
+      throw new BadRequestException(
+        'Agreement end date must be after the agreement start date.',
       );
     }
 
     const updated = await this.prisma.recreation_agreement_holder.update({
-      where: { agreement_holder_id: existing.agreement_holder_id },
+      where: { agreement_holder_id },
       data: {
-        agreement_start_date:
-          updateDto.agreementStartDate !== undefined
-            ? new Date(updateDto.agreementStartDate)
-            : undefined,
-        agreement_end_date:
-          updateDto.agreementEndDate !== undefined
-            ? new Date(updateDto.agreementEndDate)
-            : undefined,
-        visible_on_public_website: updateDto.visible_on_public_website,
+        agreement_start_date: this.toDateInput(updateDto.agreementStartDate),
+        // Cancelling records when the agreement ended. The caller picks the
+        // date; today if they don't.
+        agreement_end_date: updateDto.cancelled
+          ? (this.toDateInput(updateDto.agreementEndDate) ??
+            this.startOfTodayUtc())
+          : this.toDateInput(updateDto.agreementEndDate),
+        // A cancelled agreement is never the public contact, whatever the
+        // payload says.
+        visible_on_public_website: updateDto.cancelled
+          ? false
+          : updateDto.visible_on_public_website,
         partner_relationship_type_code:
           updateDto.partner_relationship_type_code,
+        cancelled: updateDto.cancelled,
       },
-      select: {
-        client_number: true,
-        agreement_start_date: true,
-        agreement_end_date: true,
-        visible_on_public_website: true,
-        partner_relationship_type_code: true,
-      },
+      select: AGREEMENT_HOLDER_SELECT,
     });
 
     const client = updated.client_number
@@ -283,6 +291,64 @@ export class PartnerService {
       : {};
 
     return this.buildAgreementHolderClientResponse(updated, client);
+  }
+
+  async deleteAgreementHolder(
+    rec_resource_id: string,
+    agreement_holder_id: number,
+  ): Promise<void> {
+    await this.findOwnedAgreementHolder(rec_resource_id, agreement_holder_id);
+
+    // Hard delete. The temporal versioning trigger fires on delete, so the row
+    // is retained in rst.recreation_agreement_holder_history.
+    await this.prisma.recreation_agreement_holder.delete({
+      where: { agreement_holder_id },
+    });
+  }
+
+  /**
+   * Loads an agreement holder and asserts it belongs to the resource in the
+   * path, so a holder cannot be addressed through an unrelated resource id.
+   */
+  private async findOwnedAgreementHolder(
+    rec_resource_id: string,
+    agreement_holder_id: number,
+  ) {
+    const existing = await this.prisma.recreation_agreement_holder.findUnique({
+      where: { agreement_holder_id },
+      select: { ...AGREEMENT_HOLDER_SELECT, rec_resource_id: true },
+    });
+
+    if (!existing || existing.rec_resource_id !== rec_resource_id) {
+      throw new NotFoundException(
+        `Agreement holder ${agreement_holder_id} not found for recreation resource ${rec_resource_id}`,
+      );
+    }
+
+    return existing;
+  }
+
+  /** Today at UTC midnight, matching how Prisma hands back date-only columns. */
+  private startOfTodayUtc(): Date {
+    const now = new Date();
+    return new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
+  }
+
+  /** Prisma input: undefined leaves the column alone, null clears it. */
+  private toDateInput(value?: string | null): Date | null | undefined {
+    if (value === undefined) return undefined;
+    return value === null ? null : new Date(value);
+  }
+
+  /** The value a column will hold after the update, for cross-field checks. */
+  private resolveDateUpdate(
+    value: string | null | undefined,
+    persisted: Date | null | undefined,
+  ): Date | null {
+    if (value === undefined) return persisted ?? null;
+    return value === null ? null : new Date(value);
   }
 
   async listClientLocations(
@@ -359,42 +425,6 @@ export class PartnerService {
     return client.clientNumber ?? location.clientNumber ?? fallbackClientNumber;
   }
 
-  private normalizeIds(id?: string | string[]): string[] {
-    if (!id) return [];
-
-    const rawValues = Array.isArray(id) ? id : [id];
-
-    return rawValues
-      .flatMap((value) => this.expandIdValue(value))
-      .map((value) => value.trim())
-      .filter(Boolean);
-  }
-
-  private expandIdValue(value: string): string[] {
-    if (!value) {
-      return [];
-    }
-
-    const trimmedValue = value.trim();
-
-    if (trimmedValue.includes('id=')) {
-      const query = trimmedValue.startsWith('?')
-        ? trimmedValue.slice(1)
-        : trimmedValue;
-      const parsedIds = new URLSearchParams(query).getAll('id');
-
-      if (parsedIds.length > 0) {
-        return parsedIds;
-      }
-    }
-
-    if (trimmedValue.includes(',')) {
-      return trimmedValue.split(',');
-    }
-
-    return [trimmedValue];
-  }
-
   private formatDate(value?: Date): string | undefined {
     return value ? value.toISOString().slice(0, 10) : undefined;
   }
@@ -405,6 +435,7 @@ export class PartnerService {
   ): AgreementHolderClientPublicViewDto {
     return {
       ...client,
+      agreement_holder_id: agreementHolder.agreement_holder_id,
       agreementStartDate: this.formatDate(
         agreementHolder.agreement_start_date ?? undefined,
       ),
@@ -415,6 +446,7 @@ export class PartnerService {
         agreementHolder.visible_on_public_website ?? undefined,
       partner_relationship_type_code:
         agreementHolder.partner_relationship_type_code ?? undefined,
+      cancelled: agreementHolder.cancelled ?? false,
     };
   }
 
