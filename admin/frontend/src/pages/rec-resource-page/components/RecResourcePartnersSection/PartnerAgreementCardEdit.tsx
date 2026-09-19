@@ -7,11 +7,9 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from 'react-bootstrap';
-import { capitalizeWords } from '@shared/utils/capitalizeWords';
-import { CustomBadge } from '@/components';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin';
-import { CANCELLED_BADGE, getAgreementStatusBadge } from './partnerStatus';
+import { PartnerCardHeader } from './PartnerCardHeader';
 import './RecResourcePartnersContent.scss';
 
 /** The subset of a partner the edit view can change. */
@@ -69,10 +67,6 @@ export const PartnerAgreementCardEdit = ({
   // A cancelled agreement is frozen: its dates and public-website visibility
   // are no longer editable. Delete stays available.
   const isFrozen = disabled || partner.cancelled;
-  const statusBadge = getAgreementStatusBadge(
-    draft.agreementEndDate,
-    partner.cancelled,
-  );
   const dateError = getDateOrderError(draft);
   const toggleName = `partner-visibility-${partner.agreement_holder_id}`;
 
@@ -83,33 +77,14 @@ export const PartnerAgreementCardEdit = ({
 
   return (
     <div className="partner-panel partner-panel--edit">
-      {/* Row 1: identity + status */}
-      <Row className="align-items-center mb-3">
-        <Col xs={12} md={7}>
-          <span className="partner-panel__client-id">
-            {partner.clientNumber}
-          </span>{' '}
-          <span className="partner-panel__client-name">
-            {partner.clientName && capitalizeWords(partner.clientName)}
-          </span>
-        </Col>
-        <Col xs={12} md={5} className="text-md-end mt-2 mt-md-0">
-          <CustomBadge
-            label={statusBadge.label}
-            bgColor={statusBadge.bgColor}
-            textColor={statusBadge.textColor}
-          />
-          {partner.cancelled && (
-            <span className="ms-2">
-              <CustomBadge
-                label={CANCELLED_BADGE.label}
-                bgColor={CANCELLED_BADGE.bgColor}
-                textColor={CANCELLED_BADGE.textColor}
-              />
-            </span>
-          )}
-        </Col>
-      </Row>
+      {/* Row 1: identity + status. Status follows the draft, so the pill
+          reacts as the user edits the end date. */}
+      <PartnerCardHeader
+        clientNumber={partner.clientNumber}
+        clientName={partner.clientName}
+        agreementEndDate={draft.agreementEndDate}
+        cancelled={partner.cancelled}
+      />
 
       {/* Row 2: public website visibility */}
       <Row className="mb-3">
