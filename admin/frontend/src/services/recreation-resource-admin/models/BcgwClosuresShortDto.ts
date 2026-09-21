@@ -24,19 +24,19 @@ export interface BcgwClosuresShortDto {
    * @type {string}
    * @memberof BcgwClosuresShortDto
    */
-  forest_file_id: string;
+  rec_resource_id: string;
   /**
    *
    * @type {string}
    * @memberof BcgwClosuresShortDto
    */
-  project_name: string | null;
+  rec_resource_name: string | null;
   /**
    *
    * @type {string}
    * @memberof BcgwClosuresShortDto
    */
-  project_type: string | null;
+  rec_resource_type: string | null;
   /**
    *
    * @type {string}
@@ -139,11 +139,17 @@ export type BcgwClosuresShortDtoClosureIndEnum =
 export function instanceOfBcgwClosuresShortDto(
   value: object,
 ): value is BcgwClosuresShortDto {
-  if (!('forest_file_id' in value) || value['forest_file_id'] === undefined)
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
-  if (!('project_name' in value) || value['project_name'] === undefined)
+  if (
+    !('rec_resource_name' in value) ||
+    value['rec_resource_name'] === undefined
+  )
     return false;
-  if (!('project_type' in value) || value['project_type'] === undefined)
+  if (
+    !('rec_resource_type' in value) ||
+    value['rec_resource_type'] === undefined
+  )
     return false;
   if (!('closure_ind' in value) || value['closure_ind'] === undefined)
     return false;
@@ -197,9 +203,9 @@ export function BcgwClosuresShortDtoFromJSONTyped(
     return json;
   }
   return {
-    forest_file_id: json['forest_file_id'],
-    project_name: json['project_name'],
-    project_type: json['project_type'],
+    rec_resource_id: json['rec_resource_id'],
+    rec_resource_name: json['rec_resource_name'],
+    rec_resource_type: json['rec_resource_type'],
     closure_ind: json['closure_ind'],
     closure_date:
       json['closure_date'] == null ? null : new Date(json['closure_date']),
@@ -231,9 +237,9 @@ export function BcgwClosuresShortDtoToJSONTyped(
   }
 
   return {
-    forest_file_id: value['forest_file_id'],
-    project_name: value['project_name'],
-    project_type: value['project_type'],
+    rec_resource_id: value['rec_resource_id'],
+    rec_resource_name: value['rec_resource_name'],
+    rec_resource_type: value['rec_resource_type'],
     closure_ind: value['closure_ind'],
     closure_date: (value['closure_date'] as any).toISOString().substring(0, 10),
     closure_type: value['closure_type'],

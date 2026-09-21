@@ -74,11 +74,11 @@ export interface BcgwRecreationPolygonsDto {
    */
   life_cycle_status_code: BcgwRecreationPolygonsDtoLifeCycleStatusCodeEnum | null;
   /**
-   * The current status of the recreation tenure, e.g., AR (archived), HI (issued), PI (pending issuance).
+   * The current status of the recreation resource, e.g., AR (archived), HI (issued), PI (pending issuance).
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  file_status_code: string | null;
+  rec_status_code: string | null;
   /**
    * The unique identifier (SKEY) for the Recreation Map Feature.
    * @type {number}
@@ -86,11 +86,11 @@ export interface BcgwRecreationPolygonsDto {
    */
   rmf_skey: number;
   /**
-   * An identifier assigned to the recreation file, e.g., REC230971.
+   * The recreation resource identifier, e.g., REC230971.
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  forest_file_id: string;
+  rec_resource_id: string;
   /**
    * An identifier assigned to a section of a recreation feature. Not used for polygon features.
    * @type {string}
@@ -102,13 +102,13 @@ export interface BcgwRecreationPolygonsDto {
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  recreation_map_feature_code: string | null;
+  rec_resource_type_code: string | null;
   /**
    * Description of the type of recreation feature, e.g., Interpretative Forest, Recreation Reserve.
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  project_type: string | null;
+  rec_resource_type: string | null;
   /**
    * The default label used when displaying the feature on a map, consisting of the FOREST FILE ID only, e.g., REC230971.
    * @type {string}
@@ -120,7 +120,7 @@ export interface BcgwRecreationPolygonsDto {
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  project_name: string | null;
+  rec_resource_name: string | null;
   /**
    * Code describing the type of natural or man-made recreation feature, e.g., E5 (mixed forest), H3 (historic site).
    * @type {string}
@@ -254,22 +254,28 @@ export function instanceOfBcgwRecreationPolygonsDto(
     value['life_cycle_status_code'] === undefined
   )
     return false;
-  if (!('file_status_code' in value) || value['file_status_code'] === undefined)
+  if (!('rec_status_code' in value) || value['rec_status_code'] === undefined)
     return false;
   if (!('rmf_skey' in value) || value['rmf_skey'] === undefined) return false;
-  if (!('forest_file_id' in value) || value['forest_file_id'] === undefined)
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
   if (!('section_id' in value) || value['section_id'] === undefined)
     return false;
   if (
-    !('recreation_map_feature_code' in value) ||
-    value['recreation_map_feature_code'] === undefined
+    !('rec_resource_type_code' in value) ||
+    value['rec_resource_type_code'] === undefined
   )
     return false;
-  if (!('project_type' in value) || value['project_type'] === undefined)
+  if (
+    !('rec_resource_type' in value) ||
+    value['rec_resource_type'] === undefined
+  )
     return false;
   if (!('map_label' in value) || value['map_label'] === undefined) return false;
-  if (!('project_name' in value) || value['project_name'] === undefined)
+  if (
+    !('rec_resource_name' in value) ||
+    value['rec_resource_name'] === undefined
+  )
     return false;
   if (
     !('recreation_feature_code' in value) ||
@@ -334,14 +340,14 @@ export function BcgwRecreationPolygonsDtoFromJSONTyped(
     recreation_view_ind: json['recreation_view_ind'],
     defined_campsites: json['defined_campsites'],
     life_cycle_status_code: json['life_cycle_status_code'],
-    file_status_code: json['file_status_code'],
+    rec_status_code: json['rec_status_code'],
     rmf_skey: json['rmf_skey'],
-    forest_file_id: json['forest_file_id'],
+    rec_resource_id: json['rec_resource_id'],
     section_id: json['section_id'],
-    recreation_map_feature_code: json['recreation_map_feature_code'],
-    project_type: json['project_type'],
+    rec_resource_type_code: json['rec_resource_type_code'],
+    rec_resource_type: json['rec_resource_type'],
     map_label: json['map_label'],
-    project_name: json['project_name'],
+    rec_resource_name: json['rec_resource_name'],
     recreation_feature_code: json['recreation_feature_code'],
     recreation_district_code: json['recreation_district_code'],
     geographic_district_code: json['geographic_district_code'],
@@ -381,14 +387,14 @@ export function BcgwRecreationPolygonsDtoToJSONTyped(
     recreation_view_ind: value['recreation_view_ind'],
     defined_campsites: value['defined_campsites'],
     life_cycle_status_code: value['life_cycle_status_code'],
-    file_status_code: value['file_status_code'],
+    rec_status_code: value['rec_status_code'],
     rmf_skey: value['rmf_skey'],
-    forest_file_id: value['forest_file_id'],
+    rec_resource_id: value['rec_resource_id'],
     section_id: value['section_id'],
-    recreation_map_feature_code: value['recreation_map_feature_code'],
-    project_type: value['project_type'],
+    rec_resource_type_code: value['rec_resource_type_code'],
+    rec_resource_type: value['rec_resource_type'],
     map_label: value['map_label'],
-    project_name: value['project_name'],
+    rec_resource_name: value['rec_resource_name'],
     recreation_feature_code: value['recreation_feature_code'],
     recreation_district_code: value['recreation_district_code'],
     geographic_district_code: value['geographic_district_code'],

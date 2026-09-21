@@ -2,20 +2,20 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class BcgwRecreationResourceDto {
   @ApiProperty({ example: 'REC204117' })
-  forest_file_id: string;
+  rec_resource_id: string;
 
   @ApiProperty({ type: String, nullable: true })
-  project_name: string | null;
+  rec_resource_name: string | null;
+
+  @ApiProperty({ type: String, example: 'SIT', nullable: true })
+  rec_resource_type_code: string | null;
 
   @ApiProperty({
     type: String,
     example: 'SIT - Recreation site',
     nullable: true,
   })
-  project_type_code: string | null;
-
-  @ApiProperty({ type: String, example: 'SIT', nullable: true })
-  project_type: string | null;
+  rec_resource_type: string | null;
 
   @ApiProperty({ type: String, format: 'date', nullable: true })
   project_established_date: Date | null;
@@ -36,7 +36,7 @@ export class BcgwRecreationResourceDto {
   recreation_view_ind: string;
 
   @ApiProperty({ type: String, example: 'HI', nullable: true })
-  file_status_st: string | null;
+  rec_status_code: string | null;
 
   @ApiProperty({ type: String, example: 'HI - Issued', nullable: true })
   status_description: string | null;

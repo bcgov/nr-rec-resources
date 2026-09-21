@@ -3,17 +3,17 @@ import { BcgwPaginationMetaDto } from './bcgw-recreation-resource.dto';
 
 export class BcgwClosuresShortDto {
   @ApiProperty({ example: 'REC204117' })
-  forest_file_id: string;
+  rec_resource_id: string;
 
   @ApiProperty({ type: String, nullable: true })
-  project_name: string | null;
+  rec_resource_name: string | null;
 
   @ApiProperty({
     type: String,
     example: 'SIT - Recreation Site',
     nullable: true,
   })
-  project_type: string | null;
+  rec_resource_type: string | null;
 
   @ApiProperty({ enum: ['Y', 'N'], example: 'N' })
   closure_ind: string;

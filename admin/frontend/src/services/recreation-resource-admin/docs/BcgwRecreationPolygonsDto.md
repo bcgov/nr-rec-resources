@@ -2,33 +2,33 @@
 
 ## Properties
 
-| Name                          | Type   |
-| ----------------------------- | ------ |
-| `amendment_id`                | number |
-| `site_location`               | string |
-| `retirement_date`             | Date   |
-| `resource_feature_ind`        | string |
-| `arch_impact_assess_ind`      | string |
-| `project_established_date`    | Date   |
-| `recreation_view_ind`         | string |
-| `defined_campsites`           | number |
-| `life_cycle_status_code`      | string |
-| `file_status_code`            | string |
-| `rmf_skey`                    | number |
-| `forest_file_id`              | string |
-| `section_id`                  | string |
-| `recreation_map_feature_code` | string |
-| `project_type`                | string |
-| `map_label`                   | string |
-| `project_name`                | string |
-| `recreation_feature_code`     | string |
-| `recreation_district_code`    | string |
-| `geographic_district_code`    | string |
-| `geographic_district_name`    | string |
-| `feature_area`                | number |
-| `feature_perimeter`           | number |
-| `feature_area_sqm`            | string |
-| `feature_length_m`            | number |
+| Name                       | Type   |
+| -------------------------- | ------ |
+| `amendment_id`             | number |
+| `site_location`            | string |
+| `retirement_date`          | Date   |
+| `resource_feature_ind`     | string |
+| `arch_impact_assess_ind`   | string |
+| `project_established_date` | Date   |
+| `recreation_view_ind`      | string |
+| `defined_campsites`        | number |
+| `life_cycle_status_code`   | string |
+| `rec_status_code`          | string |
+| `rmf_skey`                 | number |
+| `rec_resource_id`          | string |
+| `section_id`               | string |
+| `rec_resource_type_code`   | string |
+| `rec_resource_type`        | string |
+| `map_label`                | string |
+| `rec_resource_name`        | string |
+| `recreation_feature_code`  | string |
+| `recreation_district_code` | string |
+| `geographic_district_code` | string |
+| `geographic_district_name` | string |
+| `feature_area`             | number |
+| `feature_perimeter`        | number |
+| `feature_area_sqm`         | string |
+| `feature_length_m`         | number |
 
 ## Example
 
@@ -46,14 +46,14 @@ const example = {
   "recreation_view_ind": null,
   "defined_campsites": 0,
   "life_cycle_status_code": ACTIVE,
-  "file_status_code": HI,
+  "rec_status_code": HI,
   "rmf_skey": 23456,
-  "forest_file_id": REC230971,
+  "rec_resource_id": REC230971,
   "section_id": null,
-  "recreation_map_feature_code": SIT,
-  "project_type": Recreation Site,
+  "rec_resource_type_code": SIT,
+  "rec_resource_type": Recreation Site,
   "map_label": REC230971,
-  "project_name": KASLO INTERPRETIVE FOREST,
+  "rec_resource_name": KASLO INTERPRETIVE FOREST,
   "recreation_feature_code": E5,
   "recreation_district_code": RDCC,
   "geographic_district_code": DCC,

@@ -24,25 +24,25 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  forest_file_id: string;
+  rec_resource_id: string;
   /**
    *
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  project_name: string | null;
+  rec_resource_name: string | null;
   /**
    *
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  project_type_code: string | null;
+  rec_resource_type_code: string | null;
   /**
    *
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  project_type: string | null;
+  rec_resource_type: string | null;
   /**
    *
    * @type {Date}
@@ -84,7 +84,7 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  file_status_st: string | null;
+  rec_status_code: string | null;
   /**
    *
    * @type {string}
@@ -261,16 +261,22 @@ export type BcgwRecreationResourceDtoArchImpactAssessIndEnum =
 export function instanceOfBcgwRecreationResourceDto(
   value: object,
 ): value is BcgwRecreationResourceDto {
-  if (!('forest_file_id' in value) || value['forest_file_id'] === undefined)
-    return false;
-  if (!('project_name' in value) || value['project_name'] === undefined)
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
   if (
-    !('project_type_code' in value) ||
-    value['project_type_code'] === undefined
+    !('rec_resource_name' in value) ||
+    value['rec_resource_name'] === undefined
   )
     return false;
-  if (!('project_type' in value) || value['project_type'] === undefined)
+  if (
+    !('rec_resource_type_code' in value) ||
+    value['rec_resource_type_code'] === undefined
+  )
+    return false;
+  if (
+    !('rec_resource_type' in value) ||
+    value['rec_resource_type'] === undefined
+  )
     return false;
   if (
     !('project_established_date' in value) ||
@@ -290,7 +296,7 @@ export function instanceOfBcgwRecreationResourceDto(
     value['recreation_view_ind'] === undefined
   )
     return false;
-  if (!('file_status_st' in value) || value['file_status_st'] === undefined)
+  if (!('rec_status_code' in value) || value['rec_status_code'] === undefined)
     return false;
   if (
     !('status_description' in value) ||
@@ -387,10 +393,10 @@ export function BcgwRecreationResourceDtoFromJSONTyped(
     return json;
   }
   return {
-    forest_file_id: json['forest_file_id'],
-    project_name: json['project_name'],
-    project_type_code: json['project_type_code'],
-    project_type: json['project_type'],
+    rec_resource_id: json['rec_resource_id'],
+    rec_resource_name: json['rec_resource_name'],
+    rec_resource_type_code: json['rec_resource_type_code'],
+    rec_resource_type: json['rec_resource_type'],
     project_established_date:
       json['project_established_date'] == null
         ? null
@@ -401,7 +407,7 @@ export function BcgwRecreationResourceDtoFromJSONTyped(
     closure_type: json['closure_type'],
     closure_comment: json['closure_comment'],
     recreation_view_ind: json['recreation_view_ind'],
-    file_status_st: json['file_status_st'],
+    rec_status_code: json['rec_status_code'],
     status_description: json['status_description'],
     site_location: json['site_location'],
     defined_campsites: json['defined_campsites'],
@@ -449,10 +455,10 @@ export function BcgwRecreationResourceDtoToJSONTyped(
   }
 
   return {
-    forest_file_id: value['forest_file_id'],
-    project_name: value['project_name'],
-    project_type_code: value['project_type_code'],
-    project_type: value['project_type'],
+    rec_resource_id: value['rec_resource_id'],
+    rec_resource_name: value['rec_resource_name'],
+    rec_resource_type_code: value['rec_resource_type_code'],
+    rec_resource_type: value['rec_resource_type'],
     project_established_date: (value['project_established_date'] as any)
       .toISOString()
       .substring(0, 10),
@@ -461,7 +467,7 @@ export function BcgwRecreationResourceDtoToJSONTyped(
     closure_type: value['closure_type'],
     closure_comment: value['closure_comment'],
     recreation_view_ind: value['recreation_view_ind'],
-    file_status_st: value['file_status_st'],
+    rec_status_code: value['rec_status_code'],
     status_description: value['status_description'],
     site_location: value['site_location'],
     defined_campsites: value['defined_campsites'],

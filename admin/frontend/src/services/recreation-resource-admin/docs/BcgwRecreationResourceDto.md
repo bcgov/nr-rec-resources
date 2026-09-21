@@ -4,17 +4,17 @@
 
 | Name                       | Type   |
 | -------------------------- | ------ |
-| `forest_file_id`           | string |
-| `project_name`             | string |
-| `project_type_code`        | string |
-| `project_type`             | string |
+| `rec_resource_id`          | string |
+| `rec_resource_name`        | string |
+| `rec_resource_type_code`   | string |
+| `rec_resource_type`        | string |
 | `project_established_date` | Date   |
 | `closure_ind`              | string |
 | `closure_date`             | Date   |
 | `closure_type`             | string |
 | `closure_comment`          | string |
 | `recreation_view_ind`      | string |
-| `file_status_st`           | string |
+| `rec_status_code`          | string |
 | `status_description`       | string |
 | `site_location`            | string |
 | `defined_campsites`        | number |
@@ -46,17 +46,17 @@ import type { BcgwRecreationResourceDto } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "forest_file_id": REC204117,
-  "project_name": null,
-  "project_type_code": SIT - Recreation site,
-  "project_type": SIT,
+  "rec_resource_id": REC204117,
+  "rec_resource_name": null,
+  "rec_resource_type_code": SIT - Recreation site,
+  "rec_resource_type": SIT,
   "project_established_date": null,
   "closure_ind": N,
   "closure_date": null,
   "closure_type": Wildfire,
   "closure_comment": null,
   "recreation_view_ind": null,
-  "file_status_st": HI,
+  "rec_status_code": HI,
   "status_description": HI - Issued,
   "site_location": PEMBERTON,
   "defined_campsites": 0,

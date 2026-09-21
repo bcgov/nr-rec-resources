@@ -4,9 +4,9 @@
 
 | Name                       | Type   |
 | -------------------------- | ------ |
-| `forest_file_id`           | string |
-| `project_name`             | string |
-| `project_type`             | string |
+| `rec_resource_id`          | string |
+| `rec_resource_name`        | string |
+| `rec_resource_type`        | string |
 | `closure_ind`              | string |
 | `closure_date`             | Date   |
 | `closure_type`             | string |
@@ -29,9 +29,9 @@ import type { BcgwClosuresShortDto } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "forest_file_id": REC204117,
-  "project_name": null,
-  "project_type": SIT - Recreation Site,
+  "rec_resource_id": REC204117,
+  "rec_resource_name": null,
+  "rec_resource_type": SIT - Recreation Site,
   "closure_ind": N,
   "closure_date": null,
   "closure_type": Wildfire,

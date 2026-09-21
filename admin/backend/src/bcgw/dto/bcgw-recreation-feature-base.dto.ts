@@ -85,9 +85,9 @@ export class BcgwRecreationFeatureBaseDto {
   @ApiProperty({
     type: String,
     description:
-      'The current status of the recreation tenure, e.g., AR (archived), HI (issued), PI (pending issuance).',
+      'The current status of the recreation resource, e.g., AR (archived), HI (issued), PI (pending issuance).',
     example: 'HI',
     nullable: true,
   })
-  file_status_code: string | null;
+  rec_status_code: string | null;
 }

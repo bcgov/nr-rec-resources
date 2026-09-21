@@ -205,7 +205,7 @@ describe('BcgwService', () => {
       const { features } = await service.findAll(1);
       const { properties } = features[0]!;
 
-      expect(properties.forest_file_id).toBe('REC204117');
+      expect(properties.rec_resource_id).toBe('REC204117');
       expect(properties.defined_campsites).toBe(5);
       expect(properties.arch_impact_assess_ind).toBe('Y');
       expect(properties.site_description_date).toEqual(new Date('2020-06-15'));
@@ -371,9 +371,9 @@ describe('BcgwService', () => {
       const { features } = await service.findAllShort(1);
       const { properties } = features[0]!;
 
-      expect(properties.forest_file_id).toBe('REC204117');
-      expect(properties.project_name).toBe('Aileen Lake');
-      expect(properties.project_type).toBe('SIT - Recreation site');
+      expect(properties.rec_resource_id).toBe('REC204117');
+      expect(properties.rec_resource_name).toBe('Aileen Lake');
+      expect(properties.rec_resource_type).toBe('SIT - Recreation site');
       expect(properties.site_location).toBe('PEMBERTON');
       expect(properties.recreation_district_code).toBe('RDPG');
       expect(properties.recreation_district_name).toBe(
@@ -473,8 +473,8 @@ describe('BcgwService', () => {
       const { features } = await service.findAllShort(1);
       const { properties } = features[0]!;
 
-      expect(properties.project_name).toBeNull();
-      expect(properties.project_type).toBeNull();
+      expect(properties.rec_resource_name).toBeNull();
+      expect(properties.rec_resource_type).toBeNull();
       expect(properties.site_location).toBeNull();
       expect(properties.recreation_district_code).toBeNull();
       expect(properties.org_unit_name).toBeNull();
@@ -589,7 +589,7 @@ describe('BcgwService', () => {
       const { properties } = features[0]!;
 
       expect(properties.rmf_skey).toBe(1001);
-      expect(properties.forest_file_id).toBe('REC4531');
+      expect(properties.rec_resource_id).toBe('REC4531');
       expect(properties.map_label).toBe('REC4531 15');
       expect(properties.life_cycle_status_code).toBe('ACTIVE');
       expect(properties.district_code).toBe('DCC');
@@ -718,7 +718,7 @@ describe('BcgwService', () => {
       const { properties } = features[0]!;
 
       expect(properties.rmf_skey).toBe(2001);
-      expect(properties.forest_file_id).toBe('REC0054');
+      expect(properties.rec_resource_id).toBe('REC0054');
       expect(properties.map_label).toBe('REC0054');
       expect(properties.life_cycle_status_code).toBe('ACTIVE');
       expect(properties.geographic_district_code).toBe('DCC');
