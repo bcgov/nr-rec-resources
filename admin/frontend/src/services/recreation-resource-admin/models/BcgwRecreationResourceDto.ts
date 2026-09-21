@@ -78,7 +78,7 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  recreation_view_ind: BcgwRecreationResourceDtoRecreationViewIndEnum;
+  display_on_public_site_ind: BcgwRecreationResourceDtoRecreationViewIndEnum;
   /**
    *
    * @type {string}
@@ -90,13 +90,13 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  status_description: string | null;
+  rec_status_description: string | null;
   /**
    *
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  site_location: string | null;
+  closest_community: string | null;
   /**
    *
    * @type {number}
@@ -108,7 +108,7 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  site_description_brief: string | null;
+  description: string | null;
   /**
    *
    * @type {string}
@@ -120,13 +120,13 @@ export interface BcgwRecreationResourceDto {
    * @type {number}
    * @memberof BcgwRecreationResourceDto
    */
-  tenure_app_total_area: number | null;
+  total_feature_area: number | null;
   /**
    * Total length in kilometres
    * @type {number}
    * @memberof BcgwRecreationResourceDto
    */
-  tenure_app_total_length: number | null;
+  total_feature_length: number | null;
   /**
    *
    * @type {string}
@@ -156,13 +156,13 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  rec_feature_code: string | null;
+  recreation_feature_code: string | null;
   /**
    *
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  rec_feature_description: string | null;
+  recreation_feature_description: string | null;
   /**
    *
    * @type {string}
@@ -292,28 +292,28 @@ export function instanceOfBcgwRecreationResourceDto(
   if (!('closure_comment' in value) || value['closure_comment'] === undefined)
     return false;
   if (
-    !('recreation_view_ind' in value) ||
-    value['recreation_view_ind'] === undefined
+    !('display_on_public_site_ind' in value) ||
+    value['display_on_public_site_ind'] === undefined
   )
     return false;
   if (!('rec_status_code' in value) || value['rec_status_code'] === undefined)
     return false;
   if (
-    !('status_description' in value) ||
-    value['status_description'] === undefined
+    !('rec_status_description' in value) ||
+    value['rec_status_description'] === undefined
   )
     return false;
-  if (!('site_location' in value) || value['site_location'] === undefined)
+  if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
+  )
     return false;
   if (
     !('defined_campsites' in value) ||
     value['defined_campsites'] === undefined
   )
     return false;
-  if (
-    !('site_description_brief' in value) ||
-    value['site_description_brief'] === undefined
-  )
+  if (!('description' in value) || value['description'] === undefined)
     return false;
   if (
     !('arch_impact_assess_ind' in value) ||
@@ -321,13 +321,13 @@ export function instanceOfBcgwRecreationResourceDto(
   )
     return false;
   if (
-    !('tenure_app_total_area' in value) ||
-    value['tenure_app_total_area'] === undefined
+    !('total_feature_area' in value) ||
+    value['total_feature_area'] === undefined
   )
     return false;
   if (
-    !('tenure_app_total_length' in value) ||
-    value['tenure_app_total_length'] === undefined
+    !('total_feature_length' in value) ||
+    value['total_feature_length'] === undefined
   )
     return false;
   if (!('site_description' in value) || value['site_description'] === undefined)
@@ -347,11 +347,14 @@ export function instanceOfBcgwRecreationResourceDto(
     value['driving_directions_date'] === undefined
   )
     return false;
-  if (!('rec_feature_code' in value) || value['rec_feature_code'] === undefined)
+  if (
+    !('recreation_feature_code' in value) ||
+    value['recreation_feature_code'] === undefined
+  )
     return false;
   if (
-    !('rec_feature_description' in value) ||
-    value['rec_feature_description'] === undefined
+    !('recreation_feature_description' in value) ||
+    value['recreation_feature_description'] === undefined
   )
     return false;
   if (
@@ -406,15 +409,15 @@ export function BcgwRecreationResourceDtoFromJSONTyped(
       json['closure_date'] == null ? null : new Date(json['closure_date']),
     closure_type: json['closure_type'],
     closure_comment: json['closure_comment'],
-    recreation_view_ind: json['recreation_view_ind'],
+    display_on_public_site_ind: json['display_on_public_site_ind'],
     rec_status_code: json['rec_status_code'],
-    status_description: json['status_description'],
-    site_location: json['site_location'],
+    rec_status_description: json['rec_status_description'],
+    closest_community: json['closest_community'],
     defined_campsites: json['defined_campsites'],
-    site_description_brief: json['site_description_brief'],
+    description: json['description'],
     arch_impact_assess_ind: json['arch_impact_assess_ind'],
-    tenure_app_total_area: json['tenure_app_total_area'],
-    tenure_app_total_length: json['tenure_app_total_length'],
+    total_feature_area: json['total_feature_area'],
+    total_feature_length: json['total_feature_length'],
     site_description: json['site_description'],
     site_description_date:
       json['site_description_date'] == null
@@ -425,8 +428,8 @@ export function BcgwRecreationResourceDtoFromJSONTyped(
       json['driving_directions_date'] == null
         ? null
         : new Date(json['driving_directions_date']),
-    rec_feature_code: json['rec_feature_code'],
-    rec_feature_description: json['rec_feature_description'],
+    recreation_feature_code: json['recreation_feature_code'],
+    recreation_feature_description: json['recreation_feature_description'],
     recreation_district_code: json['recreation_district_code'],
     recreation_district_name: json['recreation_district_name'],
     org_unit_code: json['org_unit_code'],
@@ -466,15 +469,15 @@ export function BcgwRecreationResourceDtoToJSONTyped(
     closure_date: (value['closure_date'] as any).toISOString().substring(0, 10),
     closure_type: value['closure_type'],
     closure_comment: value['closure_comment'],
-    recreation_view_ind: value['recreation_view_ind'],
+    display_on_public_site_ind: value['display_on_public_site_ind'],
     rec_status_code: value['rec_status_code'],
-    status_description: value['status_description'],
-    site_location: value['site_location'],
+    rec_status_description: value['rec_status_description'],
+    closest_community: value['closest_community'],
     defined_campsites: value['defined_campsites'],
-    site_description_brief: value['site_description_brief'],
+    description: value['description'],
     arch_impact_assess_ind: value['arch_impact_assess_ind'],
-    tenure_app_total_area: value['tenure_app_total_area'],
-    tenure_app_total_length: value['tenure_app_total_length'],
+    total_feature_area: value['total_feature_area'],
+    total_feature_length: value['total_feature_length'],
     site_description: value['site_description'],
     site_description_date: (value['site_description_date'] as any)
       .toISOString()
@@ -483,8 +486,8 @@ export function BcgwRecreationResourceDtoToJSONTyped(
     driving_directions_date: (value['driving_directions_date'] as any)
       .toISOString()
       .substring(0, 10),
-    rec_feature_code: value['rec_feature_code'],
-    rec_feature_description: value['rec_feature_description'],
+    recreation_feature_code: value['recreation_feature_code'],
+    recreation_feature_description: value['recreation_feature_description'],
     recreation_district_code: value['recreation_district_code'],
     recreation_district_name: value['recreation_district_name'],
     org_unit_code: value['org_unit_code'],

@@ -45,7 +45,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
 
   @ApiProperty(
     nullableStringProperty(
-      'The default label used when displaying the feature on a map, consisting of the FOREST FILE ID and SECTION ID separated by a space.',
+      'The default label used when displaying the feature on a map, consisting of the REC RESOURCE ID and SECTION ID separated by a space.',
       'REC4531 15',
     ),
   )

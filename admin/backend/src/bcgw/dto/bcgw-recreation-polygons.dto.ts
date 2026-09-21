@@ -45,7 +45,7 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
 
   @ApiProperty(
     nullableStringProperty(
-      'The default label used when displaying the feature on a map, consisting of the FOREST FILE ID only, e.g., REC230971.',
+      'The default label used when displaying the feature on a map, consisting of the REC RESOURCE ID only, e.g., REC230971.',
       'REC230971',
     ),
   )
@@ -81,7 +81,7 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
       'DCC',
     ),
   )
-  geographic_district_code: string | null;
+  district_code: string | null;
 
   @ApiProperty(
     nullableStringProperty(
@@ -89,7 +89,7 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
       'Chilliwack Natural Resource District',
     ),
   )
-  geographic_district_name: string | null;
+  org_unit_name: string | null;
 
   @ApiProperty(
     nullableNumberProperty(

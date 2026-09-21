@@ -26,7 +26,7 @@ export class BcgwRecreationFeatureBaseDto {
       'KELOWNA',
     ),
   )
-  site_location: string | null;
+  closest_community: string | null;
 
   @ApiProperty({
     description:
@@ -66,7 +66,7 @@ export class BcgwRecreationFeatureBaseDto {
     enum: ['Y', 'N'],
     nullable: true,
   })
-  recreation_view_ind: string | null;
+  display_on_public_site_ind: string | null;
 
   @ApiProperty({
     description: 'The total number of campsites.',

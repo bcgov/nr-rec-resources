@@ -25,7 +25,7 @@ export class BcgwClosuresShortDto {
   closure_type: string | null;
 
   @ApiProperty({ type: String, example: 'PEMBERTON', nullable: true })
-  site_location: string | null;
+  closest_community: string | null;
 
   @ApiProperty({ example: 0 })
   defined_campsites: number;

@@ -60,7 +60,7 @@ export interface BcgwClosuresShortDto {
    * @type {string}
    * @memberof BcgwClosuresShortDto
    */
-  site_location: string | null;
+  closest_community: string | null;
   /**
    *
    * @type {number}
@@ -157,7 +157,10 @@ export function instanceOfBcgwClosuresShortDto(
     return false;
   if (!('closure_type' in value) || value['closure_type'] === undefined)
     return false;
-  if (!('site_location' in value) || value['site_location'] === undefined)
+  if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
+  )
     return false;
   if (
     !('defined_campsites' in value) ||
@@ -210,7 +213,7 @@ export function BcgwClosuresShortDtoFromJSONTyped(
     closure_date:
       json['closure_date'] == null ? null : new Date(json['closure_date']),
     closure_type: json['closure_type'],
-    site_location: json['site_location'],
+    closest_community: json['closest_community'],
     defined_campsites: json['defined_campsites'],
     recreation_district_code: json['recreation_district_code'],
     recreation_district_name: json['recreation_district_name'],
@@ -243,7 +246,7 @@ export function BcgwClosuresShortDtoToJSONTyped(
     closure_ind: value['closure_ind'],
     closure_date: (value['closure_date'] as any).toISOString().substring(0, 10),
     closure_type: value['closure_type'],
-    site_location: value['site_location'],
+    closest_community: value['closest_community'],
     defined_campsites: value['defined_campsites'],
     recreation_district_code: value['recreation_district_code'],
     recreation_district_name: value['recreation_district_name'],

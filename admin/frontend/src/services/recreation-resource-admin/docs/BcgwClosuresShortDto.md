@@ -10,7 +10,7 @@
 | `closure_ind`              | string |
 | `closure_date`             | Date   |
 | `closure_type`             | string |
-| `site_location`            | string |
+| `closest_community`        | string |
 | `defined_campsites`        | number |
 | `recreation_district_code` | string |
 | `recreation_district_name` | string |
@@ -35,7 +35,7 @@ const example = {
   "closure_ind": N,
   "closure_date": null,
   "closure_type": Wildfire,
-  "site_location": PEMBERTON,
+  "closest_community": PEMBERTON,
   "defined_campsites": 0,
   "recreation_district_code": RDPG,
   "recreation_district_name": Prince George-Mackenzie,

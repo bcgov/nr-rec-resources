@@ -30,7 +30,7 @@ export interface BcgwRecreationPolygonsDto {
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  site_location: string | null;
+  closest_community: string | null;
   /**
    * For a retired recreation feature, the date and time the feature was retired.
    * @type {Date}
@@ -60,7 +60,7 @@ export interface BcgwRecreationPolygonsDto {
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  recreation_view_ind: BcgwRecreationPolygonsDtoRecreationViewIndEnum | null;
+  display_on_public_site_ind: BcgwRecreationPolygonsDtoRecreationViewIndEnum | null;
   /**
    * The total number of campsites.
    * @type {number}
@@ -110,7 +110,7 @@ export interface BcgwRecreationPolygonsDto {
    */
   rec_resource_type: string | null;
   /**
-   * The default label used when displaying the feature on a map, consisting of the FOREST FILE ID only, e.g., REC230971.
+   * The default label used when displaying the feature on a map, consisting of the REC RESOURCE ID only, e.g., REC230971.
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
@@ -138,13 +138,13 @@ export interface BcgwRecreationPolygonsDto {
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  geographic_district_code: string | null;
+  district_code: string | null;
   /**
    * The name of the natural resource district associated with this feature.
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  geographic_district_name: string | null;
+  org_unit_name: string | null;
   /**
    * Spatial feature area in hectares. Calculated in the source system.
    * @type {number}
@@ -220,7 +220,10 @@ export function instanceOfBcgwRecreationPolygonsDto(
 ): value is BcgwRecreationPolygonsDto {
   if (!('amendment_id' in value) || value['amendment_id'] === undefined)
     return false;
-  if (!('site_location' in value) || value['site_location'] === undefined)
+  if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
+  )
     return false;
   if (!('retirement_date' in value) || value['retirement_date'] === undefined)
     return false;
@@ -240,8 +243,8 @@ export function instanceOfBcgwRecreationPolygonsDto(
   )
     return false;
   if (
-    !('recreation_view_ind' in value) ||
-    value['recreation_view_ind'] === undefined
+    !('display_on_public_site_ind' in value) ||
+    value['display_on_public_site_ind'] === undefined
   )
     return false;
   if (
@@ -287,15 +290,9 @@ export function instanceOfBcgwRecreationPolygonsDto(
     value['recreation_district_code'] === undefined
   )
     return false;
-  if (
-    !('geographic_district_code' in value) ||
-    value['geographic_district_code'] === undefined
-  )
+  if (!('district_code' in value) || value['district_code'] === undefined)
     return false;
-  if (
-    !('geographic_district_name' in value) ||
-    value['geographic_district_name'] === undefined
-  )
+  if (!('org_unit_name' in value) || value['org_unit_name'] === undefined)
     return false;
   if (!('feature_area' in value) || value['feature_area'] === undefined)
     return false;
@@ -326,7 +323,7 @@ export function BcgwRecreationPolygonsDtoFromJSONTyped(
   }
   return {
     amendment_id: json['amendment_id'],
-    site_location: json['site_location'],
+    closest_community: json['closest_community'],
     retirement_date:
       json['retirement_date'] == null
         ? null
@@ -337,7 +334,7 @@ export function BcgwRecreationPolygonsDtoFromJSONTyped(
       json['project_established_date'] == null
         ? null
         : new Date(json['project_established_date']),
-    recreation_view_ind: json['recreation_view_ind'],
+    display_on_public_site_ind: json['display_on_public_site_ind'],
     defined_campsites: json['defined_campsites'],
     life_cycle_status_code: json['life_cycle_status_code'],
     rec_status_code: json['rec_status_code'],
@@ -350,8 +347,8 @@ export function BcgwRecreationPolygonsDtoFromJSONTyped(
     rec_resource_name: json['rec_resource_name'],
     recreation_feature_code: json['recreation_feature_code'],
     recreation_district_code: json['recreation_district_code'],
-    geographic_district_code: json['geographic_district_code'],
-    geographic_district_name: json['geographic_district_name'],
+    district_code: json['district_code'],
+    org_unit_name: json['org_unit_name'],
     feature_area: json['feature_area'],
     feature_perimeter: json['feature_perimeter'],
     feature_area_sqm: json['feature_area_sqm'],
@@ -375,7 +372,7 @@ export function BcgwRecreationPolygonsDtoToJSONTyped(
 
   return {
     amendment_id: value['amendment_id'],
-    site_location: value['site_location'],
+    closest_community: value['closest_community'],
     retirement_date: (value['retirement_date'] as any)
       .toISOString()
       .substring(0, 10),
@@ -384,7 +381,7 @@ export function BcgwRecreationPolygonsDtoToJSONTyped(
     project_established_date: (value['project_established_date'] as any)
       .toISOString()
       .substring(0, 10),
-    recreation_view_ind: value['recreation_view_ind'],
+    display_on_public_site_ind: value['display_on_public_site_ind'],
     defined_campsites: value['defined_campsites'],
     life_cycle_status_code: value['life_cycle_status_code'],
     rec_status_code: value['rec_status_code'],
@@ -397,8 +394,8 @@ export function BcgwRecreationPolygonsDtoToJSONTyped(
     rec_resource_name: value['rec_resource_name'],
     recreation_feature_code: value['recreation_feature_code'],
     recreation_district_code: value['recreation_district_code'],
-    geographic_district_code: value['geographic_district_code'],
-    geographic_district_name: value['geographic_district_name'],
+    district_code: value['district_code'],
+    org_unit_name: value['org_unit_name'],
     feature_area: value['feature_area'],
     feature_perimeter: value['feature_perimeter'],
     feature_area_sqm: value['feature_area_sqm'],

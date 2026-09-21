@@ -2,42 +2,42 @@
 
 ## Properties
 
-| Name                       | Type   |
-| -------------------------- | ------ |
-| `rec_resource_id`          | string |
-| `rec_resource_name`        | string |
-| `rec_resource_type_code`   | string |
-| `rec_resource_type`        | string |
-| `project_established_date` | Date   |
-| `closure_ind`              | string |
-| `closure_date`             | Date   |
-| `closure_type`             | string |
-| `closure_comment`          | string |
-| `recreation_view_ind`      | string |
-| `rec_status_code`          | string |
-| `status_description`       | string |
-| `site_location`            | string |
-| `defined_campsites`        | number |
-| `site_description_brief`   | string |
-| `arch_impact_assess_ind`   | string |
-| `tenure_app_total_area`    | number |
-| `tenure_app_total_length`  | number |
-| `site_description`         | string |
-| `site_description_date`    | Date   |
-| `driving_directions`       | string |
-| `driving_directions_date`  | Date   |
-| `rec_feature_code`         | string |
-| `rec_feature_description`  | string |
-| `recreation_district_code` | string |
-| `recreation_district_name` | string |
-| `org_unit_code`            | string |
-| `org_unit_name`            | string |
-| `utm_zone`                 | number |
-| `utm_easting`              | number |
-| `utm_northing`             | number |
-| `latitude`                 | number |
-| `longitude`                | number |
-| `shape`                    | string |
+| Name                             | Type   |
+| -------------------------------- | ------ |
+| `rec_resource_id`                | string |
+| `rec_resource_name`              | string |
+| `rec_resource_type_code`         | string |
+| `rec_resource_type`              | string |
+| `project_established_date`       | Date   |
+| `closure_ind`                    | string |
+| `closure_date`                   | Date   |
+| `closure_type`                   | string |
+| `closure_comment`                | string |
+| `display_on_public_site_ind`     | string |
+| `rec_status_code`                | string |
+| `rec_status_description`         | string |
+| `closest_community`              | string |
+| `defined_campsites`              | number |
+| `description`                    | string |
+| `arch_impact_assess_ind`         | string |
+| `total_feature_area`             | number |
+| `total_feature_length`           | number |
+| `site_description`               | string |
+| `site_description_date`          | Date   |
+| `driving_directions`             | string |
+| `driving_directions_date`        | Date   |
+| `recreation_feature_code`        | string |
+| `recreation_feature_description` | string |
+| `recreation_district_code`       | string |
+| `recreation_district_name`       | string |
+| `org_unit_code`                  | string |
+| `org_unit_name`                  | string |
+| `utm_zone`                       | number |
+| `utm_easting`                    | number |
+| `utm_northing`                   | number |
+| `latitude`                       | number |
+| `longitude`                      | number |
+| `shape`                          | string |
 
 ## Example
 
@@ -55,21 +55,21 @@ const example = {
   "closure_date": null,
   "closure_type": Wildfire,
   "closure_comment": null,
-  "recreation_view_ind": null,
+  "display_on_public_site_ind": null,
   "rec_status_code": HI,
-  "status_description": HI - Issued,
-  "site_location": PEMBERTON,
+  "rec_status_description": HI - Issued,
+  "closest_community": PEMBERTON,
   "defined_campsites": 0,
-  "site_description_brief": null,
+  "description": null,
   "arch_impact_assess_ind": null,
-  "tenure_app_total_area": null,
-  "tenure_app_total_length": null,
+  "total_feature_area": null,
+  "total_feature_length": null,
   "site_description": null,
   "site_description_date": null,
   "driving_directions": null,
   "driving_directions_date": null,
-  "rec_feature_code": B2,
-  "rec_feature_description": B2 - Sand Beach,
+  "recreation_feature_code": B2,
+  "recreation_feature_description": B2 - Sand Beach,
   "recreation_district_code": RDPG,
   "recreation_district_name": Prince George-Mackenzie,
   "org_unit_code": DPG,

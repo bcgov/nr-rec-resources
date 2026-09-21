@@ -30,7 +30,7 @@ export interface BcgwRecreationLinesDto {
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
-  site_location: string | null;
+  closest_community: string | null;
   /**
    * For a retired recreation feature, the date and time the feature was retired.
    * @type {Date}
@@ -60,7 +60,7 @@ export interface BcgwRecreationLinesDto {
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
-  recreation_view_ind: BcgwRecreationLinesDtoRecreationViewIndEnum | null;
+  display_on_public_site_ind: BcgwRecreationLinesDtoRecreationViewIndEnum | null;
   /**
    * The total number of campsites.
    * @type {number}
@@ -110,7 +110,7 @@ export interface BcgwRecreationLinesDto {
    */
   rec_resource_type: string | null;
   /**
-   * The default label used when displaying the feature on a map, consisting of the FOREST FILE ID and SECTION ID separated by a space.
+   * The default label used when displaying the feature on a map, consisting of the REC RESOURCE ID and SECTION ID separated by a space.
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
@@ -214,7 +214,10 @@ export function instanceOfBcgwRecreationLinesDto(
 ): value is BcgwRecreationLinesDto {
   if (!('amendment_id' in value) || value['amendment_id'] === undefined)
     return false;
-  if (!('site_location' in value) || value['site_location'] === undefined)
+  if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
+  )
     return false;
   if (!('retirement_date' in value) || value['retirement_date'] === undefined)
     return false;
@@ -234,8 +237,8 @@ export function instanceOfBcgwRecreationLinesDto(
   )
     return false;
   if (
-    !('recreation_view_ind' in value) ||
-    value['recreation_view_ind'] === undefined
+    !('display_on_public_site_ind' in value) ||
+    value['display_on_public_site_ind'] === undefined
   )
     return false;
   if (
@@ -309,7 +312,7 @@ export function BcgwRecreationLinesDtoFromJSONTyped(
   }
   return {
     amendment_id: json['amendment_id'],
-    site_location: json['site_location'],
+    closest_community: json['closest_community'],
     retirement_date:
       json['retirement_date'] == null
         ? null
@@ -320,7 +323,7 @@ export function BcgwRecreationLinesDtoFromJSONTyped(
       json['project_established_date'] == null
         ? null
         : new Date(json['project_established_date']),
-    recreation_view_ind: json['recreation_view_ind'],
+    display_on_public_site_ind: json['display_on_public_site_ind'],
     defined_campsites: json['defined_campsites'],
     life_cycle_status_code: json['life_cycle_status_code'],
     rec_status_code: json['rec_status_code'],
@@ -357,7 +360,7 @@ export function BcgwRecreationLinesDtoToJSONTyped(
 
   return {
     amendment_id: value['amendment_id'],
-    site_location: value['site_location'],
+    closest_community: value['closest_community'],
     retirement_date: (value['retirement_date'] as any)
       .toISOString()
       .substring(0, 10),
@@ -366,7 +369,7 @@ export function BcgwRecreationLinesDtoToJSONTyped(
     project_established_date: (value['project_established_date'] as any)
       .toISOString()
       .substring(0, 10),
-    recreation_view_ind: value['recreation_view_ind'],
+    display_on_public_site_ind: value['display_on_public_site_ind'],
     defined_campsites: value['defined_campsites'],
     life_cycle_status_code: value['life_cycle_status_code'],
     rec_status_code: value['rec_status_code'],
