@@ -343,9 +343,14 @@ describe('ResourceImagesDocsService', () => {
         new Error('S3 delete failed'),
       );
 
-      await expect(service.delete('REC0001', 'image-123')).rejects.toThrow(
+      await expect(service.delete('REC0001', 'image-123', false)).rejects.toThrow(
         'Failed to delete image',
       );
+
+      expect(s3Service.listObjectsByPrefix).toHaveBeenCalledWith(
+        'images/REC0001/image-123/',
+      );
+      expect(prismaService.$transaction).not.toHaveBeenCalled();
     });
   });
 
