@@ -1,5 +1,6 @@
 import { type ExportDatasetBuilderContext } from '@/recreation-resources/exports/datasets/types';
 import { assetListDataset } from '@/recreation-resources/exports/datasets/asset-list.dataset';
+import { partnersListDataset } from '@/recreation-resources/exports/datasets/partners-list.dataset';
 import { assetRepairListDataset } from '@/recreation-resources/exports/datasets/asset-repair-list.dataset';
 import { closureListFtaDataset } from '@/recreation-resources/exports/datasets/closure-list-fta.dataset';
 import { feeListFtaDataset } from '@/recreation-resources/exports/datasets/fee-list-fta.dataset';
@@ -162,6 +163,28 @@ describe('export dataset builders', () => {
     );
   });
 
+  it('builds the RST partners list query with resolved foreign key names', () => {
+    const sql = normalizeDatasetSql(
+      partnersListDataset.buildQuery,
+      createBuilderContext({
+        dataset: 'partners-list',
+      }),
+    );
+
+    expect(sql).toContain('FROM rst.recreation_agreement_holder ah');
+    expect(sql).toContain(
+      'INNER JOIN recreation_resource rr ON rr.rec_resource_id = ah.rec_resource_id',
+    );
+    expect(sql).toContain(
+      `LEFT OUTER JOIN rst.recreation_fee rf ON rf.rec_resource_id = rr.rec_resource_id`,
+    );
+    expect(sql).toContain('"IS_RECREATION_OPERATOR"');
+    expect(sql).toContain('"CLIENT_NUMBER"');
+    expect(sql).toContain('"DISPLAY_ON_WEBSITE"');
+    expect(sql).toContain('"AGREEMENT_START_DATE"');
+    expect(sql).toContain('"AGREEMENT_END_DATE"');
+  });
+
   it('exposes asset attributes and campsite parentage in the asset list query', () => {
     const sql = normalizeDatasetSql(
       assetListDataset.buildQuery,
@@ -246,6 +269,66 @@ describe('export dataset builders', () => {
     expect(sql).not.toContain('"RECREATION_REMED_REPAIR_CODE"');
     expect(sql).toContain(
       'ORDER BY rr.rec_resource_id, ra.asset_id, rap.repair_id',
+    );
+  });
+
+  it('builds the RST asset list query with resolved foreign key names', () => {
+    const sql = normalizeDatasetSql(
+      assetListDataset.buildQuery,
+      createBuilderContext({
+        dataset: 'asset-list',
+        district: 'D01',
+        resourceType: 'TRAIL',
+      }),
+    );
+
+    expect(sql).toContain('FROM recreation_asset ra');
+    expect(sql).toContain(
+      'INNER JOIN recreation_resource rr ON rr.rec_resource_id = ra.rec_resource_id',
+    );
+    expect(sql).toContain(
+      'LEFT JOIN recreation_asset_code rac ON rac.asset_code = ra.asset_code',
+    );
+    expect(sql).toContain(
+      'LEFT JOIN recreation_asset parent ON parent.asset_id = ra.parent_id',
+    );
+    expect(sql).toContain(
+      'WHERE 1 = 1 AND rr.district_code = ? AND rrtva.rec_resource_type_code = ?',
+    );
+  });
+
+  it('exposes asset attributes and campsite parentage in the asset list query', () => {
+    const sql = normalizeDatasetSql(
+      assetListDataset.buildQuery,
+      createBuilderContext({
+        dataset: 'asset-list',
+      }),
+    );
+
+    expect(sql).toContain('"ASSET_ID"');
+    expect(sql).toContain('"PARENT_ASSET"');
+    expect(sql).toContain('"ASSET_TYPE"');
+    expect(sql).toContain('"ASSET_NAME"');
+    expect(sql).toContain('"ASSET_TAG"');
+    expect(sql).toContain('"INSTALLATION_DATE"');
+    // Raw FK columns are intentionally omitted in favour of the resolved names.
+    expect(sql).not.toContain('"PARENT_ID"');
+    expect(sql).not.toContain('"ASSET_CODE"');
+    expect(sql).not.toContain('"LEGACY_STRUCTURE_ID"');
+    expect(sql).toContain('"CREATE_TIMESTAMP"');
+    expect(sql).toContain('"UPDATE_TIMESTAMP"');
+    // Resource-level legacy columns are omitted: this export is per-asset, and
+    // TOTAL_AREA/TOTAL_LENGTH would sit confusingly beside ASSET_AREA/ASSET_LENGTH.
+    expect(sql).not.toContain('"TOTAL_AREA"');
+    expect(sql).not.toContain('"TOTAL_LENGTH"');
+    expect(sql).not.toContain('"DEFINED_CAMPSITES"');
+    expect(sql).not.toContain('"ACTIVITY_COUNT"');
+    expect(sql).not.toContain('"PROJECT_TYPE"');
+    expect(sql).not.toContain('"RISK_RATING"');
+    expect(sql).not.toContain('"STATUS"');
+    // Groups each parent campsite with its children, parent row first.
+    expect(sql).toContain(
+      'ORDER BY rr.rec_resource_id, COALESCE(ra.parent_id, ra.asset_id), ra.parent_id NULLS FIRST, ra.asset_name, ra.asset_id',
     );
   });
 });
