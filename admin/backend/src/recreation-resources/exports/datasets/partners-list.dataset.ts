@@ -7,7 +7,7 @@ export const partnersListDataset: ExportDatasetBuilder = {
     SELECT
       ${sql.rstPrimaryColumns()},
       CASE
-        WHEN COUNT(rf.recreation_fee_code) > 0 AND agreement_end_date >= CURRENT_DATE THEN 'Yes'
+        WHEN COUNT(rf.recreation_fee_code) > 0 AND (agreement_end_date >= CURRENT_DATE OR agreement_end_date IS NULL) THEN 'Yes'
         ELSE 'No'
       END AS "IS_RECREATION_OPERATOR",
       ah.client_number AS "CLIENT_NUMBER",
@@ -16,13 +16,15 @@ export const partnersListDataset: ExportDatasetBuilder = {
       TO_CHAR(ah.agreement_end_date, 'YYYY-MM-DD') AS "AGREEMENT_END_DATE",
       ah.revision_count AS "REVISION_COUNT",
       ah.partner_relationship_type_code AS "RELATIONSHIP_TYPE_CODE",
-      ${sql.formatTimestamp(Prisma.sql`ah.updated_at`)} AS "CREATE_TIMESTAMP",
-      ah.updated_by AS "UPDATED_BY",
-      ${sql.formatTimestamp(Prisma.sql`ah.created_at`)} AS "UPDATE_TIMESTAMP",
-      ah.created_by AS "CREATED_BY"
+      ${sql.formatTimestamp(Prisma.sql`ah.created_at`)} AS "CREATE_TIMESTAMP",
+      ah.created_by AS "CREATED_BY",
+      ${sql.formatTimestamp(Prisma.sql`ah.updated_at`)} AS "UPDATE_TIMESTAMP",
+      ah.updated_by AS "UPDATED_BY"
     FROM rst.recreation_agreement_holder ah
     INNER JOIN recreation_resource rr
       ON rr.rec_resource_id = ah.rec_resource_id
+    LEFT JOIN recreation_resource_type_view_admin rrtva
+      ON rrtva.rec_resource_id = rr.rec_resource_id
     LEFT OUTER JOIN rst.recreation_fee rf
 	    ON rf.rec_resource_id = rr.rec_resource_id
     WHERE ${sql.rstFilters}
