@@ -58,14 +58,14 @@ describe('PartnerService', () => {
           agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
           agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
           visible_on_public_website: false,
-          partner_relationship_type_code: 'SITE_OPERATOR',
+          recreation_operator: false,
         },
         {
           client_number: '00000003',
           agreement_start_date: new Date('2025-01-01T00:00:00.000Z'),
           agreement_end_date: null,
           visible_on_public_website: true,
-          partner_relationship_type_code: 'SITE_OPERATOR',
+          recreation_operator: false,
         },
       ]);
       fetchMock
@@ -116,7 +116,7 @@ describe('PartnerService', () => {
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          partner_relationship_type_code: true,
+          recreation_operator: true,
         },
       });
       expect(fetchMock).toHaveBeenNthCalledWith(
@@ -183,7 +183,7 @@ describe('PartnerService', () => {
           agreement_start_date: null,
           agreement_end_date: null,
           visible_on_public_website: false,
-          partner_relationship_type_code: 'SITE_OPERATOR',
+          recreation_operator: false,
         },
       ]);
 
@@ -441,7 +441,7 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
         visible_on_public_website: false,
-        partner_relationship_type_code: 'SITE_OPERATOR',
+        recreation_operator: false,
       });
       fetchMock.mockResolvedValue({
         ok: true,
@@ -466,14 +466,14 @@ describe('PartnerService', () => {
           agreement_start_date: new Date('2024-01-01'),
           agreement_end_date: new Date('2026-12-31'),
           visible_on_public_website: false,
-          partner_relationship_type_code: 'SITE_OPERATOR',
+          recreation_operator: false,
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          partner_relationship_type_code: true,
+          recreation_operator: true,
         },
       });
       expect(result).toEqual({
@@ -494,7 +494,7 @@ describe('PartnerService', () => {
       const createDto: CreateAgreementHolderDto = {
         clientNumber: '00000002',
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        partner_relationship_type_code: 'RECREATION_OPERATOR',
       };
 
       prisma.recreation_resource.findUnique.mockResolvedValue({
@@ -506,7 +506,7 @@ describe('PartnerService', () => {
         agreement_start_date: null,
         agreement_end_date: null,
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        recreation_operator: true,
       });
       fetchMock.mockResolvedValue({
         ok: true,
@@ -531,14 +531,14 @@ describe('PartnerService', () => {
           agreement_start_date: null,
           agreement_end_date: null,
           visible_on_public_website: true,
-          partner_relationship_type_code: 'DISTRICT_MANAGER',
+          recreation_operator: true,
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          partner_relationship_type_code: true,
+          recreation_operator: true,
         },
       });
     });
@@ -608,7 +608,7 @@ describe('PartnerService', () => {
         agreementStartDate: '2024-02-01',
         agreementEndDate: '2026-11-30',
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        partner_relationship_type_code: 'RECREATION_OPERATOR',
       };
 
       prisma.recreation_agreement_holder.findFirst.mockResolvedValue({
@@ -616,7 +616,7 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
         visible_on_public_website: false,
-        partner_relationship_type_code: 'SITE_OPERATOR',
+        recreation_operator: false,
         agreement_holder_id: 1,
       });
       prisma.recreation_agreement_holder.update.mockResolvedValue({
@@ -624,7 +624,7 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-02-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-11-30T00:00:00.000Z'),
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        recreation_operator: true,
         agreement_holder_id: 1,
       });
       fetchMock.mockResolvedValue({
@@ -649,14 +649,14 @@ describe('PartnerService', () => {
           agreement_start_date: new Date('2024-02-01'),
           agreement_end_date: new Date('2026-11-30'),
           visible_on_public_website: true,
-          partner_relationship_type_code: 'DISTRICT_MANAGER',
+          recreation_operator: true,
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          partner_relationship_type_code: true,
+          recreation_operator: true,
         },
       });
       expect(result).toEqual({
@@ -669,14 +669,14 @@ describe('PartnerService', () => {
         agreementStartDate: '2024-02-01',
         agreementEndDate: '2026-11-30',
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        partner_relationship_type_code: 'RECREATION_OPERATOR',
       });
     });
 
     it('updates only agreement-holder metadata when dates are omitted', async () => {
       const updateDto: UpdateAgreementHolderDto = {
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        partner_relationship_type_code: 'RECREATION_OPERATOR',
       };
 
       prisma.recreation_agreement_holder.findFirst.mockResolvedValue({
@@ -684,7 +684,7 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
         visible_on_public_website: false,
-        partner_relationship_type_code: 'SITE_OPERATOR',
+        recreation_operator: false,
         agreement_holder_id: 1,
       });
       prisma.recreation_agreement_holder.update.mockResolvedValue({
@@ -692,7 +692,7 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        recreation_operator: true,
         agreement_holder_id: 1,
       });
       fetchMock.mockResolvedValue({
@@ -717,14 +717,14 @@ describe('PartnerService', () => {
           agreement_start_date: undefined,
           agreement_end_date: undefined,
           visible_on_public_website: true,
-          partner_relationship_type_code: 'DISTRICT_MANAGER',
+          recreation_operator: true,
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          partner_relationship_type_code: true,
+          recreation_operator: true,
         },
       });
       expect(result).toEqual({
@@ -737,7 +737,7 @@ describe('PartnerService', () => {
         agreementStartDate: '2024-01-01',
         agreementEndDate: '2026-12-31',
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        partner_relationship_type_code: 'RECREATION_OPERATOR',
       });
     });
 
@@ -785,7 +785,10 @@ describe('PartnerService', () => {
 
       expect(fetchMock).not.toHaveBeenCalled();
       expect(result).toEqual({
+        agreementStartDate: undefined,
         agreementEndDate: '2026-11-30',
+        visible_on_public_website: undefined,
+        partner_relationship_type_code: 'SITE_OPERATOR',
       });
     });
   });
