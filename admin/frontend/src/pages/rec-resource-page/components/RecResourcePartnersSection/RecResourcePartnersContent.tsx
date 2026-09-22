@@ -26,7 +26,7 @@ export const RecResourcePartnersContent = ({
             <>
               <CustomButton
                 onClick={() => setIsAddNewPartnerModalOpen(true)}
-                className="btn btn-primary"
+                variant="outline-primary"
               >
                 Add New
               </CustomButton>
@@ -35,7 +35,7 @@ export const RecResourcePartnersContent = ({
                   '$id',
                   recResourceId,
                 )}
-                className="btn btn-primary"
+                className="btn btn-outline-primary"
               >
                 Edit
               </Link>

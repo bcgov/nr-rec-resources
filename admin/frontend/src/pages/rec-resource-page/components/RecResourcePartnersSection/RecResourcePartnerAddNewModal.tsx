@@ -186,7 +186,11 @@ export function RecResourcePartnerAddNewModal({
                     <Col xs={6} className="my-3">
                       <span className="fw-bold">Email</span>
                     </Col>
-                    <Col xs={6}>{partnerLocations?.[0]?.email || 'N/A'}</Col>
+                    <Col xs={6}>
+                      {partnerLocations?.[0]?.email
+                        ? partnerLocations?.[0]?.email.toLocaleLowerCase()
+                        : 'N/A'}
+                    </Col>
                   </Row>
                   <Row className="align-items-center border-bottom">
                     <Col xs={6} className="my-3">
@@ -231,6 +235,7 @@ export function RecResourcePartnerAddNewModal({
                         <Form.Group controlId="startDate">
                           <Form.Label>Agreement start date</Form.Label>
                           <Form.Control
+                            className={`${!startDate && 'date-input-placeholder'}`}
                             type="date"
                             value={startDate}
                             onChange={(e) => {
@@ -251,6 +256,7 @@ export function RecResourcePartnerAddNewModal({
                         <Form.Group controlId="endDate">
                           <Form.Label>Agreement end date</Form.Label>
                           <Form.Control
+                            className={`${!endDate && 'date-input-placeholder'}`}
                             type="date"
                             value={endDate}
                             onChange={(e) => {
