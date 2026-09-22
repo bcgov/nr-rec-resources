@@ -30,7 +30,7 @@ type AgreementHolderRecord = {
   agreement_start_date?: Date | null;
   agreement_end_date?: Date | null;
   visible_on_public_website?: boolean;
-  partner_relationship_type_code?: string;
+  recreation_operator?: boolean;
 };
 
 const CLIENT_STATUS_DESCRIPTIONS: Record<string, string> = {
@@ -78,7 +78,7 @@ export class PartnerService {
     }
 
     const agreementHolders =
-      await this.prisma.recreation_agreement_holder.findMany({
+      (await this.prisma.recreation_agreement_holder.findMany({
         where: { rec_resource_id },
         orderBy: { agreement_holder_id: 'asc' },
         select: {
@@ -86,9 +86,9 @@ export class PartnerService {
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          partner_relationship_type_code: true,
-        },
-      });
+          recreation_operator: true,
+        } as any,
+      })) as AgreementHolderRecord[];
 
     const partnerRows = await Promise.all(
       agreementHolders.map(async (agreementHolder) => {
@@ -118,8 +118,9 @@ export class PartnerService {
             ),
             visible_on_public_website:
               agreementHolder.visible_on_public_website ?? undefined,
-            partner_relationship_type_code:
-              agreementHolder.partner_relationship_type_code ?? undefined,
+            partner_relationship_type_code: agreementHolder.recreation_operator
+              ? 'RECREATION_OPERATOR'
+              : 'SITE_OPERATOR',
           }));
       }),
     );
@@ -177,7 +178,7 @@ export class PartnerService {
         agreement_start_date: true,
         agreement_end_date: true,
         visible_on_public_website: true,
-        partner_relationship_type_code: true,
+        recreation_operator: true,
       },
     });
 
@@ -195,7 +196,7 @@ export class PartnerService {
 
     const client = await this.fetchClientByClientNumber(createDto.clientNumber);
 
-    const created = await this.prisma.recreation_agreement_holder.create({
+    const created = (await this.prisma.recreation_agreement_holder.create({
       data: {
         rec_resource_id,
         client_number: createDto.clientNumber,
@@ -206,17 +207,17 @@ export class PartnerService {
           ? new Date(createDto.agreementEndDate)
           : null,
         visible_on_public_website: createDto.visible_on_public_website ?? false,
-        partner_relationship_type_code:
-          createDto.partner_relationship_type_code ?? 'SITE_OPERATOR',
-      },
+        recreation_operator:
+          createDto.partner_relationship_type_code === 'RECREATION_OPERATOR',
+      } as any,
       select: {
         client_number: true,
         agreement_start_date: true,
         agreement_end_date: true,
         visible_on_public_website: true,
-        partner_relationship_type_code: true,
-      },
-    });
+        recreation_operator: true,
+      } as any,
+    })) as AgreementHolderRecord;
 
     return this.buildAgreementHolderClientResponse(created, client);
   }
@@ -236,7 +237,7 @@ export class PartnerService {
       );
     }
 
-    const existing = await this.prisma.recreation_agreement_holder.findFirst({
+    const existing = (await this.prisma.recreation_agreement_holder.findFirst({
       where: { rec_resource_id },
       select: {
         agreement_holder_id: true,
@@ -244,9 +245,9 @@ export class PartnerService {
         agreement_start_date: true,
         agreement_end_date: true,
         visible_on_public_website: true,
-        partner_relationship_type_code: true,
-      },
-    });
+        recreation_operator: true,
+      } as any,
+    })) as (AgreementHolderRecord & { agreement_holder_id?: number }) | null;
 
     if (!existing) {
       throw new NotFoundException(
@@ -254,7 +255,7 @@ export class PartnerService {
       );
     }
 
-    const updated = await this.prisma.recreation_agreement_holder.update({
+    const updated = (await this.prisma.recreation_agreement_holder.update({
       where: { agreement_holder_id: existing.agreement_holder_id },
       data: {
         agreement_start_date:
@@ -266,17 +267,17 @@ export class PartnerService {
             ? new Date(updateDto.agreementEndDate)
             : undefined,
         visible_on_public_website: updateDto.visible_on_public_website,
-        partner_relationship_type_code:
-          updateDto.partner_relationship_type_code,
-      },
+        recreation_operator:
+          updateDto.partner_relationship_type_code === 'RECREATION_OPERATOR',
+      } as any,
       select: {
         client_number: true,
         agreement_start_date: true,
         agreement_end_date: true,
         visible_on_public_website: true,
-        partner_relationship_type_code: true,
-      },
-    });
+        recreation_operator: true,
+      } as any,
+    })) as AgreementHolderRecord;
 
     const client = updated.client_number
       ? await this.fetchClientByClientNumber(updated.client_number)
@@ -413,8 +414,9 @@ export class PartnerService {
       ),
       visible_on_public_website:
         agreementHolder.visible_on_public_website ?? undefined,
-      partner_relationship_type_code:
-        agreementHolder.partner_relationship_type_code ?? undefined,
+      partner_relationship_type_code: agreementHolder.recreation_operator
+        ? 'RECREATION_OPERATOR'
+        : 'SITE_OPERATOR',
     };
   }
 

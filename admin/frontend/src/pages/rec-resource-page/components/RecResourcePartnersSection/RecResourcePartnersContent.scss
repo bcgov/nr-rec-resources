@@ -22,6 +22,17 @@
   margin-left: 16px;
 }
 
+.recreation-operator-pill {
+  vertical-align: middle;
+
+  .help-icon__badge {
+    width: 0.95rem;
+    height: 0.95rem;
+    margin-left: 0.25rem;
+    font-size: 0.55rem;
+  }
+}
+
 .calendar-icon {
   color: $colorBlue;
 }
