@@ -19,7 +19,8 @@ export type ExportDatasetId =
   | 'site-inspection-fta'
   | 'closure-list'
   | 'closure-list-fta'
-  | 'asset-repair-list';
+  | 'asset-repair-list'
+  | 'partners-list';
 
 export type ExportDatasetSource = 'RST' | 'FTA';
 
@@ -154,6 +155,11 @@ export const ALL_EXPORT_DATASETS: ExportDatasetDefinition[] = [
   {
     id: 'asset-repair-list',
     label: 'Asset repair list',
+    source: 'RST',
+  },
+  {
+    id: 'partners-list',
+    label: 'Partners list',
     source: 'RST',
   },
 ];
