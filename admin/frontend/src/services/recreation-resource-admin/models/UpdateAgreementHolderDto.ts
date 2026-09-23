@@ -38,12 +38,6 @@ export interface UpdateAgreementHolderDto {
    */
   visible_on_public_website?: boolean;
   /**
-   * Relationship type code for the agreement holder
-   * @type {string}
-   * @memberof UpdateAgreementHolderDto
-   */
-  partner_relationship_type_code?: string;
-  /**
    * Marks the agreement as cancelled. One-way: an already-cancelled agreement cannot be un-cancelled.
    * @type {boolean}
    * @memberof UpdateAgreementHolderDto
@@ -84,10 +78,6 @@ export function UpdateAgreementHolderDtoFromJSONTyped(
       json['visible_on_public_website'] == null
         ? undefined
         : json['visible_on_public_website'],
-    partner_relationship_type_code:
-      json['partner_relationship_type_code'] == null
-        ? undefined
-        : json['partner_relationship_type_code'],
     cancelled: json['cancelled'] == null ? undefined : json['cancelled'],
   };
 }
@@ -110,7 +100,6 @@ export function UpdateAgreementHolderDtoToJSONTyped(
     agreementStartDate: value['agreementStartDate'],
     agreementEndDate: value['agreementEndDate'],
     visible_on_public_website: value['visible_on_public_website'],
-    partner_relationship_type_code: value['partner_relationship_type_code'],
     cancelled: value['cancelled'],
   };
 }

@@ -206,7 +206,6 @@ export class PartnerService {
       updateDto.agreementStartDate === undefined &&
       updateDto.agreementEndDate === undefined &&
       updateDto.visible_on_public_website === undefined &&
-      updateDto.partner_relationship_type_code === undefined &&
       updateDto.cancelled === undefined
     ) {
       throw new BadRequestException(
@@ -279,14 +278,8 @@ export class PartnerService {
         visible_on_public_website: updateDto.cancelled
           ? false
           : updateDto.visible_on_public_website,
-        // This is a partial update, so an omitted relationship type must
-        // leave the column alone. Writing the comparison unguarded would
-        // clear the operator flag on any save that didn't mention it.
-        recreation_operator:
-          updateDto.partner_relationship_type_code === undefined
-            ? undefined
-            : updateDto.partner_relationship_type_code ===
-              'RECREATION_OPERATOR',
+        // recreation_operator is derived (active agreement + the resource has
+        // fees) and recomputed by the FTA sync, so it is not editable here.
         cancelled: updateDto.cancelled,
       },
       select: AGREEMENT_HOLDER_SELECT,

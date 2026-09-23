@@ -246,7 +246,6 @@ describe('PartnerController', () => {
         agreementStartDate: '2024-02-01',
         agreementEndDate: '2026-11-30',
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
       };
       const expected: AgreementHolderClientPublicViewDto = {
         agreement_holder_id: 1000001,
@@ -260,7 +259,7 @@ describe('PartnerController', () => {
         agreementStartDate: '2024-02-01',
         agreementEndDate: '2026-11-30',
         visible_on_public_website: true,
-        partner_relationship_type_code: 'DISTRICT_MANAGER',
+        partner_relationship_type_code: 'SITE_OPERATOR',
       };
 
       vi.spyOn(service, 'updateAgreementHolder').mockResolvedValue(expected);
