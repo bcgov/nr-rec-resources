@@ -31,7 +31,6 @@ type AgreementHolderRecord = {
   agreement_start_date?: Date | null;
   agreement_end_date?: Date | null;
   visible_on_public_website?: boolean;
-  recreation_operator?: boolean;
   cancelled?: boolean;
 };
 
@@ -42,7 +41,6 @@ const AGREEMENT_HOLDER_SELECT = {
   agreement_start_date: true,
   agreement_end_date: true,
   visible_on_public_website: true,
-  recreation_operator: true,
   cancelled: true,
 } as const;
 
@@ -96,6 +94,7 @@ export class PartnerService {
         orderBy: { agreement_holder_id: 'asc' },
         select: AGREEMENT_HOLDER_SELECT,
       });
+    const hasFees = await this.resourceHasFees(rec_resource_id);
 
     // One response row per agreement-holder row. A holder whose client cannot
     // be resolved in the Forest Client API is still returned, with the client
@@ -105,8 +104,8 @@ export class PartnerService {
       agreementHolders.map(async (agreementHolder) => {
         const client = agreementHolder.client_number
           ? await this.tryFetchClientByClientNumber(
-              agreementHolder.client_number,
-            )
+            agreementHolder.client_number,
+          )
           : null;
 
         return this.buildAgreementHolderClientResponse(
@@ -114,6 +113,7 @@ export class PartnerService {
           client ?? {
             clientNumber: agreementHolder.client_number ?? undefined,
           },
+          hasFees,
         );
       }),
     );
@@ -176,6 +176,7 @@ export class PartnerService {
     }
 
     const client = await this.fetchClientByClientNumber(createDto.clientNumber);
+    const hasFees = await this.resourceHasFees(rec_resource_id);
 
     const created = await this.prisma.recreation_agreement_holder.create({
       data: {
@@ -188,13 +189,11 @@ export class PartnerService {
           ? new Date(createDto.agreementEndDate)
           : null,
         visible_on_public_website: createDto.visible_on_public_website ?? false,
-        recreation_operator:
-          createDto.partner_relationship_type_code === 'RECREATION_OPERATOR',
       },
       select: AGREEMENT_HOLDER_SELECT,
     });
 
-    return this.buildAgreementHolderClientResponse(created, client);
+    return this.buildAgreementHolderClientResponse(created, client, hasFees);
   }
 
   async updateAgreementHolder(
@@ -263,6 +262,8 @@ export class PartnerService {
       );
     }
 
+    const hasFees = await this.resourceHasFees(rec_resource_id);
+
     const updated = await this.prisma.recreation_agreement_holder.update({
       where: { agreement_holder_id },
       data: {
@@ -278,8 +279,6 @@ export class PartnerService {
         visible_on_public_website: updateDto.cancelled
           ? false
           : updateDto.visible_on_public_website,
-        // recreation_operator is derived (active agreement + the resource has
-        // fees) and recomputed by the FTA sync, so it is not editable here.
         cancelled: updateDto.cancelled,
       },
       select: AGREEMENT_HOLDER_SELECT,
@@ -289,7 +288,7 @@ export class PartnerService {
       ? await this.fetchClientByClientNumber(updated.client_number)
       : {};
 
-    return this.buildAgreementHolderClientResponse(updated, client);
+    return this.buildAgreementHolderClientResponse(updated, client, hasFees);
   }
 
   async deleteAgreementHolder(
@@ -428,9 +427,36 @@ export class PartnerService {
     return value ? value.toISOString().slice(0, 10) : undefined;
   }
 
+  private isAgreementActive(agreementEndDate?: Date | null): boolean {
+    if (!agreementEndDate) {
+      return false;
+    }
+
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    return agreementEndDate >= startOfToday;
+  }
+
+  /**
+   * Derived, not stored: a recreation operator is a holder with a running,
+   * non-cancelled agreement on a resource that has fees. Everyone else is a
+   * site operator.
+   */
+  private getPartnerRelationshipTypeCode(
+    agreementEndDate: Date | null | undefined,
+    cancelled: boolean | undefined,
+    hasFees: boolean,
+  ): 'RECREATION_OPERATOR' | 'SITE_OPERATOR' {
+    return hasFees && !cancelled && this.isAgreementActive(agreementEndDate)
+      ? 'RECREATION_OPERATOR'
+      : 'SITE_OPERATOR';
+  }
+
   private buildAgreementHolderClientResponse(
     agreementHolder: AgreementHolderRecord,
     client: ClientPublicViewDto,
+    hasFees: boolean,
   ): AgreementHolderClientPublicViewDto {
     return {
       ...client,
@@ -443,10 +469,11 @@ export class PartnerService {
       ),
       visible_on_public_website:
         agreementHolder.visible_on_public_website ?? undefined,
-      // V1.1.89 replaced the stored code column with this derived boolean.
-      partner_relationship_type_code: agreementHolder.recreation_operator
-        ? 'RECREATION_OPERATOR'
-        : 'SITE_OPERATOR',
+      partner_relationship_type_code: this.getPartnerRelationshipTypeCode(
+        agreementHolder.agreement_end_date,
+        agreementHolder.cancelled,
+        hasFees,
+      ),
       cancelled: agreementHolder.cancelled ?? false,
     };
   }
@@ -544,5 +571,17 @@ export class PartnerService {
         `Recreation resource with ID ${rec_resource_id} not found`,
       );
     }
+  }
+
+  private async resourceHasFees(rec_resource_id: string): Promise<boolean> {
+    const fee = await this.prisma.recreation_fee.findFirst({
+      where: {
+        rec_resource_id,
+        is_deleted: false,
+      },
+      select: { fee_id: true },
+    });
+
+    return fee !== null;
   }
 }
