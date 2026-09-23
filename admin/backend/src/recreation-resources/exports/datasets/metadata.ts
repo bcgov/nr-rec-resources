@@ -3,7 +3,6 @@ export type ExportDatasetId =
   | 'file-details-fta'
   | 'fee-list'
   | 'fee-list-fta'
-  | 'agreement-list'
   | 'agreement-list-fta'
   | 'campsite-list'
   | 'campsite-list-fta'
@@ -62,12 +61,6 @@ export const ALL_EXPORT_DATASETS: ExportDatasetDefinition[] = [
     label: 'Fee list',
     source: 'FTA',
     info: MISSING_FTA_LEGACY_METADATA_INFO,
-  },
-  {
-    id: 'agreement-list',
-    label: 'Agreement list',
-    source: 'RST',
-    info: `${MISSING_FTA_LEGACY_METADATA_INFO} ${MISSING_RST_STRUCTURE_COUNT_INFO}`,
   },
   {
     id: 'agreement-list-fta',
