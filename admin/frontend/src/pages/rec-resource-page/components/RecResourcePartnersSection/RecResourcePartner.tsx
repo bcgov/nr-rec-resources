@@ -185,7 +185,11 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
                         <span className="fw-bold">Email</span>
                       </Col>
                       <Col xs={6}>
-                        {loc.email ? <CopyButton text={loc.email} /> : 'N/A'}
+                        {loc.email ? (
+                          <CopyButton text={loc.email.toLocaleLowerCase()} />
+                        ) : (
+                          'N/A'
+                        )}
                       </Col>
                     </Row>
                     <Row className="align-items-center border-bottom">
