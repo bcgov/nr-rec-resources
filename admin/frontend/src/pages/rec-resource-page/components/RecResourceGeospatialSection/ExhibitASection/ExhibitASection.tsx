@@ -334,6 +334,7 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
         show={uploadModalState.show}
         file={uploadModalState.file}
         fileName={uploadModalState.fileName}
+        showAlert={false}
         fileNameError={uploadModalState.fileNameError}
         onFileNameChange={(name) =>
           setUploadModalState((prev) => ({

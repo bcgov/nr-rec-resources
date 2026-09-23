@@ -22,11 +22,23 @@ vi.mock('@/components/file/BaseFileModal', () => ({
     onConfirm,
     confirmButtonText,
     confirmButtonDisabled,
+    alerts,
   }: any) =>
     show ? (
       <div data-testid="base-file-modal">
         <div data-testid="modal-title">{title}</div>
         <div data-testid="modal-body">{children}</div>
+        <div data-testid="modal-alerts">
+          {(alerts ?? []).map((alert: any, index: number) => (
+            <div
+              key={index}
+              data-testid="modal-alert"
+              data-variant={alert.variant}
+            >
+              {alert.text}
+            </div>
+          ))}
+        </div>
         <button onClick={onCancel}>Cancel</button>
         <button onClick={onConfirm} disabled={confirmButtonDisabled}>
           {confirmButtonText}
@@ -128,6 +140,57 @@ describe('DocumentUploadModal', () => {
       });
       renderModal();
       expect(screen.getByText('Upload document')).toBeInTheDocument();
+    });
+  });
+
+  describe('Alert', () => {
+    beforeEach(() => {
+      setMockState({
+        showUploadOverlay: true,
+        selectedFileForUpload: createFile(),
+      });
+    });
+
+    it('shows the default alert text when showAlert/alertText are not provided', () => {
+      renderModal();
+
+      expect(screen.getByTestId('modal-alert')).toHaveTextContent(
+        'Uploading files will directly publish to the public website within 15 minutes.',
+      );
+    });
+
+    it('hides the alert when showAlert is false', () => {
+      renderModal({ showAlert: false });
+
+      expect(screen.queryByTestId('modal-alert')).not.toBeInTheDocument();
+    });
+
+    it('shows the alert when showAlert is explicitly true', () => {
+      renderModal({ showAlert: true });
+
+      expect(screen.getByTestId('modal-alert')).toBeInTheDocument();
+    });
+
+    it('uses custom alertText when provided', () => {
+      renderModal({ alertText: 'Custom alert message' });
+
+      expect(screen.getByTestId('modal-alert')).toHaveTextContent(
+        'Custom alert message',
+      );
+      expect(
+        screen.queryByText(
+          'Uploading files will directly publish to the public website within 15 minutes.',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not render alertText when showAlert is false even if alertText is provided', () => {
+      renderModal({ showAlert: false, alertText: 'Custom alert message' });
+
+      expect(screen.queryByTestId('modal-alert')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Custom alert message'),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -387,6 +450,45 @@ describe('DocumentUploadModal', () => {
       expect(screen.getByText('Invalid filename format')).toBeInTheDocument();
       expect(screen.getByRole('textbox')).toHaveClass('is-invalid');
       expect(screen.getByRole('button', { name: /upload/i })).toBeDisabled();
+    });
+
+    it('shows default alert in props mode when showAlert/alertText are not provided', () => {
+      const file = createFile();
+      renderModal({
+        show: true,
+        file,
+        fileName: 'test',
+      });
+
+      expect(screen.getByTestId('modal-alert')).toHaveTextContent(
+        'Uploading files will directly publish to the public website within 15 minutes.',
+      );
+    });
+
+    it('hides alert in props mode when showAlert is false', () => {
+      const file = createFile();
+      renderModal({
+        show: true,
+        file,
+        fileName: 'test',
+        showAlert: false,
+      });
+
+      expect(screen.queryByTestId('modal-alert')).not.toBeInTheDocument();
+    });
+
+    it('uses custom alertText in props mode', () => {
+      const file = createFile();
+      renderModal({
+        show: true,
+        file,
+        fileName: 'test',
+        alertText: 'Establishment order specific alert',
+      });
+
+      expect(screen.getByTestId('modal-alert')).toHaveTextContent(
+        'Establishment order specific alert',
+      );
     });
   });
 });
