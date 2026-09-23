@@ -14,11 +14,10 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
   rmf_skey: number;
 
   @ApiProperty({
-    description:
-      'An identifier assigned to the recreation file, e.g., REC230971.',
+    description: 'The recreation resource identifier, e.g., REC230971.',
     example: 'REC230971',
   })
-  forest_file_id: string;
+  rec_resource_id: string;
 
   @ApiProperty(
     nullableStringProperty(
@@ -34,7 +33,7 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
       'SIT',
     ),
   )
-  recreation_map_feature_code: string | null;
+  rec_resource_type_code: string | null;
 
   @ApiProperty(
     nullableStringProperty(
@@ -42,11 +41,11 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
       'Recreation Site',
     ),
   )
-  project_type: string | null;
+  rec_resource_type: string | null;
 
   @ApiProperty(
     nullableStringProperty(
-      'The default label used when displaying the feature on a map, consisting of the FOREST FILE ID only, e.g., REC230971.',
+      'The default label used when displaying the feature on a map, consisting of the REC RESOURCE ID only, e.g., REC230971.',
       'REC230971',
     ),
   )
@@ -58,7 +57,7 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
       'KASLO INTERPRETIVE FOREST',
     ),
   )
-  project_name: string | null;
+  rec_resource_name: string | null;
 
   @ApiProperty(
     nullableStringProperty(
@@ -82,7 +81,7 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
       'DCC',
     ),
   )
-  geographic_district_code: string | null;
+  district_code: string | null;
 
   @ApiProperty(
     nullableStringProperty(
@@ -90,7 +89,7 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
       'Chilliwack Natural Resource District',
     ),
   )
-  geographic_district_name: string | null;
+  org_unit_name: string | null;
 
   @ApiProperty(
     nullableNumberProperty(

@@ -26,7 +26,7 @@ export class BcgwRecreationFeatureBaseDto {
       'KELOWNA',
     ),
   )
-  site_location: string | null;
+  closest_community: string | null;
 
   @ApiProperty({
     description:
@@ -66,7 +66,7 @@ export class BcgwRecreationFeatureBaseDto {
     enum: ['Y', 'N'],
     nullable: true,
   })
-  recreation_view_ind: string | null;
+  display_on_public_site_ind: string | null;
 
   @ApiProperty({
     description: 'The total number of campsites.',
@@ -85,9 +85,9 @@ export class BcgwRecreationFeatureBaseDto {
   @ApiProperty({
     type: String,
     description:
-      'The current status of the recreation tenure, e.g., AR (archived), HI (issued), PI (pending issuance).',
+      'The current status of the recreation resource, e.g., AR (archived), HI (issued), PI (pending issuance).',
     example: 'HI',
     nullable: true,
   })
-  file_status_code: string | null;
+  rec_status_code: string | null;
 }
