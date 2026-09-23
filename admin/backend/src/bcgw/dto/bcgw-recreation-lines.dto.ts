@@ -14,11 +14,10 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   rmf_skey: number;
 
   @ApiProperty({
-    description:
-      'An identifier assigned to the recreation file, e.g., REC16098.',
+    description: 'The recreation resource identifier, e.g., REC16098.',
     example: 'REC16098',
   })
-  forest_file_id: string;
+  rec_resource_id: string;
 
   @ApiProperty(
     nullableStringProperty(
@@ -34,7 +33,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
       'RTR',
     ),
   )
-  recreation_map_feature_code: string | null;
+  rec_resource_type_code: string | null;
 
   @ApiProperty(
     nullableStringProperty(
@@ -42,11 +41,11 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
       'Recreation Trail',
     ),
   )
-  project_type: string | null;
+  rec_resource_type: string | null;
 
   @ApiProperty(
     nullableStringProperty(
-      'The default label used when displaying the feature on a map, consisting of the FOREST FILE ID and SECTION ID separated by a space.',
+      'The default label used when displaying the feature on a map, consisting of the REC RESOURCE ID and SECTION ID separated by a space.',
       'REC4531 15',
     ),
   )
@@ -58,7 +57,7 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
       'OKEOVER TRAILS',
     ),
   )
-  project_name: string | null;
+  rec_resource_name: string | null;
 
   @ApiProperty(
     nullableStringProperty(

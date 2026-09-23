@@ -2,20 +2,20 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class BcgwRecreationResourceDto {
   @ApiProperty({ example: 'REC204117' })
-  forest_file_id: string;
+  rec_resource_id: string;
 
   @ApiProperty({ type: String, nullable: true })
-  project_name: string | null;
+  rec_resource_name: string | null;
+
+  @ApiProperty({ type: String, example: 'SIT', nullable: true })
+  rec_resource_type_code: string | null;
 
   @ApiProperty({
     type: String,
     example: 'SIT - Recreation site',
     nullable: true,
   })
-  project_type_code: string | null;
-
-  @ApiProperty({ type: String, example: 'SIT', nullable: true })
-  project_type: string | null;
+  rec_resource_type: string | null;
 
   @ApiProperty({ type: String, format: 'date', nullable: true })
   project_established_date: Date | null;
@@ -33,22 +33,22 @@ export class BcgwRecreationResourceDto {
   closure_comment: string | null;
 
   @ApiProperty({ enum: ['Y', 'N'] })
-  recreation_view_ind: string;
+  display_on_public_site_ind: string;
 
   @ApiProperty({ type: String, example: 'HI', nullable: true })
-  file_status_st: string | null;
+  rec_status_code: string | null;
 
   @ApiProperty({ type: String, example: 'HI - Issued', nullable: true })
-  status_description: string | null;
+  rec_status_description: string | null;
 
   @ApiProperty({ type: String, example: 'PEMBERTON', nullable: true })
-  site_location: string | null;
+  closest_community: string | null;
 
   @ApiProperty({ example: 0 })
   defined_campsites: number;
 
   @ApiProperty({ type: String, nullable: true })
-  site_description_brief: string | null;
+  description: string | null;
 
   @ApiProperty({ enum: ['Y', 'N'], nullable: true })
   arch_impact_assess_ind: string | null;
@@ -58,14 +58,14 @@ export class BcgwRecreationResourceDto {
     description: 'Total area in hectares',
     nullable: true,
   })
-  tenure_app_total_area: number | null;
+  total_feature_area: number | null;
 
   @ApiProperty({
     type: Number,
     description: 'Total length in kilometres',
     nullable: true,
   })
-  tenure_app_total_length: number | null;
+  total_feature_length: number | null;
 
   @ApiProperty({ type: String, nullable: true })
   site_description: string | null;
@@ -80,10 +80,10 @@ export class BcgwRecreationResourceDto {
   driving_directions_date: Date | null;
 
   @ApiProperty({ type: String, example: 'B2', nullable: true })
-  rec_feature_code: string | null;
+  recreation_feature_code: string | null;
 
   @ApiProperty({ type: String, example: 'B2 - Sand Beach', nullable: true })
-  rec_feature_description: string | null;
+  recreation_feature_description: string | null;
 
   @ApiProperty({ type: String, example: 'RDPG', nullable: true })
   recreation_district_code: string | null;

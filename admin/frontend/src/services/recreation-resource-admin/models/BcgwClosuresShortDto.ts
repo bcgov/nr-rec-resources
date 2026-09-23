@@ -24,19 +24,19 @@ export interface BcgwClosuresShortDto {
    * @type {string}
    * @memberof BcgwClosuresShortDto
    */
-  forest_file_id: string;
+  rec_resource_id: string;
   /**
    *
    * @type {string}
    * @memberof BcgwClosuresShortDto
    */
-  project_name: string | null;
+  rec_resource_name: string | null;
   /**
    *
    * @type {string}
    * @memberof BcgwClosuresShortDto
    */
-  project_type: string | null;
+  rec_resource_type: string | null;
   /**
    *
    * @type {string}
@@ -60,7 +60,7 @@ export interface BcgwClosuresShortDto {
    * @type {string}
    * @memberof BcgwClosuresShortDto
    */
-  site_location: string | null;
+  closest_community: string | null;
   /**
    *
    * @type {number}
@@ -139,11 +139,17 @@ export type BcgwClosuresShortDtoClosureIndEnum =
 export function instanceOfBcgwClosuresShortDto(
   value: object,
 ): value is BcgwClosuresShortDto {
-  if (!('forest_file_id' in value) || value['forest_file_id'] === undefined)
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
-  if (!('project_name' in value) || value['project_name'] === undefined)
+  if (
+    !('rec_resource_name' in value) ||
+    value['rec_resource_name'] === undefined
+  )
     return false;
-  if (!('project_type' in value) || value['project_type'] === undefined)
+  if (
+    !('rec_resource_type' in value) ||
+    value['rec_resource_type'] === undefined
+  )
     return false;
   if (!('closure_ind' in value) || value['closure_ind'] === undefined)
     return false;
@@ -151,7 +157,10 @@ export function instanceOfBcgwClosuresShortDto(
     return false;
   if (!('closure_type' in value) || value['closure_type'] === undefined)
     return false;
-  if (!('site_location' in value) || value['site_location'] === undefined)
+  if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
+  )
     return false;
   if (
     !('defined_campsites' in value) ||
@@ -197,14 +206,14 @@ export function BcgwClosuresShortDtoFromJSONTyped(
     return json;
   }
   return {
-    forest_file_id: json['forest_file_id'],
-    project_name: json['project_name'],
-    project_type: json['project_type'],
+    rec_resource_id: json['rec_resource_id'],
+    rec_resource_name: json['rec_resource_name'],
+    rec_resource_type: json['rec_resource_type'],
     closure_ind: json['closure_ind'],
     closure_date:
       json['closure_date'] == null ? null : new Date(json['closure_date']),
     closure_type: json['closure_type'],
-    site_location: json['site_location'],
+    closest_community: json['closest_community'],
     defined_campsites: json['defined_campsites'],
     recreation_district_code: json['recreation_district_code'],
     recreation_district_name: json['recreation_district_name'],
@@ -231,13 +240,13 @@ export function BcgwClosuresShortDtoToJSONTyped(
   }
 
   return {
-    forest_file_id: value['forest_file_id'],
-    project_name: value['project_name'],
-    project_type: value['project_type'],
+    rec_resource_id: value['rec_resource_id'],
+    rec_resource_name: value['rec_resource_name'],
+    rec_resource_type: value['rec_resource_type'],
     closure_ind: value['closure_ind'],
     closure_date: (value['closure_date'] as any).toISOString().substring(0, 10),
     closure_type: value['closure_type'],
-    site_location: value['site_location'],
+    closest_community: value['closest_community'],
     defined_campsites: value['defined_campsites'],
     recreation_district_code: value['recreation_district_code'],
     recreation_district_name: value['recreation_district_name'],
