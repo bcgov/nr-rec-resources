@@ -1,26 +1,6 @@
 import * as shapefile from 'shapefile';
 import * as turf from '@turf/turf';
 import shp from 'shpjs';
-import JSZip from 'jszip';
-import proj4 from 'proj4';
-
-// shpjs always reprojects parsed shapefiles to WGS84 (EPSG:4326) before
-// returning GeoJSON, per the GeoJSON spec (RFC 7946). The direct .shp/.dbf
-// path below (shapefile.open) does NOT reproject — it returns coordinates
-// exactly as stored in the file, which for this app's data is BC Albers
-// (EPSG:3005) metres. Without reprojecting the shpjs/zip output back to
-// EPSG:3005, zip uploads and direct .shp uploads end up in two different
-// coordinate systems even though both are labelled "EPSG:3005" downstream,
-// which is what was causing the map to render features in the wrong place
-// (effectively off-screen) for zip uploads only.
-//
-// EPSG:3005 (BC Albers) definition must match the one registered for the
-// map view in SpatialSubmissionMap.tsx.
-proj4.defs(
-  'EPSG:3005',
-  '+proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs',
-);
-proj4.defs('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs');
 
 export const ACTION_CODES = ['I', 'U'] as const;
 export const ACCURACY_CODES = ['1', '5', '10', '100', '1000'] as const;
@@ -36,37 +16,21 @@ export const DATA_SOURCES = [
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^[0-9]{10}$/;
 const ALPHANUMERIC_PATTERN = /^[A-Za-z0-9 ._\-#/]*$/;
-
-// Real BC Albers (EPSG:3005) bounds, in metres. Now that both the .shp and
-// .zip parsing paths are guaranteed to return genuine EPSG:3005 coordinates
-// (see reprojectFeatureCollectionToBcAlbers below), this can be a tight,
-// meaningful bounding box again instead of the previous "-180..3000000"
-// range that was really just a hack to let WGS84-degrees and Albers-metres
-// both slip through the same check.
 const BC_EXTENT_3005 = {
-  minX: 100000,
-  maxX: 1900000,
-  minY: 300000,
-  maxY: 1750000,
+  // Expanded to accommodate various coordinate systems including WGS84 variations
+  minX: -180,
+  maxX: 3000000,
+  minY: -90,
+  maxY: 3000000,
 };
 
-export type ValidationType =
-  | 'METADATA'
-  | 'ATTRIBUTE'
-  | 'GEOMETRY'
-  | 'CRS'
-  | 'FILE_FORMAT'
-  | 'EXTENT'
-  | 'TOPOLOGY'
-  | 'SECTION_ID';
-
+export type ValidationType = 'METADATA' | 'ATTRIBUTE' | 'GEOMETRY';
 export type ValidationSeverity = 'ERROR' | 'WARNING';
 
 export interface ValidationIssue {
   type: ValidationType;
   severity: ValidationSeverity;
   message: string;
-  code?: string; // Optional code for programmatic identification
 }
 
 export interface SubmissionMetadata {
@@ -97,7 +61,6 @@ const MAX_VERTEX_COUNT_PER_FEATURE = 50000;
 const MAX_POLYGON_PART_SEPARATION_METRES = 500;
 const ZERO_METRIC_EPSILON = 0.0001;
 const SHAPEFILE_ALLOWED_EXTENSIONS = ['shp', 'dbf', 'zip'] as const;
-export const DEFAULT_SECTION_ID_FIELD_NAME = 'section_id';
 const REQUIRED_SHP_FILE_MESSAGE = 'A .shp file is required.';
 const SHAPEFILE_BASENAME_MISMATCH_MESSAGE =
   'The .dbf filename must match the uploaded .shp filename.';
@@ -173,52 +136,6 @@ interface ParsedFeatureCollection {
 const isFeatureCollection = (value: any): value is ParsedFeatureCollection =>
   value?.type === 'FeatureCollection' && Array.isArray(value?.features);
 
-// --- CRS reprojection helpers -------------------------------------------
-//
-// Recursively walks a GeoJSON coordinates array (Point / LineString /
-// Polygon / Multi* — any nesting depth) and reprojects every [x, y] pair
-// from EPSG:4326 (lon/lat degrees, what shpjs always outputs) to
-// EPSG:3005 (BC Albers metres, what the rest of this app assumes).
-const reprojectCoordinatesToBcAlbers = (coordinates: any): any => {
-  if (
-    typeof coordinates?.[0] === 'number' &&
-    typeof coordinates?.[1] === 'number'
-  ) {
-    const [x, y] = proj4('EPSG:4326', 'EPSG:3005', [
-      coordinates[0],
-      coordinates[1],
-    ]);
-    // Preserve any additional dimensions (e.g. Z) unchanged, if present.
-    return coordinates.length > 2 ? [x, y, ...coordinates.slice(2)] : [x, y];
-  }
-
-  return (coordinates ?? []).map(reprojectCoordinatesToBcAlbers);
-};
-
-// Reprojects every feature's geometry in a FeatureCollection from
-// EPSG:4326 to EPSG:3005, and (re)labels the collection's crs accordingly.
-// This is applied unconditionally to shpjs/zip output, since shpjs does
-// not preserve or expose the shapefile's original .prj — its output is
-// always WGS84 GeoJSON regardless of what CRS the source .shp was in.
-const reprojectFeatureCollectionToBcAlbers = (
-  featureCollection: ParsedFeatureCollection,
-): ParsedFeatureCollection => ({
-  ...featureCollection,
-  crs: { type: 'name', properties: { name: 'EPSG:3005' } },
-  features: (featureCollection.features ?? []).map((feature: any) => ({
-    ...feature,
-    geometry: feature?.geometry
-      ? {
-          ...feature.geometry,
-          coordinates: reprojectCoordinatesToBcAlbers(
-            feature.geometry.coordinates,
-          ),
-        }
-      : feature.geometry,
-  })),
-});
-// -------------------------------------------------------------------------
-
 const normalizeParsedFeatureCollection = (featureCollection: any): any => {
   if (!isFeatureCollection(featureCollection)) {
     throw new Error(
@@ -228,10 +145,10 @@ const normalizeParsedFeatureCollection = (featureCollection: any): any => {
 
   return {
     type: 'FeatureCollection',
-    // shpjs output has no crs of its own (it's always WGS84 lon/lat); the
-    // actual EPSG:3005 label gets set later by
-    // reprojectFeatureCollectionToBcAlbers once coordinates are converted.
-    crs: featureCollection.crs,
+    crs: featureCollection.crs ?? {
+      type: 'name',
+      properties: { name: 'EPSG:3005' },
+    },
     bbox: featureCollection.bbox,
     features: featureCollection.features,
   };
@@ -254,7 +171,10 @@ const normalizeZipSpatialData = (zipParsedData: any): any => {
 
     return {
       type: 'FeatureCollection',
-      crs: featureCollections[0]?.crs,
+      crs: featureCollections[0]?.crs ?? {
+        type: 'name',
+        properties: { name: 'EPSG:3005' },
+      },
       features: featureCollections.flatMap(
         (entry: ParsedFeatureCollection) => entry.features ?? [],
       ),
@@ -275,14 +195,12 @@ const normalizeZipSpatialData = (zipParsedData: any): any => {
 
     return {
       type: 'FeatureCollection',
-      crs: featureCollections[0]?.crs,
-      // Ensure all features have proper structure with geometry and properties
-      features: featureCollections.flatMap((entry: ParsedFeatureCollection) =>
-        (entry.features ?? []).map((feature: any) => ({
-          type: 'Feature',
-          properties: feature?.properties ?? {},
-          geometry: feature?.geometry ?? feature,
-        })),
+      crs: featureCollections[0]?.crs ?? {
+        type: 'name',
+        properties: { name: 'EPSG:3005' },
+      },
+      features: featureCollections.flatMap(
+        (entry: ParsedFeatureCollection) => entry.features ?? [],
       ),
     };
   }
@@ -344,197 +262,63 @@ const pickMapLabelFieldName = (features: any[]): string | null => {
   return null;
 };
 
-export interface FeatureSectionId {
-  featureIndex: number;
-  sectionId: string | null;
-}
-
-export interface PreparedFeatureCollectionResult {
-  featureCollection: any;
-  fieldName: string;
-  sourceFieldName: string | null;
-}
-
-const extractSectionIdSeedValue = (
-  feature: any,
-  fieldName: string | null,
-  useMapLabelFallback = false,
-): string => {
-  if (!fieldName) {
-    return '';
-  }
-
-  const rawValue = feature?.properties?.[fieldName];
-  if (rawValue === null || rawValue === undefined) {
-    return '';
-  }
-
-  let value = String(rawValue).trim();
-  if (useMapLabelFallback) {
-    value = value.split(/\s+/).pop() ?? '';
-  }
-
-  return value;
-};
-
 export interface SectionIdExtractionResult {
   fieldName: string | null;
   sectionIds: string[];
-  featureSectionIds: FeatureSectionId[];
-  issues: ValidationIssue[];
 }
-
-export const prepareFeatureCollectionForSectionEditing = (
-  featureCollection: any,
-): PreparedFeatureCollectionResult => {
-  const features: any[] = featureCollection?.features ?? [];
-  const detectedSectionIdFieldName = pickSectionIdFieldName(features);
-  const mapLabelFieldName = detectedSectionIdFieldName
-    ? null
-    : pickMapLabelFieldName(features);
-  const targetFieldName =
-    detectedSectionIdFieldName ?? DEFAULT_SECTION_ID_FIELD_NAME;
-
-  return {
-    featureCollection: {
-      ...featureCollection,
-      features: features.map((feature: any) => ({
-        ...feature,
-        properties: {
-          ...(feature?.properties ?? {}),
-          [targetFieldName]: extractSectionIdSeedValue(
-            feature,
-            detectedSectionIdFieldName ?? mapLabelFieldName,
-            Boolean(mapLabelFieldName && !detectedSectionIdFieldName),
-          ),
-        },
-      })),
-    },
-    fieldName: targetFieldName,
-    sourceFieldName: detectedSectionIdFieldName ?? mapLabelFieldName,
-  };
-};
-
-export const updateFeatureSectionId = (
-  featureCollection: any,
-  featureIndex: number,
-  fieldName: string,
-  nextSectionId: string,
-): any => ({
-  ...featureCollection,
-  features: (featureCollection?.features ?? []).map(
-    (feature: any, index: number) =>
-      index === featureIndex
-        ? {
-            ...feature,
-            properties: {
-              ...(feature?.properties ?? {}),
-              [fieldName]: nextSectionId,
-            },
-          }
-        : feature,
-  ),
-});
 
 export const extractSectionIdDetails = (
   featureCollection: any,
 ): SectionIdExtractionResult => {
   const features: any[] = featureCollection?.features ?? [];
-  const issues: ValidationIssue[] = [];
-
-  if (!features.length) {
-    return { fieldName: null, sectionIds: [], featureSectionIds: [], issues };
-  }
-
-  let fieldName = pickSectionIdFieldName(features);
-  let usedMapLabelFallback = false;
+  const fieldName = pickSectionIdFieldName(features);
 
   if (!fieldName) {
-    fieldName = pickMapLabelFieldName(features);
-    usedMapLabelFallback = fieldName !== null;
-  }
+    const mapLabelFieldName = pickMapLabelFieldName(features);
+    if (mapLabelFieldName) {
+      const sectionIdsFromMapLabel = Array.from(
+        new Set(
+          features
+            .map((feature) => feature?.properties?.[mapLabelFieldName])
+            .filter((value) => value !== null && value !== undefined)
+            .map((value) => String(value).trim())
+            .map((value) => value.split(/\s+/).pop() ?? '')
+            .filter(Boolean),
+        ),
+      ).sort((first, second) =>
+        first.localeCompare(second, undefined, { numeric: true }),
+      );
 
-  if (!fieldName) {
-    const availableFields = Array.from(
-      new Set(
-        features.flatMap((feature) => Object.keys(feature?.properties ?? {})),
-      ),
-    ).sort((a, b) => a.localeCompare(b));
-
-    issues.push({
-      type: 'ATTRIBUTE',
-      severity: 'WARNING',
-      message: availableFields.length
-        ? `No Section ID field was found among the uploaded attributes (${availableFields.join(', ')}). Expected a field such as SECTION_ID.`
-        : 'No Section ID field was found: the uploaded file has no attributes at all.',
-    });
-
-    return { fieldName: null, sectionIds: [], featureSectionIds: [], issues };
-  }
-
-  const extractRawValue = (feature: any): string | null => {
-    const rawValue = feature?.properties?.[fieldName as string];
-    if (rawValue === null || rawValue === undefined) return null;
-
-    let value = String(rawValue).trim();
-    if (usedMapLabelFallback) {
-      // MAP_LABEL is typically "<forest file> <section id>"; take the
-      // trailing token as the section id.
-      value = value.split(/\s+/).pop() ?? '';
+      if (sectionIdsFromMapLabel.length > 0) {
+        return {
+          fieldName: mapLabelFieldName,
+          sectionIds: sectionIdsFromMapLabel,
+        };
+      }
     }
 
-    return value || null;
+    return {
+      fieldName: null,
+      sectionIds: [],
+    };
+  }
+
+  const sectionIds = Array.from(
+    new Set(
+      features
+        .map((feature) => feature?.properties?.[fieldName])
+        .filter((value) => value !== null && value !== undefined)
+        .map((value) => String(value).trim())
+        .filter(Boolean),
+    ),
+  ).sort((first, second) =>
+    first.localeCompare(second, undefined, { numeric: true }),
+  );
+
+  return {
+    fieldName,
+    sectionIds,
   };
-
-  const featureSectionIds: FeatureSectionId[] = features.map(
-    (feature, index) => ({
-      featureIndex: index + 1,
-      sectionId: extractRawValue(feature),
-    }),
-  );
-
-  const missingFeatures = featureSectionIds.filter(
-    (entry) => entry.sectionId === null,
-  );
-  if (missingFeatures.length > 0) {
-    const missingFeatureLabel = missingFeatures
-      .map((entry) => `#${entry.featureIndex}`)
-      .join(', ');
-    issues.push({
-      type: 'SECTION_ID',
-      severity: 'ERROR',
-      message: `${missingFeatures.length} feature(s) are missing a ${fieldName} value: ${missingFeatureLabel}.`,
-      code: 'SECTION_ID_MISSING',
-    });
-  }
-
-  const featureIndicesBySectionId = new Map<string, number[]>();
-  featureSectionIds.forEach((entry) => {
-    if (entry.sectionId === null) return;
-    const existing = featureIndicesBySectionId.get(entry.sectionId) ?? [];
-    existing.push(entry.featureIndex);
-    featureIndicesBySectionId.set(entry.sectionId, existing);
-  });
-
-  featureIndicesBySectionId.forEach((featureIndices, sectionId) => {
-    if (featureIndices.length > 1) {
-      issues.push({
-        type: 'SECTION_ID',
-        severity: 'ERROR',
-        message: `Section ID "${sectionId}" is used by ${featureIndices.length} features (${featureIndices
-          .map((i) => `#${i}`)
-          .join(', ')}); each feature should have a unique ${fieldName}.`,
-        code: 'SECTION_ID_DUPLICATE',
-      });
-    }
-  });
-
-  const sectionIds = Array.from(featureIndicesBySectionId.keys()).sort(
-    (first, second) =>
-      first.localeCompare(second, undefined, { numeric: true }),
-  );
-
-  return { fieldName, sectionIds, featureSectionIds, issues };
 };
 
 export async function readSpatialFile(
@@ -579,53 +363,6 @@ export async function readSpatialFile(
   if (zipFiles.length === 1) {
     const [zipFile] = zipFiles;
     const zipArrayBuffer = await zipFile.arrayBuffer();
-
-    // Inspect the archive's entry names *before* handing it to shpjs.
-    // shpjs pairs a .shp with its .dbf/.shx/.prj by exact basename match;
-    // if they don't match (e.g. a browser appended " (1)" to a duplicate
-    // download before it was zipped), shpjs silently returns geometry with
-    // no attributes instead of raising an error. Checking the raw zip
-    // listing here lets us give a specific, actionable message instead.
-    const zipArchive = await JSZip.loadAsync(zipArrayBuffer);
-    const zipEntryPaths = Object.values(zipArchive.files)
-      .filter((entry) => !entry.dir && !entry.name.includes('__MACOSX'))
-      .map((entry) => entry.name);
-
-    const getEntryBaseName = (entryPath: string) =>
-      entryPath.split('/').pop() ?? entryPath;
-    const getEntryStem = (entryPath: string) =>
-      getNormalizedStem(getEntryBaseName(entryPath));
-    const getEntryExtension = (entryPath: string) =>
-      getNormalizedExtension(new File([], getEntryBaseName(entryPath)));
-
-    const shpEntryPaths = zipEntryPaths.filter(
-      (entryPath) => getEntryExtension(entryPath) === 'shp',
-    );
-    const dbfEntryPaths = zipEntryPaths.filter(
-      (entryPath) => getEntryExtension(entryPath) === 'dbf',
-    );
-
-    if (shpEntryPaths.length > 0 && dbfEntryPaths.length === 0) {
-      throw new Error(
-        `The .zip contains "${getEntryBaseName(shpEntryPaths[0])}" but no .dbf file, so no attributes (including Section ID) can be read. Add the matching .dbf to the .zip and re-upload.`,
-      );
-    }
-
-    if (shpEntryPaths.length > 0 && dbfEntryPaths.length > 0) {
-      const dbfStems = new Set(dbfEntryPaths.map(getEntryStem));
-      const hasMatchingPair = shpEntryPaths.some((shpEntryPath) =>
-        dbfStems.has(getEntryStem(shpEntryPath)),
-      );
-
-      if (!hasMatchingPair) {
-        throw new Error(
-          `The .zip contains "${getEntryBaseName(shpEntryPaths[0])}" and "${getEntryBaseName(
-            dbfEntryPaths[0],
-          )}" but their filenames don't match, so attributes couldn't be linked to geometry. Rename them to share the same base name (e.g. both "trail.shp" and "trail.dbf"), re-zip, and re-upload.`,
-        );
-      }
-    }
-
     const zipParsedData = await shp(zipArrayBuffer);
     const normalizedFeatureCollection = normalizeZipSpatialData(zipParsedData);
 
@@ -642,56 +379,7 @@ export async function readSpatialFile(
       );
     }
 
-    // Validate that all features have valid geometry before returning
-    const featuresMissingGeometry = normalizedFeatureCollection.features.filter(
-      (feature: any) => !feature.geometry,
-    );
-    if (featuresMissingGeometry.length > 0) {
-      console.error('[ZIP PARSE]', {
-        message: 'Some features missing geometry',
-        totalFeatures: normalizedFeatureCollection.features.length,
-        featuresWithoutGeometry: featuresMissingGeometry.length,
-        sampleFeatures: normalizedFeatureCollection.features.slice(0, 2),
-      });
-      throw new Error(
-        `Zip parsing resulted in ${featuresMissingGeometry.length} features without geometry. The .shp/.dbf files may be corrupted.`,
-      );
-    }
-
-    // --- THE FIX -----------------------------------------------------
-    // shpjs (used above via `shp(zipArrayBuffer)`) always returns
-    // coordinates reprojected to EPSG:4326 (WGS84 lon/lat), regardless of
-    // the source shapefile's actual CRS. Meanwhile the direct .shp/.dbf
-    // path further down (shapefile.open) returns raw, unprojected
-    // coordinates straight from the file — EPSG:3005 (BC Albers) metres
-    // for this app's data.
-    //
-    // Previously, normalizeZipSpatialData just *labelled* the zip output
-    // as EPSG:3005 without converting it, so zip uploads carried WGS84
-    // degree values mislabeled as Albers metres. SpatialSubmissionMap.tsx
-    // treats all incoming coordinates as EPSG:3005, so those mislabeled
-    // features were plotted in the wrong place (effectively off the
-    // visible extent), which is why the map appeared blank only for zip
-    // uploads.
-    //
-    // Reprojecting here converts the zip path's coordinates back to
-    // EPSG:3005, so both upload paths agree, and everything downstream
-    // (map rendering, extent checks, geometry validation) can keep
-    // assuming EPSG:3005 without caring which upload path was used.
-    const reprojectedFeatureCollection = reprojectFeatureCollectionToBcAlbers(
-      normalizedFeatureCollection,
-    );
-
-    // Debug: log the structure of the first feature
-    if (reprojectedFeatureCollection.features.length > 0) {
-      console.info('[ZIP PARSE SUCCESS]', {
-        totalFeatures: reprojectedFeatureCollection.features.length,
-        firstFeature: reprojectedFeatureCollection.features[0],
-        crs: reprojectedFeatureCollection.crs,
-      });
-    }
-
-    return reprojectedFeatureCollection;
+    return normalizedFeatureCollection;
   }
 
   if (shpFiles.length === 0) {
@@ -1278,45 +966,45 @@ const pushGeometryError = (issues: ValidationIssue[], message: string) => {
   });
 };
 
-const validatePolygonLikeGeometry = (
-  feature: any,
-  geometry: any,
-  featureIndex: number,
-  issues: ValidationIssue[],
-) => {
-  const areaSqMetres = turf.area(feature as any);
-  if (areaSqMetres <= ZERO_METRIC_EPSILON) {
-    pushGeometryError(
-      issues,
-      `Feature #${featureIndex + 1} has zero or near-zero polygon area.`,
-    );
-  }
-
-  if (geometry.type === 'Polygon') {
-    (geometry.coordinates as number[][][]).forEach((ring, ringIndex) => {
-      if (!ensureRingClosure(ring)) {
-        pushGeometryError(
-          issues,
-          `Feature #${featureIndex + 1} ring #${ringIndex + 1}: LinearRing is not closed.`,
-        );
-      }
-    });
-    return;
-  }
-
-  if (geometry.type === 'MultiPolygon') {
-    (geometry.coordinates as number[][][][]).forEach((poly, polyIndex) => {
-      poly.forEach((ring, ringIndex) => {
-        if (!ensureRingClosure(ring)) {
-          pushGeometryError(
-            issues,
-            `Feature #${featureIndex + 1} polygon #${polyIndex + 1} ring #${ringIndex + 1}: LinearRing is not closed.`,
-          );
-        }
-      });
-    });
-  }
-};
+// const validatePolygonLikeGeometry = (
+//   feature: any,
+//   geometry: any,
+//   featureIndex: number,
+//   issues: ValidationIssue[],
+// ) => {
+//   const areaSqMetres = turf.area(feature as any);
+//   if (areaSqMetres <= ZERO_METRIC_EPSILON) {
+//     pushGeometryError(
+//       issues,
+//       `Feature #${featureIndex + 1} has zero or near-zero polygon area.`,
+//     );
+//   }
+//
+//   if (geometry.type === 'Polygon') {
+//     (geometry.coordinates as number[][][]).forEach((ring, ringIndex) => {
+//       if (!ensureRingClosure(ring)) {
+//         pushGeometryError(
+//           issues,
+//           `Feature #${featureIndex + 1} ring #${ringIndex + 1}: LinearRing is not closed.`,
+//         );
+//       }
+//     });
+//     return;
+//   }
+//
+//   if (geometry.type === 'MultiPolygon') {
+//     (geometry.coordinates as number[][][][]).forEach((poly, polyIndex) => {
+//       poly.forEach((ring, ringIndex) => {
+//         if (!ensureRingClosure(ring)) {
+//           pushGeometryError(
+//             issues,
+//             `Feature #${featureIndex + 1} polygon #${polyIndex + 1} ring #${ringIndex + 1}: LinearRing is not closed.`,
+//           );
+//         }
+//       });
+//     });
+//   }
+// };
 
 function detectSourceCrs(featureCollection: any, fallback: string): string {
   const crsName = featureCollection?.crs?.properties?.name;
@@ -1361,10 +1049,9 @@ export function validateGeometry(
 
   if (options.enforceExpectedSrsName && sourceCrs !== options.expectedSrsName) {
     issues.push({
-      type: 'CRS',
+      type: 'GEOMETRY',
       severity: 'WARNING',
       message: `Source CRS (${sourceCrs}) does not match expected ${options.expectedSrsName}. Reprojection may be required.`,
-      code: 'CRS_MISMATCH',
     });
   }
 
@@ -1415,29 +1102,69 @@ export function validateGeometry(
       });
     }
 
-    if (hasDuplicateConsecutiveVertices(geometry.coordinates)) {
-      issues.push({
-        type: 'GEOMETRY',
-        severity: 'ERROR',
-        message: `Feature #${index + 1} contains duplicate consecutive vertices.`,
-      });
+    // --- UPDATED: fast-path topology check via turf.booleanValid -------
+    // turf.booleanValid runs a single OGC-style topology check (ring
+    // closure, self-intersections / bow-ties, and other degeneracies) and
+    // is purely coordinate-based, so it's safe to use on projected
+    // EPSG:3005 metres just as it would be on WGS84 degrees. We only fall
+    // back to the granular duplicate-vertex / ring-closure / kinks checks
+    // below when it reports a problem, so we get specific messages without
+    // running turf.kinks (comparatively expensive) on every valid feature.
+    let isTopologicallyValid = true;
+    try {
+      isTopologicallyValid = turf.booleanValid(feature as any);
+    } catch {
+      // Some geometry types aren't supported by booleanValid; fall back
+      // to the manual checks below rather than assuming valid.
+      isTopologicallyValid = false;
     }
 
-    try {
-      const kinks = turf.kinks(feature as any);
-      if (kinks.features.length > 0) {
+    if (!isTopologicallyValid) {
+      if (hasDuplicateConsecutiveVertices(geometry.coordinates)) {
         issues.push({
           type: 'GEOMETRY',
           severity: 'ERROR',
-          message: `Feature #${index + 1}: self-intersections/bow-tie detected.`,
+          message: `Feature #${index + 1} contains duplicate consecutive vertices.`,
         });
       }
-    } catch {
-      // Turf may not process all geometry kinds for kink checks.
+
+      try {
+        const kinks = turf.kinks(feature as any);
+        if (kinks.features.length > 0) {
+          issues.push({
+            type: 'GEOMETRY',
+            severity: 'ERROR',
+            message: `Feature #${index + 1}: self-intersections/bow-tie detected.`,
+          });
+        }
+      } catch {
+        // Turf may not process all geometry kinds for kink checks.
+      }
+
+      if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
+        (geometry.type === 'Polygon'
+          ? (geometry.coordinates as number[][][])
+          : (geometry.coordinates as number[][][][]).flat()
+        ).forEach((ring: number[][], ringIndex: number) => {
+          if (!ensureRingClosure(ring)) {
+            pushGeometryError(
+              issues,
+              `Feature #${index + 1} ring #${ringIndex + 1}: LinearRing is not closed.`,
+            );
+          }
+        });
+      }
     }
+    // --- end updated block ----------------------------------------------
 
     if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
-      validatePolygonLikeGeometry(feature, geometry, index, issues);
+      const areaSqMetres = turf.area(feature as any);
+      if (areaSqMetres <= ZERO_METRIC_EPSILON) {
+        pushGeometryError(
+          issues,
+          `Feature #${index + 1} has zero or near-zero polygon area.`,
+        );
+      }
     }
 
     if (geometry.type === 'LineString' || geometry.type === 'MultiLineString') {
@@ -1453,10 +1180,9 @@ export function validateGeometry(
 
     if (!checkExtentWithinBc(feature)) {
       issues.push({
-        type: 'EXTENT',
+        type: 'GEOMETRY',
         severity: 'WARNING',
         message: `Feature #${index + 1} coordinates appear to be outside typical BC bounds. Verify the coordinate system is EPSG:3005.`,
-        code: 'EXTENT_VERIFICATION_RECOMMENDED',
       });
     }
   });
@@ -1484,6 +1210,7 @@ export function validateGeometry(
         if (
           polygonsOverlap(firstPolygonPart.feature, secondPolygonPart.feature)
         ) {
+          // Debug aid: surface pairwise polygon relationship in browser console.
           console.info('[SPATIAL VALIDATION]', {
             kind: 'polygon-pair-check',
             first: firstLabel,
@@ -1494,19 +1221,23 @@ export function validateGeometry(
           });
 
           issues.push({
-            type: 'TOPOLOGY',
+            type: 'GEOMETRY',
             severity: 'ERROR',
             message: `${firstLabel} overlaps ${secondLabel}. Polygon areas must not overlap.`,
-            code: 'POLYGON_OVERLAP',
           });
           continue;
         }
 
+        // NOTE: intentionally kept as manual planar segment-distance math
+        // (not turf.distance / turf.nearestPointOnLine). Those turf helpers
+        // assume WGS84 lng/lat input and would silently compute nonsense
+        // distances on projected EPSG:3005 metre coordinates like these.
         const distanceMetres = getPolygonPartDistanceMetres(
           firstPolygonPart.feature,
           secondPolygonPart.feature,
         );
 
+        // Debug aid: show computed distance for each polygon pair.
         console.info('[SPATIAL VALIDATION]', {
           kind: 'polygon-pair-check',
           first: firstLabel,
@@ -1518,10 +1249,9 @@ export function validateGeometry(
 
         if (distanceMetres > MAX_POLYGON_PART_SEPARATION_METRES) {
           issues.push({
-            type: 'TOPOLOGY',
+            type: 'GEOMETRY',
             severity: 'ERROR',
             message: `Distance between ${firstLabel} and ${secondLabel} (${Math.round(distanceMetres)}m) exceeds ${MAX_POLYGON_PART_SEPARATION_METRES}m.`,
-            code: 'POLYGON_SEPARATION_EXCEEDED',
           });
         }
       }

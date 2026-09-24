@@ -351,6 +351,7 @@ export interface UpdateRecreationResourceGeospatialRequest {
 export interface CreateRecreationMapFeaturesDto {
   features: Array<{
     geometry: Record<string, unknown>;
+    section_id?: string;
   }>;
   recreation_type_code?: string;
   natural_resource_district_code?: string;

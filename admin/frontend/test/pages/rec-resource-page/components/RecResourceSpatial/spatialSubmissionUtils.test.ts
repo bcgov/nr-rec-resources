@@ -6,12 +6,12 @@ import {
   type SubmissionMetadata,
 } from '@/pages/rec-resource-page/components/RecResourceSpatial/spatialSubmissionUtils';
 
-const { mockOpenShp } = vi.hoisted(() => ({
-  mockOpenShp: vi.fn(),
+const { mockOpen } = vi.hoisted(() => ({
+  mockOpen: vi.fn(),
 }));
 
 vi.mock('shapefile', () => ({
-  openShp: mockOpenShp,
+  open: mockOpen,
 }));
 
 const baseMetadata: SubmissionMetadata = {
@@ -53,8 +53,8 @@ const validFeatureCollection = {
 
 describe('spatialSubmissionUtils', () => {
   beforeEach(() => {
-    mockOpenShp.mockReset();
-    mockOpenShp.mockResolvedValue({
+    mockOpen.mockReset();
+    mockOpen.mockResolvedValue({
       read: vi
         .fn()
         .mockResolvedValueOnce({
@@ -145,7 +145,7 @@ describe('spatialSubmissionUtils', () => {
     });
 
     await expect(readSpatialFile(badFile)).rejects.toThrow(
-      'Only .shp uploads are supported in this workflow.',
+      'Upload either one .zip shapefile bundle or .shp with an optional matching .dbf.',
     );
   });
 
@@ -175,7 +175,7 @@ describe('spatialSubmissionUtils', () => {
     });
 
     await expect(readSpatialFile(dbfFile)).rejects.toThrow(
-      'Only .shp uploads are supported in this workflow.',
+      'A .shp file is required.',
     );
   });
 
