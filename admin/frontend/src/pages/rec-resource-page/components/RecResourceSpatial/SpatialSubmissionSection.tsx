@@ -5,8 +5,13 @@ import { useGetRecreationResourceOptions } from '@/services/hooks/recreation-res
 import { useCreateRecreationResourceMapFeatures } from '@/services/hooks/recreation-resource-admin/useCreateRecreationResourceMapFeatures';
 import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 import {
+  DEFAULT_SECTION_ID_FIELD_NAME,
+  extractSectionIdDetails,
+  prepareFeatureCollectionForSectionEditing,
   readSpatialFile,
+  updateFeatureSectionId,
   validateGeometry,
+  type FeatureSectionId,
   type SubmissionMetadata,
   type ValidationIssue,
 } from './spatialSubmissionUtils';
@@ -70,7 +75,7 @@ export const SpatialSubmissionSection = ({
     GetOptionsByTypesTypesEnum.ResourceType,
   ]);
   const [values, setValues] = useState<WizardValues>(defaultValues);
-  const [file, setFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [issues, setIssues] = useState<ValidationIssue[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [createStatus, setCreateStatus] = useState<{
@@ -79,6 +84,15 @@ export const SpatialSubmissionSection = ({
   } | null>(null);
   const [editableFeatureCollection, setEditableFeatureCollection] = useState<
     any | null
+  >(null);
+  const [featureSectionIds, setFeatureSectionIds] = useState<
+    FeatureSectionId[]
+  >([]);
+  const [sectionIdFieldName, setSectionIdFieldName] = useState<string | null>(
+    null,
+  );
+  const [selectedFeatureIndex, setSelectedFeatureIndex] = useState<
+    number | null
   >(null);
   const { mutateAsync: createMapFeatures, isPending: isCreatingRequest } =
     useCreateRecreationResourceMapFeatures();
@@ -161,56 +175,84 @@ export const SpatialSubmissionSection = ({
   const handleSpatialFilesChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const [nextFile] = Array.from(event.target.files ?? []);
-    setFile(nextFile ?? null);
+    const nextFiles = Array.from(event.target.files ?? []);
+    setSelectedFiles(nextFiles);
     setEditableFeatureCollection(null);
+    setFeatureSectionIds([]);
+    setSectionIdFieldName(null);
+    setSelectedFeatureIndex(null);
     setIssues([]);
     setCreateStatus(null);
+  };
+
+  const validateFeatureCollection = (featureCollection: any) => {
+    const sectionIdDetails = extractSectionIdDetails(featureCollection);
+    const nextIssues: ValidationIssue[] = [
+      ...sectionIdDetails.issues,
+      ...validateGeometry(featureCollection, {
+        expectedSrsName: 'EPSG:3005',
+        enforceExpectedSrsName: true,
+        expectedGeometryType: values.featureType as
+          | 'Point'
+          | 'LineString'
+          | 'Polygon',
+      }),
+    ];
+
+    setEditableFeatureCollection(featureCollection);
+    setFeatureSectionIds(sectionIdDetails.featureSectionIds);
+    setSectionIdFieldName(sectionIdDetails.fieldName);
+    setSelectedFeatureIndex((current) => {
+      if (!sectionIdDetails.featureSectionIds.length) {
+        return null;
+      }
+
+      if (
+        current === null ||
+        current >= sectionIdDetails.featureSectionIds.length
+      ) {
+        return 0;
+      }
+
+      return current;
+    });
+    setIssues(nextIssues);
+
+    return nextIssues;
   };
 
   const handleValidateSpatialFile = async () => {
     setIsProcessing(true);
 
-    const nextIssues: ValidationIssue[] = [];
-
-    if (!file) {
+    if (!selectedFiles.length) {
       setEditableFeatureCollection(null);
-      nextIssues.push({
-        type: 'GEOMETRY',
-        severity: 'ERROR',
-        message: 'Please upload a .shp file.',
-      });
-      setIssues(nextIssues);
+      setFeatureSectionIds([]);
+      setSectionIdFieldName(null);
+      setSelectedFeatureIndex(null);
+      setIssues([
+        {
+          type: 'GEOMETRY',
+          severity: 'ERROR',
+          message:
+            'Please upload a .zip shapefile bundle or a .shp file (with matching .dbf when available).',
+        },
+      ]);
       setIsProcessing(false);
       return;
     }
 
     try {
-      const parsed = await (
-        readSpatialFile as (input: File | File[] | FileList) => Promise<any>
-      )(file);
-      const featureCollection = editableFeatureCollection ?? parsed;
-      console.log('Extracted shapefile features:', {
-        fileName: file.name,
-        featureCount: featureCollection?.features?.length ?? 0,
-        bbox: featureCollection?.bbox,
-        crs: featureCollection?.crs,
-        features: featureCollection?.features,
-      });
-      setEditableFeatureCollection(featureCollection);
+      const featureCollection = editableFeatureCollection
+        ? editableFeatureCollection
+        : prepareFeatureCollectionForSectionEditing(
+            await (
+              readSpatialFile as (
+                input: File | File[] | FileList,
+              ) => Promise<any>
+            )(selectedFiles),
+          ).featureCollection;
 
-      nextIssues.push(
-        ...validateGeometry(featureCollection, {
-          expectedSrsName: 'EPSG:3005',
-          enforceExpectedSrsName: true,
-          expectedGeometryType: values.featureType as
-            | 'Point'
-            | 'LineString'
-            | 'Polygon',
-        }),
-      );
-
-      setIssues(nextIssues);
+      const nextIssues = validateFeatureCollection(featureCollection);
 
       const hasBlockingErrors = nextIssues.some(
         (issue) => issue.severity === 'ERROR',
@@ -222,8 +264,10 @@ export const SpatialSubmissionSection = ({
       }
     } catch (error) {
       setEditableFeatureCollection(null);
+      setFeatureSectionIds([]);
+      setSectionIdFieldName(null);
+      setSelectedFeatureIndex(null);
       setIssues([
-        ...nextIssues,
         {
           type: 'GEOMETRY',
           severity: 'ERROR',
@@ -236,6 +280,26 @@ export const SpatialSubmissionSection = ({
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleSectionIdChange = (nextSectionId: string) => {
+    if (
+      editableFeatureCollection === null ||
+      selectedFeatureIndex === null ||
+      selectedFeatureIndex < 0
+    ) {
+      return;
+    }
+
+    const nextFeatureCollection = updateFeatureSectionId(
+      editableFeatureCollection,
+      selectedFeatureIndex,
+      sectionIdFieldName ?? DEFAULT_SECTION_ID_FIELD_NAME,
+      nextSectionId,
+    );
+
+    setCreateStatus(null);
+    validateFeatureCollection(nextFeatureCollection);
   };
 
   const handleCreateRequest = async () => {
@@ -252,9 +316,12 @@ export const SpatialSubmissionSection = ({
 
       await createMapFeatures({
         recResourceId,
-        features: editableFeatureCollection.features.map((feature: any) => ({
-          geometry: feature.geometry,
-        })),
+        features: editableFeatureCollection.features.map(
+          (feature: any, index: number) => ({
+            geometry: feature.geometry,
+            sectionId: featureSectionIds[index]?.sectionId?.trim() || undefined,
+          }),
+        ),
         recreationTypeCode: values.recreationType || undefined,
         naturalResourceDistrictCode: values.metadata.districtCode || undefined,
         recreationDistrictCode: values.metadata.recreationDistrict || undefined,
@@ -280,6 +347,11 @@ export const SpatialSubmissionSection = ({
   const canCreateRequest =
     Boolean(editableFeatureCollection?.features?.length) &&
     !issues.some((issue) => issue.severity === 'ERROR');
+
+  const selectedSectionFeature =
+    selectedFeatureIndex === null
+      ? null
+      : (featureSectionIds[selectedFeatureIndex] ?? null);
 
   return (
     <Card>
@@ -452,71 +524,100 @@ export const SpatialSubmissionSection = ({
             </Form.Group>
           </Col>
 
-          {/*<Col xs={12} md={4}>*/}
-          {/*  <Form.Group>*/}
-          {/*    <Form.Label>Accuracy Code</Form.Label>*/}
-          {/*    <Form.Select*/}
-          {/*      aria-label="Accuracy Code"*/}
-          {/*      value={values.metadata.accuracyCode}*/}
-          {/*      onChange={(e) => setMetadata('accuracyCode', e.target.value)}*/}
-          {/*    >*/}
-          {/*      {ACCURACY_CODES.map((code) => (*/}
-          {/*        <option key={code} value={code}>*/}
-          {/*          {code}*/}
-          {/*        </option>*/}
-          {/*      ))}*/}
-          {/*    </Form.Select>*/}
-          {/*  </Form.Group>*/}
-          {/*</Col>*/}
-
-          {/*<Col xs={12} md={4}>*/}
-          {/*  <Form.Group>*/}
-          {/*    <Form.Label>Capture Method</Form.Label>*/}
-          {/*    <Form.Select*/}
-          {/*      aria-label="Capture Method"*/}
-          {/*      value={values.metadata.captureMethod}*/}
-          {/*      onChange={(e) => setMetadata('captureMethod', e.target.value)}*/}
-          {/*    >*/}
-          {/*      {CAPTURE_METHODS.map((method) => (*/}
-          {/*        <option key={method} value={method}>*/}
-          {/*          {method}*/}
-          {/*        </option>*/}
-          {/*      ))}*/}
-          {/*    </Form.Select>*/}
-          {/*  </Form.Group>*/}
-          {/*</Col>*/}
-
-          {/*<Col xs={12} md={6}>*/}
-          {/*  <Form.Group>*/}
-          {/*    <Form.Label>Data Source</Form.Label>*/}
-          {/*    <Form.Select*/}
-          {/*      aria-label="Data Source"*/}
-          {/*      value={values.metadata.dataSource}*/}
-          {/*      onChange={(e) => setMetadata('dataSource', e.target.value)}*/}
-          {/*    >*/}
-          {/*      {DATA_SOURCES.map((source) => (*/}
-          {/*        <option key={source} value={source}>*/}
-          {/*          {source}*/}
-          {/*        </option>*/}
-          {/*      ))}*/}
-          {/*    </Form.Select>*/}
-          {/*  </Form.Group>*/}
-          {/*</Col>*/}
-
           <Col xs={12} md={6}>
             <Form.Group>
-              <Form.Label>Upload a Spatial File (.shp)</Form.Label>
+              <Form.Label>Upload Spatial File (.zip or .shp)</Form.Label>
               <Form.Control
                 aria-label="Spatial File"
                 type="file"
-                accept=".shp"
+                accept=".zip,.shp,.dbf"
+                multiple
                 onChange={handleSpatialFilesChange}
                 disabled={requestCreated}
               />
               <Form.Text muted>
-                Select one `.shp` file for preview and spatial validation.
+                Upload one `.zip` bundle (`.shp/.shx/.dbf/.cpg`) or upload
+                `.shp` with matching `.dbf` in one selection.
               </Form.Text>
             </Form.Group>
+          </Col>
+
+          <Col xs={12}>
+            {featureSectionIds.length > 0 && (
+              <Alert variant="info" className="mb-0">
+                <strong>Sections ({featureSectionIds.length})</strong>
+                <div className="small text-muted mt-1">
+                  Editable field:{' '}
+                  {sectionIdFieldName ?? DEFAULT_SECTION_ID_FIELD_NAME}
+                </div>
+                <Row className="g-3 mt-1">
+                  <Col xs={12} lg={5}>
+                    <div
+                      className="list-group"
+                      style={{ maxHeight: '280px', overflowY: 'auto' }}
+                    >
+                      {featureSectionIds.map((featureSectionId, index) => {
+                        const isSelected = selectedFeatureIndex === index;
+                        const sectionLabel =
+                          featureSectionId.sectionId?.trim() ||
+                          `Feature #${featureSectionId.featureIndex}`;
+
+                        return (
+                          <button
+                            key={`section-feature-${featureSectionId.featureIndex}`}
+                            type="button"
+                            className={`list-group-item list-group-item-action${
+                              isSelected ? ' active' : ''
+                            }`}
+                            onClick={() => setSelectedFeatureIndex(index)}
+                          >
+                            <div className="fw-semibold">{sectionLabel}</div>
+                            <div
+                              className={
+                                isSelected
+                                  ? 'text-white-50 small'
+                                  : 'text-muted small'
+                              }
+                            >
+                              Feature #{featureSectionId.featureIndex}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </Col>
+                  <Col xs={12} lg={7}>
+                    {selectedSectionFeature && (
+                      <Form.Group>
+                        <Form.Label>
+                          Section ID / name for feature #
+                          {selectedSectionFeature.featureIndex}
+                        </Form.Label>
+                        <Form.Control
+                          aria-label="Section ID / name"
+                          value={selectedSectionFeature.sectionId ?? ''}
+                          onChange={(event) =>
+                            handleSectionIdChange(event.target.value)
+                          }
+                          placeholder="Enter a unique section name"
+                        />
+                        <Form.Text muted>
+                          Click a section in the list or on the map to rename it
+                          before creating the request.
+                        </Form.Text>
+                      </Form.Group>
+                    )}
+                  </Col>
+                </Row>
+              </Alert>
+            )}
+
+            {editableFeatureCollection?.features?.length > 0 &&
+              featureSectionIds.length === 0 && (
+                <Alert variant="warning" className="mb-0">
+                  No section features were available to edit.
+                </Alert>
+              )}
           </Col>
 
           <Col xs={12}>
@@ -525,6 +626,8 @@ export const SpatialSubmissionSection = ({
                 <Form.Label>Spatial Preview</Form.Label>
                 <SpatialSubmissionMap
                   features={editableFeatureCollection.features}
+                  selectedFeatureIndex={selectedFeatureIndex}
+                  onFeatureSelect={setSelectedFeatureIndex}
                 />
               </>
             )}
