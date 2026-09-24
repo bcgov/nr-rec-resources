@@ -358,6 +358,7 @@ export const SpatialSubmissionSection = ({
       <div className="exhibit-a-section__header">
         <h2 className="exhibit-a-section__title">Spatial submission</h2>
       </div>
+
       <div className="exhibit-a-section__grid">
         <Row className="gy-3">
           <Col xs={12} md={6}>
@@ -543,87 +544,116 @@ export const SpatialSubmissionSection = ({
           </Col>
 
           <Col xs={12}>
-            {featureSectionIds.length > 0 && (
-              <Alert variant="info" className="mb-0">
-                <strong>Sections ({featureSectionIds.length})</strong>
-                <div className="small text-muted mt-1">
-                  Editable field:{' '}
-                  {sectionIdFieldName ?? DEFAULT_SECTION_ID_FIELD_NAME}
-                </div>
-                <Row className="g-3 mt-1">
-                  <Col xs={12} lg={5}>
-                    <div
-                      className="list-group"
-                      style={{ maxHeight: '280px', overflowY: 'auto' }}
-                    >
-                      {featureSectionIds.map((featureSectionId, index) => {
-                        const isSelected = selectedFeatureIndex === index;
-                        const sectionLabel =
-                          featureSectionId.sectionId?.trim() ||
-                          `Feature #${featureSectionId.featureIndex}`;
-
-                        return (
-                          <button
-                            key={`section-feature-${featureSectionId.featureIndex}`}
-                            type="button"
-                            className={`list-group-item list-group-item-action${
-                              isSelected ? ' active' : ''
-                            }`}
-                            onClick={() => setSelectedFeatureIndex(index)}
-                          >
-                            <div className="fw-semibold">{sectionLabel}</div>
-                            <div
-                              className={
-                                isSelected
-                                  ? 'text-white-50 small'
-                                  : 'text-muted small'
-                              }
-                            >
-                              Feature #{featureSectionId.featureIndex}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </Col>
-                  <Col xs={12} lg={7}>
-                    {selectedSectionFeature && (
-                      <Form.Group>
-                        <Form.Label>
-                          Section ID / name for feature #
-                          {selectedSectionFeature.featureIndex}
-                        </Form.Label>
-                        <Form.Control
-                          aria-label="Section ID / name"
-                          value={selectedSectionFeature.sectionId ?? ''}
-                          onChange={(event) =>
-                            handleSectionIdChange(event.target.value)
-                          }
-                          placeholder="Enter a unique section name"
-                        />
-                        <Form.Text muted>
-                          Click a section in the list or on the map to rename it
-                          before creating the request.
-                        </Form.Text>
-                      </Form.Group>
-                    )}
-                  </Col>
-                </Row>
-              </Alert>
-            )}
-
-            {editableFeatureCollection?.features?.length > 0 &&
-              featureSectionIds.length === 0 && (
-                <Alert variant="warning" className="mb-0">
-                  No section features were available to edit.
-                </Alert>
-              )}
-          </Col>
-
-          <Col xs={12}>
             {editableFeatureCollection?.features?.length && (
               <>
                 <Form.Label>Spatial Preview</Form.Label>
+                {issues.length > 0 && (
+                  <Alert
+                    className="mt-3 mb-0"
+                    variant={
+                      issues.some((x) => x.severity === 'ERROR')
+                        ? 'danger'
+                        : 'warning'
+                    }
+                  >
+                    <strong>Validation Results</strong>
+                    <ul className="mb-0 mt-2">
+                      {issues.map((issue, idx) => (
+                        <li key={`${issue.type}-${idx}`}>
+                          [{issue.type}] {issue.message}
+                        </li>
+                      ))}
+                    </ul>
+                  </Alert>
+                )}
+                <Col xs={12} className={'mt-3 mb-3'}>
+                  {featureSectionIds.length > 0 && (
+                    <div
+                      style={{
+                        padding: '12px',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      Sections ({featureSectionIds.length})
+                      <Row className="g-3 mt-1">
+                        <Col xs={12} lg={5}>
+                          <Card>
+                            <div
+                              className="list-group"
+                              style={{ maxHeight: '280px', overflowY: 'auto' }}
+                            >
+                              {featureSectionIds.map(
+                                (featureSectionId, index) => {
+                                  const isSelected =
+                                    selectedFeatureIndex === index;
+                                  const sectionLabel =
+                                    featureSectionId.sectionId?.trim() ||
+                                    `Feature #${featureSectionId.featureIndex}`;
+
+                                  return (
+                                    <button
+                                      key={`section-feature-${featureSectionId.featureIndex}`}
+                                      type="button"
+                                      className={`list-group-item list-group-item-action${
+                                        isSelected ? ' active' : ''
+                                      }`}
+                                      onClick={() =>
+                                        setSelectedFeatureIndex(index)
+                                      }
+                                    >
+                                      <div className="fw-semibold">
+                                        {sectionLabel}
+                                      </div>
+                                      <div
+                                        className={
+                                          isSelected
+                                            ? 'text-white-50 small'
+                                            : 'text-muted small'
+                                        }
+                                      >
+                                        Feature #{featureSectionId.featureIndex}
+                                      </div>
+                                    </button>
+                                  );
+                                },
+                              )}
+                            </div>
+                          </Card>
+                        </Col>
+                        <Col xs={12} lg={7}>
+                          {selectedSectionFeature && (
+                            <Form.Group>
+                              <Form.Label>
+                                Section ID / name for feature #
+                                {selectedSectionFeature.featureIndex}
+                              </Form.Label>
+                              <Form.Control
+                                aria-label="Section ID / name"
+                                value={selectedSectionFeature.sectionId ?? ''}
+                                onChange={(event) =>
+                                  handleSectionIdChange(event.target.value)
+                                }
+                                placeholder="Enter a unique section name"
+                              />
+                              <Form.Text muted>
+                                Click a section in the list or on the map to
+                                rename it before creating the request.
+                              </Form.Text>
+                            </Form.Group>
+                          )}
+                        </Col>
+                      </Row>
+                    </div>
+                  )}
+
+                  {editableFeatureCollection?.features?.length > 0 &&
+                    featureSectionIds.length === 0 && (
+                      <Alert variant="warning" className="mb-0">
+                        No section features were available to edit.
+                      </Alert>
+                    )}
+                </Col>
+
                 <SpatialSubmissionMap
                   features={editableFeatureCollection.features}
                   selectedFeatureIndex={selectedFeatureIndex}
@@ -632,58 +662,37 @@ export const SpatialSubmissionSection = ({
               </>
             )}
           </Col>
-
-          <Col xs={12} className="d-flex gap-2">
-            <Button
-              variant="primary"
-              disabled={isProcessing || requestCreated}
-              onClick={handleValidateSpatialFile}
-            >
-              {isProcessing ? (
-                <>
-                  <Spinner as="span" size="sm" className="me-2" />
-                  Validating...
-                </>
-              ) : (
-                'Validate Spatial File'
-              )}
-            </Button>
-            <Button
-              variant="success"
-              disabled={
-                !canCreateRequest || isCreatingRequest || requestCreated
-              }
-              onClick={handleCreateRequest}
-            >
-              {isCreatingRequest ? (
-                <>
-                  <Spinner as="span" size="sm" className="me-2" />
-                  Creating request...
-                </>
-              ) : (
-                'Create Request'
-              )}
-            </Button>
-          </Col>
         </Row>
-
-        {issues.length > 0 && (
-          <Alert
-            className="mt-3 mb-0"
-            variant={
-              issues.some((x) => x.severity === 'ERROR') ? 'danger' : 'warning'
-            }
+        <Col xs={12} className="d-flex gap-2 mb-5">
+          <Button
+            variant="primary"
+            disabled={isProcessing || requestCreated}
+            onClick={handleValidateSpatialFile}
           >
-            <strong>Validation Results</strong>
-            <ul className="mb-0 mt-2">
-              {issues.map((issue, idx) => (
-                <li key={`${issue.type}-${idx}`}>
-                  [{issue.type}] {issue.message}
-                </li>
-              ))}
-            </ul>
-          </Alert>
-        )}
+            {isProcessing ? (
+              <>
+                <Spinner as="span" size="sm" className="me-2" />
+                Validating...
+              </>
+            ) : (
+              'Validate Spatial File'
+            )}
+          </Button>
+          <Button
+            variant="success"
+            disabled={!canCreateRequest || isCreatingRequest || requestCreated}
+            onClick={handleCreateRequest}
+          >
+            {isCreatingRequest ? (
+              <>
+                <Spinner as="span" size="sm" className="me-2" />
+                Creating request...
+              </>
+            ) : (
+              'Create Request'
+            )}
+          </Button>
+        </Col>
 
         {editableFeatureCollection?.features?.length > 0 &&
           issues.length === 0 && (
