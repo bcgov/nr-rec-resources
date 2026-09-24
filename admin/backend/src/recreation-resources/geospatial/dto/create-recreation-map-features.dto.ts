@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, type ApiPropertyOptions } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
@@ -14,9 +14,21 @@ export class CreateRecreationMapFeatureGeometryDto {
     description:
       'GeoJSON geometry extracted from a validated shapefile feature',
     type: 'object',
-  })
+    additionalProperties: true,
+  } satisfies ApiPropertyOptions)
   @IsObject()
   geometry: Record<string, unknown>;
+
+  @ApiProperty({
+    description:
+      'Editable section identifier/name for the uploaded feature, if provided',
+    required: false,
+    nullable: true,
+    example: 'River Way South',
+  })
+  @IsOptional()
+  @IsString()
+  section_id?: string | null;
 }
 
 export class CreateRecreationMapFeaturesDto {

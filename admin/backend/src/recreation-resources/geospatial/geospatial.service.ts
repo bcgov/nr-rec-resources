@@ -20,7 +20,14 @@ type FlatGeometryEntry = {
 const flattenGeometryEntries = (
   geometry: any,
   featureIndex: number,
+  sectionIdBase?: string | null,
 ): FlatGeometryEntry[] => {
+  const normalizedSectionIdBase = sectionIdBase?.trim() || null;
+  const getSectionId = (partIndex: number) =>
+    normalizedSectionIdBase
+      ? `${normalizedSectionIdBase}${partIndex > 1 ? `-${partIndex}` : ''}`
+      : `${featureIndex + 1}-${partIndex}`;
+
   if (!geometry?.type) {
     return [];
   }
@@ -30,7 +37,7 @@ const flattenGeometryEntries = (
       {
         geometry,
         geometryTypeCode: 'P',
-        sectionId: `${featureIndex + 1}-1`,
+        sectionId: getSectionId(1),
       },
     ];
   }
@@ -43,7 +50,7 @@ const flattenGeometryEntries = (
           coordinates: polygonCoordinates,
         },
         geometryTypeCode: 'P',
-        sectionId: `${featureIndex + 1}-${index + 1}`,
+        sectionId: getSectionId(index + 1),
       }),
     );
   }
@@ -53,7 +60,7 @@ const flattenGeometryEntries = (
       {
         geometry,
         geometryTypeCode: 'L',
-        sectionId: `${featureIndex + 1}-1`,
+        sectionId: getSectionId(1),
       },
     ];
   }
@@ -66,7 +73,7 @@ const flattenGeometryEntries = (
           coordinates: lineCoordinates,
         },
         geometryTypeCode: 'L',
-        sectionId: `${featureIndex + 1}-${index + 1}`,
+        sectionId: getSectionId(index + 1),
       }),
     );
   }
@@ -257,8 +264,9 @@ export class GeospatialService {
         );
       }
 
-      const flattenedEntries = payload.features.flatMap((feature, index) =>
-        flattenGeometryEntries(feature.geometry, index),
+      const flattenedEntries: FlatGeometryEntry[] = payload.features.flatMap(
+        (feature, index) =>
+          flattenGeometryEntries(feature.geometry, index, feature.section_id),
       );
 
       if (!flattenedEntries.length) {
@@ -276,7 +284,7 @@ export class GeospatialService {
 
       let nextRmfSkey = Number(max_rmf_skey) + 1;
 
-      for (const [entry] of flattenedEntries.entries()) {
+      for (const entry of flattenedEntries) {
         const rmfSkey = nextRmfSkey;
         nextRmfSkey += 1;
 

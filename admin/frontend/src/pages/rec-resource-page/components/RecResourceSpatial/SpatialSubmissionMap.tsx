@@ -31,7 +31,11 @@ register(proj4);
 
 interface SpatialSubmissionEditorMapProps {
   features: any[];
+  selectedFeatureIndex?: number | null;
+  onFeatureSelect?: (featureIndex: number) => void;
 }
+
+type BaseLayerId = 'default' | 'topographic' | 'hillshade' | 'satellite';
 
 const SOURCE_LAYER_ID = 'submission-editor-layer';
 
@@ -48,7 +52,7 @@ const OPTIONAL_REFERENCE_LAYERS = [
     id: 'bc-forest-tenure-road',
     label: 'BC forest tenure road',
     featureServerUrl:
-      'https://services6.arcgis.com/ubm4tcTYICKBpist/ArcGIS/rest/services/British_Columbia_Forest_Tenure_Road_Section_Lines_-_View/FeatureServer',
+      'https://services6.arcgis.com/ubm4tcTYICKBpist/ArcGIS/rest/services/British_Columbia_Forest_Tenure_Road_Section_Lines_-_View/FeatureServer/3',
     layerId: 3,
     color: '#ff5252',
   },
@@ -56,7 +60,7 @@ const OPTIONAL_REFERENCE_LAYERS = [
     id: 'consolidated-road',
     label: 'Consolidated road',
     featureServerUrl:
-      'https://services6.arcgis.com/ubm4tcTYICKBpist/ArcGIS/rest/services/ConsolidatedRoads_2021_20230111_web/FeatureServer',
+      'https://services6.arcgis.com/ubm4tcTYICKBpist/ArcGIS/rest/services/ConsolidatedRoads_2021_20230111_web/FeatureServer/77',
     layerId: 77,
     color: '#8e24aa',
   },
@@ -92,6 +96,11 @@ const featureStyle = new Style({
   fill: new Fill({ color: 'rgba(25, 118, 210, 0.2)' }),
 });
 
+const selectedFeatureStyle = new Style({
+  stroke: new Stroke({ color: '#ff9800', width: 4 }),
+  fill: new Fill({ color: 'rgba(255, 152, 0, 0.25)' }),
+});
+
 const createReferenceLayerStyle = (color: string): Style =>
   new Style({
     stroke: new Stroke({ color, width: 2 }),
@@ -100,6 +109,8 @@ const createReferenceLayerStyle = (color: string): Style =>
 
 export const SpatialSubmissionMap = ({
   features,
+  selectedFeatureIndex = null,
+  onFeatureSelect,
 }: SpatialSubmissionEditorMapProps) => {
   const mapRef = useRef<{ getMap: () => OLMap } | null>(null);
   const hasAutoFitRef = useRef(false);
@@ -108,9 +119,8 @@ export const SpatialSubmissionMap = ({
   const [enabledReferenceLayerIds, setEnabledReferenceLayerIds] = useState<
     string[]
   >([]);
-  const [selectedBaseLayerId, setSelectedBaseLayerId] = useState<
-    'default' | 'hillshade' | 'satellite'
-  >('satellite');
+  const [selectedBaseLayerId, setSelectedBaseLayerId] =
+    useState<BaseLayerId>('satellite');
   const [showReferenceLayersPanel, setShowReferenceLayersPanel] =
     useState(false);
 
@@ -255,6 +265,57 @@ export const SpatialSubmissionMap = ({
     });
   }, [vectorSource]);
 
+  const fitToSelectedFeature = useCallback(() => {
+    if (selectedFeatureIndex === null || selectedFeatureIndex < 0) return;
+
+    const map = mapRef.current?.getMap();
+    const selectedFeature = vectorSource.getFeatures()[selectedFeatureIndex];
+    const selectedGeometry = selectedFeature?.getGeometry();
+
+    if (!map || !selectedGeometry) return;
+
+    map.getView().fit(selectedGeometry.getExtent(), {
+      padding: [60, 60, 60, 60],
+      maxZoom: 16,
+      duration: 200,
+    });
+  }, [selectedFeatureIndex, vectorSource]);
+
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map || !onFeatureSelect) return;
+
+    const handleSingleClick = (event: any) => {
+      const clickedFeature = map.forEachFeatureAtPixel(
+        event.pixel,
+        (feature, layer) => (layer === editorLayer ? feature : undefined),
+        { hitTolerance: 6 },
+      );
+
+      const featureIndex = clickedFeature?.get('submissionFeatureIndex');
+      if (typeof featureIndex === 'number') {
+        onFeatureSelect(featureIndex);
+      }
+    };
+
+    map.on('singleclick', handleSingleClick);
+
+    return () => {
+      map.un('singleclick', handleSingleClick);
+    };
+  }, [editorLayer, onFeatureSelect]);
+
+  useEffect(() => {
+    vectorSource.getFeatures().forEach((feature, index) => {
+      feature.setStyle(
+        index === selectedFeatureIndex ? selectedFeatureStyle : featureStyle,
+      );
+      feature.changed();
+    });
+
+    editorLayer.changed();
+  }, [editorLayer, selectedFeatureIndex, vectorSource]);
+
   useEffect(() => {
     vectorSource.clear();
 
@@ -268,18 +329,44 @@ export const SpatialSubmissionMap = ({
       featureProjection: MAP_PROJECTION_WEB_MERCATOR,
     });
 
-    const nextFeatures = geoJson.readFeatures({
-      type: 'FeatureCollection',
-      features,
-    });
+    try {
+      const nextFeatures = geoJson.readFeatures({
+        type: 'FeatureCollection',
+        features,
+      });
 
-    vectorSource.addFeatures(nextFeatures);
+      if (nextFeatures.length === 0) {
+        console.warn('[SPATIAL MAP] GeoJSON reader returned 0 features', {
+          inputFeatures: features.length,
+          firstFeature: features[0],
+        });
+      }
 
-    if (!hasAutoFitRef.current) {
-      fitToSourceExtent();
-      hasAutoFitRef.current = true;
+      nextFeatures.forEach((feature, index) => {
+        feature.set('submissionFeatureIndex', index);
+        feature.setStyle(
+          index === selectedFeatureIndex ? selectedFeatureStyle : featureStyle,
+        );
+      });
+
+      vectorSource.addFeatures(nextFeatures);
+
+      if (!hasAutoFitRef.current) {
+        fitToSourceExtent();
+        hasAutoFitRef.current = true;
+      }
+    } catch (error) {
+      console.error('[SPATIAL MAP] Error reading GeoJSON features:', {
+        error,
+        featuresCount: features.length,
+        firstFeature: features[0],
+      });
     }
   }, [features, fitToSourceExtent, vectorSource]);
+
+  useEffect(() => {
+    fitToSelectedFeature();
+  }, [fitToSelectedFeature]);
 
   return (
     <div className="spatial-submission-map">

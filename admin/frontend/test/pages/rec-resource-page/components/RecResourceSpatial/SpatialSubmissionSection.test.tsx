@@ -6,12 +6,13 @@ import { useCreateRecreationResourceMapFeatures } from '@/services/hooks/recreat
 import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 
 const {
-  mockValidateSubmissionMetadata,
   mockValidateGeometry,
   mockReadSpatialFile,
   mockCreateMapFeatures,
+  mockExtractSectionIdDetails,
+  mockPrepareFeatureCollectionForSectionEditing,
+  mockUpdateFeatureSectionId,
 } = vi.hoisted(() => ({
-  mockValidateSubmissionMetadata: vi.fn(() => []),
   mockValidateGeometry: vi.fn((featureCollection, options) => {
     const geometryType = featureCollection?.features?.[0]?.geometry?.type;
     if (
@@ -40,11 +41,14 @@ const {
   })),
   mockReadSpatialFile: vi.fn(async (input: File | File[] | FileList) => {
     const files = input instanceof File ? [input] : Array.from(input);
-    const hasSingleShp =
-      files.length === 1 && files[0].name.toLowerCase().endsWith('.shp');
+    const hasShpUpload = files.some((file) =>
+      file.name.toLowerCase().endsWith('.shp'),
+    );
 
-    if (!hasSingleShp) {
-      throw new Error('Only .shp uploads are supported in this workflow.');
+    if (!hasShpUpload) {
+      throw new Error(
+        'Only .zip or .shp uploads are supported in this workflow.',
+      );
     }
 
     return {
@@ -56,6 +60,7 @@ const {
           properties: {
             OBJECTID: 1,
             DISTRICT: 'DNC',
+            section_id: 'River Way South',
           },
           geometry: {
             type: 'Polygon',
@@ -70,9 +75,88 @@ const {
             ],
           },
         },
+        {
+          type: 'Feature',
+          properties: {
+            OBJECTID: 2,
+            DISTRICT: 'DNC',
+            section_id: 'North Loop 1',
+          },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [1216000, 475000],
+                [1220000, 475000],
+                [1220000, 480000],
+                [1216000, 480000],
+                [1216000, 475000],
+              ],
+            ],
+          },
+        },
       ],
     };
   }),
+  mockExtractSectionIdDetails: vi.fn((featureCollection: any) => {
+    const features = featureCollection?.features ?? [];
+    const featureSectionIds = features.map((feature: any, index: number) => ({
+      featureIndex: index + 1,
+      sectionId: feature.properties?.section_id?.trim() || null,
+    }));
+
+    const sectionIds = featureSectionIds
+      .map((featureSectionId: any) => featureSectionId.sectionId)
+      .filter(Boolean);
+
+    const duplicateIds = sectionIds.filter(
+      (sectionId: string, index: number) =>
+        sectionIds.indexOf(sectionId) !== index,
+    );
+
+    return {
+      fieldName: 'section_id',
+      sectionIds,
+      featureSectionIds,
+      issues: duplicateIds.length
+        ? [
+            {
+              type: 'SECTION_ID',
+              severity: 'ERROR',
+              message: `Duplicate section IDs found: ${duplicateIds.join(', ')}`,
+            },
+          ]
+        : [],
+    };
+  }),
+  mockPrepareFeatureCollectionForSectionEditing: vi.fn(
+    (featureCollection: any) => ({
+      featureCollection,
+      fieldName: 'section_id',
+      sourceFieldName: 'section_id',
+    }),
+  ),
+  mockUpdateFeatureSectionId: vi.fn(
+    (
+      featureCollection: any,
+      featureIndex: number,
+      fieldName: string,
+      nextSectionId: string,
+    ) => ({
+      ...featureCollection,
+      features: featureCollection.features.map((feature: any, index: number) =>
+        index === featureIndex
+          ? {
+              ...feature,
+              properties: {
+                ...feature.properties,
+                [fieldName]: nextSectionId,
+              },
+            }
+          : feature,
+      ),
+    }),
+  ),
 }));
 
 const mockUseAuthContext = vi.fn();
@@ -104,31 +188,42 @@ vi.mock(
     ACTION_CODES: ['I', 'U'],
     ACCURACY_CODES: ['1', '5', '10', '100', '1000'],
     CAPTURE_METHODS: ['GPS', 'DIGITIZE', 'Ortho', 'Mono'],
+    DEFAULT_SECTION_ID_FIELD_NAME: 'section_id',
     DATA_SOURCES: ['AirPhoto', 'TRIM', 'Satellite', 'Survey', 'Unknown'],
-    validateSubmissionMetadata: mockValidateSubmissionMetadata,
+    extractSectionIdDetails: mockExtractSectionIdDetails,
+    prepareFeatureCollectionForSectionEditing:
+      mockPrepareFeatureCollectionForSectionEditing,
     validateGeometry: mockValidateGeometry,
     readSpatialFile: mockReadSpatialFile,
+    updateFeatureSectionId: mockUpdateFeatureSectionId,
   }),
 );
 
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceSpatial/SpatialSubmissionMap',
   () => ({
-    SpatialSubmissionMap: vi.fn(() => (
-      <div data-testid="spatial-editor-map">Spatial preview map</div>
-    )),
+    SpatialSubmissionMap: vi.fn(
+      ({ selectedFeatureIndex, onFeatureSelect }: any) => (
+        <div data-testid="spatial-editor-map">
+          <span data-testid="selected-feature-index">
+            {selectedFeatureIndex ?? 'none'}
+          </span>
+          <button type="button" onClick={() => onFeatureSelect?.(1)}>
+            Select feature 2 from map
+          </button>
+        </div>
+      ),
+    ),
   }),
 );
 
 describe('SpatialSubmissionSection', () => {
-  const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
   const mockUseCreateRecreationResourceMapFeatures = vi.mocked(
     useCreateRecreationResourceMapFeatures,
   );
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockConsoleLog.mockClear();
     mockUseAuthContext.mockReturnValue({
       user: {
         email: 'idir.user@gov.bc.ca',
@@ -228,14 +323,14 @@ describe('SpatialSubmissionSection', () => {
     ).toBeNull();
     expect(screen.getByRole('option', { name: 'Site' })).toBeDefined();
     expect(screen.getByLabelText('REC#')).toHaveAttribute('readonly');
-    expect(screen.getByLabelText('Spatial File')).not.toHaveAttribute(
-      'multiple',
-    );
+    expect(screen.getByLabelText('Spatial File')).toHaveAttribute('multiple');
     expect(screen.getByLabelText('Spatial File')).toHaveAttribute(
       'accept',
-      '.shp',
+      '.zip,.shp,.dbf',
     );
-    expect(screen.getByText(/Select one `\.shp` file/)).toBeDefined();
+    expect(
+      screen.getByText(/Upload one `\.zip` bundle .* matching `\.dbf`/),
+    ).toBeDefined();
   });
 
   it('auto-fills email address and submitter name from the logged-in user', async () => {
@@ -269,13 +364,15 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.click(screen.getByText('Validate Spatial File'));
 
     await waitFor(() => {
-      expect(screen.getByText(/Please upload a \.shp file\./)).toBeDefined();
+      expect(
+        screen.getByText(
+          /Please upload a \.zip shapefile bundle or a \.shp file/i,
+        ),
+      ).toBeDefined();
     });
-
-    expect(mockValidateSubmissionMetadata).not.toHaveBeenCalled();
   });
 
-  it('validates spatial file and shows map in view-only mode', async () => {
+  it('validates spatial file, allows renaming a selected section, and submits edited section ids', async () => {
     render(
       <SpatialSubmissionSection
         recResourceId="REC123"
@@ -318,6 +415,26 @@ describe('SpatialSubmissionSection', () => {
       ).toBeDefined();
     });
 
+    expect(screen.getByText('Sections (2)')).toBeDefined();
+    expect(screen.getByDisplayValue('River Way South')).toBeDefined();
+    expect(screen.getByTestId('selected-feature-index')).toHaveTextContent('0');
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /North Loop 1.*Feature #2/i }),
+    );
+    expect(screen.getByDisplayValue('North Loop 1')).toBeDefined();
+
+    fireEvent.change(screen.getByLabelText('Section ID / name'), {
+      target: { value: 'North Loop Renamed' },
+    });
+
+    expect(screen.getByDisplayValue('North Loop Renamed')).toBeDefined();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Select feature 2 from map' }),
+    );
+    expect(screen.getByDisplayValue('North Loop Renamed')).toBeDefined();
+
     expect(
       screen.getByRole('button', { name: 'Create Request' }),
     ).toBeDefined();
@@ -345,6 +462,22 @@ describe('SpatialSubmissionSection', () => {
                 ],
               ],
             },
+            sectionId: 'River Way South',
+          },
+          {
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [1216000, 475000],
+                  [1220000, 475000],
+                  [1220000, 480000],
+                  [1216000, 480000],
+                  [1216000, 475000],
+                ],
+              ],
+            },
+            sectionId: 'North Loop Renamed',
           },
         ],
       });
@@ -354,22 +487,7 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByText('Validate Spatial File')).toBeDisabled();
     expect(screen.getByText('Create Request')).toBeDisabled();
 
-    expect(mockConsoleLog).toHaveBeenCalledWith(
-      'Extracted shapefile features:',
-      expect.objectContaining({
-        fileName: 'submission.shp',
-        featureCount: 1,
-        features: expect.arrayContaining([
-          expect.objectContaining({
-            geometry: expect.objectContaining({ type: 'Polygon' }),
-          }),
-        ]),
-      }),
-    );
-
     expect(screen.getByTestId('spatial-editor-map')).toBeDefined();
-    expect(screen.queryByText('Download XML')).toBeNull();
-    expect(screen.queryByText('Download Updated ZIP')).toBeNull();
   });
 
   it('replaces the selected shapefile when a new one is chosen', async () => {
@@ -459,6 +577,8 @@ describe('SpatialSubmissionSection', () => {
       expect(screen.getByText(/Unable to parse shapefile/i)).toBeDefined();
     });
 
-    expect(screen.getByText(/Only \.shp uploads are supported/i)).toBeDefined();
+    expect(
+      screen.getByText(/Only \.zip or \.shp uploads are supported/i),
+    ).toBeDefined();
   });
 });
