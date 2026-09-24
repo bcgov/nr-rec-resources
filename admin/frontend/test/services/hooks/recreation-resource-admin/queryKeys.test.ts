@@ -102,6 +102,14 @@ describe('RECREATION_RESOURCE_QUERY_KEYS', () => {
     expect(RECREATION_RESOURCE_QUERY_KEYS.all).toEqual([
       'recreation-resource-admin',
     ]);
+    expect(RECREATION_RESOURCE_QUERY_KEYS.nextRecResourceId()).toEqual([
+      'recreation-resource-admin',
+      'next-rec-resource-id',
+    ]);
+    expect(RECREATION_RESOURCE_QUERY_KEYS.pendingRequests()).toEqual([
+      'recreation-resource-admin',
+      'pending-requests',
+    ]);
     expect(RECREATION_RESOURCE_QUERY_KEYS.exhibitADocs('abc')).toEqual([
       'recreation-resource-admin',
       'exhibit-a-docs',

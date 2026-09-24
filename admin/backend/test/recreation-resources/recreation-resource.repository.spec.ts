@@ -104,6 +104,25 @@ describe('RecreationResourceRepository', () => {
     });
   });
 
+  describe('getNextRecResourceId', () => {
+    it('should return max rec id plus one with zero padding', async () => {
+      prisma.$queryRaw.mockResolvedValue([{ max_id: 123 }]);
+
+      const result = await repo.getNextRecResourceId();
+
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(result).toBe('REC000124');
+    });
+
+    it('should start at REC000001 when no records are found', async () => {
+      prisma.$queryRaw.mockResolvedValue([{ max_id: null }]);
+
+      const result = await repo.getNextRecResourceId();
+
+      expect(result).toBe('REC000001');
+    });
+  });
+
   describe('searchResources', () => {
     it('should query count and page data with normalized filters', async () => {
       const mockData = [{ rec_resource_id: 'REC001' }];
@@ -775,5 +794,42 @@ describe('RecreationResourceRepository', () => {
         }
       },
     );
+  });
+
+  describe('findPendingMapFeatureRequests', () => {
+    it('should return pending map feature request rows with numeric feature_count', async () => {
+      prisma.$queryRaw.mockResolvedValue([
+        {
+          rec_resource_id: 'REC000123',
+          name: 'Test Lake',
+          district_description: 'Test District',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural Test District',
+          recreation_type: 'Recreation Site',
+          amend_status_code: 'PND',
+          feature_count: 3n,
+          requested_at: new Date('2026-09-23T21:27:08.826Z'),
+          geometry_types: ['Polygon'],
+        },
+      ]);
+
+      const result = await repo.findPendingMapFeatureRequests();
+
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(result).toEqual([
+        {
+          rec_resource_id: 'REC000123',
+          name: 'Test Lake',
+          district_description: 'Test District',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural Test District',
+          recreation_type: 'Recreation Site',
+          amend_status_code: 'PND',
+          feature_count: 3,
+          requested_at: new Date('2026-09-23T21:27:08.826Z'),
+          geometry_types: ['Polygon'],
+        },
+      ]);
+    });
   });
 });

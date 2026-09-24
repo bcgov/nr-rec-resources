@@ -38,6 +38,8 @@ models/CreateAgreementHolderDto.ts
 models/CreateRecreationAssetDto.ts
 models/CreateRecreationAssetRepairDto.ts
 models/CreateRecreationFeeDto.ts
+models/CreateRecreationMapFeatureGeometryDto.ts
+models/CreateRecreationMapFeaturesDto.ts
 models/CreateTrailDto.ts
 models/EstablishmentOrderDocDto.ts
 models/ExhibitADocDto.ts
@@ -51,9 +53,12 @@ models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
 models/ImagePresignedUrlDto.ts
 models/ListExportDatasetsResponseDto.ts
+models/NextRecResourceIdDto.ts
 models/OptionDto.ts
 models/OptionsByTypeDto.ts
 models/PaginatedRecreationAssetDto.ts
+models/PendingMapFeatureRequestRowDto.ts
+models/PendingMapFeatureRequestsResponseDto.ts
 models/PresignDocUploadResponseDto.ts
 models/PresignExhibitAUploadResponseDto.ts
 models/PresignImageUploadResponseDto.ts

@@ -80,6 +80,12 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     prismaModel: 'recreation_district_code',
     archivedField: 'is_archived',
   },
+  [OPTION_TYPES.NATURAL_DISTRICT]: {
+    idField: 'org_unit_code',
+    labelField: 'org_unit_name',
+    prismaModel: 'natural_resource_org_unit',
+    distinctFields: ['org_unit_code'],
+  },
   [OPTION_TYPES.PHOTOGRAPHER_TYPE]: {
     idField: 'photographer_type_code',
     labelField: 'description',

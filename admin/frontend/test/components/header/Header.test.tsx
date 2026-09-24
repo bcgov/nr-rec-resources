@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockLogout = vi.fn();
 const mockGetUserFullName = vi.fn(() => 'TEST USER');
+const mockUseAuthorizations = vi.fn(() => ({ isSuperAdmin: true }));
 vi.mock('@/services/auth', () => ({
   logout: () => mockLogout(),
 }));
@@ -26,6 +27,9 @@ vi.mock('@/components/avatar/Avatar', () => ({
   )),
 }));
 vi.mock('@/hooks/useMediaQuery');
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
 vi.mock('@shared/components/environment-banner', () => ({
   EnvironmentBanner: () => (
     <div data-testid="environment-banner">Environment Banner</div>
@@ -35,6 +39,8 @@ vi.mock('@shared/components/environment-banner', () => ({
 describe('Header', () => {
   beforeEach(() => {
     mockLogout.mockClear();
+    mockUseAuthorizations.mockReset();
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
     (useAuthContext as any).mockClear();
     (useAuthContext as any).mockImplementation(() => ({
       user: { idir_username: 'TEST_USER' },
@@ -107,6 +113,16 @@ describe('Header', () => {
     // open dropdown to check mobile-specific login message
     fireEvent.click(screen.getByTestId('menu-toggle'));
     expect(screen.getByText('Signed in as TEST_USER')).toBeInTheDocument();
+    expect(screen.getByText('Create new')).toBeInTheDocument();
+  });
+
+  it('hides Create new in mobile dropdown for non-super-admin users', () => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
+    renderHeader();
+
+    fireEvent.click(screen.getByTestId('menu-toggle'));
+
+    expect(screen.queryByText('Create new')).not.toBeInTheDocument();
   });
 
   it.each([
