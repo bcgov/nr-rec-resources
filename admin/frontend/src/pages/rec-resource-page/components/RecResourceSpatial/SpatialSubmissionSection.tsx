@@ -2,11 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useGetRecreationResourceOptions } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceOptions';
+import { useCreateRecreationResourceMapFeatures } from '@/services/hooks/recreation-resource-admin/useCreateRecreationResourceMapFeatures';
 import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 import {
-  ACCURACY_CODES,
-  CAPTURE_METHODS,
-  DATA_SOURCES,
   readSpatialFile,
   validateGeometry,
   type SubmissionMetadata,
@@ -62,23 +60,45 @@ export const SpatialSubmissionSection = ({
   defaultRecreationDistrict = '',
 }: SpatialSubmissionSectionProps) => {
   const { user, authService } = useAuthContext();
-  const { data: districtOptionGroups, isLoading: areDistrictOptionsLoading } =
-    useGetRecreationResourceOptions([
-      GetOptionsByTypesTypesEnum.NaturalDistrict,
-      GetOptionsByTypesTypesEnum.District,
-      GetOptionsByTypesTypesEnum.ResourceType,
-    ]);
+  const {
+    data: districtOptionGroups,
+    isLoading: areDistrictOptionsLoading,
+    isError: areDistrictOptionsErrored,
+  } = useGetRecreationResourceOptions([
+    GetOptionsByTypesTypesEnum.NaturalDistrict,
+    GetOptionsByTypesTypesEnum.District,
+    GetOptionsByTypesTypesEnum.ResourceType,
+  ]);
   const [values, setValues] = useState<WizardValues>(defaultValues);
   const [file, setFile] = useState<File | null>(null);
   const [issues, setIssues] = useState<ValidationIssue[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [createStatus, setCreateStatus] = useState<{
+    variant: 'success' | 'danger';
+    message: string;
+  } | null>(null);
   const [editableFeatureCollection, setEditableFeatureCollection] = useState<
     any | null
   >(null);
+  const { mutateAsync: createMapFeatures, isPending: isCreatingRequest } =
+    useCreateRecreationResourceMapFeatures();
+  const requestCreated = createStatus?.variant === 'success';
 
-  const [naturalDistrictOptionsResponse, recreationDistrictOptionsResponse] =
-    districtOptionGroups ?? [];
-  const resourceTypeOptionsResponse = districtOptionGroups?.[2];
+  const optionGroupsByType = useMemo(() => {
+    return new Map(
+      (districtOptionGroups ?? []).map((group) => [group.type, group]),
+    );
+  }, [districtOptionGroups]);
+
+  const naturalDistrictOptionsResponse = optionGroupsByType.get(
+    GetOptionsByTypesTypesEnum.NaturalDistrict,
+  );
+  const recreationDistrictOptionsResponse = optionGroupsByType.get(
+    GetOptionsByTypesTypesEnum.District,
+  );
+  const resourceTypeOptionsResponse = optionGroupsByType.get(
+    GetOptionsByTypesTypesEnum.ResourceType,
+  );
 
   const naturalResourceDistrictOptions = useMemo(
     () =>
@@ -144,6 +164,8 @@ export const SpatialSubmissionSection = ({
     const [nextFile] = Array.from(event.target.files ?? []);
     setFile(nextFile ?? null);
     setEditableFeatureCollection(null);
+    setIssues([]);
+    setCreateStatus(null);
   };
 
   const handleValidateSpatialFile = async () => {
@@ -216,6 +238,49 @@ export const SpatialSubmissionSection = ({
     }
   };
 
+  const handleCreateRequest = async () => {
+    if (!editableFeatureCollection?.features?.length) {
+      setCreateStatus({
+        variant: 'danger',
+        message: 'Please validate a shapefile before creating the request.',
+      });
+      return;
+    }
+
+    try {
+      setCreateStatus(null);
+
+      await createMapFeatures({
+        recResourceId,
+        features: editableFeatureCollection.features.map((feature: any) => ({
+          geometry: feature.geometry,
+        })),
+        recreationTypeCode: values.recreationType || undefined,
+        naturalResourceDistrictCode: values.metadata.districtCode || undefined,
+        recreationDistrictCode: values.metadata.recreationDistrict || undefined,
+        submittedBy:
+          values.metadata.contactName || values.metadata.email || undefined,
+      });
+
+      setCreateStatus({
+        variant: 'success',
+        message: 'Map feature request created successfully.',
+      });
+    } catch (error) {
+      setCreateStatus({
+        variant: 'danger',
+        message:
+          error instanceof Error
+            ? `Unable to create request: ${error.message}`
+            : 'Unable to create request.',
+      });
+    }
+  };
+
+  const canCreateRequest =
+    Boolean(editableFeatureCollection?.features?.length) &&
+    !issues.some((issue) => issue.severity === 'ERROR');
+
   return (
     <Card>
       <div className="exhibit-a-section__header">
@@ -225,9 +290,9 @@ export const SpatialSubmissionSection = ({
         <Row className="gy-3">
           <Col xs={12} md={6}>
             <Form.Group>
-              <Form.Label>Recreation Type</Form.Label>
+              <Form.Label>Recreation type</Form.Label>
               <Form.Select
-                aria-label="Recreation Type"
+                aria-label="Recreation type"
                 value={values.recreationType}
                 onChange={(e) =>
                   setValues((prev) => ({
@@ -238,7 +303,7 @@ export const SpatialSubmissionSection = ({
               >
                 <option value="">
                   {recreationTypeOptions.length
-                    ? 'Select recreation type'
+                    ? 'Select Recreation type'
                     : 'Loading recreation types...'}
                 </option>
                 {recreationTypeOptions.map((typeOption) => (
@@ -252,9 +317,9 @@ export const SpatialSubmissionSection = ({
 
           <Col xs={12} md={6}>
             <Form.Group>
-              <Form.Label>Feature Type</Form.Label>
+              <Form.Label>Feature type</Form.Label>
               <Form.Select
-                aria-label="Feature Type"
+                aria-label="Feature type"
                 value={values.featureType}
                 onChange={(e) =>
                   setValues((prev) => ({
@@ -324,7 +389,7 @@ export const SpatialSubmissionSection = ({
                 {naturalResourceDistrictOptions.map((district) => (
                   <option
                     key={district.id ?? district.label}
-                    value={district.label}
+                    value={district.id}
                   >
                     {district.label}
                   </option>
@@ -352,7 +417,7 @@ export const SpatialSubmissionSection = ({
                 {recreationDistrictOptions.map((district) => (
                   <option
                     key={district.id ?? district.label}
-                    value={district.label}
+                    value={district.id}
                   >
                     {district.label}
                   </option>
@@ -387,56 +452,56 @@ export const SpatialSubmissionSection = ({
             </Form.Group>
           </Col>
 
-          <Col xs={12} md={4}>
-            <Form.Group>
-              <Form.Label>Accuracy Code</Form.Label>
-              <Form.Select
-                aria-label="Accuracy Code"
-                value={values.metadata.accuracyCode}
-                onChange={(e) => setMetadata('accuracyCode', e.target.value)}
-              >
-                {ACCURACY_CODES.map((code) => (
-                  <option key={code} value={code}>
-                    {code}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
+          {/*<Col xs={12} md={4}>*/}
+          {/*  <Form.Group>*/}
+          {/*    <Form.Label>Accuracy Code</Form.Label>*/}
+          {/*    <Form.Select*/}
+          {/*      aria-label="Accuracy Code"*/}
+          {/*      value={values.metadata.accuracyCode}*/}
+          {/*      onChange={(e) => setMetadata('accuracyCode', e.target.value)}*/}
+          {/*    >*/}
+          {/*      {ACCURACY_CODES.map((code) => (*/}
+          {/*        <option key={code} value={code}>*/}
+          {/*          {code}*/}
+          {/*        </option>*/}
+          {/*      ))}*/}
+          {/*    </Form.Select>*/}
+          {/*  </Form.Group>*/}
+          {/*</Col>*/}
 
-          <Col xs={12} md={4}>
-            <Form.Group>
-              <Form.Label>Capture Method</Form.Label>
-              <Form.Select
-                aria-label="Capture Method"
-                value={values.metadata.captureMethod}
-                onChange={(e) => setMetadata('captureMethod', e.target.value)}
-              >
-                {CAPTURE_METHODS.map((method) => (
-                  <option key={method} value={method}>
-                    {method}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
+          {/*<Col xs={12} md={4}>*/}
+          {/*  <Form.Group>*/}
+          {/*    <Form.Label>Capture Method</Form.Label>*/}
+          {/*    <Form.Select*/}
+          {/*      aria-label="Capture Method"*/}
+          {/*      value={values.metadata.captureMethod}*/}
+          {/*      onChange={(e) => setMetadata('captureMethod', e.target.value)}*/}
+          {/*    >*/}
+          {/*      {CAPTURE_METHODS.map((method) => (*/}
+          {/*        <option key={method} value={method}>*/}
+          {/*          {method}*/}
+          {/*        </option>*/}
+          {/*      ))}*/}
+          {/*    </Form.Select>*/}
+          {/*  </Form.Group>*/}
+          {/*</Col>*/}
 
-          <Col xs={12} md={6}>
-            <Form.Group>
-              <Form.Label>Data Source</Form.Label>
-              <Form.Select
-                aria-label="Data Source"
-                value={values.metadata.dataSource}
-                onChange={(e) => setMetadata('dataSource', e.target.value)}
-              >
-                {DATA_SOURCES.map((source) => (
-                  <option key={source} value={source}>
-                    {source}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
+          {/*<Col xs={12} md={6}>*/}
+          {/*  <Form.Group>*/}
+          {/*    <Form.Label>Data Source</Form.Label>*/}
+          {/*    <Form.Select*/}
+          {/*      aria-label="Data Source"*/}
+          {/*      value={values.metadata.dataSource}*/}
+          {/*      onChange={(e) => setMetadata('dataSource', e.target.value)}*/}
+          {/*    >*/}
+          {/*      {DATA_SOURCES.map((source) => (*/}
+          {/*        <option key={source} value={source}>*/}
+          {/*          {source}*/}
+          {/*        </option>*/}
+          {/*      ))}*/}
+          {/*    </Form.Select>*/}
+          {/*  </Form.Group>*/}
+          {/*</Col>*/}
 
           <Col xs={12} md={6}>
             <Form.Group>
@@ -446,6 +511,7 @@ export const SpatialSubmissionSection = ({
                 type="file"
                 accept=".shp"
                 onChange={handleSpatialFilesChange}
+                disabled={requestCreated}
               />
               <Form.Text muted>
                 Select one `.shp` file for preview and spatial validation.
@@ -467,7 +533,7 @@ export const SpatialSubmissionSection = ({
           <Col xs={12} className="d-flex gap-2">
             <Button
               variant="primary"
-              disabled={isProcessing}
+              disabled={isProcessing || requestCreated}
               onClick={handleValidateSpatialFile}
             >
               {isProcessing ? (
@@ -477,6 +543,22 @@ export const SpatialSubmissionSection = ({
                 </>
               ) : (
                 'Validate Spatial File'
+              )}
+            </Button>
+            <Button
+              variant="success"
+              disabled={
+                !canCreateRequest || isCreatingRequest || requestCreated
+              }
+              onClick={handleCreateRequest}
+            >
+              {isCreatingRequest ? (
+                <>
+                  <Spinner as="span" size="sm" className="me-2" />
+                  Creating request...
+                </>
+              ) : (
+                'Create Request'
               )}
             </Button>
           </Col>
@@ -506,6 +588,18 @@ export const SpatialSubmissionSection = ({
               Spatial file validated successfully.
             </Alert>
           )}
+
+        {createStatus && (
+          <Alert className="mt-3 mb-0" variant={createStatus.variant}>
+            {createStatus.message}
+          </Alert>
+        )}
+
+        {areDistrictOptionsErrored ? (
+          <Alert className="mt-3 mb-0" variant="warning">
+            Unable to load district/type options. Please refresh and try again.
+          </Alert>
+        ) : null}
       </div>
     </Card>
   );

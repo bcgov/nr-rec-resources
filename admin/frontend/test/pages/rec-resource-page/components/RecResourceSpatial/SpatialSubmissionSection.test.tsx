@@ -2,11 +2,14 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SpatialSubmissionSection } from '@/pages/rec-resource-page/components/RecResourceSpatial/SpatialSubmissionSection';
 import { useGetRecreationResourceOptions } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceOptions';
+import { useCreateRecreationResourceMapFeatures } from '@/services/hooks/recreation-resource-admin/useCreateRecreationResourceMapFeatures';
+import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 
 const {
   mockValidateSubmissionMetadata,
   mockValidateGeometry,
   mockReadSpatialFile,
+  mockCreateMapFeatures,
 } = vi.hoisted(() => ({
   mockValidateSubmissionMetadata: vi.fn(() => []),
   mockValidateGeometry: vi.fn((featureCollection, options) => {
@@ -25,6 +28,16 @@ const {
     }
     return [];
   }),
+  mockCreateMapFeatures: vi.fn(async () => ({
+    rec_resource_id: 'REC123',
+    spatial_feature_geometry: ['{"type":"Polygon","coordinates":[]}'],
+    site_point_geometry: undefined,
+    utm_zone: null,
+    utm_easting: null,
+    utm_northing: null,
+    latitude: null,
+    longitude: null,
+  })),
   mockReadSpatialFile: vi.fn(async (input: File | File[] | FileList) => {
     const files = input instanceof File ? [input] : Array.from(input);
     const hasSingleShp =
@@ -79,6 +92,13 @@ vi.mock(
 );
 
 vi.mock(
+  '@/services/hooks/recreation-resource-admin/useCreateRecreationResourceMapFeatures',
+  () => ({
+    useCreateRecreationResourceMapFeatures: vi.fn(),
+  }),
+);
+
+vi.mock(
   '@/pages/rec-resource-page/components/RecResourceSpatial/spatialSubmissionUtils',
   () => ({
     ACTION_CODES: ['I', 'U'],
@@ -102,6 +122,9 @@ vi.mock(
 
 describe('SpatialSubmissionSection', () => {
   const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+  const mockUseCreateRecreationResourceMapFeatures = vi.mocked(
+    useCreateRecreationResourceMapFeatures,
+  );
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -117,6 +140,7 @@ describe('SpatialSubmissionSection', () => {
     mockUseGetRecreationResourceOptions.mockReturnValue({
       data: [
         {
+          type: GetOptionsByTypesTypesEnum.NaturalDistrict,
           options: [
             {
               id: 'DCC',
@@ -129,6 +153,7 @@ describe('SpatialSubmissionSection', () => {
           ],
         },
         {
+          type: GetOptionsByTypesTypesEnum.District,
           options: [
             {
               id: 'RDCC',
@@ -143,6 +168,7 @@ describe('SpatialSubmissionSection', () => {
           ],
         },
         {
+          type: GetOptionsByTypesTypesEnum.ResourceType,
           options: [
             {
               id: 'SIT',
@@ -159,22 +185,28 @@ describe('SpatialSubmissionSection', () => {
       error: null,
       refetch: vi.fn(),
     } as any);
+    mockUseCreateRecreationResourceMapFeatures.mockReturnValue({
+      mutateAsync: mockCreateMapFeatures,
+      isPending: false,
+    } as any);
   });
 
-  it('renders wizard and shows live district options', () => {
+  it('renders wizard and shows live district options', async () => {
     render(
       <SpatialSubmissionSection
         recResourceId="REC123"
         defaultRecreationTypeCode="SIT"
-        defaultNaturalResourceDistrict="Chilliwack Natural Resource District"
-        defaultRecreationDistrict="Chilliwack Recreation District"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
       />,
     );
 
-    expect(screen.getByText('Spatial Submission Wizard')).toBeDefined();
-    expect(screen.getByLabelText('Recreation Type')).toBeDefined();
-    expect(screen.getByLabelText('Recreation Type')).toHaveValue('SIT');
-    expect(screen.getByLabelText('Feature Type')).toHaveValue('Polygon');
+    expect(screen.getByText('Spatial submission')).toBeDefined();
+    expect(screen.getByLabelText(/recreation type/i)).toBeDefined();
+    await waitFor(() => {
+      expect(screen.getByLabelText(/recreation type/i)).toHaveValue('SIT');
+    });
+    expect(screen.getByLabelText('Feature type')).toHaveValue('Polygon');
     expect(screen.getByRole('option', { name: 'Linear' })).toBeDefined();
     expect(screen.getByRole('option', { name: 'Polygon' })).toBeDefined();
     expect(
@@ -188,11 +220,9 @@ describe('SpatialSubmissionSection', () => {
       }),
     ).toBeDefined();
     expect(screen.getByLabelText('Natural Resource District')).toHaveValue(
-      'Chilliwack Natural Resource District',
+      'DCC',
     );
-    expect(screen.getByLabelText('Recreation District')).toHaveValue(
-      'Chilliwack Recreation District',
-    );
+    expect(screen.getByLabelText('Recreation District')).toHaveValue('RDCC');
     expect(
       screen.queryByRole('option', { name: 'Archived Recreation District' }),
     ).toBeNull();
@@ -213,8 +243,8 @@ describe('SpatialSubmissionSection', () => {
       <SpatialSubmissionSection
         recResourceId="REC123"
         defaultRecreationTypeCode="SIT"
-        defaultNaturalResourceDistrict="Chilliwack Natural Resource District"
-        defaultRecreationDistrict="Chilliwack Recreation District"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
       />,
     );
 
@@ -231,8 +261,8 @@ describe('SpatialSubmissionSection', () => {
       <SpatialSubmissionSection
         recResourceId="REC123"
         defaultRecreationTypeCode="SIT"
-        defaultNaturalResourceDistrict="Chilliwack Natural Resource District"
-        defaultRecreationDistrict="Chilliwack Recreation District"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
       />,
     );
 
@@ -250,12 +280,12 @@ describe('SpatialSubmissionSection', () => {
       <SpatialSubmissionSection
         recResourceId="REC123"
         defaultRecreationTypeCode="SIT"
-        defaultNaturalResourceDistrict="Chilliwack Natural Resource District"
-        defaultRecreationDistrict="Chilliwack Recreation District"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
       />,
     );
 
-    fireEvent.change(screen.getByLabelText('Recreation Type'), {
+    fireEvent.change(screen.getByLabelText(/recreation type/i), {
       target: { value: 'RTE' },
     });
     fireEvent.change(screen.getByLabelText('Email Address'), {
@@ -268,10 +298,10 @@ describe('SpatialSubmissionSection', () => {
       target: { value: 'Valid User' },
     });
     fireEvent.change(screen.getByLabelText('Natural Resource District'), {
-      target: { value: 'Chilliwack Natural Resource District' },
+      target: { value: 'DCC' },
     });
     fireEvent.change(screen.getByLabelText('Recreation District'), {
-      target: { value: 'Chilliwack Recreation District' },
+      target: { value: 'RDCC' },
     });
 
     const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
@@ -287,6 +317,42 @@ describe('SpatialSubmissionSection', () => {
         screen.getByText('Spatial file validated successfully.'),
       ).toBeDefined();
     });
+
+    expect(
+      screen.getByRole('button', { name: 'Create Request' }),
+    ).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+
+    await waitFor(() => {
+      expect(mockCreateMapFeatures).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        recreationTypeCode: 'RTE',
+        naturalResourceDistrictCode: 'DCC',
+        recreationDistrictCode: 'RDCC',
+        submittedBy: 'Valid User',
+        features: [
+          {
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [1210000, 475000],
+                  [1215000, 475000],
+                  [1215000, 480000],
+                  [1210000, 480000],
+                  [1210000, 475000],
+                ],
+              ],
+            },
+          },
+        ],
+      });
+    });
+
+    expect(screen.getByLabelText('Spatial File')).toBeDisabled();
+    expect(screen.getByText('Validate Spatial File')).toBeDisabled();
+    expect(screen.getByText('Create Request')).toBeDisabled();
 
     expect(mockConsoleLog).toHaveBeenCalledWith(
       'Extracted shapefile features:',
@@ -311,8 +377,8 @@ describe('SpatialSubmissionSection', () => {
       <SpatialSubmissionSection
         recResourceId="REC123"
         defaultRecreationTypeCode="SIT"
-        defaultNaturalResourceDistrict="Chilliwack Natural Resource District"
-        defaultRecreationDistrict="Chilliwack Recreation District"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
       />,
     );
 
@@ -336,12 +402,12 @@ describe('SpatialSubmissionSection', () => {
       <SpatialSubmissionSection
         recResourceId="REC123"
         defaultRecreationTypeCode="SIT"
-        defaultNaturalResourceDistrict="Chilliwack Natural Resource District"
-        defaultRecreationDistrict="Chilliwack Recreation District"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
       />,
     );
 
-    fireEvent.change(screen.getByLabelText('Feature Type'), {
+    fireEvent.change(screen.getByLabelText('Feature type'), {
       target: { value: 'LineString' },
     });
     fireEvent.change(screen.getByLabelText('Email Address'), {
@@ -376,8 +442,8 @@ describe('SpatialSubmissionSection', () => {
       <SpatialSubmissionSection
         recResourceId="REC123"
         defaultRecreationTypeCode="SIT"
-        defaultNaturalResourceDistrict="Chilliwack Natural Resource District"
-        defaultRecreationDistrict="Chilliwack Recreation District"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
       />,
     );
 
