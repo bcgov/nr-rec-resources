@@ -1,5 +1,6 @@
 import { plainToClass, Transform } from 'class-transformer';
 import {
+  IsBooleanString,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -91,6 +92,11 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   RST_STORAGE_CONSENT_FORMS_BUCKET: string;
 
+  // BCGW layer exports written to S3 by the scheduled export job
+  @IsString()
+  @IsNotEmpty()
+  BCGW_EXPORTS_BUCKET: string;
+
   @IsString()
   @IsNotEmpty()
   AWS_REGION: string;
@@ -104,6 +110,16 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   RST_STORAGE_CLOUDFRONT_URL: string;
+
+  // BCGW export schedule. Disabled by default so local dev and tests do not
+  // run the job on boot; trigger it manually via POST /api/v1/bcgw/export.
+  @IsOptional()
+  @IsBooleanString()
+  BCGW_EXPORT_ENABLED?: string;
+
+  @IsOptional()
+  @IsString()
+  BCGW_EXPORT_CRON?: string;
 }
 
 export function validate(config: Record<string, unknown>) {
