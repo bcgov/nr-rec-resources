@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CreateNewRouteImport } from './routes/create-new'
 import { Route as ExportsRouteImport } from './routes/exports'
+import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as RecResourceIdRouteImport } from './routes/rec-resource/$id'
 import { Route as RecResourceIdIndexRouteImport } from './routes/rec-resource/$id/index'
 import { Route as RecResourceIdFilesRouteImport } from './routes/rec-resource/$id/files'
@@ -45,6 +46,11 @@ const CreateNewRoute = CreateNewRouteImport.update({
 const ExportsRoute = ExportsRouteImport.update({
   id: '/exports',
   path: '/exports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestsRoute = RequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecResourceIdRoute = RecResourceIdRouteImport.update({
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create-new': typeof CreateNewRoute
   '/exports': typeof ExportsRoute
+  '/requests': typeof RequestsRoute
   '/rec-resource/$id': typeof RecResourceIdRouteWithChildren
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create-new': typeof CreateNewRoute
   '/exports': typeof ExportsRoute
+  '/requests': typeof RequestsRoute
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id': typeof RecResourceIdIndexRoute
   '/rec-resource/$id/activities-features/edit': typeof RecResourceIdActivitiesFeaturesEditRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/create-new': typeof CreateNewRoute
   '/exports': typeof ExportsRoute
+  '/requests': typeof RequestsRoute
   '/rec-resource/$id': typeof RecResourceIdRouteWithChildren
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
@@ -234,6 +243,7 @@ export interface FileRouteTypes {
     | '/'
     | '/create-new'
     | '/exports'
+    | '/requests'
     | '/rec-resource/$id'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/'
     | '/create-new'
     | '/exports'
+    | '/requests'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id'
     | '/rec-resource/$id/activities-features/edit'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/'
     | '/create-new'
     | '/exports'
+    | '/requests'
     | '/rec-resource/$id'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
@@ -306,6 +318,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateNewRoute: typeof CreateNewRoute
   ExportsRoute: typeof ExportsRoute
+  RequestsRoute: typeof RequestsRoute
   RecResourceIdRoute: typeof RecResourceIdRouteWithChildren
 }
 
@@ -330,6 +343,13 @@ declare module '@tanstack/react-router' {
       path: '/exports'
       fullPath: '/exports'
       preLoaderRoute: typeof ExportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requests': {
+      id: '/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof RequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rec-resource/$id': {
@@ -520,6 +540,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateNewRoute: CreateNewRoute,
   ExportsRoute: ExportsRoute,
+  RequestsRoute: RequestsRoute,
   RecResourceIdRoute: RecResourceIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport

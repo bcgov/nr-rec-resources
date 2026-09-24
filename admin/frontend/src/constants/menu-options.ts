@@ -23,6 +23,13 @@ export const menuLinks = [
     superAdminOnly: true,
   },
   {
+    url: ROUTE_PATHS.REQUESTS,
+    text: 'Requests',
+    icon: '/images/sidebar/requests-icon.svg',
+    iconAlt: 'Requests Icon',
+    superAdminOnly: true,
+  },
+  {
     url: ROUTE_PATHS.EXPORTS,
     text: 'Export',
     icon: '/images/sidebar/export-icon.svg',

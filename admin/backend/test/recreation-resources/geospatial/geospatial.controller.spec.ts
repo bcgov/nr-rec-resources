@@ -13,6 +13,7 @@ describe('GeospatialController', () => {
     geospatialServiceMock = {
       findGeospatialDataById: vi.fn(),
       updateGeospatialData: vi.fn(),
+      createMapFeaturesFromValidatedFile: vi.fn(),
     };
 
     controller = new GeospatialController(
@@ -127,5 +128,47 @@ describe('GeospatialController', () => {
         /Geospatial data not found for this recreation resource after update/i,
       );
     }
+  });
+
+  it('createMapFeatures calls service.createMapFeaturesFromValidatedFile and returns updated payload', async () => {
+    const body = {
+      features: [
+        {
+          geometry: {
+            type: 'Polygon',
+            coordinates: [],
+          },
+        },
+      ],
+    };
+
+    (
+      geospatialServiceMock.createMapFeaturesFromValidatedFile as any
+    ).mockResolvedValue(undefined);
+
+    const returned: RecreationResourceGeospatialDto = {
+      rec_resource_id: 'REC300',
+      spatial_feature_geometry: ['{"type":"Polygon","coordinates":[]}'],
+      site_point_geometry: undefined,
+      utm_zone: null,
+      utm_easting: null,
+      utm_northing: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    (geospatialServiceMock.findGeospatialDataById as any).mockResolvedValue(
+      returned,
+    );
+
+    const res = await controller.createMapFeatures('REC300', body as any);
+
+    expect(
+      geospatialServiceMock.createMapFeaturesFromValidatedFile,
+    ).toHaveBeenCalledWith('REC300', body);
+    expect(geospatialServiceMock.findGeospatialDataById).toHaveBeenCalledWith(
+      'REC300',
+    );
+    expect(res).toEqual(returned);
   });
 });

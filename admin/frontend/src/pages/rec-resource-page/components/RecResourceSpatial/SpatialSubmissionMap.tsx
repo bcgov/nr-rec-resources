@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Form } from 'react-bootstrap';
-import { VectorFeatureMap, useStyledLayer } from '@bcgov/prp-map';
+import { Form } from 'react-bootstrap';
+import { VectorFeatureMap } from '@bcgov/prp-map';
 import EsriJSON from 'ol/format/EsriJSON';
 import { GeoJSON } from 'ol/format';
 import BaseLayer from 'ol/layer/Base';
@@ -16,9 +16,12 @@ import { Fill, Stroke, Style } from 'ol/style';
 import proj4 from 'proj4';
 import { register } from 'ol/proj/proj4';
 import {
+  BASE_LAYER_URLS,
   MAP_PROJECTION_BC_ALBERS,
   MAP_PROJECTION_WEB_MERCATOR,
 } from '@shared/components/recreation-resource-map/constants';
+import { useBaseMapStyledLayers } from '@shared/components/recreation-resource-map';
+import './SpatialSubmissionMap.scss';
 
 proj4.defs(
   MAP_PROJECTION_BC_ALBERS,
@@ -31,12 +34,6 @@ interface SpatialSubmissionEditorMapProps {
 }
 
 const SOURCE_LAYER_ID = 'submission-editor-layer';
-const ESRI_WORLD_IMAGERY_TILE_URL =
-  'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-const CANADA_TOPO_VECTOR_TILE_URL =
-  'https://tiles.arcgis.com/tiles/B6yKvIZqzuOr0jBR/arcgis/rest/services/Canada_Topographic/VectorTileServer/tile/{z}/{y}/{x}.pbf';
-const CANADA_TOPO_STYLE_URL =
-  'https://www.arcgis.com/sharing/rest/content/items/85e2f70a08494305b60af53bd6fd5cbe/resources/styles/root.json';
 
 const OPTIONAL_REFERENCE_LAYERS = [
   {
@@ -45,7 +42,7 @@ const OPTIONAL_REFERENCE_LAYERS = [
     featureServerUrl:
       'https://services6.arcgis.com/ubm4tcTYICKBpist/ArcGIS/rest/services/DITG_2020_PrivateLand/FeatureServer/5',
     layerId: 5,
-    color: '#ff9800',
+    color: '#ff0033',
   },
   {
     id: 'bc-forest-tenure-road',
@@ -111,15 +108,46 @@ export const SpatialSubmissionMap = ({
   const [enabledReferenceLayerIds, setEnabledReferenceLayerIds] = useState<
     string[]
   >([]);
+  const [selectedBaseLayerId, setSelectedBaseLayerId] = useState<
+    'default' | 'hillshade' | 'satellite'
+  >('satellite');
+  const [showReferenceLayersPanel, setShowReferenceLayersPanel] =
+    useState(false);
 
-  const canadaTopographicLayerBasic = useStyledLayer(
-    CANADA_TOPO_VECTOR_TILE_URL,
-    CANADA_TOPO_STYLE_URL,
-    'esri',
-  );
+  const { prpBaseLayer, canadaTopographicLayerBasic, worldBasemapV2Layer } =
+    useBaseMapStyledLayers();
 
   const baseLayers = useMemo(
     () => [
+      {
+        id: 'default',
+        name: 'Default',
+        layer: prpBaseLayer,
+      },
+      {
+        id: 'topographic',
+        name: 'Topographic',
+        layer: canadaTopographicLayerBasic,
+      },
+      {
+        id: 'hillshade',
+        name: 'Hillshade',
+        layer: new LayerGroup({
+          layers: [
+            new TileLayer({
+              source: new XYZ({
+                url: BASE_LAYER_URLS.CANADA_HILLSHADE_TILE_LAYER,
+                attributions: 'Esri Canada Hillshade',
+                cacheSize: 1024,
+              }),
+              preload: 4,
+              useInterimTilesOnError: true,
+            }),
+            worldBasemapV2Layer,
+            canadaTopographicLayerBasic,
+          ] as BaseLayer[],
+        }),
+      },
       {
         id: 'satellite',
         name: 'Satellite',
@@ -127,7 +155,7 @@ export const SpatialSubmissionMap = ({
           layers: [
             new TileLayer({
               source: new XYZ({
-                url: ESRI_WORLD_IMAGERY_TILE_URL,
+                url: BASE_LAYER_URLS.ESRI_WORLD_IMAGERY_LAYER,
                 attributions: 'Esri World Imagery',
                 cacheSize: 512,
                 maxZoom: 18,
@@ -140,7 +168,12 @@ export const SpatialSubmissionMap = ({
         }),
       },
     ],
-    [canadaTopographicLayerBasic],
+    [prpBaseLayer, canadaTopographicLayerBasic, worldBasemapV2Layer],
+  );
+
+  const selectedBaseLayers = useMemo(
+    () => baseLayers.filter((layer) => layer.id === selectedBaseLayerId),
+    [baseLayers, selectedBaseLayerId],
   );
 
   const editorLayer = useMemo(
@@ -249,32 +282,90 @@ export const SpatialSubmissionMap = ({
   }, [features, fitToSourceExtent, vectorSource]);
 
   return (
-    <div>
-      <Alert variant="light" className="py-2 px-3 mb-2">
-        <strong>Reference layers</strong>
-        <div className="d-flex flex-wrap gap-3 mt-2">
-          {OPTIONAL_REFERENCE_LAYERS.map((layer) => (
-            <Form.Check
-              key={layer.id}
-              type="checkbox"
-              id={`layer-toggle-${layer.id}`}
-              label={layer.label}
-              checked={enabledReferenceLayerIds.includes(layer.id)}
-              onChange={() => toggleReferenceLayer(layer.id)}
-            />
-          ))}
-        </div>
-      </Alert>
+    <div className="spatial-submission-map">
+      <div className="spatial-submission-map__overlay-controls">
+        <button
+          type="button"
+          className="spatial-submission-map__layers-button"
+          aria-label="Toggle reference layers"
+          onClick={() => setShowReferenceLayersPanel((current) => !current)}
+        >
+          <i className="fas fa-layer-group" aria-hidden="true" />
+        </button>
 
-      <VectorFeatureMap
-        ref={mapRef}
-        style={{ height: '48vh', minHeight: '420px', maxHeight: '560px' }}
-        layers={layers}
-        baseLayers={baseLayers}
-        defaultZoom={12}
-        minZoom={5.5}
-        maxZoom={18}
-      />
+        {showReferenceLayersPanel && (
+          <div className="spatial-submission-map__layers-panel">
+            <strong>Base layer</strong>
+            <div className="d-flex flex-column gap-1 mt-2">
+              <Form.Check
+                type="radio"
+                id="base-layer-default"
+                label="Default"
+                name="base-layer"
+                checked={selectedBaseLayerId === 'default'}
+                onChange={() => setSelectedBaseLayerId('default')}
+              />
+              <Form.Check
+                type="radio"
+                id="base-layer-topographic"
+                label="Topographic"
+                name="base-layer"
+                checked={selectedBaseLayerId === 'topographic'}
+                onChange={() => setSelectedBaseLayerId('topographic')}
+              />
+              <Form.Check
+                type="radio"
+                id="base-layer-hillshade"
+                label="Hillshade"
+                name="base-layer"
+                checked={selectedBaseLayerId === 'hillshade'}
+                onChange={() => setSelectedBaseLayerId('hillshade')}
+              />
+              <Form.Check
+                type="radio"
+                id="base-layer-satellite"
+                label="Satellite"
+                name="base-layer"
+                checked={selectedBaseLayerId === 'satellite'}
+                onChange={() => setSelectedBaseLayerId('satellite')}
+              />
+            </div>
+
+            <hr className="my-2" />
+            <strong>Reference layers</strong>
+            <div className="d-flex flex-column gap-1 mt-2">
+              {OPTIONAL_REFERENCE_LAYERS.map((layer) => (
+                <Form.Check
+                  key={layer.id}
+                  type="checkbox"
+                  id={`layer-toggle-${layer.id}`}
+                  label={layer.label}
+                  checked={enabledReferenceLayerIds.includes(layer.id)}
+                  onChange={() => toggleReferenceLayer(layer.id)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="spatial-submission-map__canvas">
+        <VectorFeatureMap
+          key={`base-layer-${selectedBaseLayerId}`}
+          ref={mapRef}
+          style={{
+            position: 'relative',
+            height: '48vh',
+            minHeight: '420px',
+            maxHeight: '560px',
+          }}
+          layers={layers}
+          baseLayers={selectedBaseLayers}
+          defaultZoom={15}
+          minZoom={5.5}
+          maxZoom={30}
+        />
+      </div>
     </div>
   );
 };
