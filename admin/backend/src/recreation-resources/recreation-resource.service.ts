@@ -19,6 +19,10 @@ import {
   SuggestionsResponseDto,
 } from './dtos/suggestions-response.dto';
 import { NextRecResourceIdDto } from './dtos/next-rec-resource-id.dto';
+import {
+  PendingMapFeatureRequestRowDto,
+  PendingMapFeatureRequestsResponseDto,
+} from './dtos/pending-map-feature-requests-response.dto';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { OPEN_STATUS } from './recreation-resource.constants';
 import { RecreationResourceRepository } from './recreation-resource.repository';
@@ -266,5 +270,28 @@ export class RecreationResourceService {
     } | null;
   }): string | null {
     return resource.recreation_resource_status_code_rel?.description ?? null;
+  }
+
+  async getPendingMapFeatureRequests(): Promise<PendingMapFeatureRequestsResponseDto> {
+    const rows =
+      await this.recreationResourceRepository.findPendingMapFeatureRequests();
+
+    const data: PendingMapFeatureRequestRowDto[] = rows.map((row) => ({
+      rec_resource_id: row.rec_resource_id,
+      name: row.name,
+      district_description: row.district_description,
+      recreation_district: row.recreation_district,
+      natural_resource_district: row.natural_resource_district,
+      recreation_type: row.recreation_type,
+      amend_status_code: row.amend_status_code,
+      feature_count: row.feature_count,
+      requested_at: row.requested_at?.toISOString() ?? null,
+      geometry_types: row.geometry_types,
+    }));
+
+    return {
+      data,
+      total: data.length,
+    };
   }
 }

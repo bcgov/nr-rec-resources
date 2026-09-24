@@ -795,4 +795,41 @@ describe('RecreationResourceRepository', () => {
       },
     );
   });
+
+  describe('findPendingMapFeatureRequests', () => {
+    it('should return pending map feature request rows with numeric feature_count', async () => {
+      prisma.$queryRaw.mockResolvedValue([
+        {
+          rec_resource_id: 'REC000123',
+          name: 'Test Lake',
+          district_description: 'Test District',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural Test District',
+          recreation_type: 'Recreation Site',
+          amend_status_code: 'PND',
+          feature_count: 3n,
+          requested_at: new Date('2026-09-23T21:27:08.826Z'),
+          geometry_types: ['Polygon'],
+        },
+      ]);
+
+      const result = await repo.findPendingMapFeatureRequests();
+
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(result).toEqual([
+        {
+          rec_resource_id: 'REC000123',
+          name: 'Test Lake',
+          district_description: 'Test District',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural Test District',
+          recreation_type: 'Recreation Site',
+          amend_status_code: 'PND',
+          feature_count: 3,
+          requested_at: new Date('2026-09-23T21:27:08.826Z'),
+          geometry_types: ['Polygon'],
+        },
+      ]);
+    });
+  });
 });

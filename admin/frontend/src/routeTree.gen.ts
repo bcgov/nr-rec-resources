@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as ExportsRouteImport } from './routes/exports'
 import { Route as CreateNewRouteImport } from './routes/create-new'
 import { Route as IndexRouteImport } from './routes/index'
@@ -31,6 +32,11 @@ import { Route as RecResourceIdAssetsEditRouteImport } from './routes/rec-resour
 import { Route as RecResourceIdActivitiesFeaturesEditRouteImport } from './routes/rec-resource/$id/activities-features/edit'
 import { Route as RecResourceIdFeesFeeIdEditRouteImport } from './routes/rec-resource/$id/fees/$feeId/edit'
 
+const RequestsRoute = RequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExportsRoute = ExportsRouteImport.update({
   id: '/exports',
   path: '/exports',
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create-new': typeof CreateNewRoute
   '/exports': typeof ExportsRoute
+  '/requests': typeof RequestsRoute
   '/rec-resource/$id': typeof RecResourceIdRouteWithChildren
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create-new': typeof CreateNewRoute
   '/exports': typeof ExportsRoute
+  '/requests': typeof RequestsRoute
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id': typeof RecResourceIdIndexRoute
   '/rec-resource/$id/activities-features/edit': typeof RecResourceIdActivitiesFeaturesEditRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/create-new': typeof CreateNewRoute
   '/exports': typeof ExportsRoute
+  '/requests': typeof RequestsRoute
   '/rec-resource/$id': typeof RecResourceIdRouteWithChildren
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/'
     | '/create-new'
     | '/exports'
+    | '/requests'
     | '/rec-resource/$id'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/'
     | '/create-new'
     | '/exports'
+    | '/requests'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id'
     | '/rec-resource/$id/activities-features/edit'
@@ -269,6 +280,7 @@ export interface FileRouteTypes {
     | '/'
     | '/create-new'
     | '/exports'
+    | '/requests'
     | '/rec-resource/$id'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
@@ -293,11 +305,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateNewRoute: typeof CreateNewRoute
   ExportsRoute: typeof ExportsRoute
+  RequestsRoute: typeof RequestsRoute
   RecResourceIdRoute: typeof RecResourceIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/requests': {
+      id: '/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof RequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exports': {
       id: '/exports'
       path: '/exports'
@@ -498,6 +518,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateNewRoute: CreateNewRoute,
   ExportsRoute: ExportsRoute,
+  RequestsRoute: RequestsRoute,
   RecResourceIdRoute: RecResourceIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
