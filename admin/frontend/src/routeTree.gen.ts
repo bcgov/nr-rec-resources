@@ -9,37 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RequestsRouteImport } from './routes/requests'
-import { Route as ExportsRouteImport } from './routes/exports'
-import { Route as CreateNewRouteImport } from './routes/create-new'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CreateNewRouteImport } from './routes/create-new'
+import { Route as ExportsRouteImport } from './routes/exports'
+import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as RecResourceIdRouteImport } from './routes/rec-resource/$id'
 import { Route as RecResourceIdIndexRouteImport } from './routes/rec-resource/$id/index'
 import { Route as RecResourceIdFilesRouteImport } from './routes/rec-resource/$id/files'
-import { Route as RecResourceIdReservationIndexRouteImport } from './routes/rec-resource/$id/reservation/index'
-import { Route as RecResourceIdPartnersIndexRouteImport } from './routes/rec-resource/$id/partners/index'
-import { Route as RecResourceIdOverviewIndexRouteImport } from './routes/rec-resource/$id/overview/index'
-import { Route as RecResourceIdGeospatialIndexRouteImport } from './routes/rec-resource/$id/geospatial/index'
-import { Route as RecResourceIdFeesIndexRouteImport } from './routes/rec-resource/$id/fees/index'
-import { Route as RecResourceIdAssetsIndexRouteImport } from './routes/rec-resource/$id/assets/index'
-import { Route as RecResourceIdAdvisoriesIndexRouteImport } from './routes/rec-resource/$id/advisories/index'
 import { Route as RecResourceIdActivitiesFeaturesIndexRouteImport } from './routes/rec-resource/$id/activities-features/index'
-import { Route as RecResourceIdReservationEditRouteImport } from './routes/rec-resource/$id/reservation/edit'
-import { Route as RecResourceIdOverviewEditRouteImport } from './routes/rec-resource/$id/overview/edit'
-import { Route as RecResourceIdGeospatialEditRouteImport } from './routes/rec-resource/$id/geospatial/edit'
-import { Route as RecResourceIdFeesAddRouteImport } from './routes/rec-resource/$id/fees/add'
-import { Route as RecResourceIdAssetsEditRouteImport } from './routes/rec-resource/$id/assets/edit'
 import { Route as RecResourceIdActivitiesFeaturesEditRouteImport } from './routes/rec-resource/$id/activities-features/edit'
+import { Route as RecResourceIdAdvisoriesIndexRouteImport } from './routes/rec-resource/$id/advisories/index'
+import { Route as RecResourceIdAssetsIndexRouteImport } from './routes/rec-resource/$id/assets/index'
+import { Route as RecResourceIdAssetsEditRouteImport } from './routes/rec-resource/$id/assets/edit'
+import { Route as RecResourceIdFeesIndexRouteImport } from './routes/rec-resource/$id/fees/index'
+import { Route as RecResourceIdFeesAddRouteImport } from './routes/rec-resource/$id/fees/add'
+import { Route as RecResourceIdGeospatialIndexRouteImport } from './routes/rec-resource/$id/geospatial/index'
+import { Route as RecResourceIdGeospatialEditRouteImport } from './routes/rec-resource/$id/geospatial/edit'
+import { Route as RecResourceIdOverviewIndexRouteImport } from './routes/rec-resource/$id/overview/index'
+import { Route as RecResourceIdOverviewEditRouteImport } from './routes/rec-resource/$id/overview/edit'
+import { Route as RecResourceIdPartnersIndexRouteImport } from './routes/rec-resource/$id/partners/index'
+import { Route as RecResourceIdReservationIndexRouteImport } from './routes/rec-resource/$id/reservation/index'
+import { Route as RecResourceIdReservationEditRouteImport } from './routes/rec-resource/$id/reservation/edit'
 import { Route as RecResourceIdFeesFeeIdEditRouteImport } from './routes/rec-resource/$id/fees/$feeId/edit'
 
-const RequestsRoute = RequestsRouteImport.update({
-  id: '/requests',
-  path: '/requests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExportsRoute = ExportsRouteImport.update({
-  id: '/exports',
-  path: '/exports',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreateNewRoute = CreateNewRouteImport.update({
@@ -47,9 +42,14 @@ const CreateNewRoute = CreateNewRouteImport.update({
   path: '/create-new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ExportsRoute = ExportsRouteImport.update({
+  id: '/exports',
+  path: '/exports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestsRoute = RequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecResourceIdRoute = RecResourceIdRouteImport.update({
@@ -67,39 +67,16 @@ const RecResourceIdFilesRoute = RecResourceIdFilesRouteImport.update({
   path: '/files',
   getParentRoute: () => RecResourceIdRoute,
 } as any)
-const RecResourceIdReservationIndexRoute =
-  RecResourceIdReservationIndexRouteImport.update({
-    id: '/reservation/',
-    path: '/reservation/',
+const RecResourceIdActivitiesFeaturesIndexRoute =
+  RecResourceIdActivitiesFeaturesIndexRouteImport.update({
+    id: '/activities-features/',
+    path: '/activities-features/',
     getParentRoute: () => RecResourceIdRoute,
   } as any)
-const RecResourceIdPartnersIndexRoute =
-  RecResourceIdPartnersIndexRouteImport.update({
-    id: '/partners/',
-    path: '/partners/',
-    getParentRoute: () => RecResourceIdRoute,
-  } as any)
-const RecResourceIdOverviewIndexRoute =
-  RecResourceIdOverviewIndexRouteImport.update({
-    id: '/overview/',
-    path: '/overview/',
-    getParentRoute: () => RecResourceIdRoute,
-  } as any)
-const RecResourceIdGeospatialIndexRoute =
-  RecResourceIdGeospatialIndexRouteImport.update({
-    id: '/geospatial/',
-    path: '/geospatial/',
-    getParentRoute: () => RecResourceIdRoute,
-  } as any)
-const RecResourceIdFeesIndexRoute = RecResourceIdFeesIndexRouteImport.update({
-  id: '/fees/',
-  path: '/fees/',
-  getParentRoute: () => RecResourceIdRoute,
-} as any)
-const RecResourceIdAssetsIndexRoute =
-  RecResourceIdAssetsIndexRouteImport.update({
-    id: '/assets/',
-    path: '/assets/',
+const RecResourceIdActivitiesFeaturesEditRoute =
+  RecResourceIdActivitiesFeaturesEditRouteImport.update({
+    id: '/activities-features/edit',
+    path: '/activities-features/edit',
     getParentRoute: () => RecResourceIdRoute,
   } as any)
 const RecResourceIdAdvisoriesIndexRoute =
@@ -108,22 +85,31 @@ const RecResourceIdAdvisoriesIndexRoute =
     path: '/advisories/',
     getParentRoute: () => RecResourceIdRoute,
   } as any)
-const RecResourceIdActivitiesFeaturesIndexRoute =
-  RecResourceIdActivitiesFeaturesIndexRouteImport.update({
-    id: '/activities-features/',
-    path: '/activities-features/',
+const RecResourceIdAssetsIndexRoute =
+  RecResourceIdAssetsIndexRouteImport.update({
+    id: '/assets/',
+    path: '/assets/',
     getParentRoute: () => RecResourceIdRoute,
   } as any)
-const RecResourceIdReservationEditRoute =
-  RecResourceIdReservationEditRouteImport.update({
-    id: '/reservation/edit',
-    path: '/reservation/edit',
-    getParentRoute: () => RecResourceIdRoute,
-  } as any)
-const RecResourceIdOverviewEditRoute =
-  RecResourceIdOverviewEditRouteImport.update({
-    id: '/overview/edit',
-    path: '/overview/edit',
+const RecResourceIdAssetsEditRoute = RecResourceIdAssetsEditRouteImport.update({
+  id: '/assets/edit',
+  path: '/assets/edit',
+  getParentRoute: () => RecResourceIdRoute,
+} as any)
+const RecResourceIdFeesIndexRoute = RecResourceIdFeesIndexRouteImport.update({
+  id: '/fees/',
+  path: '/fees/',
+  getParentRoute: () => RecResourceIdRoute,
+} as any)
+const RecResourceIdFeesAddRoute = RecResourceIdFeesAddRouteImport.update({
+  id: '/fees/add',
+  path: '/fees/add',
+  getParentRoute: () => RecResourceIdRoute,
+} as any)
+const RecResourceIdGeospatialIndexRoute =
+  RecResourceIdGeospatialIndexRouteImport.update({
+    id: '/geospatial/',
+    path: '/geospatial/',
     getParentRoute: () => RecResourceIdRoute,
   } as any)
 const RecResourceIdGeospatialEditRoute =
@@ -132,20 +118,34 @@ const RecResourceIdGeospatialEditRoute =
     path: '/geospatial/edit',
     getParentRoute: () => RecResourceIdRoute,
   } as any)
-const RecResourceIdFeesAddRoute = RecResourceIdFeesAddRouteImport.update({
-  id: '/fees/add',
-  path: '/fees/add',
-  getParentRoute: () => RecResourceIdRoute,
-} as any)
-const RecResourceIdAssetsEditRoute = RecResourceIdAssetsEditRouteImport.update({
-  id: '/assets/edit',
-  path: '/assets/edit',
-  getParentRoute: () => RecResourceIdRoute,
-} as any)
-const RecResourceIdActivitiesFeaturesEditRoute =
-  RecResourceIdActivitiesFeaturesEditRouteImport.update({
-    id: '/activities-features/edit',
-    path: '/activities-features/edit',
+const RecResourceIdOverviewIndexRoute =
+  RecResourceIdOverviewIndexRouteImport.update({
+    id: '/overview/',
+    path: '/overview/',
+    getParentRoute: () => RecResourceIdRoute,
+  } as any)
+const RecResourceIdOverviewEditRoute =
+  RecResourceIdOverviewEditRouteImport.update({
+    id: '/overview/edit',
+    path: '/overview/edit',
+    getParentRoute: () => RecResourceIdRoute,
+  } as any)
+const RecResourceIdPartnersIndexRoute =
+  RecResourceIdPartnersIndexRouteImport.update({
+    id: '/partners/',
+    path: '/partners/',
+    getParentRoute: () => RecResourceIdRoute,
+  } as any)
+const RecResourceIdReservationIndexRoute =
+  RecResourceIdReservationIndexRouteImport.update({
+    id: '/reservation/',
+    path: '/reservation/',
+    getParentRoute: () => RecResourceIdRoute,
+  } as any)
+const RecResourceIdReservationEditRoute =
+  RecResourceIdReservationEditRouteImport.update({
+    id: '/reservation/edit',
+    path: '/reservation/edit',
     getParentRoute: () => RecResourceIdRoute,
   } as any)
 const RecResourceIdFeesFeeIdEditRoute =
@@ -169,14 +169,14 @@ export interface FileRoutesByFullPath {
   '/rec-resource/$id/geospatial/edit': typeof RecResourceIdGeospatialEditRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
   '/rec-resource/$id/reservation/edit': typeof RecResourceIdReservationEditRoute
-  '/rec-resource/$id/activities-features': typeof RecResourceIdActivitiesFeaturesIndexRoute
-  '/rec-resource/$id/advisories': typeof RecResourceIdAdvisoriesIndexRoute
-  '/rec-resource/$id/assets': typeof RecResourceIdAssetsIndexRoute
-  '/rec-resource/$id/fees': typeof RecResourceIdFeesIndexRoute
-  '/rec-resource/$id/geospatial': typeof RecResourceIdGeospatialIndexRoute
-  '/rec-resource/$id/overview': typeof RecResourceIdOverviewIndexRoute
-  '/rec-resource/$id/partners': typeof RecResourceIdPartnersIndexRoute
-  '/rec-resource/$id/reservation': typeof RecResourceIdReservationIndexRoute
+  '/rec-resource/$id/activities-features/': typeof RecResourceIdActivitiesFeaturesIndexRoute
+  '/rec-resource/$id/advisories/': typeof RecResourceIdAdvisoriesIndexRoute
+  '/rec-resource/$id/assets/': typeof RecResourceIdAssetsIndexRoute
+  '/rec-resource/$id/fees/': typeof RecResourceIdFeesIndexRoute
+  '/rec-resource/$id/geospatial/': typeof RecResourceIdGeospatialIndexRoute
+  '/rec-resource/$id/overview/': typeof RecResourceIdOverviewIndexRoute
+  '/rec-resource/$id/partners/': typeof RecResourceIdPartnersIndexRoute
+  '/rec-resource/$id/reservation/': typeof RecResourceIdReservationIndexRoute
   '/rec-resource/$id/fees/$feeId/edit': typeof RecResourceIdFeesFeeIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -243,14 +243,14 @@ export interface FileRouteTypes {
     | '/rec-resource/$id/geospatial/edit'
     | '/rec-resource/$id/overview/edit'
     | '/rec-resource/$id/reservation/edit'
-    | '/rec-resource/$id/activities-features'
-    | '/rec-resource/$id/advisories'
-    | '/rec-resource/$id/assets'
-    | '/rec-resource/$id/fees'
-    | '/rec-resource/$id/geospatial'
-    | '/rec-resource/$id/overview'
-    | '/rec-resource/$id/partners'
-    | '/rec-resource/$id/reservation'
+    | '/rec-resource/$id/activities-features/'
+    | '/rec-resource/$id/advisories/'
+    | '/rec-resource/$id/assets/'
+    | '/rec-resource/$id/fees/'
+    | '/rec-resource/$id/geospatial/'
+    | '/rec-resource/$id/overview/'
+    | '/rec-resource/$id/partners/'
+    | '/rec-resource/$id/reservation/'
     | '/rec-resource/$id/fees/$feeId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -311,18 +311,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/requests': {
-      id: '/requests'
-      path: '/requests'
-      fullPath: '/requests'
-      preLoaderRoute: typeof RequestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/exports': {
-      id: '/exports'
-      path: '/exports'
-      fullPath: '/exports'
-      preLoaderRoute: typeof ExportsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/create-new': {
@@ -332,11 +325,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/exports': {
+      id: '/exports'
+      path: '/exports'
+      fullPath: '/exports'
+      preLoaderRoute: typeof ExportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requests': {
+      id: '/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof RequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rec-resource/$id': {
@@ -360,88 +360,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecResourceIdFilesRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
-    '/rec-resource/$id/reservation/': {
-      id: '/rec-resource/$id/reservation/'
-      path: '/reservation'
-      fullPath: '/rec-resource/$id/reservation'
-      preLoaderRoute: typeof RecResourceIdReservationIndexRouteImport
+    '/rec-resource/$id/activities-features/': {
+      id: '/rec-resource/$id/activities-features/'
+      path: '/activities-features'
+      fullPath: '/rec-resource/$id/activities-features/'
+      preLoaderRoute: typeof RecResourceIdActivitiesFeaturesIndexRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
-    '/rec-resource/$id/partners/': {
-      id: '/rec-resource/$id/partners/'
-      path: '/partners'
-      fullPath: '/rec-resource/$id/partners'
-      preLoaderRoute: typeof RecResourceIdPartnersIndexRouteImport
-      parentRoute: typeof RecResourceIdRoute
-    }
-    '/rec-resource/$id/overview/': {
-      id: '/rec-resource/$id/overview/'
-      path: '/overview'
-      fullPath: '/rec-resource/$id/overview'
-      preLoaderRoute: typeof RecResourceIdOverviewIndexRouteImport
-      parentRoute: typeof RecResourceIdRoute
-    }
-    '/rec-resource/$id/geospatial/': {
-      id: '/rec-resource/$id/geospatial/'
-      path: '/geospatial'
-      fullPath: '/rec-resource/$id/geospatial'
-      preLoaderRoute: typeof RecResourceIdGeospatialIndexRouteImport
-      parentRoute: typeof RecResourceIdRoute
-    }
-    '/rec-resource/$id/fees/': {
-      id: '/rec-resource/$id/fees/'
-      path: '/fees'
-      fullPath: '/rec-resource/$id/fees'
-      preLoaderRoute: typeof RecResourceIdFeesIndexRouteImport
-      parentRoute: typeof RecResourceIdRoute
-    }
-    '/rec-resource/$id/assets/': {
-      id: '/rec-resource/$id/assets/'
-      path: '/assets'
-      fullPath: '/rec-resource/$id/assets'
-      preLoaderRoute: typeof RecResourceIdAssetsIndexRouteImport
+    '/rec-resource/$id/activities-features/edit': {
+      id: '/rec-resource/$id/activities-features/edit'
+      path: '/activities-features/edit'
+      fullPath: '/rec-resource/$id/activities-features/edit'
+      preLoaderRoute: typeof RecResourceIdActivitiesFeaturesEditRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
     '/rec-resource/$id/advisories/': {
       id: '/rec-resource/$id/advisories/'
       path: '/advisories'
-      fullPath: '/rec-resource/$id/advisories'
+      fullPath: '/rec-resource/$id/advisories/'
       preLoaderRoute: typeof RecResourceIdAdvisoriesIndexRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
-    '/rec-resource/$id/activities-features/': {
-      id: '/rec-resource/$id/activities-features/'
-      path: '/activities-features'
-      fullPath: '/rec-resource/$id/activities-features'
-      preLoaderRoute: typeof RecResourceIdActivitiesFeaturesIndexRouteImport
-      parentRoute: typeof RecResourceIdRoute
-    }
-    '/rec-resource/$id/reservation/edit': {
-      id: '/rec-resource/$id/reservation/edit'
-      path: '/reservation/edit'
-      fullPath: '/rec-resource/$id/reservation/edit'
-      preLoaderRoute: typeof RecResourceIdReservationEditRouteImport
-      parentRoute: typeof RecResourceIdRoute
-    }
-    '/rec-resource/$id/overview/edit': {
-      id: '/rec-resource/$id/overview/edit'
-      path: '/overview/edit'
-      fullPath: '/rec-resource/$id/overview/edit'
-      preLoaderRoute: typeof RecResourceIdOverviewEditRouteImport
-      parentRoute: typeof RecResourceIdRoute
-    }
-    '/rec-resource/$id/geospatial/edit': {
-      id: '/rec-resource/$id/geospatial/edit'
-      path: '/geospatial/edit'
-      fullPath: '/rec-resource/$id/geospatial/edit'
-      preLoaderRoute: typeof RecResourceIdGeospatialEditRouteImport
-      parentRoute: typeof RecResourceIdRoute
-    }
-    '/rec-resource/$id/fees/add': {
-      id: '/rec-resource/$id/fees/add'
-      path: '/fees/add'
-      fullPath: '/rec-resource/$id/fees/add'
-      preLoaderRoute: typeof RecResourceIdFeesAddRouteImport
+    '/rec-resource/$id/assets/': {
+      id: '/rec-resource/$id/assets/'
+      path: '/assets'
+      fullPath: '/rec-resource/$id/assets/'
+      preLoaderRoute: typeof RecResourceIdAssetsIndexRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
     '/rec-resource/$id/assets/edit': {
@@ -451,11 +395,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecResourceIdAssetsEditRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
-    '/rec-resource/$id/activities-features/edit': {
-      id: '/rec-resource/$id/activities-features/edit'
-      path: '/activities-features/edit'
-      fullPath: '/rec-resource/$id/activities-features/edit'
-      preLoaderRoute: typeof RecResourceIdActivitiesFeaturesEditRouteImport
+    '/rec-resource/$id/fees/': {
+      id: '/rec-resource/$id/fees/'
+      path: '/fees'
+      fullPath: '/rec-resource/$id/fees/'
+      preLoaderRoute: typeof RecResourceIdFeesIndexRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/fees/add': {
+      id: '/rec-resource/$id/fees/add'
+      path: '/fees/add'
+      fullPath: '/rec-resource/$id/fees/add'
+      preLoaderRoute: typeof RecResourceIdFeesAddRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/geospatial/': {
+      id: '/rec-resource/$id/geospatial/'
+      path: '/geospatial'
+      fullPath: '/rec-resource/$id/geospatial/'
+      preLoaderRoute: typeof RecResourceIdGeospatialIndexRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/geospatial/edit': {
+      id: '/rec-resource/$id/geospatial/edit'
+      path: '/geospatial/edit'
+      fullPath: '/rec-resource/$id/geospatial/edit'
+      preLoaderRoute: typeof RecResourceIdGeospatialEditRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/overview/': {
+      id: '/rec-resource/$id/overview/'
+      path: '/overview'
+      fullPath: '/rec-resource/$id/overview/'
+      preLoaderRoute: typeof RecResourceIdOverviewIndexRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/overview/edit': {
+      id: '/rec-resource/$id/overview/edit'
+      path: '/overview/edit'
+      fullPath: '/rec-resource/$id/overview/edit'
+      preLoaderRoute: typeof RecResourceIdOverviewEditRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/partners/': {
+      id: '/rec-resource/$id/partners/'
+      path: '/partners'
+      fullPath: '/rec-resource/$id/partners/'
+      preLoaderRoute: typeof RecResourceIdPartnersIndexRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/reservation/': {
+      id: '/rec-resource/$id/reservation/'
+      path: '/reservation'
+      fullPath: '/rec-resource/$id/reservation/'
+      preLoaderRoute: typeof RecResourceIdReservationIndexRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/reservation/edit': {
+      id: '/rec-resource/$id/reservation/edit'
+      path: '/reservation/edit'
+      fullPath: '/rec-resource/$id/reservation/edit'
+      preLoaderRoute: typeof RecResourceIdReservationEditRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
     '/rec-resource/$id/fees/$feeId/edit': {
