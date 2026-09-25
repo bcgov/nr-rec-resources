@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  ValidateIf,
   validateSync,
 } from 'class-validator';
 
@@ -92,10 +93,14 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   RST_STORAGE_CONSENT_FORMS_BUCKET: string;
 
-  // BCGW layer exports written to S3 by the scheduled export job
+  // BCGW layer exports written to S3 by the scheduled export job. Only required
+  // when that job is enabled, so an environment that does not run it (e2e, local
+  // dev without S3) still boots. The BCGW endpoints report themselves
+  // unavailable when it is unset.
+  @ValidateIf((env: EnvironmentVariables) => env.BCGW_EXPORT_ENABLED === 'true')
   @IsString()
   @IsNotEmpty()
-  BCGW_EXPORTS_BUCKET: string;
+  BCGW_EXPORTS_BUCKET?: string;
 
   @IsString()
   @IsNotEmpty()

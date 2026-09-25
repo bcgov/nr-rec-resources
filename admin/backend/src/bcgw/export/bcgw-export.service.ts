@@ -1,4 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  Optional,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { Upload } from '@aws-sdk/lib-storage';
 import { CompleteMultipartUploadCommandOutput } from '@aws-sdk/client-s3';
 import { Client } from 'pg';
@@ -45,8 +51,25 @@ export class BcgwExportService {
 
   constructor(
     private readonly appConfig: AppConfigService,
-    private readonly s3Service: S3Service,
+    @Optional()
+    @Inject(S3Service)
+    private readonly s3Service: S3Service | null,
   ) {}
+
+  /**
+   * The bucket is optional config, so uploads go through here to fail with
+   * something explainable instead of a null dereference. run() touches it before
+   * doing any work so a misconfigured environment fails before the refresh.
+   */
+  private requireS3(): S3Service {
+    if (!this.s3Service) {
+      throw new ServiceUnavailableException(
+        'BCGW export is not configured on this environment ' +
+          '(BCGW_EXPORTS_BUCKET is unset).',
+      );
+    }
+    return this.s3Service;
+  }
 
   /** S3 key for a layer's data file. */
   static dataKey(layerName: string): string {
@@ -68,6 +91,9 @@ export class BcgwExportService {
    * not acquired.
    */
   async run(): Promise<BcgwLayerManifest[]> {
+    // Fail before the refresh rather than after it, if there is nowhere to upload.
+    this.requireS3();
+
     const client = new Client({ connectionString: this.appConfig.databaseUrl });
     await client.connect();
 
@@ -156,9 +182,9 @@ export class BcgwExportService {
     });
 
     const upload = new Upload({
-      client: this.s3Service.getS3Client(),
+      client: this.requireS3().getS3Client(),
       params: {
-        Bucket: this.s3Service.getBucketName(),
+        Bucket: this.requireS3().getBucketName(),
         Key: key,
         Body: body,
         ContentType: 'application/gzip',
@@ -195,7 +221,7 @@ export class BcgwExportService {
       etag: uploadResult.ETag?.replace(/"/g, ''),
     };
 
-    await this.s3Service.putJson(
+    await this.requireS3().putJson(
       BcgwExportService.manifestKey(layer.name),
       manifest,
     );

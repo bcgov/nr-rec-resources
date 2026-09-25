@@ -116,10 +116,11 @@ export class AppConfigService {
     })!;
   }
 
-  get bcgwExportsBucket(): string {
+  /** Unset when this environment does not run the BCGW export job. */
+  get bcgwExportsBucket(): string | undefined {
     return this.configService.get('BCGW_EXPORTS_BUCKET', {
       infer: true,
-    })!;
+    });
   }
 
   get awsRegion(): string {

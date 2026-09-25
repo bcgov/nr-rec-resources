@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { BcgwService } from '@/bcgw/bcgw.service';
 import { S3Service } from '@/s3/s3.service';
 
@@ -42,6 +42,16 @@ describe('BcgwService', () => {
         service.getLayerDownloadUrl('recreation-polygons'),
       ).rejects.toThrow(NotFoundException);
       expect(s3Service.getSignedUrl).not.toHaveBeenCalled();
+    });
+
+    // BCGW_EXPORTS_BUCKET is optional config, so the injected S3Service is null on
+    // an environment that does not run the export job.
+    it('throws ServiceUnavailableException when no export bucket is configured', async () => {
+      const unconfigured = new BcgwService(null);
+
+      await expect(
+        unconfigured.getLayerDownloadUrl('recreation-lines'),
+      ).rejects.toThrow(ServiceUnavailableException);
     });
   });
 });

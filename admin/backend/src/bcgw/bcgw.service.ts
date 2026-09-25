@@ -1,4 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+  Optional,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { S3Service } from '@/s3/s3.service';
 import { BcgwExportService } from './export/bcgw-export.service';
 
@@ -20,7 +27,25 @@ const DOWNLOAD_URL_EXPIRY_SECONDS = 3600;
 export class BcgwService {
   private readonly logger = new Logger(BcgwService.name);
 
-  constructor(private readonly s3Service: S3Service) {}
+  constructor(
+    @Optional()
+    @Inject(S3Service)
+    private readonly s3Service: S3Service | null,
+  ) {}
+
+  /**
+   * The bucket is optional config, so reads go through here to fail with
+   * something explainable instead of a null dereference.
+   */
+  private requireS3(): S3Service {
+    if (!this.s3Service) {
+      throw new ServiceUnavailableException(
+        'BCGW layer downloads are not configured on this environment ' +
+          '(BCGW_EXPORTS_BUCKET is unset).',
+      );
+    }
+    return this.s3Service;
+  }
 
   /**
    * Presigned download URL for a layer's most recent export.
@@ -30,9 +55,10 @@ export class BcgwService {
    * @throws NotFoundException if no export has been produced yet
    */
   async getLayerDownloadUrl(layerName: string): Promise<string> {
+    const s3 = this.requireS3();
     const key = BcgwExportService.dataKey(layerName);
 
-    if (!(await this.s3Service.objectExists(key))) {
+    if (!(await s3.objectExists(key))) {
       this.logger.warn(`No export available for layer "${layerName}"`);
       throw new NotFoundException(
         `No export is available for "${layerName}" yet. The export job runs on a ` +
@@ -40,6 +66,6 @@ export class BcgwService {
       );
     }
 
-    return this.s3Service.getSignedUrl(key, DOWNLOAD_URL_EXPIRY_SECONDS);
+    return s3.getSignedUrl(key, DOWNLOAD_URL_EXPIRY_SECONDS);
   }
 }
