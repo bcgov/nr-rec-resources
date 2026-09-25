@@ -21,6 +21,13 @@ describe('OptionsRepository', () => {
     archivedField: 'is_archived',
   };
 
+  const mockNaturalDistrictMapping = {
+    idField: 'org_unit_code',
+    labelField: 'org_unit_name',
+    prismaModel: 'natural_resource_org_unit',
+    distinctFields: ['org_unit_code'],
+  };
+
   const createPrismaModel = () => ({
     findMany: vi.fn(),
     findUnique: vi.fn(),
@@ -39,6 +46,7 @@ describe('OptionsRepository', () => {
       recreation_sub_access_code: createPrismaModel(),
       recreation_access: { findFirst: vi.fn() },
       recreation_district_code: createPrismaModel(),
+      natural_resource_org_unit: createPrismaModel(),
       $transaction: vi.fn(),
     };
 
@@ -205,6 +213,40 @@ describe('OptionsRepository', () => {
         orderBy: { description: 'asc' },
       });
     });
+
+    it('should use configured distinct fields for natural district options', async () => {
+      const mockResults = [
+        {
+          org_unit_code: 'DCC',
+          org_unit_name: 'Chilliwack Natural Resource District',
+        },
+        {
+          org_unit_code: 'DPG',
+          org_unit_name: 'Prince George Natural Resource District',
+        },
+      ];
+
+      (prisma as any).natural_resource_org_unit.findMany.mockResolvedValue(
+        mockResults,
+      );
+
+      const result = await repository.findAllByType(mockNaturalDistrictMapping);
+
+      expect(result).toEqual([
+        { id: 'DCC', label: 'Chilliwack Natural Resource District' },
+        { id: 'DPG', label: 'Prince George Natural Resource District' },
+      ]);
+      expect(
+        (prisma as any).natural_resource_org_unit.findMany,
+      ).toHaveBeenCalledWith({
+        select: {
+          org_unit_code: true,
+          org_unit_name: true,
+        },
+        distinct: ['org_unit_code'],
+        orderBy: { org_unit_name: 'asc' },
+      });
+    });
   });
 
   describe('findAllByTypes', () => {
@@ -341,6 +383,37 @@ describe('OptionsRepository', () => {
         ],
       });
       expect((prisma as any).$transaction).toHaveBeenCalled();
+    });
+
+    it('should honor mapping-specific distinct fields in findAllByTypes', async () => {
+      const rows = [
+        {
+          org_unit_code: 'DCC',
+          org_unit_name: 'Chilliwack Natural Resource District',
+        },
+      ];
+
+      (prisma as any).$transaction.mockResolvedValue([rows]);
+
+      const result = await repository.findAllByTypes([
+        { type: 'naturalDistrict', mapping: mockNaturalDistrictMapping },
+      ] as any);
+
+      expect(result).toEqual({
+        naturalDistrict: [
+          { id: 'DCC', label: 'Chilliwack Natural Resource District' },
+        ],
+      });
+      expect(
+        (prisma as any).natural_resource_org_unit.findMany,
+      ).toHaveBeenCalledWith({
+        select: {
+          org_unit_code: true,
+          org_unit_name: true,
+        },
+        distinct: ['org_unit_code'],
+        orderBy: { org_unit_name: 'asc' },
+      });
     });
   });
 

@@ -56,6 +56,9 @@ describe('OptionsService', () => {
         service['validateOptionType']('recreationStatus'),
       ).not.toThrow();
       expect(() => service['validateOptionType']('district')).not.toThrow();
+      expect(() =>
+        service['validateOptionType']('naturalDistrict'),
+      ).not.toThrow();
     });
 
     it('should reject invalid option types', () => {
@@ -123,6 +126,27 @@ describe('OptionsService', () => {
         idField: 'status_code',
         labelField: 'description',
         prismaModel: 'recreation_status_code',
+      });
+    });
+
+    it('should return natural district options', async () => {
+      const mockNaturalDistricts = [
+        { id: 'DCC', label: 'Chilliwack Natural Resource District' },
+        { id: 'DPG', label: 'Prince George Natural Resource District' },
+      ];
+
+      repository.findAllByType = vi
+        .fn()
+        .mockResolvedValue(mockNaturalDistricts);
+
+      const result = await service.findAllByType('naturalDistrict');
+
+      expect(result).toEqual(mockNaturalDistricts);
+      expect(repository.findAllByType).toHaveBeenCalledWith({
+        idField: 'org_unit_code',
+        labelField: 'org_unit_name',
+        prismaModel: 'natural_resource_org_unit',
+        distinctFields: ['org_unit_code'],
       });
     });
 

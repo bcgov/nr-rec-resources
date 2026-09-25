@@ -23,6 +23,8 @@ describe('RecreationResourceController', () => {
           useValue: {
             searchResources: vi.fn(),
             getSuggestions: vi.fn(),
+            getNextRecResourceId: vi.fn(),
+            getPendingMapFeatureRequests: vi.fn(),
             findOne: vi.fn(),
             update: vi.fn(),
           },
@@ -160,6 +162,17 @@ describe('RecreationResourceController', () => {
     });
   });
 
+  it('should return the next recreation resource id', async () => {
+    (service.getNextRecResourceId as any).mockResolvedValue({
+      rec_resource_id: 'REC000777',
+    });
+
+    const result = await controller.getNextRecResourceId();
+
+    expect(service.getNextRecResourceId).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ rec_resource_id: 'REC000777' });
+  });
+
   it('should call service.findOne and return its result', async () => {
     const mockResource = {
       rec_resource_id: 'REC123',
@@ -286,5 +299,29 @@ describe('RecreationResourceController', () => {
         'Invalid reference: control_access_code does not exist',
       );
     });
+  });
+
+  it('should return pending map feature requests', async () => {
+    (service.getPendingMapFeatureRequests as any).mockResolvedValue({
+      data: [
+        {
+          rec_resource_id: 'REC123',
+          name: 'Test Resource',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural Test District',
+          recreation_type: 'Recreation Site',
+          amend_status_code: 'PND',
+          feature_count: 2,
+          requested_at: '2026-09-23T21:27:08.826Z',
+        },
+      ],
+      total: 1,
+    });
+
+    const result = await controller.getPendingMapFeatureRequests();
+
+    expect(service.getPendingMapFeatureRequests).toHaveBeenCalledTimes(1);
+    expect(result.total).toBe(1);
+    expect(result.data[0]?.amend_status_code).toBe('PND');
   });
 });

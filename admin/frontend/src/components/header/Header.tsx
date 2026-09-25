@@ -20,6 +20,7 @@ import './Header.scss';
 import { faArrowUpRightFromSquare } from '@fortawesome/pro-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { useNavigate } from '@tanstack/react-router';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 /**
  * A custom menu toggle component for the header dropdown.
@@ -84,7 +85,11 @@ const renderMenuToggle = (fullName: string) =>
 export const Header = () => {
   const navigate = useNavigate();
   const { user, authService } = useAuthContext();
+  const { isSuperAdmin } = useAuthorizations();
   const fullName = authService.getUserFullName();
+  const visibleMenuLinks = menuLinks.filter(
+    (link) => !link.superAdminOnly || isSuperAdmin,
+  );
 
   return (
     <div className={`header main`}>
@@ -131,7 +136,7 @@ export const Header = () => {
                       </DropdownItem>
                     )}
                     <div className="d-md-none">
-                      {menuLinks.map((link) => {
+                      {visibleMenuLinks.map((link) => {
                         return (
                           <DropdownItem
                             className="dropdown-menu-item"

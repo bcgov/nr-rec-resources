@@ -4,6 +4,12 @@ import userEvent from '@testing-library/user-event';
 import { Sidebar } from '@/components/sidebar/Sidebar';
 import { EXTERNAL_LINKS } from '@/constants/menu-options';
 
+const mockUseAuthorizations = vi.fn(() => ({ isSuperAdmin: true }));
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 // 1. Mock TanStack Router's Link component
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, to, className }: any) => (
@@ -27,8 +33,19 @@ vi.mock('./SidebarToolTip', () => ({
 }));
 
 describe('Sidebar Component', () => {
+  it('hides Create new link for non-super-admin users', async () => {
+    const user = userEvent.setup();
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
+    render(<Sidebar />);
+
+    await user.click(screen.getByRole('button'));
+
+    expect(screen.queryByText('Create new')).not.toBeInTheDocument();
+  });
+
   // --- FIXED: Updated test name and assertions to reflect initial collapsed state ---
   it('renders correctly in default collapsed state and applies custom className', () => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
     render(<Sidebar className="custom-class" />);
 
     // Check if the sidebar container has both default, custom, and collapsed classes
@@ -37,6 +54,7 @@ describe('Sidebar Component', () => {
 
     // Due to {!isCollapsed && ...}, text should NOT be visible initially
     expect(screen.queryByText('Search')).not.toBeInTheDocument();
+    expect(screen.queryByText('Create new')).not.toBeInTheDocument();
     expect(screen.queryByText('Advisories & Closures')).not.toBeInTheDocument();
     expect(screen.queryByText('Onboarding')).not.toBeInTheDocument();
     expect(screen.queryByText('FTA')).not.toBeInTheDocument();
@@ -54,6 +72,7 @@ describe('Sidebar Component', () => {
   // --- FIXED: Swapped click expectations to track expanding first, then collapsing ---
   it('toggles to expanded state when the toggle button is clicked', async () => {
     const user = userEvent.setup();
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
     render(<Sidebar />);
 
     const asideElement = screen.getByRole('complementary');
@@ -70,6 +89,7 @@ describe('Sidebar Component', () => {
 
     // Verify text labels are now visible
     expect(screen.getByText('Search')).toBeInTheDocument();
+    expect(screen.getByText('Create new')).toBeInTheDocument();
     expect(screen.getByText('Advisories & Closures')).toBeInTheDocument();
     expect(screen.getByText('Onboarding')).toBeInTheDocument();
     expect(screen.getByText('FTA')).toBeInTheDocument();
@@ -90,9 +110,11 @@ describe('Sidebar Component', () => {
     await user.click(toggleButton);
     expect(asideElement).toHaveClass('collapsed');
     expect(screen.queryByText('Search')).not.toBeInTheDocument();
+    expect(screen.queryByText('Create new')).not.toBeInTheDocument();
   });
 
   it('renders all external link href values correctly matching the data layer', () => {
+    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
     render(<Sidebar />);
 
     // Since the text is hidden under !isCollapsed, we search by role using hidden: true

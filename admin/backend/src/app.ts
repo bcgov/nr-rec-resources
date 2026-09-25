@@ -3,6 +3,7 @@ import { globalValidationPipe } from '@/config/global-validation-pipe.config';
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { json, urlencoded } from 'express';
 import helmet from 'helmet';
 import { AppConfigService } from './app-config/app-config.service';
 import { AppModule } from './app.module';
@@ -39,6 +40,8 @@ export async function bootstrap() {
   );
   app.enableCors();
   app.set('trust proxy', 1);
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
   app.enableShutdownHooks();
   app.setGlobalPrefix('api');
   app.useGlobalPipes(globalValidationPipe);

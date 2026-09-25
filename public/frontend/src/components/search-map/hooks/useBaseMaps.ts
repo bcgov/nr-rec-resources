@@ -3,36 +3,17 @@ import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
 import BaseLayer from 'ol/layer/Base';
 import LayerGroup from 'ol/layer/Group';
-import { useStyledLayer } from '@bcgov/prp-map';
 import {
-  BC_BASE_LAYER_URLS,
-  CANADA_TOPO_LAYER_URLS,
   BASE_LAYER_URLS,
-  WORLD_BASEMAP_V2_URLS,
-} from '@/components/search-map/constants';
+  useBaseMapStyledLayers,
+} from '@shared/components/recreation-resource-map';
 import bcBasemapImage from '@/components/search-map/assets/basemap/bc_basemap.webp';
 import hillshadeImage from '@/components/search-map/assets/basemap/hillshade.webp';
 import satelliteImage from '@/components/search-map/assets/basemap/satellite.webp';
 
 export const useBaseMaps = () => {
-  const prpBaseLayer = useStyledLayer(
-    BC_BASE_LAYER_URLS.VECTOR_TILE_URL,
-    BC_BASE_LAYER_URLS.STYLE_URL,
-    'esri',
-  );
-  const canadaTopographicLayerBasic = useStyledLayer(
-    CANADA_TOPO_LAYER_URLS.VECTOR_TILE_URL,
-    CANADA_TOPO_LAYER_URLS.STYLE_URL_BASIC,
-    'esri',
-  );
-
-  const worldBasemapV2Layer = useStyledLayer(
-    WORLD_BASEMAP_V2_URLS.VECTOR_TILE_URL,
-    WORLD_BASEMAP_V2_URLS.STYLE_URL,
-    'esri',
-  );
-
-  worldBasemapV2Layer.setOpacity(0.3);
+  const { prpBaseLayer, canadaTopographicLayerBasic, worldBasemapV2Layer } =
+    useBaseMapStyledLayers();
 
   const baseMaps = useMemo(
     () => [

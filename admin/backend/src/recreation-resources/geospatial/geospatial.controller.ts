@@ -8,6 +8,7 @@ import {
 import {
   Controller,
   Get,
+  Post,
   Put,
   Body,
   HttpException,
@@ -17,6 +18,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -25,6 +27,7 @@ import {
   ApiOkResponse,
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
+import { CreateRecreationMapFeaturesDto } from './dto/create-recreation-map-features.dto';
 import { RecreationResourceGeospatialDto } from './dto/recreation-resource-geospatial.dto';
 import { UpdateRecreationResourceGeospatialDto } from './dto/update-recreation-resource-geospatial.dto';
 import { GeospatialService } from './geospatial.service';
@@ -82,6 +85,48 @@ export class GeospatialController {
     if (!geospatialData) {
       throw new HttpException(
         'Geospatial data not found for this recreation resource.',
+        404,
+      );
+    }
+
+    return geospatialData;
+  }
+
+  @Post('map-features')
+  @ApiOperation({
+    operationId: 'createRecreationResourceMapFeatures',
+    summary: 'Create map features from validated shapefile data',
+    description:
+      'Creates recreation_map_feature and recreation_map_feature_geom rows with PND status, and seeds recreation_resource metadata for new requests when provided.',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    description: 'Recreation Resource ID',
+    example: 'REC262200',
+  })
+  @ApiBody({ type: CreateRecreationMapFeaturesDto })
+  @ApiCreatedResponse({
+    description: 'Created map features and refreshed geospatial payload',
+    type: RecreationResourceGeospatialDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request - validation errors or invalid input',
+  })
+  async createMapFeatures(
+    @Param('rec_resource_id') rec_resource_id: string,
+    @Body() body: CreateRecreationMapFeaturesDto,
+  ): Promise<RecreationResourceGeospatialDto> {
+    await this.geospatialService.createMapFeaturesFromValidatedFile(
+      rec_resource_id,
+      body,
+    );
+
+    const geospatialData =
+      await this.geospatialService.findGeospatialDataById(rec_resource_id);
+
+    if (!geospatialData) {
+      throw new HttpException(
+        'Geospatial data not found for this recreation resource after feature import.',
         404,
       );
     }

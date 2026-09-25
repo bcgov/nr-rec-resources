@@ -38,6 +38,7 @@ export class OptionsRepository {
 
     const results = await (this.prisma as any)[mapping.prismaModel].findMany({
       select: selectFields,
+      ...(mapping.distinctFields ? { distinct: mapping.distinctFields } : {}),
       ...(mapping.whereClause ? { where: mapping.whereClause } : {}),
       orderBy: {
         [mapping.labelField]: 'asc',
@@ -61,7 +62,7 @@ export class OptionsRepository {
 
       return model.findMany({
         select: selectFields,
-        distinct: [mapping.idField],
+        distinct: mapping.distinctFields ?? [mapping.idField],
         ...(mapping.whereClause ? { where: mapping.whereClause } : {}),
         orderBy: { [mapping.labelField]: 'asc' },
       });

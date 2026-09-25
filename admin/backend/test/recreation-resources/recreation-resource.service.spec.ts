@@ -15,6 +15,8 @@ describe('RecreationResourceService', () => {
     repo = {
       searchResources: vi.fn(),
       findSuggestions: vi.fn(),
+      getNextRecResourceId: vi.fn(),
+      findPendingMapFeatureRequests: vi.fn(),
     } as unknown as RecreationResourceRepository;
     prisma = {
       $queryRawTyped: vi.fn(),
@@ -142,6 +144,53 @@ describe('RecreationResourceService', () => {
     expect(result.suggestions.length).toBe(2);
     expect(result.suggestions[0]?.rec_resource_id).toBe('REC125');
     expect(result.suggestions[1]?.rec_resource_id).toBe('REC126');
+  });
+
+  it('should return next recreation resource id from repository', async () => {
+    (repo.getNextRecResourceId as any).mockResolvedValue('REC000999');
+
+    const result = await service.getNextRecResourceId();
+
+    expect(repo.getNextRecResourceId).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ rec_resource_id: 'REC000999' });
+  });
+
+  it('should return pending map feature requests in response shape', async () => {
+    (repo.findPendingMapFeatureRequests as any).mockResolvedValue([
+      {
+        rec_resource_id: 'REC500001',
+        name: 'Pending Site',
+        district_description: 'Test District',
+        recreation_district: 'Test District',
+        natural_resource_district: 'Natural Test District',
+        recreation_type: 'Recreation Site',
+        amend_status_code: 'PND',
+        feature_count: 4,
+        requested_at: new Date('2026-09-23T21:27:08.826Z'),
+        geometry_types: ['Polygon', 'LineString'],
+      },
+    ]);
+
+    const result = await service.getPendingMapFeatureRequests();
+
+    expect(repo.findPendingMapFeatureRequests).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({
+      data: [
+        {
+          rec_resource_id: 'REC500001',
+          name: 'Pending Site',
+          district_description: 'Test District',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural Test District',
+          recreation_type: 'Recreation Site',
+          amend_status_code: 'PND',
+          feature_count: 4,
+          requested_at: '2026-09-23T21:27:08.826Z',
+          geometry_types: ['Polygon', 'LineString'],
+        },
+      ],
+      total: 1,
+    });
   });
 
   it('should map admin search results into response DTO shape', async () => {
