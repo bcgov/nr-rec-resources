@@ -41,6 +41,11 @@ export interface CreateRecreationResourceAgreementHolderRequest {
   createAgreementHolderDto: CreateAgreementHolderDto;
 }
 
+export interface DeleteRecreationResourceAgreementHolderRequest {
+  recResourceId: string;
+  agreementHolderId: number;
+}
+
 export interface GetPartnerLocationsByClientIdRequest {
   clientId: string;
 }
@@ -63,6 +68,7 @@ export interface SearchPartnersRequest {
 
 export interface UpdateRecreationResourceAgreementHolderRequest {
   recResourceId: string;
+  agreementHolderId: number;
   updateAgreementHolderDto: UpdateAgreementHolderDto;
 }
 
@@ -144,6 +150,78 @@ export class PartnersApi extends runtime.BaseAPI {
       initOverrides,
     );
     return await response.value();
+  }
+
+  /**
+   * Removes the agreement holder record. The row is retained in the history table by the temporal versioning trigger.
+   * Delete an agreement holder for a recreation resource
+   */
+  async deleteRecreationResourceAgreementHolderRaw(
+    requestParameters: DeleteRecreationResourceAgreementHolderRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<void>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling deleteRecreationResourceAgreementHolder().',
+      );
+    }
+
+    if (requestParameters['agreementHolderId'] == null) {
+      throw new runtime.RequiredError(
+        'agreementHolderId',
+        'Required parameter "agreementHolderId" was null or undefined when calling deleteRecreationResourceAgreementHolder().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/partners/recreation-resources/{rec_resource_id}/agreement-holders/{agreement_holder_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'agreement_holder_id'}}`,
+      encodeURIComponent(String(requestParameters['agreementHolderId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * Removes the agreement holder record. The row is retained in the history table by the temporal versioning trigger.
+   * Delete an agreement holder for a recreation resource
+   */
+  async deleteRecreationResourceAgreementHolder(
+    requestParameters: DeleteRecreationResourceAgreementHolderRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    await this.deleteRecreationResourceAgreementHolderRaw(
+      requestParameters,
+      initOverrides,
+    );
   }
 
   /**
@@ -410,8 +488,8 @@ export class PartnersApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates the agreement start date and/or agreement end date for an existing agreement holder record.
-   * Edit agreement holder dates for a recreation resource
+   * Updates the agreement dates, public-website visibility, relationship type and/or cancelled flag for a single agreement holder. Cancelling is one-way.
+   * Edit an agreement holder for a recreation resource
    */
   async updateRecreationResourceAgreementHolderRaw(
     requestParameters: UpdateRecreationResourceAgreementHolderRequest,
@@ -421,6 +499,13 @@ export class PartnersApi extends runtime.BaseAPI {
       throw new runtime.RequiredError(
         'recResourceId',
         'Required parameter "recResourceId" was null or undefined when calling updateRecreationResourceAgreementHolder().',
+      );
+    }
+
+    if (requestParameters['agreementHolderId'] == null) {
+      throw new runtime.RequiredError(
+        'agreementHolderId',
+        'Required parameter "agreementHolderId" was null or undefined when calling updateRecreationResourceAgreementHolder().',
       );
     }
 
@@ -446,10 +531,14 @@ export class PartnersApi extends runtime.BaseAPI {
       }
     }
 
-    let urlPath = `/api/partners/recreation-resources/{rec_resource_id}`;
+    let urlPath = `/api/partners/recreation-resources/{rec_resource_id}/agreement-holders/{agreement_holder_id}`;
     urlPath = urlPath.replace(
       `{${'rec_resource_id'}}`,
       encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'agreement_holder_id'}}`,
+      encodeURIComponent(String(requestParameters['agreementHolderId'])),
     );
 
     const response = await this.request(
@@ -471,8 +560,8 @@ export class PartnersApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates the agreement start date and/or agreement end date for an existing agreement holder record.
-   * Edit agreement holder dates for a recreation resource
+   * Updates the agreement dates, public-website visibility, relationship type and/or cancelled flag for a single agreement holder. Cancelling is one-way.
+   * Edit an agreement holder for a recreation resource
    */
   async updateRecreationResourceAgreementHolder(
     requestParameters: UpdateRecreationResourceAgreementHolderRequest,

@@ -20,17 +20,17 @@ import { mapValues } from '../runtime';
  */
 export interface UpdateAgreementHolderDto {
   /**
-   * Agreement start date in YYYY-MM-DD format
+   * Agreement start date in YYYY-MM-DD format. Send null to clear it.
    * @type {string}
    * @memberof UpdateAgreementHolderDto
    */
-  agreementStartDate?: string;
+  agreementStartDate?: string | null;
   /**
-   * Agreement end date in YYYY-MM-DD format
+   * Agreement end date in YYYY-MM-DD format. Send null to clear it.
    * @type {string}
    * @memberof UpdateAgreementHolderDto
    */
-  agreementEndDate?: string;
+  agreementEndDate?: string | null;
   /**
    * Whether the agreement holder is visible on the public website
    * @type {boolean}
@@ -38,11 +38,11 @@ export interface UpdateAgreementHolderDto {
    */
   visible_on_public_website?: boolean;
   /**
-   * Relationship type code for the agreement holder
-   * @type {string}
+   * Marks the agreement as cancelled. One-way: an already-cancelled agreement cannot be un-cancelled.
+   * @type {boolean}
    * @memberof UpdateAgreementHolderDto
    */
-  partner_relationship_type_code?: string;
+  cancelled?: boolean;
 }
 
 /**
@@ -78,10 +78,7 @@ export function UpdateAgreementHolderDtoFromJSONTyped(
       json['visible_on_public_website'] == null
         ? undefined
         : json['visible_on_public_website'],
-    partner_relationship_type_code:
-      json['partner_relationship_type_code'] == null
-        ? undefined
-        : json['partner_relationship_type_code'],
+    cancelled: json['cancelled'] == null ? undefined : json['cancelled'],
   };
 }
 
@@ -103,6 +100,6 @@ export function UpdateAgreementHolderDtoToJSONTyped(
     agreementStartDate: value['agreementStartDate'],
     agreementEndDate: value['agreementEndDate'],
     visible_on_public_website: value['visible_on_public_website'],
-    partner_relationship_type_code: value['partner_relationship_type_code'],
+    cancelled: value['cancelled'],
   };
 }

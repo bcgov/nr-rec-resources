@@ -42,5 +42,7 @@ export * from './useBulkUpdateAssets';
 export * from './useDeleteAsset';
 export * from './useDeleteAssetRepair';
 export * from './usePartnersApiClient';
+export * from './useUpdateAgreementHolder';
+export * from './useDeleteAgreementHolder';
 export * from './useGetPartnerByClientId';
 export * from './useCreateRecreationResourceAgreementHolder';
