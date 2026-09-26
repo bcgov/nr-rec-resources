@@ -131,16 +131,6 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="recreation_agreement_holder.partner_relationship_type_code references recreation_partner_relationship_type_code.partner_relationship_type_code via recreation_agreement_holder_partner_relationship_type_code_fkey"><a href='recreation_agreement_holder.html'>recreation_agreement_holder</a><span class='relatedKey'>.partner_relationship_type_code</span></td>
-                                                <td class="constraint detail">recreation_agreement_holder_partner_relationship_type_code_fkey</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="recreation_agreement_holder_history.partner_relationship_type_code&#39;s name implies that it&#39;s a child of recreation_partner_relationship_type_code.partner_relationship_type_code, but it doesn&#39;t reference that column."><a href='recreation_agreement_holder_history.html'>recreation_agreement_holder_history</a><span class='relatedKey'>.partner_relationship_type_code</span></td>
-                                                <td class="constraint detail">Implied Constraint</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
                                                 <td title="recreation_partner_relationship_type_code_history.partner_relationship_type_code&#39;s name implies that it&#39;s a child of recreation_partner_relationship_type_code.partner_relationship_type_code, but it doesn&#39;t reference that column."><a href='recreation_partner_relationship__583d804.html'>recreation_partner_relationship_type_code_history</a><span class='relatedKey'>.partner_relationship_type_code</span></td>
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -258,44 +248,21 @@
                                 <h5>Close relationships within degrees of separation</h5>
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
-                                    <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
                                     <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
-                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="607,5,923,211">
-<area shape="rect" id="node2" href="recreation_partner_relationship_c3876baf.html" target="_top" title="recreation_partner_relationship_type_code" alt="" coords="5,91,563,277">
+<area shape="rect" id="node1" href="recreation_partner_relationship_c3876baf.html" target="_top" title="recreation_partner_relationship_type_code" alt="" coords="5,5,563,192">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_partner_relationship_c3876baf.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
-                                    <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="607,15,923,220">
-<area shape="rect" id="node2" href="recreation_partner_relationship_c3876baf.html" target="_top" title="recreation_partner_relationship_type_code" alt="" coords="5,111,563,297">
-<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="164,5,404,93">
-</map>
-                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_partner_relationship_c3876baf.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
-                                    </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="691,5,1007,211">
-<area shape="rect" id="node2" href="recreation_partner_relationship_c3876baf.html" target="_top" title="recreation_partner_relationship_type_code" alt="" coords="5,225,563,412">
-<area shape="rect" id="node3" href="recreation_agreement_holder_history.html" target="_top" title="recreation_agreement_holder_history" alt="" coords="659,228,1038,345">
-<area shape="rect" id="node4" href="recreation_partner_relationship__583d804.html" target="_top" title="recreation_partner_relationship_type_code_history" alt="" coords="607,363,1091,480">
+<area shape="rect" id="node1" href="recreation_partner_relationship__583d804.html" target="_top" title="recreation_partner_relationship_type_code_history" alt="" coords="607,8,1091,125">
+<area shape="rect" id="node2" href="recreation_partner_relationship_c3876baf.html" target="_top" title="recreation_partner_relationship_type_code" alt="" coords="5,5,563,192">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_partner_relationship_c3876baf.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
-                                    </div>
-                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="691,5,1007,211">
-<area shape="rect" id="node2" href="recreation_partner_relationship_c3876baf.html" target="_top" title="recreation_partner_relationship_type_code" alt="" coords="5,225,563,412">
-<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="164,8,404,96">
-<area shape="rect" id="node4" href="recreation_agreement_holder_history.html" target="_top" title="recreation_agreement_holder_history" alt="" coords="659,228,1038,345">
-<area shape="rect" id="node5" href="recreation_partner_relationship__583d804.html" target="_top" title="recreation_partner_relationship_type_code_history" alt="" coords="607,363,1091,480">
-</map>
-                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_partner_relationship_c3876baf.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>
