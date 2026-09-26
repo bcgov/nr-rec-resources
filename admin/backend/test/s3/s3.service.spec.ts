@@ -817,4 +817,103 @@ describe('S3Service', () => {
       });
     });
   });
+
+  describe('putJson', () => {
+    it.each([
+      ['empty', ''],
+      ['null', null],
+      ['whitespace only', '   '],
+    ])('should throw BadRequestException when key is %s', async (_, key) => {
+      const promise = service.putJson(key as any, { a: 1 });
+      await expect(promise).rejects.toThrow(BadRequestException);
+      await expect(promise).rejects.toThrow('S3 key is required');
+    });
+
+    it('should write serialized JSON with the json content type', async () => {
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      await service.putJson('recreation-lines.manifest.json', {
+        layer: 'recreation-lines',
+        feature_count: 3,
+      });
+
+      expect(mockS3Client.send.mock.calls[0]?.[0]).toBeInstanceOf(
+        PutObjectCommand,
+      );
+      expect(vi.mocked(PutObjectCommand).mock.calls[0]?.[0]).toEqual({
+        Bucket: bucketName,
+        Key: 'recreation-lines.manifest.json',
+        Body: '{"layer":"recreation-lines","feature_count":3}',
+        ContentType: 'application/json',
+      });
+    });
+
+    it('should trim the key before writing', async () => {
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      await service.putJson('  spaced.manifest.json  ', {});
+
+      expect(vi.mocked(PutObjectCommand).mock.calls[0]?.[0]?.Key).toBe(
+        'spaced.manifest.json',
+      );
+    });
+
+    it('should throw InternalServerErrorException when the write fails', async () => {
+      mockS3Client.send.mockRejectedValueOnce(new Error('Access Denied'));
+
+      const promise = service.putJson('a.manifest.json', {});
+      await expect(promise).rejects.toThrow(InternalServerErrorException);
+      await expect(promise).rejects.toThrow('Failed to write JSON for key');
+    });
+  });
+
+  describe('objectExists', () => {
+    it.each([
+      ['empty', ''],
+      ['null', null],
+      ['whitespace only', '   '],
+    ])('should throw BadRequestException when key is %s', async (_, key) => {
+      const promise = service.objectExists(key as any);
+      await expect(promise).rejects.toThrow(BadRequestException);
+      await expect(promise).rejects.toThrow('S3 key is required');
+    });
+
+    it('should return true when the object is present', async () => {
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      await expect(
+        service.objectExists('recreation-lines.geojson.gz'),
+      ).resolves.toBe(true);
+      expect(mockS3Client.send.mock.calls[0]?.[0]).toBeInstanceOf(
+        HeadObjectCommand,
+      );
+      expect(vi.mocked(HeadObjectCommand).mock.calls[0]?.[0]).toEqual({
+        Bucket: bucketName,
+        Key: 'recreation-lines.geojson.gz',
+      });
+    });
+
+    it.each([
+      ['a NotFound name', { name: 'NotFound' }],
+      ['a 404 status code', { $metadata: { httpStatusCode: 404 } }],
+    ])('should return false for %s', async (_, rejection) => {
+      mockS3Client.send.mockRejectedValueOnce(rejection);
+
+      await expect(service.objectExists('missing.geojson.gz')).resolves.toBe(
+        false,
+      );
+    });
+
+    it('should throw InternalServerErrorException for any other failure', async () => {
+      mockS3Client.send.mockRejectedValueOnce({
+        name: 'AccessDenied',
+        message: 'Access Denied',
+        $metadata: { httpStatusCode: 403 },
+      });
+
+      const promise = service.objectExists('forbidden.geojson.gz');
+      await expect(promise).rejects.toThrow(InternalServerErrorException);
+      await expect(promise).rejects.toThrow('Failed to check for key');
+    });
+  });
 });

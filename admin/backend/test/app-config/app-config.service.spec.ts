@@ -130,4 +130,58 @@ describe('AppConfigService', () => {
       expect(service.actCssClientId).toBe('test-act-css-client');
     });
   });
+
+  describe('BCGW Export Configuration', () => {
+    /** Rebuilds the module so ConfigModule re-reads any stubbed env vars. */
+    const buildService = async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      return module.get<AppConfigService>(AppConfigService);
+    };
+
+    it('should return the BCGW exports bucket', () => {
+      expect(service.bcgwExportsBucket).toBe('rst-bcgw-exports-dev');
+    });
+
+    it('should return undefined when the bucket is not configured', async () => {
+      vi.stubEnv('BCGW_EXPORTS_BUCKET', undefined as unknown as string);
+
+      expect((await buildService()).bcgwExportsBucket).toBeUndefined();
+    });
+
+    it('should report the export job disabled when the flag is unset', () => {
+      expect(service.bcgwExportEnabled).toBe(false);
+    });
+
+    it('should report the export job enabled only for the exact string "true"', async () => {
+      vi.stubEnv('BCGW_EXPORT_ENABLED', 'true');
+      expect((await buildService()).bcgwExportEnabled).toBe(true);
+    });
+
+    it.each(['false', 'TRUE', '1'])(
+      'should treat BCGW_EXPORT_ENABLED=%s as disabled',
+      async (value) => {
+        vi.stubEnv('BCGW_EXPORT_ENABLED', value);
+        expect((await buildService()).bcgwExportEnabled).toBe(false);
+      },
+    );
+
+    it('should default the cron to every 15 minutes', () => {
+      expect(service.bcgwExportCron).toBe('*/15 * * * *');
+    });
+
+    it('should return a configured cron expression', async () => {
+      vi.stubEnv('BCGW_EXPORT_CRON', '*/5 * * * *');
+      expect((await buildService()).bcgwExportCron).toBe('*/5 * * * *');
+    });
+  });
 });

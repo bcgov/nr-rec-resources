@@ -330,4 +330,58 @@ describe('AppConfigSchema', () => {
       mockValidateSync.mockRestore();
     });
   });
+
+  describe('BCGW_EXPORTS_BUCKET conditional requirement', () => {
+    it('validates without the bucket when the export job is not enabled', () => {
+      expect(() => validate(validConfig)).not.toThrow();
+      expect(validate(validConfig).BCGW_EXPORTS_BUCKET).toBeUndefined();
+    });
+
+    it('validates without the bucket when the export job is explicitly disabled', () => {
+      expect(() =>
+        validate({ ...validConfig, BCGW_EXPORT_ENABLED: 'false' }),
+      ).not.toThrow();
+    });
+
+    it('requires the bucket once the export job is enabled', () => {
+      expect(() =>
+        validate({ ...validConfig, BCGW_EXPORT_ENABLED: 'true' }),
+      ).toThrow('BCGW_EXPORTS_BUCKET');
+    });
+
+    it('accepts an enabled job that has somewhere to upload', () => {
+      const result = validate({
+        ...validConfig,
+        BCGW_EXPORT_ENABLED: 'true',
+        BCGW_EXPORTS_BUCKET: 'rst-bcgw-exports-test',
+      });
+
+      expect(result.BCGW_EXPORTS_BUCKET).toBe('rst-bcgw-exports-test');
+    });
+
+    it('rejects an enabled job whose bucket is blank', () => {
+      expect(() =>
+        validate({
+          ...validConfig,
+          BCGW_EXPORT_ENABLED: 'true',
+          BCGW_EXPORTS_BUCKET: '',
+        }),
+      ).toThrow('BCGW_EXPORTS_BUCKET should not be empty');
+    });
+
+    it('rejects a BCGW_EXPORT_ENABLED that is not a boolean string', () => {
+      expect(() =>
+        validate({ ...validConfig, BCGW_EXPORT_ENABLED: 'yes' }),
+      ).toThrow('BCGW_EXPORT_ENABLED');
+    });
+
+    it('accepts an optional cron expression', () => {
+      const result = validate({
+        ...validConfig,
+        BCGW_EXPORT_CRON: '*/15 * * * *',
+      });
+
+      expect(result.BCGW_EXPORT_CRON).toBe('*/15 * * * *');
+    });
+  });
 });
