@@ -4,13 +4,13 @@
 
 | Name                       | Type   |
 | -------------------------- | ------ |
-| `forest_file_id`           | string |
-| `project_name`             | string |
-| `project_type`             | string |
+| `rec_resource_id`          | string |
+| `rec_resource_name`        | string |
+| `rec_resource_type`        | string |
 | `closure_ind`              | string |
 | `closure_date`             | Date   |
 | `closure_type`             | string |
-| `site_location`            | string |
+| `closest_community`        | string |
 | `defined_campsites`        | number |
 | `recreation_district_code` | string |
 | `recreation_district_name` | string |
@@ -29,13 +29,13 @@ import type { BcgwClosuresShortDto } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "forest_file_id": REC204117,
-  "project_name": null,
-  "project_type": SIT - Recreation Site,
+  "rec_resource_id": REC204117,
+  "rec_resource_name": null,
+  "rec_resource_type": SIT - Recreation Site,
   "closure_ind": N,
   "closure_date": null,
   "closure_type": Wildfire,
-  "site_location": PEMBERTON,
+  "closest_community": PEMBERTON,
   "defined_campsites": 0,
   "recreation_district_code": RDPG,
   "recreation_district_name": Prince George-Mackenzie,

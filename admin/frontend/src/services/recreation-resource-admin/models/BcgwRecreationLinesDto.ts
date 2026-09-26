@@ -30,7 +30,7 @@ export interface BcgwRecreationLinesDto {
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
-  site_location: string | null;
+  closest_community: string | null;
   /**
    * For a retired recreation feature, the date and time the feature was retired.
    * @type {Date}
@@ -60,7 +60,7 @@ export interface BcgwRecreationLinesDto {
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
-  recreation_view_ind: BcgwRecreationLinesDtoRecreationViewIndEnum | null;
+  display_on_public_site_ind: BcgwRecreationLinesDtoRecreationViewIndEnum | null;
   /**
    * The total number of campsites.
    * @type {number}
@@ -74,11 +74,11 @@ export interface BcgwRecreationLinesDto {
    */
   life_cycle_status_code: BcgwRecreationLinesDtoLifeCycleStatusCodeEnum | null;
   /**
-   * The current status of the recreation tenure, e.g., AR (archived), HI (issued), PI (pending issuance).
+   * The current status of the recreation resource, e.g., AR (archived), HI (issued), PI (pending issuance).
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
-  file_status_code: string | null;
+  rec_status_code: string | null;
   /**
    * The unique identifier (SKEY) for the Recreation Map Feature.
    * @type {number}
@@ -86,11 +86,11 @@ export interface BcgwRecreationLinesDto {
    */
   rmf_skey: number;
   /**
-   * An identifier assigned to the recreation file, e.g., REC16098.
+   * The recreation resource identifier, e.g., REC16098.
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
-  forest_file_id: string;
+  rec_resource_id: string;
   /**
    * An identifier assigned to a section of a recreation trail, e.g., 1, 10, A, B, EATON LAKE.
    * @type {string}
@@ -102,15 +102,15 @@ export interface BcgwRecreationLinesDto {
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
-  recreation_map_feature_code: string | null;
+  rec_resource_type_code: string | null;
   /**
    * Description of the type of recreation feature, e.g., Interpretative Forest, Recreation Trail.
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
-  project_type: string | null;
+  rec_resource_type: string | null;
   /**
-   * The default label used when displaying the feature on a map, consisting of the FOREST FILE ID and SECTION ID separated by a space.
+   * The default label used when displaying the feature on a map, consisting of the REC RESOURCE ID and SECTION ID separated by a space.
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
@@ -120,7 +120,7 @@ export interface BcgwRecreationLinesDto {
    * @type {string}
    * @memberof BcgwRecreationLinesDto
    */
-  project_name: string | null;
+  rec_resource_name: string | null;
   /**
    * Code describing the type of natural or man-made recreation feature, e.g., H3 (Historic Route).
    * @type {string}
@@ -214,7 +214,10 @@ export function instanceOfBcgwRecreationLinesDto(
 ): value is BcgwRecreationLinesDto {
   if (!('amendment_id' in value) || value['amendment_id'] === undefined)
     return false;
-  if (!('site_location' in value) || value['site_location'] === undefined)
+  if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
+  )
     return false;
   if (!('retirement_date' in value) || value['retirement_date'] === undefined)
     return false;
@@ -234,8 +237,8 @@ export function instanceOfBcgwRecreationLinesDto(
   )
     return false;
   if (
-    !('recreation_view_ind' in value) ||
-    value['recreation_view_ind'] === undefined
+    !('display_on_public_site_ind' in value) ||
+    value['display_on_public_site_ind'] === undefined
   )
     return false;
   if (
@@ -248,22 +251,28 @@ export function instanceOfBcgwRecreationLinesDto(
     value['life_cycle_status_code'] === undefined
   )
     return false;
-  if (!('file_status_code' in value) || value['file_status_code'] === undefined)
+  if (!('rec_status_code' in value) || value['rec_status_code'] === undefined)
     return false;
   if (!('rmf_skey' in value) || value['rmf_skey'] === undefined) return false;
-  if (!('forest_file_id' in value) || value['forest_file_id'] === undefined)
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
   if (!('section_id' in value) || value['section_id'] === undefined)
     return false;
   if (
-    !('recreation_map_feature_code' in value) ||
-    value['recreation_map_feature_code'] === undefined
+    !('rec_resource_type_code' in value) ||
+    value['rec_resource_type_code'] === undefined
   )
     return false;
-  if (!('project_type' in value) || value['project_type'] === undefined)
+  if (
+    !('rec_resource_type' in value) ||
+    value['rec_resource_type'] === undefined
+  )
     return false;
   if (!('map_label' in value) || value['map_label'] === undefined) return false;
-  if (!('project_name' in value) || value['project_name'] === undefined)
+  if (
+    !('rec_resource_name' in value) ||
+    value['rec_resource_name'] === undefined
+  )
     return false;
   if (
     !('recreation_feature_code' in value) ||
@@ -303,7 +312,7 @@ export function BcgwRecreationLinesDtoFromJSONTyped(
   }
   return {
     amendment_id: json['amendment_id'],
-    site_location: json['site_location'],
+    closest_community: json['closest_community'],
     retirement_date:
       json['retirement_date'] == null
         ? null
@@ -314,17 +323,17 @@ export function BcgwRecreationLinesDtoFromJSONTyped(
       json['project_established_date'] == null
         ? null
         : new Date(json['project_established_date']),
-    recreation_view_ind: json['recreation_view_ind'],
+    display_on_public_site_ind: json['display_on_public_site_ind'],
     defined_campsites: json['defined_campsites'],
     life_cycle_status_code: json['life_cycle_status_code'],
-    file_status_code: json['file_status_code'],
+    rec_status_code: json['rec_status_code'],
     rmf_skey: json['rmf_skey'],
-    forest_file_id: json['forest_file_id'],
+    rec_resource_id: json['rec_resource_id'],
     section_id: json['section_id'],
-    recreation_map_feature_code: json['recreation_map_feature_code'],
-    project_type: json['project_type'],
+    rec_resource_type_code: json['rec_resource_type_code'],
+    rec_resource_type: json['rec_resource_type'],
     map_label: json['map_label'],
-    project_name: json['project_name'],
+    rec_resource_name: json['rec_resource_name'],
     recreation_feature_code: json['recreation_feature_code'],
     right_of_way: json['right_of_way'],
     recreation_district_code: json['recreation_district_code'],
@@ -351,7 +360,7 @@ export function BcgwRecreationLinesDtoToJSONTyped(
 
   return {
     amendment_id: value['amendment_id'],
-    site_location: value['site_location'],
+    closest_community: value['closest_community'],
     retirement_date: (value['retirement_date'] as any)
       .toISOString()
       .substring(0, 10),
@@ -360,17 +369,17 @@ export function BcgwRecreationLinesDtoToJSONTyped(
     project_established_date: (value['project_established_date'] as any)
       .toISOString()
       .substring(0, 10),
-    recreation_view_ind: value['recreation_view_ind'],
+    display_on_public_site_ind: value['display_on_public_site_ind'],
     defined_campsites: value['defined_campsites'],
     life_cycle_status_code: value['life_cycle_status_code'],
-    file_status_code: value['file_status_code'],
+    rec_status_code: value['rec_status_code'],
     rmf_skey: value['rmf_skey'],
-    forest_file_id: value['forest_file_id'],
+    rec_resource_id: value['rec_resource_id'],
     section_id: value['section_id'],
-    recreation_map_feature_code: value['recreation_map_feature_code'],
-    project_type: value['project_type'],
+    rec_resource_type_code: value['rec_resource_type_code'],
+    rec_resource_type: value['rec_resource_type'],
     map_label: value['map_label'],
-    project_name: value['project_name'],
+    rec_resource_name: value['rec_resource_name'],
     recreation_feature_code: value['recreation_feature_code'],
     right_of_way: value['right_of_way'],
     recreation_district_code: value['recreation_district_code'],
