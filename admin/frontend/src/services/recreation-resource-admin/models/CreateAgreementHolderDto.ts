@@ -43,12 +43,6 @@ export interface CreateAgreementHolderDto {
    * @memberof CreateAgreementHolderDto
    */
   visible_on_public_website?: boolean;
-  /**
-   * Relationship type code for the agreement holder
-   * @type {string}
-   * @memberof CreateAgreementHolderDto
-   */
-  partner_relationship_type_code?: string;
 }
 
 /**
@@ -87,10 +81,6 @@ export function CreateAgreementHolderDtoFromJSONTyped(
       json['visible_on_public_website'] == null
         ? undefined
         : json['visible_on_public_website'],
-    partner_relationship_type_code:
-      json['partner_relationship_type_code'] == null
-        ? undefined
-        : json['partner_relationship_type_code'],
   };
 }
 
@@ -113,6 +103,5 @@ export function CreateAgreementHolderDtoToJSONTyped(
     agreementEndDate: value['agreementEndDate'],
     clientNumber: value['clientNumber'],
     visible_on_public_website: value['visible_on_public_website'],
-    partner_relationship_type_code: value['partner_relationship_type_code'],
   };
 }

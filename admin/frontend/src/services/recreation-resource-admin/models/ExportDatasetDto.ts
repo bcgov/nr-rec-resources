@@ -53,7 +53,6 @@ export const ExportDatasetDtoIdEnum = {
   FileDetailsFta: 'file-details-fta',
   FeeList: 'fee-list',
   FeeListFta: 'fee-list-fta',
-  AgreementList: 'agreement-list',
   AgreementListFta: 'agreement-list-fta',
   CampsiteList: 'campsite-list',
   CampsiteListFta: 'campsite-list-fta',
@@ -69,6 +68,7 @@ export const ExportDatasetDtoIdEnum = {
   SiteInspectionFta: 'site-inspection-fta',
   ClosureListFta: 'closure-list-fta',
   AssetRepairList: 'asset-repair-list',
+  PartnersList: 'partners-list',
 } as const;
 export type ExportDatasetDtoIdEnum =
   (typeof ExportDatasetDtoIdEnum)[keyof typeof ExportDatasetDtoIdEnum];

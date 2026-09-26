@@ -847,7 +847,6 @@ model recreation_agreement_holder {
   sys_period                Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   agreement_holder_id       Int                      @id @default(autoincrement())
   visible_on_public_website Boolean                  @default(false)
-  recreation_operator       Boolean                  @default(false)
   recreation_resource       recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([client_number])
@@ -869,7 +868,6 @@ model recreation_agreement_holder_history {
   sys_period                Unsupported("tstzrange")
   agreement_holder_id       Int?
   visible_on_public_website Boolean?
-  recreation_operator       Boolean?
 
   @@ignore
   @@schema("rst")

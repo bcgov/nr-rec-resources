@@ -6,7 +6,6 @@ agreement_start_date,
 agreement_end_date,
 revision_count,
 visible_on_public_website,
-recreation_operator,
 updated_at,
 updated_by,
 created_at,
@@ -22,17 +21,6 @@ select distinct on (a.forest_file_id)
   a.agreement_end_date,
   a.revision_count,
   true as visible_on_public_website,
-  (
-    coalesce(a.agreement_start_date, current_date) <= current_date
-    and a.agreement_end_date is not null
-    and a.agreement_end_date > current_date
-    and exists (
-      select 1
-      from rst.recreation_fee rf
-      where rf.rec_resource_id = a.forest_file_id
-        and rf.is_deleted = false
-    )
-  ) as recreation_operator,
   a.update_timestamp as updated_at,
   a.update_userid as updated_by,
   a.entry_timestamp as created_at,
@@ -51,7 +39,6 @@ set
   agreement_start_date = excluded.agreement_start_date,
   agreement_end_date = excluded.agreement_end_date,
   revision_count = excluded.revision_count,
-  recreation_operator = excluded.recreation_operator,
   updated_by      = excluded.updated_by,
   updated_at      = excluded.updated_at,
   created_at      = excluded.created_at,

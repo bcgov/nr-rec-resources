@@ -24,14 +24,4 @@ export class CreateAgreementHolderDto extends AgreementDateRangeDto {
   @IsOptional()
   @IsBoolean()
   visible_on_public_website?: boolean;
-
-  @ApiProperty({
-    example: 'SITE_OPERATOR',
-    required: false,
-    description: 'Relationship type code for the agreement holder',
-  })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  @IsOptional()
-  @IsString()
-  partner_relationship_type_code?: string;
 }

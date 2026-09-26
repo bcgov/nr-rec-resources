@@ -14,6 +14,7 @@ describe('PartnerService', () => {
   let service: PartnerService;
   let prisma: {
     recreation_resource: { findUnique: ReturnType<typeof vi.fn> };
+    recreation_fee: { findFirst: ReturnType<typeof vi.fn> };
     recreation_agreement_holder: {
       findUnique: ReturnType<typeof vi.fn>;
       findFirst: ReturnType<typeof vi.fn>;
@@ -27,6 +28,7 @@ describe('PartnerService', () => {
   beforeEach(() => {
     prisma = {
       recreation_resource: { findUnique: vi.fn() },
+      recreation_fee: { findFirst: vi.fn().mockResolvedValue({ fee_id: 1 }) },
       recreation_agreement_holder: {
         findUnique: vi.fn(),
         findFirst: vi.fn().mockResolvedValue(null),
@@ -58,14 +60,12 @@ describe('PartnerService', () => {
           agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
           agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
           visible_on_public_website: false,
-          recreation_operator: false,
         },
         {
           client_number: '00000003',
           agreement_start_date: new Date('2025-01-01T00:00:00.000Z'),
           agreement_end_date: null,
           visible_on_public_website: true,
-          recreation_operator: false,
         },
       ]);
       fetchMock
@@ -116,8 +116,14 @@ describe('PartnerService', () => {
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          recreation_operator: true,
         },
+      });
+      expect(prisma.recreation_fee.findFirst).toHaveBeenCalledWith({
+        where: {
+          rec_resource_id: 'REC0002',
+          is_deleted: false,
+        },
+        select: { fee_id: true },
       });
       expect(fetchMock).toHaveBeenNthCalledWith(
         1,
@@ -153,7 +159,7 @@ describe('PartnerService', () => {
           agreementStartDate: '2024-01-01',
           agreementEndDate: '2026-12-31',
           visible_on_public_website: false,
-          partner_relationship_type_code: 'SITE_OPERATOR',
+          partner_relationship_type_code: 'RECREATION_OPERATOR',
         },
         {
           clientNumber: '00000003',
@@ -183,7 +189,6 @@ describe('PartnerService', () => {
           agreement_start_date: null,
           agreement_end_date: null,
           visible_on_public_website: false,
-          recreation_operator: false,
         },
       ]);
 
@@ -441,7 +446,6 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
         visible_on_public_website: false,
-        recreation_operator: false,
       });
       fetchMock.mockResolvedValue({
         ok: true,
@@ -466,14 +470,12 @@ describe('PartnerService', () => {
           agreement_start_date: new Date('2024-01-01'),
           agreement_end_date: new Date('2026-12-31'),
           visible_on_public_website: false,
-          recreation_operator: false,
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          recreation_operator: true,
         },
       });
       expect(result).toEqual({
@@ -486,15 +488,14 @@ describe('PartnerService', () => {
         agreementStartDate: '2024-01-01',
         agreementEndDate: '2026-12-31',
         visible_on_public_website: false,
-        partner_relationship_type_code: 'SITE_OPERATOR',
+        partner_relationship_type_code: 'RECREATION_OPERATOR',
       });
     });
 
-    it('uses provided visibility and relationship type values from the payload', async () => {
+    it('creates a site operator response when the agreement has no end date', async () => {
       const createDto: CreateAgreementHolderDto = {
         clientNumber: '00000002',
         visible_on_public_website: true,
-        partner_relationship_type_code: 'RECREATION_OPERATOR',
       };
 
       prisma.recreation_resource.findUnique.mockResolvedValue({
@@ -506,7 +507,6 @@ describe('PartnerService', () => {
         agreement_start_date: null,
         agreement_end_date: null,
         visible_on_public_website: true,
-        recreation_operator: true,
       });
       fetchMock.mockResolvedValue({
         ok: true,
@@ -522,7 +522,7 @@ describe('PartnerService', () => {
         headers: { get: vi.fn().mockReturnValue(null) },
       });
 
-      await service.createAgreementHolder('REC0002', createDto);
+      const result = await service.createAgreementHolder('REC0002', createDto);
 
       expect(prisma.recreation_agreement_holder.create).toHaveBeenCalledWith({
         data: {
@@ -531,16 +531,15 @@ describe('PartnerService', () => {
           agreement_start_date: null,
           agreement_end_date: null,
           visible_on_public_website: true,
-          recreation_operator: true,
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          recreation_operator: true,
         },
       });
+      expect(result.partner_relationship_type_code).toBe('SITE_OPERATOR');
     });
 
     it('throws ConflictException when the same client is already assigned to the resource', async () => {
@@ -608,7 +607,6 @@ describe('PartnerService', () => {
         agreementStartDate: '2024-02-01',
         agreementEndDate: '2026-11-30',
         visible_on_public_website: true,
-        partner_relationship_type_code: 'RECREATION_OPERATOR',
       };
 
       prisma.recreation_agreement_holder.findFirst.mockResolvedValue({
@@ -616,7 +614,6 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
         visible_on_public_website: false,
-        recreation_operator: false,
         agreement_holder_id: 1,
       });
       prisma.recreation_agreement_holder.update.mockResolvedValue({
@@ -624,7 +621,6 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-02-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-11-30T00:00:00.000Z'),
         visible_on_public_website: true,
-        recreation_operator: true,
         agreement_holder_id: 1,
       });
       fetchMock.mockResolvedValue({
@@ -649,14 +645,12 @@ describe('PartnerService', () => {
           agreement_start_date: new Date('2024-02-01'),
           agreement_end_date: new Date('2026-11-30'),
           visible_on_public_website: true,
-          recreation_operator: true,
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          recreation_operator: true,
         },
       });
       expect(result).toEqual({
@@ -676,7 +670,6 @@ describe('PartnerService', () => {
     it('updates only agreement-holder metadata when dates are omitted', async () => {
       const updateDto: UpdateAgreementHolderDto = {
         visible_on_public_website: true,
-        partner_relationship_type_code: 'RECREATION_OPERATOR',
       };
 
       prisma.recreation_agreement_holder.findFirst.mockResolvedValue({
@@ -684,7 +677,6 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
         visible_on_public_website: false,
-        recreation_operator: false,
         agreement_holder_id: 1,
       });
       prisma.recreation_agreement_holder.update.mockResolvedValue({
@@ -692,7 +684,6 @@ describe('PartnerService', () => {
         agreement_start_date: new Date('2024-01-01T00:00:00.000Z'),
         agreement_end_date: new Date('2026-12-31T00:00:00.000Z'),
         visible_on_public_website: true,
-        recreation_operator: true,
         agreement_holder_id: 1,
       });
       fetchMock.mockResolvedValue({
@@ -717,14 +708,12 @@ describe('PartnerService', () => {
           agreement_start_date: undefined,
           agreement_end_date: undefined,
           visible_on_public_website: true,
-          recreation_operator: true,
         },
         select: {
           client_number: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          recreation_operator: true,
         },
       });
       expect(result).toEqual({
@@ -788,7 +777,7 @@ describe('PartnerService', () => {
         agreementStartDate: undefined,
         agreementEndDate: '2026-11-30',
         visible_on_public_website: undefined,
-        partner_relationship_type_code: 'SITE_OPERATOR',
+        partner_relationship_type_code: 'RECREATION_OPERATOR',
       });
     });
   });

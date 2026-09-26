@@ -30,7 +30,6 @@ type AgreementHolderRecord = {
   agreement_start_date?: Date | null;
   agreement_end_date?: Date | null;
   visible_on_public_website?: boolean;
-  recreation_operator?: boolean;
 };
 
 const CLIENT_STATUS_DESCRIPTIONS: Record<string, string> = {
@@ -86,9 +85,9 @@ export class PartnerService {
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
-          recreation_operator: true,
-        } as any,
+        },
       })) as AgreementHolderRecord[];
+    const hasFees = await this.resourceHasFees(rec_resource_id);
 
     const partnerRows = await Promise.all(
       agreementHolders.map(async (agreementHolder) => {
@@ -118,9 +117,10 @@ export class PartnerService {
             ),
             visible_on_public_website:
               agreementHolder.visible_on_public_website ?? undefined,
-            partner_relationship_type_code: agreementHolder.recreation_operator
-              ? 'RECREATION_OPERATOR'
-              : 'SITE_OPERATOR',
+            partner_relationship_type_code: this.getPartnerRelationshipTypeCode(
+              agreementHolder.agreement_end_date,
+              hasFees,
+            ),
           }));
       }),
     );
@@ -178,7 +178,6 @@ export class PartnerService {
         agreement_start_date: true,
         agreement_end_date: true,
         visible_on_public_website: true,
-        recreation_operator: true,
       },
     });
 
@@ -195,6 +194,7 @@ export class PartnerService {
     }
 
     const client = await this.fetchClientByClientNumber(createDto.clientNumber);
+    const hasFees = await this.resourceHasFees(rec_resource_id);
 
     const created = (await this.prisma.recreation_agreement_holder.create({
       data: {
@@ -207,19 +207,16 @@ export class PartnerService {
           ? new Date(createDto.agreementEndDate)
           : null,
         visible_on_public_website: createDto.visible_on_public_website ?? false,
-        recreation_operator:
-          createDto.partner_relationship_type_code === 'RECREATION_OPERATOR',
-      } as any,
+      },
       select: {
         client_number: true,
         agreement_start_date: true,
         agreement_end_date: true,
         visible_on_public_website: true,
-        recreation_operator: true,
-      } as any,
+      },
     })) as AgreementHolderRecord;
 
-    return this.buildAgreementHolderClientResponse(created, client);
+    return this.buildAgreementHolderClientResponse(created, client, hasFees);
   }
 
   async updateAgreementHolder(
@@ -229,8 +226,7 @@ export class PartnerService {
     if (
       updateDto.agreementStartDate === undefined &&
       updateDto.agreementEndDate === undefined &&
-      updateDto.visible_on_public_website === undefined &&
-      updateDto.partner_relationship_type_code === undefined
+      updateDto.visible_on_public_website === undefined
     ) {
       throw new BadRequestException(
         'At least one updatable agreement-holder field is required.',
@@ -245,8 +241,7 @@ export class PartnerService {
         agreement_start_date: true,
         agreement_end_date: true,
         visible_on_public_website: true,
-        recreation_operator: true,
-      } as any,
+      },
     })) as (AgreementHolderRecord & { agreement_holder_id?: number }) | null;
 
     if (!existing) {
@@ -254,6 +249,8 @@ export class PartnerService {
         `Agreement holder for recreation resource ${rec_resource_id} not found`,
       );
     }
+
+    const hasFees = await this.resourceHasFees(rec_resource_id);
 
     const updated = (await this.prisma.recreation_agreement_holder.update({
       where: { agreement_holder_id: existing.agreement_holder_id },
@@ -267,23 +264,20 @@ export class PartnerService {
             ? new Date(updateDto.agreementEndDate)
             : undefined,
         visible_on_public_website: updateDto.visible_on_public_website,
-        recreation_operator:
-          updateDto.partner_relationship_type_code === 'RECREATION_OPERATOR',
-      } as any,
+      },
       select: {
         client_number: true,
         agreement_start_date: true,
         agreement_end_date: true,
         visible_on_public_website: true,
-        recreation_operator: true,
-      } as any,
+      },
     })) as AgreementHolderRecord;
 
     const client = updated.client_number
       ? await this.fetchClientByClientNumber(updated.client_number)
       : {};
 
-    return this.buildAgreementHolderClientResponse(updated, client);
+    return this.buildAgreementHolderClientResponse(updated, client, hasFees);
   }
 
   async listClientLocations(
@@ -400,9 +394,30 @@ export class PartnerService {
     return value ? value.toISOString().slice(0, 10) : undefined;
   }
 
+  private isAgreementActive(agreementEndDate?: Date | null): boolean {
+    if (!agreementEndDate) {
+      return false;
+    }
+
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    return agreementEndDate >= startOfToday;
+  }
+
+  private getPartnerRelationshipTypeCode(
+    agreementEndDate: Date | null | undefined,
+    hasFees: boolean,
+  ): 'RECREATION_OPERATOR' | 'SITE_OPERATOR' {
+    return hasFees && this.isAgreementActive(agreementEndDate)
+      ? 'RECREATION_OPERATOR'
+      : 'SITE_OPERATOR';
+  }
+
   private buildAgreementHolderClientResponse(
     agreementHolder: AgreementHolderRecord,
     client: ClientPublicViewDto,
+    hasFees: boolean,
   ): AgreementHolderClientPublicViewDto {
     return {
       ...client,
@@ -414,9 +429,10 @@ export class PartnerService {
       ),
       visible_on_public_website:
         agreementHolder.visible_on_public_website ?? undefined,
-      partner_relationship_type_code: agreementHolder.recreation_operator
-        ? 'RECREATION_OPERATOR'
-        : 'SITE_OPERATOR',
+      partner_relationship_type_code: this.getPartnerRelationshipTypeCode(
+        agreementHolder.agreement_end_date,
+        hasFees,
+      ),
     };
   }
 
@@ -513,5 +529,17 @@ export class PartnerService {
         `Recreation resource with ID ${rec_resource_id} not found`,
       );
     }
+  }
+
+  private async resourceHasFees(rec_resource_id: string): Promise<boolean> {
+    const fee = await this.prisma.recreation_fee.findFirst({
+      where: {
+        rec_resource_id,
+        is_deleted: false,
+      },
+      select: { fee_id: true },
+    });
+
+    return fee !== null;
   }
 }
