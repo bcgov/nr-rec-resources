@@ -1,14 +1,10 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
-import { CustomBadge, HelpIcon } from '@/components';
-import {
-  COLOR_GREEN_DARKER,
-  COLOR_GREEN_LIGHTEST,
-  COLOR_BACKGROUND_GREY,
-  COLOR_BLUE,
-  COLOR_BLUE_DARK,
-  COLOR_BLUE_LIGHT,
-} from '@/styles/colors';
+import { HelpIcon } from '@/components';
+import { COLOR_BLUE, COLOR_BLUE_LIGHT } from '@/styles/colors';
+import { formatAgreementDate } from './partnerStatus';
+import { PartnerCardHeader } from './PartnerCardHeader';
+import { formatPhoneNumber } from './helpers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEye,
@@ -41,30 +37,15 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
       await fetchLocations(clientNumber);
     }
   };
-  const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '');
-    return digits.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
-  };
-  const isActive =
-    partner.agreementEndDate === undefined ||
-    new Date(`${partner.agreementEndDate}T00:00:00`) > new Date();
   return (
-    <div key={partner.clientNumber} className="partner-panel mb-3">
-      <Row className="align-items-center mb-2">
-        <Col xs={10}>
-          <span className="fw-bold">{partner.clientNumber}</span>{' '}
-          <span>
-            {partner.clientName && capitalizeWords(partner.clientName)}
-          </span>
-        </Col>
-        <Col xs={2} className="text-end">
-          <CustomBadge
-            label={isActive ? 'Active' : 'Expired'}
-            bgColor={isActive ? COLOR_GREEN_LIGHTEST : COLOR_BACKGROUND_GREY}
-            textColor={isActive ? COLOR_GREEN_DARKER : COLOR_BLUE_DARK}
-          />
-        </Col>
-      </Row>
+    <div className="partner-panel mb-3">
+      <PartnerCardHeader
+        clientNumber={partner.clientNumber}
+        clientName={partner.clientName}
+        agreementEndDate={partner.agreementEndDate}
+        cancelled={partner.cancelled}
+        className="align-items-center mb-2"
+      />
       <Row className="align-items-center mb-3">
         <Col xs={12}>
           <span className="badge rounded-pill bg-primary">
@@ -94,17 +75,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
             className="me-2 calendar-icon"
           />
           <span className="fw-bold">Start date</span>{' '}
-          <span>
-            {partner.agreementStartDate &&
-              new Date(
-                `${partner.agreementStartDate}T00:00:00`,
-              ).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-                timeZone: 'UTC',
-              })}
-          </span>
+          <span>{formatAgreementDate(partner.agreementStartDate)}</span>
         </Col>
         <Col xs={4}>
           <FontAwesomeIcon
@@ -112,17 +83,7 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
             className="me-2 calendar-icon"
           />
           <span className="fw-bold">End date</span>{' '}
-          <span>
-            {partner.agreementEndDate &&
-              new Date(
-                `${partner.agreementEndDate}T00:00:00`,
-              ).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-                timeZone: 'UTC',
-              })}
-          </span>
+          <span>{formatAgreementDate(partner.agreementEndDate)}</span>
         </Col>
         <Col xs={4}>
           <FontAwesomeIcon

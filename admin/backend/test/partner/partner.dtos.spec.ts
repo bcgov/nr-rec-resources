@@ -57,10 +57,10 @@ describe('Partner DTOs', () => {
     const dto = new UpdateAgreementHolderDto();
     dto.agreementStartDate = '2024-02-01';
     dto.visible_on_public_website = true;
-    dto.partner_relationship_type_code = 'SITE_OPERATOR';
+    dto.cancelled = true;
 
     expect(dto.agreementStartDate).toBe('2024-02-01');
     expect(dto.visible_on_public_website).toBe(true);
-    expect(dto.partner_relationship_type_code).toBe('SITE_OPERATOR');
+    expect(dto.cancelled).toBe(true);
   });
 });

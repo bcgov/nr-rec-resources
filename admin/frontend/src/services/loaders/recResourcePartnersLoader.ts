@@ -24,12 +24,18 @@ export async function recResourcePartnersLoader(args: any) {
       initialData: [],
       queryFn: async () => {
         try {
-          const response = await api.getPartnersByRecreationResourceId({
+          return await api.getPartnersByRecreationResourceId({
             recResourceId: args.params.id,
           });
-          return response;
-        } catch (err) {
-          if (err) return [];
+        } catch (err: any) {
+          // Fall back to an empty list rather than null: this value becomes
+          // initialData, and a null would survive the `= []` default in the
+          // consuming components and blow up on .map().
+          console.error(
+            'Failed to load recreation resource partners',
+            err?.message ?? err,
+          );
+          return [];
         }
       },
     }),

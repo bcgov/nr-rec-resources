@@ -74,17 +74,23 @@ export interface AgreementHolderClientPublicViewDto {
    */
   acronym?: string;
   /**
-   *
-   * @type {string}
+   * Surrogate key of the agreement-holder row. Addresses update and delete.
+   * @type {number}
    * @memberof AgreementHolderClientPublicViewDto
    */
-  agreementStartDate?: string;
+  agreement_holder_id: number;
   /**
    *
    * @type {string}
    * @memberof AgreementHolderClientPublicViewDto
    */
-  agreementEndDate?: string;
+  agreementStartDate?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof AgreementHolderClientPublicViewDto
+   */
+  agreementEndDate?: string | null;
   /**
    *
    * @type {boolean}
@@ -97,6 +103,12 @@ export interface AgreementHolderClientPublicViewDto {
    * @memberof AgreementHolderClientPublicViewDto
    */
   partner_relationship_type_code?: string;
+  /**
+   * Whether the agreement has been cancelled. Cancellation is one-way.
+   * @type {boolean}
+   * @memberof AgreementHolderClientPublicViewDto
+   */
+  cancelled: boolean;
 }
 
 /**
@@ -105,6 +117,12 @@ export interface AgreementHolderClientPublicViewDto {
 export function instanceOfAgreementHolderClientPublicViewDto(
   value: object,
 ): value is AgreementHolderClientPublicViewDto {
+  if (
+    !('agreement_holder_id' in value) ||
+    value['agreement_holder_id'] === undefined
+  )
+    return false;
+  if (!('cancelled' in value) || value['cancelled'] === undefined) return false;
   return true;
 }
 
@@ -142,6 +160,7 @@ export function AgreementHolderClientPublicViewDtoFromJSONTyped(
         ? undefined
         : json['clientTypeDescription'],
     acronym: json['acronym'] == null ? undefined : json['acronym'],
+    agreement_holder_id: json['agreement_holder_id'],
     agreementStartDate:
       json['agreementStartDate'] == null
         ? undefined
@@ -156,6 +175,7 @@ export function AgreementHolderClientPublicViewDtoFromJSONTyped(
       json['partner_relationship_type_code'] == null
         ? undefined
         : json['partner_relationship_type_code'],
+    cancelled: json['cancelled'],
   };
 }
 
@@ -183,9 +203,11 @@ export function AgreementHolderClientPublicViewDtoToJSONTyped(
     clientTypeCode: value['clientTypeCode'],
     clientTypeDescription: value['clientTypeDescription'],
     acronym: value['acronym'],
+    agreement_holder_id: value['agreement_holder_id'],
     agreementStartDate: value['agreementStartDate'],
     agreementEndDate: value['agreementEndDate'],
     visible_on_public_website: value['visible_on_public_website'],
     partner_relationship_type_code: value['partner_relationship_type_code'],
+    cancelled: value['cancelled'],
   };
 }
