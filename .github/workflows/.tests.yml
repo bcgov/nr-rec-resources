@@ -17,7 +17,7 @@ jobs:
       name: ${{ inputs.app }}
     services:
       postgres:
-        image: postgres
+        image: postgres@sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
