@@ -7,4 +7,3 @@ export default defineWorkspace([
   'public/backend/vitest.config.mts',
   'public/frontend/vitest.config.mts',
 ]);
-

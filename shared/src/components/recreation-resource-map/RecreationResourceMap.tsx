@@ -63,7 +63,9 @@ export const RecreationResourceMap = ({
   useEffect(() => {
     const map = mapRef.current?.getMap?.();
     const host = mapHostRef.current;
-    const scopedMapContainer = host?.querySelector('[data-testid="map-container"]');
+    const scopedMapContainer = host?.querySelector(
+      '[data-testid="map-container"]',
+    );
 
     if (!map || !(scopedMapContainer instanceof HTMLElement)) {
       return;

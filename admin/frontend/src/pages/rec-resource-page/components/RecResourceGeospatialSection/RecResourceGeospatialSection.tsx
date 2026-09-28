@@ -162,20 +162,13 @@ export function RecResourceGeospatialSection() {
         </div>
       </div>
 
-      {/* ── Location map ── */}
+      {/* ── Map + action buttons ── */}
       {recResourceWithGeometry && (
-        <div className="geospatial-section__card">
-          <div className="geospatial-section__card-header">
-            <h2 className="geospatial-section__card-title">Location map</h2>
-          </div>
-          <div className="geospatial-section__card-body">
-            <RecResourceLocationSection
-              recResource={recResourceWithGeometry}
-              showHeading={false}
-              imapUrl={imapUrl}
-            />
-          </div>
-        </div>
+        <RecResourceLocationSection
+          recResource={recResourceWithGeometry}
+          showHeading={false}
+          imapUrl={imapUrl}
+        />
       )}
 
       {/* ── Exhibit A ── */}
