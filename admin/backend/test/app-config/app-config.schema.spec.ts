@@ -1,6 +1,6 @@
 import { EnvironmentVariables, validate } from '@/app-config/app-config.schema';
 import 'reflect-metadata';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock class-validator
 vi.mock('class-validator', async () => {
@@ -332,6 +332,19 @@ describe('AppConfigSchema', () => {
   });
 
   describe('BCGW_EXPORTS_BUCKET conditional requirement', () => {
+    // Tests above call mockRestore() on the mocked validateSync. On a plain vi.fn
+    // that clears the implementation rather than restoring it, so validateSync
+    // returns undefined and validate() dies on `errors.length`. Re-apply the real
+    // implementation so this block works whatever ran before it.
+    beforeEach(async () => {
+      const { validateSync } = await import('class-validator');
+      const actual =
+        await vi.importActual<typeof import('class-validator')>(
+          'class-validator',
+        );
+      vi.mocked(validateSync).mockImplementation(actual.validateSync);
+    });
+
     it('validates without the bucket when the export job is not enabled', () => {
       expect(() => validate(validConfig)).not.toThrow();
       expect(validate(validConfig).BCGW_EXPORTS_BUCKET).toBeUndefined();
@@ -369,11 +382,14 @@ describe('AppConfigSchema', () => {
       ).toThrow('BCGW_EXPORTS_BUCKET should not be empty');
     });
 
-    it('rejects a BCGW_EXPORT_ENABLED that is not a boolean string', () => {
-      expect(() =>
-        validate({ ...validConfig, BCGW_EXPORT_ENABLED: 'yes' }),
-      ).toThrow('BCGW_EXPORT_ENABLED');
-    });
+    it.each(['yes', 'TRUE', 'True'])(
+      'rejects BCGW_EXPORT_ENABLED=%s as not a boolean string',
+      (value) => {
+        expect(() =>
+          validate({ ...validConfig, BCGW_EXPORT_ENABLED: value }),
+        ).toThrow('BCGW_EXPORT_ENABLED');
+      },
+    );
 
     it('accepts an optional cron expression', () => {
       const result = validate({

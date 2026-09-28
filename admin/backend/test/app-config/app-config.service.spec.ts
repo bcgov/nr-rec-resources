@@ -167,7 +167,7 @@ describe('AppConfigService', () => {
       expect((await buildService()).bcgwExportEnabled).toBe(true);
     });
 
-    it.each(['false', 'TRUE', '1'])(
+    it.each(['false', '0', '1'])(
       'should treat BCGW_EXPORT_ENABLED=%s as disabled',
       async (value) => {
         vi.stubEnv('BCGW_EXPORT_ENABLED', value);
