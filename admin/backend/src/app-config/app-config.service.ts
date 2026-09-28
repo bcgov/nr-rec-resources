@@ -116,6 +116,13 @@ export class AppConfigService {
     })!;
   }
 
+  /** Unset when this environment does not run the BCGW export job. */
+  get bcgwExportsBucket(): string | undefined {
+    return this.configService.get('BCGW_EXPORTS_BUCKET', {
+      infer: true,
+    });
+  }
+
   get awsRegion(): string {
     return this.configService.get('AWS_REGION', {
       infer: true,
@@ -133,5 +140,19 @@ export class AppConfigService {
     return this.configService.get('RST_STORAGE_CLOUDFRONT_URL', {
       infer: true,
     })!;
+  }
+
+  // BCGW export job
+  get bcgwExportEnabled(): boolean {
+    return (
+      this.configService.get('BCGW_EXPORT_ENABLED', { infer: true }) === 'true'
+    );
+  }
+
+  get bcgwExportCron(): string {
+    return (
+      this.configService.get('BCGW_EXPORT_CRON', { infer: true }) ??
+      '*/15 * * * *'
+    );
   }
 }

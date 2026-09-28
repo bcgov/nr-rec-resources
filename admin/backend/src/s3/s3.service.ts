@@ -322,6 +322,68 @@ export class S3Service {
   }
 
   /**
+   * Write a JSON document to S3, overwriting any existing object at the key.
+   * @param key - The S3 object key
+   * @param value - Value to serialize as the object body
+   * @throws BadRequestException if key is invalid
+   * @throws InternalServerErrorException if the write fails
+   */
+  async putJson(key: string, value: unknown): Promise<void> {
+    if (!key?.trim()) {
+      throw new BadRequestException('S3 key is required');
+    }
+
+    try {
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: key.trim(),
+          Body: JSON.stringify(value),
+          ContentType: 'application/json',
+        }),
+      );
+    } catch (error) {
+      const errorMessage = `Failed to write JSON for key "${key}" in bucket "${this.bucketName}"`;
+      this.logger.error(`${errorMessage}: ${error.message}`, error.stack);
+      throw new InternalServerErrorException(errorMessage);
+    }
+  }
+
+  /**
+   * Check whether an object exists at the given key.
+   * @param key - The S3 object key
+   * @returns true when the object exists, false when it does not
+   * @throws BadRequestException if key is invalid
+   * @throws InternalServerErrorException if the check fails for any other reason
+   */
+  async objectExists(key: string): Promise<boolean> {
+    if (!key?.trim()) {
+      throw new BadRequestException('S3 key is required');
+    }
+
+    try {
+      await this.s3Client.send(
+        new HeadObjectCommand({
+          Bucket: this.bucketName,
+          Key: key.trim(),
+        }),
+      );
+      return true;
+    } catch (error) {
+      if (
+        error.name === 'NotFound' ||
+        error.$metadata?.httpStatusCode === 404
+      ) {
+        return false;
+      }
+
+      const errorMessage = `Failed to check for key "${key}" in bucket "${this.bucketName}"`;
+      this.logger.error(`${errorMessage}: ${error.message}`, error.stack);
+      throw new InternalServerErrorException(errorMessage);
+    }
+  }
+
+  /**
    * Delete a file from S3
    * @param key - S3 object key
    * @throws BadRequestException if key is invalid
