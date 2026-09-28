@@ -1,4 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import {
+  faCircleExclamation,
+  faCircleInfo,
+} from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert, Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useGetRecreationResourceOptions } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceOptions';
@@ -16,6 +22,7 @@ import {
   type ValidationIssue,
 } from './spatialSubmissionUtils';
 import { SpatialSubmissionMap } from './SpatialSubmissionMap';
+import './SpatialSubmissionSection.scss';
 import '@/pages/rec-resource-page/components/RecResourceGeospatialSection/ExhibitASection/ExhibitASection.scss';
 
 interface SpatialSubmissionSectionProps {
@@ -352,6 +359,9 @@ export const SpatialSubmissionSection = ({
     selectedFeatureIndex === null
       ? null
       : (featureSectionIds[selectedFeatureIndex] ?? null);
+  const hasValidationErrors = issues.some(
+    (issue) => issue.severity === 'ERROR',
+  );
 
   return (
     <Card>
@@ -544,26 +554,50 @@ export const SpatialSubmissionSection = ({
           </Col>
 
           <Col xs={12}>
+            {issues.length > 0 && (
+              <Alert
+                className={`mt-3 mb-0 spatial-submission-section__validation-alert spatial-submission-section__validation-alert--${hasValidationErrors ? 'danger' : 'warning'}`}
+                variant="light"
+              >
+                <FontAwesomeIcon
+                  icon={faCircleExclamation as IconProp}
+                  aria-hidden="true"
+                  className="spatial-submission-section__validation-alert-icon"
+                />
+                <div className="spatial-submission-section__validation-alert-content">
+                  <strong className="spatial-submission-section__validation-alert-title">
+                    Validation Results
+                  </strong>
+                  <ul className="spatial-submission-section__validation-alert-list">
+                    {issues.map((issue, idx) => (
+                      <li key={`${issue.type}-${idx}`}>
+                        [{issue.type}] {issue.message}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Alert>
+            )}
+          </Col>
+
+          <Col xs={12}>
             {editableFeatureCollection?.features?.length && (
               <>
                 <Form.Label>Spatial Preview</Form.Label>
-                {issues.length > 0 && (
+                {featureSectionIds.length > 0 && (
                   <Alert
-                    className="mt-3 mb-0"
-                    variant={
-                      issues.some((x) => x.severity === 'ERROR')
-                        ? 'danger'
-                        : 'warning'
-                    }
+                    className="mt-3 mb-0 spatial-submission-section__info-alert"
+                    variant="light"
                   >
-                    <strong>Validation Results</strong>
-                    <ul className="mb-0 mt-2">
-                      {issues.map((issue, idx) => (
-                        <li key={`${issue.type}-${idx}`}>
-                          [{issue.type}] {issue.message}
-                        </li>
-                      ))}
-                    </ul>
+                    <FontAwesomeIcon
+                      icon={faCircleInfo as IconProp}
+                      aria-hidden="true"
+                      className="spatial-submission-section__info-alert-icon"
+                    />
+                    <span className="spatial-submission-section__info-alert-text">
+                      Click a section in the list or on the map to rename it
+                      before creating the request.
+                    </span>
                   </Alert>
                 )}
                 <Col xs={12} className={'mt-3 mb-3'}>
@@ -574,8 +608,19 @@ export const SpatialSubmissionSection = ({
                         borderRadius: '4px',
                       }}
                     >
-                      Sections ({featureSectionIds.length})
-                      <Row className="g-3 mt-1">
+                      <Row className="g-3 align-items-end">
+                        <Col xs={12} lg={5}>
+                          <div className="fw-semibold mb-2">
+                            Sections ({featureSectionIds.length})
+                          </div>
+                        </Col>
+                        <Col xs={12} lg={7}>
+                          {selectedSectionFeature && (
+                            <div className="fw-semibold mb-2">Section ID</div>
+                          )}
+                        </Col>
+                      </Row>
+                      <Row className="g-3">
                         <Col xs={12} lg={5}>
                           <Card>
                             <div
@@ -623,10 +668,6 @@ export const SpatialSubmissionSection = ({
                         <Col xs={12} lg={7}>
                           {selectedSectionFeature && (
                             <Form.Group>
-                              <Form.Label>
-                                Section ID / name for feature #
-                                {selectedSectionFeature.featureIndex}
-                              </Form.Label>
                               <Form.Control
                                 aria-label="Section ID / name"
                                 value={selectedSectionFeature.sectionId ?? ''}
@@ -635,10 +676,6 @@ export const SpatialSubmissionSection = ({
                                 }
                                 placeholder="Enter a unique section name"
                               />
-                              <Form.Text muted>
-                                Click a section in the list or on the map to
-                                rename it before creating the request.
-                              </Form.Text>
                             </Form.Group>
                           )}
                         </Col>
@@ -663,7 +700,7 @@ export const SpatialSubmissionSection = ({
             )}
           </Col>
         </Row>
-        <Col xs={12} className="d-flex gap-2 mb-5">
+        <Col xs={12} className="d-flex gap-2 mb-5 mt-5">
           <Button
             variant="primary"
             disabled={isProcessing || requestCreated}

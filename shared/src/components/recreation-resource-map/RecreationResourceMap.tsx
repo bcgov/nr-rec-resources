@@ -81,6 +81,19 @@ export const RecreationResourceMap = ({
     return null;
   }
 
+  useEffect(() => {
+    const map = mapRef.current?.getMap?.();
+    const host = mapHostRef.current;
+    const scopedMapContainer = host?.querySelector('[data-testid="map-container"]');
+
+    if (!map || !(scopedMapContainer instanceof HTMLElement)) {
+      return;
+    }
+
+    // prp-map uses a shared #map-container id internally; retarget to this instance.
+    map.setTarget(scopedMapContainer);
+  }, []);
+
   return (
     <div ref={mapHostRef}>
       <VectorFeatureMap

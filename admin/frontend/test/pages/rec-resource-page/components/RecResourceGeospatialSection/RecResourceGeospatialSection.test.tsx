@@ -64,11 +64,14 @@ vi.mock(
   }),
 );
 
-vi.mock('@/components/RecResourceSpatial/SpatialSubmissionSection', () => ({
-  SpatialSubmissionSection: () => (
-    <div data-testid="mock-spatial-submission">SpatialSubmissionSection</div>
-  ),
-}));
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceSpatial/SpatialSubmissionSection',
+  () => ({
+    SpatialSubmissionSection: () => (
+      <div data-testid="mock-spatial-submission">SpatialSubmissionSection</div>
+    ),
+  }),
+);
 
 const { RecResourceGeospatialSection } = await import(
   '@/pages/rec-resource-page/components/RecResourceGeospatialSection/RecResourceGeospatialSection'
