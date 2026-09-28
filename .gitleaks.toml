@@ -1,0 +1,41 @@
+# Gitleaks custom configuration
+# Extends the default ruleset with project-specific secret patterns.
+# See: https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+# Pull in the built-in default rules
+useDefault = true
+
+[[rules]]
+id          = "pgpassword-env"
+description = "PGPASSWORD environment variable with a real value"
+# Matches: export PGPASSWORD='abc123' or PGPASSWORD=abc123
+regex       = '''(?i)PGPASSWORD\s*[=:]\s*['"]?[^\s'"]{6,}'''
+tags        = ["password", "postgres"]
+
+  [rules.allowlist]
+  regexes = [
+    '''your[-_]?db[-_]?password''',
+    '''your[-_]?password[-_]?here''',
+    '''<password>''',
+    '''\$\{''',
+  ]
+
+[[rules]]
+id          = "database-url-with-password"
+description = "DATABASE_URL or FTA_DB_URL containing an inline password"
+# Matches: postgresql://user:password@host — but not user:@host (empty password)
+regex       = '''(?i)(DATABASE_URL|FTA_DB_URL)\s*=\s*['"]?[a-z]+://[^:]+:[^@\s'"]{4,}@'''
+tags        = ["password", "connection-string"]
+
+  [rules.allowlist]
+  regexes = [
+    '''your[-_]?password''',
+    '''\$\{''',
+  ]
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+  '''.gitleaks.toml''',
+]

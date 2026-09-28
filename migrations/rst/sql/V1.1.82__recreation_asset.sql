@@ -204,7 +204,7 @@ select setup_temporal_table('rst', 'recreation_asset_repair', false);
 
 
 
-create table rst.recreation_asset_geom
+create table rst.recreation_asset_geomx
 (
     asset_id           bigint      not null primary key,
     geometry_type_code varchar(3),
