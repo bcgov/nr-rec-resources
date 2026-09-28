@@ -113,6 +113,7 @@ export const SpatialSubmissionMap = ({
   onFeatureSelect,
 }: SpatialSubmissionEditorMapProps) => {
   const mapRef = useRef<{ getMap: () => OLMap } | null>(null);
+  const mapHostRef = useRef<HTMLDivElement | null>(null);
   const hasAutoFitRef = useRef(false);
 
   const vectorSource = useMemo(() => new VectorSource(), []);
@@ -368,8 +369,23 @@ export const SpatialSubmissionMap = ({
     fitToSelectedFeature();
   }, [fitToSelectedFeature]);
 
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    const host = mapHostRef.current;
+    const scopedMapContainer = host?.querySelector(
+      '[data-testid="map-container"]',
+    );
+
+    if (!map || !(scopedMapContainer instanceof HTMLElement)) {
+      return;
+    }
+
+    // prp-map uses a shared #map-container id internally; retarget to this instance.
+    map.setTarget(scopedMapContainer);
+  }, []);
+
   return (
-    <div className="spatial-submission-map">
+    <div className="spatial-submission-map" ref={mapHostRef}>
       <div className="spatial-submission-map__overlay-controls">
         <button
           type="button"

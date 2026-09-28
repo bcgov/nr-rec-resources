@@ -1,13 +1,13 @@
-import { CSSProperties, useMemo } from 'react';
+import { CSSProperties, useEffect, useMemo, useRef } from 'react';
 import { VectorFeatureMap } from '@bcgov/prp-map';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
+import { RecreationResourceMapData } from './types';
 import {
   getLayerStyleForRecResource,
   getMapFeaturesFromRecResource,
-} from '@shared/components/recreation-resource-map/helpers';
-import { StyleContext } from '@shared/components/recreation-resource-map/constants';
+} from './helpers';
+import { StyleContext } from './constants';
 
 interface RecreationResourceMapProps {
   recResource: RecreationResourceMapData;
@@ -23,6 +23,9 @@ export const RecreationResourceMap = ({
   recResource,
   mapComponentCssStyles,
 }: RecreationResourceMapProps) => {
+  const mapRef = useRef<{ getMap: () => any } | null>(null);
+  const mapHostRef = useRef<HTMLDivElement | null>(null);
+
   const mapStyledFeatures = useMemo(() => {
     const features = getMapFeaturesFromRecResource(recResource);
 
@@ -57,16 +60,32 @@ export const RecreationResourceMap = ({
     return null;
   }
 
+  useEffect(() => {
+    const map = mapRef.current?.getMap?.();
+    const host = mapHostRef.current;
+    const scopedMapContainer = host?.querySelector('[data-testid="map-container"]');
+
+    if (!map || !(scopedMapContainer instanceof HTMLElement)) {
+      return;
+    }
+
+    // prp-map uses a shared #map-container id internally; retarget to this instance.
+    map.setTarget(scopedMapContainer);
+  }, []);
+
   return (
-    <VectorFeatureMap
-      style={{
-        position: 'relative',
-        ...mapComponentCssStyles,
-      }}
-      layers={layers}
-      enableTracking
-      aria-label={`Map showing ${recResource.name || 'recreation resource'}`}
-    />
+    <div ref={mapHostRef}>
+      <VectorFeatureMap
+        ref={mapRef}
+        style={{
+          position: 'relative',
+          ...mapComponentCssStyles,
+        }}
+        layers={layers}
+        enableTracking
+        aria-label={`Map showing ${recResource.name || 'recreation resource'}`}
+      />
+    </div>
   );
 };
 

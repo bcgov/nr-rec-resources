@@ -12,6 +12,7 @@ import { ExhibitASection } from './ExhibitASection/ExhibitASection';
 import { IMAP_URL } from '@/constants/urls';
 import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
 import './RecResourceGeospatialSection.scss';
+import { SpatialSubmissionSection } from '@/pages/rec-resource-page/components/RecResourceSpatial/SpatialSubmissionSection';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
@@ -161,19 +162,28 @@ export function RecResourceGeospatialSection() {
         </div>
       </div>
 
-      {/* ── Map + action buttons ── */}
+      {/* ── Location map ── */}
       {recResourceWithGeometry && (
-        <RecResourceLocationSection
-          recResource={recResourceWithGeometry}
-          showHeading={false}
-          imapUrl={imapUrl}
-        />
+        <div className="geospatial-section__card">
+          <div className="geospatial-section__card-header">
+            <h2 className="geospatial-section__card-title">Location map</h2>
+          </div>
+          <div className="geospatial-section__card-body">
+            <RecResourceLocationSection
+              recResource={recResourceWithGeometry}
+              showHeading={false}
+              imapUrl={imapUrl}
+            />
+          </div>
+        </div>
       )}
 
       {/* ── Exhibit A ── */}
       <div className="geospatial-section__card">
         <ExhibitASection recResourceId={recResourceId} />
       </div>
+
+      <SpatialSubmissionSection recResourceId={recResourceId} />
     </Stack>
   );
 }
