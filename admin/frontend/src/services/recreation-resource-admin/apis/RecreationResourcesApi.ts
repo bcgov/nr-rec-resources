@@ -354,6 +354,7 @@ export interface CreateRecreationMapFeaturesDto {
     section_id?: string;
   }>;
   recreation_type_code?: string;
+  rec_resource_name?: string;
   natural_resource_district_code?: string;
   recreation_district_code?: string;
   submitted_by?: string;

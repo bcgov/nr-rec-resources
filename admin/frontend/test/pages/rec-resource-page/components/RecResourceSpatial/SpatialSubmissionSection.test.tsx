@@ -301,7 +301,7 @@ describe('SpatialSubmissionSection', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/recreation type/i)).toHaveValue('SIT');
     });
-    expect(screen.getByLabelText('Feature type')).toHaveValue('Polygon');
+    expect(screen.getByLabelText('Feature type')).toHaveValue('');
     expect(screen.getByRole('option', { name: 'Linear' })).toBeDefined();
     expect(screen.getByRole('option', { name: 'Polygon' })).toBeDefined();
     expect(
@@ -361,6 +361,13 @@ describe('SpatialSubmissionSection', () => {
       />,
     );
 
+    await waitFor(() => {
+      expect(screen.getByLabelText(/recreation type/i)).toHaveValue('SIT');
+    });
+    fireEvent.change(screen.getByLabelText('Telephone Number'), {
+      target: { value: '6045550100' },
+    });
+
     fireEvent.click(screen.getByText('Validate Spatial File'));
 
     await waitFor(() => {
@@ -384,6 +391,12 @@ describe('SpatialSubmissionSection', () => {
 
     fireEvent.change(screen.getByLabelText(/recreation type/i), {
       target: { value: 'RTE' },
+    });
+    fireEvent.change(screen.getByLabelText('Feature type'), {
+      target: { value: 'Polygon' },
+    });
+    fireEvent.change(screen.getByLabelText('Recreation Name'), {
+      target: { value: 'Sample Recreation Name' },
     });
     fireEvent.change(screen.getByLabelText('Email Address'), {
       target: { value: 'valid@example.com' },
@@ -444,6 +457,7 @@ describe('SpatialSubmissionSection', () => {
     await waitFor(() => {
       expect(mockCreateMapFeatures).toHaveBeenCalledWith({
         recResourceId: 'REC123',
+        recResourceName: 'Sample Recreation Name',
         recreationTypeCode: 'RTE',
         naturalResourceDistrictCode: 'DCC',
         recreationDistrictCode: 'RDCC',
@@ -553,6 +567,41 @@ describe('SpatialSubmissionSection', () => {
         ),
       ).toBeDefined();
     });
+  });
+
+  it('blocks request creation until required fields are completed, including feature type', async () => {
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode=""
+        defaultNaturalResourceDistrict=""
+        defaultRecreationDistrict=""
+      />,
+    );
+
+    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    fireEvent.change(fileInput, { target: { files: [shpFile] } });
+
+    fireEvent.click(screen.getByText('Validate Spatial File'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Sections (2)')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /Please complete required fields: Recreation type, Feature type, Telephone Number, Natural Resource District, Recreation District\./,
+        ),
+      ).toBeDefined();
+    });
+
+    expect(mockCreateMapFeatures).not.toHaveBeenCalled();
   });
 
   it('shows validation message when a non-.shp file is uploaded', async () => {

@@ -17,65 +17,54 @@ type FlatGeometryEntry = {
   sectionId: string;
 };
 
-const flattenGeometryEntries = (
+const normalizeGeometryEntry = (
   geometry: any,
   featureIndex: number,
   sectionIdBase?: string | null,
-): FlatGeometryEntry[] => {
+): FlatGeometryEntry | null => {
   const normalizedSectionIdBase = sectionIdBase?.trim() || null;
-  const getSectionId = (partIndex: number) =>
-    normalizedSectionIdBase
-      ? `${normalizedSectionIdBase}${partIndex > 1 ? `-${partIndex}` : ''}`
-      : `${featureIndex + 1}-${partIndex}`;
+  const sectionId = normalizedSectionIdBase || `${featureIndex + 1}`;
 
   if (!geometry?.type) {
-    return [];
+    return null;
   }
 
   if (geometry.type === 'Polygon') {
-    return [
-      {
-        geometry,
-        geometryTypeCode: 'P',
-        sectionId: getSectionId(1),
+    return {
+      geometry: {
+        type: 'MultiPolygon',
+        coordinates: [geometry.coordinates],
       },
-    ];
+      geometryTypeCode: 'P',
+      sectionId,
+    };
   }
 
   if (geometry.type === 'MultiPolygon') {
-    return (geometry.coordinates ?? []).map(
-      (polygonCoordinates: unknown, index: number) => ({
-        geometry: {
-          type: 'Polygon',
-          coordinates: polygonCoordinates,
-        },
-        geometryTypeCode: 'P',
-        sectionId: getSectionId(index + 1),
-      }),
-    );
+    return {
+      geometry,
+      geometryTypeCode: 'P',
+      sectionId,
+    };
   }
 
   if (geometry.type === 'LineString') {
-    return [
-      {
-        geometry,
-        geometryTypeCode: 'L',
-        sectionId: getSectionId(1),
+    return {
+      geometry: {
+        type: 'MultiLineString',
+        coordinates: [geometry.coordinates],
       },
-    ];
+      geometryTypeCode: 'L',
+      sectionId,
+    };
   }
 
   if (geometry.type === 'MultiLineString') {
-    return (geometry.coordinates ?? []).map(
-      (lineCoordinates: unknown, index: number) => ({
-        geometry: {
-          type: 'LineString',
-          coordinates: lineCoordinates,
-        },
-        geometryTypeCode: 'L',
-        sectionId: getSectionId(index + 1),
-      }),
-    );
+    return {
+      geometry,
+      geometryTypeCode: 'L',
+      sectionId,
+    };
   }
 
   throw new BadRequestException(
@@ -185,27 +174,45 @@ export class GeospatialService {
 
       const existingResource = await tx.recreation_resource.findUnique({
         where: { rec_resource_id },
-        select: { rec_resource_id: true, district_code: true },
+        select: {
+          rec_resource_id: true,
+          district_code: true,
+          name: true,
+        },
       });
 
       if (!existingResource) {
         await tx.recreation_resource.create({
           data: {
             rec_resource_id,
+            name: payload.rec_resource_name || null,
             district_code: payload.recreation_district_code || null,
             created_by: payload.submitted_by || null,
           },
         });
-      } else if (
-        payload.recreation_district_code &&
-        !existingResource.district_code
-      ) {
-        await tx.recreation_resource.update({
-          where: { rec_resource_id },
-          data: {
-            district_code: payload.recreation_district_code,
-          },
-        });
+      } else {
+        const resourcePatch: {
+          district_code?: string;
+          name?: string;
+        } = {};
+
+        if (
+          payload.recreation_district_code &&
+          !existingResource.district_code
+        ) {
+          resourcePatch.district_code = payload.recreation_district_code;
+        }
+
+        if (payload.rec_resource_name?.trim()) {
+          resourcePatch.name = payload.rec_resource_name.trim();
+        }
+
+        if (Object.keys(resourcePatch).length) {
+          await tx.recreation_resource.update({
+            where: { rec_resource_id },
+            data: resourcePatch,
+          });
+        }
       }
 
       if (payload.natural_resource_district_code) {
@@ -264,10 +271,11 @@ export class GeospatialService {
         );
       }
 
-      const flattenedEntries: FlatGeometryEntry[] = payload.features.flatMap(
-        (feature, index) =>
-          flattenGeometryEntries(feature.geometry, index, feature.section_id),
-      );
+      const flattenedEntries: FlatGeometryEntry[] = payload.features
+        .map((feature, index) =>
+          normalizeGeometryEntry(feature.geometry, index, feature.section_id),
+        )
+        .filter((entry): entry is FlatGeometryEntry => entry !== null);
 
       if (!flattenedEntries.length) {
         throw new BadRequestException('No supported geometries were found.');
@@ -289,9 +297,11 @@ export class GeospatialService {
         nextRmfSkey += 1;
 
         const geometry = Prisma.sql`
-          public.ST_SetSRID(
-            public.ST_GeomFromGeoJSON(${JSON.stringify(entry.geometry)}),
-            3005
+          public.ST_Multi(
+            public.ST_SetSRID(
+              public.ST_GeomFromGeoJSON(${JSON.stringify(entry.geometry)}),
+              3005
+            )
           )
         `;
 
@@ -300,6 +310,7 @@ export class GeospatialService {
             rmf_skey,
             rec_resource_id,
             section_id,
+            amendment_id,
             recreation_resource_type,
             created_by,
             amend_status_code
@@ -308,6 +319,7 @@ export class GeospatialService {
             ${rmfSkey},
             ${rec_resource_id},
             ${entry.sectionId},
+            ${0},
             ${payload.recreation_type_code || null},
             ${payload.submitted_by || null},
             ${'PND'}
@@ -318,13 +330,33 @@ export class GeospatialService {
           INSERT INTO rst.recreation_map_feature_geom (
             rmf_skey,
             geometry_type_code,
-            geometry
+            geometry,
+            feature_area,
+            feature_length,
+            feature_perimeter
           )
-          VALUES (
+          SELECT
             ${rmfSkey},
             ${entry.geometryTypeCode},
-            ${geometry}
-          )
+            normalized.geom_3005,
+            CASE
+              WHEN ${entry.geometryTypeCode} = 'P'
+                THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+              ELSE NULL
+            END,
+            CASE
+              WHEN ${entry.geometryTypeCode} = 'L'
+                THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
+              ELSE NULL
+            END,
+            CASE
+              WHEN ${entry.geometryTypeCode} = 'P'
+                THEN ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
+              ELSE NULL
+            END
+          FROM (
+            SELECT ${geometry} AS geom_3005
+          ) AS normalized
         `);
       }
     });

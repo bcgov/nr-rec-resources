@@ -472,7 +472,7 @@ describe('spatialSubmissionUtils', () => {
     expect(issues.some((x) => x.message.includes('exceeds 500m'))).toBe(true);
   });
 
-  it('flags multipolygon parts that are more than 500m apart', () => {
+  it('treats multipolygon parts in the same feature as one feature', () => {
     const distantMultiPolygon = {
       type: 'FeatureCollection',
       features: [
@@ -512,10 +512,10 @@ describe('spatialSubmissionUtils', () => {
       expectedGeometryType: 'Polygon',
     });
 
-    expect(issues.some((x) => x.message.includes('exceeds 500m'))).toBe(true);
+    expect(issues).toHaveLength(0);
   });
 
-  it('flags disjoint polygon rings that are more than 500m apart', () => {
+  it('rejects polygon features with multiple disjoint parts', () => {
     const polygonWithDistantRings = {
       type: 'FeatureCollection',
       features: [
@@ -551,6 +551,8 @@ describe('spatialSubmissionUtils', () => {
       expectedGeometryType: 'Polygon',
     });
 
-    expect(issues.some((x) => x.message.includes('exceeds 500m'))).toBe(true);
+    expect(
+      issues.some((x) => x.message.includes('Use MultiPolygon instead')),
+    ).toBe(true);
   });
 });

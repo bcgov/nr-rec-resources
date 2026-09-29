@@ -33,21 +33,31 @@ interface SpatialSubmissionSectionProps {
 }
 
 const FEATURE_TYPE_OPTIONS = [
-  { value: 'Point', label: 'Point' },
   { value: 'LineString', label: 'Linear' },
   { value: 'Polygon', label: 'Polygon' },
 ];
 
 interface WizardValues {
+  recreationName: string;
   recreationType: string;
   featureType: string;
   targetCrs: string;
   metadata: SubmissionMetadata;
 }
 
+type RequiredFieldKey =
+  | 'recreationType'
+  | 'featureType'
+  | 'email'
+  | 'telephone'
+  | 'contactName'
+  | 'districtCode'
+  | 'recreationDistrict';
+
 const defaultValues: WizardValues = {
+  recreationName: '',
   recreationType: '',
-  featureType: 'Polygon',
+  featureType: '',
   targetCrs: 'EPSG:3005',
   metadata: {
     email: '',
@@ -63,6 +73,44 @@ const defaultValues: WizardValues = {
     captureMethod: 'GPS',
     dataSource: 'Unknown',
   },
+};
+
+const REQUIRED_FIELD_LABELS: Record<RequiredFieldKey, string> = {
+  recreationType: 'Recreation type',
+  featureType: 'Feature type',
+  email: 'Email Address',
+  telephone: 'Telephone Number',
+  contactName: 'Submitter Name',
+  districtCode: 'Natural Resource District',
+  recreationDistrict: 'Recreation District',
+};
+
+const getMissingRequiredFields = (values: WizardValues): RequiredFieldKey[] => {
+  const missing: RequiredFieldKey[] = [];
+
+  if (!values.recreationType.trim()) {
+    missing.push('recreationType');
+  }
+  if (!values.featureType.trim()) {
+    missing.push('featureType');
+  }
+  if (!values.metadata.email.trim()) {
+    missing.push('email');
+  }
+  if (!values.metadata.telephone.trim()) {
+    missing.push('telephone');
+  }
+  if (!values.metadata.contactName.trim()) {
+    missing.push('contactName');
+  }
+  if (!values.metadata.districtCode.trim()) {
+    missing.push('districtCode');
+  }
+  if (!values.metadata.recreationDistrict.trim()) {
+    missing.push('recreationDistrict');
+  }
+
+  return missing;
 };
 
 export const SpatialSubmissionSection = ({
@@ -104,6 +152,11 @@ export const SpatialSubmissionSection = ({
   const { mutateAsync: createMapFeatures, isPending: isCreatingRequest } =
     useCreateRecreationResourceMapFeatures();
   const requestCreated = createStatus?.variant === 'success';
+  const [hasValidateAttempted, setHasValidateAttempted] = useState(false);
+  const [showValidationSuccessNotice, setShowValidationSuccessNotice] =
+    useState(true);
+  const [showDistrictOptionsNotice, setShowDistrictOptionsNotice] =
+    useState(true);
 
   const optionGroupsByType = useMemo(() => {
     return new Map(
@@ -144,6 +197,14 @@ export const SpatialSubmissionSection = ({
       ),
     [resourceTypeOptionsResponse],
   );
+  const missingRequiredFields = useMemo(
+    () => getMissingRequiredFields(values),
+    [values],
+  );
+  const shouldShowRequiredValidation =
+    hasValidateAttempted && missingRequiredFields.length > 0;
+  const hasMissingField = (field: RequiredFieldKey) =>
+    shouldShowRequiredValidation && missingRequiredFields.includes(field);
 
   const setMetadata = (name: keyof SubmissionMetadata, value: string) => {
     setValues((prev) => ({
@@ -229,7 +290,9 @@ export const SpatialSubmissionSection = ({
   };
 
   const handleValidateSpatialFile = async () => {
+    setHasValidateAttempted(true);
     setIsProcessing(true);
+    setCreateStatus(null);
 
     if (!selectedFiles.length) {
       setEditableFeatureCollection(null);
@@ -310,6 +373,17 @@ export const SpatialSubmissionSection = ({
   };
 
   const handleCreateRequest = async () => {
+    setHasValidateAttempted(true);
+    if (missingRequiredFields.length) {
+      setCreateStatus({
+        variant: 'danger',
+        message: `Please complete required fields: ${missingRequiredFields
+          .map((field) => REQUIRED_FIELD_LABELS[field])
+          .join(', ')}.`,
+      });
+      return;
+    }
+
     if (!editableFeatureCollection?.features?.length) {
       setCreateStatus({
         variant: 'danger',
@@ -323,6 +397,9 @@ export const SpatialSubmissionSection = ({
 
       await createMapFeatures({
         recResourceId,
+        ...(values.recreationName.trim()
+          ? { recResourceName: values.recreationName.trim() }
+          : {}),
         features: editableFeatureCollection.features.map(
           (feature: any, index: number) => ({
             geometry: feature.geometry,
@@ -353,6 +430,13 @@ export const SpatialSubmissionSection = ({
 
   const canCreateRequest =
     Boolean(editableFeatureCollection?.features?.length) &&
+    Boolean(values.recreationType.trim()) &&
+    Boolean(values.featureType.trim()) &&
+    Boolean(values.metadata.email.trim()) &&
+    Boolean(values.metadata.telephone.trim()) &&
+    Boolean(values.metadata.contactName.trim()) &&
+    Boolean(values.metadata.districtCode.trim()) &&
+    Boolean(values.metadata.recreationDistrict.trim()) &&
     !issues.some((issue) => issue.severity === 'ERROR');
 
   const selectedSectionFeature =
@@ -362,6 +446,20 @@ export const SpatialSubmissionSection = ({
   const hasValidationErrors = issues.some(
     (issue) => issue.severity === 'ERROR',
   );
+  const hasValidationSuccessNotice =
+    Boolean(editableFeatureCollection?.features?.length) && issues.length === 0;
+
+  useEffect(() => {
+    if (hasValidationSuccessNotice) {
+      setShowValidationSuccessNotice(true);
+    }
+  }, [hasValidationSuccessNotice]);
+
+  useEffect(() => {
+    if (areDistrictOptionsErrored) {
+      setShowDistrictOptionsNotice(true);
+    }
+  }, [areDistrictOptionsErrored]);
 
   return (
     <Card>
@@ -370,12 +468,70 @@ export const SpatialSubmissionSection = ({
       </div>
 
       <div className="exhibit-a-section__grid">
+        {(hasValidationSuccessNotice ||
+          Boolean(createStatus) ||
+          (areDistrictOptionsErrored && showDistrictOptionsNotice)) && (
+          <div className="spatial-submission-section__fixed-notifications">
+            {hasValidationSuccessNotice && showValidationSuccessNotice && (
+              <Alert
+                variant="success"
+                dismissible
+                onClose={() => setShowValidationSuccessNotice(false)}
+                className="mb-2"
+              >
+                Spatial file validated successfully.
+              </Alert>
+            )}
+
+            {createStatus && (
+              <Alert
+                variant={createStatus.variant}
+                dismissible
+                onClose={() => setCreateStatus(null)}
+                className="mb-2"
+              >
+                {createStatus.message}
+              </Alert>
+            )}
+
+            {areDistrictOptionsErrored && showDistrictOptionsNotice ? (
+              <Alert
+                variant="warning"
+                dismissible
+                onClose={() => setShowDistrictOptionsNotice(false)}
+                className="mb-0"
+              >
+                Unable to load district/type options. Please refresh and try
+                again.
+              </Alert>
+            ) : null}
+          </div>
+        )}
+
         <Row className="gy-3">
+          <Col xs={12} md={6}>
+            <Form.Group>
+              <Form.Label>Recreation Name (optional)</Form.Label>
+              <Form.Control
+                aria-label="Recreation Name"
+                value={values.recreationName}
+                onChange={(e) =>
+                  setValues((prev) => ({
+                    ...prev,
+                    recreationName: e.target.value,
+                  }))
+                }
+              />
+            </Form.Group>
+          </Col>
+
           <Col xs={12} md={6}>
             <Form.Group>
               <Form.Label>Recreation type</Form.Label>
               <Form.Select
                 aria-label="Recreation type"
+                required
+                isInvalid={hasMissingField('recreationType')}
                 value={values.recreationType}
                 onChange={(e) =>
                   setValues((prev) => ({
@@ -395,6 +551,9 @@ export const SpatialSubmissionSection = ({
                   </option>
                 ))}
               </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                This is required.
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
 
@@ -403,6 +562,8 @@ export const SpatialSubmissionSection = ({
               <Form.Label>Feature type</Form.Label>
               <Form.Select
                 aria-label="Feature type"
+                required
+                isInvalid={hasMissingField('featureType')}
                 value={values.featureType}
                 onChange={(e) =>
                   setValues((prev) => ({
@@ -411,12 +572,16 @@ export const SpatialSubmissionSection = ({
                   }))
                 }
               >
+                <option value="">Select feature type</option>
                 {FEATURE_TYPE_OPTIONS.map((typeOption) => (
                   <option key={typeOption.value} value={typeOption.value}>
                     {typeOption.label}
                   </option>
                 ))}
               </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                This is required.
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
 
@@ -426,9 +591,14 @@ export const SpatialSubmissionSection = ({
               <Form.Control
                 aria-label="Email Address"
                 type="email"
+                required
+                isInvalid={hasMissingField('email')}
                 value={values.metadata.email}
                 onChange={(e) => setMetadata('email', e.target.value)}
               />
+              <Form.Control.Feedback type="invalid">
+                This is required.
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
 
@@ -437,10 +607,15 @@ export const SpatialSubmissionSection = ({
               <Form.Label>Telephone Number</Form.Label>
               <Form.Control
                 aria-label="Telephone Number"
+                required
+                isInvalid={hasMissingField('telephone')}
                 value={values.metadata.telephone}
                 onChange={(e) => setMetadata('telephone', e.target.value)}
                 placeholder="10 digits (e.g. 6045550100)"
               />
+              <Form.Control.Feedback type="invalid">
+                This is required.
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
 
@@ -449,9 +624,14 @@ export const SpatialSubmissionSection = ({
               <Form.Label>Submitter Name</Form.Label>
               <Form.Control
                 aria-label="Submitter Name"
+                required
+                isInvalid={hasMissingField('contactName')}
                 value={values.metadata.contactName}
                 onChange={(e) => setMetadata('contactName', e.target.value)}
               />
+              <Form.Control.Feedback type="invalid">
+                This is required.
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
 
@@ -461,6 +641,8 @@ export const SpatialSubmissionSection = ({
               <Form.Select
                 aria-label="Natural Resource District"
                 disabled={areDistrictOptionsLoading}
+                required
+                isInvalid={hasMissingField('districtCode')}
                 value={values.metadata.districtCode}
                 onChange={(e) => setMetadata('districtCode', e.target.value)}
               >
@@ -478,6 +660,9 @@ export const SpatialSubmissionSection = ({
                   </option>
                 ))}
               </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                This is required.
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
 
@@ -487,6 +672,8 @@ export const SpatialSubmissionSection = ({
               <Form.Select
                 aria-label="Recreation District"
                 disabled={areDistrictOptionsLoading}
+                required
+                isInvalid={hasMissingField('recreationDistrict')}
                 value={values.metadata.recreationDistrict}
                 onChange={(e) =>
                   setMetadata('recreationDistrict', e.target.value)
@@ -506,6 +693,9 @@ export const SpatialSubmissionSection = ({
                   </option>
                 ))}
               </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                This is required.
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
 
@@ -551,6 +741,26 @@ export const SpatialSubmissionSection = ({
                 `.shp` with matching `.dbf` in one selection.
               </Form.Text>
             </Form.Group>
+          </Col>
+          <Col
+            xs={12}
+            className="spatial-submission-section__actions mb-5 mt-5"
+          >
+            <Button
+              variant="primary"
+              className="spatial-submission-section__validate-button"
+              disabled={isProcessing || requestCreated}
+              onClick={handleValidateSpatialFile}
+            >
+              {isProcessing ? (
+                <>
+                  <Spinner as="span" size="sm" className="me-2" />
+                  Validating...
+                </>
+              ) : (
+                'Validate Spatial File'
+              )}
+            </Button>
           </Col>
 
           <Col xs={12}>
@@ -696,59 +906,26 @@ export const SpatialSubmissionSection = ({
                   selectedFeatureIndex={selectedFeatureIndex}
                   onFeatureSelect={setSelectedFeatureIndex}
                 />
+                <Button
+                  className="spatial-submission-section__create-button mt-5"
+                  disabled={
+                    !canCreateRequest || isCreatingRequest || requestCreated
+                  }
+                  onClick={handleCreateRequest}
+                >
+                  {isCreatingRequest ? (
+                    <>
+                      <Spinner as="span" size="sm" className="me-2" />
+                      Creating request...
+                    </>
+                  ) : (
+                    'Create Request'
+                  )}
+                </Button>
               </>
             )}
           </Col>
         </Row>
-        <Col xs={12} className="d-flex gap-2 mb-5 mt-5">
-          <Button
-            variant="primary"
-            disabled={isProcessing || requestCreated}
-            onClick={handleValidateSpatialFile}
-          >
-            {isProcessing ? (
-              <>
-                <Spinner as="span" size="sm" className="me-2" />
-                Validating...
-              </>
-            ) : (
-              'Validate Spatial File'
-            )}
-          </Button>
-          <Button
-            variant="success"
-            disabled={!canCreateRequest || isCreatingRequest || requestCreated}
-            onClick={handleCreateRequest}
-          >
-            {isCreatingRequest ? (
-              <>
-                <Spinner as="span" size="sm" className="me-2" />
-                Creating request...
-              </>
-            ) : (
-              'Create Request'
-            )}
-          </Button>
-        </Col>
-
-        {editableFeatureCollection?.features?.length > 0 &&
-          issues.length === 0 && (
-            <Alert variant="success" className="mt-3 mb-0">
-              Spatial file validated successfully.
-            </Alert>
-          )}
-
-        {createStatus && (
-          <Alert className="mt-3 mb-0" variant={createStatus.variant}>
-            {createStatus.message}
-          </Alert>
-        )}
-
-        {areDistrictOptionsErrored ? (
-          <Alert className="mt-3 mb-0" variant="warning">
-            Unable to load district/type options. Please refresh and try again.
-          </Alert>
-        ) : null}
       </div>
     </Card>
   );

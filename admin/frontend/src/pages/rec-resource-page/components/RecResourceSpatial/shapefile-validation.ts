@@ -965,47 +965,6 @@ const pushGeometryError = (issues: ValidationIssue[], message: string) => {
     message,
   });
 };
-
-// const validatePolygonLikeGeometry = (
-//   feature: any,
-//   geometry: any,
-//   featureIndex: number,
-//   issues: ValidationIssue[],
-// ) => {
-//   const areaSqMetres = turf.area(feature as any);
-//   if (areaSqMetres <= ZERO_METRIC_EPSILON) {
-//     pushGeometryError(
-//       issues,
-//       `Feature #${featureIndex + 1} has zero or near-zero polygon area.`,
-//     );
-//   }
-//
-//   if (geometry.type === 'Polygon') {
-//     (geometry.coordinates as number[][][]).forEach((ring, ringIndex) => {
-//       if (!ensureRingClosure(ring)) {
-//         pushGeometryError(
-//           issues,
-//           `Feature #${featureIndex + 1} ring #${ringIndex + 1}: LinearRing is not closed.`,
-//         );
-//       }
-//     });
-//     return;
-//   }
-//
-//   if (geometry.type === 'MultiPolygon') {
-//     (geometry.coordinates as number[][][][]).forEach((poly, polyIndex) => {
-//       poly.forEach((ring, ringIndex) => {
-//         if (!ensureRingClosure(ring)) {
-//           pushGeometryError(
-//             issues,
-//             `Feature #${featureIndex + 1} polygon #${polyIndex + 1} ring #${ringIndex + 1}: LinearRing is not closed.`,
-//           );
-//         }
-//       });
-//     });
-//   }
-// };
-
 function detectSourceCrs(featureCollection: any, fallback: string): string {
   const crsName = featureCollection?.crs?.properties?.name;
   if (typeof crsName === 'string') {
@@ -1102,20 +1061,10 @@ export function validateGeometry(
       });
     }
 
-    // --- UPDATED: fast-path topology check via turf.booleanValid -------
-    // turf.booleanValid runs a single OGC-style topology check (ring
-    // closure, self-intersections / bow-ties, and other degeneracies) and
-    // is purely coordinate-based, so it's safe to use on projected
-    // EPSG:3005 metres just as it would be on WGS84 degrees. We only fall
-    // back to the granular duplicate-vertex / ring-closure / kinks checks
-    // below when it reports a problem, so we get specific messages without
-    // running turf.kinks (comparatively expensive) on every valid feature.
-    let isTopologicallyValid = true;
+    let isTopologicallyValid: boolean;
     try {
       isTopologicallyValid = turf.booleanValid(feature as any);
     } catch {
-      // Some geometry types aren't supported by booleanValid; fall back
-      // to the manual checks below rather than assuming valid.
       isTopologicallyValid = false;
     }
 
@@ -1191,6 +1140,19 @@ export function validateGeometry(
     getPolygonPartReferences(feature, index),
   );
 
+  features.forEach((feature, index) => {
+    if (
+      feature?.geometry?.type === 'Polygon' &&
+      getPolygonPartReferences(feature, index).length > 1
+    ) {
+      issues.push({
+        type: 'TOPOLOGY',
+        severity: 'ERROR',
+        message: `Feature #${index + 1} is a Polygon with multiple disjoint parts. Use MultiPolygon instead.`,
+      });
+    }
+  });
+
   if (polygonParts.length > 1) {
     for (
       let firstIndex = 0;
@@ -1204,6 +1166,13 @@ export function validateGeometry(
       ) {
         const firstPolygonPart = polygonParts[firstIndex];
         const secondPolygonPart = polygonParts[secondIndex];
+
+        // Multipart geometries should stay grouped as one feature, so do not
+        // compare polygon parts that belong to the same original feature.
+        if (firstPolygonPart.featureIndex === secondPolygonPart.featureIndex) {
+          continue;
+        }
+
         const firstLabel = formatPolygonPartLabel(firstPolygonPart);
         const secondLabel = formatPolygonPartLabel(secondPolygonPart);
 

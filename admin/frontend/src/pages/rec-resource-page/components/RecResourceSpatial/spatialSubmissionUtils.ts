@@ -173,12 +173,6 @@ interface ParsedFeatureCollection {
 const isFeatureCollection = (value: any): value is ParsedFeatureCollection =>
   value?.type === 'FeatureCollection' && Array.isArray(value?.features);
 
-// --- CRS reprojection helpers -------------------------------------------
-//
-// Recursively walks a GeoJSON coordinates array (Point / LineString /
-// Polygon / Multi* — any nesting depth) and reprojects every [x, y] pair
-// from EPSG:4326 (lon/lat degrees, what shpjs always outputs) to
-// EPSG:3005 (BC Albers metres, what the rest of this app assumes).
 const reprojectCoordinatesToBcAlbers = (coordinates: any): any => {
   if (
     typeof coordinates?.[0] === 'number' &&
@@ -195,16 +189,12 @@ const reprojectCoordinatesToBcAlbers = (coordinates: any): any => {
   return (coordinates ?? []).map(reprojectCoordinatesToBcAlbers);
 };
 
-// Reprojects every feature's geometry in a FeatureCollection from
-// EPSG:4326 to EPSG:3005, and (re)labels the collection's crs accordingly.
-// This is applied unconditionally to shpjs/zip output, since shpjs does
-// not preserve or expose the shapefile's original .prj — its output is
-// always WGS84 GeoJSON regardless of what CRS the source .shp was in.
 const reprojectFeatureCollectionToBcAlbers = (
   featureCollection: ParsedFeatureCollection,
 ): ParsedFeatureCollection => ({
   ...featureCollection,
   crs: { type: 'name', properties: { name: 'EPSG:3005' } },
+  bbox: undefined,
   features: (featureCollection.features ?? []).map((feature: any) => ({
     ...feature,
     geometry: feature?.geometry
@@ -217,6 +207,32 @@ const reprojectFeatureCollectionToBcAlbers = (
       : feature.geometry,
   })),
 });
+
+const looksGeographic = (
+  featureCollection: ParsedFeatureCollection,
+): boolean => {
+  let isGeographic = true;
+
+  const check = (coordinates: any) => {
+    if (!isGeographic) return;
+    if (
+      typeof coordinates?.[0] === 'number' &&
+      typeof coordinates?.[1] === 'number'
+    ) {
+      if (Math.abs(coordinates[0]) > 180 || Math.abs(coordinates[1]) > 90) {
+        isGeographic = false;
+      }
+      return;
+    }
+    (coordinates ?? []).forEach(check);
+  };
+
+  (featureCollection.features ?? []).forEach((feature: any) =>
+    check(feature?.geometry?.coordinates),
+  );
+
+  return isGeographic;
+};
 // -------------------------------------------------------------------------
 
 const normalizeParsedFeatureCollection = (featureCollection: any): any => {
@@ -228,9 +244,7 @@ const normalizeParsedFeatureCollection = (featureCollection: any): any => {
 
   return {
     type: 'FeatureCollection',
-    // shpjs output has no crs of its own (it's always WGS84 lon/lat); the
-    // actual EPSG:3005 label gets set later by
-    // reprojectFeatureCollectionToBcAlbers once coordinates are converted.
+
     crs: featureCollection.crs,
     bbox: featureCollection.bbox,
     features: featureCollection.features,
@@ -580,12 +594,6 @@ export async function readSpatialFile(
     const [zipFile] = zipFiles;
     const zipArrayBuffer = await zipFile.arrayBuffer();
 
-    // Inspect the archive's entry names *before* handing it to shpjs.
-    // shpjs pairs a .shp with its .dbf/.shx/.prj by exact basename match;
-    // if they don't match (e.g. a browser appended " (1)" to a duplicate
-    // download before it was zipped), shpjs silently returns geometry with
-    // no attributes instead of raising an error. Checking the raw zip
-    // listing here lets us give a specific, actionable message instead.
     const zipArchive = await JSZip.loadAsync(zipArrayBuffer);
     const zipEntryPaths = Object.values(zipArchive.files)
       .filter((entry) => !entry.dir && !entry.name.includes('__MACOSX'))
@@ -604,6 +612,13 @@ export async function readSpatialFile(
     const dbfEntryPaths = zipEntryPaths.filter(
       (entryPath) => getEntryExtension(entryPath) === 'dbf',
     );
+    const shpEntryStems = Array.from(new Set(shpEntryPaths.map(getEntryStem)));
+
+    if (shpEntryStems.length > 1) {
+      throw new Error(
+        'The uploaded .zip contains multiple shapefile layers. Please zip only one shapefile dataset (.shp/.shx/.dbf/.prj/.cpg) and re-upload.',
+      );
+    }
 
     if (shpEntryPaths.length > 0 && dbfEntryPaths.length === 0) {
       throw new Error(
@@ -658,29 +673,17 @@ export async function readSpatialFile(
       );
     }
 
-    // --- THE FIX -----------------------------------------------------
-    // shpjs (used above via `shp(zipArrayBuffer)`) always returns
-    // coordinates reprojected to EPSG:4326 (WGS84 lon/lat), regardless of
-    // the source shapefile's actual CRS. Meanwhile the direct .shp/.dbf
-    // path further down (shapefile.open) returns raw, unprojected
-    // coordinates straight from the file — EPSG:3005 (BC Albers) metres
-    // for this app's data.
-    //
-    // Previously, normalizeZipSpatialData just *labelled* the zip output
-    // as EPSG:3005 without converting it, so zip uploads carried WGS84
-    // degree values mislabeled as Albers metres. SpatialSubmissionMap.tsx
-    // treats all incoming coordinates as EPSG:3005, so those mislabeled
-    // features were plotted in the wrong place (effectively off the
-    // visible extent), which is why the map appeared blank only for zip
-    // uploads.
-    //
-    // Reprojecting here converts the zip path's coordinates back to
-    // EPSG:3005, so both upload paths agree, and everything downstream
-    // (map rendering, extent checks, geometry validation) can keep
-    // assuming EPSG:3005 without caring which upload path was used.
-    const reprojectedFeatureCollection = reprojectFeatureCollectionToBcAlbers(
+    // Only reproject when shpjs returned lon/lat degrees (zip had a usable
+    // .prj). If the coordinates are already metres (no .prj), leave them
+    // alone and just label them EPSG:3005.
+    const reprojectedFeatureCollection = looksGeographic(
       normalizedFeatureCollection,
-    );
+    )
+      ? reprojectFeatureCollectionToBcAlbers(normalizedFeatureCollection)
+      : {
+          ...normalizedFeatureCollection,
+          crs: { type: 'name', properties: { name: 'EPSG:3005' } },
+        };
 
     // Debug: log the structure of the first feature
     if (reprojectedFeatureCollection.features.length > 0) {
@@ -1435,11 +1438,9 @@ export function validateGeometry(
     } catch {
       // Turf may not process all geometry kinds for kink checks.
     }
-
     if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
       validatePolygonLikeGeometry(feature, geometry, index, issues);
     }
-
     if (geometry.type === 'LineString' || geometry.type === 'MultiLineString') {
       const lineLengthMetres = turf.length(feature as any, { units: 'meters' });
       if (lineLengthMetres <= ZERO_METRIC_EPSILON) {
@@ -1465,6 +1466,32 @@ export function validateGeometry(
     getPolygonPartReferences(feature, index),
   );
 
+  features.forEach((feature, index) => {
+    if (
+      feature?.geometry?.type === 'Polygon' &&
+      getPolygonPartReferences(feature, index).length > 1
+    ) {
+      issues.push({
+        type: 'TOPOLOGY',
+        severity: 'ERROR',
+        message: `Feature #${index + 1} is a Polygon with multiple disjoint parts. Use MultiPolygon instead.`,
+        code: 'POLYGON_REQUIRES_MULTIPOLYGON',
+      });
+    }
+  });
+
+  // One feature per REC: several separate polygon features must be combined
+  // into a single MultiPolygon feature. Change severity to 'WARNING' if this
+  // should not block submission.
+  if (options.expectedGeometryType === 'Polygon' && features.length > 1) {
+    issues.push({
+      type: 'TOPOLOGY',
+      severity: 'ERROR',
+      message: `The file contains ${features.length} separate polygon features. Combine them into one MultiPolygon feature (one feature per REC).`,
+      code: 'MULTIPLE_POLYGON_FEATURES',
+    });
+  }
+
   if (polygonParts.length > 1) {
     for (
       let firstIndex = 0;
@@ -1478,6 +1505,13 @@ export function validateGeometry(
       ) {
         const firstPolygonPart = polygonParts[firstIndex];
         const secondPolygonPart = polygonParts[secondIndex];
+
+        // Multipart geometries should stay grouped as one feature, so do not
+        // compare polygon parts that belong to the same original feature.
+        if (firstPolygonPart.featureIndex === secondPolygonPart.featureIndex) {
+          continue;
+        }
+
         const firstLabel = formatPolygonPartLabel(firstPolygonPart);
         const secondLabel = formatPolygonPartLabel(secondPolygonPart);
 

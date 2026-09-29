@@ -8,6 +8,7 @@ import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
 export interface CreateRecreationResourceMapFeaturesRequest {
   recResourceId: string;
+  recResourceName?: string;
   features: Array<{
     geometry: Record<string, unknown>;
     sectionId?: string;
@@ -29,6 +30,7 @@ export function useCreateRecreationResourceMapFeatures() {
   >({
     mutationFn: async ({
       recResourceId,
+      recResourceName,
       features,
       recreationTypeCode,
       naturalResourceDistrictCode,
@@ -43,6 +45,7 @@ export function useCreateRecreationResourceMapFeatures() {
             section_id: feature.sectionId,
           })),
           recreation_type_code: recreationTypeCode,
+          rec_resource_name: recResourceName,
           natural_resource_district_code: naturalResourceDistrictCode,
           recreation_district_code: recreationDistrictCode,
           submitted_by: submittedBy,

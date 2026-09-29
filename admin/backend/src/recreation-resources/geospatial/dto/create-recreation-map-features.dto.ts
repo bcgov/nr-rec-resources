@@ -54,6 +54,17 @@ export class CreateRecreationMapFeaturesDto {
 
   @ApiProperty({
     description:
+      'Optional recreation resource name captured with spatial submission',
+    required: false,
+    nullable: true,
+    example: 'Sample Recreation Site',
+  })
+  @IsOptional()
+  @IsString()
+  rec_resource_name?: string | null;
+
+  @ApiProperty({
+    description:
       'Natural resource district org unit code selected during request creation',
     required: false,
     nullable: true,

@@ -141,7 +141,7 @@ describe('GeospatialService', () => {
     );
   });
 
-  it('createMapFeaturesFromValidatedFile flattens multi-geometries and writes P/L codes', async () => {
+  it('createMapFeaturesFromValidatedFile stores multi-geometries and writes P/L codes with metrics', async () => {
     const txMock = {
       recreation_resource: {
         findUnique: vi.fn().mockResolvedValue(null),
@@ -168,7 +168,24 @@ describe('GeospatialService', () => {
         {
           geometry: {
             type: 'MultiPolygon',
-            coordinates: [[[1, 1]], [[2, 2]], [[3, 3]]],
+            coordinates: [
+              [
+                [
+                  [1, 1],
+                  [2, 1],
+                  [2, 2],
+                  [1, 1],
+                ],
+              ],
+              [
+                [
+                  [3, 3],
+                  [4, 3],
+                  [4, 4],
+                  [3, 3],
+                ],
+              ],
+            ],
           },
         },
         { geometry: { type: 'LineString', coordinates: [] } },
@@ -178,18 +195,23 @@ describe('GeospatialService', () => {
     expect(prismaMock.$transaction).toHaveBeenCalled();
     expect(txMock.recreation_resource.findUnique).toHaveBeenCalledWith({
       where: { rec_resource_id: 'REC2' },
-      select: { rec_resource_id: true, district_code: true },
+      select: {
+        rec_resource_id: true,
+        district_code: true,
+        name: true,
+      },
     });
     expect(txMock.recreation_resource.create).toHaveBeenCalledWith({
       data: {
         rec_resource_id: 'REC2',
+        name: null,
         district_code: null,
         created_by: null,
       },
     });
     expect(txMock.$queryRawUnsafe).toHaveBeenCalledTimes(1);
     expect(txMock.$executeRawUnsafe).toHaveBeenCalledTimes(1);
-    expect(txMock.$executeRaw).toHaveBeenCalledTimes(8);
+    expect(txMock.$executeRaw).toHaveBeenCalledTimes(4);
     expect(txMock.$executeRawUnsafe.mock.calls[0]?.[0]).toContain(
       'pg_advisory_xact_lock',
     );
@@ -200,9 +222,10 @@ describe('GeospatialService', () => {
         sql.includes('INSERT INTO rst.recreation_map_feature ('),
       );
 
-    expect(insertSql).toHaveLength(4);
+    expect(insertSql).toHaveLength(2);
 
     const firstMapFeatureValues = txMock.$executeRaw.mock.calls[0]?.[0].values;
+    expect(firstMapFeatureValues).toContain(0);
     expect(firstMapFeatureValues).toContain('PND');
 
     const geomSql = txMock.$executeRaw.mock.calls
@@ -211,14 +234,20 @@ describe('GeospatialService', () => {
         sql.includes('INSERT INTO rst.recreation_map_feature_geom'),
       );
 
-    expect(geomSql).toHaveLength(4);
+    expect(geomSql).toHaveLength(2);
+    expect(geomSql[0]).toContain('feature_area');
+    expect(geomSql[0]).toContain('feature_length');
+    expect(geomSql[0]).toContain('feature_perimeter');
+    expect(geomSql[0]).toContain('ST_Area');
+    expect(geomSql[0]).toContain('ST_Length');
+    expect(geomSql[0]).toContain('ST_Perimeter');
 
     const geometryTypeCodes = txMock.$executeRaw.mock.calls
       .map((call) => call[0].values)
       .flat()
       .filter((value) => value === 'P' || value === 'L');
 
-    expect(geometryTypeCodes.filter((value) => value === 'P')).toHaveLength(3);
+    expect(geometryTypeCodes.filter((value) => value === 'P')).toHaveLength(1);
     expect(geometryTypeCodes.filter((value) => value === 'L')).toHaveLength(1);
   });
 
@@ -276,6 +305,7 @@ describe('GeospatialService', () => {
     expect(txMock.recreation_resource.create).toHaveBeenCalledWith({
       data: {
         rec_resource_id: 'REC_NEW',
+        name: null,
         district_code: 'D001',
         created_by: 'request.user@gov.bc.ca',
       },
