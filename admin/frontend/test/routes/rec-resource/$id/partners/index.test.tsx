@@ -35,6 +35,7 @@ describe('RecResource Partners Index Route', () => {
       expect.objectContaining({
         requireAll: ['rst-developer'],
         requireAny: ['rst-super-admin', 'rst-admin'],
+        // Must not be the guarded route itself, or a disallowed user loops.
         redirectTo: '/rec-resource/REC123/files',
       }),
     );

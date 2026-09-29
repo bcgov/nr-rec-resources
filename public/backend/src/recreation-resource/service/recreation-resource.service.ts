@@ -94,12 +94,35 @@ export class RecreationResourceService {
     return response.filter((i) => i !== undefined);
   }
 
-  async findClientNumbers(id: string): Promise<string[]> {
-    const partners = await this.prisma.recreation_agreement_holder.findMany({
+  /**
+   * The single partner shown publicly for a resource: visible on the website,
+   * not cancelled, and whose agreement has not lapsed. Ordered by
+   * agreement_holder_id so "first" is deterministic when a resource has more
+   * than one qualifying partner.
+   */
+  async findSiteOperatorClientNumber(id: string): Promise<string | null> {
+    // agreement_end_date is a date-only column, so Prisma hands back UTC
+    // midnight. Comparing against today's UTC midnight with gte keeps an
+    // agreement current through the whole of its end date rather than
+    // expiring it at the start of that day.
+    const now = new Date();
+    const todayUtc = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
+
+    const partner = await this.prisma.recreation_agreement_holder.findFirst({
       where: {
         rec_resource_id: id,
         visible_on_public_website: true,
+        // A cancelled agreement is never shown publicly, regardless of the
+        // visibility flag.
+        cancelled: false,
         client_number: { not: null },
+        // An open-ended agreement (no end date) never expires.
+        OR: [
+          { agreement_end_date: null },
+          { agreement_end_date: { gte: todayUtc } },
+        ],
       },
       select: {
         client_number: true,
@@ -109,9 +132,7 @@ export class RecreationResourceService {
       },
     });
 
-    return partners
-      .map((partner) => partner.client_number)
-      .filter((clientNumber): clientNumber is string => clientNumber !== null);
+    return partner?.client_number ?? null;
   }
 
   async searchRecreationResources(

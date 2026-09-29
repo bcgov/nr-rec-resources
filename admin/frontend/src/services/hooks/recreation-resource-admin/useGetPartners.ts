@@ -16,12 +16,12 @@ export const useGetPartners = (
     ResponseError
   > = {},
 ) => {
-  const api = usePartnersApiClient() as PartnersApi;
+  const api: PartnersApi = usePartnersApiClient();
 
   return useQuery<AgreementHolderClientPublicViewDto[], ResponseError>({
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.partners(recResourceId!),
     queryFn: async () => {
-      return await (api as any).getPartnersByRecreationResourceId({
+      return await api.getPartnersByRecreationResourceId({
         recResourceId: recResourceId!,
       });
     },

@@ -9,18 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SplatRouteImport } from './routes/$'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ResourceIdRouteImport } from './routes/resource/$id'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
 import { Route as SearchAZListRouteImport } from './routes/search/a-z-list'
-import { Route as ResourceIdRouteImport } from './routes/resource/$id'
 import { Route as ResourceIdIndexRouteImport } from './routes/resource/$id/index'
 import { Route as ResourceIdContactRouteImport } from './routes/resource/$id/contact'
 
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SplatRoute = SplatRouteImport.update({
@@ -28,9 +28,14 @@ const SplatRoute = SplatRouteImport.update({
   path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourceIdRoute = ResourceIdRouteImport.update({
+  id: '/resource/$id',
+  path: '/resource/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchIndexRoute = SearchIndexRouteImport.update({
@@ -41,11 +46,6 @@ const SearchIndexRoute = SearchIndexRouteImport.update({
 const SearchAZListRoute = SearchAZListRouteImport.update({
   id: '/search/a-z-list',
   path: '/search/a-z-list',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResourceIdRoute = ResourceIdRouteImport.update({
-  id: '/resource/$id',
-  path: '/resource/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResourceIdIndexRoute = ResourceIdIndexRouteImport.update({
@@ -65,7 +65,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/resource/$id': typeof ResourceIdRouteWithChildren
   '/search/a-z-list': typeof SearchAZListRoute
-  '/search': typeof SearchIndexRoute
+  '/search/': typeof SearchIndexRoute
   '/resource/$id/contact': typeof ResourceIdContactRoute
   '/resource/$id/': typeof ResourceIdIndexRoute
 }
@@ -97,7 +97,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/resource/$id'
     | '/search/a-z-list'
-    | '/search'
+    | '/search/'
     | '/resource/$id/contact'
     | '/resource/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -132,11 +132,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$': {
@@ -146,17 +146,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resource/$id': {
+      id: '/resource/$id'
+      path: '/resource/$id'
+      fullPath: '/resource/$id'
+      preLoaderRoute: typeof ResourceIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search/': {
       id: '/search/'
       path: '/search'
-      fullPath: '/search'
+      fullPath: '/search/'
       preLoaderRoute: typeof SearchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -165,13 +172,6 @@ declare module '@tanstack/react-router' {
       path: '/search/a-z-list'
       fullPath: '/search/a-z-list'
       preLoaderRoute: typeof SearchAZListRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/resource/$id': {
-      id: '/resource/$id'
-      path: '/resource/$id'
-      fullPath: '/resource/$id'
-      preLoaderRoute: typeof ResourceIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resource/$id/': {

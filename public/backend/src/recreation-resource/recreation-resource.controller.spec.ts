@@ -180,25 +180,37 @@ describe('RecreationResourceController', () => {
         acronym: 'ACR',
       }) as SiteOperatorDto;
 
-    it('should return every visible partner', async () => {
-      vi.spyOn(recService, 'findClientNumbers').mockResolvedValue(['01', '02']);
+    it('should return the single visible partner', async () => {
+      vi.spyOn(recService, 'findSiteOperatorClientNumber').mockResolvedValue(
+        '01',
+      );
       vi.spyOn(resourceService, 'findByClientNumber').mockImplementation(
         async (clientNumber: string) => client(clientNumber),
       );
 
-      expect(await controller.findSiteOperator('REC0001')).toStrictEqual([
+      expect(await controller.findSiteOperator('REC0001')).toStrictEqual(
         client('01'),
-        client('02'),
-      ]);
+      );
     });
 
-    it('should return an empty list when the resource has no visible partners', async () => {
-      vi.spyOn(recService, 'findClientNumbers').mockResolvedValue([]);
-      expect(await controller.findSiteOperator('REC0001')).toStrictEqual([]);
+    it('should return null when the resource has no visible partner', async () => {
+      const findByClientNumber = vi.spyOn(
+        resourceService,
+        'findByClientNumber',
+      );
+      vi.spyOn(recService, 'findSiteOperatorClientNumber').mockResolvedValue(
+        null,
+      );
+
+      expect(await controller.findSiteOperator('REC0001')).toBeNull();
+      // no client lookup when there is nothing to look up
+      expect(findByClientNumber).not.toHaveBeenCalled();
     });
 
     it('should return an error if the api call fails', async () => {
-      vi.spyOn(recService, 'findClientNumbers').mockResolvedValue(['01']);
+      vi.spyOn(recService, 'findSiteOperatorClientNumber').mockResolvedValue(
+        '01',
+      );
       vi.spyOn(resourceService, 'findByClientNumber').mockRejectedValue(
         new HttpException('error', 500),
       );

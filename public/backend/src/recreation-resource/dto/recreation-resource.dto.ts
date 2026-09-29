@@ -87,6 +87,7 @@ export class RecreationFeeDto {
   fee_amount: number;
 
   @ApiProperty({
+    type: Date,
     description: 'Start date for the fee applicability',
     example: '2024-06-01',
     nullable: true,
@@ -95,6 +96,7 @@ export class RecreationFeeDto {
   fee_start_date: Date | null;
 
   @ApiProperty({
+    type: Date,
     description: 'End date for the fee applicability',
     example: '2024-09-30',
     nullable: true,
@@ -618,6 +620,7 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   advisories?: AdvisoryDto[];
 
   @ApiProperty({
+    type: String,
     description:
       'Group label of the highest-priority advisory access status, or status derived from recreation_status when advisory system is disabled',
     example: 'Closed',

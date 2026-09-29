@@ -20,17 +20,17 @@ import { mapValues } from '../runtime';
  */
 export interface CreateAgreementHolderDto {
   /**
-   * Agreement start date in YYYY-MM-DD format
+   * Agreement start date in YYYY-MM-DD format. Send null to clear it.
    * @type {string}
    * @memberof CreateAgreementHolderDto
    */
-  agreementStartDate?: string;
+  agreementStartDate?: string | null;
   /**
-   * Agreement end date in YYYY-MM-DD format
+   * Agreement end date in YYYY-MM-DD format. Send null to clear it.
    * @type {string}
    * @memberof CreateAgreementHolderDto
    */
-  agreementEndDate?: string;
+  agreementEndDate?: string | null;
   /**
    * Client number assigned to the recreation resource
    * @type {string}

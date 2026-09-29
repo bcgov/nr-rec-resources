@@ -205,7 +205,7 @@ describe('BcgwService', () => {
       const { features } = await service.findAll(1);
       const { properties } = features[0]!;
 
-      expect(properties.forest_file_id).toBe('REC204117');
+      expect(properties.rec_resource_id).toBe('REC204117');
       expect(properties.defined_campsites).toBe(5);
       expect(properties.arch_impact_assess_ind).toBe('Y');
       expect(properties.site_description_date).toEqual(new Date('2020-06-15'));
@@ -225,7 +225,7 @@ describe('BcgwService', () => {
       expect(features[0]!.properties.defined_campsites).toBe(42);
     });
 
-    it('converts string tenure totals to numbers', async () => {
+    it('converts string feature totals to numbers', async () => {
       prisma.$queryRawTyped.mockResolvedValue([
         makeRow({
           tenure_app_total_area: '5.8969',
@@ -236,13 +236,13 @@ describe('BcgwService', () => {
       const { features } = await service.findAll(1);
       const { properties } = features[0]!;
 
-      expect(typeof properties.tenure_app_total_area).toBe('number');
-      expect(properties.tenure_app_total_area).toBe(5.8969);
-      expect(typeof properties.tenure_app_total_length).toBe('number');
-      expect(properties.tenure_app_total_length).toBe(1.1118);
+      expect(typeof properties.total_feature_area).toBe('number');
+      expect(properties.total_feature_area).toBe(5.8969);
+      expect(typeof properties.total_feature_length).toBe('number');
+      expect(properties.total_feature_length).toBe(1.1118);
     });
 
-    it('preserves null tenure totals', async () => {
+    it('preserves null feature totals', async () => {
       prisma.$queryRawTyped.mockResolvedValue([
         makeRow({ tenure_app_total_area: null, tenure_app_total_length: null }),
       ]);
@@ -250,8 +250,8 @@ describe('BcgwService', () => {
       const { features } = await service.findAll(1);
       const { properties } = features[0]!;
 
-      expect(properties.tenure_app_total_area).toBeNull();
-      expect(properties.tenure_app_total_length).toBeNull();
+      expect(properties.total_feature_area).toBeNull();
+      expect(properties.total_feature_length).toBeNull();
     });
 
     it('parses shape JSON into geometry object', async () => {
@@ -378,7 +378,7 @@ describe('BcgwService', () => {
       const { properties } = features[0]!;
 
       expect(properties.rmf_skey).toBe(1001);
-      expect(properties.forest_file_id).toBe('REC4531');
+      expect(properties.rec_resource_id).toBe('REC4531');
       expect(properties.map_label).toBe('REC4531 15');
       expect(properties.life_cycle_status_code).toBe('ACTIVE');
       expect(properties.district_code).toBe('DCC');
@@ -507,11 +507,11 @@ describe('BcgwService', () => {
       const { properties } = features[0]!;
 
       expect(properties.rmf_skey).toBe(2001);
-      expect(properties.forest_file_id).toBe('REC0054');
+      expect(properties.rec_resource_id).toBe('REC0054');
       expect(properties.map_label).toBe('REC0054');
       expect(properties.life_cycle_status_code).toBe('ACTIVE');
-      expect(properties.geographic_district_code).toBe('DCC');
-      expect(properties.geographic_district_name).toBe(
+      expect(properties.district_code).toBe('DCC');
+      expect(properties.org_unit_name).toBe(
         'Chilliwack Natural Resource District',
       );
     });
@@ -580,10 +580,10 @@ describe('BcgwService', () => {
       const { features } = await service.findAllShort(1);
       const { properties } = features[0]!;
 
-      expect(properties.forest_file_id).toBe('REC204117');
-      expect(properties.project_name).toBe('Aileen Lake');
-      expect(properties.project_type).toBe('SIT - Recreation site');
-      expect(properties.site_location).toBe('PEMBERTON');
+      expect(properties.rec_resource_id).toBe('REC204117');
+      expect(properties.rec_resource_name).toBe('Aileen Lake');
+      expect(properties.rec_resource_type).toBe('SIT - Recreation site');
+      expect(properties.closest_community).toBe('PEMBERTON');
       expect(properties.recreation_district_code).toBe('RDPG');
       expect(properties.recreation_district_name).toBe(
         'Prince George-Mackenzie',
@@ -682,9 +682,9 @@ describe('BcgwService', () => {
       const { features } = await service.findAllShort(1);
       const { properties } = features[0]!;
 
-      expect(properties.project_name).toBeNull();
-      expect(properties.project_type).toBeNull();
-      expect(properties.site_location).toBeNull();
+      expect(properties.rec_resource_name).toBeNull();
+      expect(properties.rec_resource_type).toBeNull();
+      expect(properties.closest_community).toBeNull();
       expect(properties.recreation_district_code).toBeNull();
       expect(properties.org_unit_name).toBeNull();
       expect(properties.site_description).toBeNull();

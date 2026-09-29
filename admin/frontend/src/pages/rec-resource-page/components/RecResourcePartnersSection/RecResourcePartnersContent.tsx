@@ -26,7 +26,7 @@ export const RecResourcePartnersContent = ({
             <>
               <CustomButton
                 onClick={() => setIsAddNewPartnerModalOpen(true)}
-                className="btn btn-primary"
+                variant="outline-primary"
               >
                 Add New
               </CustomButton>
@@ -35,7 +35,7 @@ export const RecResourcePartnersContent = ({
                   '$id',
                   recResourceId,
                 )}
-                className="btn btn-primary"
+                className="btn btn-outline-primary"
               >
                 Edit
               </Link>
@@ -47,7 +47,10 @@ export const RecResourcePartnersContent = ({
         {partners.length === 0 && <h4>No active partners.</h4>}
         {partners.map((partner) => {
           return (
-            <RecResourcePartner key={partner.clientNumber} partner={partner} />
+            <RecResourcePartner
+              key={partner.agreement_holder_id}
+              partner={partner}
+            />
           );
         })}
       </div>

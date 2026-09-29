@@ -848,6 +848,7 @@ model recreation_agreement_holder {
   agreement_holder_id       Int                      @id @default(autoincrement())
   visible_on_public_website Boolean                  @default(false)
   recreation_operator       Boolean                  @default(false)
+  cancelled                 Boolean                  @default(false)
   recreation_resource       recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([client_number])
@@ -870,6 +871,7 @@ model recreation_agreement_holder_history {
   agreement_holder_id       Int?
   visible_on_public_website Boolean?
   recreation_operator       Boolean?
+  cancelled                 Boolean?
 
   @@ignore
   @@schema("rst")
@@ -894,7 +896,6 @@ model recreation_partner_relationship_type_code_history {
   @@ignore
   @@schema("rst")
 }
-
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_resource_reservation_info {
@@ -1447,7 +1448,6 @@ model recreation_asset {
   asset_length            Decimal?                  @db.Decimal(7, 1)
   asset_width             Decimal?                  @db.Decimal(7, 1)
   asset_area              Decimal?                  @db.Decimal(7, 1)
-  default_value           Decimal?                  @db.Decimal(7, 2)
   actual_value            Decimal?                  @db.Decimal(7, 2)
   installation_date       DateTime?                 @db.Date
   updated_at              DateTime?                 @default(now()) @db.Timestamp(6)
@@ -1480,6 +1480,7 @@ model recreation_asset_code {
   has_length       Boolean                  @default(false)
   has_width        Boolean                  @default(false)
   has_area         Boolean                  @default(false)
+  default_value    Decimal?                 @db.Decimal(7, 2)
   recreation_asset recreation_asset[]
 
   @@schema("rst")
@@ -1487,16 +1488,17 @@ model recreation_asset_code {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_asset_code_history {
-  asset_code  Int
-  description String?                  @db.VarChar(120)
-  updated_at  DateTime?                @db.Timestamp(6)
-  updated_by  String?
-  created_at  DateTime?                @db.Timestamp(6)
-  created_by  String?
-  sys_period  Unsupported("tstzrange")
-  has_length  Boolean                  @default(false)
-  has_width   Boolean                  @default(false)
-  has_area    Boolean                  @default(false)
+  asset_code    Int
+  description   String?                  @db.VarChar(120)
+  updated_at    DateTime?                @db.Timestamp(6)
+  updated_by    String?
+  created_at    DateTime?                @db.Timestamp(6)
+  created_by    String?
+  sys_period    Unsupported("tstzrange")
+  has_length    Boolean                  @default(false)
+  has_width     Boolean                  @default(false)
+  has_area      Boolean                  @default(false)
+  default_value Decimal?                 @db.Decimal(7, 2)
 
   @@ignore
   @@schema("rst")
@@ -1546,7 +1548,6 @@ model recreation_asset_history {
   asset_length        Decimal?                 @db.Decimal(7, 1)
   asset_width         Decimal?                 @db.Decimal(7, 1)
   asset_area          Decimal?                 @db.Decimal(7, 1)
-  default_value       Decimal?                 @db.Decimal(7, 2)
   actual_value        Decimal?                 @db.Decimal(7, 2)
   installation_date   DateTime?                @db.Date
   updated_at          DateTime?                @db.Timestamp(6)

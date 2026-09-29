@@ -24,6 +24,32 @@ vi.mock('@/routes/rec-resource/$id/partners', () => ({
   },
 }));
 
+// Mock TanStack Router Link component
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    to,
+    className,
+  }: {
+    children: React.ReactNode;
+    to: string;
+    className?: string;
+  }) => (
+    <a href={to} className={className}>
+      {children}
+    </a>
+  ),
+}));
+
+// Mock route constants
+vi.mock('@/constants/routes', () => ({
+  ROUTE_PATHS: {
+    REC_RESOURCE_FEES_ADD: '/rec-resource/$id/fees/add',
+    REC_RESOURCE_PARTNERS_EDIT: '/rec-resource/$id/partners/edit',
+  },
+}));
+
+// Mock custom hook for partner query
 vi.mock('@/services/hooks/recreation-resource-admin/useGetPartners', () => ({
   useGetPartners: vi.fn(),
 }));

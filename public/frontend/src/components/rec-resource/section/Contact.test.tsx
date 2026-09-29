@@ -37,7 +37,7 @@ describe('Contact component', () => {
   });
 
   it('renders component with site operator name', async () => {
-    await renderContact({ siteOperators: [siteOperator] });
+    await renderContact({ siteOperator });
     const operatorName = screen.getByText(/Site Operator Name/);
     const operatorLabel = screen.getByText(/Site operator/);
 
@@ -45,26 +45,17 @@ describe('Contact component', () => {
     expect(operatorLabel).toBeInTheDocument();
   });
 
-  it('renders a row for every partner', async () => {
-    await renderContact({
-      siteOperators: [
-        siteOperator,
-        {
-          ...siteOperator,
-          clientNumber: '0002',
-          clientName: 'SECOND PARTNER',
-          legalFirstName: '',
-        },
-      ],
-    });
+  it('renders at most one operator row', async () => {
+    // The API returns a single partner, so the section never renders more
+    // than one row.
+    await renderContact({ siteOperator });
 
     expect(screen.getByText(/Site Operator Name/)).toBeInTheDocument();
-    expect(screen.getByText('Second Partner')).toBeInTheDocument();
-    expect(screen.getAllByTestId('operator-result')).toHaveLength(2);
+    expect(screen.getAllByTestId('operator-result')).toHaveLength(1);
   });
 
-  it('renders no partner rows when the resource has none', async () => {
-    await renderContact({ siteOperators: [] });
+  it('renders no partner row when the resource has none', async () => {
+    await renderContact({ siteOperator: null });
 
     expect(screen.queryByTestId('operator-result')).not.toBeInTheDocument();
     expect(screen.queryByText(/Site operator/)).not.toBeInTheDocument();
@@ -135,7 +126,7 @@ describe('Contact component', () => {
       clientName: 'test operator name',
     };
 
-    await renderContact({ siteOperators: [operatorWithLowercase] });
+    await renderContact({ siteOperator: operatorWithLowercase });
     const operatorName = screen.getByText('Firstname Test Operator Name');
     expect(operatorName).toBeInTheDocument();
   });

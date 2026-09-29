@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional } from 'class-validator';
 import { AgreementDateRangeDto } from './agreement-date-range.dto';
 
 export class UpdateAgreementHolderDto extends AgreementDateRangeDto {
@@ -15,12 +14,12 @@ export class UpdateAgreementHolderDto extends AgreementDateRangeDto {
   visible_on_public_website?: boolean;
 
   @ApiProperty({
-    example: 'SITE_OPERATOR',
+    example: true,
     required: false,
-    description: 'Relationship type code for the agreement holder',
+    description:
+      'Marks the agreement as cancelled. One-way: an already-cancelled agreement cannot be un-cancelled.',
   })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
-  @IsString()
-  partner_relationship_type_code?: string;
+  @IsBoolean()
+  cancelled?: boolean;
 }

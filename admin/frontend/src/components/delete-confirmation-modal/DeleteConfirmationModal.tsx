@@ -2,7 +2,7 @@ import { faTrashCan } from '@fortawesome/pro-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactNode } from 'react';
-import { Button, ButtonProps, Modal } from 'react-bootstrap';
+import { Button, ButtonProps, Modal, ModalProps } from 'react-bootstrap';
 import './DeleteConfirmationModal.scss';
 
 const defaultConfirmIcon = faTrashCan as unknown as IconProp;
@@ -23,7 +23,9 @@ interface DeleteConfirmationModalProps {
   confirmVariant?: ButtonProps['variant'];
   cancelButtonClassName?: string;
   confirmButtonClassName?: string;
-  confirmIcon?: IconProp;
+  /** Pass `null` for a confirm button with no leading icon. */
+  confirmIcon?: IconProp | null;
+  size?: ModalProps['size'];
   children?: ReactNode;
 }
 
@@ -44,10 +46,17 @@ export const DeleteConfirmationModal = ({
   cancelButtonClassName,
   confirmButtonClassName,
   confirmIcon = defaultConfirmIcon,
+  size,
   children,
 }: DeleteConfirmationModalProps) => {
   return (
-    <Modal show={show} onHide={onCancel} centered className={className}>
+    <Modal
+      show={show}
+      onHide={onCancel}
+      centered
+      className={className}
+      size={size}
+    >
       <Modal.Header closeButton>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>

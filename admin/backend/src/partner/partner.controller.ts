@@ -3,6 +3,8 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
+  Delete,
+  HttpCode,
   HttpException,
   Get,
   Param,
@@ -34,6 +36,7 @@ import {
   AuthRolesGuard,
   RecreationResourceAuthRole,
   ROLE_MODE,
+  SuperAdminGuard,
 } from '@/auth';
 import { BadRequestResponseDto } from '@/common/dtos/bad-request-response.dto';
 import { AgreementHolderClientPublicViewDto } from './dtos/agreement-holder-client-public-view.dto';
@@ -228,12 +231,14 @@ export class PartnerController {
     );
   }
 
-  @Put('recreation-resources/:rec_resource_id')
+  @Put(
+    'recreation-resources/:rec_resource_id/agreement-holders/:agreement_holder_id',
+  )
   @ApiOperation({
     operationId: 'updateRecreationResourceAgreementHolder',
-    summary: 'Edit agreement holder dates for a recreation resource',
+    summary: 'Edit an agreement holder for a recreation resource',
     description:
-      'Updates the agreement start date and/or agreement end date for an existing agreement holder record.',
+      'Updates the agreement dates, public-website visibility, relationship type and/or cancelled flag for a single agreement holder. Cancelling is one-way.',
   })
   @ApiParam({
     name: 'rec_resource_id',
@@ -241,6 +246,13 @@ export class PartnerController {
     description: 'Resource identifier',
     type: 'string',
     example: 'REC0002',
+  })
+  @ApiParam({
+    name: 'agreement_holder_id',
+    required: true,
+    description: 'Agreement holder identifier',
+    type: 'number',
+    example: 1000001,
   })
   @ApiBody({
     type: UpdateAgreementHolderDto,
@@ -252,19 +264,71 @@ export class PartnerController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Agreement holder not found',
+    description: 'Agreement holder not found for this recreation resource',
   })
   @ApiBadRequestResponse({
-    description: 'Bad Request - validation errors',
+    description:
+      'Bad Request - validation errors, end date before start date, or an attempt to un-cancel',
     type: BadRequestResponseDto,
   })
   async updateAgreementHolder(
     @Param('rec_resource_id') rec_resource_id: string,
+    @Param('agreement_holder_id', ParseIntPipe) agreement_holder_id: number,
     @Body() updateDto: UpdateAgreementHolderDto,
   ): Promise<AgreementHolderClientPublicViewDto> {
     return await this.partnerService.updateAgreementHolder(
       rec_resource_id,
+      agreement_holder_id,
       updateDto,
+    );
+  }
+
+  @Delete(
+    'recreation-resources/:rec_resource_id/agreement-holders/:agreement_holder_id',
+  )
+  // Deleting a partner is restricted to super admins. The controller-level
+  // @AuthRoles admits RST_ADMIN too, so this guard narrows just this route.
+  @UseGuards(SuperAdminGuard)
+  @HttpCode(204)
+  @ApiOperation({
+    operationId: 'deleteRecreationResourceAgreementHolder',
+    summary: 'Delete an agreement holder for a recreation resource',
+    description:
+      'Removes the agreement holder record. The row is retained in the history table by the temporal versioning trigger.',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    required: true,
+    description: 'Resource identifier',
+    type: 'string',
+    example: 'REC0002',
+  })
+  @ApiParam({
+    name: 'agreement_holder_id',
+    required: true,
+    description: 'Agreement holder identifier',
+    type: 'number',
+    example: 1000001,
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Agreement holder deleted successfully',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Requires the rst-super-admin role',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Agreement holder not found for this recreation resource',
+  })
+  async deleteAgreementHolder(
+    @Param('rec_resource_id') rec_resource_id: string,
+    @Param('agreement_holder_id', ParseIntPipe) agreement_holder_id: number,
+  ): Promise<void> {
+    await this.partnerService.deleteAgreementHolder(
+      rec_resource_id,
+      agreement_holder_id,
     );
   }
 

@@ -156,9 +156,10 @@ export interface RecreationResourceDetailDto {
    */
   campsite_count: number;
   /**
-   * List of fee details for the recreation resource (supports multiple fees with code 'C')
+   * @deprecated Always returns an empty array. Fees are now returned in exactly one of `overnight_fees` (code `O`), `trail_use_fees` (code `T`), or `additional_fees` (code `A`). Use those fields instead.
    * @type {Array<RecreationFeeDto>}
    * @memberof RecreationResourceDetailDto
+   * @deprecated
    */
   recreation_fee: Array<RecreationFeeDto>;
   /**
@@ -168,19 +169,19 @@ export interface RecreationResourceDetailDto {
    */
   recreation_access: Array<string>;
   /**
-   * List of additional fees that do not fall under the main recreation fee category (non-'C' codes)
+   * Additional fees (recreation_fee_code = `A`), e.g. parking or day-use. Sub-type is conveyed by `recreation_fee_sub_code` on each item.
    * @type {Array<RecreationFeeDto>}
    * @memberof RecreationResourceDetailDto
    */
   additional_fees: Array<RecreationFeeDto>;
   /**
-   * List of overnight fees for camping, cabins, huts, etc. (recreation fee code 'O')
+   * Overnight fees (recreation_fee_code = `O`), e.g. camping, cabins, huts. Sub-type is conveyed by `recreation_fee_sub_code` on each item.
    * @type {Array<RecreationFeeDto>}
    * @memberof RecreationResourceDetailDto
    */
   overnight_fees?: Array<RecreationFeeDto>;
   /**
-   * List of trail use fees for skiing, snowmobiling, etc. (recreation fee code 'T')
+   * Trail use fees (recreation_fee_code = `T`). Sub-type (e.g. ski, mountain bike) is conveyed by `recreation_fee_sub_code`.
    * @type {Array<RecreationFeeDto>}
    * @memberof RecreationResourceDetailDto
    */
@@ -472,9 +473,6 @@ export function RecreationResourceDetailDtoToJSONTyped(
       value['advisories'] == null
         ? undefined
         : (value['advisories'] as Array<any>).map(AdvisoryDtoToJSON),
-    top_access_status_grouplabel:
-      value['top_access_status_grouplabel'] == null
-        ? undefined
-        : value['top_access_status_grouplabel'],
+    top_access_status_grouplabel: value['top_access_status_grouplabel'],
   };
 }
