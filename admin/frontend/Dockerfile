@@ -38,7 +38,7 @@ WORKDIR /app/admin/frontend
 RUN npm run deploy
 
 # Deploy using Caddy to host static files
-FROM caddy:2.10.2-alpine
+FROM caddy:2.11.4-alpine
 RUN apk add --no-cache ca-certificates
 
 COPY --from=build /app/admin/frontend/dist /srv
