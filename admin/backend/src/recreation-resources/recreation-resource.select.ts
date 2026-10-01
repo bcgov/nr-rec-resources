@@ -74,6 +74,9 @@ const _baseRecreationResourceSelect = {
   recreation_resource_reservation_info: {
     select: {
       rec_resource_id: true,
+      reservation_website: true,
+      reservation_phone_number: true,
+      reservation_email: true,
     },
   },
   _count: {

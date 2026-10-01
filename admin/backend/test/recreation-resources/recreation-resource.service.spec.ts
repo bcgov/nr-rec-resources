@@ -185,6 +185,9 @@ describe('RecreationResourceService', () => {
           ],
           recreation_resource_reservation_info: {
             rec_resource_id: 'REC123',
+            reservation_website: 'https://example.com',
+            reservation_phone_number: null,
+            reservation_email: null,
           },
           recreation_resource_type_view_admin: [
             {
@@ -281,6 +284,43 @@ describe('RecreationResourceService', () => {
       status: OPEN_STATUS.DESCRIPTION,
       status_code: OPEN_STATUS.STATUS_CODE,
     });
+  });
+
+  it('should not mark a resource reservable when the reservation row has no contact info', async () => {
+    // Staff flagging a resource as not reservable nulls the contact columns but
+    // leaves the row behind, so row existence alone must not add 'Reservable'.
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC125',
+          name: 'Not Reservable Lake',
+          closest_community: '',
+          project_established_date: null,
+          display_on_public_site: true,
+          recreation_activity: [],
+          recreation_access: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: {
+            rec_resource_id: 'REC125',
+            reservation_website: null,
+            reservation_phone_number: '   ',
+            reservation_email: '',
+          },
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          recreation_status: null,
+          rec_status_code: null,
+          _count: {
+            recreation_defined_campsite: 0,
+          },
+        },
+      ],
+    });
+
+    const result = await service.searchResources({});
+
+    expect(result.data[0]?.fee_indicators).toEqual(['No fees']);
   });
 
   it('should normalize derived list values alphabetically', async () => {
