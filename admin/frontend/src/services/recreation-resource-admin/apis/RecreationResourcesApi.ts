@@ -3658,8 +3658,6 @@ export const DownloadExportCsvDatasetEnum = {
   FileDetailsFta: 'file-details-fta',
   FeeList: 'fee-list',
   FeeListFta: 'fee-list-fta',
-  AgreementList: 'agreement-list',
-  AgreementListFta: 'agreement-list-fta',
   CampsiteList: 'campsite-list',
   CampsiteListFta: 'campsite-list-fta',
   ObjectiveListFta: 'objective-list-fta',
@@ -3672,6 +3670,7 @@ export const DownloadExportCsvDatasetEnum = {
   SiteInspectionFta: 'site-inspection-fta',
   ClosureListFta: 'closure-list-fta',
   AssetRepairList: 'asset-repair-list',
+  PartnersList: 'partners-list',
 } as const;
 export type DownloadExportCsvDatasetEnum =
   (typeof DownloadExportCsvDatasetEnum)[keyof typeof DownloadExportCsvDatasetEnum];
@@ -3683,8 +3682,6 @@ export const GetExportPreviewDatasetEnum = {
   FileDetailsFta: 'file-details-fta',
   FeeList: 'fee-list',
   FeeListFta: 'fee-list-fta',
-  AgreementList: 'agreement-list',
-  AgreementListFta: 'agreement-list-fta',
   CampsiteList: 'campsite-list',
   CampsiteListFta: 'campsite-list-fta',
   ObjectiveListFta: 'objective-list-fta',
@@ -3697,6 +3694,7 @@ export const GetExportPreviewDatasetEnum = {
   SiteInspectionFta: 'site-inspection-fta',
   ClosureListFta: 'closure-list-fta',
   AssetRepairList: 'asset-repair-list',
+  PartnersList: 'partners-list',
 } as const;
 export type GetExportPreviewDatasetEnum =
   (typeof GetExportPreviewDatasetEnum)[keyof typeof GetExportPreviewDatasetEnum];
