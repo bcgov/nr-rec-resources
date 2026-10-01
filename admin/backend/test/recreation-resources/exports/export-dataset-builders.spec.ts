@@ -183,6 +183,7 @@ describe('export dataset builders', () => {
     expect(sql).toContain('"DISPLAY_ON_WEBSITE"');
     expect(sql).toContain('"AGREEMENT_START_DATE"');
     expect(sql).toContain('"AGREEMENT_END_DATE"');
+    expect(sql).not.toContain('RELATIONSHIP_TYPE_CODE');
   });
 
   it('exposes asset attributes and campsite parentage in the asset list query', () => {
