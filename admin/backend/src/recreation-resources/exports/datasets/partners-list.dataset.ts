@@ -7,7 +7,7 @@ export const partnersListDataset: ExportDatasetBuilder = {
     SELECT
       ${sql.rstPrimaryColumns()},
       CASE
-        WHEN COUNT(rf.recreation_fee_code) > 0 AND (agreement_end_date >= CURRENT_DATE OR agreement_end_date IS NULL) THEN 'Yes'
+        WHEN COUNT(rf.recreation_fee_code) FILTER (WHERE rf.is_deleted = false) > 0 AND (agreement_end_date >= CURRENT_DATE OR agreement_end_date IS NULL) THEN 'Yes'
         ELSE 'No'
       END AS "IS_RECREATION_OPERATOR",
       ah.client_number AS "CLIENT_NUMBER",
@@ -15,7 +15,6 @@ export const partnersListDataset: ExportDatasetBuilder = {
       TO_CHAR(ah.agreement_start_date, 'YYYY-MM-DD') AS "AGREEMENT_START_DATE",
       TO_CHAR(ah.agreement_end_date, 'YYYY-MM-DD') AS "AGREEMENT_END_DATE",
       ah.revision_count AS "REVISION_COUNT",
-      ah.partner_relationship_type_code AS "RELATIONSHIP_TYPE_CODE",
       ${sql.formatTimestamp(Prisma.sql`ah.created_at`)} AS "CREATE_TIMESTAMP",
       ah.created_by AS "CREATED_BY",
       ${sql.formatTimestamp(Prisma.sql`ah.updated_at`)} AS "UPDATE_TIMESTAMP",
@@ -37,7 +36,6 @@ export const partnersListDataset: ExportDatasetBuilder = {
       ah.agreement_start_date,
       ah.agreement_end_date,
       ah.revision_count,
-      ah.partner_relationship_type_code,
       ah.updated_at,
       ah.updated_by,
       ah.created_at,
