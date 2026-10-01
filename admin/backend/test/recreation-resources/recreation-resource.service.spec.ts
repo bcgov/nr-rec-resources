@@ -193,6 +193,43 @@ describe('RecreationResourceService', () => {
     });
   });
 
+  it('should map pending map feature requests with null requested_at', async () => {
+    (repo.findPendingMapFeatureRequests as any).mockResolvedValue([
+      {
+        rec_resource_id: 'REC500002',
+        name: 'Pending Trail',
+        district_description: 'Test District',
+        recreation_district: 'Test District',
+        natural_resource_district: 'Natural Test District',
+        recreation_type: 'Trail',
+        amend_status_code: 'PND',
+        feature_count: 1,
+        requested_at: null,
+        geometry_types: ['LineString'],
+      },
+    ]);
+
+    const result = await service.getPendingMapFeatureRequests();
+
+    expect(result).toEqual({
+      data: [
+        {
+          rec_resource_id: 'REC500002',
+          name: 'Pending Trail',
+          district_description: 'Test District',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural Test District',
+          recreation_type: 'Trail',
+          amend_status_code: 'PND',
+          feature_count: 1,
+          requested_at: null,
+          geometry_types: ['LineString'],
+        },
+      ],
+      total: 1,
+    });
+  });
+
   it('should map admin search results into response DTO shape', async () => {
     const query: AdminSearchQueryDto = {
       q: 'lake',

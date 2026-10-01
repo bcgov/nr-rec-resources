@@ -171,4 +171,40 @@ describe('GeospatialController', () => {
     );
     expect(res).toEqual(returned);
   });
+
+  it('createMapFeatures throws 404 when payload cannot be reloaded after import', async () => {
+    const body = {
+      features: [{ geometry: { type: 'Polygon', coordinates: [] } }],
+    };
+
+    (
+      geospatialServiceMock.createMapFeaturesFromValidatedFile as any
+    ).mockResolvedValue(undefined);
+    (geospatialServiceMock.findGeospatialDataById as any).mockResolvedValue(
+      null,
+    );
+
+    await expect(
+      controller.createMapFeatures('REC404', body as any),
+    ).rejects.toMatchObject({
+      status: 404,
+    });
+  });
+
+  it('updateGeospatialData rethrows service errors', async () => {
+    const updateDto: UpdateRecreationResourceGeospatialDto =
+      new UpdateRecreationResourceGeospatialDto();
+    updateDto.utm_zone = 10;
+    updateDto.utm_easting = 500000;
+    updateDto.utm_northing = 5450000;
+
+    const error = new Error('validation failed');
+    (geospatialServiceMock.updateGeospatialData as any).mockRejectedValue(
+      error,
+    );
+
+    await expect(
+      controller.updateGeospatialData('REC500', updateDto),
+    ).rejects.toThrow('validation failed');
+  });
 });

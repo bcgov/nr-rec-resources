@@ -363,6 +363,203 @@ describe('GeospatialService', () => {
     ).rejects.toThrow('At least one validated feature is required.');
   });
 
+  it('createMapFeaturesFromValidatedFile rejects unsupported geometry types', async () => {
+    const txMock = {
+      recreation_resource: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue(undefined),
+      },
+      recreation_map_feature: {
+        findFirst: vi.fn().mockResolvedValue(null),
+      },
+      $executeRaw: vi.fn().mockResolvedValue(undefined),
+      $executeRawUnsafe: vi.fn().mockResolvedValue(undefined),
+      $queryRawUnsafe: vi.fn().mockResolvedValue([{ max_rmf_skey: 99 }]),
+    };
+
+    (
+      prismaMock.$transaction as unknown as ReturnType<typeof vi.fn>
+    ).mockImplementation(
+      async (callback: (tx: typeof txMock) => Promise<void>) => {
+        return callback(txMock);
+      },
+    );
+
+    await expect(
+      service.createMapFeaturesFromValidatedFile('REC2', {
+        features: [{ geometry: { type: 'Point', coordinates: [1, 2] } }],
+      }),
+    ).rejects.toThrow('Unsupported geometry type: Point');
+  });
+
+  it('createMapFeaturesFromValidatedFile rejects payloads where all features are missing geometry types', async () => {
+    const txMock = {
+      recreation_resource: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue(undefined),
+      },
+      recreation_map_feature: {
+        findFirst: vi.fn().mockResolvedValue(null),
+      },
+      $executeRaw: vi.fn().mockResolvedValue(undefined),
+      $executeRawUnsafe: vi.fn().mockResolvedValue(undefined),
+      $queryRawUnsafe: vi.fn().mockResolvedValue([{ max_rmf_skey: 99 }]),
+    };
+
+    (
+      prismaMock.$transaction as unknown as ReturnType<typeof vi.fn>
+    ).mockImplementation(
+      async (callback: (tx: typeof txMock) => Promise<void>) => {
+        return callback(txMock);
+      },
+    );
+
+    await expect(
+      service.createMapFeaturesFromValidatedFile('REC2', {
+        features: [{ geometry: {} as any }],
+      }),
+    ).rejects.toThrow('No supported geometries were found.');
+  });
+
+  it('updates existing resource metadata only when patchable values are provided', async () => {
+    const txMock = {
+      recreation_resource: {
+        findUnique: vi.fn().mockResolvedValue({
+          rec_resource_id: 'REC_PATCH',
+          district_code: null,
+          name: 'Old Name',
+        }),
+        create: vi.fn(),
+        update: vi.fn().mockResolvedValue(undefined),
+      },
+      recreation_map_feature: {
+        findFirst: vi.fn().mockResolvedValue(null),
+      },
+      $executeRaw: vi.fn().mockResolvedValue(undefined),
+      $executeRawUnsafe: vi.fn().mockResolvedValue(undefined),
+      $queryRawUnsafe: vi.fn().mockResolvedValue([{ max_rmf_skey: 99 }]),
+    };
+
+    (
+      prismaMock.$transaction as unknown as ReturnType<typeof vi.fn>
+    ).mockImplementation(
+      async (callback: (tx: typeof txMock) => Promise<void>) => {
+        return callback(txMock);
+      },
+    );
+
+    await service.createMapFeaturesFromValidatedFile('REC_PATCH', {
+      recreation_district_code: 'D123',
+      rec_resource_name: '  New Name  ',
+      features: [
+        {
+          section_id: '  section-7  ',
+          geometry: {
+            type: 'MultiLineString',
+            coordinates: [
+              [
+                [1, 1],
+                [2, 2],
+              ],
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(txMock.recreation_resource.create).not.toHaveBeenCalled();
+    expect(txMock.recreation_resource.update).toHaveBeenCalledWith({
+      where: { rec_resource_id: 'REC_PATCH' },
+      data: {
+        district_code: 'D123',
+        name: 'New Name',
+      },
+    });
+
+    const values = txMock.$executeRaw.mock.calls
+      .map((call) => call[0].values)
+      .flat();
+    expect(values).toContain('section-7');
+    expect(values).toContain('L');
+  });
+
+  it('does not issue a resource update when no patch fields are available', async () => {
+    const txMock = {
+      recreation_resource: {
+        findUnique: vi.fn().mockResolvedValue({
+          rec_resource_id: 'REC_NO_PATCH',
+          district_code: 'D001',
+          name: 'Existing Name',
+        }),
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+      recreation_map_feature: {
+        findFirst: vi.fn().mockResolvedValue(null),
+      },
+      $executeRaw: vi.fn().mockResolvedValue(undefined),
+      $executeRawUnsafe: vi.fn().mockResolvedValue(undefined),
+      $queryRawUnsafe: vi.fn().mockResolvedValue([{ max_rmf_skey: 99 }]),
+    };
+
+    (
+      prismaMock.$transaction as unknown as ReturnType<typeof vi.fn>
+    ).mockImplementation(
+      async (callback: (tx: typeof txMock) => Promise<void>) => {
+        return callback(txMock);
+      },
+    );
+
+    await service.createMapFeaturesFromValidatedFile('REC_NO_PATCH', {
+      rec_resource_name: '   ',
+      recreation_district_code: 'D999',
+      features: [{ geometry: { type: 'Polygon', coordinates: [] } }],
+    });
+
+    expect(txMock.recreation_resource.update).not.toHaveBeenCalled();
+  });
+
+  it('logs and skips natural district seeding when template code is not found', async () => {
+    const txMock = {
+      recreation_resource: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue(undefined),
+      },
+      natural_resource_org_unit: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: vi.fn(),
+      },
+      recreation_map_feature: {
+        findFirst: vi.fn().mockResolvedValue(null),
+      },
+      $executeRaw: vi.fn().mockResolvedValue(undefined),
+      $executeRawUnsafe: vi.fn().mockResolvedValue(undefined),
+      $queryRawUnsafe: vi.fn().mockResolvedValue([{ max_rmf_skey: 99 }]),
+    };
+    const warnSpy = vi.spyOn(service['logger'], 'warn');
+
+    (
+      prismaMock.$transaction as unknown as ReturnType<typeof vi.fn>
+    ).mockImplementation(
+      async (callback: (tx: typeof txMock) => Promise<void>) => {
+        return callback(txMock);
+      },
+    );
+
+    await service.createMapFeaturesFromValidatedFile('REC_NR', {
+      natural_resource_district_code: 'BAD1',
+      features: [{ geometry: { type: 'Polygon', coordinates: [] } }],
+    });
+
+    expect(txMock.natural_resource_org_unit.create).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'No natural_resource_org_unit template found for code BAD1',
+      ),
+    );
+  });
+
   describe('validateUtmAgainstFeatureGeometry (via updateGeospatialData)', () => {
     const dto = { utm_zone: 10, utm_easting: 500000, utm_northing: 5450000 };
 
@@ -403,6 +600,23 @@ describe('GeospatialService', () => {
 
       await service.updateGeospatialData('REC-POLY', dto as any);
       expect(upsertSpy).toHaveBeenCalled();
+    });
+
+    it('throws when UTM point does not pass geometry validation checks', async () => {
+      (
+        prismaMock.$queryRaw as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([{ feature_count: BigInt(1), passes_check: false }]);
+
+      const upsertSpy = vi
+        .spyOn(service as any, 'upsertSitePointFromUtm')
+        .mockResolvedValue(undefined);
+
+      await expect(
+        service.updateGeospatialData('REC-OUTSIDE', dto as any),
+      ).rejects.toThrow(
+        'The UTM coordinates must be within 10 m of the linear trail or inside the polygon for this recreation resource.',
+      );
+      expect(upsertSpy).not.toHaveBeenCalled();
     });
   });
 
