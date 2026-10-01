@@ -337,25 +337,27 @@ export class GeospatialService {
           )
           SELECT
             ${rmfSkey},
-            ${entry.geometryTypeCode},
+            normalized.geometry_type_code,
             normalized.geom_3005,
             CASE
-              WHEN ${entry.geometryTypeCode} = 'P'
+              WHEN normalized.geometry_type_code = 'P'
                 THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
               ELSE NULL
             END,
             CASE
-              WHEN ${entry.geometryTypeCode} = 'L'
+              WHEN normalized.geometry_type_code = 'L'
                 THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
               ELSE NULL
             END,
             CASE
-              WHEN ${entry.geometryTypeCode} = 'P'
+              WHEN normalized.geometry_type_code = 'P'
                 THEN ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
               ELSE NULL
             END
           FROM (
-            SELECT ${geometry} AS geom_3005
+            SELECT
+              CAST(${entry.geometryTypeCode} AS varchar(1)) AS geometry_type_code,
+              ${geometry} AS geom_3005
           ) AS normalized
         `);
       }
