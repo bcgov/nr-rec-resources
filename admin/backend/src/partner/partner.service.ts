@@ -42,7 +42,6 @@ const AGREEMENT_HOLDER_SELECT = {
   agreement_start_date: true,
   agreement_end_date: true,
   visible_on_public_website: true,
-  recreation_operator: true,
   cancelled: true,
 } as const;
 
@@ -188,8 +187,6 @@ export class PartnerService {
           ? new Date(createDto.agreementEndDate)
           : null,
         visible_on_public_website: createDto.visible_on_public_website ?? false,
-        recreation_operator:
-          createDto.partner_relationship_type_code === 'RECREATION_OPERATOR',
       },
       select: AGREEMENT_HOLDER_SELECT,
     });

@@ -70,7 +70,6 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
   },
   [RecResourceNavKey.PARTNERS]: {
     title: 'Partners',
-    isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_PARTNERS,
       params: { id },

@@ -66,6 +66,20 @@ describe('RecResourcePartner', () => {
     expect(screen.getByText('Show additional information')).toBeInTheDocument();
   });
 
+  it('hides additional CLIENT information for restricted partner viewers', () => {
+    render(
+      <RecResourcePartner
+        partner={mockPartner}
+        canViewAdditionalInfo={false}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: /additional information/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Contact Information')).not.toBeInTheDocument();
+  });
+
   it('shows recreation operator pill when backend marks relationship as recreation operator', () => {
     render(
       <RecResourcePartner

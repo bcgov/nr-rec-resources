@@ -38,6 +38,7 @@ import {
   ROLE_MODE,
   SuperAdminGuard,
 } from '@/auth';
+import { UserContextService } from '@/common/modules/user-context/user-context.service';
 import { BadRequestResponseDto } from '@/common/dtos/bad-request-response.dto';
 import { AgreementHolderClientPublicViewDto } from './dtos/agreement-holder-client-public-view.dto';
 import { PartnerService } from './partner.service';
@@ -50,16 +51,41 @@ import { UpdateAgreementHolderDto } from './dtos/update-agreement-holder.dto';
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
 @ApiExtraModels(ClientLocationDto, AgreementHolderClientPublicViewDto)
-@AuthRoles(
-  [
-    RecreationResourceAuthRole.RST_ADMIN,
-    RecreationResourceAuthRole.RST_SUPER_ADMIN,
-  ],
-  ROLE_MODE.ANY,
-)
 @Controller('partners')
 export class PartnerController {
-  constructor(private readonly partnerService: PartnerService) {}
+  constructor(
+    private readonly partnerService: PartnerService,
+    private readonly userContextService: UserContextService,
+  ) {}
+
+  private userHasAnyRole(roles: readonly string[]): boolean {
+    const currentUser = this.userContextService.getCurrentUser();
+    const userRoles = currentUser.client_roles ?? [];
+    return roles.some((role) => userRoles.includes(role));
+  }
+
+  private isRestrictedPartnerViewer(): boolean {
+    return this.userHasAnyRole([RecreationResourceAuthRole.RST_IDIR_VIEWER]);
+  }
+
+  private maskPartnerForRestrictedViewer(
+    partner: AgreementHolderClientPublicViewDto,
+  ): AgreementHolderClientPublicViewDto {
+    return {
+      agreement_holder_id: partner.agreement_holder_id,
+      clientNumber: partner.clientNumber,
+      clientName: partner.clientName,
+      clientStatusCode: partner.clientStatusCode,
+      clientStatusDescription: partner.clientStatusDescription,
+      clientTypeCode: partner.clientTypeCode,
+      clientTypeDescription: partner.clientTypeDescription,
+      agreementStartDate: partner.agreementStartDate,
+      agreementEndDate: partner.agreementEndDate,
+      visible_on_public_website: partner.visible_on_public_website,
+      partner_relationship_type_code: partner.partner_relationship_type_code,
+      cancelled: partner.cancelled,
+    };
+  }
 
   private setTotalCountHeader(
     response: Response,
@@ -71,6 +97,7 @@ export class PartnerController {
   }
 
   @Get('search/by')
+  @AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN], ROLE_MODE.ANY)
   @ApiOperation({
     operationId: 'searchPartners',
     summary: 'Search for partners',
@@ -107,6 +134,7 @@ export class PartnerController {
   }
 
   @Get('search')
+  @AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN], ROLE_MODE.ANY)
   @ApiOperation({
     operationId: 'searchPartnerByClientId',
     summary: 'Search for partner by client id',
@@ -135,6 +163,15 @@ export class PartnerController {
   }
 
   @Get('recreation-resources/:rec_resource_id')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @ApiOperation({
     operationId: 'getPartnersByRecreationResourceId',
     summary: 'Get partners by recreation resource ID',
@@ -181,12 +218,16 @@ export class PartnerController {
   async findClientsByRecResourceId(
     @Param('rec_resource_id') rec_resource_id: string,
   ): Promise<AgreementHolderClientPublicViewDto[]> {
-    return await this.partnerService.findClientsByRecResourceId(
-      rec_resource_id,
-    );
+    const partners =
+      await this.partnerService.findClientsByRecResourceId(rec_resource_id);
+
+    return this.isRestrictedPartnerViewer()
+      ? partners.map((partner) => this.maskPartnerForRestrictedViewer(partner))
+      : partners;
   }
 
   @Post('recreation-resources/:rec_resource_id')
+  @AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN], ROLE_MODE.ANY)
   @ApiOperation({
     operationId: 'createRecreationResourceAgreementHolder',
     summary: 'Add agreement holder for a recreation resource',
@@ -234,6 +275,7 @@ export class PartnerController {
   @Put(
     'recreation-resources/:rec_resource_id/agreement-holders/:agreement_holder_id',
   )
+  @AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN], ROLE_MODE.ANY)
   @ApiOperation({
     operationId: 'updateRecreationResourceAgreementHolder',
     summary: 'Edit an agreement holder for a recreation resource',
@@ -286,8 +328,7 @@ export class PartnerController {
   @Delete(
     'recreation-resources/:rec_resource_id/agreement-holders/:agreement_holder_id',
   )
-  // Deleting a partner is restricted to super admins. The controller-level
-  // @AuthRoles admits RST_ADMIN too, so this guard narrows just this route.
+  @AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN], ROLE_MODE.ANY)
   @UseGuards(SuperAdminGuard)
   @HttpCode(204)
   @ApiOperation({
@@ -333,6 +374,14 @@ export class PartnerController {
   }
 
   @Get(':client_id')
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @ApiOperation({
     operationId: 'getPartnerLocationsByClientId',
     summary: 'Get partner locations by client id',
