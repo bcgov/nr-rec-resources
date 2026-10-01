@@ -266,7 +266,6 @@ describe('PartnerController', () => {
         agreementStartDate: '2024-01-01',
         agreementEndDate: '2026-12-31',
         visible_on_public_website: false,
-        partner_relationship_type_code: 'SITE_OPERATOR',
       };
       const expected: AgreementHolderClientPublicViewDto = {
         agreement_holder_id: 1000001,

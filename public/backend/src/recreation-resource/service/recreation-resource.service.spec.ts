@@ -35,6 +35,7 @@ describe('RecreationResourceService', () => {
               findMany: vi.fn(),
               findFirst: vi.fn(),
             },
+            $queryRaw: vi.fn(),
             $queryRawTyped: vi.fn(),
           },
         },
@@ -67,6 +68,8 @@ describe('RecreationResourceService', () => {
 
     service = module.get<RecreationResourceService>(RecreationResourceService);
     prismaService = module.get(PrismaService);
+    // Default to schema supporting the cancelled flag unless a test overrides it.
+    (prismaService.$queryRaw as any).mockResolvedValue([{ exists: true }]);
   });
 
   describe('findOne', () => {
@@ -155,6 +158,23 @@ describe('RecreationResourceService', () => {
       ).mockResolvedValueOnce({ client_number: null } as any);
 
       expect(await service.findSiteOperatorClientNumber('REC0001')).toBeNull();
+    });
+
+    it('should omit cancelled filter when schema does not include cancelled column', async () => {
+      (prismaService.$queryRaw as any).mockResolvedValueOnce([
+        { exists: false },
+      ]);
+      vi.mocked(
+        prismaService.recreation_agreement_holder.findFirst,
+      ).mockResolvedValueOnce({ client_number: '01' } as any);
+
+      await service.findSiteOperatorClientNumber('REC0001');
+
+      const where = vi.mocked(
+        prismaService.recreation_agreement_holder.findFirst,
+      ).mock.calls[0]?.[0]?.where as Record<string, unknown>;
+
+      expect(where.cancelled).toBeUndefined();
     });
   });
 

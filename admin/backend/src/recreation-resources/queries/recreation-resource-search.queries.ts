@@ -370,6 +370,11 @@ export function buildDerivedSortQueryParts(
                       SELECT 1
                       FROM rst.recreation_resource_reservation_info rrri
                       WHERE rrri.rec_resource_id = rr.rec_resource_id
+                        AND (
+                          NULLIF(BTRIM(rrri.reservation_website), '') IS NOT NULL
+                          OR NULLIF(BTRIM(rrri.reservation_phone_number), '') IS NOT NULL
+                          OR NULLIF(BTRIM(rrri.reservation_email), '') IS NOT NULL
+                        )
                     ) THEN 'Reservable'
                   END AS fee_value
                 UNION ALL

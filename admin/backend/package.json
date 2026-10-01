@@ -86,6 +86,6 @@
     "vitest": ">=4.1.11"
   },
   "overrides": {
-    "@xhmikosr/decompress": "10.2.1"
+    "@xhmikosr/decompress": "10.2.2"
   }
 }

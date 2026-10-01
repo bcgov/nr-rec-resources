@@ -234,12 +234,16 @@ export class RecreationResourceService {
   }
 
   private getFeeTypes(resource: {
-    recreation_resource_reservation_info?: { rec_resource_id: string } | null;
+    recreation_resource_reservation_info?: {
+      reservation_website?: string | null;
+      reservation_phone_number?: string | null;
+      reservation_email?: string | null;
+    } | null;
     recreation_fee?: Array<{ recreation_fee_code: string }>;
   }): string[] {
     const feeTypes: string[] = [];
 
-    if (resource.recreation_resource_reservation_info) {
+    if (this.isReservable(resource.recreation_resource_reservation_info)) {
       feeTypes.push('Reservable');
     }
 
@@ -250,6 +254,29 @@ export class RecreationResourceService {
     }
 
     return feeTypes;
+  }
+
+  /**
+   * A resource counts as reservable only when it actually has reservation
+   * contact info. The row itself sticks around after staff flag a resource as
+   * not reservable, so row existence alone isn't enough.
+   */
+  private isReservable(
+    reservationInfo?: {
+      reservation_website?: string | null;
+      reservation_phone_number?: string | null;
+      reservation_email?: string | null;
+    } | null,
+  ): boolean {
+    if (!reservationInfo) {
+      return false;
+    }
+
+    return Boolean(
+      reservationInfo.reservation_website?.trim() ||
+        reservationInfo.reservation_phone_number?.trim() ||
+        reservationInfo.reservation_email?.trim(),
+    );
   }
 
   private getRecStatusDescription(resource: {

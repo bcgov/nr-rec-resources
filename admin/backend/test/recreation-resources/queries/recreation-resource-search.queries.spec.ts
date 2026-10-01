@@ -193,6 +193,10 @@ describe('recreation-resource-search.queries', () => {
     const normalizedIdsSql = normalizeSql(idsQuery);
     expect(normalizedIdsSql).toContain('LEFT JOIN LATERAL');
     expect(normalizedIdsSql).toContain('Reservable');
+    // 'Reservable' must hinge on actual contact info, not just a row existing
+    expect(normalizedIdsSql).toContain(
+      "NULLIF(BTRIM(rrri.reservation_website), '') IS NOT NULL",
+    );
     expect(normalizedIdsSql).toContain('Has fees');
     expect(normalizedIdsSql).toContain('No fees');
     expect(normalizedIdsSql).toContain('rf.is_deleted = false');
