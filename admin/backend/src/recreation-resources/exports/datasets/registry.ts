@@ -1,4 +1,3 @@
-import { agreementListFtaDataset } from './agreement-list-fta.dataset';
 import { accessListFtaDataset } from './access-list-fta.dataset';
 import { accessListDataset } from './access-list.dataset';
 import { activitiesListFtaDataset } from './activities-list-fta.dataset';
@@ -22,7 +21,6 @@ import { type ExportDatasetBuilder } from './types';
 export const EXPORT_DATASET_BUILDERS: Partial<
   Record<ExportDatasetId, ExportDatasetBuilder>
 > = {
-  [agreementListFtaDataset.id]: agreementListFtaDataset,
   [accessListDataset.id]: accessListDataset,
   [accessListFtaDataset.id]: accessListFtaDataset,
   [activitiesListDataset.id]: activitiesListDataset,

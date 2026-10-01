@@ -53,7 +53,6 @@ export const ExportDatasetDtoIdEnum = {
   FileDetailsFta: 'file-details-fta',
   FeeList: 'fee-list',
   FeeListFta: 'fee-list-fta',
-  AgreementListFta: 'agreement-list-fta',
   CampsiteList: 'campsite-list',
   CampsiteListFta: 'campsite-list-fta',
   ObjectiveList: 'objective-list',

@@ -110,20 +110,24 @@ export class RecreationResourceService {
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
     );
 
+    const supportsCancelledFlag = await this.hasCancelledFlag();
+    const where: Record<string, any> = {
+      rec_resource_id: id,
+      visible_on_public_website: true,
+      client_number: { not: null },
+      // An open-ended agreement (no end date) never expires.
+      OR: [
+        { agreement_end_date: null },
+        { agreement_end_date: { gte: todayUtc } },
+      ],
+    };
+
+    if (supportsCancelledFlag) {
+      where.cancelled = false;
+    }
+
     const partner = await this.prisma.recreation_agreement_holder.findFirst({
-      where: {
-        rec_resource_id: id,
-        visible_on_public_website: true,
-        // A cancelled agreement is never shown publicly, regardless of the
-        // visibility flag.
-        cancelled: false,
-        client_number: { not: null },
-        // An open-ended agreement (no end date) never expires.
-        OR: [
-          { agreement_end_date: null },
-          { agreement_end_date: { gte: todayUtc } },
-        ],
-      },
+      where,
       select: {
         client_number: true,
       },
@@ -133,6 +137,20 @@ export class RecreationResourceService {
     });
 
     return partner?.client_number ?? null;
+  }
+
+  private async hasCancelledFlag(): Promise<boolean> {
+    const rows = await this.prisma.$queryRaw<Array<{ exists: boolean }>>`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'rst'
+          AND table_name = 'recreation_agreement_holder'
+          AND column_name = 'cancelled'
+      ) AS exists;
+    `;
+
+    return Boolean(rows[0]?.exists);
   }
 
   async searchRecreationResources(

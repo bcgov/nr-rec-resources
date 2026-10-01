@@ -104,8 +104,8 @@ export class PartnerService {
       agreementHolders.map(async (agreementHolder) => {
         const client = agreementHolder.client_number
           ? await this.tryFetchClientByClientNumber(
-            agreementHolder.client_number,
-          )
+              agreementHolder.client_number,
+            )
           : null;
 
         return this.buildAgreementHolderClientResponse(
