@@ -17,6 +17,9 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
+      canViewPartners: true,
+      canViewPartnerSensitiveInfo: true,
+      canManagePartners: false,
     });
   });
 
@@ -33,6 +36,9 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: false,
+      canViewPartners: true,
+      canViewPartnerSensitiveInfo: false,
+      canManagePartners: false,
     });
   });
 
@@ -49,6 +55,9 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
+      canViewPartners: true,
+      canViewPartnerSensitiveInfo: true,
+      canManagePartners: false,
     });
   });
 
@@ -65,6 +74,9 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: true,
       canViewSensitiveInfo: true,
+      canViewPartners: true,
+      canViewPartnerSensitiveInfo: true,
+      canManagePartners: true,
     });
   });
 
@@ -81,6 +93,9 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: false,
+      canViewPartners: false,
+      canViewPartnerSensitiveInfo: false,
+      canManagePartners: false,
     });
   });
 
@@ -97,6 +112,9 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
+      canViewPartners: true,
+      canViewPartnerSensitiveInfo: true,
+      canManagePartners: false,
     });
   });
 
@@ -113,6 +131,9 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: true,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
+      canViewPartners: true,
+      canViewPartnerSensitiveInfo: true,
+      canManagePartners: false,
     });
   });
 
@@ -129,6 +150,9 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: true,
       isSuperAdmin: true,
       canViewSensitiveInfo: true,
+      canViewPartners: true,
+      canViewPartnerSensitiveInfo: true,
+      canManagePartners: true,
     });
   });
 });
