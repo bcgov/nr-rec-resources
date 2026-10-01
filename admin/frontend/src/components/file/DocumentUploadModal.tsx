@@ -15,6 +15,8 @@ interface DocumentUploadModalProps {
   onCancel?: () => void;
   onConfirm?: () => void | Promise<void>;
   title?: string;
+  showAlert?: boolean;
+  alertText?: string;
 }
 
 export const DocumentUploadModal: FC<DocumentUploadModalProps> = ({
@@ -26,6 +28,8 @@ export const DocumentUploadModal: FC<DocumentUploadModalProps> = ({
   onCancel: propOnCancel,
   onConfirm: propOnConfirm,
   title,
+  showAlert = true,
+  alertText = 'Uploading files will directly publish to the public website within 15 minutes.',
 }) => {
   // Use props if provided, otherwise fall back to store-based state
   const usePropsMode = show !== undefined;
@@ -62,13 +66,19 @@ export const DocumentUploadModal: FC<DocumentUploadModalProps> = ({
     ? propOnConfirm || (() => {})
     : getDocumentGeneralActionHandler('confirm-upload');
 
-  const alerts = [
-    {
-      variant: 'info' as const,
-      icon: faInfoCircle,
-      text: 'Uploading files will directly publish to the public website within 15 minutes.',
-    },
-  ];
+  const triggerConfirm = () => {
+    void handleConfirm();
+  };
+
+  const alerts = showAlert
+    ? [
+        {
+          variant: 'info' as const,
+          icon: faInfoCircle,
+          text: alertText,
+        },
+      ]
+    : [];
 
   const isFilenameInvalid = !!currentFileNameError;
   const hasValidationErrors = isFilenameInvalid;
@@ -77,7 +87,7 @@ export const DocumentUploadModal: FC<DocumentUploadModalProps> = ({
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!hasValidationErrors) {
-      handleConfirm();
+      triggerConfirm();
     }
   };
 
@@ -98,7 +108,7 @@ export const DocumentUploadModal: FC<DocumentUploadModalProps> = ({
       alerts={alerts}
       className="upload-file-modal"
       onCancel={handleCancel}
-      onConfirm={handleConfirm}
+      onConfirm={triggerConfirm}
       confirmButtonText="Upload"
       confirmButtonIcon={faUpload}
       confirmButtonDisabled={hasValidationErrors}
