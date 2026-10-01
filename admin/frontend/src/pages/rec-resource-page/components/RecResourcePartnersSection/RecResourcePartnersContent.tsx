@@ -7,6 +7,7 @@ import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resour
 import { useState } from 'react';
 import { RecResourcePartnerAddNewModal } from './RecResourcePartnerAddNewModal';
 import { CustomButton } from '@/components';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 export const RecResourcePartnersContent = ({
   partners,
@@ -17,12 +18,15 @@ export const RecResourcePartnersContent = ({
 }) => {
   const [isAddNewPartnerModalOpen, setIsAddNewPartnerModalOpen] =
     useState(false);
+  const { canManagePartners, canViewPartnerSensitiveInfo } =
+    useAuthorizations();
+
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
         <h2>Active Partners</h2>
         <Stack direction="horizontal" gap={2}>
-          {recResourceId ? (
+          {recResourceId && canManagePartners ? (
             <>
               <CustomButton
                 onClick={() => setIsAddNewPartnerModalOpen(true)}
@@ -50,15 +54,18 @@ export const RecResourcePartnersContent = ({
             <RecResourcePartner
               key={partner.agreement_holder_id}
               partner={partner}
+              canViewAdditionalInfo={canViewPartnerSensitiveInfo}
             />
           );
         })}
       </div>
-      <RecResourcePartnerAddNewModal
-        show={isAddNewPartnerModalOpen}
-        rec_resource_id={recResourceId || ''}
-        onCancel={() => setIsAddNewPartnerModalOpen(false)}
-      />
+      {canManagePartners && (
+        <RecResourcePartnerAddNewModal
+          show={isAddNewPartnerModalOpen}
+          rec_resource_id={recResourceId || ''}
+          onCancel={() => setIsAddNewPartnerModalOpen(false)}
+        />
+      )}
     </Stack>
   );
 };
