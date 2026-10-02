@@ -1,5 +1,5 @@
 # Build
-FROM node:24.11.1-slim AS build
+FROM node:24.21.0-slim AS build
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ WORKDIR /app/public/backend
 RUN npm run build
 
 # Dependencies
-FROM node:24.11.1-slim AS dependencies
+FROM node:24.21.0-slim AS dependencies
 
 WORKDIR /app
 
