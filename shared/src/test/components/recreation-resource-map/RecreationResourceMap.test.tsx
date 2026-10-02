@@ -1,11 +1,14 @@
+// @vitest-environment jsdom
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { RecreationResourceMap } from '@shared/components/recreation-resource-map/RecreationResourceMap';
-import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
+import '@testing-library/jest-dom/vitest';
+import { RecreationResourceMap } from '../../../components/recreation-resource-map/RecreationResourceMap';
+import { RecreationResourceMapData } from '../../../components/recreation-resource-map/types';
 import {
   getMapFeaturesFromRecResource,
   getLayerStyleForRecResource,
-} from '@shared/components/recreation-resource-map/helpers';
+} from '../../../components/recreation-resource-map/helpers';
 
 vi.mock('@bcgov/prp-map', () => ({
   VectorFeatureMap: vi.fn(({ style, layers, 'aria-label': ariaLabel }) => (
@@ -38,7 +41,7 @@ vi.mock('ol/source/Vector', () => ({
   }),
 }));
 
-vi.mock('@shared/components/recreation-resource-map/helpers', () => ({
+vi.mock('../../../components/recreation-resource-map/helpers', () => ({
   getMapFeaturesFromRecResource: vi.fn(),
   getLayerStyleForRecResource: vi.fn(),
 }));

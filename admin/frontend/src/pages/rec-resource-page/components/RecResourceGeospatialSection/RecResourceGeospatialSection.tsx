@@ -12,6 +12,7 @@ import { ExhibitASection } from './ExhibitASection/ExhibitASection';
 import { IMAP_URL } from '@/constants/urls';
 import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
 import './RecResourceGeospatialSection.scss';
+import { SpatialSubmissionSection } from '@/pages/rec-resource-page/components/RecResourceSpatial/SpatialSubmissionSection';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
@@ -174,6 +175,8 @@ export function RecResourceGeospatialSection() {
       <div className="geospatial-section__card">
         <ExhibitASection recResourceId={recResourceId} />
       </div>
+
+      <SpatialSubmissionSection recResourceId={recResourceId} />
     </Stack>
   );
 }

@@ -13,6 +13,7 @@ describe('GeospatialController', () => {
     geospatialServiceMock = {
       findGeospatialDataById: vi.fn(),
       updateGeospatialData: vi.fn(),
+      createMapFeaturesFromValidatedFile: vi.fn(),
     };
 
     controller = new GeospatialController(
@@ -127,5 +128,83 @@ describe('GeospatialController', () => {
         /Geospatial data not found for this recreation resource after update/i,
       );
     }
+  });
+
+  it('createMapFeatures calls service.createMapFeaturesFromValidatedFile and returns updated payload', async () => {
+    const body = {
+      features: [
+        {
+          geometry: {
+            type: 'Polygon',
+            coordinates: [],
+          },
+        },
+      ],
+    };
+
+    (
+      geospatialServiceMock.createMapFeaturesFromValidatedFile as any
+    ).mockResolvedValue(undefined);
+
+    const returned: RecreationResourceGeospatialDto = {
+      rec_resource_id: 'REC300',
+      spatial_feature_geometry: ['{"type":"Polygon","coordinates":[]}'],
+      site_point_geometry: undefined,
+      utm_zone: null,
+      utm_easting: null,
+      utm_northing: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    (geospatialServiceMock.findGeospatialDataById as any).mockResolvedValue(
+      returned,
+    );
+
+    const res = await controller.createMapFeatures('REC300', body as any);
+
+    expect(
+      geospatialServiceMock.createMapFeaturesFromValidatedFile,
+    ).toHaveBeenCalledWith('REC300', body);
+    expect(geospatialServiceMock.findGeospatialDataById).toHaveBeenCalledWith(
+      'REC300',
+    );
+    expect(res).toEqual(returned);
+  });
+
+  it('createMapFeatures throws 404 when payload cannot be reloaded after import', async () => {
+    const body = {
+      features: [{ geometry: { type: 'Polygon', coordinates: [] } }],
+    };
+
+    (
+      geospatialServiceMock.createMapFeaturesFromValidatedFile as any
+    ).mockResolvedValue(undefined);
+    (geospatialServiceMock.findGeospatialDataById as any).mockResolvedValue(
+      null,
+    );
+
+    await expect(
+      controller.createMapFeatures('REC404', body as any),
+    ).rejects.toMatchObject({
+      status: 404,
+    });
+  });
+
+  it('updateGeospatialData rethrows service errors', async () => {
+    const updateDto: UpdateRecreationResourceGeospatialDto =
+      new UpdateRecreationResourceGeospatialDto();
+    updateDto.utm_zone = 10;
+    updateDto.utm_easting = 500000;
+    updateDto.utm_northing = 5450000;
+
+    const error = new Error('validation failed');
+    (geospatialServiceMock.updateGeospatialData as any).mockRejectedValue(
+      error,
+    );
+
+    await expect(
+      controller.updateGeospatialData('REC500', updateDto),
+    ).rejects.toThrow('validation failed');
   });
 });

@@ -44,6 +44,7 @@ export * from './HealthControllerCheck200ResponseInfoValue';
 export * from './HealthControllerCheck503Response';
 export * from './ImagePresignedUrlDto';
 export * from './ListExportDatasetsResponseDto';
+export * from './NextRecResourceIdDto';
 export * from './OptionDto';
 export * from './OptionsByTypeDto';
 export * from './PaginatedRecreationAssetDto';

@@ -51,6 +51,7 @@ models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
 models/ImagePresignedUrlDto.ts
 models/ListExportDatasetsResponseDto.ts
+models/NextRecResourceIdDto.ts
 models/OptionDto.ts
 models/OptionsByTypeDto.ts
 models/PaginatedRecreationAssetDto.ts

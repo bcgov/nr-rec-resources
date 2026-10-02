@@ -12,6 +12,7 @@ export * from './useGetDocumentsByRecResourceId';
 export * from './useGetEstablishmentOrderDocs';
 export * from './useGetImagesByRecResourceId';
 export * from './useGetRecreationResourceById';
+export * from './useGetNextRecResourceId';
 export * from './useGetRecreationResourceOptions';
 export { default as useGetRecreationResourceSearch } from './useGetRecreationResourceSearch';
 export * from './useGetRecreationResourceSuggestions';
