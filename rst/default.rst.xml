@@ -341,8 +341,7 @@
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="9" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
          <column autoUpdated="true" defaultValue="null" digits="0" id="10" name="agreement_holder_id" nullable="false" remarks="Surrogate primary key. The FTA sync inserts FTA's own values explicitly; the identity sequence starts above 1000000 so RST-generated values cannot collide with them." size="10" type="int4" typeCode="4"/>
          <column autoUpdated="false" defaultValue="false" digits="0" id="11" name="visible_on_public_website" nullable="false" remarks="Whether this partner is shown on the public website. Set to true by the FTA sync on insert; not overwritten on subsequent syncs." size="1" type="bool" typeCode="-7"/>
-         <column autoUpdated="false" defaultValue="false" digits="0" id="12" name="recreation_operator" nullable="false" remarks="True when the partner is active and the associated recreation resource has at least one non-deleted fee." size="1" type="bool" typeCode="-7"/>
-         <column autoUpdated="false" defaultValue="false" digits="0" id="13" name="cancelled" nullable="false" remarks="Whether the agreement has been cancelled. Owned by RST and deliberately not refreshed by the FTA sync. Cancellation is one-way; the admin API rejects un-cancelling." size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="12" name="cancelled" nullable="false" remarks="Whether the agreement has been cancelled. Owned by RST and deliberately not refreshed by the FTA sync. Cancellation is one-way; the admin API rejects un-cancelling." size="1" type="bool" typeCode="-7"/>
          <primaryKey column="agreement_holder_id" sequenceNumberInPK="1"/>
          <index name="recreation_agreement_holder_pkey" unique="true">
             <column ascending="true" name="agreement_holder_id"/>
@@ -367,8 +366,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="agreement_holder_id" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="visible_on_public_website" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="recreation_operator" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="cancelled" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="cancelled" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
       </table>
       <table name="recreation_asset" remarks="Individualised asset entities with parent-child relationships (e.g., Campsite → Table). Geometry stored in recreation_asset_geom." schema="rst" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="asset_id" nullable="false" remarks="Unique surrogate identifier for the individual asset." size="19" type="int8" typeCode="-5">
@@ -816,8 +814,8 @@
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="9" name="saturday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="10" name="sunday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="recreation_fee_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12">
-            <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
             <parent column="recreation_fee_code" foreignKey="recreation_fee_recreation_fee_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_code"/>
+            <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
          </column>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="12" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
