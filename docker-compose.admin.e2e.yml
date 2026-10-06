@@ -13,7 +13,7 @@ x-postgres-vars: &postgres-vars
 
 services:
   database:
-    image: postgis/postgis:17-3.4
+    image: postgis/postgis:17-3.5
     container_name: database
     environment:
       <<: *postgres-vars
