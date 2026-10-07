@@ -60,7 +60,7 @@ export interface BcgwRecreationPolygonsDto {
    * @type {string}
    * @memberof BcgwRecreationPolygonsDto
    */
-  display_on_public_site_ind: BcgwRecreationPolygonsDtoRecreationViewIndEnum | null;
+  display_on_public_site_ind: BcgwRecreationPolygonsDtoDisplayOnPublicSiteIndEnum | null;
   /**
    * The total number of campsites.
    * @type {number}
@@ -194,12 +194,12 @@ export type BcgwRecreationPolygonsDtoArchImpactAssessIndEnum =
 /**
  * @export
  */
-export const BcgwRecreationPolygonsDtoRecreationViewIndEnum = {
+export const BcgwRecreationPolygonsDtoDisplayOnPublicSiteIndEnum = {
   Y: 'Y',
   N: 'N',
 } as const;
-export type BcgwRecreationPolygonsDtoRecreationViewIndEnum =
-  (typeof BcgwRecreationPolygonsDtoRecreationViewIndEnum)[keyof typeof BcgwRecreationPolygonsDtoRecreationViewIndEnum];
+export type BcgwRecreationPolygonsDtoDisplayOnPublicSiteIndEnum =
+  (typeof BcgwRecreationPolygonsDtoDisplayOnPublicSiteIndEnum)[keyof typeof BcgwRecreationPolygonsDtoDisplayOnPublicSiteIndEnum];
 
 /**
  * @export

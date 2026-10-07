@@ -32,10 +32,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RecreationResourceDetailDto } from './dtos/recreation-resource-detail.dto';
+import { NextRecResourceIdDto } from './dtos/next-rec-resource-id.dto';
 import { AdminSearchQueryDto } from './dtos/admin-search-query.dto';
 import { AdminSearchResponseDto } from './dtos/admin-search-response.dto';
 import { SuggestionsQueryDto } from './dtos/suggestions-query.dto';
 import { SuggestionsResponseDto } from './dtos/suggestions-response.dto';
+import { PendingMapFeatureRequestsResponseDto } from './dtos/pending-map-feature-requests-response.dto';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { RecreationResourceService } from './recreation-resource.service';
 import { RecreationResourceRepository } from './recreation-resource.repository';
@@ -144,6 +146,32 @@ export class RecreationResourceController {
       query.search_term,
       { includeArchived: isSuperAdmin },
     );
+  }
+
+  @Get('next-rec-resource-id')
+  @ApiOkResponse({
+    type: NextRecResourceIdDto,
+    description: 'Successfully generated the next rec resource id',
+  })
+  @ApiOperation({
+    operationId: 'getNextRecResourceId',
+    summary: 'Get next recreation resource identifier',
+  })
+  async getNextRecResourceId(): Promise<NextRecResourceIdDto> {
+    return await this.recreationResourceService.getNextRecResourceId();
+  }
+
+  @Get('pending-requests')
+  @ApiOkResponse({
+    type: PendingMapFeatureRequestsResponseDto,
+    description: 'Successfully retrieved pending map feature requests',
+  })
+  @ApiOperation({
+    operationId: 'getPendingMapFeatureRequests',
+    summary: 'Get pending map feature requests',
+  })
+  async getPendingMapFeatureRequests(): Promise<PendingMapFeatureRequestsResponseDto> {
+    return await this.recreationResourceService.getPendingMapFeatureRequests();
   }
 
   /**

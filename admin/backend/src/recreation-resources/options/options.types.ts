@@ -26,6 +26,7 @@ export const OPTION_TYPES = {
   CONTROL_ACCESS_CODE: 'controlAccessCode',
   RISK_RATING_CODE: 'riskRatingCode',
   DISTRICT: 'district',
+  NATURAL_DISTRICT: 'naturalDistrict',
   PHOTOGRAPHER_TYPE: 'photographerType',
   CLOSEST_COMMUNITY: 'closestCommunity',
   REC_STATUS_CODE: 'recStatusCode',
@@ -57,6 +58,9 @@ export interface TableMapping {
 
   /** Optional additional database fields to include in select query. */
   additionalFields?: string[];
+
+  /** Optional Prisma distinct fields to deduplicate option rows. */
+  distinctFields?: string[];
 
   /** Optional Prisma where clause to filter results. */
   whereClause?: Record<string, unknown>;

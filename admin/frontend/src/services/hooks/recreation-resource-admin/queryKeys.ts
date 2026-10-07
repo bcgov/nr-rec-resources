@@ -10,6 +10,10 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
   search: (params: SearchRecreationResourcesRequest) =>
     ['recreation-resource-admin', 'search', params] as const,
   detail: (id: string) => ['recreation-resource-admin', 'detail', id] as const,
+  nextRecResourceId: () =>
+    ['recreation-resource-admin', 'next-rec-resource-id'] as const,
+  pendingRequests: () =>
+    ['recreation-resource-admin', 'pending-requests'] as const,
   exportDatasets: () =>
     ['recreation-resource-admin', 'exports', 'datasets'] as const,
   exportPreview: (

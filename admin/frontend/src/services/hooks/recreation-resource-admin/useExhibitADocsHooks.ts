@@ -26,7 +26,13 @@ export function useFinalizeExhibitAUpload() {
       file_name: string;
       extension: string;
       file_size: number;
-    }) => api.finalizeExhibitAUpload(params),
+    }) => {
+      const { recResourceId, ...dto } = params;
+      return api.finalizeExhibitAUpload({
+        recResourceId,
+        finalizeExhibitAUploadRequestDto: dto,
+      });
+    },
     retry: createRetryHandler(),
   });
 }

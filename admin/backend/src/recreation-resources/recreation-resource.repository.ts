@@ -52,6 +52,19 @@ export class RecreationResourceRepository {
     return { total: data.length, data };
   }
 
+  async getNextRecResourceId(): Promise<string> {
+    const result = await this.prisma.$queryRaw<
+      Array<{ max_id: number | null }>
+    >`
+      SELECT COALESCE(MAX((substring(rec_resource_id FROM '^REC([0-9]+)$'))::int), 0) AS max_id
+      FROM rst.recreation_resource
+      WHERE rec_resource_id ~ '^REC[0-9]+$'
+    `;
+
+    const nextId = Number(result[0]?.max_id ?? 0) + 1;
+    return `REC${String(nextId).padStart(6, '0')}`;
+  }
+
   async searchResources(
     query: AdminSearchQueryDto,
     options?: { includeArchived?: boolean },
@@ -490,5 +503,85 @@ export class RecreationResourceRepository {
 
       throw error;
     }
+  }
+
+  async findPendingMapFeatureRequests(): Promise<
+    Array<{
+      rec_resource_id: string;
+      name: string | null;
+      district_description: string | null;
+      recreation_district: string | null;
+      natural_resource_district: string | null;
+      recreation_type: string | null;
+      amend_status_code: string;
+      feature_count: number;
+      requested_at: Date | null;
+      geometry_types: string[];
+    }>
+  > {
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        rec_resource_id: string;
+        name: string | null;
+        district_description: string | null;
+        recreation_district: string | null;
+        natural_resource_district: string | null;
+        recreation_type: string | null;
+        amend_status_code: string;
+        feature_count: bigint;
+        requested_at: Date | null;
+        geometry_types: string[];
+      }>
+    >`
+      SELECT
+        rmf.rec_resource_id,
+        rr.name,
+        rdc.description AS district_description,
+        rdc.description AS recreation_district,
+        nru.org_unit_name AS natural_resource_district,
+        STRING_AGG(DISTINCT rrtva.description, ', ')
+          FILTER (WHERE rrtva.description IS NOT NULL) AS recreation_type,
+        rmf.amend_status_code,
+        COUNT(DISTINCT rmf.rmf_skey)::bigint AS feature_count,
+        MAX(rmf.created_at) AS requested_at,
+        COALESCE(
+          ARRAY_AGG(
+            DISTINCT CASE
+              WHEN rmfg.geometry_type_code = 'P' THEN 'Polygon'
+              WHEN rmfg.geometry_type_code = 'L' THEN 'LineString'
+              WHEN rmfg.geometry_type_code IS NULL THEN NULL
+              ELSE rmfg.geometry_type_code
+            END
+          ) FILTER (
+            WHERE rmfg.geometry_type_code IS NOT NULL
+          ),
+          ARRAY[]::text[]
+        ) AS geometry_types
+      FROM rst.recreation_map_feature rmf
+      LEFT JOIN rst.recreation_map_feature_geom rmfg
+        ON rmfg.rmf_skey = rmf.rmf_skey
+      LEFT JOIN rst.recreation_resource rr
+        ON rr.rec_resource_id = rmf.rec_resource_id
+      LEFT JOIN rst.recreation_district_code rdc
+        ON rdc.district_code = rr.district_code
+      LEFT JOIN rst.natural_resource_org_unit nru
+        ON nru.rec_resource_id = rmf.rec_resource_id
+      LEFT JOIN rst.recreation_resource_type_view_admin rrtva
+        ON rrtva.rec_resource_id = rmf.rec_resource_id
+      WHERE rmf.amend_status_code = 'PND'
+        AND rmf.rec_resource_id IS NOT NULL
+      GROUP BY
+        rmf.rec_resource_id,
+        rr.name,
+        rdc.description,
+        nru.org_unit_name,
+        rmf.amend_status_code
+      ORDER BY MAX(rmf.created_at) DESC NULLS LAST, rmf.rec_resource_id ASC
+    `;
+
+    return rows.map((row) => ({
+      ...row,
+      feature_count: Number(row.feature_count),
+    }));
   }
 }
