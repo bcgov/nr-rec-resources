@@ -1,9 +1,76 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { Prisma } from '@generated/prisma';
 import { PrismaService } from '@/prisma.service';
 import { getRecreationResourceGeospatialData } from '@prisma-generated-sql/getRecreationResourceGeospatialData';
 import { RecreationResourceGeospatialDto } from './dto/recreation-resource-geospatial.dto';
+import { CreateRecreationMapFeaturesDto } from './dto/create-recreation-map-features.dto';
 import { UpdateRecreationResourceGeospatialDto } from './dto/update-recreation-resource-geospatial.dto';
+
+type FlatGeometryEntry = {
+  geometry: Record<string, unknown>;
+  geometryTypeCode: 'P' | 'L';
+  sectionId: string;
+};
+
+const normalizeGeometryEntry = (
+  geometry: any,
+  featureIndex: number,
+  sectionIdBase?: string | null,
+): FlatGeometryEntry | null => {
+  const normalizedSectionIdBase = sectionIdBase?.trim() || null;
+  const sectionId = normalizedSectionIdBase || `${featureIndex + 1}`;
+
+  if (!geometry?.type) {
+    return null;
+  }
+
+  if (geometry.type === 'Polygon') {
+    return {
+      geometry: {
+        type: 'MultiPolygon',
+        coordinates: [geometry.coordinates],
+      },
+      geometryTypeCode: 'P',
+      sectionId,
+    };
+  }
+
+  if (geometry.type === 'MultiPolygon') {
+    return {
+      geometry,
+      geometryTypeCode: 'P',
+      sectionId,
+    };
+  }
+
+  if (geometry.type === 'LineString') {
+    return {
+      geometry: {
+        type: 'MultiLineString',
+        coordinates: [geometry.coordinates],
+      },
+      geometryTypeCode: 'L',
+      sectionId,
+    };
+  }
+
+  if (geometry.type === 'MultiLineString') {
+    return {
+      geometry,
+      geometryTypeCode: 'L',
+      sectionId,
+    };
+  }
+
+  throw new BadRequestException(
+    `Unsupported geometry type: ${String(geometry.type)}`,
+  );
+};
 
 @Injectable()
 export class GeospatialService {
@@ -80,6 +147,221 @@ export class GeospatialService {
     this.logger.warn(
       `No UTM payload provided for rec_resource_id: ${rec_resource_id} - nothing updated.`,
     );
+  }
+
+  /**
+   * Create map feature rows and geometry rows from a validated shapefile payload.
+   * Inserts only recreation_map_feature and recreation_map_feature_geom records.
+   */
+  async createMapFeaturesFromValidatedFile(
+    rec_resource_id: string,
+    payload: CreateRecreationMapFeaturesDto,
+  ): Promise<void> {
+    if (!payload.features?.length) {
+      throw new BadRequestException(
+        'At least one validated feature is required.',
+      );
+    }
+
+    this.logger.log(
+      `Creating ${payload.features.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
+    );
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(
+        "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
+      );
+
+      const existingResource = await tx.recreation_resource.findUnique({
+        where: { rec_resource_id },
+        select: {
+          rec_resource_id: true,
+          district_code: true,
+          name: true,
+        },
+      });
+
+      if (!existingResource) {
+        await tx.recreation_resource.create({
+          data: {
+            rec_resource_id,
+            name: payload.rec_resource_name || null,
+            district_code: payload.recreation_district_code || null,
+            created_by: payload.submitted_by || null,
+          },
+        });
+      } else {
+        const resourcePatch: {
+          district_code?: string;
+          name?: string;
+        } = {};
+
+        if (
+          payload.recreation_district_code &&
+          !existingResource.district_code
+        ) {
+          resourcePatch.district_code = payload.recreation_district_code;
+        }
+
+        if (payload.rec_resource_name?.trim()) {
+          resourcePatch.name = payload.rec_resource_name.trim();
+        }
+
+        if (Object.keys(resourcePatch).length) {
+          await tx.recreation_resource.update({
+            where: { rec_resource_id },
+            data: resourcePatch,
+          });
+        }
+      }
+
+      if (payload.natural_resource_district_code) {
+        const existingNaturalUnit =
+          await tx.natural_resource_org_unit.findUnique({
+            where: { rec_resource_id },
+            select: { rec_resource_id: true },
+          });
+
+        if (!existingNaturalUnit) {
+          const naturalUnitTemplate =
+            await tx.natural_resource_org_unit.findFirst({
+              where: {
+                org_unit_code: payload.natural_resource_district_code,
+              },
+              orderBy: {
+                effective_date: 'desc',
+              },
+            });
+
+          if (naturalUnitTemplate) {
+            await tx.natural_resource_org_unit.create({
+              data: {
+                rec_resource_id,
+                org_unit_no: naturalUnitTemplate.org_unit_no,
+                org_unit_code: naturalUnitTemplate.org_unit_code,
+                org_unit_name: naturalUnitTemplate.org_unit_name,
+                location_code: naturalUnitTemplate.location_code,
+                org_level_code: naturalUnitTemplate.org_level_code,
+                office_name_code: naturalUnitTemplate.office_name_code,
+                region_no: naturalUnitTemplate.region_no,
+                region_code: naturalUnitTemplate.region_code,
+                district_no: naturalUnitTemplate.district_no,
+                district_code: naturalUnitTemplate.district_code,
+                effective_date: naturalUnitTemplate.effective_date,
+                expiry_date: naturalUnitTemplate.expiry_date,
+                updated_at: new Date(),
+              },
+            });
+          } else {
+            this.logger.warn(
+              `No natural_resource_org_unit template found for code ${payload.natural_resource_district_code}; skipping natural district seed for rec_resource_id: ${rec_resource_id}`,
+            );
+          }
+        }
+      }
+
+      const existingMapFeature = await tx.recreation_map_feature.findFirst({
+        where: { rec_resource_id },
+        select: { rmf_skey: true },
+      });
+
+      if (existingMapFeature) {
+        throw new ConflictException(
+          'Map features already exist for this recreation resource.',
+        );
+      }
+
+      const flattenedEntries: FlatGeometryEntry[] = payload.features
+        .map((feature, index) =>
+          normalizeGeometryEntry(feature.geometry, index, feature.section_id),
+        )
+        .filter((entry): entry is FlatGeometryEntry => entry !== null);
+
+      if (!flattenedEntries.length) {
+        throw new BadRequestException('No supported geometries were found.');
+      }
+
+      const maxRmfSkeyQuery = [
+        'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
+        'FROM rst.recreation_map_feature',
+      ].join(' ');
+
+      const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
+        max_rmf_skey: number | bigint;
+      }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
+
+      let nextRmfSkey = Number(max_rmf_skey) + 1;
+
+      for (const entry of flattenedEntries) {
+        const rmfSkey = nextRmfSkey;
+        nextRmfSkey += 1;
+
+        const geometry = Prisma.sql`
+          public.ST_Multi(
+            public.ST_SetSRID(
+              public.ST_GeomFromGeoJSON(${JSON.stringify(entry.geometry)}),
+              3005
+            )
+          )
+        `;
+
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO rst.recreation_map_feature (
+            rmf_skey,
+            rec_resource_id,
+            section_id,
+            amendment_id,
+            recreation_resource_type,
+            created_by,
+            amend_status_code
+          )
+          VALUES (
+            ${rmfSkey},
+            ${rec_resource_id},
+            ${entry.sectionId},
+            ${0},
+            ${payload.recreation_type_code || null},
+            ${payload.submitted_by || null},
+            ${'PND'}
+          )
+        `);
+
+        await tx.$executeRaw(Prisma.sql`
+          INSERT INTO rst.recreation_map_feature_geom (
+            rmf_skey,
+            geometry_type_code,
+            geometry,
+            feature_area,
+            feature_length,
+            feature_perimeter
+          )
+          SELECT
+            ${rmfSkey},
+            normalized.geometry_type_code,
+            normalized.geom_3005,
+            CASE
+              WHEN normalized.geometry_type_code = 'P'
+                THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+              ELSE NULL
+            END,
+            CASE
+              WHEN normalized.geometry_type_code = 'L'
+                THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
+              ELSE NULL
+            END,
+            CASE
+              WHEN normalized.geometry_type_code = 'P'
+                THEN ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
+              ELSE NULL
+            END
+          FROM (
+            SELECT
+              CAST(${entry.geometryTypeCode} AS varchar(1)) AS geometry_type_code,
+              ${geometry} AS geom_3005
+          ) AS normalized
+        `);
+      }
+    });
   }
 
   /**
