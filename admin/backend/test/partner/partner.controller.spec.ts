@@ -145,6 +145,42 @@ describe('PartnerController', () => {
         },
       ]);
     });
+
+    it('does not mask sensitive CLIENT fields for mixed roles that include IDIR viewer', async () => {
+      const expected: AgreementHolderClientPublicViewDto[] = [
+        {
+          agreement_holder_id: 1000001,
+          cancelled: false,
+          clientNumber: '00000002',
+          clientName: 'BAXTER',
+          legalFirstName: 'JAMES',
+          legalMiddleName: 'Canter',
+          clientStatusCode: 'ACT',
+          clientStatusDescription: 'Active',
+          clientTypeCode: 'I',
+          clientTypeDescription: 'Individual',
+          acronym: 'JAMES BAXTER',
+          agreementStartDate: '2024-01-01',
+          agreementEndDate: '2026-12-31',
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+      ];
+
+      vi.spyOn(service, 'findClientsByRecResourceId').mockResolvedValue(
+        expected,
+      );
+      vi.mocked(userContextService.getCurrentUser).mockReturnValue({
+        client_roles: [
+          RecreationResourceAuthRole.RST_IDIR_VIEWER,
+          RecreationResourceAuthRole.RST_ADMIN,
+        ],
+      } as any);
+
+      const result = await controller.findClientsByRecResourceId('REC0002');
+
+      expect(result).toEqual(expected);
+    });
   });
 
   describe('searchByAcronymNameNumber', () => {

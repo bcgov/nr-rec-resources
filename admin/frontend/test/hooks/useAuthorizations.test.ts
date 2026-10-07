@@ -17,7 +17,7 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
-      canViewPartners: true,
+      canViewPartners: false,
       canViewPartnerSensitiveInfo: true,
       canManagePartners: false,
     });
@@ -36,7 +36,7 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: false,
-      canViewPartners: true,
+      canViewPartners: false,
       canViewPartnerSensitiveInfo: false,
       canManagePartners: false,
     });
@@ -55,7 +55,7 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
-      canViewPartners: true,
+      canViewPartners: false,
       canViewPartnerSensitiveInfo: true,
       canManagePartners: false,
     });
@@ -74,7 +74,7 @@ describe('useAuthorizations', () => {
       canEditFeatureFlag: false,
       isSuperAdmin: true,
       canViewSensitiveInfo: true,
-      canViewPartners: true,
+      canViewPartners: false,
       canViewPartnerSensitiveInfo: true,
       canManagePartners: true,
     });

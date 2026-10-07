@@ -34,6 +34,7 @@ import {
   AUTH_STRATEGY,
   AuthRoles,
   AuthRolesGuard,
+  isIdirViewerOnly,
   RecreationResourceAuthRole,
   ROLE_MODE,
   SuperAdminGuard,
@@ -57,16 +58,6 @@ export class PartnerController {
     private readonly partnerService: PartnerService,
     private readonly userContextService: UserContextService,
   ) {}
-
-  private userHasAnyRole(roles: readonly string[]): boolean {
-    const currentUser = this.userContextService.getCurrentUser();
-    const userRoles = currentUser.client_roles ?? [];
-    return roles.some((role) => userRoles.includes(role));
-  }
-
-  private isRestrictedPartnerViewer(): boolean {
-    return this.userHasAnyRole([RecreationResourceAuthRole.RST_IDIR_VIEWER]);
-  }
 
   private maskPartnerForRestrictedViewer(
     partner: AgreementHolderClientPublicViewDto,
@@ -218,10 +209,12 @@ export class PartnerController {
   async findClientsByRecResourceId(
     @Param('rec_resource_id') rec_resource_id: string,
   ): Promise<AgreementHolderClientPublicViewDto[]> {
+    const currentUser = this.userContextService.getCurrentUser();
+    const userRoles = currentUser.client_roles ?? [];
     const partners =
       await this.partnerService.findClientsByRecResourceId(rec_resource_id);
 
-    return this.isRestrictedPartnerViewer()
+    return isIdirViewerOnly(userRoles)
       ? partners.map((partner) => this.maskPartnerForRestrictedViewer(partner))
       : partners;
   }

@@ -34,7 +34,12 @@ describe('RecResource Partners Index Route', () => {
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
         requireAll: ['rst-developer'],
-        requireAny: ['rst-super-admin', 'rst-admin'],
+        requireAny: [
+          'rst-idir-viewer',
+          'rst-viewer',
+          'rst-admin',
+          'rst-super-admin',
+        ],
         // Must not be the guarded route itself, or a disallowed user loops.
         redirectTo: '/rec-resource/REC123/files',
       }),
