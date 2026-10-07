@@ -37,9 +37,9 @@ import { GeospatialService } from './geospatial.service';
   path: 'recreation-resources/:rec_resource_id/geospatial',
   version: '1',
 })
-@ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
-@UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
+// @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
+// @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
+// @AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
 export class GeospatialController {
   constructor(private readonly geospatialService: GeospatialService) {}
 
@@ -135,7 +135,7 @@ export class GeospatialController {
     return geospatialData;
   }
 
-  @Put()
+  @Put('map-features')
   @ApiOperation({
     operationId: 'updateRecreationResourceGeospatial',
     summary: 'Update geospatial data for a recreation resource',
@@ -159,8 +159,6 @@ export class GeospatialController {
     @Param('rec_resource_id') rec_resource_id: string,
     @Body() updateDto: UpdateRecreationResourceGeospatialDto,
   ): Promise<RecreationResourceGeospatialDto> {
-    // Service is responsible for upserting site point geometry based on UTM fields (zone, easting, northing).
-    // It should also handle updates when a site_point row already exists.
     await this.geospatialService.updateGeospatialData(
       rec_resource_id,
       updateDto,

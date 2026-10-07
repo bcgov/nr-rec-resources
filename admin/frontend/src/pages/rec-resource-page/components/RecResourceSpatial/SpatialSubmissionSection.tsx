@@ -30,12 +30,19 @@ interface SpatialSubmissionSectionProps {
   defaultRecreationTypeCode?: string;
   defaultNaturalResourceDistrict?: string;
   defaultRecreationDistrict?: string;
+  editMode?: boolean;
 }
 
 const FEATURE_TYPE_OPTIONS = [
   { value: 'Point', label: 'Point' },
   { value: 'LineString', label: 'Linear' },
   { value: 'Polygon', label: 'Polygon' },
+];
+
+const OPERATION_OPTIONS = [
+  { value: 'NEW', label: 'New' },
+  { value: 'AMEND', label: 'Amend' },
+  { value: 'RETIRE', label: 'Retire' },
 ];
 
 interface WizardValues {
@@ -61,7 +68,7 @@ const defaultValues: WizardValues = {
     actionCode: 'I',
     accuracyCode: '10',
     captureMethod: 'GPS',
-    dataSource: 'Unknown',
+    operation: 'New',
   },
 };
 
@@ -70,6 +77,7 @@ export const SpatialSubmissionSection = ({
   defaultRecreationTypeCode = '',
   defaultNaturalResourceDistrict = '',
   defaultRecreationDistrict = '',
+  editMode = false,
 }: SpatialSubmissionSectionProps) => {
   const { user, authService } = useAuthContext();
   const {
@@ -377,6 +385,7 @@ export const SpatialSubmissionSection = ({
               <Form.Select
                 aria-label="Recreation type"
                 value={values.recreationType}
+                disabled={editMode}
                 onChange={(e) =>
                   setValues((prev) => ({
                     ...prev,
@@ -460,7 +469,7 @@ export const SpatialSubmissionSection = ({
               <Form.Label>Natural Resource District</Form.Label>
               <Form.Select
                 aria-label="Natural Resource District"
-                disabled={areDistrictOptionsLoading}
+                disabled={areDistrictOptionsLoading || editMode}
                 value={values.metadata.districtCode}
                 onChange={(e) => setMetadata('districtCode', e.target.value)}
               >
@@ -486,7 +495,7 @@ export const SpatialSubmissionSection = ({
               <Form.Label>Recreation District</Form.Label>
               <Form.Select
                 aria-label="Recreation District"
-                disabled={areDistrictOptionsLoading}
+                disabled={areDistrictOptionsLoading || editMode}
                 value={values.metadata.recreationDistrict}
                 onChange={(e) =>
                   setMetadata('recreationDistrict', e.target.value)
@@ -552,6 +561,25 @@ export const SpatialSubmissionSection = ({
               </Form.Text>
             </Form.Group>
           </Col>
+
+          {editMode && (
+            <Col xs={12} md={6}>
+              <Form.Group>
+                <Form.Label>Operation</Form.Label>
+                <Form.Select
+                  aria-label="Operation"
+                  value={values.metadata.operation.toString()}
+                  onChange={(e) => setMetadata('operation', e.target.value)}
+                >
+                  {OPERATION_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          )}
 
           <Col xs={12}>
             {issues.length > 0 && (

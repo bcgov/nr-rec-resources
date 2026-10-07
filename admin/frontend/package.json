@@ -57,8 +57,6 @@
     "shapefile": "^0.6.6",
     "shpjs": "^6.2.0",
     "vitest": ">=4.1.11",
-    "shapefile": "^0.6.6",
-    "shpjs": "^6.2.0",
     "zod": "^4.0.8"
   },
   "devDependencies": {

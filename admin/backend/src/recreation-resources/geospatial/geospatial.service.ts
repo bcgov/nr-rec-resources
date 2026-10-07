@@ -17,6 +17,11 @@ type FlatGeometryEntry = {
   sectionId: string;
 };
 
+type RmfData = {
+  rmf_skey: number | null;
+  amendment_id: number | null;
+};
+
 const normalizeGeometryEntry = (
   geometry: any,
   featureIndex: number,
@@ -129,24 +134,156 @@ export class GeospatialService {
       `Updating geospatial data for rec_resource_id: ${rec_resource_id}`,
     );
 
-    if (updateDto.utm_zone && updateDto.utm_easting && updateDto.utm_northing) {
-      await this.validateUtmAgainstFeatureGeometry(
-        rec_resource_id,
-        updateDto.utm_zone,
-        updateDto.utm_easting,
-        updateDto.utm_northing,
-      );
-      return await this.upsertSitePointFromUtm(
-        rec_resource_id,
-        updateDto.utm_zone,
-        updateDto.utm_easting,
-        updateDto.utm_northing,
-      );
-    }
+    await this.updateMapFeaturesFromValidatedFile(rec_resource_id, updateDto);
 
     this.logger.warn(
       `No UTM payload provided for rec_resource_id: ${rec_resource_id} - nothing updated.`,
     );
+  }
+
+  /**
+   * Update map feature rows and geometry rows from a validated shapefile payload.
+   * Updates only recreation_map_feature and recreation_map_feature_geom records.
+   */
+  async updateMapFeaturesFromValidatedFile(
+    rec_resource_id: string,
+    payload: UpdateRecreationResourceGeospatialDto,
+  ): Promise<void> {
+    const features = payload.features ?? [];
+    if (!features?.length) {
+      throw new BadRequestException(
+        'At least one validated feature is required.',
+      );
+    }
+
+    this.logger.log(
+      `Updating ${payload.features.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
+    );
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(
+        "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
+      );
+
+      const flattenedEntries: FlatGeometryEntry[] = payload.features
+        .map((feature, index) =>
+          normalizeGeometryEntry(feature.geometry, index, feature.section_id),
+        )
+        .filter((entry): entry is FlatGeometryEntry => entry !== null);
+
+      if (!flattenedEntries.length) {
+        throw new BadRequestException('No supported geometries were found.');
+      }
+
+      for (const entry of flattenedEntries) {
+        const rmfDataQuery = [
+          'SELECT rmf_skey, amendment_id',
+          'FROM rst.recreation_map_feature',
+          `WHERE rec_resource_id = '${rec_resource_id}' AND section_id = '${entry.sectionId}'`,
+        ].join(' ');
+
+        const [
+          { rmf_skey = null, amendment_id = null } = {
+            rmf_skey: null,
+            amendment_id: null,
+          } as RmfData,
+        ]: Array<{
+          rmf_skey: number | null;
+          amendment_id: number | null;
+        }> = await tx.$queryRawUnsafe(rmfDataQuery);
+
+        switch (payload.operation) {
+          case 'New':
+            {
+              const maxRmfSkeyQuery = [
+                'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
+                'FROM rst.recreation_map_feature',
+              ].join(' ');
+
+              const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
+                max_rmf_skey: number | bigint;
+              }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
+
+              const nextRmfSkey = Number(max_rmf_skey) + 1;
+
+              await tx.$executeRaw(Prisma.sql`
+                INSERT INTO rst.recreation_map_feature (
+                  rmf_skey,
+                  rec_resource_id,
+                  section_id,
+                  recreation_resource_type,
+                  created_by,
+                  amend_status_code
+                )
+                VALUES (
+                  ${nextRmfSkey},
+                  ${rec_resource_id},
+                  ${entry.sectionId},
+                  ${payload.recreation_type_code || null},
+                  ${payload.submitted_by || null},
+                  ${'PND'}
+                )
+              `);
+
+              const geometry = Prisma.sql`
+                public.ST_SetSRID(
+                  public.ST_GeomFromGeoJSON(${JSON.stringify(entry.geometry)}),
+                  3005
+                )
+              `;
+
+              await tx.$executeRaw(Prisma.sql`
+                INSERT INTO rst.recreation_map_feature_geom (
+                  rmf_skey,
+                  geometry_type_code,
+                  geometry
+                )
+                VALUES (
+                  ${nextRmfSkey},
+                  ${entry.geometryTypeCode},
+                  ${geometry}
+                )
+              `);
+            }
+            break;
+          case 'Amend': {
+            await tx.$executeRaw(Prisma.sql`
+                  UPDATE rst.recreation_map_feature
+                  SET
+                    recreation_resource_type = ${payload.recreation_type_code || null},
+                    amendment_id = ${(amendment_id ?? 0) + 1},
+                    updated_by = ${payload.submitted_by || null},
+                    amend_status_code = ${'PND'}
+                  WHERE rmf_skey = ${rmf_skey}
+                `);
+
+            const updateGeomQuery = `
+                UPDATE rst.recreation_map_feature_geom
+                SET
+                  geometry_type_code = '${entry.geometryTypeCode}',
+                  geometry = ST_SetSRID(ST_GeomFromGeoJSON('${JSON.stringify(entry.geometry)}'), 3005)
+                WHERE rmf_skey = ${rmf_skey}
+              `;
+
+            await tx.$executeRaw(Prisma.sql([updateGeomQuery]));
+            break;
+          }
+          case 'Retire':
+            await tx.$executeRaw(Prisma.sql`
+                  UPDATE rst.recreation_map_feature
+                  SET
+                    retirement_date = now(),
+                    amend_status_code = ${'PND'}
+                  WHERE rmf_skey = ${rmf_skey}
+                `);
+            break;
+          default:
+            throw new BadRequestException(
+              `Invalid operation: ${String(payload.operation)}`,
+            );
+        }
+      }
+    });
   }
 
   /**

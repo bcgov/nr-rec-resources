@@ -130,6 +130,8 @@ export function RecResourceGeospatialSection() {
         ? buildImapUrlFromUtm(utm_easting, utm_northing, utm_zone)
         : IMAP_URL;
 
+  console.log(recResource);
+
   return (
     <Stack direction="vertical" gap={4}>
       {/* ── Geospatial fields card ── */}
@@ -183,7 +185,17 @@ export function RecResourceGeospatialSection() {
         <ExhibitASection recResourceId={recResourceId} />
       </div>
 
-      <SpatialSubmissionSection recResourceId={recResourceId} />
+      <SpatialSubmissionSection
+        recResourceId={recResourceId}
+        defaultRecreationTypeCode={recResource?.rec_resource_type_code}
+        defaultNaturalResourceDistrict={
+          recResource?.natural_resource_org_unit_name || undefined
+        }
+        defaultRecreationDistrict={
+          recResource?.recreation_district?.district_code
+        }
+        editMode={true}
+      />
     </Stack>
   );
 }
