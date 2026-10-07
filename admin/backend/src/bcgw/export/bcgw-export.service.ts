@@ -166,7 +166,9 @@ export class BcgwExportService {
     const key = BcgwExportService.dataKey(layer.name);
 
     const cursor = client.query(
-      new QueryStream(layer.query, [], { batchSize: CURSOR_BATCH_SIZE }),
+      new QueryStream(`${layer.query} ORDER BY ${layer.orderBy} ASC`, [], {
+        batchSize: CURSOR_BATCH_SIZE,
+      }),
     );
     const features = new GeoJsonFeatureCollectionStream();
 

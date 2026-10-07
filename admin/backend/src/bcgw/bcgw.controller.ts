@@ -1,8 +1,11 @@
 import {
   Controller,
+  DefaultValuePipe,
   Get,
   HttpStatus,
+  ParseIntPipe,
   Post,
+  Query,
   Redirect,
   UseGuards,
 } from '@nestjs/common';
@@ -11,6 +14,7 @@ import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -25,13 +29,34 @@ import {
 import { BcgwService } from './bcgw.service';
 import { BcgwExportService } from './export/bcgw-export.service';
 import { BcgwLayerManifestDto } from './dto/bcgw-layer-manifest.dto';
+import {
+  BcgwFeatureCollectionDto,
+  BcgwRecreationResourceDto,
+} from './dto/bcgw-recreation-resource.dto';
+import {
+  BcgwClosuresShortDto,
+  BcgwClosuresShortFeatureCollectionDto,
+} from './dto/bcgw-closures-short.dto';
+import {
+  BcgwRecreationLinesDto,
+  BcgwRecreationLinesFeatureCollectionDto,
+} from './dto/bcgw-recreation-lines.dto';
+import {
+  BcgwRecreationPolygonsDto,
+  BcgwRecreationPolygonsFeatureCollectionDto,
+} from './dto/bcgw-recreation-polygons.dto';
+import { BCGW_LAYERS } from './export/bcgw-layers';
 
 /**
- * Layers are delivered as pre-generated gzipped GeoJSON files in S3 rather than
- * built inline: the full datasets are far too large to serialize into a response
- * (recreation-lines alone is ~143 MB uncompressed). Each endpoint below redirects
- * to a presigned URL for the most recent export, so a single GET with redirects
- * followed downloads the whole layer.
+ * Each layer is served two ways.
+ *
+ * The layer's own path redirects to a pre-generated gzipped GeoJSON file in S3,
+ * because the full datasets are far too large to serialize into a response
+ * (recreation-lines alone is ~143 MB uncompressed). A single GET with redirects
+ * followed downloads the whole layer, which is how BCGW consumes these.
+ *
+ * The `/features` sub-path pages through the same layer live, for debugging and for
+ * consumers that would rather page than download.
  */
 const REDIRECT_DESCRIPTION =
   'Redirects (302) to a presigned URL for the most recent export of this layer, ' +
@@ -40,6 +65,20 @@ const REDIRECT_DESCRIPTION =
   'as fresh as the last export run.';
 
 const NOT_FOUND_DESCRIPTION = 'No export has been produced for this layer yet.';
+
+/** Page size for a layer, so the Swagger docs cannot drift from the real value. */
+const pageSizeOf = (layerName: string): number =>
+  BCGW_LAYERS.find((layer) => layer.name === layerName)!.pageSize;
+
+/**
+ * The paginated endpoints read the views live, so they can disagree with a
+ * download by up to one export interval.
+ */
+const PAGINATED_DESCRIPTION =
+  'Returns one page of this layer as a GeoJSON FeatureCollection, read live from ' +
+  'the materialized views. Page size varies by layer and is reported in `meta`. ' +
+  'For the whole layer in one request, use the unsuffixed endpoint, which ' +
+  'redirects to a pre-generated file.';
 
 @ApiTags('bcgw')
 @Controller({ path: 'bcgw', version: '1' })
@@ -118,6 +157,109 @@ export class BcgwController {
   @Redirect()
   async getRecreationPolygons() {
     return this.redirectTo('recreation-polygons');
+  }
+
+  @Get('closures-fully-attributed/features')
+  @UseGuards(AuthGuard(AUTH_STRATEGY.BCGW_KEYCLOAK))
+  @ApiBearerAuth(AUTH_STRATEGY.BCGW_KEYCLOAK)
+  @ApiUnauthorizedResponse({
+    description:
+      'Unauthorized — missing, malformed, or expired bearer token. ' +
+      'Obtain a token from CSS using the OAuth2 Client Credentials flow.',
+  })
+  @ApiOperation({
+    summary: 'Page through recreation resources for BCGW ingestion',
+    operationId: 'getBcgwClosuresFullyAttributedPage',
+    description: PAGINATED_DESCRIPTION,
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: `Page number (1-indexed). Each page returns up to ${pageSizeOf(
+      'closures-fully-attributed',
+    )} features.`,
+  })
+  @ApiOkResponse({ type: BcgwFeatureCollectionDto })
+  async getClosuresFullyAttributedPage(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ): Promise<BcgwFeatureCollectionDto> {
+    return this.bcgwService.findLayerPage<BcgwRecreationResourceDto>(
+      'closures-fully-attributed',
+      page,
+    );
+  }
+
+  @Get('closures-short/features')
+  @ApiOperation({
+    summary: 'Page through the short closures BCGW layer',
+    operationId: 'getBcgwClosuresShortPage',
+    description: PAGINATED_DESCRIPTION,
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: `Page number (1-indexed). Each page returns up to ${pageSizeOf(
+      'closures-short',
+    )} features.`,
+  })
+  @ApiOkResponse({ type: BcgwClosuresShortFeatureCollectionDto })
+  async getClosuresShortPage(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ): Promise<BcgwClosuresShortFeatureCollectionDto> {
+    return this.bcgwService.findLayerPage<BcgwClosuresShortDto>(
+      'closures-short',
+      page,
+    );
+  }
+
+  @Get('recreation-lines/features')
+  @ApiOperation({
+    summary: 'Page through recreation line features for BCGW ingestion',
+    operationId: 'getBcgwRecreationLinesPage',
+    description: PAGINATED_DESCRIPTION,
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: `Page number (1-indexed). Each page returns up to ${pageSizeOf(
+      'recreation-lines',
+    )} features.`,
+  })
+  @ApiOkResponse({ type: BcgwRecreationLinesFeatureCollectionDto })
+  async getRecreationLinesPage(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ): Promise<BcgwRecreationLinesFeatureCollectionDto> {
+    return this.bcgwService.findLayerPage<BcgwRecreationLinesDto>(
+      'recreation-lines',
+      page,
+    );
+  }
+
+  @Get('recreation-polygons/features')
+  @ApiOperation({
+    summary: 'Page through recreation polygon features for BCGW ingestion',
+    operationId: 'getBcgwRecreationPolygonsPage',
+    description: PAGINATED_DESCRIPTION,
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: `Page number (1-indexed). Each page returns up to ${pageSizeOf(
+      'recreation-polygons',
+    )} features.`,
+  })
+  @ApiOkResponse({ type: BcgwRecreationPolygonsFeatureCollectionDto })
+  async getRecreationPolygonsPage(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ): Promise<BcgwRecreationPolygonsFeatureCollectionDto> {
+    return this.bcgwService.findLayerPage<BcgwRecreationPolygonsDto>(
+      'recreation-polygons',
+      page,
+    );
   }
 
   /**

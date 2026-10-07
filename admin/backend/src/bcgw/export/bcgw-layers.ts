@@ -11,7 +11,8 @@
  *   renamed API field names, so the exported files carry the same field names the
  *   endpoints returned inline.
  *
- * `COUNT(*) OVER ()` is deliberately absent - it only ever fed pagination metadata.
+ * `COUNT(*) OVER ()` is deliberately absent. The paginated endpoint adds its own
+ * total via a wrapping query; the export has no use for it.
  *
  * Casts: `pg` returns int8 and numeric as strings, so columns the old response
  * mappers coerced with `Number()` are cast here to keep them JSON numbers.
@@ -21,8 +22,25 @@
 export interface BcgwLayer {
   /** URL path segment for the endpoint, and the basename of the S3 object. */
   readonly name: string;
-  /** Query producing one row per feature, with a `geometry` GeoJSON text column. */
+  /**
+   * Query producing one row per feature, with a `geometry` GeoJSON text column.
+   * Carries no ORDER BY or LIMIT - callers append `orderBy` themselves, because
+   * the paginated endpoint needs a stable order with LIMIT/OFFSET on the end.
+   */
   readonly query: string;
+  /**
+   * Output column giving each layer a stable, unique order. Named in terms of the
+   * aliased output columns, which Postgres allows in ORDER BY.
+   */
+  readonly orderBy: string;
+  /**
+   * Features per page on the paginated endpoint.
+   *
+   * This is a feature count, but the limit it exists for is a byte limit - API
+   * Gateway caps response payloads around 10 MB - so the geometry-heavy layers get
+   * smaller pages. Measure a real page before trusting these numbers.
+   */
+  readonly pageSize: number;
 }
 
 export const BCGW_LAYERS: readonly BcgwLayer[] = [
@@ -64,8 +82,9 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         latitude,
         longitude,
         shape                             AS geometry
-      FROM bcgw.closures_full
-      ORDER BY forest_file_id ASC`,
+      FROM bcgw.closures_full`,
+    orderBy: 'rec_resource_id',
+    pageSize: 1000,
   },
   {
     name: 'closures-short',
@@ -88,8 +107,9 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         latitude,
         longitude,
         shape                             AS geometry
-      FROM bcgw.closures_short
-      ORDER BY forest_file_id ASC`,
+      FROM bcgw.closures_short`,
+    orderBy: 'rec_resource_id',
+    pageSize: 1000,
   },
   {
     name: 'recreation-lines',
@@ -120,8 +140,10 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         feature_length::float8            AS feature_length,
         feature_length_m::float8          AS feature_length_m,
         geometry
-      FROM bcgw.recreation_lines
-      ORDER BY rmf_skey ASC`,
+      FROM bcgw.recreation_lines`,
+    orderBy: 'rmf_skey',
+    // Long trail geometries, so a page is far heavier per feature here.
+    pageSize: 250,
   },
   {
     name: 'recreation-polygons',
@@ -153,9 +175,15 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         feature_area_sqm,
         feature_length_m::float8          AS feature_length_m,
         geometry
-      FROM bcgw.recreation_polygons
-      ORDER BY rmf_skey ASC`,
+      FROM bcgw.recreation_polygons`,
+    orderBy: 'rmf_skey',
+    pageSize: 500,
   },
 ];
 
 export const BCGW_LAYER_NAMES = BCGW_LAYERS.map((layer) => layer.name);
+
+/** Looks up a layer by its path segment. */
+export function findBcgwLayer(name: string): BcgwLayer | undefined {
+  return BCGW_LAYERS.find((layer) => layer.name === name);
+}
