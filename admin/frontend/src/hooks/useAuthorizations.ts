@@ -1,3 +1,4 @@
+
 import { useContext, useMemo } from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 
@@ -53,12 +54,14 @@ export const useAuthorizations = () => {
 
   return useMemo(() => {
     const roles = getUserRoles(context);
-    const canViewPartners = hasAnyRole(roles, [
-      ROLES.IDIR_VIEWER,
-      ROLES.VIEWER,
-      ROLES.ADMIN,
-      ROLES.SUPER_ADMIN,
-    ]);
+    const canViewPartners =
+      hasAnyRole(roles, [ROLES.DEVELOPER]) &&
+      hasAnyRole(roles, [
+        ROLES.IDIR_VIEWER,
+        ROLES.VIEWER,
+        ROLES.ADMIN,
+        ROLES.SUPER_ADMIN,
+      ]);
     const canViewPartnerSensitiveInfo = hasAnyRole(roles, [
       ROLES.VIEWER,
       ROLES.ADMIN,

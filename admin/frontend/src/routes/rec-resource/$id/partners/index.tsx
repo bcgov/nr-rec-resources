@@ -37,6 +37,7 @@ function RecResourcePartnersPageRoute() {
 
   return (
     <RoleRouteGuard
+      requireAll={[ROLES.DEVELOPER]}
       requireAny={[
         ROLES.IDIR_VIEWER,
         ROLES.VIEWER,
