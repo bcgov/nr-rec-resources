@@ -4,14 +4,14 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mockGetExhibitADocsByRecResourceId = vi.fn();
+const mockGetAllExhibitADocs = vi.fn();
 const mockAddErrorNotification = vi.fn();
 
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient',
   () => ({
     useRecreationResourceAdminApiClient: () => ({
-      getExhibitADocsByRecResourceId: mockGetExhibitADocsByRecResourceId,
+      getAllExhibitADocs: mockGetAllExhibitADocs,
     }),
   }),
 );
@@ -37,7 +37,7 @@ describe('useGetExhibitADocs', () => {
   });
 
   it('returns initial empty array before data is loaded', () => {
-    mockGetExhibitADocsByRecResourceId.mockResolvedValue([]);
+    mockGetAllExhibitADocs.mockResolvedValue([]);
 
     const { result } = renderHook(() => useGetExhibitADocs('REC123'), {
       wrapper: createWrapper(),
@@ -57,7 +57,7 @@ describe('useGetExhibitADocs', () => {
         created_at: '2024-01-01',
       },
     ];
-    mockGetExhibitADocsByRecResourceId.mockResolvedValue(mockDocs);
+    mockGetAllExhibitADocs.mockResolvedValue(mockDocs);
 
     const { result } = renderHook(() => useGetExhibitADocs('REC123'), {
       wrapper: createWrapper(),
@@ -65,11 +65,9 @@ describe('useGetExhibitADocs', () => {
 
     // Wait for the API call to be made (initialData makes isSuccess true immediately,
     // so we wait for the actual fetch to complete by checking the data changes)
-    await waitFor(() =>
-      expect(mockGetExhibitADocsByRecResourceId).toHaveBeenCalled(),
-    );
+    await waitFor(() => expect(mockGetAllExhibitADocs).toHaveBeenCalled());
     await waitFor(() => expect(result.current.data).toEqual(mockDocs));
-    expect(mockGetExhibitADocsByRecResourceId).toHaveBeenCalledWith({
+    expect(mockGetAllExhibitADocs).toHaveBeenCalledWith({
       recResourceId: 'REC123',
     });
   });
@@ -80,7 +78,7 @@ describe('useGetExhibitADocs', () => {
     });
 
     expect(result.current.fetchStatus).toBe('idle');
-    expect(mockGetExhibitADocsByRecResourceId).not.toHaveBeenCalled();
+    expect(mockGetAllExhibitADocs).not.toHaveBeenCalled();
   });
 
   it('does not fetch when recResourceId is empty string', () => {
@@ -89,12 +87,12 @@ describe('useGetExhibitADocs', () => {
     });
 
     expect(result.current.fetchStatus).toBe('idle');
-    expect(mockGetExhibitADocsByRecResourceId).not.toHaveBeenCalled();
+    expect(mockGetAllExhibitADocs).not.toHaveBeenCalled();
   });
 
   it('handles fetch errors', async () => {
     const error = new Error('fetch failed');
-    mockGetExhibitADocsByRecResourceId.mockRejectedValue(error);
+    mockGetAllExhibitADocs.mockRejectedValue(error);
 
     const { result } = renderHook(() => useGetExhibitADocs('REC123'), {
       wrapper: createWrapper(),
@@ -105,7 +103,7 @@ describe('useGetExhibitADocs', () => {
   });
 
   it('returns empty array when no docs exist', async () => {
-    mockGetExhibitADocsByRecResourceId.mockResolvedValue([]);
+    mockGetAllExhibitADocs.mockResolvedValue([]);
 
     const { result } = renderHook(() => useGetExhibitADocs('REC999'), {
       wrapper: createWrapper(),
@@ -116,7 +114,7 @@ describe('useGetExhibitADocs', () => {
   });
 
   it('uses the correct query key', async () => {
-    mockGetExhibitADocsByRecResourceId.mockResolvedValue([]);
+    mockGetAllExhibitADocs.mockResolvedValue([]);
 
     const { result } = renderHook(() => useGetExhibitADocs('REC456'), {
       wrapper: createWrapper(),
