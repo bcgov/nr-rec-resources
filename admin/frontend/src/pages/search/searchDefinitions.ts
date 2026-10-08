@@ -79,13 +79,13 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
   },
   {
     id: 'project_established_date',
-    label: 'Est Date',
+    label: 'Est date',
     resultKey: 'establishmentDate',
     sortKey: 'established_date',
   },
   {
     id: 'updated_at',
-    label: 'Last Updated',
+    label: 'Last updated',
     resultKey: 'updatedAt',
     sortKey: 'updated_at',
   },
@@ -97,7 +97,7 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
   },
   {
     id: 'file_status',
-    label: 'File Status',
+    label: 'File status',
     resultKey: 'recStatusCode',
     sortKey: 'file_status',
   },

@@ -44,7 +44,7 @@ describe('RecResourceActivitiesEditRoute', () => {
   }) => [
     { label: 'Home', href: '/' },
     {
-      label: loaderData?.recResource?.name || 'Resource Details',
+      label: loaderData?.recResource?.name || 'Resource details',
       href: '/rec-resource/test-123',
     },
   ];
@@ -149,7 +149,7 @@ describe('RecResourceActivitiesEditRoute', () => {
   ])('should handle breadcrumb with %s loaderData', (_, loaderData) => {
     const breadcrumb = callBeforeLoad().breadcrumb(loaderData);
     expect(breadcrumb).toHaveLength(4);
-    expect(breadcrumb[1]!.label).toBe('Resource Details');
+    expect(breadcrumb[1]!.label).toBe('Resource details');
   });
 
   it('should use params.id from beforeLoad and handle multiple calls', () => {

@@ -217,10 +217,10 @@ describe('RecResourceFeesTable', () => {
   it('renders fee table with correct columns', () => {
     render(<RecResourceFeesTable fees={mockFees} />);
 
-    expect(screen.getByText('Fee Type')).toBeInTheDocument();
+    expect(screen.getByText('Fee type')).toBeInTheDocument();
     expect(screen.getByText('Amount')).toBeInTheDocument();
-    expect(screen.getByText('Start Date')).toBeInTheDocument();
-    expect(screen.getByText('End Date')).toBeInTheDocument();
+    expect(screen.getByText('Start date')).toBeInTheDocument();
+    expect(screen.getByText('End date')).toBeInTheDocument();
     expect(screen.getByText('Days')).toBeInTheDocument();
     expect(screen.getByText('Actions')).toBeInTheDocument();
   });
@@ -241,7 +241,7 @@ describe('RecResourceFeesTable', () => {
     // Check for "--" in the rendered cells - the Table mock renders them
     const cells = screen.getAllByTestId(/^cell-/);
     const dashCells = cells.filter((cell) => cell.textContent === '--');
-    expect(dashCells.length).toBeGreaterThanOrEqual(3); // Amount, Start Date, End Date, Days
+    expect(dashCells.length).toBeGreaterThanOrEqual(3); // Amount, Start date, End date, Days
   });
 
   it('renders individual days as badges', () => {

@@ -38,7 +38,7 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
     }),
   },
   [RecResourceNavKey.FILES]: {
-    title: 'Images & Sitemaps',
+    title: 'Images & sitemaps',
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_FILES,
       params: { id },
