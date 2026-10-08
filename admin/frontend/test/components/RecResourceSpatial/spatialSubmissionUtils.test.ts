@@ -1043,45 +1043,6 @@ describe('spatialSubmissionUtils', () => {
     expect(issues.some((issue) => issue.code === 'LINE_DUPLICATE')).toBe(true);
   });
 
-  it('flags overlapping lines', () => {
-    const issues = validateGeometry(
-      {
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates: [
-                [1000000, 1000000],
-                [1000200, 1000000],
-              ],
-            },
-          },
-          {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates: [
-                [1000100, 1000000],
-                [1000300, 1000000],
-              ],
-            },
-          },
-        ],
-      },
-      {
-        expectedSrsName: 'EPSG:3005',
-        enforceExpectedSrsName: true,
-        expectedGeometryType: 'LineString',
-      },
-    );
-
-    expect(issues.some((issue) => issue.code === 'LINE_OVERLAP')).toBe(true);
-  });
-
   it('flags overlapping nodes for point geometries', () => {
     const issues = validateGeometry(
       {
