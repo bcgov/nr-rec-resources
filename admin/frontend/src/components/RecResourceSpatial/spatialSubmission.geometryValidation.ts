@@ -95,9 +95,6 @@ interface PointReference {
 }
 
 const GEOMETRY_EPSILON = 1e-9;
-const LINE_OVERLAP_TOLERANCE_METRES = 0.01;
-const METRES_PER_KILOMETRE = 1000;
-
 const pointsEqual = (a: Coordinate2D, b: Coordinate2D): boolean =>
   Math.abs(a[0] - b[0]) <= GEOMETRY_EPSILON &&
   Math.abs(a[1] - b[1]) <= GEOMETRY_EPSILON;
@@ -232,108 +229,6 @@ const getSegmentDistanceMetres = (
     pointToSegmentDistanceMetres(secondStart, firstStart, firstEnd),
     pointToSegmentDistanceMetres(secondEnd, firstStart, firstEnd),
   );
-};
-
-const getLineSegments = (
-  lineCoordinates: number[][],
-): Array<[Coordinate2D, Coordinate2D]> => {
-  const segments: Array<[Coordinate2D, Coordinate2D]> = [];
-
-  for (let index = 1; index < lineCoordinates.length; index += 1) {
-    segments.push([
-      lineCoordinates[index - 1] as Coordinate2D,
-      lineCoordinates[index] as Coordinate2D,
-    ]);
-  }
-
-  return segments;
-};
-
-const areCollinearSegments = (
-  firstStart: Coordinate2D,
-  firstEnd: Coordinate2D,
-  secondStart: Coordinate2D,
-  secondEnd: Coordinate2D,
-): boolean => {
-  const firstVectorX = firstEnd[0] - firstStart[0];
-  const firstVectorY = firstEnd[1] - firstStart[1];
-
-  const crossWithSecondStart =
-    firstVectorX * (secondStart[1] - firstStart[1]) -
-    firstVectorY * (secondStart[0] - firstStart[0]);
-  const crossWithSecondEnd =
-    firstVectorX * (secondEnd[1] - firstStart[1]) -
-    firstVectorY * (secondEnd[0] - firstStart[0]);
-
-  return (
-    Math.abs(crossWithSecondStart) <= GEOMETRY_EPSILON &&
-    Math.abs(crossWithSecondEnd) <= GEOMETRY_EPSILON
-  );
-};
-
-const getProjectedOverlapLength = (
-  firstStart: Coordinate2D,
-  firstEnd: Coordinate2D,
-  secondStart: Coordinate2D,
-  secondEnd: Coordinate2D,
-): number => {
-  const directionX = firstEnd[0] - firstStart[0];
-  const directionY = firstEnd[1] - firstStart[1];
-  const axisLengthSquared = directionX * directionX + directionY * directionY;
-
-  if (axisLengthSquared <= GEOMETRY_EPSILON) {
-    return 0;
-  }
-
-  const project = (point: Coordinate2D): number =>
-    (directionX * (point[0] - firstStart[0]) +
-      directionY * (point[1] - firstStart[1])) /
-    axisLengthSquared;
-
-  const firstRangeStart = 0;
-  const firstRangeEnd = 1;
-  const secondProjectionStart = project(secondStart);
-  const secondProjectionEnd = project(secondEnd);
-  const secondRangeStart = Math.min(secondProjectionStart, secondProjectionEnd);
-  const secondRangeEnd = Math.max(secondProjectionStart, secondProjectionEnd);
-  const overlapStart = Math.max(firstRangeStart, secondRangeStart);
-  const overlapEnd = Math.min(firstRangeEnd, secondRangeEnd);
-  const overlapRatio = overlapEnd - overlapStart;
-
-  if (overlapRatio <= GEOMETRY_EPSILON) {
-    return 0;
-  }
-
-  return Math.sqrt(axisLengthSquared) * overlapRatio;
-};
-
-const hasLineOverlap = (
-  firstCoordinates: number[][],
-  secondCoordinates: number[][],
-): boolean => {
-  const firstSegments = getLineSegments(firstCoordinates);
-  const secondSegments = getLineSegments(secondCoordinates);
-
-  for (const [firstStart, firstEnd] of firstSegments) {
-    for (const [secondStart, secondEnd] of secondSegments) {
-      if (!areCollinearSegments(firstStart, firstEnd, secondStart, secondEnd)) {
-        continue;
-      }
-
-      const overlapLength = getProjectedOverlapLength(
-        firstStart,
-        firstEnd,
-        secondStart,
-        secondEnd,
-      );
-
-      if (overlapLength > LINE_OVERLAP_TOLERANCE_METRES) {
-        return true;
-      }
-    }
-  }
-
-  return false;
 };
 
 const getPolygonSegments = (
@@ -872,41 +767,6 @@ function validateLineRelationships(
           message: `${formatLinePartLabel(secondLine)} duplicates ${formatLinePartLabel(firstLine)}.`,
           code: 'LINE_DUPLICATE',
         });
-        continue;
-      }
-
-      try {
-        const overlap = turf.lineOverlap(
-          cleanedFirstLine as any,
-          cleanedSecondLine as any,
-          {
-            tolerance: LINE_OVERLAP_TOLERANCE_METRES / METRES_PER_KILOMETRE,
-          } as any,
-        );
-
-        const overlapsByTurf = (overlap?.features?.length ?? 0) > 0;
-        const overlapsByPlanarSegments = hasLineOverlap(
-          firstCoordinates,
-          secondCoordinates,
-        );
-
-        if (overlapsByTurf || overlapsByPlanarSegments) {
-          issues.push({
-            type: 'TOPOLOGY',
-            severity: 'ERROR',
-            message: `${formatLinePartLabel(firstLine)} overlaps ${formatLinePartLabel(secondLine)}. Lines must not overlap.`,
-            code: 'LINE_OVERLAP',
-          });
-        }
-      } catch {
-        if (hasLineOverlap(firstCoordinates, secondCoordinates)) {
-          issues.push({
-            type: 'TOPOLOGY',
-            severity: 'ERROR',
-            message: `${formatLinePartLabel(firstLine)} overlaps ${formatLinePartLabel(secondLine)}. Lines must not overlap.`,
-            code: 'LINE_OVERLAP',
-          });
-        }
       }
     }
   }
