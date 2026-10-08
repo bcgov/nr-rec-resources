@@ -16,6 +16,7 @@ describe('useVisibleNavSections', () => {
   it('returns only non-feature-flagged sections when flagged content is not viewable', () => {
     mockUseAuthorizations.mockReturnValue({
       canViewFeatureFlag: false,
+      canViewPartners: false,
     });
 
     const { result } = renderHook(() => useVisibleNavSections());
@@ -30,6 +31,7 @@ describe('useVisibleNavSections', () => {
   it('returns all sections when flagged content is viewable', () => {
     mockUseAuthorizations.mockReturnValue({
       canViewFeatureFlag: true,
+      canViewPartners: true,
     });
 
     const { result } = renderHook(() => useVisibleNavSections());
@@ -51,6 +53,7 @@ describe('useVisibleNavSections', () => {
   it('should return sections with correct structure', () => {
     mockUseAuthorizations.mockReturnValue({
       canViewFeatureFlag: true,
+      canViewPartners: true,
     });
 
     const { result } = renderHook(() => useVisibleNavSections());
@@ -62,5 +65,19 @@ describe('useVisibleNavSections', () => {
       expect(typeof config.title).toBe('string');
       expect(typeof config.getNavigateOptions).toBe('function');
     });
+  });
+
+  it('hides partners section when user is not authorized for partners', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: true,
+      canViewPartners: false,
+    });
+
+    const { result } = renderHook(() => useVisibleNavSections());
+
+    expect(result.current).toHaveLength(8);
+    expect(result.current.map(([key]) => key)).not.toContain(
+      RecResourceNavKey.PARTNERS,
+    );
   });
 });

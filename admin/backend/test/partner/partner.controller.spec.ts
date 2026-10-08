@@ -3,6 +3,8 @@ import { PartnerService } from '@/partner/partner.service';
 import { AgreementHolderClientPublicViewDto } from '@/partner/dtos/agreement-holder-client-public-view.dto';
 import { CreateAgreementHolderDto } from '@/partner/dtos/create-agreement-holder.dto';
 import { UpdateAgreementHolderDto } from '@/partner/dtos/update-agreement-holder.dto';
+import { RecreationResourceAuthRole } from '@/auth';
+import { UserContextService } from '@/common/modules/user-context/user-context.service';
 import { HttpException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,6 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 describe('PartnerController', () => {
   let controller: PartnerController;
   let service: PartnerService;
+  let userContextService: UserContextService;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -27,11 +30,18 @@ describe('PartnerController', () => {
             listClientLocations: vi.fn(),
           },
         },
+        {
+          provide: UserContextService,
+          useValue: {
+            getCurrentUser: vi.fn().mockReturnValue({ client_roles: [] }),
+          },
+        },
       ],
     }).compile();
 
     controller = moduleRef.get(PartnerController);
     service = moduleRef.get(PartnerService);
+    userContextService = moduleRef.get(UserContextService);
   });
 
   it('should be defined', () => {
@@ -85,6 +95,90 @@ describe('PartnerController', () => {
       expect(service.findClientsByRecResourceId).toHaveBeenCalledWith(
         'REC0002',
       );
+      expect(result).toEqual(expected);
+    });
+
+    it('masks sensitive CLIENT fields for the restricted IDIR role', async () => {
+      const expected: AgreementHolderClientPublicViewDto[] = [
+        {
+          agreement_holder_id: 1000001,
+          cancelled: false,
+          clientNumber: '00000002',
+          clientName: 'BAXTER',
+          legalFirstName: 'JAMES',
+          legalMiddleName: 'Canter',
+          clientStatusCode: 'ACT',
+          clientStatusDescription: 'Active',
+          clientTypeCode: 'I',
+          clientTypeDescription: 'Individual',
+          acronym: 'JAMES BAXTER',
+          agreementStartDate: '2024-01-01',
+          agreementEndDate: '2026-12-31',
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+      ];
+
+      vi.spyOn(service, 'findClientsByRecResourceId').mockResolvedValue(
+        expected,
+      );
+      vi.mocked(userContextService.getCurrentUser).mockReturnValue({
+        client_roles: [RecreationResourceAuthRole.RST_IDIR_VIEWER],
+      } as any);
+
+      const result = await controller.findClientsByRecResourceId('REC0002');
+
+      expect(result).toEqual([
+        {
+          agreement_holder_id: 1000001,
+          cancelled: false,
+          clientNumber: '00000002',
+          clientName: 'BAXTER',
+          clientStatusCode: 'ACT',
+          clientStatusDescription: 'Active',
+          clientTypeCode: 'I',
+          clientTypeDescription: 'Individual',
+          agreementStartDate: '2024-01-01',
+          agreementEndDate: '2026-12-31',
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+      ]);
+    });
+
+    it('does not mask sensitive CLIENT fields for mixed roles that include IDIR viewer', async () => {
+      const expected: AgreementHolderClientPublicViewDto[] = [
+        {
+          agreement_holder_id: 1000001,
+          cancelled: false,
+          clientNumber: '00000002',
+          clientName: 'BAXTER',
+          legalFirstName: 'JAMES',
+          legalMiddleName: 'Canter',
+          clientStatusCode: 'ACT',
+          clientStatusDescription: 'Active',
+          clientTypeCode: 'I',
+          clientTypeDescription: 'Individual',
+          acronym: 'JAMES BAXTER',
+          agreementStartDate: '2024-01-01',
+          agreementEndDate: '2026-12-31',
+          visible_on_public_website: false,
+          partner_relationship_type_code: 'SITE_OPERATOR',
+        },
+      ];
+
+      vi.spyOn(service, 'findClientsByRecResourceId').mockResolvedValue(
+        expected,
+      );
+      vi.mocked(userContextService.getCurrentUser).mockReturnValue({
+        client_roles: [
+          RecreationResourceAuthRole.RST_IDIR_VIEWER,
+          RecreationResourceAuthRole.RST_ADMIN,
+        ],
+      } as any);
+
+      const result = await controller.findClientsByRecResourceId('REC0002');
+
       expect(result).toEqual(expected);
     });
   });

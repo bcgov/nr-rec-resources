@@ -4,6 +4,13 @@ import { RecResourcePartnersContent } from '@/pages/rec-resource-page/components
 import { AgreementHolderClientPublicViewDto } from '@/services/recreation-resource-admin/models/AgreementHolderClientPublicViewDto';
 import userEvent from '@testing-library/user-event';
 
+const { mockAuthorizations } = vi.hoisted(() => ({
+  mockAuthorizations: vi.fn(() => ({
+    canManagePartners: false,
+    canViewPartnerSensitiveInfo: true,
+  })),
+}));
+
 // Mock the hook that triggers the AuthContext dependency
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useGetPartnerLocationsByClientId',
@@ -60,6 +67,10 @@ vi.mock('@/constants/routes', () => ({
   },
 }));
 
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockAuthorizations(),
+}));
+
 describe('RecResourcePartnersContent', () => {
   const mockPartners: AgreementHolderClientPublicViewDto[] = [
     {
@@ -77,6 +88,13 @@ describe('RecResourcePartnersContent', () => {
       clientTypeDescription: 'Business',
     },
   ];
+
+  beforeEach(() => {
+    mockAuthorizations.mockReturnValue({
+      canManagePartners: false,
+      canViewPartnerSensitiveInfo: true,
+    });
+  });
 
   it('should render section header and partner list correctly', () => {
     render(<RecResourcePartnersContent partners={mockPartners} />);
@@ -101,8 +119,13 @@ describe('RecResourcePartnersContent', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should render "Add New" and "Edit" buttons with correct hrefs when recResourceId is provided', () => {
+  it('should render "Add New" and "Edit" buttons with correct hrefs for super admins', () => {
     const recResourceId = '12345';
+    mockAuthorizations.mockReturnValue({
+      canManagePartners: true,
+      canViewPartnerSensitiveInfo: true,
+    });
+
     render(
       <RecResourcePartnersContent
         partners={mockPartners}
@@ -134,6 +157,10 @@ describe('RecResourcePartnersContent', () => {
   describe('RecResourcePartnerAddNewModal Interaction', () => {
     it('should open the modal when clicking "Add New" and close it on cancel', async () => {
       const user = userEvent.setup();
+      mockAuthorizations.mockReturnValue({
+        canManagePartners: true,
+        canViewPartnerSensitiveInfo: true,
+      });
 
       render(
         <RecResourcePartnersContent
@@ -161,6 +188,22 @@ describe('RecResourcePartnersContent', () => {
       // Modal should be hidden again
       expect(
         screen.queryByTestId('mock-add-partner-modal'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not render partner management controls for viewer/admin read-only access', () => {
+      render(
+        <RecResourcePartnersContent
+          partners={mockPartners}
+          recResourceId="12345"
+        />,
+      );
+
+      expect(
+        screen.queryByRole('button', { name: 'Add New' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('link', { name: 'Edit' }),
       ).not.toBeInTheDocument();
     });
   });
