@@ -359,41 +359,6 @@ export interface UpdateRecreationResourceGeospatialRequest {
   updateRecreationResourceGeospatialDto: UpdateRecreationResourceGeospatialDto;
 }
 
-export interface CreateRecreationMapFeaturesDto {
-  features: Array<{
-    geometry: Record<string, unknown>;
-    section_id?: string;
-  }>;
-  recreation_type_code?: string;
-  rec_resource_name?: string;
-  natural_resource_district_code?: string;
-  recreation_district_code?: string;
-  submitted_by?: string;
-}
-
-export interface CreateRecreationResourceMapFeaturesRequest {
-  recResourceId: string;
-  createRecreationMapFeaturesDto: CreateRecreationMapFeaturesDto;
-}
-
-export interface PendingMapFeatureRequestRowDto {
-  rec_resource_id: string;
-  name?: string | null;
-  district_description?: string | null;
-  recreation_district?: string | null;
-  natural_resource_district?: string | null;
-  recreation_type?: string | null;
-  amend_status_code: string;
-  feature_count: number;
-  requested_at?: string | null;
-  geometry_types: string[];
-}
-
-export interface PendingMapFeatureRequestsResponseDto {
-  data: PendingMapFeatureRequestRowDto[];
-  total: number;
-}
-
 export interface UpdateRecreationResourceReservationRequest {
   recResourceId: string;
   updateRecreationResourceReservationDto: UpdateRecreationResourceReservationDto;
@@ -2348,6 +2313,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.  The order of elements in the response matches the order of types provided by the client.
    * List options for multiple types
    */
   async getOptionsByTypesRaw(
@@ -2378,7 +2344,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       }
     }
 
-    const urlPath = `/api/v1/recreation-resources/options`;
+    let urlPath = `/api/v1/recreation-resources/options`;
 
     const response = await this.request(
       {
@@ -2396,6 +2362,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.  The order of elements in the response matches the order of types provided by the client.
    * List options for multiple types
    */
   async getOptionsByTypes(
@@ -3699,80 +3666,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceGeospatialDto> {
     const response = await this.updateRecreationResourceGeospatialRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
-   * Creates map features from a validated shapefile payload
-   * Create map features for a recreation resource
-   */
-  async createRecreationResourceMapFeaturesRaw(
-    requestParameters: CreateRecreationResourceMapFeaturesRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceGeospatialDto>> {
-    if (requestParameters['recResourceId'] == null) {
-      throw new runtime.RequiredError(
-        'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling createRecreationResourceMapFeatures().',
-      );
-    }
-
-    if (requestParameters['createRecreationMapFeaturesDto'] == null) {
-      throw new runtime.RequiredError(
-        'createRecreationMapFeaturesDto',
-        'Required parameter "createRecreationMapFeaturesDto" was null or undefined when calling createRecreationResourceMapFeatures().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    headerParameters['Content-Type'] = 'application/json';
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/geospatial/map-features`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: requestParameters['createRecreationMapFeaturesDto'],
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationResourceGeospatialDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Creates map features from a validated shapefile payload
-   * Create map features for a recreation resource
-   */
-  async createRecreationResourceMapFeatures(
-    requestParameters: CreateRecreationResourceMapFeaturesRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationResourceGeospatialDto> {
-    const response = await this.createRecreationResourceMapFeaturesRaw(
       requestParameters,
       initOverrides,
     );
