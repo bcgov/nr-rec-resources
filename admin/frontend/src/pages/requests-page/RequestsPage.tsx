@@ -56,12 +56,12 @@ export const RequestsPage = () => {
               render: (row) => row.name || '-',
             },
             {
-              header: 'Recreation District',
+              header: 'Recreation district',
               render: (row) =>
                 row.recreation_district || row.district_description || '-',
             },
             {
-              header: 'Natural Resource District',
+              header: 'Natural resource district',
               render: (row) => row.natural_resource_district || '-',
             },
             {
@@ -73,7 +73,7 @@ export const RequestsPage = () => {
               render: (row) => row.amend_status_code,
             },
             {
-              header: 'Geometry Type',
+              header: 'Geometry type',
               render: (row) =>
                 row.geometry_types.length ? row.geometry_types.join(', ') : '-',
             },
@@ -82,7 +82,7 @@ export const RequestsPage = () => {
               render: (row) => row.feature_count,
             },
             {
-              header: 'Requested At',
+              header: 'Requested at',
               render: (row) =>
                 row.requested_at
                   ? new Date(row.requested_at).toLocaleString('en-CA', {

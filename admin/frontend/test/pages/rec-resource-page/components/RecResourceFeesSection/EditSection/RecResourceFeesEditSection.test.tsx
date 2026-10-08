@@ -88,7 +88,7 @@ vi.mock(
   () => ({
     RecResourceFeeFormModal: ({ mode, initialFee }: any) => (
       <div data-testid="fee-form-modal">
-        {mode === 'create' ? 'Add Fee' : 'Edit Fee'}
+        {mode === 'create' ? 'Add fee' : 'Edit fee'}
         {mode === 'edit' && !initialFee ? ' - Fee not found.' : null}
       </div>
     ),
@@ -108,10 +108,10 @@ describe('RecResourceFeesEditSection', () => {
     vi.mocked(useGetFees).mockReturnValue({ data: mockFees } as any);
   });
 
-  it('renders Edit Fee modal', () => {
+  it('renders Edit fee modal', () => {
     render(<RecResourceFeesEditSection />);
 
-    expect(screen.getByText('Edit Fee')).toBeInTheDocument();
+    expect(screen.getByText('Edit fee')).toBeInTheDocument();
   });
 
   it('renders RecResourceFeesTable with fees data', () => {
@@ -143,7 +143,7 @@ describe('RecResourceFeesEditSection', () => {
     expect(screen.getByText(/fee not found/i)).toBeInTheDocument();
   });
 
-  it('uses rec resource id from params in Add Fee link', () => {
+  it('uses rec resource id from params in Add fee link', () => {
     vi.mocked(Route.useParams).mockReturnValueOnce({
       id: 'REC999',
       feeId: '1',

@@ -83,7 +83,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
             className="fa-file-pdf"
             aria-hidden="true"
           />
-          <span>Upload Failed</span>
+          <span>Upload failed</span>
           <div className="gallery-file-card__top-hover">
             <ActionButton
               icon={faRedo}

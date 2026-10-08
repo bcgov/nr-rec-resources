@@ -335,17 +335,17 @@ describe('SpatialSubmissionSection', () => {
         name: 'Chilliwack Recreation District (RDCC)',
       }),
     ).toBeDefined();
-    expect(screen.getByLabelText('Natural Resource District')).toHaveValue(
+    expect(screen.getByLabelText('Natural resource district')).toHaveValue(
       'DCC',
     );
-    expect(screen.getByLabelText('Recreation District')).toHaveValue('RDCC');
+    expect(screen.getByLabelText('Recreation district')).toHaveValue('RDCC');
     expect(
       screen.queryByRole('option', { name: 'Archived Recreation District' }),
     ).toBeNull();
     expect(screen.getByRole('option', { name: 'Site' })).toBeDefined();
     expect(screen.getByLabelText('REC#')).toHaveAttribute('readonly');
-    expect(screen.getByLabelText('Spatial File')).toHaveAttribute('multiple');
-    expect(screen.getByLabelText('Spatial File')).toHaveAttribute(
+    expect(screen.getByLabelText('Spatial file')).toHaveAttribute('multiple');
+    expect(screen.getByLabelText('Spatial file')).toHaveAttribute(
       'accept',
       '.zip,.shp,.dbf',
     );
@@ -365,10 +365,10 @@ describe('SpatialSubmissionSection', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Email Address')).toHaveValue(
+      expect(screen.getByLabelText('Email address')).toHaveValue(
         'idir.user@gov.bc.ca',
       );
-      expect(screen.getByLabelText('Submitter Name')).toHaveValue('Idir User');
+      expect(screen.getByLabelText('Submitter name')).toHaveValue('Idir User');
     });
   });
 
@@ -449,23 +449,23 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Feature type'), {
       target: { value: 'LineString' },
     });
-    fireEvent.change(screen.getByLabelText('Recreation Name'), {
+    fireEvent.change(screen.getByLabelText('Recreation name'), {
       target: { value: 'Sample Recreation Name' },
     });
-    fireEvent.change(screen.getByLabelText('Email Address'), {
+    fireEvent.change(screen.getByLabelText('Email address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Submitter Name'), {
+    fireEvent.change(screen.getByLabelText('Submitter name'), {
       target: { value: 'Valid User' },
     });
-    fireEvent.change(screen.getByLabelText('Natural Resource District'), {
+    fireEvent.change(screen.getByLabelText('Natural resource district'), {
       target: { value: 'DCC' },
     });
-    fireEvent.change(screen.getByLabelText('Recreation District'), {
+    fireEvent.change(screen.getByLabelText('Recreation district'), {
       target: { value: 'RDCC' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -500,10 +500,10 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByDisplayValue('North Loop Renamed')).toBeDefined();
 
     expect(
-      screen.getByRole('button', { name: 'Create Request' }),
+      screen.getByRole('button', { name: 'Create request' }),
     ).toBeDefined();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create request' }));
 
     await waitFor(() => {
       expect(mockCreateMapFeatures).toHaveBeenCalledWith({
@@ -538,9 +538,9 @@ describe('SpatialSubmissionSection', () => {
       });
     });
 
-    expect(screen.getByLabelText('Spatial File')).toBeDisabled();
+    expect(screen.getByLabelText('Spatial file')).toBeDisabled();
     expect(screen.getByText('Validate')).toBeDisabled();
-    expect(screen.getByText('Create Request')).toBeDisabled();
+    expect(screen.getByText('Create request')).toBeDisabled();
 
     expect(screen.getByTestId('spatial-editor-map')).toBeDefined();
   });
@@ -600,14 +600,14 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Feature type'), {
       target: { value: 'LineString' },
     });
-    fireEvent.change(screen.getByLabelText('Email Address'), {
+    fireEvent.change(screen.getByLabelText('Email address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Submitter Name'), {
+    fireEvent.change(screen.getByLabelText('Submitter name'), {
       target: { value: 'Valid User' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -641,10 +641,10 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByDisplayValue('North Loop Renamed')).toBeDefined();
 
     expect(
-      screen.getByRole('button', { name: 'Create Request' }),
+      screen.getByRole('button', { name: 'Create request' }),
     ).toBeDefined();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create request' }));
 
     await waitFor(() => {
       expect(mockUpdateMapFeatures).toHaveBeenCalled();
@@ -663,7 +663,7 @@ describe('SpatialSubmissionSection', () => {
       />,
     );
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission-one.shp', {
       type: 'application/octet-stream',
     });
@@ -691,14 +691,14 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Feature type'), {
       target: { value: 'LineString' },
     });
-    fireEvent.change(screen.getByLabelText('Email Address'), {
+    fireEvent.change(screen.getByLabelText('Email address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Submitter Name'), {
+    fireEvent.change(screen.getByLabelText('Submitter name'), {
       target: { value: 'Valid User' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const file = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -725,7 +725,7 @@ describe('SpatialSubmissionSection', () => {
       />,
     );
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -740,7 +740,7 @@ describe('SpatialSubmissionSection', () => {
     });
 
     const createRequestButton = screen.getByRole('button', {
-      name: 'Create Request',
+      name: 'Create request',
     });
     expect(createRequestButton).toBeDisabled();
 
@@ -763,7 +763,7 @@ describe('SpatialSubmissionSection', () => {
       />,
     );
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const dbfFile = new File(['dbf-content'], 'submission.dbf', {
       type: 'application/octet-stream',
     });
@@ -794,7 +794,7 @@ describe('SpatialSubmissionSection', () => {
       target: { value: 'Polygon' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -830,7 +830,7 @@ describe('SpatialSubmissionSection', () => {
       target: { value: 'Polygon' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -843,7 +843,7 @@ describe('SpatialSubmissionSection', () => {
       ).toBeDefined();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create request' }));
 
     await waitFor(() => {
       expect(
@@ -863,8 +863,8 @@ describe('SpatialSubmissionSection', () => {
     expect(mockUseGetRecreationResourceOptions).toHaveBeenCalledWith([
       GetOptionsByTypesTypesEnum.ResourceType,
     ]);
-    expect(screen.queryByLabelText('Natural Resource District')).toBeNull();
-    expect(screen.queryByLabelText('Recreation District')).toBeNull();
+    expect(screen.queryByLabelText('Natural resource district')).toBeNull();
+    expect(screen.queryByLabelText('Recreation district')).toBeNull();
   });
 
   it('renders embedded heading and cancel handler when provided', () => {

@@ -142,7 +142,7 @@ describe('AssetCard', () => {
       'Length',
       'Width',
       'Value',
-      'Actual Repair Cost',
+      'Actual repair cost',
       'Location',
     ]);
 
@@ -215,7 +215,7 @@ describe('AssetCard', () => {
     );
 
     const repairSpendField = screen
-      .getByText('Actual Repair Cost:')
+      .getByText('Actual repair cost:')
       .closest('.asset-card__field');
     expect(repairSpendField).toHaveTextContent('$100');
   });
@@ -264,7 +264,7 @@ describe('AssetCard', () => {
     const labels = screen
       .getAllByText(/:$/)
       .map((el) => el.textContent?.replace(':', ''));
-    expect(labels).toEqual(['Actual Repair Cost', 'Location']);
+    expect(labels).toEqual(['Actual repair cost', 'Location']);
 
     expect(screen.queryByText('Area:')).not.toBeInTheDocument();
     expect(screen.queryByText('Length:')).not.toBeInTheDocument();

@@ -162,24 +162,24 @@ describe('handleApiError', () => {
 
     it('should use default error messages for known status codes', async () => {
       const statusCodes = [
-        { status: 400, expected: 'Bad Request - Invalid input provided' },
-        { status: 401, expected: 'Unauthorized - Please log in again' },
+        { status: 400, expected: 'Bad request - invalid input provided' },
+        { status: 401, expected: 'Unauthorized - please log in again' },
         {
           status: 403,
           expected:
-            "Forbidden - You don't have permission to perform this action",
+            "Forbidden - you don't have permission to perform this action",
         },
         {
           status: 404,
-          expected: 'Not Found - The requested resource was not found',
+          expected: 'Not found - the requested resource was not found',
         },
         {
           status: 415,
-          expected: 'Unsupported Media Type - File type not allowed',
+          expected: 'Unsupported media type - file type not allowed',
         },
         {
           status: 500,
-          expected: 'Internal Server Error - Please try again later',
+          expected: 'Internal server error - please try again later',
         },
         { status: 999, expected: 'HTTP 999 Error' },
       ];
@@ -203,7 +203,7 @@ describe('handleApiError', () => {
       );
       expectErrorResult(result, {
         statusCode: 500,
-        message: 'Internal Server Error - Please try again later',
+        message: 'Internal server error - please try again later',
         isResponseError: true,
         isAuthError: false,
       });

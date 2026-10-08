@@ -113,7 +113,7 @@ export function SearchResultsPagination({
             htmlFor={pageSizeSelectId}
             className="pagination-bar__label mb-0"
           >
-            Page Size
+            Page size
           </Form.Label>
           <Form.Select
             id={pageSizeSelectId}
@@ -132,7 +132,7 @@ export function SearchResultsPagination({
             htmlFor={pageSelectId}
             className="pagination-bar__label mb-0"
           >
-            Jump To
+            Jump to
           </Form.Label>
           <Form.Select
             id={pageSelectId}

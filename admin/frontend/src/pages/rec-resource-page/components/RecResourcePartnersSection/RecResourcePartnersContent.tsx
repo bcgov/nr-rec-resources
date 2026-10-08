@@ -24,7 +24,7 @@ export const RecResourcePartnersContent = ({
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
-        <h2>Active Partners</h2>
+        <h2>Active partners</h2>
         <Stack direction="horizontal" gap={2}>
           {recResourceId && canManagePartners ? (
             <>
@@ -32,7 +32,7 @@ export const RecResourcePartnersContent = ({
                 onClick={() => setIsAddNewPartnerModalOpen(true)}
                 variant="outline-primary"
               >
-                Add New
+                Add new
               </CustomButton>
               <Link
                 to={ROUTE_PATHS.REC_RESOURCE_PARTNERS_EDIT.replace(

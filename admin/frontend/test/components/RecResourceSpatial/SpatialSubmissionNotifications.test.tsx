@@ -38,7 +38,7 @@ describe('SpatialSubmissionAlerts', () => {
         />,
       );
 
-      expect(screen.getByText('Validation Results')).toBeDefined();
+      expect(screen.getByText('Validation results')).toBeDefined();
       expect(
         screen.getByText('[GEOMETRY] Invalid geometry detected'),
       ).toBeDefined();
@@ -64,7 +64,7 @@ describe('SpatialSubmissionAlerts', () => {
         />,
       );
 
-      expect(screen.getByText('Validation Results')).toBeDefined();
+      expect(screen.getByText('Validation results')).toBeDefined();
       expect(
         screen.getByText('[TOPOLOGY] Some data may be incomplete'),
       ).toBeDefined();

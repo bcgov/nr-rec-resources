@@ -97,7 +97,7 @@ export const useEditReservationForm = (
 
   const onSubmit = async (data: EditReservationFormData) => {
     if (data.has_reservation && !data.reservation_method) {
-      addErrorNotification(`Please select a Reservation Method.`);
+      addErrorNotification(`Please select a reservation method.`);
       return;
     }
 

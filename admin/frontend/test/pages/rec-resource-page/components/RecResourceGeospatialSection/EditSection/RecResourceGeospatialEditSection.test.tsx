@@ -94,7 +94,7 @@ describe('RecResourceGeospatialEditSection', () => {
 
     render(<RecResourceGeospatialEditSection />);
 
-    expect(screen.getByText('Edit Geospatial')).toBeDefined();
+    expect(screen.getByText('Edit geospatial')).toBeDefined();
     expect(
       screen.getByRole('button', { name: /Save|Saving\.\.\./ }),
     ).toBeDefined();
@@ -130,9 +130,9 @@ describe('RecResourceGeospatialEditSection', () => {
 
     render(<RecResourceGeospatialEditSection />);
 
-    expect(screen.getByText('UTM Zone')).toBeDefined();
-    expect(screen.getByText('UTM Easting')).toBeDefined();
-    expect(screen.getByText('UTM Northing')).toBeDefined();
+    expect(screen.getByText('UTM zone')).toBeDefined();
+    expect(screen.getByText('UTM easting')).toBeDefined();
+    expect(screen.getByText('UTM northing')).toBeDefined();
   });
 
   it('renders map section when recResource is available', () => {

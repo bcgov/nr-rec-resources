@@ -25,10 +25,10 @@ export const DEFAULT_WIZARD_VALUES: WizardValues = {
 export const REQUIRED_FIELD_LABELS: Record<RequiredFieldKey, string> = {
   recreationType: 'Recreation type',
   featureType: 'Feature type',
-  email: 'Email Address',
-  contactName: 'Submitter Name',
-  districtCode: 'Natural Resource District',
-  recreationDistrict: 'Recreation District',
+  email: 'Email address',
+  contactName: 'Submitter name',
+  districtCode: 'Natural resource district',
+  recreationDistrict: 'Recreation district',
 };
 
 export const REQUIRED_FIELD_VALUE_SELECTORS: Record<
