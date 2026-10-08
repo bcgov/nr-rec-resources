@@ -38,9 +38,12 @@ function RecResourcePartnersPageRoute() {
   return (
     <RoleRouteGuard
       requireAll={[ROLES.DEVELOPER]}
-      // Roles from 973: matches the controller's @AuthRoles, which admits
-      // RST_ADMIN and RST_SUPER_ADMIN but not RST_VIEWER.
-      requireAny={[ROLES.SUPER_ADMIN, ROLES.ADMIN]}
+      requireAny={[
+        ROLES.IDIR_VIEWER,
+        ROLES.VIEWER,
+        ROLES.ADMIN,
+        ROLES.SUPER_ADMIN,
+      ]}
       // Must not be this route: RoleRouteGuard navigates here on failure, so
       // pointing at the guarded route itself loops.
       redirectTo={ROUTE_PATHS.REC_RESOURCE_FILES.replace('$id', id)}

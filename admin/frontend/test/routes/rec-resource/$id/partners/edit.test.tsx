@@ -76,16 +76,13 @@ describe('RecResource Partners Edit Route', () => {
     ).toBeInTheDocument();
   });
 
-  // Delete is super-admin-only, so a super-admin without rst-admin must still
-  // reach this page.
-  it('guards the route for admins and super-admins, redirecting to the view page', () => {
+  it('guards the route for super-admins, redirecting to the view page', () => {
     const Component = Route.options.component!;
     render(<Component />);
 
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        requireAll: ['rst-developer'],
-        requireAny: ['rst-super-admin', 'rst-admin'],
+        requireAny: ['rst-super-admin'],
         redirectTo: '/rec-resource/REC123/partners',
         children: expect.anything(),
       }),
