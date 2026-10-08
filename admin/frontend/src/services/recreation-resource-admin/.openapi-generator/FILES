@@ -99,6 +99,7 @@ models/UpdateRecreationAccessCodeDto.ts
 models/UpdateRecreationAssetDto.ts
 models/UpdateRecreationAssetRepairDto.ts
 models/UpdateRecreationFeeDto.ts
+models/UpdateRecreationMapFeatureGeometryDto.ts
 models/UpdateRecreationResourceDto.ts
 models/UpdateRecreationResourceGeospatialDto.ts
 models/UpdateRecreationResourceReservationDto.ts

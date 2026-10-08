@@ -141,6 +141,154 @@ export class GeospatialService {
     );
   }
 
+  private async insertMapFeatureAndGeometry(
+    rmfSkey: number,
+    rec_resource_id: string,
+    sectionId: string,
+    recreation_type_code: string | null,
+    submitted_by: string | null,
+    geometryTypeCode: 'P' | 'L',
+    geometryEntry: Record<string, unknown>,
+    tx: Prisma.TransactionClient,
+  ): Promise<void> {
+    const geometry = Prisma.sql`
+          public.ST_Multi(
+            public.ST_SetSRID(
+              public.ST_GeomFromGeoJSON(${JSON.stringify(geometryEntry)}),
+              3005
+            )
+          )
+        `;
+
+    await tx.$executeRaw(Prisma.sql`
+      INSERT INTO rst.recreation_map_feature (
+        rmf_skey,
+        rec_resource_id,
+        section_id,
+        amendment_id,
+        recreation_resource_type,
+        created_by,
+        amend_status_code
+      )
+      VALUES (
+        ${rmfSkey},
+        ${rec_resource_id},
+        ${sectionId},
+        ${0},
+        ${recreation_type_code || null},
+        ${submitted_by || null},
+        ${'PND'}
+      )
+    `);
+
+    await tx.$executeRaw(Prisma.sql`
+      INSERT INTO rst.recreation_map_feature_geom (
+        rmf_skey,
+        geometry_type_code,
+        geometry,
+        feature_area,
+        feature_length,
+        feature_perimeter
+      )
+      SELECT
+        ${rmfSkey},
+        normalized.geometry_type_code,
+        normalized.geom_3005,
+        CASE
+          WHEN normalized.geometry_type_code = 'P'
+            THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+          ELSE NULL
+        END,
+        CASE
+          WHEN normalized.geometry_type_code = 'L'
+            THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
+          ELSE NULL
+        END,
+        CASE
+          WHEN normalized.geometry_type_code = 'P'
+            THEN ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
+          ELSE NULL
+        END
+      FROM (
+        SELECT
+          CAST(${geometryTypeCode} AS varchar(1)) AS geometry_type_code,
+          ${geometry} AS geom_3005
+      ) AS normalized
+    `);
+  }
+
+  private async updateMapFeatureAndGeometry(
+    rmfSkey: number,
+    amendment_id: number | null,
+    recreation_type_code: string | null,
+    submitted_by: string | null,
+    geometryTypeCode: 'P' | 'L',
+    geometryEntry: Record<string, unknown>,
+    tx: Prisma.TransactionClient,
+  ): Promise<void> {
+    await tx.$executeRaw(Prisma.sql`
+      UPDATE rst.recreation_map_feature
+      SET
+        amendment_id =  ${(amendment_id ?? 0) + 1},
+        recreation_resource_type = ${recreation_type_code || null},
+        updated_by = ${submitted_by || null},
+        amend_status_code = ${'PND'}
+      WHERE rmf_skey = ${rmfSkey}
+    `);
+
+    const geometry = Prisma.sql`
+      public.ST_Multi(
+        public.ST_SetSRID(
+          public.ST_GeomFromGeoJSON(${JSON.stringify(geometryEntry)}),
+          3005
+        )
+      )
+    `;
+
+    await tx.$executeRaw(Prisma.sql`
+        UPDATE rst.recreation_map_feature_geom
+        SET
+          geometry_type_code = normalized.geometry_type_code,
+          geometry           = normalized.geom_3005,
+          feature_area       = CASE
+                                WHEN normalized.geometry_type_code = 'P'
+                                  THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+                                ELSE NULL
+                              END,
+          feature_length     = CASE
+                                WHEN normalized.geometry_type_code = 'L'
+                                  THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
+                                ELSE NULL
+                              END,
+          feature_perimeter  = CASE
+                                WHEN normalized.geometry_type_code = 'P'
+                                  THEN ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
+                                ELSE NULL
+                              END
+        FROM (
+          SELECT
+            CAST(${geometryTypeCode} AS varchar(1)) AS geometry_type_code,
+            ${geometry} AS geom_3005
+        ) AS normalized
+        WHERE rmf_skey = ${rmfSkey}
+      `);
+  }
+
+  private async retireFeature(
+    rmfSkey: number,
+    submitted_by: string | null,
+    tx: Prisma.TransactionClient,
+  ): Promise<void> {
+    await tx.$executeRaw(Prisma.sql`
+      UPDATE rst.recreation_map_feature
+      SET
+        retirement_date = now(),
+        updated_by = ${submitted_by || null},
+        amend_status_code = ${'PND'}
+      WHERE rmf_skey = ${rmfSkey}
+    `);
+  }
+
   /**
    * Update map feature rows and geometry rows from a validated shapefile payload.
    * Updates only recreation_map_feature and recreation_map_feature_geom records.
@@ -192,6 +340,8 @@ export class GeospatialService {
           amendment_id: number | null;
         }> = await tx.$queryRawUnsafe(rmfDataQuery);
 
+        let nextRmfSkey = 0;
+        // Only generate a new rmf_skey if the operation is "New"
         switch (payload.operation) {
           case 'New':
             {
@@ -204,78 +354,58 @@ export class GeospatialService {
                 max_rmf_skey: number | bigint;
               }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
 
-              const nextRmfSkey = Number(max_rmf_skey) + 1;
+              nextRmfSkey = Number(max_rmf_skey) + 1;
+            }
+            break;
+          default:
+            break;
+        }
 
-              await tx.$executeRaw(Prisma.sql`
-                INSERT INTO rst.recreation_map_feature (
-                  rmf_skey,
-                  rec_resource_id,
-                  section_id,
-                  recreation_resource_type,
-                  created_by,
-                  amend_status_code
-                )
-                VALUES (
-                  ${nextRmfSkey},
-                  ${rec_resource_id},
-                  ${entry.sectionId},
-                  ${payload.recreation_type_code || null},
-                  ${payload.submitted_by || null},
-                  ${'PND'}
-                )
-              `);
-
-              const geometry = Prisma.sql`
-                public.ST_SetSRID(
-                  public.ST_GeomFromGeoJSON(${JSON.stringify(entry.geometry)}),
-                  3005
-                )
-              `;
-
-              await tx.$executeRaw(Prisma.sql`
-                INSERT INTO rst.recreation_map_feature_geom (
-                  rmf_skey,
-                  geometry_type_code,
-                  geometry
-                )
-                VALUES (
-                  ${nextRmfSkey},
-                  ${entry.geometryTypeCode},
-                  ${geometry}
-                )
-              `);
+        switch (payload.operation) {
+          case 'New':
+            {
+              await this.insertMapFeatureAndGeometry(
+                nextRmfSkey,
+                rec_resource_id,
+                entry.sectionId,
+                payload.recreation_type_code || null,
+                payload.submitted_by || null,
+                entry.geometryTypeCode,
+                entry.geometry,
+                tx,
+              );
             }
             break;
           case 'Amend': {
-            await tx.$executeRaw(Prisma.sql`
-                  UPDATE rst.recreation_map_feature
-                  SET
-                    recreation_resource_type = ${payload.recreation_type_code || null},
-                    amendment_id = ${(amendment_id ?? 0) + 1},
-                    updated_by = ${payload.submitted_by || null},
-                    amend_status_code = ${'PND'}
-                  WHERE rmf_skey = ${rmf_skey}
-                `);
-
-            const updateGeomQuery = `
-                UPDATE rst.recreation_map_feature_geom
-                SET
-                  geometry_type_code = '${entry.geometryTypeCode}',
-                  geometry = ST_SetSRID(ST_GeomFromGeoJSON('${JSON.stringify(entry.geometry)}'), 3005)
-                WHERE rmf_skey = ${rmf_skey}
-              `;
-
-            await tx.$executeRaw(Prisma.sql([updateGeomQuery]));
+            if (rmf_skey === null) {
+              this.logger.error(
+                `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
+              );
+            } else {
+              await this.updateMapFeatureAndGeometry(
+                rmf_skey,
+                amendment_id,
+                payload.recreation_type_code || null,
+                payload.submitted_by || null,
+                entry.geometryTypeCode,
+                entry.geometry,
+                tx,
+              );
+            }
             break;
           }
           case 'Retire':
-            await tx.$executeRaw(Prisma.sql`
-                  UPDATE rst.recreation_map_feature
-                  SET
-                    retirement_date = now(),
-                    amend_status_code = ${'PND'}
-                  WHERE rmf_skey = ${rmf_skey}
-                `);
+            if (rmf_skey === null) {
+              this.logger.error(
+                `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
+              );
+            } else {
+              await this.retireFeature(
+                rmf_skey,
+                payload.submitted_by || null,
+                tx,
+              );
+            }
             break;
           default:
             throw new BadRequestException(
@@ -433,70 +563,16 @@ export class GeospatialService {
         const rmfSkey = nextRmfSkey;
         nextRmfSkey += 1;
 
-        const geometry = Prisma.sql`
-          public.ST_Multi(
-            public.ST_SetSRID(
-              public.ST_GeomFromGeoJSON(${JSON.stringify(entry.geometry)}),
-              3005
-            )
-          )
-        `;
-
-        await tx.$executeRaw(Prisma.sql`
-          INSERT INTO rst.recreation_map_feature (
-            rmf_skey,
-            rec_resource_id,
-            section_id,
-            amendment_id,
-            recreation_resource_type,
-            created_by,
-            amend_status_code
-          )
-          VALUES (
-            ${rmfSkey},
-            ${rec_resource_id},
-            ${entry.sectionId},
-            ${0},
-            ${payload.recreation_type_code || null},
-            ${payload.submitted_by || null},
-            ${'PND'}
-          )
-        `);
-
-        await tx.$executeRaw(Prisma.sql`
-          INSERT INTO rst.recreation_map_feature_geom (
-            rmf_skey,
-            geometry_type_code,
-            geometry,
-            feature_area,
-            feature_length,
-            feature_perimeter
-          )
-          SELECT
-            ${rmfSkey},
-            normalized.geometry_type_code,
-            normalized.geom_3005,
-            CASE
-              WHEN normalized.geometry_type_code = 'P'
-                THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
-              ELSE NULL
-            END,
-            CASE
-              WHEN normalized.geometry_type_code = 'L'
-                THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
-              ELSE NULL
-            END,
-            CASE
-              WHEN normalized.geometry_type_code = 'P'
-                THEN ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
-              ELSE NULL
-            END
-          FROM (
-            SELECT
-              CAST(${entry.geometryTypeCode} AS varchar(1)) AS geometry_type_code,
-              ${geometry} AS geom_3005
-          ) AS normalized
-        `);
+        await this.insertMapFeatureAndGeometry(
+          rmfSkey,
+          rec_resource_id,
+          entry.sectionId,
+          payload.recreation_type_code || null,
+          payload.submitted_by || null,
+          entry.geometryTypeCode,
+          entry.geometry,
+          tx,
+        );
       }
     });
   }

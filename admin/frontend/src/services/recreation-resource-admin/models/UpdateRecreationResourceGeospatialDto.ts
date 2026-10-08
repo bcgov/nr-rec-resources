@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { UpdateRecreationMapFeatureGeometryDto } from './UpdateRecreationMapFeatureGeometryDto';
+import {
+  UpdateRecreationMapFeatureGeometryDtoFromJSON,
+  UpdateRecreationMapFeatureGeometryDtoFromJSONTyped,
+  UpdateRecreationMapFeatureGeometryDtoToJSON,
+  UpdateRecreationMapFeatureGeometryDtoToJSONTyped,
+} from './UpdateRecreationMapFeatureGeometryDto';
+
 /**
  *
  * @export
@@ -20,24 +28,41 @@ import { mapValues } from '../runtime';
  */
 export interface UpdateRecreationResourceGeospatialDto {
   /**
-   * UTM zone number for the site point (integer). Must be between 1 and 60.
-   * @type {number}
+   * Validated shapefile features to persist as map feature rows
+   * @type {Array<UpdateRecreationMapFeatureGeometryDto>}
    * @memberof UpdateRecreationResourceGeospatialDto
    */
-  utm_zone: number;
+  features: Array<UpdateRecreationMapFeatureGeometryDto>;
   /**
-   * UTM easting value (meters) for the site point. Positive numeric value expected.
-   * @type {number}
+   * Recreation resource type code to store with request features
+   * @type {object}
    * @memberof UpdateRecreationResourceGeospatialDto
    */
-  utm_easting: number;
+  recreation_type_code?: object | null;
   /**
-   * UTM northing value (meters) for the site point. Positive numeric value expected.
-   * @type {number}
+   * Submitter name/email captured at request creation time
+   * @type {object}
    * @memberof UpdateRecreationResourceGeospatialDto
    */
-  utm_northing: number;
+  submitted_by?: object | null;
+  /**
+   * Operation to perform on the recreation resource geospatial data
+   * @type {string}
+   * @memberof UpdateRecreationResourceGeospatialDto
+   */
+  operation: UpdateRecreationResourceGeospatialDtoOperationEnum;
 }
+
+/**
+ * @export
+ */
+export const UpdateRecreationResourceGeospatialDtoOperationEnum = {
+  New: 'New',
+  Amend: 'Amend',
+  Retire: 'Retire',
+} as const;
+export type UpdateRecreationResourceGeospatialDtoOperationEnum =
+  (typeof UpdateRecreationResourceGeospatialDtoOperationEnum)[keyof typeof UpdateRecreationResourceGeospatialDtoOperationEnum];
 
 /**
  * Check if a given object implements the UpdateRecreationResourceGeospatialDto interface.
@@ -45,11 +70,8 @@ export interface UpdateRecreationResourceGeospatialDto {
 export function instanceOfUpdateRecreationResourceGeospatialDto(
   value: object,
 ): value is UpdateRecreationResourceGeospatialDto {
-  if (!('utm_zone' in value) || value['utm_zone'] === undefined) return false;
-  if (!('utm_easting' in value) || value['utm_easting'] === undefined)
-    return false;
-  if (!('utm_northing' in value) || value['utm_northing'] === undefined)
-    return false;
+  if (!('features' in value) || value['features'] === undefined) return false;
+  if (!('operation' in value) || value['operation'] === undefined) return false;
   return true;
 }
 
@@ -67,9 +89,16 @@ export function UpdateRecreationResourceGeospatialDtoFromJSONTyped(
     return json;
   }
   return {
-    utm_zone: json['utm_zone'],
-    utm_easting: json['utm_easting'],
-    utm_northing: json['utm_northing'],
+    features: (json['features'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoFromJSON,
+    ),
+    recreation_type_code:
+      json['recreation_type_code'] == null
+        ? undefined
+        : json['recreation_type_code'],
+    submitted_by:
+      json['submitted_by'] == null ? undefined : json['submitted_by'],
+    operation: json['operation'],
   };
 }
 
@@ -88,8 +117,11 @@ export function UpdateRecreationResourceGeospatialDtoToJSONTyped(
   }
 
   return {
-    utm_zone: value['utm_zone'],
-    utm_easting: value['utm_easting'],
-    utm_northing: value['utm_northing'],
+    features: (value['features'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoToJSON,
+    ),
+    recreation_type_code: value['recreation_type_code'],
+    submitted_by: value['submitted_by'],
+    operation: value['operation'],
   };
 }

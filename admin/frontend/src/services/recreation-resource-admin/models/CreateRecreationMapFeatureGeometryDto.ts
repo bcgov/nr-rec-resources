@@ -27,10 +27,10 @@ export interface CreateRecreationMapFeatureGeometryDto {
   geometry: { [key: string]: any };
   /**
    * Editable section identifier/name for the uploaded feature, if provided
-   * @type {string}
+   * @type {object}
    * @memberof CreateRecreationMapFeatureGeometryDto
    */
-  section_id?: string | null;
+  section_id?: object | null;
 }
 
 /**

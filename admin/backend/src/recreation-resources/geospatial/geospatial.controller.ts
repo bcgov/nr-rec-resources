@@ -37,9 +37,9 @@ import { GeospatialService } from './geospatial.service';
   path: 'recreation-resources/:rec_resource_id/geospatial',
   version: '1',
 })
-// @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
-// @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-// @AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
+@ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
+@UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
+@AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
 export class GeospatialController {
   constructor(private readonly geospatialService: GeospatialService) {}
 
