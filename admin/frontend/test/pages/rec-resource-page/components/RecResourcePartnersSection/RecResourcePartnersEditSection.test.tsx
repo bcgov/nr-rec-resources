@@ -230,6 +230,32 @@ describe('RecResourcePartnersEditSection', () => {
       today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
       expect(dateInput().value).toBe(today.toISOString().slice(0, 10));
     });
+
+    it('warns that the website loses its contact when the shown partner is cancelled', async () => {
+      renderSection([partner(1, { visible_on_public_website: true })]);
+
+      fireEvent.click(
+        screen.getAllByRole('button', { name: 'Cancel agreement' })[0],
+      );
+      const dialog = await screen.findByRole('dialog');
+
+      expect(
+        within(dialog).getByText(/no partner will be displayed until you/i),
+      ).toBeInTheDocument();
+    });
+
+    it('says nothing about the website when cancelling a partner that is not shown', async () => {
+      renderSection([partner(1)]);
+
+      fireEvent.click(
+        screen.getAllByRole('button', { name: 'Cancel agreement' })[0],
+      );
+      const dialog = await screen.findByRole('dialog');
+
+      expect(
+        within(dialog).queryByText(/public website/i),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe('warning before the main contact moves', () => {
@@ -243,10 +269,12 @@ describe('RecResourcePartnersEditSection', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
       expect(
-        screen.getByText('This will replace the current main contact.'),
+        screen.getByText('Partner 2 will be displayed on the public website.'),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/will become the main contact/i),
+        screen.getByText(
+          'Only one partner can be displayed at a time, so Partner 1 will no longer be displayed.',
+        ),
       ).toBeInTheDocument();
       expect(mockUpdate).not.toHaveBeenCalled();
 
@@ -254,6 +282,46 @@ describe('RecResourcePartnersEditSection', () => {
 
       // both the newly-flagged partner and the one it replaced are updated
       await waitFor(() => expect(mockUpdate).toHaveBeenCalledTimes(2));
+    });
+
+    it('does not claim a replacement when nothing was displayed before', async () => {
+      renderSection([partner(1), partner(2)]);
+
+      fireEvent.click(toggleYes(2));
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      expect(
+        screen.getByText('Partner 2 will be displayed on the public website.'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Only one partner can be displayed at a time.'),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/no longer be displayed/i)).toBeNull();
+    });
+
+    it('says no partner will be displayed when the only one is turned off', async () => {
+      renderSection([partner(1, { visible_on_public_website: true })]);
+
+      fireEvent.click(
+        document.querySelector('#partner-visibility-1-no') as HTMLInputElement,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        within(dialog).getByText('Remove main contact from public website'),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).getByText(
+          'No partner will be displayed on the public website.',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).getByText(
+          'Partner 1 will no longer be displayed. You can select another partner at any time.',
+        ),
+      ).toBeInTheDocument();
+      expect(within(dialog).queryByText(/replace/i)).toBeNull();
     });
 
     it('does not warn when the main contact is unchanged', async () => {
@@ -269,7 +337,7 @@ describe('RecResourcePartnersEditSection', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
       expect(
-        screen.queryByText(/will become the main contact/i),
+        screen.queryByText(/will be displayed on the public website/i),
       ).not.toBeInTheDocument();
       await waitFor(() => expect(mockUpdate).toHaveBeenCalledTimes(1));
     });
@@ -307,6 +375,28 @@ describe('RecResourcePartnersEditSection', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
       );
       expect(mockDelete).not.toHaveBeenCalled();
+    });
+
+    it('warns that the website loses its contact when the shown partner goes', async () => {
+      renderSection([partner(1, { visible_on_public_website: true })]);
+
+      fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+      const dialog = await screen.findByRole('dialog');
+
+      expect(
+        within(dialog).getByText(/no partner will be displayed until you/i),
+      ).toBeInTheDocument();
+    });
+
+    it('says nothing about the website for a partner that is not shown', async () => {
+      renderSection([partner(1)]);
+
+      fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+      const dialog = await screen.findByRole('dialog');
+
+      expect(
+        within(dialog).queryByText(/public website/i),
+      ).not.toBeInTheDocument();
     });
   });
 
