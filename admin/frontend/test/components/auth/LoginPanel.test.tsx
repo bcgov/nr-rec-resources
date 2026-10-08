@@ -12,7 +12,7 @@ describe('LoginPanel', () => {
     // Heading should be present
     expect(screen.getByRole('heading', { name: /Login/i })).toBeInTheDocument();
     expect(
-      screen.getByText('Use your IDIR to access the staff portal'),
+      screen.getByText('Use your IDIR to access the Staff Portal'),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();
   });
