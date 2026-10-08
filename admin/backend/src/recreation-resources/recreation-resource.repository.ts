@@ -533,50 +533,85 @@ export class RecreationResourceRepository {
         geometry_types: string[];
       }>
     >`
+      WITH pending_features AS (
+        SELECT
+          rmf.rmf_skey,
+          rmf.rec_resource_id,
+          rmf.amend_status_code,
+          rmf.created_at
+        FROM rst.recreation_map_feature rmf
+        WHERE rmf.amend_status_code = 'PND'
+          AND rmf.rec_resource_id IS NOT NULL
+      ),
+      pending_by_resource AS (
+        SELECT
+          pf.rec_resource_id,
+          pf.amend_status_code,
+          COUNT(DISTINCT pf.rmf_skey)::bigint AS feature_count,
+          MAX(pf.created_at) AS requested_at
+        FROM pending_features pf
+        GROUP BY pf.rec_resource_id, pf.amend_status_code
+      ),
+      geometry_by_resource AS (
+        SELECT
+          pf.rec_resource_id,
+          COALESCE(
+            ARRAY_AGG(
+              DISTINCT CASE
+                WHEN rmfg.geometry_type_code = 'P' THEN 'Polygon'
+                WHEN rmfg.geometry_type_code = 'L' THEN 'LineString'
+                WHEN rmfg.geometry_type_code IS NULL THEN NULL
+                ELSE rmfg.geometry_type_code
+              END
+            ) FILTER (
+              WHERE rmfg.geometry_type_code IS NOT NULL
+            ),
+            ARRAY[]::text[]
+          ) AS geometry_types
+        FROM pending_features pf
+        LEFT JOIN rst.recreation_map_feature_geom rmfg
+          ON rmfg.rmf_skey = pf.rmf_skey
+        GROUP BY pf.rec_resource_id
+      ),
+      recreation_type_by_resource AS (
+        SELECT
+          rrtva.rec_resource_id,
+          STRING_AGG(DISTINCT rrtva.description, ', ')
+            FILTER (WHERE rrtva.description IS NOT NULL) AS recreation_type
+        FROM rst.recreation_resource_type_view_admin rrtva
+        GROUP BY rrtva.rec_resource_id
+      ),
+      nru_by_resource AS (
+        SELECT
+          nru.rec_resource_id,
+          STRING_AGG(DISTINCT nru.org_unit_name, ', ')
+            FILTER (WHERE nru.org_unit_name IS NOT NULL) AS natural_resource_district
+        FROM rst.natural_resource_org_unit nru
+        GROUP BY nru.rec_resource_id
+      )
       SELECT
-        rmf.rec_resource_id,
+        pbr.rec_resource_id,
         rr.name,
         rdc.description AS district_description,
         rdc.description AS recreation_district,
-        nru.org_unit_name AS natural_resource_district,
-        STRING_AGG(DISTINCT rrtva.description, ', ')
-          FILTER (WHERE rrtva.description IS NOT NULL) AS recreation_type,
-        rmf.amend_status_code,
-        COUNT(DISTINCT rmf.rmf_skey)::bigint AS feature_count,
-        MAX(rmf.created_at) AS requested_at,
-        COALESCE(
-          ARRAY_AGG(
-            DISTINCT CASE
-              WHEN rmfg.geometry_type_code = 'P' THEN 'Polygon'
-              WHEN rmfg.geometry_type_code = 'L' THEN 'LineString'
-              WHEN rmfg.geometry_type_code IS NULL THEN NULL
-              ELSE rmfg.geometry_type_code
-            END
-          ) FILTER (
-            WHERE rmfg.geometry_type_code IS NOT NULL
-          ),
-          ARRAY[]::text[]
-        ) AS geometry_types
-      FROM rst.recreation_map_feature rmf
-      LEFT JOIN rst.recreation_map_feature_geom rmfg
-        ON rmfg.rmf_skey = rmf.rmf_skey
+        nbr.natural_resource_district,
+        rtr.recreation_type,
+        pbr.amend_status_code,
+        pbr.feature_count,
+        pbr.requested_at,
+        gbr.geometry_types
+      FROM pending_by_resource pbr
+      LEFT JOIN geometry_by_resource gbr
+        ON gbr.rec_resource_id = pbr.rec_resource_id
       LEFT JOIN rst.recreation_resource rr
-        ON rr.rec_resource_id = rmf.rec_resource_id
+        ON rr.rec_resource_id = pbr.rec_resource_id
       LEFT JOIN rst.recreation_district_code rdc
         ON rdc.district_code = rr.district_code
-      LEFT JOIN rst.natural_resource_org_unit nru
-        ON nru.rec_resource_id = rmf.rec_resource_id
-      LEFT JOIN rst.recreation_resource_type_view_admin rrtva
-        ON rrtva.rec_resource_id = rmf.rec_resource_id
-      WHERE rmf.amend_status_code = 'PND'
-        AND rmf.rec_resource_id IS NOT NULL
-      GROUP BY
-        rmf.rec_resource_id,
-        rr.name,
-        rdc.description,
-        nru.org_unit_name,
-        rmf.amend_status_code
-      ORDER BY MAX(rmf.created_at) DESC NULLS LAST, rmf.rec_resource_id ASC
+      LEFT JOIN nru_by_resource nbr
+        ON nbr.rec_resource_id = pbr.rec_resource_id
+      LEFT JOIN recreation_type_by_resource rtr
+        ON rtr.rec_resource_id = pbr.rec_resource_id
+      ORDER BY pbr.requested_at DESC NULLS LAST, pbr.rec_resource_id ASC
     `;
 
     return rows.map((row) => ({
