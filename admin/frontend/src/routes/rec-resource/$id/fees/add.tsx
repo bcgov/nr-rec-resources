@@ -27,7 +27,7 @@ export const Route = createFileRoute('/rec-resource/$id/fees/add')({
             href: ROUTE_PATHS.REC_RESOURCE_FEES.replace('$id', params.id),
           },
           {
-            label: 'Add Fee',
+            label: 'Add fee',
             href: ROUTE_PATHS.REC_RESOURCE_FEES_ADD.replace('$id', params.id),
           },
         ];

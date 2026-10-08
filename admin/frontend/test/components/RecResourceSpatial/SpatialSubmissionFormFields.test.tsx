@@ -36,17 +36,17 @@ describe('SpatialSubmissionFormFields', () => {
   it('renders all form fields', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    expect(screen.getByLabelText('Recreation Name')).toBeDefined();
+    expect(screen.getByLabelText('Recreation name')).toBeDefined();
     expect(screen.getByLabelText('Recreation type')).toBeDefined();
     expect(screen.getByLabelText('Feature type')).toBeDefined();
-    expect(screen.getByLabelText('Email Address')).toBeDefined();
-    expect(screen.getByLabelText('Telephone Number')).toBeDefined();
-    expect(screen.getByLabelText('Submitter Name')).toBeDefined();
-    expect(screen.getByLabelText('Natural Resource District')).toBeDefined();
-    expect(screen.getByLabelText('Recreation District')).toBeDefined();
+    expect(screen.getByLabelText('Email address')).toBeDefined();
+    expect(screen.getByLabelText('Telephone number')).toBeDefined();
+    expect(screen.getByLabelText('Submitter name')).toBeDefined();
+    expect(screen.getByLabelText('Natural resource district')).toBeDefined();
+    expect(screen.getByLabelText('Recreation district')).toBeDefined();
     expect(screen.getByLabelText('REC#')).toBeDefined();
-    expect(screen.getByLabelText('Coordinate System')).toBeDefined();
-    expect(screen.getByLabelText('Spatial File')).toBeDefined();
+    expect(screen.getByLabelText('Coordinate system')).toBeDefined();
+    expect(screen.getByLabelText('Spatial file')).toBeDefined();
     expect(screen.getByText('Validate')).toBeDefined();
   });
 
@@ -58,11 +58,11 @@ describe('SpatialSubmissionFormFields', () => {
     expect(recInput).toHaveAttribute('disabled');
   });
 
-  it('renders Coordinate System as readonly and disabled', () => {
+  it('renders Coordinate system as readonly and disabled', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
     const coordInput = screen.getByLabelText(
-      'Coordinate System',
+      'Coordinate system',
     ) as HTMLInputElement;
     expect(coordInput).toHaveAttribute('readonly');
     expect(coordInput).toHaveAttribute('disabled');
@@ -72,7 +72,7 @@ describe('SpatialSubmissionFormFields', () => {
     const props = { ...defaultProps, requestCreated: true };
     render(<SpatialSubmissionFormFields {...props} />);
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     expect(fileInput).toHaveAttribute('disabled');
   });
 
@@ -94,7 +94,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('calls onSpatialFilesChange when file is selected', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const fileInput = screen.getByLabelText('Spatial File');
+    const fileInput = screen.getByLabelText('Spatial file');
     const file = new File(['test'], 'test.shp', {
       type: 'application/octet-stream',
     });
@@ -146,7 +146,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('updates recreation name when entered', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const input = screen.getByLabelText('Recreation Name');
+    const input = screen.getByLabelText('Recreation name');
     fireEvent.change(input, { target: { value: 'Test Recreation' } });
 
     expect(mockSetValues).toHaveBeenCalled();
@@ -155,7 +155,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('updates email when entered', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const input = screen.getByLabelText('Email Address');
+    const input = screen.getByLabelText('Email address');
     fireEvent.change(input, { target: { value: 'test@example.com' } });
 
     expect(mockSetMetadata).toHaveBeenCalledWith('email', 'test@example.com');
@@ -164,7 +164,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('updates telephone when entered', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const input = screen.getByLabelText('Telephone Number');
+    const input = screen.getByLabelText('Telephone number');
     fireEvent.change(input, { target: { value: '6045550100' } });
 
     expect(mockSetMetadata).toHaveBeenCalledWith('telephone', '6045550100');
@@ -173,7 +173,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('updates submitter name when entered', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const input = screen.getByLabelText('Submitter Name');
+    const input = screen.getByLabelText('Submitter name');
     fireEvent.change(input, { target: { value: 'Test User' } });
 
     expect(mockSetMetadata).toHaveBeenCalledWith('contactName', 'Test User');
@@ -182,7 +182,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('updates natural resource district when selected', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const select = screen.getByLabelText('Natural Resource District');
+    const select = screen.getByLabelText('Natural resource district');
     fireEvent.change(select, { target: { value: 'DCC' } });
 
     expect(mockSetMetadata).toHaveBeenCalledWith('districtCode', 'DCC');
@@ -191,7 +191,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('updates recreation district when selected', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const select = screen.getByLabelText('Recreation District');
+    const select = screen.getByLabelText('Recreation district');
     fireEvent.change(select, { target: { value: 'RDCC' } });
 
     expect(mockSetMetadata).toHaveBeenCalledWith('recreationDistrict', 'RDCC');
@@ -202,10 +202,10 @@ describe('SpatialSubmissionFormFields', () => {
     render(<SpatialSubmissionFormFields {...props} />);
 
     const nrdSelect = screen.getByLabelText(
-      'Natural Resource District',
+      'Natural resource district',
     ) as HTMLSelectElement;
     const rdSelect = screen.getByLabelText(
-      'Recreation District',
+      'Recreation district',
     ) as HTMLSelectElement;
 
     expect(nrdSelect).toHaveAttribute('disabled');
@@ -241,14 +241,14 @@ describe('SpatialSubmissionFormFields', () => {
   it('displays file accept attribute correctly', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     expect(fileInput).toHaveAttribute('accept', '.zip,.shp,.dbf');
   });
 
   it('displays file multiple attribute', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     expect(fileInput).toHaveAttribute('multiple');
   });
 
@@ -263,7 +263,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('displays telephone placeholder', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const input = screen.getByLabelText('Telephone Number') as HTMLInputElement;
+    const input = screen.getByLabelText('Telephone number') as HTMLInputElement;
     expect(input).toHaveAttribute('placeholder', '10 digits (e.g. 6045550100)');
   });
 
@@ -296,16 +296,16 @@ describe('SpatialSubmissionFormFields', () => {
     render(<SpatialSubmissionFormFields {...props} />);
 
     expect(
-      (screen.getByLabelText('Recreation Name') as HTMLInputElement).value,
+      (screen.getByLabelText('Recreation name') as HTMLInputElement).value,
     ).toBe('Test Park');
     expect(
-      (screen.getByLabelText('Email Address') as HTMLInputElement).value,
+      (screen.getByLabelText('Email address') as HTMLInputElement).value,
     ).toBe('user@example.com');
     expect(
-      (screen.getByLabelText('Telephone Number') as HTMLInputElement).value,
+      (screen.getByLabelText('Telephone number') as HTMLInputElement).value,
     ).toBe('6045550100');
     expect(
-      (screen.getByLabelText('Submitter Name') as HTMLInputElement).value,
+      (screen.getByLabelText('Submitter name') as HTMLInputElement).value,
     ).toBe('John Doe');
   });
 });

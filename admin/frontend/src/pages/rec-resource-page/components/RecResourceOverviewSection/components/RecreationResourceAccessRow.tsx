@@ -93,12 +93,12 @@ export const RecreationResourceAccessRow: FC<{
           >
             {isExpanded ? (
               <>
-                Show Less
+                Show less
                 <FontAwesomeIcon icon={faChevronUp} className="ms-2" />
               </>
             ) : (
               <>
-                +{totalItems - displayItems.length} More Access Types
+                +{totalItems - displayItems.length} more access types
                 <FontAwesomeIcon icon={faChevronDown} className="ms-2" />
               </>
             )}

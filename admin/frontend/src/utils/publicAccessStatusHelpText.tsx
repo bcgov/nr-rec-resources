@@ -4,7 +4,7 @@ export function getPublicAccessStatusHelpText(): ReactNode {
   return (
     <>
       <p className="mb-0">
-        Public Access Status indicates the current level of public access to the
+        Public access status indicates the current level of public access to the
         resource based on closures, restrictions, wildfires, evacuation orders,
         or other access impacts.
       </p>

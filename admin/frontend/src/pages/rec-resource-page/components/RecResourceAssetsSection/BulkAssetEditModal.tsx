@@ -263,7 +263,7 @@ export function BulkAssetEditModal({
       <div className="bulk-asset-edit-modal__panel px-4 py-3">
         <div className="d-flex justify-content-between align-items-center">
           <h3 className="bulk-asset-edit-modal__subtitle panel-title mb-0">
-            Select Assets ({selectedAssetIds.length} of{' '}
+            Select assets ({selectedAssetIds.length} of{' '}
             {assetTypeGroup?.assets.length})
           </h3>
           <button
@@ -272,8 +272,8 @@ export function BulkAssetEditModal({
             onClick={toggleSelectAll}
           >
             {selectedAssetIds.length === assetTypeGroup?.assets.length
-              ? 'Clear All'
-              : 'Select All'}
+              ? 'Clear all'
+              : 'Select all'}
           </button>
         </div>
         <div className="row g-2 py-2">
@@ -369,13 +369,13 @@ export function BulkAssetEditModal({
             </Form.Group>
           </Col>
 
-          {/* Actual Value */}
+          {/* Actual value */}
           <Col>
             <Form.Group
               controlId="field-value"
               className="d-flex flex-column h-100"
             >
-              <Form.Label>Actual Value</Form.Label>
+              <Form.Label>Actual value</Form.Label>
               <InputGroup className="custom-input-group mt-auto">
                 <InputGroup.Text>$</InputGroup.Text>
                 <Form.Control
@@ -390,7 +390,7 @@ export function BulkAssetEditModal({
             </Form.Group>
           </Col>
 
-          {/* Assign to Campsite */}
+          {/* Assign to campsite */}
           <Col>
             <Form.Group
               controlId="field-campsite"
@@ -488,11 +488,11 @@ export function BulkAssetEditModal({
                     </Col>
                   )}
 
-                  {/* Actual Value */}
+                  {/* Actual value */}
                   {checkChanges(asset.actual_value, editFields.actualValue) && (
                     <Col>
                       <div className="d-flex flex-column h-100">
-                        <div className="bold-field">Actual Value</div>
+                        <div className="bold-field">Actual value</div>
                         <div className="mt-auto">
                           {asset.actual_value
                             ? `$${asset.actual_value}`
@@ -508,11 +508,11 @@ export function BulkAssetEditModal({
                     </Col>
                   )}
 
-                  {/* Assign to Campsite */}
+                  {/* Assign to campsite */}
                   {checkChanges(asset.parent_id, editFields.campsiteId) && (
                     <Col>
                       <div className="d-flex flex-column h-100">
-                        <div className="bold-field">Assign to Campsite</div>
+                        <div className="bold-field">Assign to campsite</div>
                         <div className="mt-auto">
                           {asset.parent_id
                             ? showCampsideNumber(Number(asset.parent_id))

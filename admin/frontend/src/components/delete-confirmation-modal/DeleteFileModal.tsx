@@ -25,7 +25,7 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = ({
   file,
   onCancel: propOnCancel,
   onConfirm: propOnConfirm,
-  title = 'Delete File',
+  title = 'Delete file',
   alertText = 'Deleting this file will remove it from the public site within 15 minutes. This action cannot be undone.',
   confirmationText = 'Are you sure you want to delete this file?',
 }) => {

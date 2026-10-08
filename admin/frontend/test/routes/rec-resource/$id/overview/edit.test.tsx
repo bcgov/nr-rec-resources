@@ -68,7 +68,7 @@ describe('RecResource Overview Edit Route', () => {
     expect(breadcrumb[0].label).toBe('Home');
     expect(breadcrumb[1].label).toBe('Test Resource');
     expect(breadcrumb[2]).toEqual({
-      label: 'Edit Overview',
+      label: 'Edit overview',
       href: '/rec-resource/REC123/overview/edit',
     });
   });

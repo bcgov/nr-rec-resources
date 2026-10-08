@@ -59,7 +59,7 @@ vi.mock('@/components/delete-confirmation-modal/DeleteFileModal', () => ({
   }: any) =>
     show && file ? (
       <div role="dialog" data-testid="delete-file-modal">
-        <div>{title || 'Delete File'}</div>
+        <div>{title || 'Delete file'}</div>
         {alertText && <div role="alert">{alertText}</div>}
         <div>
           {confirmationText || 'Are you sure you want to delete this file?'}

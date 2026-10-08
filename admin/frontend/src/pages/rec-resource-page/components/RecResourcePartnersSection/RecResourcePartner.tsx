@@ -98,7 +98,7 @@ export const RecResourcePartner = ({
           />
           <span className="fw-bold">Website</span>{' '}
           <span>
-            {partner.visible_on_public_website ? 'Visible' : 'Not Visible'}
+            {partner.visible_on_public_website ? 'Visible' : 'Not visible'}
           </span>
         </Col>
       </Row>
@@ -124,7 +124,7 @@ export const RecResourcePartner = ({
               <Row className="align-items-center mb-2">
                 <Col xs={12}>
                   <FontAwesomeIcon icon={faEyeSlash as any} className="me-2" />{' '}
-                  <span className="fw-bold">Contact Information</span>
+                  <span className="fw-bold">Contact information</span>
                 </Col>
               </Row>
               <Row className="align-items-center mb-2">

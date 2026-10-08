@@ -77,7 +77,7 @@ describe('RecResourcePartner', () => {
     expect(
       screen.queryByRole('button', { name: /additional information/i }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText('Contact Information')).not.toBeInTheDocument();
+    expect(screen.queryByText('Contact information')).not.toBeInTheDocument();
   });
 
   it('shows recreation operator pill when backend marks relationship as recreation operator', () => {
@@ -152,13 +152,13 @@ describe('RecResourcePartner', () => {
     });
 
     // Initial state: details hidden
-    expect(screen.queryByText('Contact Information')).not.toBeInTheDocument();
+    expect(screen.queryByText('Contact information')).not.toBeInTheDocument();
 
     // Expand section
     fireEvent.click(toggleButton);
 
     expect(screen.getByText('Hide additional information')).toBeInTheDocument();
-    expect(screen.getByText('Contact Information')).toBeInTheDocument();
+    expect(screen.getByText('Contact information')).toBeInTheDocument();
     expect(mockMutateAsync).toHaveBeenCalledWith('00123456');
   });
 

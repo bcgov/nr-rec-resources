@@ -39,7 +39,7 @@ describe('RecResourceFeeFormModal', () => {
     vi.clearAllMocks();
   });
 
-  it('shows Add Fee title in create mode', () => {
+  it('shows Add fee title in create mode', () => {
     render(
       <RecResourceFeeFormModal
         recResourceId="REC1"
@@ -48,11 +48,11 @@ describe('RecResourceFeeFormModal', () => {
       />,
     );
 
-    expect(screen.getByText('Add Fee')).toBeInTheDocument();
+    expect(screen.getByText('Add fee')).toBeInTheDocument();
     expect(screen.getByTestId('fee-form')).toBeInTheDocument();
   });
 
-  it('shows Edit Fee title in edit mode', () => {
+  it('shows Edit fee title in edit mode', () => {
     render(
       <RecResourceFeeFormModal
         recResourceId="REC1"
@@ -62,7 +62,7 @@ describe('RecResourceFeeFormModal', () => {
       />,
     );
 
-    expect(screen.getByText('Edit Fee')).toBeInTheDocument();
+    expect(screen.getByText('Edit fee')).toBeInTheDocument();
     expect(screen.getByTestId('fee-form')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Delete Fee' }),
@@ -100,7 +100,7 @@ describe('RecResourceFeeFormModal', () => {
       />,
     );
 
-    expect(screen.getByText('Edit Fee')).toBeInTheDocument();
+    expect(screen.getByText('Edit fee')).toBeInTheDocument();
     expect(screen.getByText('Fee not found.')).toBeInTheDocument();
     expect(screen.queryByTestId('fee-form')).not.toBeInTheDocument();
   });

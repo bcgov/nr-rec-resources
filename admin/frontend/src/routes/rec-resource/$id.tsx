@@ -19,7 +19,7 @@ export const Route = createFileRoute('/rec-resource/$id')({
           href: '/',
         },
         {
-          label: resourceName || 'Resource Details',
+          label: resourceName || 'Resource details',
           href: `/rec-resource/${params.id}`,
         },
       ];

@@ -202,14 +202,14 @@ describe('BulkAssetEditModal', () => {
     fireEvent.click(checkboxes[0]);
     expect(checkboxes[0]).not.toBeChecked();
 
-    // Select All
-    const selectAllBtn = screen.getByText('Select All');
+    // Select all
+    const selectAllBtn = screen.getByText('Select all');
     fireEvent.click(selectAllBtn);
     expect(checkboxes[0]).toBeChecked();
     expect(checkboxes[1]).toBeChecked();
 
-    // Clear All
-    const clearAllBtn = screen.getByText('Clear All');
+    // Clear all
+    const clearAllBtn = screen.getByText('Clear all');
     fireEvent.click(clearAllBtn);
     expect(checkboxes[0]).not.toBeChecked();
     expect(checkboxes[1]).not.toBeChecked();
@@ -248,7 +248,7 @@ describe('BulkAssetEditModal', () => {
     fireEvent.change(inputs[0], { target: { value: '12' } }); // Length
     fireEvent.change(inputs[1], { target: { value: '6' } }); // Width
     fireEvent.change(inputs[2], { target: { value: '72' } }); // Area
-    fireEvent.change(inputs[3], { target: { value: '1200' } }); // Actual Value
+    fireEvent.change(inputs[3], { target: { value: '1200' } }); // Actual value
 
     // Select campsite
     const selects = screen.getAllByRole('combobox');
@@ -267,7 +267,7 @@ describe('BulkAssetEditModal', () => {
     fireEvent.click(screen.getByText('Continue'));
 
     // Step 1: Select all assets and fill inputs
-    fireEvent.click(screen.getByText('Select All'));
+    fireEvent.click(screen.getByText('Select all'));
 
     const inputs = screen.getAllByRole('spinbutton');
     fireEvent.change(inputs[0], { target: { value: '15' } });
