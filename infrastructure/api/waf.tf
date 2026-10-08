@@ -15,12 +15,14 @@ locals {
     # prod
     "https://sitesandtrailsbc.ca",
     "https://www.sitesandtrailsbc.ca",
+    "https://status.bcparks.ca",
     "https://staff.sitesandtrailsbc.ca",
     # dev
     "https://dev.sitesandtrailsbc.ca",
     "https://staff.dev.sitesandtrailsbc.ca",
     # test
     "https://test.sitesandtrailsbc.ca",
+    "https://test-status.bcparks.ca",
     "https://staff.test.sitesandtrailsbc.ca"
   ]
 
