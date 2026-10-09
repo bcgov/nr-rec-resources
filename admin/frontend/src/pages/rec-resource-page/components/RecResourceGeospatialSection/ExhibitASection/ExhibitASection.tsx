@@ -22,7 +22,7 @@ import {
   addErrorNotification,
   addSuccessNotification,
 } from '@/store/notificationStore';
-import { RecreationResourceDocDto } from '@/services/recreation-resource-admin';
+import { ExhibitADocDto } from '@/services/recreation-resource-admin';
 import { formatDateTimeReadable } from '@shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
@@ -57,8 +57,7 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
   const downloadMutation = useFileDownload();
 
   const [pendingUploads, setPendingUploads] = useState<PendingUpload[]>([]);
-  const [docToDelete, setDocToDelete] =
-    useState<RecreationResourceDocDto | null>(null);
+  const [docToDelete, setDocToDelete] = useState<ExhibitADocDto | null>(null);
 
   // Upload modal state
   const [uploadModalState, setUploadModalState] = useState<{
@@ -334,6 +333,7 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
         show={uploadModalState.show}
         file={uploadModalState.file}
         fileName={uploadModalState.fileName}
+        showAlert={false}
         fileNameError={uploadModalState.fileNameError}
         onFileNameChange={(name) =>
           setUploadModalState((prev) => ({

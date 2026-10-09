@@ -18,6 +18,11 @@ import {
   SuggestionDto,
   SuggestionsResponseDto,
 } from './dtos/suggestions-response.dto';
+import { NextRecResourceIdDto } from './dtos/next-rec-resource-id.dto';
+import {
+  PendingMapFeatureRequestRowDto,
+  PendingMapFeatureRequestsResponseDto,
+} from './dtos/pending-map-feature-requests-response.dto';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { OPEN_STATUS } from './recreation-resource.constants';
 import { RecreationResourceRepository } from './recreation-resource.repository';
@@ -68,6 +73,13 @@ export class RecreationResourceService {
       total: validSuggestions.length,
       suggestions: validSuggestions,
     };
+  }
+
+  async getNextRecResourceId(): Promise<NextRecResourceIdDto> {
+    const rec_resource_id =
+      await this.recreationResourceRepository.getNextRecResourceId();
+
+    return { rec_resource_id };
   }
 
   async searchResources(
@@ -234,12 +246,16 @@ export class RecreationResourceService {
   }
 
   private getFeeTypes(resource: {
-    recreation_resource_reservation_info?: { rec_resource_id: string } | null;
+    recreation_resource_reservation_info?: {
+      reservation_website?: string | null;
+      reservation_phone_number?: string | null;
+      reservation_email?: string | null;
+    } | null;
     recreation_fee?: Array<{ recreation_fee_code: string }>;
   }): string[] {
     const feeTypes: string[] = [];
 
-    if (resource.recreation_resource_reservation_info) {
+    if (this.isReservable(resource.recreation_resource_reservation_info)) {
       feeTypes.push('Reservable');
     }
 
@@ -252,11 +268,57 @@ export class RecreationResourceService {
     return feeTypes;
   }
 
+  /**
+   * A resource counts as reservable only when it actually has reservation
+   * contact info. The row itself sticks around after staff flag a resource as
+   * not reservable, so row existence alone isn't enough.
+   */
+  private isReservable(
+    reservationInfo?: {
+      reservation_website?: string | null;
+      reservation_phone_number?: string | null;
+      reservation_email?: string | null;
+    } | null,
+  ): boolean {
+    if (!reservationInfo) {
+      return false;
+    }
+
+    return Boolean(
+      reservationInfo.reservation_website?.trim() ||
+        reservationInfo.reservation_phone_number?.trim() ||
+        reservationInfo.reservation_email?.trim(),
+    );
+  }
+
   private getRecStatusDescription(resource: {
     recreation_resource_status_code_rel?: {
       description?: string | null;
     } | null;
   }): string | null {
     return resource.recreation_resource_status_code_rel?.description ?? null;
+  }
+
+  async getPendingMapFeatureRequests(): Promise<PendingMapFeatureRequestsResponseDto> {
+    const rows =
+      await this.recreationResourceRepository.findPendingMapFeatureRequests();
+
+    const data: PendingMapFeatureRequestRowDto[] = rows.map((row) => ({
+      rec_resource_id: row.rec_resource_id,
+      name: row.name,
+      district_description: row.district_description,
+      recreation_district: row.recreation_district,
+      natural_resource_district: row.natural_resource_district,
+      recreation_type: row.recreation_type,
+      amend_status_code: row.amend_status_code,
+      feature_count: row.feature_count,
+      requested_at: row.requested_at?.toISOString() ?? null,
+      geometry_types: row.geometry_types,
+    }));
+
+    return {
+      data,
+      total: data.length,
+    };
   }
 }

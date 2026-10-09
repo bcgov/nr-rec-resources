@@ -12,7 +12,6 @@ import { ExhibitASection } from './ExhibitASection/ExhibitASection';
 import { IMAP_URL } from '@/constants/urls';
 import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
 import './RecResourceGeospatialSection.scss';
-
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
   maximumFractionDigits: 4,

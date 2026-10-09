@@ -15,6 +15,8 @@ describe('RecreationResourceService', () => {
     repo = {
       searchResources: vi.fn(),
       findSuggestions: vi.fn(),
+      getNextRecResourceId: vi.fn(),
+      findPendingMapFeatureRequests: vi.fn(),
     } as unknown as RecreationResourceRepository;
     prisma = {
       $queryRawTyped: vi.fn(),
@@ -144,6 +146,90 @@ describe('RecreationResourceService', () => {
     expect(result.suggestions[1]?.rec_resource_id).toBe('REC126');
   });
 
+  it('should return next recreation resource id from repository', async () => {
+    (repo.getNextRecResourceId as any).mockResolvedValue('REC000999');
+
+    const result = await service.getNextRecResourceId();
+
+    expect(repo.getNextRecResourceId).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ rec_resource_id: 'REC000999' });
+  });
+
+  it('should return pending map feature requests in response shape', async () => {
+    (repo.findPendingMapFeatureRequests as any).mockResolvedValue([
+      {
+        rec_resource_id: 'REC500001',
+        name: 'Pending Site',
+        district_description: 'Test District',
+        recreation_district: 'Test District',
+        natural_resource_district: 'Natural Test District',
+        recreation_type: 'Recreation Site',
+        amend_status_code: 'PND',
+        feature_count: 4,
+        requested_at: new Date('2026-09-23T21:27:08.826Z'),
+        geometry_types: ['Polygon', 'LineString'],
+      },
+    ]);
+
+    const result = await service.getPendingMapFeatureRequests();
+
+    expect(repo.findPendingMapFeatureRequests).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({
+      data: [
+        {
+          rec_resource_id: 'REC500001',
+          name: 'Pending Site',
+          district_description: 'Test District',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural Test District',
+          recreation_type: 'Recreation Site',
+          amend_status_code: 'PND',
+          feature_count: 4,
+          requested_at: '2026-09-23T21:27:08.826Z',
+          geometry_types: ['Polygon', 'LineString'],
+        },
+      ],
+      total: 1,
+    });
+  });
+
+  it('should map pending map feature requests with null requested_at', async () => {
+    (repo.findPendingMapFeatureRequests as any).mockResolvedValue([
+      {
+        rec_resource_id: 'REC500002',
+        name: 'Pending Trail',
+        district_description: 'Test District',
+        recreation_district: 'Test District',
+        natural_resource_district: 'Natural Test District',
+        recreation_type: 'Trail',
+        amend_status_code: 'PND',
+        feature_count: 1,
+        requested_at: null,
+        geometry_types: ['LineString'],
+      },
+    ]);
+
+    const result = await service.getPendingMapFeatureRequests();
+
+    expect(result).toEqual({
+      data: [
+        {
+          rec_resource_id: 'REC500002',
+          name: 'Pending Trail',
+          district_description: 'Test District',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural Test District',
+          recreation_type: 'Trail',
+          amend_status_code: 'PND',
+          feature_count: 1,
+          requested_at: null,
+          geometry_types: ['LineString'],
+        },
+      ],
+      total: 1,
+    });
+  });
+
   it('should map admin search results into response DTO shape', async () => {
     const query: AdminSearchQueryDto = {
       q: 'lake',
@@ -185,6 +271,9 @@ describe('RecreationResourceService', () => {
           ],
           recreation_resource_reservation_info: {
             rec_resource_id: 'REC123',
+            reservation_website: 'https://example.com',
+            reservation_phone_number: null,
+            reservation_email: null,
           },
           recreation_resource_type_view_admin: [
             {
@@ -281,6 +370,43 @@ describe('RecreationResourceService', () => {
       status: OPEN_STATUS.DESCRIPTION,
       status_code: OPEN_STATUS.STATUS_CODE,
     });
+  });
+
+  it('should not mark a resource reservable when the reservation row has no contact info', async () => {
+    // Staff flagging a resource as not reservable nulls the contact columns but
+    // leaves the row behind, so row existence alone must not add 'Reservable'.
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC125',
+          name: 'Not Reservable Lake',
+          closest_community: '',
+          project_established_date: null,
+          display_on_public_site: true,
+          recreation_activity: [],
+          recreation_access: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: {
+            rec_resource_id: 'REC125',
+            reservation_website: null,
+            reservation_phone_number: '   ',
+            reservation_email: '',
+          },
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          recreation_status: null,
+          rec_status_code: null,
+          _count: {
+            recreation_defined_campsite: 0,
+          },
+        },
+      ],
+    });
+
+    const result = await service.searchResources({});
+
+    expect(result.data[0]?.fee_indicators).toEqual(['No fees']);
   });
 
   it('should normalize derived list values alphabetically', async () => {

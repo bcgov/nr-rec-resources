@@ -42,10 +42,12 @@ jobs:
             --query "Parameter.Value" \
             --output text)
             # Extract and mask credentials
-            ACCESS_KEY=$(echo $AWS_CREDENTIALS | jq -r '.current.AccessKeyID')
-            SECRET_KEY=$(echo $AWS_CREDENTIALS | jq -r '.current.SecretAccessKey')
-            echo "AWS_ACCESS_KEY_ID=$ACCESS_KEY" >> $GITHUB_ENV
-            echo "AWS_SECRET_ACCESS_KEY=$SECRET_KEY" >> $GITHUB_ENV
+            ACCESS_KEY=$(echo "$AWS_CREDENTIALS" | jq -r '.current.AccessKeyID')
+            SECRET_KEY=$(echo "$AWS_CREDENTIALS" | jq -r '.current.SecretAccessKey')
+            echo "::add-mask::$ACCESS_KEY"
+            echo "::add-mask::$SECRET_KEY"
+            echo "S3_ACCESS_KEY=$ACCESS_KEY" >> $GITHUB_ENV
+            echo "S3_SECRET_KEY=$SECRET_KEY" >> $GITHUB_ENV
 
       - name: Update OpenShift Secret for ${{ matrix.environment }}
         uses: bcgov/action-oc-runner@v1.3.0
@@ -58,5 +60,5 @@ jobs:
           commands: |
             oc delete secret aws-secrets || true
             oc create secret generic aws-secrets \
-              --from-literal=AWS_ACCESS_KEY="${{ env.AWS_ACCESS_KEY_ID }}" \
-              --from-literal=AWS_SECRET_KEY="${{ env.AWS_SECRET_ACCESS_KEY }}"
+              --from-literal=AWS_ACCESS_KEY="$S3_ACCESS_KEY" \
+              --from-literal=AWS_SECRET_KEY="$S3_SECRET_KEY"

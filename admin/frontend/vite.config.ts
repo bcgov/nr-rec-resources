@@ -85,10 +85,10 @@ export default defineConfig(({ mode }) => {
       preprocessorOptions: {
         scss: {
           api: 'modern-compiler',
-          // Silence depreciations until next bootstrap release
+          // Silence deprecations until the upstream Bootstrap Sass warnings are resolved.
           // https://github.com/twbs/bootstrap/issues/40962
+          quietDeps: true,
           silenceDeprecations: [
-            'mixed-decls',
             'color-functions',
             'global-builtin',
             'import',

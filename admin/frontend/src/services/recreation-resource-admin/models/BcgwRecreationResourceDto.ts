@@ -78,7 +78,7 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  display_on_public_site_ind: BcgwRecreationResourceDtoRecreationViewIndEnum;
+  display_on_public_site_ind: BcgwRecreationResourceDtoDisplayOnPublicSiteIndEnum;
   /**
    *
    * @type {string}
@@ -238,12 +238,12 @@ export type BcgwRecreationResourceDtoClosureIndEnum =
 /**
  * @export
  */
-export const BcgwRecreationResourceDtoRecreationViewIndEnum = {
+export const BcgwRecreationResourceDtoDisplayOnPublicSiteIndEnum = {
   Y: 'Y',
   N: 'N',
 } as const;
-export type BcgwRecreationResourceDtoRecreationViewIndEnum =
-  (typeof BcgwRecreationResourceDtoRecreationViewIndEnum)[keyof typeof BcgwRecreationResourceDtoRecreationViewIndEnum];
+export type BcgwRecreationResourceDtoDisplayOnPublicSiteIndEnum =
+  (typeof BcgwRecreationResourceDtoDisplayOnPublicSiteIndEnum)[keyof typeof BcgwRecreationResourceDtoDisplayOnPublicSiteIndEnum];
 
 /**
  * @export

@@ -1,4 +1,4 @@
-import { RecreationResourceDocDto, ResponseError } from '@/services';
+import { ExhibitADocDto, ResponseError } from '@/services';
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import { addErrorNotification } from '@/store/notificationStore';
 import { QueryOptions, useQuery } from '@tanstack/react-query';
@@ -8,16 +8,16 @@ import { RecreationResourcesApi } from '@/services/recreation-resource-admin';
 
 export const useGetExhibitADocs = (
   recResourceId?: string,
-  queryOptions: QueryOptions<RecreationResourceDocDto[], ResponseError> = {},
+  queryOptions: QueryOptions<ExhibitADocDto[], ResponseError> = {},
 ) => {
   const api =
     useRecreationResourceAdminApiClient() as unknown as RecreationResourcesApi;
 
-  return useQuery<RecreationResourceDocDto[], ResponseError>({
+  return useQuery<ExhibitADocDto[], ResponseError>({
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.exhibitADocs(recResourceId!),
     initialData: [],
     queryFn: async () => {
-      const docs = await api.getExhibitADocsByRecResourceId({
+      const docs = await api.getAllExhibitADocs({
         recResourceId: recResourceId!,
       });
       return docs;

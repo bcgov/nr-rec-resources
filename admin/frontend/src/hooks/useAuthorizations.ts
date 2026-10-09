@@ -43,13 +43,30 @@ export type AuthorizationKey =
   | 'isSuperAdmin'
   | 'canViewFeatureFlag'
   | 'canEditFeatureFlag'
-  | 'canViewSensitiveInfo';
+  | 'canViewSensitiveInfo'
+  | 'canViewPartners'
+  | 'canViewPartnerSensitiveInfo'
+  | 'canManagePartners';
 
 export const useAuthorizations = () => {
   const context = useContext(AuthContext);
 
   return useMemo(() => {
     const roles = getUserRoles(context);
+    const canViewPartners =
+      hasAnyRole(roles, [ROLES.DEVELOPER]) &&
+      hasAnyRole(roles, [
+        ROLES.IDIR_VIEWER,
+        ROLES.VIEWER,
+        ROLES.ADMIN,
+        ROLES.SUPER_ADMIN,
+      ]);
+    const canViewPartnerSensitiveInfo = hasAnyRole(roles, [
+      ROLES.VIEWER,
+      ROLES.ADMIN,
+      ROLES.SUPER_ADMIN,
+    ]);
+    const canManagePartners = hasAnyRole(roles, [ROLES.SUPER_ADMIN]);
     const canView = hasAnyRole(roles, [
       ROLES.IDIR_VIEWER,
       ROLES.VIEWER,
@@ -83,6 +100,9 @@ export const useAuthorizations = () => {
       canEditFeatureFlag: hasDeveloperAccess && canEdit,
       isSuperAdmin,
       canViewSensitiveInfo,
+      canViewPartners,
+      canViewPartnerSensitiveInfo,
+      canManagePartners,
     };
   }, [context]);
 };

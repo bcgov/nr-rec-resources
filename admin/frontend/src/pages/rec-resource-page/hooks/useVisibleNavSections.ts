@@ -12,11 +12,17 @@ import { useMemo } from 'react';
 export function useVisibleNavSections(): Array<
   [RecResourceNavKey, NavSectionConfig]
 > {
-  const { canViewFeatureFlag } = useAuthorizations();
+  const { canViewFeatureFlag, canViewPartners } = useAuthorizations();
 
   return useMemo(() => {
     return Object.entries(REC_RESOURCE_PAGE_NAV_SECTIONS).filter(
-      ([, config]) => !config.isFeatureFlagged || canViewFeatureFlag,
+      ([key, config]) => {
+        if (key === RecResourceNavKey.PARTNERS && !canViewPartners) {
+          return false;
+        }
+
+        return !config.isFeatureFlagged || canViewFeatureFlag;
+      },
     ) as Array<[RecResourceNavKey, NavSectionConfig]>;
-  }, [canViewFeatureFlag]);
+  }, [canViewFeatureFlag, canViewPartners]);
 }

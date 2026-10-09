@@ -16,6 +16,8 @@
     "public/backend/**/@prisma/client"
   ],
   "scripts": {
+    "test": "vitest",
+    "test:shared": "vitest --config shared/vitest.config.mts",
     "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "generate-api": "npx openapi-generator-cli generate -i http://localhost:8000/api/docs-json -g typescript-fetch -o public/frontend/src/service/recreation-resource --skip-validate-spec --additional-properties=modelPropertyNaming=original",
     "generate-admin-api": "npx openapi-generator-cli generate -i http://localhost:8001/api/docs-json -g typescript-fetch -o admin/frontend/src/services/recreation-resource-admin --skip-validate-spec --additional-properties=modelPropertyNaming=original",
@@ -48,7 +50,7 @@
     "vitest": "^4.1.11"
   },
   "overrides": {
-    "@xhmikosr/decompress": "10.2.1",
+    "@xhmikosr/decompress": "10.2.2",
     "@fortawesome/fontawesome-common-types": "7.2.0"
   }
 }

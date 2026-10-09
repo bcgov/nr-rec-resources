@@ -21,9 +21,13 @@ import { RECREATION_OPERATOR_HELP_TEXT } from '@/utils/helpText';
 
 interface RecResourcePartnerProps {
   partner: AgreementHolderClientPublicViewDto;
+  canViewAdditionalInfo?: boolean;
 }
 
-export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
+export const RecResourcePartner = ({
+  partner,
+  canViewAdditionalInfo = true,
+}: RecResourcePartnerProps) => {
   const {
     mutateAsync: fetchLocations,
     data: locations,
@@ -98,100 +102,110 @@ export const RecResourcePartner = ({ partner }: RecResourcePartnerProps) => {
           </span>
         </Col>
       </Row>
-      <Row className="align-items-center mb-2">
-        <Col xs={12}>
-          <Button
-            variant="text"
-            onClick={togglePartnerDetails(partner.clientNumber || '')}
-            className="toggle-all-button"
-          >
-            {isExpanded ? 'Hide' : 'Show'} additional information
-            <FontAwesomeIcon
-              className="toggle-all-arrow"
-              icon={(isExpanded ? faChevronUp : faChevronDown) as any}
-            />
-          </Button>
-        </Col>
-      </Row>
-      {isExpanded && (
+      {canViewAdditionalInfo && (
         <>
           <Row className="align-items-center mb-2">
             <Col xs={12}>
-              <FontAwesomeIcon icon={faEyeSlash as any} className="me-2" />{' '}
-              <span className="fw-bold">Contact Information</span>
+              <Button
+                variant="text"
+                onClick={togglePartnerDetails(partner.clientNumber || '')}
+                className="toggle-all-button"
+              >
+                {isExpanded ? 'Hide' : 'Show'} additional information
+                <FontAwesomeIcon
+                  className="toggle-all-arrow"
+                  icon={(isExpanded ? faChevronUp : faChevronDown) as any}
+                />
+              </Button>
             </Col>
           </Row>
-          <Row className="align-items-center mb-2">
-            <Col xs={12}>
-              <span>
-                This information is referenced from CLIENT. Contact details do
-                not show on public website.
-              </span>
-            </Col>
-          </Row>
-          <Row className="align-items-center mb-2">
-            <Col xs={12}>
-              {isPending ? (
-                <p>Loading locations...</p>
-              ) : (
-                locations?.map((loc, index) => (
-                  <div
-                    className={
-                      index < locations.length - 1 ? 'border-bottom' : ''
-                    }
-                    key={`loc-${loc.clientNumber}-${index}`}
-                  >
-                    <Row className="align-items-center border-bottom">
-                      <Col xs={6} className="my-2">
-                        <span className="fw-bold">Email</span>
-                      </Col>
-                      <Col xs={6}>
-                        {loc.email ? <CopyButton text={loc.email} /> : 'N/A'}
-                      </Col>
-                    </Row>
-                    <Row className="align-items-center border-bottom">
-                      <Col xs={6} className="my-2">
-                        <span className="fw-bold">Phone</span>
-                      </Col>
-                      <Col xs={6}>
-                        {loc.businessPhone ? (
-                          <CopyButton
-                            text={formatPhoneNumber(loc.businessPhone)}
-                          />
-                        ) : (
-                          'N/A'
-                        )}
-                      </Col>
-                    </Row>
-                    <Row
-                      className="align-items-start"
-                      key={`loc-${loc.clientNumber}`}
-                    >
-                      <Col xs={6} className="my-2">
-                        <span className="fw-bold">Address</span>
-                      </Col>
-                      <Col xs={6} className="align-items-start my-2">
-                        <CopyButton
-                          text={
-                            <>
-                              <span>
-                                {capitalizeWords(loc.address1 || '')},{' '}
-                                {capitalizeWords(loc.city || '')}
-                              </span>
-                              <br />
-                              <span>
-                                {loc.province}, {loc.postalCode}
-                              </span>
-                            </>
-                          }
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                ))
-              )}
-            </Col>
-          </Row>
+          {isExpanded && (
+            <>
+              <Row className="align-items-center mb-2">
+                <Col xs={12}>
+                  <FontAwesomeIcon icon={faEyeSlash as any} className="me-2" />{' '}
+                  <span className="fw-bold">Contact Information</span>
+                </Col>
+              </Row>
+              <Row className="align-items-center mb-2">
+                <Col xs={12}>
+                  <span>
+                    This information is referenced from CLIENT. Contact details
+                    do not show on public website.
+                  </span>
+                </Col>
+              </Row>
+              <Row className="align-items-center mb-2">
+                <Col xs={12}>
+                  {isPending ? (
+                    <p>Loading locations...</p>
+                  ) : (
+                    locations?.map((loc, index) => (
+                      <div
+                        className={
+                          index < locations.length - 1 ? 'border-bottom' : ''
+                        }
+                        key={`loc-${loc.clientNumber}-${index}`}
+                      >
+                        <Row className="align-items-center border-bottom">
+                          <Col xs={6} className="my-2">
+                            <span className="fw-bold">Email</span>
+                          </Col>
+                          <Col xs={6}>
+                            {loc.email ? (
+                              <CopyButton
+                                text={loc.email.toLocaleLowerCase()}
+                              />
+                            ) : (
+                              'N/A'
+                            )}
+                          </Col>
+                        </Row>
+                        <Row className="align-items-center border-bottom">
+                          <Col xs={6} className="my-2">
+                            <span className="fw-bold">Phone</span>
+                          </Col>
+                          <Col xs={6}>
+                            {loc.businessPhone ? (
+                              <CopyButton
+                                text={formatPhoneNumber(loc.businessPhone)}
+                              />
+                            ) : (
+                              'N/A'
+                            )}
+                          </Col>
+                        </Row>
+                        <Row
+                          className="align-items-start"
+                          key={`loc-${loc.clientNumber}`}
+                        >
+                          <Col xs={6} className="my-2">
+                            <span className="fw-bold">Address</span>
+                          </Col>
+                          <Col xs={6} className="align-items-start my-2">
+                            <CopyButton
+                              text={
+                                <>
+                                  <span>
+                                    {capitalizeWords(loc.address1 || '')},{' '}
+                                    {capitalizeWords(loc.city || '')}
+                                  </span>
+                                  <br />
+                                  <span>
+                                    {loc.province}, {loc.postalCode}
+                                  </span>
+                                </>
+                              }
+                            />
+                          </Col>
+                        </Row>
+                      </div>
+                    ))
+                  )}
+                </Col>
+              </Row>
+            </>
+          )}
         </>
       )}
     </div>

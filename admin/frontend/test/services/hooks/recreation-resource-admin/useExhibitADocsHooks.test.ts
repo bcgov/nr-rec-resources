@@ -120,7 +120,15 @@ describe('useExhibitADocsHooks', () => {
         expect(response).toEqual(mockResponse);
       });
 
-      expect(mockApi.finalizeExhibitAUpload).toHaveBeenCalledWith(params);
+      expect(mockApi.finalizeExhibitAUpload).toHaveBeenCalledWith({
+        recResourceId: 'REC123',
+        finalizeExhibitAUploadRequestDto: {
+          document_id: 'doc-1',
+          file_name: 'exhibit-a',
+          extension: 'pdf',
+          file_size: 12345,
+        },
+      });
       expect(createRetryHandler).toHaveBeenCalled();
     });
 

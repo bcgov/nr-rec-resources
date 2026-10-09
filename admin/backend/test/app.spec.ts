@@ -3,6 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AUTH_STRATEGY } from '@/auth';
 import { ACT_API_TAG } from '@/act/act.constants';
 
+const jsonMiddleware = vi.fn();
+const urlencodedMiddleware = vi.fn();
+const jsonMock = vi.fn(() => jsonMiddleware);
+const urlencodedMock = vi.fn(() => urlencodedMiddleware);
+
 const helmetMiddleware = vi.fn();
 const helmetMock = vi.fn(() => helmetMiddleware);
 (
@@ -27,6 +32,10 @@ const appMock = {
 
 const createDocumentMock = vi.fn();
 const setupSwaggerMock = vi.fn();
+const swaggerActTokenProxyHandler = vi.fn();
+const createSwaggerActTokenProxyHandlerMock = vi.fn(
+  () => swaggerActTokenProxyHandler,
+);
 
 const builderMocks = {
   setTitle: vi.fn(),
@@ -41,6 +50,11 @@ vi.mock('helmet', () => ({
   default: helmetMock,
 }));
 
+vi.mock('express', () => ({
+  json: jsonMock,
+  urlencoded: urlencodedMock,
+}));
+
 vi.mock('@/common/logger.config', () => ({
   customLogger: { log: vi.fn() },
 }));
@@ -51,6 +65,10 @@ vi.mock('@/config/global-validation-pipe.config', () => ({
 
 vi.mock('@/common/filters/all-exceptions.filter', () => ({
   AllExceptionsFilter: class MockAllExceptionsFilter {},
+}));
+
+vi.mock('@/config/swagger-act-token-proxy.config', () => ({
+  createSwaggerActTokenProxyHandler: createSwaggerActTokenProxyHandlerMock,
 }));
 
 vi.mock('@nestjs/core', async () => {
@@ -119,10 +137,29 @@ describe('bootstrap', () => {
     const app = await bootstrap();
 
     expect(helmetMock).toHaveBeenCalledTimes(1);
+    expect(helmetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contentSecurityPolicy: expect.objectContaining({
+          directives: expect.objectContaining({
+            connectSrc: ["'self'"],
+          }),
+        }),
+      }),
+    );
     expect(appMock.use).toHaveBeenCalledWith(helmetMiddleware);
+    expect(jsonMock).toHaveBeenCalledWith({ limit: '50mb' });
+    expect(urlencodedMock).toHaveBeenCalledWith({
+      extended: true,
+      limit: '50mb',
+    });
+    expect(appMock.use).toHaveBeenCalledWith(jsonMiddleware);
+    expect(appMock.use).toHaveBeenCalledWith(urlencodedMiddleware);
+    expect(createSwaggerActTokenProxyHandlerMock).toHaveBeenCalledWith(
+      'https://test-keycloak.example.com/auth/realms/test-realm/protocol/openid-connect/token',
+    );
     expect(appMock.use).toHaveBeenCalledWith(
       '/api/docs/oauth2/token',
-      expect.any(Function),
+      swaggerActTokenProxyHandler,
     );
     expect(appMock.enableCors).toHaveBeenCalledTimes(1);
     expect(appMock.set).toHaveBeenCalledWith('trust proxy', 1);
