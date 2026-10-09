@@ -35,3 +35,11 @@ output "cloudfront_url" {
   description = "Full CloudFront URL for accessing assets"
   value       = "https://${aws_cloudfront_distribution.storage.domain_name}"
 }
+
+output "bcgw_exports_bucket" {
+  description = "BCGW layer exports S3 bucket details (private, served via presigned URLs)"
+  value = {
+    name = aws_s3_bucket.bcgw_exports.id
+    arn  = aws_s3_bucket.bcgw_exports.arn
+  }
+}

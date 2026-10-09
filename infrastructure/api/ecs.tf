@@ -24,6 +24,11 @@ locals {
     ? data.terraform_remote_state.storage[0].outputs.cloudfront_url
     : "https://placeholder.cloudfront.net"
   )
+  bcgw_exports_bucket = (
+    can(data.terraform_remote_state.storage[0].outputs.bcgw_exports_bucket.name)
+    ? data.terraform_remote_state.storage[0].outputs.bcgw_exports_bucket.name
+    : "placeholder-bcgw-exports-bucket"
+  )
 }
 
 data "aws_secretsmanager_secret" "db_master_creds" {
@@ -229,6 +234,18 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "FEATURE_ADVISORY_STATUS"
           value = var.app == "public" ? var.feature_advisory_status : ""
+        },
+        {
+          name  = "BCGW_EXPORTS_BUCKET"
+          value = var.app == "admin" ? local.bcgw_exports_bucket : ""
+        },
+        {
+          name  = "BCGW_EXPORT_ENABLED"
+          value = var.app == "admin" ? tostring(var.bcgw_export_enabled) : "false"
+        },
+        {
+          name  = "BCGW_EXPORT_CRON"
+          value = var.app == "admin" ? var.bcgw_export_cron : ""
         }
       ]
       portMappings = [
