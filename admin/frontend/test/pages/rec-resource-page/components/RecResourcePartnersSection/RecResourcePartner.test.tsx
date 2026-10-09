@@ -118,7 +118,7 @@ describe('RecResourcePartner', () => {
 
     expect(tooltip).toHaveTextContent(RECREATION_OPERATOR_HELP_TEXT);
     expect(tooltip).toHaveTextContent(
-      /to manage and operate at a recreation resource\. "Recreation Operator" is displayed when a volunteer partner is authorized to collect fees\./,
+      /to manage and operate at a recreation resource\. "Recreation operator" is displayed when a volunteer partner is authorized to collect fees\./,
     );
     expect(
       screen.getByRole('link', { name: 'Forest Recreation Regulation' }),

@@ -99,7 +99,7 @@ describe('handleApiError', () => {
       expectErrorResult(result, {
         statusCode: 400,
         message:
-          'Validation Error: email: Email is required, Email format is invalid; password: Password must be at least 8 characters',
+          'Validation error: email: Email is required, Email format is invalid; password: Password must be at least 8 characters',
         isResponseError: true,
         isAuthError: false,
       });
@@ -121,7 +121,7 @@ describe('handleApiError', () => {
             null, // Invalid
             'invalid', // Invalid type
           ],
-          expectedMessage: 'Validation Error: email: Email is required',
+          expectedMessage: 'Validation error: email: Email is required',
         },
         {
           name: 'all invalid details',
