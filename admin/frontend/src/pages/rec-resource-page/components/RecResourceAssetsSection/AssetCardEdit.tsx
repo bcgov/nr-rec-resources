@@ -259,7 +259,7 @@ export function AssetCardEdit({
 
               {!isCampsite && (
                 <Form.Group controlId={`asset-default-value-${id}`}>
-                  <Form.Label>Default Value</Form.Label>
+                  <Form.Label>Default value</Form.Label>
                   <InputGroup>
                     <InputGroup.Text>$</InputGroup.Text>
 
@@ -275,7 +275,7 @@ export function AssetCardEdit({
 
               {!isCampsite && (
                 <Form.Group controlId={`asset-actual-value-${id}`}>
-                  <Form.Label>Actual Value</Form.Label>
+                  <Form.Label>Actual value</Form.Label>
                   <InputGroup>
                     <InputGroup.Text>$</InputGroup.Text>
                     <Form.Control

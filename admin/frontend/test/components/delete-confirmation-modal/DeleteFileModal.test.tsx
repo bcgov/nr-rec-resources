@@ -98,7 +98,7 @@ describe('DeleteFileModal', () => {
       renderModal();
 
       expect(screen.getByTestId('modal-title')).toHaveTextContent(
-        'Delete File',
+        'Delete file',
       );
       expect(
         screen.getByText(/Deleting this file will remove it/),
@@ -310,7 +310,7 @@ describe('DeleteFileModal', () => {
       });
 
       expect(screen.getByTestId('modal-title')).toHaveTextContent(
-        'Delete File',
+        'Delete file',
       );
       expect(
         screen.getByText(

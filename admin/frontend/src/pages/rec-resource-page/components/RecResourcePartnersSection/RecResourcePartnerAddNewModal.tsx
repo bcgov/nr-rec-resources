@@ -152,7 +152,7 @@ export function RecResourcePartnerAddNewModal({
     <>
       <Row className="align-items-center my-3">
         <Col xs={12}>
-          <h5 className="fw-bold">Partner Information</h5>
+          <h5 className="fw-bold">Partner information</h5>
         </Col>
       </Row>
       <Row className="align-items-center mb-2">
@@ -324,7 +324,7 @@ export function RecResourcePartnerAddNewModal({
           onClick={handleContinue}
         >
           {step === 0 && 'Next'}
-          {step === 1 && 'Add Partner'}
+          {step === 1 && 'Add partner'}
         </CustomButton>
       </Modal.Footer>
     </Modal>

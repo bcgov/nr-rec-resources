@@ -83,7 +83,7 @@ describe('SpatialSubmissionPreview', () => {
 
   it('renders spatial preview label', () => {
     render(<SpatialSubmissionPreview {...defaultProps} />);
-    expect(screen.getByText('Spatial Preview')).toBeDefined();
+    expect(screen.getByText('Spatial preview')).toBeDefined();
   });
 
   it('renders info alert when section IDs are required', () => {
@@ -211,31 +211,31 @@ describe('SpatialSubmissionPreview', () => {
     expect(mockSetSelectedFeatureIndex).toHaveBeenCalledWith(0);
   });
 
-  it('renders Create Request button', () => {
+  it('renders Create request button', () => {
     render(<SpatialSubmissionPreview {...defaultProps} />);
 
     expect(
-      screen.getByRole('button', { name: 'Create Request' }),
+      screen.getByRole('button', { name: 'Create request' }),
     ).toBeDefined();
   });
 
-  it('enables Create Request button when canCreateRequest is true', () => {
+  it('enables Create request button when canCreateRequest is true', () => {
     const props = { ...defaultProps, canCreateRequest: true };
     render(<SpatialSubmissionPreview {...props} />);
 
-    const button = screen.getByRole('button', { name: 'Create Request' });
+    const button = screen.getByRole('button', { name: 'Create request' });
     expect(button).not.toHaveAttribute('disabled');
   });
 
-  it('disables Create Request button when canCreateRequest is false', () => {
+  it('disables Create request button when canCreateRequest is false', () => {
     const props = { ...defaultProps, canCreateRequest: false };
     render(<SpatialSubmissionPreview {...props} />);
 
-    const button = screen.getByRole('button', { name: 'Create Request' });
+    const button = screen.getByRole('button', { name: 'Create request' });
     expect(button).toHaveAttribute('disabled');
   });
 
-  it('disables Create Request button when isCreatingRequest is true', () => {
+  it('disables Create request button when isCreatingRequest is true', () => {
     const props = { ...defaultProps, isCreatingRequest: true };
     render(<SpatialSubmissionPreview {...props} />);
 
@@ -243,11 +243,11 @@ describe('SpatialSubmissionPreview', () => {
     expect(button).toHaveAttribute('disabled');
   });
 
-  it('disables Create Request button when requestCreated is true', () => {
+  it('disables Create request button when requestCreated is true', () => {
     const props = { ...defaultProps, requestCreated: true };
     render(<SpatialSubmissionPreview {...props} />);
 
-    const button = screen.getByRole('button', { name: 'Create Request' });
+    const button = screen.getByRole('button', { name: 'Create request' });
     expect(button).toHaveAttribute('disabled');
   });
 
@@ -258,10 +258,10 @@ describe('SpatialSubmissionPreview', () => {
     expect(screen.getByText('Creating request...')).toBeDefined();
   });
 
-  it('calls onCreateRequest when Create Request button is clicked', () => {
+  it('calls onCreateRequest when Create request button is clicked', () => {
     render(<SpatialSubmissionPreview {...defaultProps} />);
 
-    const button = screen.getByRole('button', { name: 'Create Request' });
+    const button = screen.getByRole('button', { name: 'Create request' });
     fireEvent.click(button);
 
     expect(mockOnCreateRequest).toHaveBeenCalled();

@@ -232,7 +232,7 @@ export function BulkAddAssetsModal({
       donation value. This amount is applied to every asset being added.
       <br />
       <br />
-      Example: If Actual Value = $50 and you add 10 assets, each asset will have
+      Example: If Actual value = $50 and you add 10 assets, each asset will have
       a value of $50.
     </span>
   );

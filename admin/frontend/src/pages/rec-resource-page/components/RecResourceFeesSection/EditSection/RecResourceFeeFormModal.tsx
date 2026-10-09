@@ -21,7 +21,7 @@ export const RecResourceFeeFormModal = ({
   onClose: () => void;
   show?: boolean;
 }) => {
-  const title = mode === 'create' ? 'Add Fee' : 'Edit Fee';
+  const title = mode === 'create' ? 'Add fee' : 'Edit fee';
   const deleteFee = useDeleteFee();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 

@@ -60,7 +60,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
           <hr />
         ) : (
           <span className="text-nowrap fs-6 p-2 sub-title">
-            Quick Links{' '}
+            Quick links{' '}
             <FontAwesomeIcon icon={faArrowUpRightFromSquare as IconProp} />
           </span>
         )}
@@ -103,14 +103,14 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
           {isCollapsed ? (
             <Image
               src="/images/sidebar/expand-icon.svg"
-              alt="Expand Icon"
+              alt="Expand icon"
               width={24}
               height={24}
             />
           ) : (
             <Image
               src="/images/sidebar/collapse-icon.svg"
-              alt="Collapse Icon"
+              alt="Collapse icon"
               width={24}
               height={24}
             />

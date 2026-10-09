@@ -39,7 +39,7 @@ export const SpatialSubmissionPreview = ({
 
   return (
     <>
-      <Form.Label>Spatial Preview</Form.Label>
+      <Form.Label>Spatial preview</Form.Label>
       {requiresSectionIds && featureSectionIds.length > 0 && (
         <Alert
           className="mt-3 mb-0 spatial-submission-section__info-alert"
@@ -158,7 +158,7 @@ export const SpatialSubmissionPreview = ({
             Creating request...
           </>
         ) : (
-          'Create Request'
+          'Create request'
         )}
       </Button>
     </>

@@ -77,7 +77,7 @@ describe('RecResourcePartner', () => {
     expect(
       screen.queryByRole('button', { name: /additional information/i }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText('Contact Information')).not.toBeInTheDocument();
+    expect(screen.queryByText('Contact information')).not.toBeInTheDocument();
   });
 
   it('shows recreation operator pill when backend marks relationship as recreation operator', () => {
@@ -118,7 +118,7 @@ describe('RecResourcePartner', () => {
 
     expect(tooltip).toHaveTextContent(RECREATION_OPERATOR_HELP_TEXT);
     expect(tooltip).toHaveTextContent(
-      /to manage and operate at a recreation resource\. "Recreation Operator" is displayed when a volunteer partner is authorized to collect fees\./,
+      /to manage and operate at a recreation resource\. "Recreation operator" is displayed when a volunteer partner is authorized to collect fees\./,
     );
     expect(
       screen.getByRole('link', { name: 'Forest Recreation Regulation' }),
@@ -152,13 +152,13 @@ describe('RecResourcePartner', () => {
     });
 
     // Initial state: details hidden
-    expect(screen.queryByText('Contact Information')).not.toBeInTheDocument();
+    expect(screen.queryByText('Contact information')).not.toBeInTheDocument();
 
     // Expand section
     fireEvent.click(toggleButton);
 
     expect(screen.getByText('Hide additional information')).toBeInTheDocument();
-    expect(screen.getByText('Contact Information')).toBeInTheDocument();
+    expect(screen.getByText('Contact information')).toBeInTheDocument();
     expect(mockMutateAsync).toHaveBeenCalledWith('00123456');
   });
 

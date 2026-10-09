@@ -51,14 +51,14 @@ describe('RecResourceFeesContent', () => {
     expect(screen.getByTestId('fees-table')).toHaveTextContent('1 fees');
   });
 
-  it('renders Add Fee link when recResourceId exists', () => {
+  it('renders Add fee link when recResourceId exists', () => {
     render(<RecResourceFeesContent fees={[]} recResourceId="REC999" />);
 
     const link = screen.getByRole('link', { name: /add fee/i });
     expect(link).toHaveAttribute('href', '/rec-resource/REC999/fees/add');
   });
 
-  it('does not render Add Fee link when recResourceId is missing', () => {
+  it('does not render Add fee link when recResourceId is missing', () => {
     render(<RecResourceFeesContent fees={[]} />);
     expect(
       screen.queryByRole('link', { name: /add fee/i }),

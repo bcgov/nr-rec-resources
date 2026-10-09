@@ -35,7 +35,7 @@ vi.mock(
     }) =>
       show ? (
         <div data-testid="mock-add-partner-modal">
-          <span>Add Partner Modal</span>
+          <span>Add partner Modal</span>
           <button onClick={onCancel}>Close Modal</button>
         </div>
       ) : null,
@@ -100,7 +100,7 @@ describe('RecResourcePartnersContent', () => {
     render(<RecResourcePartnersContent partners={mockPartners} />);
 
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Active Partners' }),
+      screen.getByRole('heading', { level: 2, name: 'Active partners' }),
     ).toBeInTheDocument();
     expect(screen.getByText('001')).toBeInTheDocument();
     expect(screen.getByText('Partner One')).toBeInTheDocument();
@@ -108,18 +108,18 @@ describe('RecResourcePartnersContent', () => {
     expect(screen.getByText('Partner Two')).toBeInTheDocument();
   });
 
-  it('should not render "Add New" or "Edit" buttons when recResourceId is not provided', () => {
+  it('should not render "Add new" or "Edit" buttons when recResourceId is not provided', () => {
     render(<RecResourcePartnersContent partners={mockPartners} />);
 
     expect(
-      screen.queryByRole('link', { name: 'Add New' }),
+      screen.queryByRole('link', { name: 'Add new' }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('link', { name: 'Edit' }),
     ).not.toBeInTheDocument();
   });
 
-  it('should render "Add New" and "Edit" buttons with correct hrefs for super admins', () => {
+  it('should render "Add new" and "Edit" buttons with correct hrefs for super admins', () => {
     const recResourceId = '12345';
     mockAuthorizations.mockReturnValue({
       canManagePartners: true,
@@ -133,7 +133,7 @@ describe('RecResourcePartnersContent', () => {
       />,
     );
 
-    const addNewBtn = screen.getByRole('button', { name: 'Add New' });
+    const addNewBtn = screen.getByRole('button', { name: 'Add new' });
     const editLink = screen.getByRole('link', { name: 'Edit' });
 
     expect(addNewBtn).toBeInTheDocument();
@@ -149,13 +149,13 @@ describe('RecResourcePartnersContent', () => {
     render(<RecResourcePartnersContent partners={[]} />);
 
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Active Partners' }),
+      screen.getByRole('heading', { level: 2, name: 'Active partners' }),
     ).toBeInTheDocument();
     expect(screen.queryByText('001')).not.toBeInTheDocument();
   });
 
   describe('RecResourcePartnerAddNewModal Interaction', () => {
-    it('should open the modal when clicking "Add New" and close it on cancel', async () => {
+    it('should open the modal when clicking "Add new" and close it on cancel', async () => {
       const user = userEvent.setup();
       mockAuthorizations.mockReturnValue({
         canManagePartners: true,
@@ -174,8 +174,8 @@ describe('RecResourcePartnersContent', () => {
         screen.queryByTestId('mock-add-partner-modal'),
       ).not.toBeInTheDocument();
 
-      // Click "Add New" button
-      const addNewBtn = screen.getByRole('button', { name: 'Add New' });
+      // Click "Add new" button
+      const addNewBtn = screen.getByRole('button', { name: 'Add new' });
       await user.click(addNewBtn);
 
       // Modal should now be visible
@@ -200,7 +200,7 @@ describe('RecResourcePartnersContent', () => {
       );
 
       expect(
-        screen.queryByRole('button', { name: 'Add New' }),
+        screen.queryByRole('button', { name: 'Add new' }),
       ).not.toBeInTheDocument();
       expect(
         screen.queryByRole('link', { name: 'Edit' }),

@@ -257,7 +257,7 @@ export const RecResourcePartnersEditSection = ({
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
-        <h2 className="mb-0">Edit Partners</h2>
+        <h2 className="mb-0">Edit partners</h2>
         <Stack direction="horizontal" gap={2}>
           <Button
             variant="outline-primary"

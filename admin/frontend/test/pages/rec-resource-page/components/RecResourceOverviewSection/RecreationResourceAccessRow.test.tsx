@@ -50,7 +50,7 @@ describe('RecreationResourceAccessRow', () => {
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
 
-    expect(screen.queryByText(/More Access Types/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/more access types/i)).not.toBeInTheDocument();
   });
 
   it('should render expand button when more than 3 access codes', () => {
@@ -63,7 +63,7 @@ describe('RecreationResourceAccessRow', () => {
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
 
-    expect(screen.getByText(/More Access Types/i)).toBeInTheDocument();
+    expect(screen.getByText(/more access types/i)).toBeInTheDocument();
   });
 
   it('should show only first 3 items initially when more than 3 codes', () => {
@@ -95,8 +95,8 @@ describe('RecreationResourceAccessRow', () => {
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
 
-    // Should show "+2 More Access Types" (5 total - 3 displayed = 2)
-    expect(screen.getByText('+2 More Access Types')).toBeInTheDocument();
+    // Should show "+2 more access types" (5 total - 3 displayed = 2)
+    expect(screen.getByText('+2 more access types')).toBeInTheDocument();
   });
 
   it('should expand to show all items when expand button is clicked', async () => {
@@ -111,7 +111,7 @@ describe('RecreationResourceAccessRow', () => {
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
 
-    const expandButton = screen.getByText('+2 More Access Types');
+    const expandButton = screen.getByText('+2 more access types');
     await user.click(expandButton);
 
     // All items should now be visible
@@ -122,7 +122,7 @@ describe('RecreationResourceAccessRow', () => {
     expect(screen.getByText('Rail Access')).toBeInTheDocument();
   });
 
-  it('should change button text to "Show Less" when expanded', async () => {
+  it('should change button text to "Show less" when expanded', async () => {
     const user = userEvent.setup();
     const recResource = createMockRecResource([
       { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
@@ -133,13 +133,13 @@ describe('RecreationResourceAccessRow', () => {
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
 
-    const expandButton = screen.getByText(/More Access Types/i);
+    const expandButton = screen.getByText(/more access types/i);
     await user.click(expandButton);
 
-    expect(screen.getByText('Show Less')).toBeInTheDocument();
+    expect(screen.getByText('Show less')).toBeInTheDocument();
   });
 
-  it('should collapse back to 3 items when "Show Less" is clicked', async () => {
+  it('should collapse back to 3 items when "Show less" is clicked', async () => {
     const user = userEvent.setup();
     const recResource = createMockRecResource([
       { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
@@ -152,7 +152,7 @@ describe('RecreationResourceAccessRow', () => {
     render(<RecreationResourceAccessRow recResource={recResource} />);
 
     // First expand
-    const expandButton = screen.getByText('+2 More Access Types');
+    const expandButton = screen.getByText('+2 more access types');
     await user.click(expandButton);
 
     // All items visible
@@ -160,13 +160,13 @@ describe('RecreationResourceAccessRow', () => {
     expect(screen.getByText('Rail Access')).toBeInTheDocument();
 
     // Then collapse
-    const collapseButton = screen.getByText('Show Less');
+    const collapseButton = screen.getByText('Show less');
     await user.click(collapseButton);
 
     // Back to 3 items
     expect(screen.queryByText('Air Access')).not.toBeInTheDocument();
     expect(screen.queryByText('Rail Access')).not.toBeInTheDocument();
-    expect(screen.getByText('+2 More Access Types')).toBeInTheDocument();
+    expect(screen.getByText('+2 more access types')).toBeInTheDocument();
   });
 
   it('should handle access codes with sub access codes', () => {

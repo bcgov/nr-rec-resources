@@ -106,17 +106,17 @@ describe('RequestsPage', () => {
       JSON.stringify({ id: 'REC001' }),
     );
     expect(screen.getByTestId('cell-Name')).toHaveTextContent('-');
-    expect(screen.getByTestId('cell-Recreation District')).toHaveTextContent(
+    expect(screen.getByTestId('cell-Recreation district')).toHaveTextContent(
       'District description',
     );
     expect(
-      screen.getByTestId('cell-Natural Resource District'),
+      screen.getByTestId('cell-Natural resource district'),
     ).toHaveTextContent('-');
     expect(screen.getByTestId('cell-Recreation type')).toHaveTextContent('-');
     expect(screen.getByTestId('cell-Status')).toHaveTextContent('NEW');
-    expect(screen.getByTestId('cell-Geometry Type')).toHaveTextContent('-');
+    expect(screen.getByTestId('cell-Geometry type')).toHaveTextContent('-');
     expect(screen.getByTestId('cell-Features')).toHaveTextContent('2');
-    expect(screen.getByTestId('cell-Requested At')).toHaveTextContent(
+    expect(screen.getByTestId('cell-Requested at')).toHaveTextContent(
       '2026-10-07',
     );
   });

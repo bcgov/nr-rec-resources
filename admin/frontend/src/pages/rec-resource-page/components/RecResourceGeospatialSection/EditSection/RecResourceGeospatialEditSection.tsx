@@ -107,7 +107,7 @@ export const RecResourceGeospatialEditSection = () => {
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
-        <h2>Edit Geospatial</h2>
+        <h2>Edit geospatial</h2>
         <Stack direction="horizontal" gap={2}>
           <Link
             to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL.replace(
@@ -149,7 +149,7 @@ export const RecResourceGeospatialEditSection = () => {
           <Col xs={12} md={4}>
             <Form.Group controlId="utm_zone">
               <Form.Label>
-                UTM Zone <HelpIcon text={UTM_HELP.zone} id="utm-zone" />
+                UTM zone <HelpIcon text={UTM_HELP.zone} id="utm-zone" />
               </Form.Label>
               <Controller
                 name="utm_zone"
@@ -175,7 +175,7 @@ export const RecResourceGeospatialEditSection = () => {
           <Col xs={12} md={4}>
             <Form.Group controlId="utm_easting">
               <Form.Label>
-                UTM Easting{' '}
+                UTM easting{' '}
                 <HelpIcon text={UTM_HELP.easting} id="utm-easting" />
               </Form.Label>
               <Controller
@@ -202,7 +202,7 @@ export const RecResourceGeospatialEditSection = () => {
           <Col xs={12} md={4}>
             <Form.Group controlId="utm_northing">
               <Form.Label>
-                UTM Northing{' '}
+                UTM northing{' '}
                 <HelpIcon text={UTM_HELP.northing} id="utm-northing" />
               </Form.Label>
               <Controller
