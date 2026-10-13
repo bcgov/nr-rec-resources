@@ -1,0 +1,18 @@
+// The editor grows with its content by default. Cap it so a long note scrolls
+// inside the box instead of pushing the modal past the bottom of the screen.
+.note-form .quill-editor .ql-editor {
+  min-height: 7rem;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.note-form__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// Keeps Delete on the left and Cancel / submit on the right, as designed.
+.note-form__actions-end {
+  margin-left: auto;
+}
