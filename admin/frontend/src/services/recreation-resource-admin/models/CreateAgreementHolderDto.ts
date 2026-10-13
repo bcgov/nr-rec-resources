@@ -38,6 +38,12 @@ export interface CreateAgreementHolderDto {
    */
   clientNumber: string;
   /**
+   * Client location number (2-digit code)
+   * @type {string}
+   * @memberof CreateAgreementHolderDto
+   */
+  clientLocationNumber?: string;
+  /**
    * Whether the agreement holder is visible on the public website
    * @type {boolean}
    * @memberof CreateAgreementHolderDto
@@ -77,6 +83,10 @@ export function CreateAgreementHolderDtoFromJSONTyped(
     agreementEndDate:
       json['agreementEndDate'] == null ? undefined : json['agreementEndDate'],
     clientNumber: json['clientNumber'],
+    clientLocationNumber:
+      json['clientLocationNumber'] == null
+        ? undefined
+        : json['clientLocationNumber'],
     visible_on_public_website:
       json['visible_on_public_website'] == null
         ? undefined
@@ -102,6 +112,7 @@ export function CreateAgreementHolderDtoToJSONTyped(
     agreementStartDate: value['agreementStartDate'],
     agreementEndDate: value['agreementEndDate'],
     clientNumber: value['clientNumber'],
+    clientLocationNumber: value['clientLocationNumber'],
     visible_on_public_website: value['visible_on_public_website'],
   };
 }

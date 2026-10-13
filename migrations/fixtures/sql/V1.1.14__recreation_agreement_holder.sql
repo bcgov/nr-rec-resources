@@ -55,3 +55,7 @@ insert into rst.recreation_agreement_holder (
     ('REC1298','00166779','2024-03-27','2029-03-26',3),
     ('REC5951','00146387','2017-04-06','2027-04-05',3),
     ('REC3176','00164481','2024-02-11','2034-02-11',4);
+
+update rst.recreation_agreement_holder
+set client_locn_code = '00'
+where client_locn_code is null;

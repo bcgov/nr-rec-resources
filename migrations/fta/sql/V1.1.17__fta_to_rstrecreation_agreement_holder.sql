@@ -2,6 +2,7 @@ insert into rst.recreation_agreement_holder (
 agreement_holder_id,
 rec_resource_id,
 client_number,
+client_locn_code,
 agreement_start_date,
 agreement_end_date,
 revision_count,
@@ -17,6 +18,7 @@ select distinct on (a.forest_file_id)
   a.agreement_holder_id,
   a.forest_file_id,
   a.client_number,
+  a.client_locn_code,
   a.agreement_start_date,
   a.agreement_end_date,
   a.revision_count,
@@ -42,6 +44,7 @@ on conflict (agreement_holder_id) do update
 set
   rec_resource_id = excluded.rec_resource_id,
   client_number = excluded.client_number,
+  client_locn_code = excluded.client_locn_code,
   revision_count = excluded.revision_count,
   updated_by      = excluded.updated_by,
   updated_at      = excluded.updated_at,

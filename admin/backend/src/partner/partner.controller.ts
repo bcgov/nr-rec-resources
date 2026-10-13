@@ -130,7 +130,7 @@ export class PartnerController {
     operationId: 'searchPartnerByClientId',
     summary: 'Search for partner by client id',
     description:
-      'Looks up a single partner by client id using the forest client findByClientNumber API. Returns active and inactive clients.',
+      'Looks up a single partner by client id and location number. Uses the forest client location endpoint and returns active and inactive clients.',
   })
   @ApiQuery({
     name: 'client_id',
@@ -139,18 +139,43 @@ export class PartnerController {
     type: String,
     example: '00000002',
   })
+  @ApiQuery({
+    name: 'location_number',
+    description: 'A two-digit location number, for example 00.',
+    required: true,
+    type: String,
+    example: '00',
+  })
   @ApiOkResponse({
     description: 'Successfully retrieved partner',
-    type: ClientPublicViewDto,
+    type: ClientLocationDto,
   })
   async searchClient(
     @Query('client_id') clientId?: string,
-  ): Promise<ClientPublicViewDto> {
+    @Query('location_number') locationNumber?: string,
+  ): Promise<ClientLocationDto> {
     if (!clientId?.trim()) {
       throw new HttpException('Query parameter client_id is required', 400);
     }
 
-    return await this.partnerService.searchClient(clientId);
+    if (!locationNumber?.trim()) {
+      throw new HttpException(
+        'Query parameter location_number is required',
+        400,
+      );
+    }
+
+    if (!/^\d{2}$/.test(locationNumber.trim())) {
+      throw new HttpException(
+        'Query parameter location_number must be a 2-digit string code',
+        400,
+      );
+    }
+
+    return await this.partnerService.searchClient(
+      clientId.trim(),
+      locationNumber.trim(),
+    );
   }
 
   @Get('recreation-resources/:rec_resource_id')

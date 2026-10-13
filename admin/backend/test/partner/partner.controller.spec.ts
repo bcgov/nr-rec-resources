@@ -249,18 +249,35 @@ describe('PartnerController', () => {
         clientTypeCode: 'I',
         clientTypeDescription: 'Individual',
         acronym: 'JAMES BAXTER',
+        locationCode: '00',
       };
 
       vi.spyOn(service, 'searchClient').mockResolvedValue(expected);
 
-      const result = await controller.searchClient('00000002');
+      const result = await controller.searchClient('00000002', '00');
 
-      expect(service.searchClient).toHaveBeenCalledWith('00000002');
+      expect(service.searchClient).toHaveBeenCalledWith('00000002', '00');
       expect(result).toEqual(expected);
     });
 
     it('throws when client_id is missing', async () => {
-      await expect(controller.searchClient('   ')).rejects.toThrow(
+      await expect(controller.searchClient('   ', '00')).rejects.toThrow(
+        HttpException,
+      );
+
+      expect(service.searchClient).not.toHaveBeenCalled();
+    });
+
+    it('throws when location_number is missing', async () => {
+      await expect(controller.searchClient('00000002', '   ')).rejects.toThrow(
+        HttpException,
+      );
+
+      expect(service.searchClient).not.toHaveBeenCalled();
+    });
+
+    it('throws when location_number is not a 2-digit code', async () => {
+      await expect(controller.searchClient('00000002', '123')).rejects.toThrow(
         HttpException,
       );
 

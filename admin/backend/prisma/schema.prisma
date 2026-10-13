@@ -880,6 +880,7 @@ model recreation_agreement_holder {
   agreement_holder_id       Int                      @id @default(autoincrement())
   visible_on_public_website Boolean                  @default(false)
   cancelled                 Boolean                  @default(false)
+  client_locn_code          String?                  @db.VarChar(2)
   recreation_resource       recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([client_number])
@@ -902,6 +903,7 @@ model recreation_agreement_holder_history {
   agreement_holder_id       Int?
   visible_on_public_website Boolean?
   cancelled                 Boolean?
+  client_locn_code          String?                  @db.VarChar(2)
 
   @@ignore
   @@schema("rst")
