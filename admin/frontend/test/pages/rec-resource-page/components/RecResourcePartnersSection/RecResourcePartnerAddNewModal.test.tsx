@@ -5,15 +5,12 @@ import { RecResourcePartnerAddNewModal } from '@/pages/rec-resource-page/compone
 // --- Mocks ---
 
 const mockFetchPartnerInfo = vi.fn();
-const mockFetchPartnerLocations = vi.fn();
 const mockMutate = vi.fn();
 const mockResetPartnerInfo = vi.fn();
 
 let mockIsPending = false;
-let mockIsLocationsPending = false;
 let mockIsPartnerInfoError = false;
 let mockPartnerInfo: any = null;
-let mockPartnerLocations: any = null;
 
 vi.mock('@/services/hooks', () => ({
   useGetPartnerByClientId: () => ({
@@ -24,17 +21,6 @@ vi.mock('@/services/hooks', () => ({
     reset: mockResetPartnerInfo,
   }),
 }));
-
-vi.mock(
-  '@/services/hooks/recreation-resource-admin/useGetPartnerLocationsByClientId',
-  () => ({
-    useGetPartnerLocations: () => ({
-      mutateAsync: mockFetchPartnerLocations,
-      data: mockPartnerLocations,
-      isPending: mockIsLocationsPending,
-    }),
-  }),
-);
 
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useCreateRecreationResourceAgreementHolder',
@@ -69,34 +55,36 @@ describe('RecResourcePartnerAddNewModal', () => {
   };
 
   const VALID_CLIENT_NUM = '12345678';
+  const VALID_LOCATION_NUM = '01';
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockIsPending = false;
-    mockIsLocationsPending = false;
     mockIsPartnerInfoError = false;
     mockPartnerInfo = {
       clientName: 'acme corp',
       clientTypeDescription: 'business',
+      email: 'info@acme.com',
+      businessPhone: '1234567890',
+      address1: '123 main st',
+      city: 'vancouver',
+      province: 'BC',
+      postalCode: 'V6B 1A1',
     };
-    mockPartnerLocations = [
-      {
-        email: 'info@acme.com',
-        businessPhone: '1234567890',
-        address1: '123 main st',
-        city: 'vancouver',
-        province: 'BC',
-        postalCode: 'V6B 1A1',
-      },
-    ];
   });
 
-  const advanceToStep1 = async (clientNum = VALID_CLIENT_NUM) => {
+  const advanceToStep1 = async (
+    clientNum = VALID_CLIENT_NUM,
+    locationNum = VALID_LOCATION_NUM,
+  ) => {
     mockFetchPartnerInfo.mockResolvedValueOnce({});
-    mockFetchPartnerLocations.mockResolvedValueOnce({});
 
-    const input = screen.getByLabelText(/CLIENT #/i);
-    fireEvent.change(input, { target: { value: clientNum } });
+    fireEvent.change(screen.getByLabelText(/CLIENT #/i), {
+      target: { value: clientNum },
+    });
+    fireEvent.change(screen.getByLabelText(/LOCATION #/i), {
+      target: { value: locationNum },
+    });
 
     fireEvent.click(screen.getByRole('button', { name: /Next/i }));
 
@@ -111,6 +99,7 @@ describe('RecResourcePartnerAddNewModal', () => {
     expect(screen.getByText('Add new partner')).toBeInTheDocument();
     expect(screen.getByText('Partner details')).toBeInTheDocument();
     expect(screen.getByLabelText(/CLIENT #/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/LOCATION #/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Next/i })).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: /Cancel/i }),
@@ -122,11 +111,14 @@ describe('RecResourcePartnerAddNewModal', () => {
 
     const input = screen.getByLabelText(/CLIENT #/i);
     fireEvent.change(input, { target: { value: '12345' } });
+    fireEvent.change(screen.getByLabelText(/LOCATION #/i), {
+      target: { value: VALID_LOCATION_NUM },
+    });
 
     fireEvent.click(screen.getByRole('button', { name: /Next/i }));
 
     expect(
-      screen.getByText('Client # needs to have 8 characters.'),
+      screen.getByText('Client # must be an 8-digit code.'),
     ).toBeInTheDocument();
     expect(mockFetchPartnerInfo).not.toHaveBeenCalled();
   });
@@ -138,15 +130,18 @@ describe('RecResourcePartnerAddNewModal', () => {
 
     // Trigger error first
     fireEvent.change(input, { target: { value: '12345' } });
+    fireEvent.change(screen.getByLabelText(/LOCATION #/i), {
+      target: { value: VALID_LOCATION_NUM },
+    });
     fireEvent.click(screen.getByRole('button', { name: /Next/i }));
     expect(
-      screen.getByText('Client # needs to have 8 characters.'),
+      screen.getByText('Client # must be an 8-digit code.'),
     ).toBeInTheDocument();
 
     // Type 8 characters to trigger clear condition
     fireEvent.change(input, { target: { value: VALID_CLIENT_NUM } });
     expect(
-      screen.queryByText('Client # needs to have 8 characters.'),
+      screen.queryByText('Client # must be an 8-digit code.'),
     ).not.toBeInTheDocument();
     expect(mockResetPartnerInfo).toHaveBeenCalled();
   });
@@ -156,21 +151,23 @@ describe('RecResourcePartnerAddNewModal', () => {
 
     await advanceToStep1(VALID_CLIENT_NUM);
 
-    expect(mockFetchPartnerInfo).toHaveBeenCalledWith(VALID_CLIENT_NUM);
-    expect(mockFetchPartnerLocations).toHaveBeenCalledWith(VALID_CLIENT_NUM);
+    expect(mockFetchPartnerInfo).toHaveBeenCalledWith({
+      clientId: VALID_CLIENT_NUM,
+      locationNumber: VALID_LOCATION_NUM,
+    });
     expect(
       screen.getByRole('button', { name: /Add Partner/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
   });
 
-  it('renders location loading indicator when only locations query is pending', async () => {
-    mockIsLocationsPending = true;
+  it('renders partner loading indicator while partner info is pending', async () => {
+    mockIsPending = true;
 
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
 
-    expect(screen.getByText('Loading locations...')).toBeInTheDocument();
+    expect(screen.getByText('Loading information...')).toBeInTheDocument();
   });
 
   it('displays partner error message when isPartnerInfoError is true', () => {
@@ -185,16 +182,12 @@ describe('RecResourcePartnerAddNewModal', () => {
 
   it('renders fallbacks ("N/A") when partner info/location properties are missing', async () => {
     mockPartnerInfo = { clientName: null, clientTypeDescription: null };
-    mockPartnerLocations = [
-      {
-        email: null,
-        businessPhone: null,
-        address1: null,
-        city: null,
-        province: null,
-        postalCode: null,
-      },
-    ];
+    mockPartnerInfo.email = null;
+    mockPartnerInfo.businessPhone = null;
+    mockPartnerInfo.address1 = null;
+    mockPartnerInfo.city = null;
+    mockPartnerInfo.province = null;
+    mockPartnerInfo.postalCode = null;
 
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
@@ -291,6 +284,7 @@ describe('RecResourcePartnerAddNewModal', () => {
         recResourceId: 'rec-123',
         partner: {
           clientNumber: VALID_CLIENT_NUM,
+          clientLocationNumber: VALID_LOCATION_NUM,
           agreementStartDate: '2099-01-01',
           agreementEndDate: '2099-12-31',
         },

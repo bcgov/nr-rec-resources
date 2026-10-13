@@ -64,13 +64,17 @@ describe('useGetPartnerByClientId', () => {
     });
 
     act(() => {
-      result.current.mutate('client-123');
+      result.current.mutate({
+        clientId: 'client-123',
+        locationNumber: '01',
+      });
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(mockApi.searchPartnerByClientId).toHaveBeenCalledWith({
       clientId: 'client-123',
+      locationNumber: '01',
     });
     expect(result.current.data).toEqual(mockPartner);
   });
@@ -102,7 +106,10 @@ describe('useGetPartnerByClientId', () => {
     });
 
     act(() => {
-      result.current.mutate('client-123');
+      result.current.mutate({
+        clientId: 'client-123',
+        locationNumber: '01',
+      });
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
@@ -123,7 +130,10 @@ describe('useGetPartnerByClientId', () => {
     );
 
     act(() => {
-      result.current.mutate('client-123');
+      result.current.mutate({
+        clientId: 'client-123',
+        locationNumber: '01',
+      });
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));

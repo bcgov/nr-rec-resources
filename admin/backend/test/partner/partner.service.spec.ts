@@ -119,6 +119,7 @@ describe('PartnerService', () => {
         select: {
           agreement_holder_id: true,
           client_number: true,
+          client_locn_code: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
@@ -561,6 +562,7 @@ describe('PartnerService', () => {
         data: {
           rec_resource_id: 'REC0002',
           client_number: '00000002',
+          client_locn_code: null,
           agreement_start_date: new Date('2024-01-01'),
           agreement_end_date: new Date('2026-12-31'),
           visible_on_public_website: false,
@@ -568,6 +570,7 @@ describe('PartnerService', () => {
         select: {
           agreement_holder_id: true,
           client_number: true,
+          client_locn_code: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
@@ -628,6 +631,7 @@ describe('PartnerService', () => {
         data: {
           rec_resource_id: 'REC0002',
           client_number: '00000002',
+          client_locn_code: null,
           agreement_start_date: null,
           agreement_end_date: null,
           visible_on_public_website: true,
@@ -635,6 +639,7 @@ describe('PartnerService', () => {
         select: {
           agreement_holder_id: true,
           client_number: true,
+          client_locn_code: true,
           agreement_start_date: true,
           agreement_end_date: true,
           visible_on_public_website: true,
