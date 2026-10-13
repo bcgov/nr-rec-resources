@@ -9,6 +9,8 @@ export * from './useGetExportDatasets';
 export * from './useGetExportPreview';
 export * from './useGetFees';
 export * from './useGetNotes';
+export * from './useCreateNote';
+export * from './useUpdateNote';
 export * from './useDeleteNote';
 export * from './useGetDocumentsByRecResourceId';
 export * from './useGetEstablishmentOrderDocs';

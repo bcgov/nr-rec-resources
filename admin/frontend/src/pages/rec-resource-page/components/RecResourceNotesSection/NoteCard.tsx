@@ -13,10 +13,17 @@ import './RecResourceNotesSection.scss';
 type NoteCardProps = {
   note: RecreationResourceNoteUIModel;
   isArchived?: boolean;
-  onRemove: (note: RecreationResourceNoteUIModel) => void;
+  /** Both only passed in edit mode - the read-only view has no per-card actions. */
+  onEdit?: (note: RecreationResourceNoteUIModel) => void;
+  onRemove?: (note: RecreationResourceNoteUIModel) => void;
 };
 
-export const NoteCard = ({ note, isArchived, onRemove }: NoteCardProps) => {
+export const NoteCard = ({
+  note,
+  isArchived,
+  onEdit,
+  onRemove,
+}: NoteCardProps) => {
   return (
     <Card className="border notes-card">
       <Card.Body className="py-3">
@@ -53,17 +60,32 @@ export const NoteCard = ({ note, isArchived, onRemove }: NoteCardProps) => {
             </Stack>
           </Stack>
 
-          <EditableGuard isArchived={isArchived}>
-            <Button
-              variant="outline-primary"
-              size="sm"
-              className="flex-shrink-0"
-              onClick={() => onRemove(note)}
-              aria-label={`Remove note ${note.title}`}
-            >
-              Remove
-            </Button>
-          </EditableGuard>
+          {(onEdit || onRemove) && (
+            <EditableGuard isArchived={isArchived}>
+              <Stack direction="horizontal" gap={2} className="flex-shrink-0">
+                {onEdit && (
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => onEdit(note)}
+                    aria-label={`Edit note ${note.title}`}
+                  >
+                    Edit
+                  </Button>
+                )}
+                {onRemove && (
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => onRemove(note)}
+                    aria-label={`Remove note ${note.title}`}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </Stack>
+            </EditableGuard>
+          )}
         </Stack>
       </Card.Body>
     </Card>

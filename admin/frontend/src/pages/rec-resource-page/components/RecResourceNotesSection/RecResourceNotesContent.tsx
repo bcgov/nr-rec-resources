@@ -1,15 +1,12 @@
 import { useState } from 'react';
-import { Button, Dropdown, Spinner, Stack } from 'react-bootstrap';
+import { Button, Spinner, Stack } from 'react-bootstrap';
+import { Link } from '@tanstack/react-router';
 import { EditableGuard } from '@/components/auth';
-import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal/DeleteConfirmationModal';
-import { useDeleteNote } from '@/services/hooks/recreation-resource-admin/useDeleteNote';
-import {
-  RecreationResourceNoteType,
-  RecreationResourceNoteUIModel,
-} from '@/services/mocks/recreationResourceNotes';
-import { addSuccessNotification } from '@/store/notificationStore';
+import { ROUTE_PATHS } from '@/constants/routes';
+import { RecreationResourceNoteUIModel } from '@/services/mocks/recreationResourceNotes';
 import { NoteCard } from './NoteCard';
-import { ENABLED_NOTE_TYPES, NOTE_TYPE_LABELS } from './constants';
+import { NotesEmptyState } from './NotesEmptyState';
+import { NoteFormModal } from './EditSection';
 import './RecResourceNotesSection.scss';
 
 type RecResourceNotesContentProps = {
@@ -25,21 +22,7 @@ export const RecResourceNotesContent = ({
   isArchived,
   isLoading,
 }: RecResourceNotesContentProps) => {
-  const [notePendingRemoval, setNotePendingRemoval] =
-    useState<RecreationResourceNoteUIModel | null>(null);
-  const deleteNote = useDeleteNote();
-
-  const handleRemove = async () => {
-    if (!notePendingRemoval || !recResourceId) return;
-
-    await deleteNote.mutateAsync({
-      recResourceId,
-      noteId: notePendingRemoval.note_id,
-    });
-
-    setNotePendingRemoval(null);
-    addSuccessNotification('Note removed successfully', 'deleteNote-success');
-  };
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   return (
     <Stack direction="vertical" gap={4}>
@@ -47,28 +30,25 @@ export const RecResourceNotesContent = ({
         <h2 className="mb-0">Notes and references</h2>
 
         <EditableGuard isArchived={isArchived}>
-          <Stack direction="horizontal" gap={2}>
-            {/* Add and Edit open the create/edit modals, which land in the next stage. */}
-            <Dropdown>
-              <Dropdown.Toggle variant="outline-primary" id="notes-add-menu">
-                Add
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                {(
-                  Object.keys(NOTE_TYPE_LABELS) as RecreationResourceNoteType[]
-                ).map((noteType) => (
-                  <Dropdown.Item key={noteType} disabled>
-                    {NOTE_TYPE_LABELS[noteType]}
-                    {!ENABLED_NOTE_TYPES.includes(noteType) &&
-                      ' (not designed yet)'}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
-            <Button variant="outline-primary" disabled>
-              Edit
-            </Button>
-          </Stack>
+          {recResourceId ? (
+            <Stack direction="horizontal" gap={2}>
+              <Button
+                variant="outline-primary"
+                onClick={() => setIsAddModalOpen(true)}
+              >
+                Add note
+              </Button>
+              <Link
+                to={ROUTE_PATHS.REC_RESOURCE_NOTES_EDIT.replace(
+                  '$id',
+                  recResourceId,
+                )}
+                className="btn btn-outline-primary"
+              >
+                Edit
+              </Link>
+            </Stack>
+          ) : null}
         </EditableGuard>
       </div>
 
@@ -82,32 +62,22 @@ export const RecResourceNotesContent = ({
           />
         </div>
       ) : notes.length === 0 ? (
-        <div className="notes-empty-state bg-light p-3 rounded border border-1 fw-bold">
-          No notes or references have been added
-        </div>
+        <NotesEmptyState />
       ) : (
         <Stack direction="vertical" gap={3}>
           {notes.map((note) => (
-            <NoteCard
-              key={note.note_id}
-              note={note}
-              isArchived={isArchived}
-              onRemove={setNotePendingRemoval}
-            />
+            <NoteCard key={note.note_id} note={note} />
           ))}
         </Stack>
       )}
 
-      <DeleteConfirmationModal
-        show={Boolean(notePendingRemoval)}
-        title="Remove this note?"
-        description="Removing this note will immediately take it off this recreation resource in RecSpace. This action cannot be undone."
-        isDeleting={deleteNote.isPending}
-        onCancel={() => setNotePendingRemoval(null)}
-        onConfirm={handleRemove}
-        confirmText="Remove"
-        confirmVariant="outline-danger"
-      />
+      {recResourceId && isAddModalOpen && (
+        <NoteFormModal
+          recResourceId={recResourceId}
+          mode="create"
+          onClose={() => setIsAddModalOpen(false)}
+        />
+      )}
     </Stack>
   );
 };
