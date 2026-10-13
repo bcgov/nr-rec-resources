@@ -197,6 +197,13 @@ $colorPartnerLabel: #474543;
   color: $colorAmber;
 }
 
+// The neutral case, a first partner being switched on, gets a plain bold line
+// instead of the amber callout: nothing is being lost.
+.partner-main-contact-modal__headline {
+  font-weight: var(--typography-font-weights-bold, 700);
+  margin: 0;
+}
+
 .partner-main-contact-modal__detail {
   color: $colorPartnerLabel;
   margin: 16px 0 0;
