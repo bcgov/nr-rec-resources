@@ -159,7 +159,10 @@ describe('RecResourcePartner', () => {
 
     expect(screen.getByText('Hide additional information')).toBeInTheDocument();
     expect(screen.getByText('Contact Information')).toBeInTheDocument();
-    expect(mockMutateAsync).toHaveBeenCalledWith('00123456');
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      clientId: '00123456',
+      locationId: undefined,
+    });
   });
 
   it('should display loading state when locations query is pending', () => {
