@@ -249,8 +249,10 @@ describe('PartnerService', () => {
       const result = await service.findClientsByRecResourceId('REC0002');
 
       expect(result).toHaveLength(1);
-      expect(result[0].agreement_holder_id).toBe(1000001);
-      expect(result[0].clientNumber).toBe('00000002');
+      const firstResult = result[0];
+      expect(firstResult).toBeDefined();
+      expect(firstResult?.agreement_holder_id).toBe(1000001);
+      expect(firstResult?.clientNumber).toBe('00000002');
     });
 
     it('throws NotFoundException when the recreation resource does not exist', async () => {
@@ -268,28 +270,56 @@ describe('PartnerService', () => {
   });
 
   describe('searchClient', () => {
-    it('uses findByClientNumber and returns an enriched client record', async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        status: 200,
-        text: vi.fn().mockResolvedValue(
-          JSON.stringify({
-            clientNumber: '00000002',
-            clientName: 'BAXTER',
-            legalFirstName: 'JAMES',
-            legalMiddleName: 'Canter',
-            clientStatusCode: 'ACT',
-            clientTypeCode: 'I',
-            acronym: 'JAMES BAXTER',
-          }),
-        ),
-        headers: { get: vi.fn().mockReturnValue(null) },
-      });
+    it('uses client id and location number to return an enriched location record', async () => {
+      fetchMock
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify({
+              clientNumber: '00000002',
+              clientName: 'BAXTER',
+              legalFirstName: 'JAMES',
+              legalMiddleName: 'Canter',
+              clientStatusCode: 'ACT',
+              clientTypeCode: 'I',
+              acronym: 'JAMES BAXTER',
+            }),
+          ),
+          headers: { get: vi.fn().mockReturnValue(null) },
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify({
+              locationCode: '00',
+              email: 'TEST@EXAMPLE.COM',
+              businessPhone: '2505551234',
+              address1: '123 MAIN ST',
+              city: 'VICTORIA',
+              province: 'BC',
+              postalCode: 'V8W1A1',
+            }),
+          ),
+          headers: { get: vi.fn().mockReturnValue(null) },
+        });
 
-      const result = await service.searchClient('00000002');
+      const result = await service.searchClient('00000002', '00');
 
-      expect(fetchMock).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        1,
         'https://forest-client-api.example.com/api/clients/findByClientNumber/00000002',
+        {
+          headers: {
+            'X-API-KEY': 'test-api-key',
+            Accept: 'application/json',
+          },
+        },
+      );
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        2,
+        'https://forest-client-api.example.com/api/clients/00000002/locations/00',
         {
           headers: {
             'X-API-KEY': 'test-api-key',
@@ -307,6 +337,13 @@ describe('PartnerService', () => {
         clientTypeCode: 'I',
         clientTypeDescription: 'Individual',
         acronym: 'JAMES BAXTER',
+        locationCode: '00',
+        email: 'TEST@EXAMPLE.COM',
+        businessPhone: '2505551234',
+        address1: '123 MAIN ST',
+        city: 'VICTORIA',
+        province: 'BC',
+        postalCode: 'V8W1A1',
       });
     });
   });

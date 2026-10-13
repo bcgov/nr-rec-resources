@@ -10,6 +10,13 @@ export class AgreementHolderClientPublicViewDto extends ClientPublicViewDto {
   agreement_holder_id: number;
 
   @ApiProperty({
+    example: '00',
+    required: false,
+    description: 'Client location number (2-digit code)',
+  })
+  clientLocationNumber?: string;
+
+  @ApiProperty({
     type: String,
     example: '2024-01-01',
     required: false,
