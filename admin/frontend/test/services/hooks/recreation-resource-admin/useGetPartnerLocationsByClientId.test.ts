@@ -67,7 +67,9 @@ describe('useGetPartnerLocations', () => {
     });
 
     act(() => {
-      result.current.mutate('client-123');
+      result.current.mutate({
+        clientId: 'client-123',
+      });
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -105,7 +107,9 @@ describe('useGetPartnerLocations', () => {
     });
 
     act(() => {
-      result.current.mutate('client-123');
+      result.current.mutate({
+        clientId: 'client-123',
+      });
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
@@ -126,7 +130,9 @@ describe('useGetPartnerLocations', () => {
     );
 
     act(() => {
-      result.current.mutate('client-123');
+      result.current.mutate({
+        clientId: 'client-123',
+      });
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));

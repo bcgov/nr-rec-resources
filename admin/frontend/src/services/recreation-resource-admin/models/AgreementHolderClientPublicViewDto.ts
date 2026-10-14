@@ -80,6 +80,12 @@ export interface AgreementHolderClientPublicViewDto {
    */
   agreement_holder_id: number;
   /**
+   * Client location number (2-digit code)
+   * @type {string}
+   * @memberof AgreementHolderClientPublicViewDto
+   */
+  clientLocationNumber?: string;
+  /**
    *
    * @type {string}
    * @memberof AgreementHolderClientPublicViewDto
@@ -161,6 +167,10 @@ export function AgreementHolderClientPublicViewDtoFromJSONTyped(
         : json['clientTypeDescription'],
     acronym: json['acronym'] == null ? undefined : json['acronym'],
     agreement_holder_id: json['agreement_holder_id'],
+    clientLocationNumber:
+      json['clientLocationNumber'] == null
+        ? undefined
+        : json['clientLocationNumber'],
     agreementStartDate:
       json['agreementStartDate'] == null
         ? undefined
@@ -204,6 +214,7 @@ export function AgreementHolderClientPublicViewDtoToJSONTyped(
     clientTypeDescription: value['clientTypeDescription'],
     acronym: value['acronym'],
     agreement_holder_id: value['agreement_holder_id'],
+    clientLocationNumber: value['clientLocationNumber'],
     agreementStartDate: value['agreementStartDate'],
     agreementEndDate: value['agreementEndDate'],
     visible_on_public_website: value['visible_on_public_website'],

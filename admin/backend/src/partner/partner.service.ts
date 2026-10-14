@@ -28,6 +28,7 @@ type ForestClientLocation = Partial<ClientLocationDto>;
 type AgreementHolderRecord = {
   agreement_holder_id: number;
   client_number?: string | null;
+  client_locn_code?: string | null;
   agreement_start_date?: Date | null;
   agreement_end_date?: Date | null;
   visible_on_public_website?: boolean;
@@ -38,6 +39,7 @@ type AgreementHolderRecord = {
 const AGREEMENT_HOLDER_SELECT = {
   agreement_holder_id: true,
   client_number: true,
+  client_locn_code: true,
   agreement_start_date: true,
   agreement_end_date: true,
   visible_on_public_website: true,
@@ -144,8 +146,31 @@ export class PartnerService {
     };
   }
 
-  async searchClient(clientId: string): Promise<ClientPublicViewDto> {
-    return this.fetchClientByClientNumber(clientId);
+  async searchClient(
+    clientId: string,
+    locationNumber: string,
+  ): Promise<ClientLocationDto> {
+    const [clientResult, location] = await Promise.all([
+      this.fetchClientByClientNumber(clientId),
+      this.fetchClientLocationByLocationNumber(clientId, locationNumber),
+    ]);
+
+    return {
+      ...location,
+      clientNumber: this.getClientNumber(clientResult, location, clientId),
+      clientName: clientResult.clientName ?? '',
+      legalFirstName: clientResult.legalFirstName,
+      legalMiddleName: clientResult.legalMiddleName,
+      clientStatusCode: clientResult.clientStatusCode,
+      clientStatusDescription: this.getClientStatusDescription(
+        clientResult.clientStatusCode,
+      ),
+      clientTypeCode: clientResult.clientTypeCode,
+      clientTypeDescription: this.getClientTypeDescription(
+        clientResult.clientTypeCode,
+      ),
+      acronym: clientResult.acronym,
+    };
   }
 
   async createAgreementHolder(
@@ -182,6 +207,7 @@ export class PartnerService {
       data: {
         rec_resource_id,
         client_number: createDto.clientNumber,
+        client_locn_code: createDto.clientLocationNumber ?? null,
         agreement_start_date: createDto.agreementStartDate
           ? new Date(createDto.agreementStartDate)
           : null,
@@ -461,6 +487,7 @@ export class PartnerService {
     return {
       ...client,
       agreement_holder_id: agreementHolder.agreement_holder_id,
+      clientLocationNumber: agreementHolder.client_locn_code ?? undefined,
       agreementStartDate: this.formatDate(
         agreementHolder.agreement_start_date ?? undefined,
       ),
@@ -538,6 +565,17 @@ export class PartnerService {
     }
 
     return allLocations;
+  }
+
+  private async fetchClientLocationByLocationNumber(
+    clientNumber: string,
+    locationNumber: string,
+  ): Promise<ForestClientLocation> {
+    const result = await this.fetchJson<ForestClientLocation>(
+      `${this.baseUrl}/api/clients/${encodeURIComponent(clientNumber)}/locations/${encodeURIComponent(locationNumber)}`,
+    );
+
+    return result.body ?? {};
   }
 
   private enrichClient(client: ClientPublicViewDto): ClientPublicViewDto {

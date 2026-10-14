@@ -141,6 +141,57 @@ export const RecResourcePartnersEditSection = ({
   const draftedMainPartner = partners.find(
     (p) => p.agreement_holder_id === draftedMainId,
   );
+  const persistedMainPartner = partners.find(
+    (p) => p.agreement_holder_id === persistedMainId,
+  );
+
+  const partnerName = (
+    partner?: AgreementHolderClientPublicViewDto | null,
+    fallback = 'This partner',
+  ) => partner?.clientName ?? partner?.clientNumber ?? fallback;
+
+  /** True when this partner is the one the public website shows right now. */
+  const isPublicContact = (
+    partner?: AgreementHolderClientPublicViewDto | null,
+  ) =>
+    Boolean(partner && !partner.cancelled && partner.visible_on_public_website);
+
+  /**
+   * Three different outcomes land in the same modal: the first partner being
+   * shown, one partner handing over to another, or the last one being turned
+   * off with nothing taking its place. Nothing is mandatory here, a resource
+   * is allowed to show no partner at all, so the copy has to say which of the
+   * three is about to happen.
+   */
+  const mainContactCopy = (() => {
+    const incoming = partnerName(draftedMainPartner);
+    const outgoing = partnerName(persistedMainPartner);
+
+    if (!draftedMainPartner) {
+      return {
+        title: 'Remove main contact from public website',
+        headline: 'No partner will be displayed on the public website.',
+        detail: `${outgoing} will no longer be displayed. You can select another partner at any time.`,
+        isWarning: true,
+      };
+    }
+
+    if (!persistedMainPartner) {
+      return {
+        title: 'Display as main contact on public website',
+        headline: `${incoming} will be displayed on the public website.`,
+        detail: 'Only one partner can be displayed at a time.',
+        isWarning: false,
+      };
+    }
+
+    return {
+      title: 'Display as main contact on public website',
+      headline: `${incoming} will be displayed on the public website.`,
+      detail: `Only one partner can be displayed at a time, so ${outgoing} will no longer be displayed.`,
+      isWarning: true,
+    };
+  })();
 
   const handleSave = async () => {
     if (hasDateErrors) return;
@@ -303,21 +354,25 @@ export const RecResourcePartnersEditSection = ({
 
       <DeleteConfirmationModal
         show={showMainPartnerWarning}
-        title="Display as main contact on public site"
+        title={mainContactCopy.title}
         description={
           <>
-            <div className="partner-main-contact-modal__warning">
-              <FontAwesomeIcon
-                icon={faExclamationTriangle as any}
-                className="partner-main-contact-modal__warning-icon"
-                aria-hidden="true"
-              />
-              <span>This will replace the current main contact.</span>
-            </div>
+            {mainContactCopy.isWarning ? (
+              <div className="partner-main-contact-modal__warning">
+                <FontAwesomeIcon
+                  icon={faExclamationTriangle as any}
+                  className="partner-main-contact-modal__warning-icon"
+                  aria-hidden="true"
+                />
+                <span>{mainContactCopy.headline}</span>
+              </div>
+            ) : (
+              <p className="partner-main-contact-modal__headline">
+                {mainContactCopy.headline}
+              </p>
+            )}
             <p className="partner-main-contact-modal__detail">
-              {draftedMainPartner
-                ? `${draftedMainPartner.clientName ?? draftedMainPartner.clientNumber} will become the main contact displayed on the public site. Only one partner can be displayed at a time.`
-                : 'No partner will be displayed as the main contact on the public site. Only one partner can be displayed at a time.'}
+              {mainContactCopy.detail}
             </p>
           </>
         }
@@ -334,7 +389,20 @@ export const RecResourcePartnersEditSection = ({
       <DeleteConfirmationModal
         show={Boolean(partnerToDelete)}
         title="Delete partner"
-        description={`Delete ${partnerToDelete?.clientName ?? partnerToDelete?.clientNumber ?? 'this partner'} from this recreation resource? This cannot be undone.`}
+        description={
+          <>
+            <p className="mb-0">
+              {`Delete ${partnerName(partnerToDelete, 'this partner')} from this recreation resource? This cannot be undone.`}
+            </p>
+            {/* Deleting the partner the website shows leaves the site with no
+                contact at all, so say so before it happens. */}
+            {isPublicContact(partnerToDelete) && (
+              <p className="mt-3 mb-0">
+                {`${partnerName(partnerToDelete)} is currently displayed as the main contact on the public website. Once deleted, no partner will be displayed until you select another one.`}
+              </p>
+            )}
+          </>
+        }
         isDeleting={isDeleting}
         onCancel={() => setPartnerToDelete(null)}
         onConfirm={() => void handleConfirmDelete()}
@@ -343,7 +411,20 @@ export const RecResourcePartnersEditSection = ({
       <DeleteConfirmationModal
         show={Boolean(partnerToCancel)}
         title="Cancel agreement"
-        description={`Mark the agreement with ${partnerToCancel?.clientName ?? partnerToCancel?.clientNumber ?? 'this partner'} as cancelled? Cancelling cannot be undone, and the partner will no longer appear on the public website.`}
+        description={
+          <>
+            <p className="mb-0">
+              {`Mark the agreement with ${partnerName(partnerToCancel, 'this partner')} as cancelled? Cancelling cannot be undone.`}
+            </p>
+            {/* Cancelling clears the visibility flag server-side, so only the
+                partner on the website loses anything publicly. */}
+            {isPublicContact(partnerToCancel) && (
+              <p className="mt-3 mb-0">
+                {`${partnerName(partnerToCancel)} is currently displayed as the main contact on the public website. Once cancelled, no partner will be displayed until you select another one.`}
+              </p>
+            )}
+          </>
+        }
         onCancel={() => setPartnerToCancel(null)}
         onConfirm={() => void handleConfirmCancelAgreement()}
         confirmText="Cancel agreement"

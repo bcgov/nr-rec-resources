@@ -35,10 +35,13 @@ export const RecResourcePartner = ({
   } = useGetPartnerLocations();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const togglePartnerDetails = (clientNumber: string) => async () => {
+  const togglePartnerDetails = () => async () => {
     setIsExpanded((prev) => !prev);
     if (!isExpanded && !locations) {
-      await fetchLocations(clientNumber);
+      await fetchLocations({
+        clientId: partner.clientNumber || '',
+        locationId: partner.clientLocationNumber,
+      });
     }
   };
   return (
@@ -108,7 +111,7 @@ export const RecResourcePartner = ({
             <Col xs={12}>
               <Button
                 variant="text"
-                onClick={togglePartnerDetails(partner.clientNumber || '')}
+                onClick={togglePartnerDetails()}
                 className="toggle-all-button"
               >
                 {isExpanded ? 'Hide' : 'Show'} additional information
@@ -140,67 +143,78 @@ export const RecResourcePartner = ({
                   {isPending ? (
                     <p>Loading locations...</p>
                   ) : (
-                    locations?.map((loc, index) => (
-                      <div
-                        className={
-                          index < locations.length - 1 ? 'border-bottom' : ''
-                        }
-                        key={`loc-${loc.clientNumber}-${index}`}
-                      >
-                        <Row className="align-items-center border-bottom">
-                          <Col xs={6} className="my-2">
-                            <span className="fw-bold">Email</span>
-                          </Col>
-                          <Col xs={6}>
-                            {loc.email ? (
-                              <CopyButton
-                                text={loc.email.toLocaleLowerCase()}
-                              />
-                            ) : (
-                              'N/A'
-                            )}
-                          </Col>
-                        </Row>
-                        <Row className="align-items-center border-bottom">
-                          <Col xs={6} className="my-2">
-                            <span className="fw-bold">Phone</span>
-                          </Col>
-                          <Col xs={6}>
-                            {loc.businessPhone ? (
-                              <CopyButton
-                                text={formatPhoneNumber(loc.businessPhone)}
-                              />
-                            ) : (
-                              'N/A'
-                            )}
-                          </Col>
-                        </Row>
-                        <Row
-                          className="align-items-start"
-                          key={`loc-${loc.clientNumber}`}
+                    // Convert single location object to array if needed
+                    (Array.isArray(locations)
+                      ? locations
+                      : locations
+                        ? [locations]
+                        : []
+                    )?.map((loc, index) => {
+                      const locArray = Array.isArray(locations)
+                        ? locations
+                        : [locations];
+                      return (
+                        <div
+                          className={
+                            index < locArray.length - 1 ? 'border-bottom' : ''
+                          }
+                          key={`loc-${loc.clientNumber}-${index}`}
                         >
-                          <Col xs={6} className="my-2">
-                            <span className="fw-bold">Address</span>
-                          </Col>
-                          <Col xs={6} className="align-items-start my-2">
-                            <CopyButton
-                              text={
-                                <>
-                                  <span>
-                                    {capitalizeWords(loc.address1 || '')},{' '}
-                                    {capitalizeWords(loc.city || '')}
-                                  </span>
-                                  <br />
-                                  <span>
-                                    {loc.province}, {loc.postalCode}
-                                  </span>
-                                </>
-                              }
-                            />
-                          </Col>
-                        </Row>
-                      </div>
-                    ))
+                          <Row className="align-items-center border-bottom">
+                            <Col xs={6} className="my-2">
+                              <span className="fw-bold">Email</span>
+                            </Col>
+                            <Col xs={6}>
+                              {loc.email ? (
+                                <CopyButton
+                                  text={loc.email.toLocaleLowerCase()}
+                                />
+                              ) : (
+                                'N/A'
+                              )}
+                            </Col>
+                          </Row>
+                          <Row className="align-items-center border-bottom">
+                            <Col xs={6} className="my-2">
+                              <span className="fw-bold">Phone</span>
+                            </Col>
+                            <Col xs={6}>
+                              {loc.businessPhone ? (
+                                <CopyButton
+                                  text={formatPhoneNumber(loc.businessPhone)}
+                                />
+                              ) : (
+                                'N/A'
+                              )}
+                            </Col>
+                          </Row>
+                          <Row
+                            className="align-items-start"
+                            key={`loc-${loc.clientNumber}`}
+                          >
+                            <Col xs={6} className="my-2">
+                              <span className="fw-bold">Address</span>
+                            </Col>
+                            <Col xs={6} className="align-items-start my-2">
+                              <CopyButton
+                                text={
+                                  <>
+                                    <span>
+                                      {capitalizeWords(loc.address1 || '')},{' '}
+                                      {capitalizeWords(loc.city || '')}
+                                    </span>
+                                    <br />
+                                    <span>
+                                      {loc.province}, {loc.postalCode}
+                                    </span>
+                                  </>
+                                }
+                              />
+                            </Col>
+                          </Row>
+                        </div>
+                      );
+                    })
                   )}
                 </Col>
               </Row>

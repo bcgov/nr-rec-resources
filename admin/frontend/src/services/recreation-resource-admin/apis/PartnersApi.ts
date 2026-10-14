@@ -56,6 +56,7 @@ export interface GetPartnersByRecreationResourceIdRequest {
 
 export interface SearchPartnerByClientIdRequest {
   clientId: string;
+  locationNumber: string;
 }
 
 export interface SearchPartnersRequest {
@@ -351,13 +352,13 @@ export class PartnersApi extends runtime.BaseAPI {
   }
 
   /**
-   * Looks up a single partner by client id using the forest client findByClientNumber API. Returns active and inactive clients.
+   * Looks up a single partner by client id and location number. Uses the forest client location endpoint and returns active and inactive clients.
    * Search for partner by client id
    */
   async searchPartnerByClientIdRaw(
     requestParameters: SearchPartnerByClientIdRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ClientPublicViewDto>> {
+  ): Promise<runtime.ApiResponse<ClientLocationDto>> {
     if (requestParameters['clientId'] == null) {
       throw new runtime.RequiredError(
         'clientId',
@@ -365,10 +366,21 @@ export class PartnersApi extends runtime.BaseAPI {
       );
     }
 
+    if (requestParameters['locationNumber'] == null) {
+      throw new runtime.RequiredError(
+        'locationNumber',
+        'Required parameter "locationNumber" was null or undefined when calling searchPartnerByClientId().',
+      );
+    }
+
     const queryParameters: any = {};
 
     if (requestParameters['clientId'] != null) {
       queryParameters['client_id'] = requestParameters['clientId'];
+    }
+
+    if (requestParameters['locationNumber'] != null) {
+      queryParameters['location_number'] = requestParameters['locationNumber'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -395,18 +407,18 @@ export class PartnersApi extends runtime.BaseAPI {
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      ClientPublicViewDtoFromJSON(jsonValue),
+      ClientLocationDtoFromJSON(jsonValue),
     );
   }
 
   /**
-   * Looks up a single partner by client id using the forest client findByClientNumber API. Returns active and inactive clients.
+   * Looks up a single partner by client id and location number. Uses the forest client location endpoint and returns active and inactive clients.
    * Search for partner by client id
    */
   async searchPartnerByClientId(
     requestParameters: SearchPartnerByClientIdRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<ClientPublicViewDto> {
+  ): Promise<ClientLocationDto> {
     const response = await this.searchPartnerByClientIdRaw(
       requestParameters,
       initOverrides,
