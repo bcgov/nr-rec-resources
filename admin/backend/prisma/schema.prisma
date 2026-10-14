@@ -50,6 +50,7 @@ model recreation_resource {
   recreation_risk_rating_code          recreation_risk_rating_code?           @relation(fields: [risk_rating_code], references: [risk_rating_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_document         recreation_resource_document[]
   recreation_resource_image            recreation_resource_image[]
+  recreation_resource_note             recreation_resource_note[]
   recreation_resource_reservation_info recreation_resource_reservation_info?
   recreation_site_description          recreation_site_description?
   recreation_status                    recreation_status?
@@ -1639,6 +1640,92 @@ model recreation_asset_code_history {
   has_width     Boolean                  @default(false)
   has_area      Boolean                  @default(false)
   default_value Decimal?                 @db.Decimal(7, 2)
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_file_source_code {
+  file_source_code String                   @id @db.VarChar(1)
+  description      String                   @db.VarChar(120)
+  updated_at       DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period       Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_file_source_code_history {
+  file_source_code String                   @db.VarChar(1)
+  description      String                   @db.VarChar(120)
+  updated_at       DateTime?                @db.Timestamp(6)
+  sys_period       Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_note_type_code {
+  note_type_code           String                     @id @db.VarChar(20)
+  description              String                     @db.VarChar(120)
+  updated_at               DateTime?                  @default(now()) @db.Timestamp(6)
+  sys_period               Unsupported("tstzrange")   @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource_note recreation_resource_note[]
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_note_type_code_history {
+  note_type_code String                   @db.VarChar(20)
+  description    String                   @db.VarChar(120)
+  updated_at     DateTime?                @db.Timestamp(6)
+  sys_period     Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_resource_note {
+  note_id                   String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rec_resource_id           String                    @db.VarChar(10)
+  note_type_code            String                    @default("NOTE") @db.VarChar(20)
+  title                     String                    @db.VarChar(100)
+  body                      String
+  date_logged               DateTime                  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  source_system             String                    @default("RST") @db.VarChar(10)
+  source_key                String?                   @db.VarChar(60)
+  updated_at                DateTime?                 @default(now()) @db.Timestamp(6)
+  updated_by                String?
+  created_at                DateTime?                 @default(now()) @db.Timestamp(6)
+  created_by                String?
+  sys_period                Unsupported("tstzrange")  @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_note_type_code recreation_note_type_code @relation(fields: [note_type_code], references: [note_type_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource       recreation_resource       @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([source_system, source_key], map: "uq_recreation_resource_note_source", where: raw("(source_key IS NOT NULL)"))
+  @@index([rec_resource_id], map: "idx_recreation_resource_note_rec_resource_id")
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_resource_note_history {
+  note_id         String                   @db.Uuid
+  rec_resource_id String                   @db.VarChar(10)
+  note_type_code  String                   @db.VarChar(20)
+  title           String                   @db.VarChar(100)
+  body            String
+  date_logged     DateTime                 @db.Date
+  source_system   String                   @db.VarChar(10)
+  source_key      String?                  @db.VarChar(60)
+  updated_at      DateTime?                @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")

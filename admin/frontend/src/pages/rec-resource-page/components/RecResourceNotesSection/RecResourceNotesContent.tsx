@@ -3,14 +3,14 @@ import { Button, Spinner, Stack } from 'react-bootstrap';
 import { Link } from '@tanstack/react-router';
 import { EditableGuard } from '@/components/auth';
 import { ROUTE_PATHS } from '@/constants/routes';
-import { RecreationResourceNoteUIModel } from '@/services/mocks/recreationResourceNotes';
+import { RecreationNoteDto } from '@/services/recreation-resource-admin';
 import { NoteCard } from './NoteCard';
 import { NotesEmptyState } from './NotesEmptyState';
 import { NoteFormModal } from './EditSection';
 import './RecResourceNotesSection.scss';
 
 type RecResourceNotesContentProps = {
-  notes: RecreationResourceNoteUIModel[];
+  notes: RecreationNoteDto[];
   recResourceId?: string;
   isArchived?: boolean;
   isLoading?: boolean;

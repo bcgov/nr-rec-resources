@@ -19,6 +19,7 @@ import type {
   ConsentFormDownloadResponseDto,
   CreateRecreationFeeDto,
   CreateRecreationMapFeaturesDto,
+  CreateRecreationNoteDto,
   CreateTrailDto,
   EstablishmentOrderDocDto,
   ExhibitADocDto,
@@ -36,6 +37,7 @@ import type {
   RecreationActivityDto,
   RecreationFeatureDto,
   RecreationFeeDto,
+  RecreationNoteDto,
   RecreationResourceAdvisoryDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
@@ -48,6 +50,7 @@ import type {
   UpdateFeaturesDto,
   UpdateImageConsentPatchDto,
   UpdateRecreationFeeDto,
+  UpdateRecreationNoteDto,
   UpdateRecreationResourceDto,
   UpdateRecreationResourceGeospatialDto,
   UpdateRecreationResourceReservationDto,
@@ -64,6 +67,8 @@ import {
   CreateRecreationFeeDtoToJSON,
   CreateRecreationMapFeaturesDtoFromJSON,
   CreateRecreationMapFeaturesDtoToJSON,
+  CreateRecreationNoteDtoFromJSON,
+  CreateRecreationNoteDtoToJSON,
   CreateTrailDtoFromJSON,
   CreateTrailDtoToJSON,
   EstablishmentOrderDocDtoFromJSON,
@@ -98,6 +103,8 @@ import {
   RecreationFeatureDtoToJSON,
   RecreationFeeDtoFromJSON,
   RecreationFeeDtoToJSON,
+  RecreationNoteDtoFromJSON,
+  RecreationNoteDtoToJSON,
   RecreationResourceAdvisoryDtoFromJSON,
   RecreationResourceAdvisoryDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
@@ -122,6 +129,8 @@ import {
   UpdateImageConsentPatchDtoToJSON,
   UpdateRecreationFeeDtoFromJSON,
   UpdateRecreationFeeDtoToJSON,
+  UpdateRecreationNoteDtoFromJSON,
+  UpdateRecreationNoteDtoToJSON,
   UpdateRecreationResourceDtoFromJSON,
   UpdateRecreationResourceDtoToJSON,
   UpdateRecreationResourceGeospatialDtoFromJSON,
@@ -159,6 +168,11 @@ export interface CreateRecreationResourceMapFeaturesRequest {
   createRecreationMapFeaturesDto: CreateRecreationMapFeaturesDto;
 }
 
+export interface CreateRecreationResourceNoteRequest {
+  recResourceId: string;
+  createRecreationNoteDto: CreateRecreationNoteDto;
+}
+
 export interface CreateTrailRequest {
   recResourceId: string;
   createTrailDto: CreateTrailDto;
@@ -187,6 +201,11 @@ export interface DeleteImageResourceRequest {
 export interface DeleteRecreationResourceFeeRequest {
   recResourceId: string;
   feeId: number;
+}
+
+export interface DeleteRecreationResourceNoteRequest {
+  recResourceId: string;
+  noteId: string;
 }
 
 export interface DeleteTrailRequest {
@@ -282,6 +301,10 @@ export interface GetRecreationResourceGeospatialRequest {
   recResourceId: string;
 }
 
+export interface GetRecreationResourceNotesRequest {
+  recResourceId: string;
+}
+
 export interface GetRecreationResourceReservationRequest {
   recResourceId: string;
 }
@@ -359,39 +382,10 @@ export interface UpdateRecreationResourceGeospatialRequest {
   updateRecreationResourceGeospatialDto: UpdateRecreationResourceGeospatialDto;
 }
 
-export interface CreateRecreationMapFeaturesDto {
-  features: Array<{
-    geometry: Record<string, unknown>;
-    section_id?: string;
-  }>;
-  recreation_type_code?: string;
-  rec_resource_name?: string;
-  natural_resource_district_code?: string;
-  recreation_district_code?: string;
-  submitted_by?: string;
-}
-
-export interface CreateRecreationResourceMapFeaturesRequest {
+export interface UpdateRecreationResourceNoteRequest {
   recResourceId: string;
-  createRecreationMapFeaturesDto: CreateRecreationMapFeaturesDto;
-}
-
-export interface PendingMapFeatureRequestRowDto {
-  rec_resource_id: string;
-  name?: string | null;
-  district_description?: string | null;
-  recreation_district?: string | null;
-  natural_resource_district?: string | null;
-  recreation_type?: string | null;
-  amend_status_code: string;
-  feature_count: number;
-  requested_at?: string | null;
-  geometry_types: string[];
-}
-
-export interface PendingMapFeatureRequestsResponseDto {
-  data: PendingMapFeatureRequestRowDto[];
-  total: number;
+  noteId: string;
+  updateRecreationNoteDto: UpdateRecreationNoteDto;
 }
 
 export interface UpdateRecreationResourceReservationRequest {
@@ -782,6 +776,82 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceGeospatialDto> {
     const response = await this.createRecreationResourceMapFeaturesRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Creates a staff-authored note and associates it with the recreation resource
+   * Create a note for a recreation resource
+   */
+  async createRecreationResourceNoteRaw(
+    requestParameters: CreateRecreationResourceNoteRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationNoteDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling createRecreationResourceNote().',
+      );
+    }
+
+    if (requestParameters['createRecreationNoteDto'] == null) {
+      throw new runtime.RequiredError(
+        'createRecreationNoteDto',
+        'Required parameter "createRecreationNoteDto" was null or undefined when calling createRecreationResourceNote().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/notes`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: CreateRecreationNoteDtoToJSON(
+          requestParameters['createRecreationNoteDto'],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationNoteDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Creates a staff-authored note and associates it with the recreation resource
+   * Create a note for a recreation resource
+   */
+  async createRecreationResourceNote(
+    requestParameters: CreateRecreationResourceNoteRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationNoteDto> {
+    const response = await this.createRecreationResourceNoteRaw(
       requestParameters,
       initOverrides,
     );
@@ -1223,6 +1293,81 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationFeeDto> {
     const response = await this.deleteRecreationResourceFeeRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Removes a staff-authored note. The previous row is retained in the note history table. Notes imported from FTA cannot be removed
+   * Delete a note for a recreation resource
+   */
+  async deleteRecreationResourceNoteRaw(
+    requestParameters: DeleteRecreationResourceNoteRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationNoteDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling deleteRecreationResourceNote().',
+      );
+    }
+
+    if (requestParameters['noteId'] == null) {
+      throw new runtime.RequiredError(
+        'noteId',
+        'Required parameter "noteId" was null or undefined when calling deleteRecreationResourceNote().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/notes/{note_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'note_id'}}`,
+      encodeURIComponent(String(requestParameters['noteId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationNoteDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Removes a staff-authored note. The previous row is retained in the note history table. Notes imported from FTA cannot be removed
+   * Delete a note for a recreation resource
+   */
+  async deleteRecreationResourceNote(
+    requestParameters: DeleteRecreationResourceNoteRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationNoteDto> {
+    const response = await this.deleteRecreationResourceNoteRaw(
       requestParameters,
       initOverrides,
     );
@@ -2348,6 +2493,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.  The order of elements in the response matches the order of types provided by the client.
    * List options for multiple types
    */
   async getOptionsByTypesRaw(
@@ -2378,7 +2524,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       }
     }
 
-    const urlPath = `/api/v1/recreation-resources/options`;
+    let urlPath = `/api/v1/recreation-resources/options`;
 
     const response = await this.request(
       {
@@ -2396,6 +2542,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.  The order of elements in the response matches the order of types provided by the client.
    * List options for multiple types
    */
   async getOptionsByTypes(
@@ -2703,6 +2850,70 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceGeospatialDto> {
     const response = await this.getRecreationResourceGeospatialRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Returns the notes and references for the recreation resource, newest first
+   * Get all notes for a recreation resource
+   */
+  async getRecreationResourceNotesRaw(
+    requestParameters: GetRecreationResourceNotesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationNoteDto>>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getRecreationResourceNotes().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/notes`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationNoteDtoFromJSON),
+    );
+  }
+
+  /**
+   * Returns the notes and references for the recreation resource, newest first
+   * Get all notes for a recreation resource
+   */
+  async getRecreationResourceNotes(
+    requestParameters: GetRecreationResourceNotesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationNoteDto>> {
+    const response = await this.getRecreationResourceNotesRaw(
       requestParameters,
       initOverrides,
     );
@@ -3706,24 +3917,31 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates map features from a validated shapefile payload
-   * Create map features for a recreation resource
+   * Updates a staff-authored note. Notes imported from FTA are read-only
+   * Update a note for a recreation resource
    */
-  async createRecreationResourceMapFeaturesRaw(
-    requestParameters: CreateRecreationResourceMapFeaturesRequest,
+  async updateRecreationResourceNoteRaw(
+    requestParameters: UpdateRecreationResourceNoteRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceGeospatialDto>> {
+  ): Promise<runtime.ApiResponse<RecreationNoteDto>> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling createRecreationResourceMapFeatures().',
+        'Required parameter "recResourceId" was null or undefined when calling updateRecreationResourceNote().',
       );
     }
 
-    if (requestParameters['createRecreationMapFeaturesDto'] == null) {
+    if (requestParameters['noteId'] == null) {
       throw new runtime.RequiredError(
-        'createRecreationMapFeaturesDto',
-        'Required parameter "createRecreationMapFeaturesDto" was null or undefined when calling createRecreationResourceMapFeatures().',
+        'noteId',
+        'Required parameter "noteId" was null or undefined when calling updateRecreationResourceNote().',
+      );
+    }
+
+    if (requestParameters['updateRecreationNoteDto'] == null) {
+      throw new runtime.RequiredError(
+        'updateRecreationNoteDto',
+        'Required parameter "updateRecreationNoteDto" was null or undefined when calling updateRecreationResourceNote().',
       );
     }
 
@@ -3742,37 +3960,43 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       }
     }
 
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/geospatial/map-features`;
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/notes/{note_id}`;
     urlPath = urlPath.replace(
       `{${'rec_resource_id'}}`,
       encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'note_id'}}`,
+      encodeURIComponent(String(requestParameters['noteId'])),
     );
 
     const response = await this.request(
       {
         path: urlPath,
-        method: 'POST',
+        method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
-        body: requestParameters['createRecreationMapFeaturesDto'],
+        body: UpdateRecreationNoteDtoToJSON(
+          requestParameters['updateRecreationNoteDto'],
+        ),
       },
       initOverrides,
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationResourceGeospatialDtoFromJSON(jsonValue),
+      RecreationNoteDtoFromJSON(jsonValue),
     );
   }
 
   /**
-   * Creates map features from a validated shapefile payload
-   * Create map features for a recreation resource
+   * Updates a staff-authored note. Notes imported from FTA are read-only
+   * Update a note for a recreation resource
    */
-  async createRecreationResourceMapFeatures(
-    requestParameters: CreateRecreationResourceMapFeaturesRequest,
+  async updateRecreationResourceNote(
+    requestParameters: UpdateRecreationResourceNoteRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationResourceGeospatialDto> {
-    const response = await this.createRecreationResourceMapFeaturesRaw(
+  ): Promise<RecreationNoteDto> {
+    const response = await this.updateRecreationResourceNoteRaw(
       requestParameters,
       initOverrides,
     );

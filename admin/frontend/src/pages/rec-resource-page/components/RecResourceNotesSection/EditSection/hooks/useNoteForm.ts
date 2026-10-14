@@ -5,7 +5,7 @@ import {
   useCreateNote,
   useUpdateNote,
 } from '@/services/hooks/recreation-resource-admin';
-import { RecreationResourceNoteUIModel } from '@/services/mocks/recreationResourceNotes';
+import { RecreationNoteDto } from '@/services/recreation-resource-admin';
 import { addSuccessNotification } from '@/store/notificationStore';
 import {
   NoteFormData,
@@ -22,10 +22,10 @@ export const useNoteForm = ({
 }: {
   recResourceId: string;
   mode: NoteFormMode;
-  initialNote?: RecreationResourceNoteUIModel;
+  initialNote?: RecreationNoteDto;
   onDone?: () => void;
 }) => {
-  const { authService } = useAuthContext();
+  const { user } = useAuthContext();
   const createNote = useCreateNote();
   const updateNote = useUpdateNote();
   const mutation = mode === 'create' ? createNote : updateNote;
@@ -45,8 +45,12 @@ export const useNoteForm = ({
     },
   });
 
-  // Both are server-derived and shown disabled, so they're outside the form.
-  const createdBy = initialNote?.created_by ?? authService.getUserFullName();
+  // Both are stamped by the server and shown disabled, so they sit outside the
+  // form. For a new note nothing is assigned yet, so preview the same values
+  // the backend will write rather than leaving the fields blank.
+  const createdBy =
+    initialNote?.created_by ??
+    (user?.idir_username ? `IDIR\\${user.idir_username}` : '');
   const dateLogged =
     initialNote?.date_logged ?? new Date().toISOString().slice(0, 10);
 
@@ -54,11 +58,8 @@ export const useNoteForm = ({
     if (mode === 'create') {
       await createNote.mutateAsync({
         recResourceId,
-        // Only plain notes can be created for now.
-        note_type: 'NOTE',
         title: data.title,
         body: data.body,
-        created_by: createdBy,
       });
       addSuccessNotification('Note saved successfully', 'createNote-success');
     } else {

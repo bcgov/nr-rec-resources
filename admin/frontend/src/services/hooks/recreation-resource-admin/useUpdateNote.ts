@@ -1,30 +1,32 @@
-import { ResponseError } from '@/services';
 import {
-  mockNotesApi,
-  RecreationResourceNoteUIModel,
-  UpdateNotePayload,
-} from '@/services/mocks/recreationResourceNotes';
+  RecreationNoteDto,
+  RecreationResourcesApi,
+  ResponseError,
+  useRecreationResourceAdminApiClient,
+} from '@/services';
 import { addErrorNotification } from '@/store/notificationStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createRetryHandler } from './helpers';
 import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
-export interface UpdateNoteRequest extends UpdateNotePayload {
+export interface UpdateNoteRequest {
   recResourceId: string;
   noteId: string;
+  title: string;
+  body: string;
 }
 
-// Writes to the in-memory mock until the notes endpoints exist.
 export function useUpdateNote() {
+  const api = useRecreationResourceAdminApiClient() as RecreationResourcesApi;
   const queryClient = useQueryClient();
 
-  return useMutation<
-    RecreationResourceNoteUIModel,
-    ResponseError,
-    UpdateNoteRequest
-  >({
-    mutationFn: async ({ recResourceId, noteId, ...payload }) =>
-      mockNotesApi.update(recResourceId, noteId, payload),
+  return useMutation<RecreationNoteDto, ResponseError, UpdateNoteRequest>({
+    mutationFn: async ({ recResourceId, noteId, ...noteData }) =>
+      await (api as any).updateRecreationResourceNote({
+        recResourceId,
+        noteId,
+        updateRecreationNoteDto: noteData,
+      }),
     retry: createRetryHandler({
       onFail: () =>
         addErrorNotification(
@@ -37,7 +39,7 @@ export function useUpdateNote() {
         variables.recResourceId,
       );
 
-      queryClient.setQueryData<RecreationResourceNoteUIModel[] | undefined>(
+      queryClient.setQueryData<RecreationNoteDto[] | undefined>(
         queryKey,
         (old) =>
           old?.map((existing) =>
@@ -46,7 +48,13 @@ export function useUpdateNote() {
       );
     },
     onError: (error) => {
-      if (error.response?.status === 404) {
+      const statusCode = error.response?.status;
+      if (statusCode === 403) {
+        addErrorNotification(
+          'Notes imported from FTA cannot be changed',
+          'updateNote-locked',
+        );
+      } else if (statusCode === 404) {
         addErrorNotification('Note not found', 'updateNote-notfound');
       }
     },

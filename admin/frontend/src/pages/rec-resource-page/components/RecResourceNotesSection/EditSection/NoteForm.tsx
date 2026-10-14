@@ -2,7 +2,7 @@ import { faCalendar, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Col, Form, InputGroup, Row, Stack } from 'react-bootstrap';
 import { RichTextEditor } from '@/components/form';
-import { RecreationResourceNoteUIModel } from '@/services/mocks/recreationResourceNotes';
+import { RecreationNoteDto } from '@/services/recreation-resource-admin';
 import {
   NOTE_BODY_HELPER_TEXT,
   NOTE_BODY_MAX_LENGTH,
@@ -23,7 +23,7 @@ export const NoteForm = ({
 }: {
   recResourceId: string;
   mode: NoteFormMode;
-  initialNote?: RecreationResourceNoteUIModel;
+  initialNote?: RecreationNoteDto;
   onDone?: () => void;
   onCancel: () => void;
   onDelete?: () => void;
