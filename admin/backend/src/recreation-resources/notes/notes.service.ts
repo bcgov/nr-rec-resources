@@ -48,17 +48,14 @@ export class NotesService {
       note_type_code: note.note_type_code,
       title: note.title,
       body: note.body,
-      // date only, so the client never has to reason about a timezone
+      // date only, so the client never deals with a timezone
       date_logged: note.date_logged.toISOString().slice(0, 10),
       created_by: note.created_by,
       is_editable: note.source_system !== NOTE_SOURCE_FTA,
     };
   }
 
-  /**
-   * Loads a note and asserts it belongs to the resource and can be changed.
-   * Notes imported from FTA are historical records and stay read-only.
-   */
+  /** Throws unless the note belongs to the resource and is editable. */
   private async getEditableNote(
     rec_resource_id: string,
     note_id: string,
@@ -83,9 +80,7 @@ export class NotesService {
     return note;
   }
 
-  /**
-   * Get all notes for a recreation resource, newest first.
-   */
+  /** Newest first. */
   async getAll(rec_resource_id: string): Promise<RecreationNoteDto[]> {
     this.logger.log(`Fetching notes for rec_resource_id: ${rec_resource_id}`);
 
@@ -99,8 +94,8 @@ export class NotesService {
   }
 
   /**
-   * Create a staff-authored note. created_by and the timestamps are applied by
-   * the Prisma audit extension; date_logged defaults to today in the database.
+   * created_by and the timestamps come from the Prisma audit extension,
+   * date_logged from the column default.
    */
   async create(
     rec_resource_id: string,
@@ -141,11 +136,7 @@ export class NotesService {
     return this.toDto(note);
   }
 
-  /**
-   * Hard delete. The versioning trigger on the table writes the removed row to
-   * recreation_resource_note_history, so the audit trail is kept there rather
-   * than behind a soft-delete flag.
-   */
+  /** The table's versioning trigger keeps the removed row in its history table. */
   async delete(
     rec_resource_id: string,
     note_id: string,

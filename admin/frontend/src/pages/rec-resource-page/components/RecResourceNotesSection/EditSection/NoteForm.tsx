@@ -50,7 +50,7 @@ export const NoteForm = ({
   return (
     <Form onSubmit={onSubmit} noValidate className="note-form">
       <Stack direction="vertical" gap={3}>
-        {/* Both stamped by the server, shown here only for context. */}
+        {/* Stamped by the server, shown here for context. */}
         <Row className="gy-3">
           <Col xs={12} md={6}>
             <Form.Group controlId="note-created-by">

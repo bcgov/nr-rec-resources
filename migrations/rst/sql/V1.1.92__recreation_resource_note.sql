@@ -1,8 +1,7 @@
 -- Notes and references for a recreation resource.
 --
--- Holds both staff-authored notes and records imported from FTA
--- (PROVFOREST_NOTE and ASSOCIATED_USE). Imported rows are identified by
--- source_system = 'FTA' and are read-only in the admin app.
+-- Holds staff-authored notes alongside records imported from FTA. Imported rows
+-- have source_system = 'FTA' and are read-only in the admin app.
 
 create table if not exists rst.recreation_note_type_code (
     note_type_code varchar(20) primary key,
@@ -27,9 +26,8 @@ values
 on conflict (note_type_code) do nothing;
 
 
--- Source of an associated file reference in FTA's ASSOCIATED_USE table. Only
--- used to build the title of imported association notes. Three descriptions are
--- truncated at source and are recorded here as observed.
+-- Source of an associated file reference in FTA's ASSOCIATED_USE table. A few
+-- descriptions are truncated at source and recorded here as observed.
 create table if not exists rst.recreation_file_source_code (
     file_source_code varchar(1) primary key,
     description      varchar(120) not null
@@ -103,7 +101,7 @@ comment on column rst.recreation_resource_note.source_system is 'System the note
 
 comment on column rst.recreation_resource_note.source_key is 'Natural key of the row in the source system, used to make re-import idempotent. Null for staff-authored notes.';
 
--- Partial so staff-authored rows, which have no source_key, are not constrained.
+-- Partial so staff-authored rows, which have no source_key, are unconstrained.
 create unique index if not exists uq_recreation_resource_note_source
     on rst.recreation_resource_note (source_system, source_key)
     where source_key is not null;

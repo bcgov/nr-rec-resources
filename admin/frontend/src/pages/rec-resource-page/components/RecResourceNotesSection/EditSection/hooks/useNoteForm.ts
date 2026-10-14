@@ -45,9 +45,8 @@ export const useNoteForm = ({
     },
   });
 
-  // Both are stamped by the server and shown disabled, so they sit outside the
-  // form. For a new note nothing is assigned yet, so preview the same values
-  // the backend will write rather than leaving the fields blank.
+  // Stamped by the server, so they sit outside the form. A new note previews
+  // the values the backend will write.
   const createdBy =
     initialNote?.created_by ??
     (user?.idir_username ? `IDIR\\${user.idir_username}` : '');
