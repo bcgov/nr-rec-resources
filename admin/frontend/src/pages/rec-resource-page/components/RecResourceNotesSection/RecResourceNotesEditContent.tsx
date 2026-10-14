@@ -40,7 +40,7 @@ export const RecResourceNotesEditContent = ({
     });
 
     setNotePendingRemoval(null);
-    // Delete can be reached from inside the edit modal, so close that too.
+    // Delete is also reachable from inside the edit modal.
     setNoteBeingEdited(null);
     addSuccessNotification('Note removed successfully', 'deleteNote-success');
   };
@@ -49,8 +49,6 @@ export const RecResourceNotesEditContent = ({
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center gap-3">
         <h2 className="mb-0">Edit notes and references</h2>
-        {/* Removes apply immediately and edits happen in a modal, so there is
-            no draft state here and nothing to save. */}
         <Button
           variant="outline-primary"
           onClick={() => void navigate({ to: viewPath })}
@@ -68,8 +66,7 @@ export const RecResourceNotesEditContent = ({
               key={note.note_id}
               note={note}
               isArchived={isArchived}
-              // Imported FTA notes are historical records: the API rejects
-              // changes to them, so they get no actions here either.
+              // The API rejects changes to imported notes.
               onEdit={note.is_editable ? setNoteBeingEdited : undefined}
               onRemove={note.is_editable ? setNotePendingRemoval : undefined}
             />

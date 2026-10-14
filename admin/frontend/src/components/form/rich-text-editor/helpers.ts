@@ -1,11 +1,8 @@
-/**
- * The editor stores HTML, but limits and counters should apply to what the
- * user actually typed, so markup doesn't eat the budget.
- */
+/** Length limits and counters apply to the text, not the markup around it. */
 export const getPlainText = (html: string): string => {
   if (!html) return '';
   const doc = new DOMParser().parseFromString(html, 'text/html');
-  // Quill writes a non-breaking space for a deliberate blank, count it as one.
+  // Quill writes a non-breaking space for a deliberate blank.
   return (doc.body.textContent ?? '').replace(/\u00a0/g, ' ');
 };
 

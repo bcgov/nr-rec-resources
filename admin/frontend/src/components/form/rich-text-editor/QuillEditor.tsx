@@ -11,10 +11,7 @@ const normalize = (html: string) => {
 interface QuillEditorProps {
   value: string;
   onChange: (html: string) => void;
-  /**
-   * Overrides the default toolbar. Pass a module-level constant - a fresh
-   * array on every render would tear down and rebuild the editor.
-   */
+  /** Pass a module-level constant; a new array rebuilds the editor. */
   toolbarOptions?: unknown[];
 }
 

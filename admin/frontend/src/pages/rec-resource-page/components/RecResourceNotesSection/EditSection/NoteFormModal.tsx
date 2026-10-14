@@ -31,7 +31,7 @@ export const NoteFormModal = ({
       onHide={onClose}
       centered
       size="lg"
-      // Caps the dialog at the viewport and scrolls the body rather than the page.
+      // Caps the dialog at the viewport and scrolls the body.
       scrollable
       className="note-form-modal"
     >

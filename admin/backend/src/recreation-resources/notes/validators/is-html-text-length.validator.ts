@@ -1,11 +1,9 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 
 /**
- * Strips tags and decodes the handful of entities the editor emits, so a limit
- * applies to what the user typed rather than to the markup around it.
- *
- * Mirrors getPlainText in the admin frontend's rich text editor - keep the two
- * in step or the character counter and this check will disagree.
+ * Strips tags and decodes the entities the editor emits, so length limits apply
+ * to what the user typed. Mirrors getPlainText in the admin frontend's rich
+ * text editor; the two need to stay in step.
  */
 export function getHtmlText(html: string): string {
   if (!html) return '';
@@ -37,8 +35,8 @@ export function IsHtmlTextLength(
           if (typeof value !== 'string') return false;
 
           const text = getHtmlText(value);
-          // Trimmed for the lower bound so a body of only blank paragraphs
-          // fails, untrimmed for the upper bound so trailing space still counts.
+          // Trimmed lower bound so blank paragraphs fail, untrimmed upper
+          // bound so trailing space still counts.
           return text.trim().length >= min && text.length <= max;
         },
         defaultMessage() {

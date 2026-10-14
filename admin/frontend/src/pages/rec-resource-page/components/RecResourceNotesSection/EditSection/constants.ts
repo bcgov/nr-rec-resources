@@ -10,8 +10,5 @@ export const NOTE_BODY_HELPER_TEXT =
 export const NOTE_CREATE_CALLOUT =
   'Use this to add critical contextual information for recreation resource';
 
-/**
- * Trimmed down from the shared default - the design has no lists.
- * Module level so the editor isn't rebuilt on every render.
- */
+/** Module level so the editor isn't rebuilt on every render. */
 export const NOTE_TOOLBAR_OPTIONS = [['bold', 'italic', 'underline'], ['link']];
