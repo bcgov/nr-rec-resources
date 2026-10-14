@@ -4,18 +4,18 @@ import { Button, Card, Stack } from 'react-bootstrap';
 import { CustomBadge } from '@/components/custom-badge';
 import { EditableGuard } from '@/components/auth';
 import { COLOR_BLACK, COLOR_WHITE } from '@/styles/colors';
-import { RecreationResourceNoteUIModel } from '@/services/mocks/recreationResourceNotes';
+import { RecreationNoteDto } from '@/services/recreation-resource-admin';
 import { SafeHtml } from '@shared/components/safe-html';
 import { formatDateFull } from '@shared/utils';
-import { NOTE_TYPE_LABELS } from './constants';
+import { getNoteTypeLabel } from './constants';
 import './RecResourceNotesSection.scss';
 
 type NoteCardProps = {
-  note: RecreationResourceNoteUIModel;
+  note: RecreationNoteDto;
   isArchived?: boolean;
   /** Both only passed in edit mode - the read-only view has no per-card actions. */
-  onEdit?: (note: RecreationResourceNoteUIModel) => void;
-  onRemove?: (note: RecreationResourceNoteUIModel) => void;
+  onEdit?: (note: RecreationNoteDto) => void;
+  onRemove?: (note: RecreationNoteDto) => void;
 };
 
 export const NoteCard = ({
@@ -35,7 +35,7 @@ export const NoteCard = ({
 
             <div>
               <CustomBadge
-                label={NOTE_TYPE_LABELS[note.note_type]}
+                label={getNoteTypeLabel(note.note_type_code)}
                 bgColor={COLOR_BLACK}
                 textColor={COLOR_WHITE}
                 fontWeight={700}

@@ -1,8 +1,9 @@
-import { ResponseError } from '@/services';
 import {
-  mockNotesApi,
-  RecreationResourceNoteUIModel,
-} from '@/services/mocks/recreationResourceNotes';
+  RecreationNoteDto,
+  RecreationResourcesApi,
+  ResponseError,
+  useRecreationResourceAdminApiClient,
+} from '@/services';
 import { addErrorNotification } from '@/store/notificationStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createRetryHandler } from './helpers';
@@ -13,13 +14,16 @@ export interface DeleteNoteRequest {
   noteId: string;
 }
 
-// Writes to the in-memory mock until the notes endpoints exist.
 export function useDeleteNote() {
+  const api = useRecreationResourceAdminApiClient() as RecreationResourcesApi;
   const queryClient = useQueryClient();
 
-  return useMutation<void, ResponseError, DeleteNoteRequest>({
+  return useMutation<RecreationNoteDto, ResponseError, DeleteNoteRequest>({
     mutationFn: async ({ recResourceId, noteId }) =>
-      mockNotesApi.remove(recResourceId, noteId),
+      await (api as any).deleteRecreationResourceNote({
+        recResourceId,
+        noteId,
+      }),
     retry: createRetryHandler({
       onFail: () =>
         addErrorNotification(
@@ -32,13 +36,19 @@ export function useDeleteNote() {
         variables.recResourceId,
       );
 
-      queryClient.setQueryData<RecreationResourceNoteUIModel[] | undefined>(
+      queryClient.setQueryData<RecreationNoteDto[] | undefined>(
         queryKey,
         (old) => old?.filter((note) => note.note_id !== variables.noteId) ?? [],
       );
     },
     onError: (error) => {
-      if (error.response?.status === 404) {
+      const statusCode = error.response?.status;
+      if (statusCode === 403) {
+        addErrorNotification(
+          'Notes imported from FTA cannot be removed',
+          'deleteNote-locked',
+        );
+      } else if (statusCode === 404) {
         addErrorNotification('Note not found', 'deleteNote-notfound');
       }
     },

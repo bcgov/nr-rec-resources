@@ -1,7 +1,7 @@
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert, Modal } from 'react-bootstrap';
-import { RecreationResourceNoteUIModel } from '@/services/mocks/recreationResourceNotes';
+import { RecreationNoteDto } from '@/services/recreation-resource-admin';
 import { NOTE_CREATE_CALLOUT } from './constants';
 import { NoteForm } from './NoteForm';
 import { NoteFormMode } from './hooks/useNoteForm';
@@ -17,7 +17,7 @@ export const NoteFormModal = ({
 }: {
   recResourceId: string;
   mode: NoteFormMode;
-  initialNote?: RecreationResourceNoteUIModel;
+  initialNote?: RecreationNoteDto;
   onClose: () => void;
   /** Only wired in edit mode - creates have nothing to delete yet. */
   onDelete?: () => void;

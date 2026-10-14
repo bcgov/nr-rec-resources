@@ -1,29 +1,30 @@
-import { ResponseError } from '@/services';
 import {
-  CreateNotePayload,
-  mockNotesApi,
-  RecreationResourceNoteUIModel,
-} from '@/services/mocks/recreationResourceNotes';
+  RecreationNoteDto,
+  RecreationResourcesApi,
+  ResponseError,
+  useRecreationResourceAdminApiClient,
+} from '@/services';
 import { addErrorNotification } from '@/store/notificationStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createRetryHandler } from './helpers';
 import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
-export interface CreateNoteRequest extends CreateNotePayload {
+export interface CreateNoteRequest {
   recResourceId: string;
+  title: string;
+  body: string;
 }
 
-// Writes to the in-memory mock until the notes endpoints exist.
 export function useCreateNote() {
+  const api = useRecreationResourceAdminApiClient() as RecreationResourcesApi;
   const queryClient = useQueryClient();
 
-  return useMutation<
-    RecreationResourceNoteUIModel,
-    ResponseError,
-    CreateNoteRequest
-  >({
-    mutationFn: async ({ recResourceId, ...payload }) =>
-      mockNotesApi.create(recResourceId, payload),
+  return useMutation<RecreationNoteDto, ResponseError, CreateNoteRequest>({
+    mutationFn: async ({ recResourceId, ...noteData }) =>
+      await (api as any).createRecreationResourceNote({
+        recResourceId,
+        createRecreationNoteDto: noteData,
+      }),
     retry: createRetryHandler({
       onFail: () =>
         addErrorNotification(
@@ -37,10 +38,15 @@ export function useCreateNote() {
       );
 
       // Newest first, matching the order the list query returns.
-      queryClient.setQueryData<RecreationResourceNoteUIModel[] | undefined>(
+      queryClient.setQueryData<RecreationNoteDto[] | undefined>(
         queryKey,
         (old) => (old ? [note, ...old] : [note]),
       );
+    },
+    onError: (error) => {
+      if (error.response?.status === 404) {
+        addErrorNotification('Resource not found', 'createNote-notfound');
+      }
     },
   });
 }

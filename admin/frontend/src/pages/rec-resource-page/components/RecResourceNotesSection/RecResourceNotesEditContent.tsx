@@ -4,7 +4,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal/DeleteConfirmationModal';
 import { useDeleteNote } from '@/services/hooks/recreation-resource-admin/useDeleteNote';
-import { RecreationResourceNoteUIModel } from '@/services/mocks/recreationResourceNotes';
+import { RecreationNoteDto } from '@/services/recreation-resource-admin';
 import { addSuccessNotification } from '@/store/notificationStore';
 import { NoteCard } from './NoteCard';
 import { NotesEmptyState } from './NotesEmptyState';
@@ -12,7 +12,7 @@ import { NoteFormModal } from './EditSection';
 import './RecResourceNotesSection.scss';
 
 type RecResourceNotesEditContentProps = {
-  notes: RecreationResourceNoteUIModel[];
+  notes: RecreationNoteDto[];
   recResourceId: string;
   isArchived?: boolean;
 };
@@ -24,9 +24,9 @@ export const RecResourceNotesEditContent = ({
 }: RecResourceNotesEditContentProps) => {
   const navigate = useNavigate();
   const [notePendingRemoval, setNotePendingRemoval] =
-    useState<RecreationResourceNoteUIModel | null>(null);
+    useState<RecreationNoteDto | null>(null);
   const [noteBeingEdited, setNoteBeingEdited] =
-    useState<RecreationResourceNoteUIModel | null>(null);
+    useState<RecreationNoteDto | null>(null);
   const deleteNote = useDeleteNote();
 
   const viewPath = ROUTE_PATHS.REC_RESOURCE_NOTES.replace('$id', recResourceId);
@@ -68,8 +68,10 @@ export const RecResourceNotesEditContent = ({
               key={note.note_id}
               note={note}
               isArchived={isArchived}
-              onEdit={setNoteBeingEdited}
-              onRemove={setNotePendingRemoval}
+              // Imported FTA notes are historical records: the API rejects
+              // changes to them, so they get no actions here either.
+              onEdit={note.is_editable ? setNoteBeingEdited : undefined}
+              onRemove={note.is_editable ? setNotePendingRemoval : undefined}
             />
           ))}
         </Stack>

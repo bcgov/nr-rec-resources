@@ -1,12 +1,12 @@
-import { RecreationResourceNoteType } from '@/services/mocks/recreationResourceNotes';
-
 /**
- * The model carries a type so references and associated files can be added
- * later, but only plain notes are in scope for now - there's no way to create
- * the other two, and everything imported from FTA comes in as a NOTE.
+ * The table carries a note_type_code so references and associated files can be
+ * added later.
  */
-export const NOTE_TYPE_LABELS: Record<RecreationResourceNoteType, string> = {
+export const NOTE_TYPE_LABELS: Record<string, string> = {
   NOTE: 'Note',
   REFERENCE: 'Reference',
   FILE: 'Associated file',
 };
+
+export const getNoteTypeLabel = (noteTypeCode: string) =>
+  NOTE_TYPE_LABELS[noteTypeCode] ?? NOTE_TYPE_LABELS.NOTE;
