@@ -237,3 +237,15 @@ variable "storage_remote_state" {
     region         = "ca-central-1"
   }
 }
+
+variable "bcgw_export_enabled" {
+  description = "Whether the admin backend runs the scheduled BCGW layer export to S3"
+  type        = bool
+  default     = true
+}
+
+variable "bcgw_export_cron" {
+  description = "Cron expression for the BCGW layer export. Runs more often than BCGW's hourly pull so a failed run is recovered before they fetch."
+  type        = string
+  default     = "*/15 * * * *"
+}

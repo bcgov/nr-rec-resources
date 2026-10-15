@@ -1,36 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { BcgwClosuresShortDto } from './bcgw-closures-short.dto';
+import {
+  BcgwFeatureBaseDto,
+  BcgwFeatureCollectionBaseDto,
+} from './bcgw-paginated-features.dto';
 
-export class BcgwRecreationResourceDto {
-  @ApiProperty({ example: 'REC204117' })
-  rec_resource_id: string;
-
-  @ApiProperty({ type: String, nullable: true })
-  rec_resource_name: string | null;
-
+/**
+ * Properties of the fully attributed closures layer.
+ *
+ * Extends the short closures layer, which is a strict subset of this one - the
+ * fields below are what the fully attributed layer adds on top.
+ */
+export class BcgwRecreationResourceDto extends BcgwClosuresShortDto {
   @ApiProperty({ type: String, example: 'SIT', nullable: true })
   rec_resource_type_code: string | null;
 
-  @ApiProperty({
-    type: String,
-    example: 'SIT - Recreation site',
-    nullable: true,
-  })
-  rec_resource_type: string | null;
-
   @ApiProperty({ type: String, format: 'date', nullable: true })
   project_established_date: Date | null;
-
-  @ApiProperty({ enum: ['Y', 'N'], example: 'N' })
-  closure_ind: string;
-
-  @ApiProperty({ type: String, format: 'date', nullable: true })
-  closure_date: Date | null;
-
-  @ApiProperty({ type: String, example: 'Wildfire', nullable: true })
-  closure_type: string | null;
-
-  @ApiProperty({ type: String, nullable: true })
-  closure_comment: string | null;
 
   @ApiProperty({ enum: ['Y', 'N'] })
   display_on_public_site_ind: string;
@@ -40,12 +26,6 @@ export class BcgwRecreationResourceDto {
 
   @ApiProperty({ type: String, example: 'HI - Issued', nullable: true })
   rec_status_description: string | null;
-
-  @ApiProperty({ type: String, example: 'PEMBERTON', nullable: true })
-  closest_community: string | null;
-
-  @ApiProperty({ example: 0 })
-  defined_campsites: number;
 
   @ApiProperty({ type: String, nullable: true })
   description: string | null;
@@ -67,14 +47,8 @@ export class BcgwRecreationResourceDto {
   })
   total_feature_length: number | null;
 
-  @ApiProperty({ type: String, nullable: true })
-  site_description: string | null;
-
   @ApiProperty({ type: String, format: 'date', nullable: true })
   site_description_date: Date | null;
-
-  @ApiProperty({ type: String, nullable: true })
-  driving_directions: string | null;
 
   @ApiProperty({ type: String, format: 'date', nullable: true })
   driving_directions_date: Date | null;
@@ -85,21 +59,8 @@ export class BcgwRecreationResourceDto {
   @ApiProperty({ type: String, example: 'B2 - Sand Beach', nullable: true })
   recreation_feature_description: string | null;
 
-  @ApiProperty({ type: String, example: 'RDPG', nullable: true })
-  recreation_district_code: string | null;
-
-  @ApiProperty({
-    type: String,
-    example: 'Prince George-Mackenzie',
-    nullable: true,
-  })
-  recreation_district_name: string | null;
-
   @ApiProperty({ type: String, example: 'DPG', nullable: true })
   org_unit_code: string | null;
-
-  @ApiProperty({ type: String, nullable: true })
-  org_unit_name: string | null;
 
   @ApiProperty({ type: Number, example: 10, nullable: true })
   utm_zone: number | null;
@@ -117,53 +78,12 @@ export class BcgwRecreationResourceDto {
     nullable: true,
   })
   utm_northing: number | null;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Latitude in decimal degrees (WGS84)',
-    example: 55.3237,
-    nullable: true,
-  })
-  latitude: number | null;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Longitude in decimal degrees (WGS84)',
-    example: -123.0935,
-    nullable: true,
-  })
-  longitude: number | null;
-
-  @ApiProperty({
-    type: String,
-    description: 'GeoJSON Point geometry (WGS84)',
-    example: '{"type":"Point","coordinates":[-123.0935,55.3237]}',
-    nullable: true,
-  })
-  shape: string | null;
 }
 
-export class BcgwPaginationMetaDto {
-  @ApiProperty({ example: 2500 })
-  total: number;
-
-  @ApiProperty({ example: 1 })
-  page: number;
-
-  @ApiProperty({ example: 3 })
-  totalPages: number;
-
-  @ApiProperty({ example: 1000 })
-  pageSize: number;
-}
-
-export class BcgwFeatureDto {
-  @ApiProperty({ example: 'Feature' })
-  type: 'Feature';
-
+export class BcgwFeatureDto extends BcgwFeatureBaseDto {
   @ApiProperty({
     description:
-      'GeoJSON Point geometry (WGS84), null when no site point exists',
+      'GeoJSON Point geometry (WGS84), null when no site point exists.',
     nullable: true,
     example: { type: 'Point', coordinates: [-123.0935, 55.3237] },
   })
@@ -173,17 +93,7 @@ export class BcgwFeatureDto {
   properties: BcgwRecreationResourceDto;
 }
 
-export class BcgwFeatureCollectionDto {
-  @ApiProperty({ example: 'FeatureCollection' })
-  type: 'FeatureCollection';
-
-  @ApiProperty({
-    description: 'Array of GeoJSON Feature objects',
-    isArray: true,
-    type: () => BcgwFeatureDto,
-  })
+export class BcgwFeatureCollectionDto extends BcgwFeatureCollectionBaseDto {
+  @ApiProperty({ isArray: true, type: () => BcgwFeatureDto })
   features: BcgwFeatureDto[];
-
-  @ApiProperty({ type: () => BcgwPaginationMetaDto })
-  meta: BcgwPaginationMetaDto;
 }

@@ -85,6 +85,7 @@ IMAGES_BUCKET=rst-storage-images-dev
 DOCUMENTS_BUCKET=rst-storage-public-documents-dev
 CONSENT_BUCKET=rst-storage-consent-forms-dev
 EXHIBIT_A_BUCKET=rst-lza-exhibit-a-docs-dev
+BCGW_EXPORTS_BUCKET=rst-bcgw-exports-dev
 CORS_CONFIG='{"CORSRules":[{"AllowedHeaders":["*"],"AllowedMethods":["PUT","GET","HEAD"],"AllowedOrigins":["http://localhost:3001"],"ExposeHeaders":["ETag"],"MaxAgeSeconds":3000}]}'
 
 .PHONY: localstack
@@ -113,6 +114,7 @@ localstack-buckets: ## Create S3 buckets in LocalStack
 	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(DOCUMENTS_BUCKET) 2>/dev/null || true
 	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(CONSENT_BUCKET) 2>/dev/null || true
 	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(EXHIBIT_A_BUCKET) 2>/dev/null || true
+	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(BCGW_EXPORTS_BUCKET) 2>/dev/null || true
 	@echo "Buckets created."
 
 .PHONY: localstack-cors

@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BcgwPaginationMetaDto } from './bcgw-recreation-resource.dto';
+import {
+  BcgwFeatureBaseDto,
+  BcgwFeatureCollectionBaseDto,
+} from './bcgw-paginated-features.dto';
 
+/**
+ * Properties of the short closures layer, which the fully attributed closures
+ * layer extends - it returns every field below plus its own.
+ */
 export class BcgwClosuresShortDto {
   @ApiProperty({ example: 'REC204117' })
   rec_resource_id: string;
@@ -67,23 +74,12 @@ export class BcgwClosuresShortDto {
     nullable: true,
   })
   longitude: number | null;
-
-  @ApiProperty({
-    type: String,
-    description: 'GeoJSON Point geometry (WGS84)',
-    example: '{"type":"Point","coordinates":[-123.0935,55.3237]}',
-    nullable: true,
-  })
-  shape: string | null;
 }
 
-export class BcgwClosuresShortFeatureDto {
-  @ApiProperty({ example: 'Feature' })
-  type: 'Feature';
-
+export class BcgwClosuresShortFeatureDto extends BcgwFeatureBaseDto {
   @ApiProperty({
     description:
-      'GeoJSON Point geometry (WGS84), null when no site point exists',
+      'GeoJSON Point geometry (WGS84), null when no site point exists.',
     nullable: true,
     example: { type: 'Point', coordinates: [-123.0935, 55.3237] },
   })
@@ -93,17 +89,7 @@ export class BcgwClosuresShortFeatureDto {
   properties: BcgwClosuresShortDto;
 }
 
-export class BcgwClosuresShortFeatureCollectionDto {
-  @ApiProperty({ example: 'FeatureCollection' })
-  type: 'FeatureCollection';
-
-  @ApiProperty({
-    description: 'Array of GeoJSON Feature objects',
-    isArray: true,
-    type: () => BcgwClosuresShortFeatureDto,
-  })
+export class BcgwClosuresShortFeatureCollectionDto extends BcgwFeatureCollectionBaseDto {
+  @ApiProperty({ isArray: true, type: () => BcgwClosuresShortFeatureDto })
   features: BcgwClosuresShortFeatureDto[];
-
-  @ApiProperty({ type: () => BcgwPaginationMetaDto })
-  meta: BcgwPaginationMetaDto;
 }

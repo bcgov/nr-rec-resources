@@ -147,6 +147,35 @@ resource "aws_iam_role_policy" "s3_establishment_order_docs" {
   })
 }
 
+# IAM policy for S3 access to the BCGW layer exports bucket
+# Only create for admin app - the export job and the redirect endpoints both live
+# in the admin backend. AbortMultipartUpload lets the job clean up after a failed
+# streamed upload.
+resource "aws_iam_role_policy" "s3_bcgw_exports" {
+  count = var.app == "admin" ? 1 : 0
+  name  = "${var.app_name}_s3_bcgw_exports"
+  role  = aws_iam_role.app_container_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:AbortMultipartUpload",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::rst-bcgw-exports-${var.target_env}",
+          "arn:aws:s3:::rst-bcgw-exports-${var.target_env}/*"
+        ]
+      }
+    ]
+  })
+}
+
 # IAM policy for S3 access to shared storage buckets (images and documents)
 # Admin app gets read/write access, public app gets read-only access
 resource "aws_iam_role_policy" "s3_storage_buckets" {
