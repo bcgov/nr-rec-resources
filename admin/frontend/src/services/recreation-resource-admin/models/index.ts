@@ -94,5 +94,6 @@ export * from './UpdateRecreationFeeDto';
 export * from './UpdateRecreationResourceDto';
 export * from './UpdateRecreationResourceGeospatialDto';
 export * from './UpdateRecreationResourceReservationDto';
+export * from './UpdateSpatialSubmissionStatusDto';
 export * from './UpdateTrailDto';
 export * from './ValidationErrorDetailDto';

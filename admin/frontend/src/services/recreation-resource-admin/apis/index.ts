@@ -7,3 +7,4 @@ export * from './BcgwApi';
 export * from './HealthApi';
 export * from './PartnersApi';
 export * from './RecreationResourcesApi';
+export * from './SncscApi';

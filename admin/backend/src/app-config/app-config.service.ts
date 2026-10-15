@@ -77,6 +77,10 @@ export class AppConfigService {
     return this.configService.get('BCGW_CSS_CLIENT_ID', { infer: true }) ?? '';
   }
 
+  get sncscCssClientId(): string {
+    return this.configService.get('SNCSC_CSS_CLIENT_ID', { infer: true }) ?? '';
+  }
+
   get forestClientApiUrl(): string {
     return this.configService.get('FOREST_CLIENT_API_URL', { infer: true })!;
   }
