@@ -18,6 +18,7 @@ locals {
   images_bucket_name           = "rst-storage-images-${var.target_env}"
   public_documents_bucket_name = "rst-storage-public-documents-${var.target_env}"
   consent_forms_bucket_name    = "rst-storage-consent-forms-${var.target_env}"
+  bcgw_exports_bucket_name     = "rst-bcgw-exports-${var.target_env}"
 
   # Get CloudFront domain from remote state
   admin_cf_domain = try(data.terraform_remote_state.admin_frontend[0].outputs.cloudfront.domain_name, "")
@@ -149,4 +150,66 @@ resource "aws_s3_bucket_public_access_block" "consent_forms" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+# =============================================================================
+# BCGW Exports S3 Bucket (Private - served via presigned URLs)
+# =============================================================================
+# Holds one gzipped GeoJSON file per BCGW layer, regenerated on a schedule by the
+# admin backend export job. The BCGW endpoints redirect to presigned URLs for
+# these objects, so the bucket itself is never public.
+
+resource "aws_s3_bucket" "bcgw_exports" {
+  bucket = local.bcgw_exports_bucket_name
+
+  tags = var.common_tags
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "bcgw_exports" {
+  bucket = aws_s3_bucket.bcgw_exports.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "bcgw_exports" {
+  bucket = aws_s3_bucket.bcgw_exports.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "bcgw_exports" {
+  bucket = aws_s3_bucket.bcgw_exports.id
+
+  # Each export overwrites the previous file, so nothing accumulates under normal
+  # operation. This is a backstop for any stray object.
+  rule {
+    id     = "expire-old-exports"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 7
+    }
+  }
+
+  # A task killed mid-export (deploy, scale-in) abandons its multipart parts.
+  # They are invisible in object listings but still billed, so clean them up.
+  rule {
+    id     = "abort-incomplete-multipart-uploads"
+    status = "Enabled"
+
+    filter {}
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
+  }
 }
