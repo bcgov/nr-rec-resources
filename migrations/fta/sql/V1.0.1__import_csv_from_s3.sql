@@ -533,3 +533,37 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_USER_DAYS_CODE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.provforest_note',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        provforest_note_skey,
+        entry_timestamp,
+        update_timestamp,
+        revision_count
+      )
+  )',
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'PROVFOREST_NOTE.csv', 'ca-central-1')
+);
+
+select aws_s3.table_import_from_s3(
+  'fta.associated_use',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        association_end_date,
+        entry_timestamp,
+        update_timestamp,
+        revision_count
+      )
+  )',
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'ASSOCIATED_USE.csv', 'ca-central-1')
+);
