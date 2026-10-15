@@ -22,7 +22,12 @@ describe('BCGW_LAYERS', () => {
       expect(layer.query).toMatch(/\bgeometry\b/);
       // Without a deterministic sort the exported file churns between runs even
       // when nothing changed, which defeats etag comparison on the BCGW side.
-      expect(layer.query).toMatch(/ORDER BY\s+\w+\s+ASC/i);
+      // The sort sits outside the query because the paginated endpoint wraps it
+      // and has to order on the aliased output columns, so check orderBy rather
+      // than the SQL, and check the query didn't grow its own ORDER BY.
+      expect(layer.orderBy).toMatch(/^\w+$/);
+      expect(layer.query).toContain(layer.orderBy);
+      expect(layer.query).not.toMatch(/\bORDER BY\b/i);
     },
   );
 
