@@ -10,6 +10,7 @@ interface SpatialSubmissionPreviewProps {
   editableFeatureCollection: SpatialFeatureCollection | null;
   requiresSectionIds: boolean;
   featureSectionIds: FeatureSectionId[];
+  existingSectionIds: string[];
   selectedFeatureIndex: number | null;
   setSelectedFeatureIndex: (index: number | null) => void;
   selectedSectionFeature: FeatureSectionId | null;
@@ -18,12 +19,17 @@ interface SpatialSubmissionPreviewProps {
   isCreatingRequest: boolean;
   requestCreated: boolean;
   onCreateRequest: () => void;
+  onSectionActionChange: (
+    sectionId: string,
+    action: 'NEW' | 'AMEND' | 'RETIRE',
+  ) => void;
 }
 
 export const SpatialSubmissionPreview = ({
   editableFeatureCollection,
   requiresSectionIds,
   featureSectionIds,
+  existingSectionIds,
   selectedFeatureIndex,
   setSelectedFeatureIndex,
   selectedSectionFeature,
@@ -32,10 +38,15 @@ export const SpatialSubmissionPreview = ({
   isCreatingRequest,
   requestCreated,
   onCreateRequest,
+  onSectionActionChange,
 }: SpatialSubmissionPreviewProps) => {
   if (!editableFeatureCollection?.features?.length) {
     return null;
   }
+
+  const checkNewFeature = (featureSectionId: FeatureSectionId) => {
+    return !existingSectionIds.includes(featureSectionId.sectionId ?? '');
+  };
 
   return (
     <>
@@ -99,7 +110,19 @@ export const SpatialSubmissionPreview = ({
                           }`}
                           onClick={() => setSelectedFeatureIndex(index)}
                         >
-                          <div className="fw-semibold">{sectionLabel}</div>
+                          <div className="fw-semibold">
+                            {sectionLabel}
+                            <span
+                              className={`badge badge-${featureSectionId.editAction?.toLowerCase() || 'new'}`}
+                            >
+                              {featureSectionId.editAction === 'NEW' ||
+                              featureSectionId.editAction === null
+                                ? 'New'
+                                : featureSectionId.editAction === 'AMEND'
+                                  ? 'Amend'
+                                  : 'Retire'}
+                            </span>
+                          </div>
                           <div
                             className={
                               isSelected
@@ -126,6 +149,25 @@ export const SpatialSubmissionPreview = ({
                       }
                       placeholder="Enter a unique section name"
                     />
+                    {!checkNewFeature(selectedSectionFeature) && (
+                      <>
+                        <div className="fw-semibold my-2">Action</div>
+                        <Form.Select
+                          aria-label="Select action for the selected feature"
+                          value={selectedSectionFeature.editAction ?? ''}
+                          required
+                          onChange={(event) =>
+                            onSectionActionChange(
+                              selectedSectionFeature.sectionId ?? '',
+                              event.target.value as 'NEW' | 'AMEND' | 'RETIRE',
+                            )
+                          }
+                        >
+                          <option value="AMEND">Amend</option>
+                          <option value="RETIRE">Retire</option>
+                        </Form.Select>
+                      </>
+                    )}
                   </Form.Group>
                 )}
               </Col>

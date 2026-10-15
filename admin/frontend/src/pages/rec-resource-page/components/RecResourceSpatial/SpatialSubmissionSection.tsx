@@ -39,12 +39,6 @@ const FEATURE_TYPE_OPTIONS = [
   { value: 'Polygon', label: 'Polygon' },
 ];
 
-const OPERATION_OPTIONS = [
-  { value: 'NEW', label: 'New' },
-  { value: 'AMEND', label: 'Amend' },
-  { value: 'RETIRE', label: 'Retire' },
-];
-
 interface WizardValues {
   recreationType: string;
   featureType: string;
@@ -68,7 +62,6 @@ const defaultValues: WizardValues = {
     actionCode: 'I',
     accuracyCode: '10',
     captureMethod: 'GPS',
-    operation: 'New',
   },
 };
 
@@ -561,25 +554,6 @@ export const SpatialSubmissionSection = ({
               </Form.Text>
             </Form.Group>
           </Col>
-
-          {editMode && (
-            <Col xs={12} md={6}>
-              <Form.Group>
-                <Form.Label>Operation</Form.Label>
-                <Form.Select
-                  aria-label="Operation"
-                  value={values.metadata.operation.toString()}
-                  onChange={(e) => setMetadata('operation', e.target.value)}
-                >
-                  {OPERATION_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          )}
 
           <Col xs={12}>
             {issues.length > 0 && (

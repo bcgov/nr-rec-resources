@@ -37,6 +37,7 @@ export function RecResourceGeospatialSection() {
     total_length_km,
     total_area_hectares,
     right_of_way_m,
+    section_ids,
   } = geospatialData || {};
 
   const hasGeometryData = utm_zone && utm_easting && utm_northing;
@@ -130,8 +131,6 @@ export function RecResourceGeospatialSection() {
         ? buildImapUrlFromUtm(utm_easting, utm_northing, utm_zone)
         : IMAP_URL;
 
-  console.log(recResource);
-
   return (
     <Stack direction="vertical" gap={4}>
       {/* ── Geospatial fields card ── */}
@@ -195,6 +194,7 @@ export function RecResourceGeospatialSection() {
           recResource?.recreation_district?.district_code
         }
         editMode={true}
+        existingSectionIds={section_ids ?? undefined}
       />
     </Stack>
   );

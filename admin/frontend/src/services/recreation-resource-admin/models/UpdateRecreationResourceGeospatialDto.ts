@@ -32,7 +32,19 @@ export interface UpdateRecreationResourceGeospatialDto {
    * @type {Array<UpdateRecreationMapFeatureGeometryDto>}
    * @memberof UpdateRecreationResourceGeospatialDto
    */
-  features: Array<UpdateRecreationMapFeatureGeometryDto>;
+  newFeatures: Array<UpdateRecreationMapFeatureGeometryDto>;
+  /**
+   * Validated shapefile features to persist as map feature rows
+   * @type {Array<UpdateRecreationMapFeatureGeometryDto>}
+   * @memberof UpdateRecreationResourceGeospatialDto
+   */
+  amendedFeatures: Array<UpdateRecreationMapFeatureGeometryDto>;
+  /**
+   * Validated shapefile features to persist as map feature rows
+   * @type {Array<UpdateRecreationMapFeatureGeometryDto>}
+   * @memberof UpdateRecreationResourceGeospatialDto
+   */
+  retiredFeatures: Array<UpdateRecreationMapFeatureGeometryDto>;
   /**
    * Recreation resource type code to store with request features
    * @type {object}
@@ -45,24 +57,7 @@ export interface UpdateRecreationResourceGeospatialDto {
    * @memberof UpdateRecreationResourceGeospatialDto
    */
   submitted_by?: object | null;
-  /**
-   * Operation to perform on the recreation resource geospatial data
-   * @type {string}
-   * @memberof UpdateRecreationResourceGeospatialDto
-   */
-  operation: UpdateRecreationResourceGeospatialDtoOperationEnum;
 }
-
-/**
- * @export
- */
-export const UpdateRecreationResourceGeospatialDtoOperationEnum = {
-  New: 'New',
-  Amend: 'Amend',
-  Retire: 'Retire',
-} as const;
-export type UpdateRecreationResourceGeospatialDtoOperationEnum =
-  (typeof UpdateRecreationResourceGeospatialDtoOperationEnum)[keyof typeof UpdateRecreationResourceGeospatialDtoOperationEnum];
 
 /**
  * Check if a given object implements the UpdateRecreationResourceGeospatialDto interface.
@@ -70,8 +65,12 @@ export type UpdateRecreationResourceGeospatialDtoOperationEnum =
 export function instanceOfUpdateRecreationResourceGeospatialDto(
   value: object,
 ): value is UpdateRecreationResourceGeospatialDto {
-  if (!('features' in value) || value['features'] === undefined) return false;
-  if (!('operation' in value) || value['operation'] === undefined) return false;
+  if (!('newFeatures' in value) || value['newFeatures'] === undefined)
+    return false;
+  if (!('amendedFeatures' in value) || value['amendedFeatures'] === undefined)
+    return false;
+  if (!('retiredFeatures' in value) || value['retiredFeatures'] === undefined)
+    return false;
   return true;
 }
 
@@ -89,7 +88,13 @@ export function UpdateRecreationResourceGeospatialDtoFromJSONTyped(
     return json;
   }
   return {
-    features: (json['features'] as Array<any>).map(
+    newFeatures: (json['newFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoFromJSON,
+    ),
+    amendedFeatures: (json['amendedFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoFromJSON,
+    ),
+    retiredFeatures: (json['retiredFeatures'] as Array<any>).map(
       UpdateRecreationMapFeatureGeometryDtoFromJSON,
     ),
     recreation_type_code:
@@ -98,7 +103,6 @@ export function UpdateRecreationResourceGeospatialDtoFromJSONTyped(
         : json['recreation_type_code'],
     submitted_by:
       json['submitted_by'] == null ? undefined : json['submitted_by'],
-    operation: json['operation'],
   };
 }
 
@@ -117,11 +121,16 @@ export function UpdateRecreationResourceGeospatialDtoToJSONTyped(
   }
 
   return {
-    features: (value['features'] as Array<any>).map(
+    newFeatures: (value['newFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoToJSON,
+    ),
+    amendedFeatures: (value['amendedFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoToJSON,
+    ),
+    retiredFeatures: (value['retiredFeatures'] as Array<any>).map(
       UpdateRecreationMapFeatureGeometryDtoToJSON,
     ),
     recreation_type_code: value['recreation_type_code'],
     submitted_by: value['submitted_by'],
-    operation: value['operation'],
   };
 }

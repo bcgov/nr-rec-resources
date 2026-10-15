@@ -9,7 +9,10 @@ import { PrismaService } from '@/prisma.service';
 import { getRecreationResourceGeospatialData } from '@prisma-generated-sql/getRecreationResourceGeospatialData';
 import { RecreationResourceGeospatialDto } from './dto/recreation-resource-geospatial.dto';
 import { CreateRecreationMapFeaturesDto } from './dto/create-recreation-map-features.dto';
-import { UpdateRecreationResourceGeospatialDto } from './dto/update-recreation-resource-geospatial.dto';
+import {
+  UpdateRecreationMapFeatureGeometryDto,
+  UpdateRecreationResourceGeospatialDto,
+} from './dto/update-recreation-resource-geospatial.dto';
 
 type FlatGeometryEntry = {
   geometry: Record<string, unknown>;
@@ -103,6 +106,13 @@ export class GeospatialService {
       return null;
     }
 
+    const sessions = await this.prisma.recreation_map_feature.findMany({
+      where: {
+        rec_resource_id,
+      },
+      select: { section_id: true },
+    });
+
     const data = result[0];
     if (!data) return null;
 
@@ -120,6 +130,9 @@ export class GeospatialService {
       utm_northing: data.utm_northing,
       latitude: data.latitude ? Number(data.latitude) : null,
       longitude: data.longitude ? Number(data.longitude) : null,
+      section_ids: sessions
+        .map((s) => s.section_id)
+        .filter((id): id is string => id != null),
     };
   }
 
@@ -231,6 +244,7 @@ export class GeospatialService {
       SET
         amendment_id =  ${(amendment_id ?? 0) + 1},
         recreation_resource_type = ${recreation_type_code || null},
+        retirement_date = null,
         updated_by = ${submitted_by || null},
         amend_status_code = ${'PND'}
       WHERE rmf_skey = ${rmfSkey}
@@ -289,6 +303,16 @@ export class GeospatialService {
     `);
   }
 
+  private flattenFeatures(
+    features: Array<UpdateRecreationMapFeatureGeometryDto>,
+  ): FlatGeometryEntry[] {
+    return features
+      .map((feature, index) =>
+        normalizeGeometryEntry(feature.geometry, index, feature.section_id),
+      )
+      .filter((entry): entry is FlatGeometryEntry => entry !== null);
+  }
+
   /**
    * Update map feature rows and geometry rows from a validated shapefile payload.
    * Updates only recreation_map_feature and recreation_map_feature_geom records.
@@ -297,33 +321,54 @@ export class GeospatialService {
     rec_resource_id: string,
     payload: UpdateRecreationResourceGeospatialDto,
   ): Promise<void> {
-    const features = payload.features ?? [];
-    if (!features?.length) {
-      throw new BadRequestException(
-        'At least one validated feature is required.',
-      );
-    }
-
-    this.logger.log(
-      `Updating ${payload.features.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
-    );
+    const newFeatures = payload.newFeatures ?? [];
+    const amendedFeatures = payload.amendedFeatures ?? [];
+    const retiredFeatures = payload.retiredFeatures ?? [];
 
     await this.prisma.$transaction(async (tx) => {
       await tx.$executeRawUnsafe(
         "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
       );
 
-      const flattenedEntries: FlatGeometryEntry[] = payload.features
-        .map((feature, index) =>
-          normalizeGeometryEntry(feature.geometry, index, feature.section_id),
-        )
-        .filter((entry): entry is FlatGeometryEntry => entry !== null);
+      const flattenedNewEntries: FlatGeometryEntry[] =
+        this.flattenFeatures(newFeatures);
+      this.logger.log(
+        `Creating ${newFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
+      );
+      let nextRmfSkey = 0;
+      // Only generate a new rmf_skey if there are new features
+      if (newFeatures.length > 0) {
+        const maxRmfSkeyQuery = [
+          'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
+          'FROM rst.recreation_map_feature',
+        ].join(' ');
 
-      if (!flattenedEntries.length) {
-        throw new BadRequestException('No supported geometries were found.');
+        const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
+          max_rmf_skey: number | bigint;
+        }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
+
+        nextRmfSkey = Number(max_rmf_skey) + 1;
+      }
+      for (const entry of flattenedNewEntries) {
+        await this.insertMapFeatureAndGeometry(
+          nextRmfSkey,
+          rec_resource_id,
+          entry.sectionId,
+          payload.recreation_type_code || null,
+          payload.submitted_by || null,
+          entry.geometryTypeCode,
+          entry.geometry,
+          tx,
+        );
+        nextRmfSkey++;
       }
 
-      for (const entry of flattenedEntries) {
+      const flattenedAmendedEntries: FlatGeometryEntry[] =
+        this.flattenFeatures(amendedFeatures);
+      this.logger.log(
+        `Updating ${amendedFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
+      );
+      for (const entry of flattenedAmendedEntries) {
         const rmfDataQuery = [
           'SELECT rmf_skey, amendment_id',
           'FROM rst.recreation_map_feature',
@@ -340,77 +385,51 @@ export class GeospatialService {
           amendment_id: number | null;
         }> = await tx.$queryRawUnsafe(rmfDataQuery);
 
-        let nextRmfSkey = 0;
-        // Only generate a new rmf_skey if the operation is "New"
-        switch (payload.operation) {
-          case 'New':
-            {
-              const maxRmfSkeyQuery = [
-                'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
-                'FROM rst.recreation_map_feature',
-              ].join(' ');
-
-              const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
-                max_rmf_skey: number | bigint;
-              }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
-
-              nextRmfSkey = Number(max_rmf_skey) + 1;
-            }
-            break;
-          default:
-            break;
+        if (rmf_skey === null) {
+          this.logger.error(
+            `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
+          );
+        } else {
+          await this.updateMapFeatureAndGeometry(
+            rmf_skey,
+            amendment_id,
+            payload.recreation_type_code || null,
+            payload.submitted_by || null,
+            entry.geometryTypeCode,
+            entry.geometry,
+            tx,
+          );
         }
+      }
 
-        switch (payload.operation) {
-          case 'New':
-            {
-              await this.insertMapFeatureAndGeometry(
-                nextRmfSkey,
-                rec_resource_id,
-                entry.sectionId,
-                payload.recreation_type_code || null,
-                payload.submitted_by || null,
-                entry.geometryTypeCode,
-                entry.geometry,
-                tx,
-              );
-            }
-            break;
-          case 'Amend': {
-            if (rmf_skey === null) {
-              this.logger.error(
-                `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
-              );
-            } else {
-              await this.updateMapFeatureAndGeometry(
-                rmf_skey,
-                amendment_id,
-                payload.recreation_type_code || null,
-                payload.submitted_by || null,
-                entry.geometryTypeCode,
-                entry.geometry,
-                tx,
-              );
-            }
-            break;
-          }
-          case 'Retire':
-            if (rmf_skey === null) {
-              this.logger.error(
-                `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
-              );
-            } else {
-              await this.retireFeature(
-                rmf_skey,
-                payload.submitted_by || null,
-                tx,
-              );
-            }
-            break;
-          default:
-            throw new BadRequestException(
-              `Invalid operation: ${String(payload.operation)}`,
-            );
+      const flattenedRetiredEntries: FlatGeometryEntry[] =
+        this.flattenFeatures(retiredFeatures);
+      this.logger.log(
+        `Retiring ${retiredFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
+      );
+      for (const entry of flattenedRetiredEntries) {
+        const rmfDataQuery = [
+          'SELECT rmf_skey, amendment_id',
+          'FROM rst.recreation_map_feature',
+          `WHERE rec_resource_id = '${rec_resource_id}' AND section_id = '${entry.sectionId}'`,
+        ].join(' ');
+
+        const [
+          { rmf_skey = null } = {
+            rmf_skey: null,
+            amendment_id: null,
+          } as RmfData,
+        ]: Array<{
+          rmf_skey: number | null;
+          amendment_id: number | null;
+        }> = await tx.$queryRawUnsafe(rmfDataQuery);
+
+        if (rmf_skey === null) {
+          this.logger.error(
+            `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
+          );
+        } else {
+          await this.retireFeature(rmf_skey, payload.submitted_by || null, tx);
         }
       }
     });
@@ -538,11 +557,9 @@ export class GeospatialService {
         );
       }
 
-      const flattenedEntries: FlatGeometryEntry[] = payload.features
-        .map((feature, index) =>
-          normalizeGeometryEntry(feature.geometry, index, feature.section_id),
-        )
-        .filter((entry): entry is FlatGeometryEntry => entry !== null);
+      const flattenedEntries: FlatGeometryEntry[] = this.flattenFeatures(
+        payload.features,
+      );
 
       if (!flattenedEntries.length) {
         throw new BadRequestException('No supported geometries were found.');

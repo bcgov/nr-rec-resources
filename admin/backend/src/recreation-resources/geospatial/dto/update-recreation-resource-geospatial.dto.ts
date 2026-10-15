@@ -5,16 +5,8 @@ import {
   IsOptional,
   IsString,
   IsArray,
-  ArrayNotEmpty,
   ValidateNested,
-  IsEnum,
 } from 'class-validator';
-
-export enum MapFeatureOperation {
-  NEW = 'New',
-  AMEND = 'Amend',
-  RETIRE = 'Retire',
-}
 
 export class UpdateRecreationMapFeatureGeometryDto {
   @ApiProperty({
@@ -48,10 +40,27 @@ export class UpdateRecreationResourceGeospatialDto {
     type: [UpdateRecreationMapFeatureGeometryDto],
   })
   @IsArray()
-  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => UpdateRecreationMapFeatureGeometryDto)
-  features: UpdateRecreationMapFeatureGeometryDto[];
+  newFeatures: UpdateRecreationMapFeatureGeometryDto[];
+
+  @ApiProperty({
+    description: 'Validated shapefile features to persist as map feature rows',
+    type: [UpdateRecreationMapFeatureGeometryDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateRecreationMapFeatureGeometryDto)
+  amendedFeatures: UpdateRecreationMapFeatureGeometryDto[];
+
+  @ApiProperty({
+    description: 'Validated shapefile features to persist as map feature rows',
+    type: [UpdateRecreationMapFeatureGeometryDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateRecreationMapFeatureGeometryDto)
+  retiredFeatures: UpdateRecreationMapFeatureGeometryDto[];
 
   @ApiProperty({
     description: 'Recreation resource type code to store with request features',
@@ -72,17 +81,4 @@ export class UpdateRecreationResourceGeospatialDto {
   @IsOptional()
   @IsString()
   submitted_by?: string | null;
-
-  @ApiProperty({
-    description:
-      'Operation to perform on the recreation resource geospatial data',
-    enum: MapFeatureOperation,
-    example: MapFeatureOperation.NEW,
-    required: true,
-  })
-  @IsEnum(MapFeatureOperation, {
-    message:
-      'operation must be one of the following values: New, Amend, Retire',
-  })
-  operation: MapFeatureOperation;
 }

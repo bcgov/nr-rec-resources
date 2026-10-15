@@ -193,6 +193,7 @@ export const extractSectionIdDetails = (
     (feature, index) => ({
       featureIndex: index + 1,
       sectionId: extractRawValue(feature),
+      editAction: null,
     }),
   );
 
