@@ -38,7 +38,7 @@ create table if not exists rst.recreation_spatial_submission
 
     constraint chk_spatial_submission_status_business_rules
         check (
-            (status = 'CLR' and decision is null and adjudication_report_document_uri is null)
+            (status = 'CLR' and decision is null and adjudication_comment is null and adjudication_report_document_uri is null)
             or (status = 'APP' and decision = 'APPROVE' and adjudication_report_document_uri is not null)
             or (status = 'REJ' and decision = 'REJECT' and adjudication_comment is not null)
             or (status in ('PND', 'FAI'))
@@ -46,8 +46,8 @@ create table if not exists rst.recreation_spatial_submission
 
     constraint chk_spatial_submission_adjudication
         check (
-            (adjudication_ind = false)
-            or (adjudicated_by is not null and adjudication_date is not null)
+            (adjudication_ind = true and status in ('APP', 'REJ') and adjudicated_by is not null and adjudication_date is not null)
+            or (adjudication_ind = false and status in ('PND', 'CLR', 'FAI') and adjudicated_by is null and adjudication_date is null)
         )
 );
 
@@ -67,7 +67,7 @@ comment on column rst.recreation_spatial_submission.purpose_code is 'Submission 
 comment on column rst.recreation_spatial_submission.recreation_resource_type is 'Recreation resource type code associated to the submission.';
 comment on column rst.recreation_spatial_submission.submission_date is 'Date the spatial request was sent to SNCSC.';
 comment on column rst.recreation_spatial_submission.org_unit_code is 'Natural resource organization unit code associated to the submission context.';
-comment on column rst.recreation_spatial_submission.adjudication_ind is 'Indicates whether the submission has been adjudicated.';
+comment on column rst.recreation_spatial_submission.adjudication_ind is 'Indicates whether a final adjudication decision has been made (true only for APP or REJ).';
 comment on column rst.recreation_spatial_submission.adjudicated_by is 'IDIR of the adjudicator.';
 comment on column rst.recreation_spatial_submission.adjudication_date is 'Date and time of adjudication.';
 comment on column rst.recreation_spatial_submission.adjudication_comment is 'Adjudication notes, including reject reason where applicable.';

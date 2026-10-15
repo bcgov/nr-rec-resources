@@ -53,14 +53,16 @@ export class SncscSpatialSubmissionStatusService {
           ? 'REJECT'
           : null;
 
+    const isAdjudicated = payload.status === 'APP' || payload.status === 'REJ';
+
     await this.prisma.recreation_spatial_submission.update({
       where: { application_guid: applicationGuid },
       data: {
         status: payload.status,
         decision,
-        adjudication_ind: true,
-        adjudicated_by: payload.userId,
-        adjudication_date: statusDate,
+        adjudication_ind: isAdjudicated,
+        adjudicated_by: isAdjudicated ? payload.userId : null,
+        adjudication_date: isAdjudicated ? statusDate : null,
         adjudication_comment:
           payload.status === 'CLR' ? null : normalizedComment,
         adjudication_report_document_uri:

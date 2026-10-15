@@ -118,6 +118,9 @@ describe('SncscSpatialSubmissionStatusService', () => {
     const [{ data }] =
       prisma.recreation_spatial_submission.update.mock.calls[0]!;
     expect(data.decision).toBeNull();
+    expect(data.adjudication_ind).toBe(false);
+    expect(data.adjudicated_by).toBeNull();
+    expect(data.adjudication_date).toBeNull();
     expect(data.adjudication_comment).toBeNull();
     expect(data.adjudication_report_document_uri).toBeNull();
   });
