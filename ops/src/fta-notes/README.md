@@ -1,23 +1,13 @@
 # FTA Note Import
 
-One-time import of historical notes from the FTA CSV extracts into
-`rst.recreation_resource_note`.
-
-## Overview
-
-Loads `PROVFOREST_NOTE.csv` and `ASSOCIATED_USE.csv` directly into the notes
-table, so dev and test can hold real imported notes.
-
-Imported notes land with `source_system = 'FTA'`, which makes them read-only in
-the admin app: the API rejects updates and deletes against them.
+Scripts for importing historical notes from the FTA CSV extracts, and for
+checking the CSVs against the `fta` mirror tables.
 
 ## Prerequisites
 
 - Node.js v18+
-- A database migrated to at least `V1.1.93`, which adds the mapping functions
+- A database migrated to at least `V1.1.93`
 - The two CSV extracts. They are not committed to this repo
-
-## Setup
 
 ```bash
 cd ops
@@ -27,16 +17,25 @@ npm install
 ## Environment Variables
 
 - **DATABASE_URL** (required): PostgreSQL connection string
-  - Example: `postgresql://postgres:default@localhost:5432/postgres`
 - **LOG_LEVEL** (optional): Winston log level. Default `info`
 
-## Usage
+## import-fta-notes
 
-Through the Makefile, from the repo root. Paths may be absolute or relative to
-the repo root:
+Loads `PROVFOREST_NOTE.csv` and `ASSOCIATED_USE.csv` into the database. Two
+targets:
+
+- `--target rst` (default) writes finished notes straight into
+  `rst.recreation_resource_note`, skipping the `fta` schema. Use it to get real
+  notes in front of the app.
+- `--target fta` stages the `fta` mirror tables instead, so the real
+  `V1.1.24__fta_to_rst_recreation_resource_note.sql` transform can be run
+  against them. Use it to test the transform.
+
+Imported notes land with `source_system = 'FTA'`, which makes them read-only in
+the admin app.
 
 ```bash
-# Report what would be imported, without writing
+# What would be imported, without writing
 make -C ops/src/fta-notes import-fta-notes-dry \
   NOTES_CSV=../PROVFOREST_NOTE.csv ASSOC_CSV=../ASSOCIATED_USE.csv
 
@@ -44,49 +43,45 @@ make -C ops/src/fta-notes import-fta-notes-dry \
 make -C ops/src/fta-notes import-fta-notes \
   NOTES_CSV=../PROVFOREST_NOTE.csv ASSOC_CSV=../ASSOCIATED_USE.csv
 
+# Stage the fta mirror tables, then run the transform yourself
+make -C ops/src/fta-notes import-fta-notes \
+  NOTES_CSV=../PROVFOREST_NOTE.csv ASSOC_CSV=../ASSOCIATED_USE.csv ARGS="--target fta"
+
 # Delete every FTA-sourced note first, then re-import
 make -C ops/src/fta-notes import-fta-notes-clean \
   NOTES_CSV=../PROVFOREST_NOTE.csv ASSOC_CSV=../ASSOCIATED_USE.csv
 
 # Against a different database
 make -C ops/src/fta-notes import-fta-notes \
-  DB_URL="postgresql://user:pass@host:5432/db" \
-  NOTES_CSV=... ASSOC_CSV=...
+  DB_URL="postgresql://user:pass@host:5432/db" NOTES_CSV=... ASSOC_CSV=...
 ```
 
-Or directly:
-
-```bash
-cd ops
-DATABASE_URL="postgresql://postgres:default@localhost:5432/postgres" \
-  npx tsx src/fta-notes/import-fta-notes.ts --help
-```
-
-## Command Line Options
+Paths may be absolute or relative to the repo root.
 
 ```
 Options:
   --notes-csv   Path to PROVFOREST_NOTE.csv            (required)
   --assoc-csv   Path to ASSOCIATED_USE.csv             (required)
+  --target      rst | fta                              (default: rst)
   --dry-run     Read and filter without writing        (boolean)
-  --clean       Delete all FTA-sourced notes first     (boolean)
+  --clean       Delete all FTA-sourced notes first     (boolean, rst only)
   --help        Show help
 ```
 
-## What gets filtered out
+### What gets filtered out
 
-Reported separately per source so the gap is visible rather than silent.
+Reported separately per source.
 
-| Reason                      | Why                                                                                                                                                |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `skippedNotRecFile`         | `FOREST_FILE_ID` is not a `REC%` id, matching every existing `fta_to_rst_*` transform                                                              |
-| `skippedConversionAccount`  | Created or last updated by `RECREATION_CONVERSION`, the 2005 data migration. Its rows are generated conversion summaries, not notes a person wrote |
-| `skippedNoMatchingResource` | No row in `rst.recreation_resource` with that id                                                                                                   |
+| Reason                      | Why                                                                                                                                     |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `skippedNotRecFile`         | `FOREST_FILE_ID` is not a `REC%` id                                                                                                     |
+| `skippedConversionAccount`  | Created or last updated by `RECREATION_CONVERSION`, the 2005 data migration. Its rows are generated summaries, not notes a person wrote |
+| `skippedNoMatchingResource` | No row in `rst.recreation_resource` with that id                                                                                        |
 
 Rows are dropped rather than failing the run, since the target database may only
 be partly populated.
 
-## Data Mapping
+### Data Mapping
 
 |                  | PROVFOREST_NOTE        | ASSOCIATED_USE                                         |
 | ---------------- | ---------------------- | ------------------------------------------------------ |
@@ -103,34 +98,42 @@ Escaping and date conversion happen in the database, through
 `rst.fta_note_to_html` and `rst.fta_note_pivot_date` from migration `V1.1.93`.
 Every path that imports FTA notes calls them, so keep the logic there.
 
-- `fta_note_to_html` escapes `&`, `<` and `>`, then converts line breaks to
-  `<br>`
-- `fta_note_pivot_date` turns `YY-MM-DD` into a date, pivoting two-digit years
-  at 50
+### A note on date formats
 
-## Re-running
+These CSVs carry two-digit years (`92-11-24`). The ones backend-el produces
+carry ISO-8601 timestamps, because `CSVPrinter` writes
+`LocalDateTime.toString()`. That is why `fta_note_pivot_date` is applied here
+but not in the transform, where the column has already been parsed into a date.
 
-Safe. Rows carry `(source_system, source_key)` and the insert ignores conflicts,
-so a second run reports `insertedNotes=0` and everything under `alreadyPresent`.
-Use `--clean` to force a full refresh after changing the mapping.
+Under the default `DateStyle` of `ISO, MDY`, `05-07-06` would silently parse as
+2006-05-07 and `92-11-24` would error, so the two-digit form must never reach a
+`date` column directly.
 
-Note that `--clean` deletes **all** notes with `source_system = 'FTA'`,
-including any loaded by database fixtures. Staff-authored notes are untouched.
+### Re-running
+
+Safe. Rows are keyed on `(source_system, source_key)` and the insert ignores
+conflicts, so a second run reports everything under `alreadyPresent`.
+
+`--clean` deletes **all** notes with `source_system = 'FTA'`, including any
+loaded by database fixtures. Staff-authored notes are untouched.
+
+## check-csv-columns
+
+Compares a CSV header against the column order of its `fta` mirror table.
+
+`aws_s3.table_import_from_s3` with an empty column list is positional:
+`HEADER true` only skips the first line, it does not match on names. A column
+added to one side and not the other loads every value into the wrong column,
+silently.
+
+```bash
+make -C ops/src/fta-notes check-csv-columns \
+  NOTES_CSV=../PROVFOREST_NOTE.csv ASSOC_CSV=../ASSOCIATED_USE.csv
+```
+
+Exits non-zero and logs each mismatched position if they disagree.
 
 ## Logging
 
-- **File**: `ops/logs/import-fta-notes-YYYY-MM-DDTHH-mm-ss.log`, JSON
+- **File**: `ops/logs/<script>-YYYY-MM-DDTHH-mm-ss.log`, JSON
 - **Console**: human-readable, to stderr
-
-## Example Output
-
-```
-info (import-fta-notes): Loaded reference data recreationResources=60 fileSourceCodes=19
-info (import-fta-notes): Read CSV extracts provforestNoteRows=7111 associatedUseRows=3748
-info (import-fta-notes): PROVFOREST_NOTE after filtering eligible=9 skippedNotRecFile=78 skippedConversionAccount=5164 skippedNoMatchingResource=1860
-info (import-fta-notes): ASSOCIATED_USE after filtering eligible=27 skippedNotRecFile=728 skippedConversionAccount=2865 skippedNoMatchingResource=128
-info (import-fta-notes): Import complete insertedNotes=9 insertedAssociations=27 alreadyPresent=0
-```
-
-A low eligible count against a large extract is expected locally, since most
-notes belong to resources that do not exist there.
