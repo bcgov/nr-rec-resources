@@ -1,8 +1,27 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const mockUseRecResource = vi.fn();
 const mockUseGetRecreationResourceGeospatial = vi.fn();
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        // Disable retries in tests to fail fast and avoid console noise
+        retry: false,
+      },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>{ui}</AuthProvider>
+    </QueryClientProvider>,
+  );
+};
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, className }: any) => (
@@ -52,6 +71,7 @@ vi.mock('@/hooks/useAuthorizations', () => ({
     ADMIN: 'rst-admin',
     DEVELOPER: 'rst-developer',
   },
+  useUserRoles: () => ['rst-viewer', 'rst-admin', 'rst-developer'],
   useAuthorizations: () => mockUseAuthorizations(),
 }));
 
@@ -105,14 +125,14 @@ describe('RecResourceGeospatialSection', () => {
   });
 
   it('renders header and edit link', () => {
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Geospatial')).toBeDefined();
     expect(screen.getByText('Edit')).toBeDefined();
   });
 
   it('renders geospatial overview items with formatted coordinates', () => {
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('UTM zone')).toBeDefined();
     expect(screen.getByText('10')).toBeDefined();
@@ -131,7 +151,7 @@ describe('RecResourceGeospatialSection', () => {
   });
 
   it('renders RecResourceLocationSection when recResource exists', () => {
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
 
     expect(screen.getByTestId('mock-location')).toHaveTextContent(
       'LocationSection rendered',
@@ -143,7 +163,7 @@ describe('RecResourceGeospatialSection', () => {
       data: {},
     });
 
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
 
     expect(screen.queryByText('Edit')).toBeNull();
   });
@@ -153,14 +173,14 @@ describe('RecResourceGeospatialSection', () => {
       data: undefined,
     });
 
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Geospatial')).toBeDefined();
     expect(screen.queryByText('Edit')).toBeNull();
   });
 
   it('renders ExhibitASection', () => {
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
     expect(screen.getByTestId('mock-exhibit-a')).toBeDefined();
   });
 
@@ -170,7 +190,7 @@ describe('RecResourceGeospatialSection', () => {
       isLoading: false,
     });
 
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
     expect(screen.queryByTestId('mock-location')).toBeNull();
   });
 
@@ -182,7 +202,7 @@ describe('RecResourceGeospatialSection', () => {
     });
 
     // Should render without throwing (imapUrl falls back to IMAP_URL constant)
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
     expect(screen.getByText('Geospatial')).toBeDefined();
   });
 
@@ -203,7 +223,7 @@ describe('RecResourceGeospatialSection', () => {
       },
     });
 
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Total area (ha)')).toBeDefined();
     expect(screen.getByText('61.6545')).toBeDefined();
@@ -230,7 +250,7 @@ describe('RecResourceGeospatialSection', () => {
       },
     });
 
-    render(<RecResourceGeospatialSection />);
+    renderWithProviders(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Total length (km)')).toBeDefined();
     expect(screen.getByText('41.103')).toBeDefined();
