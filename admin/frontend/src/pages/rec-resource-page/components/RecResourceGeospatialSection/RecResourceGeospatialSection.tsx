@@ -12,7 +12,7 @@ import { ExhibitASection } from './ExhibitASection/ExhibitASection';
 import { IMAP_URL } from '@/constants/urls';
 import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
 import './RecResourceGeospatialSection.scss';
-import { SpatialSubmissionSection } from '@/pages/rec-resource-page/components/RecResourceSpatial/SpatialSubmissionSection';
+import { SpatialSubmissionSection } from '@/components/RecResourceSpatial/SpatialSubmissionSection';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
