@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { UpdateRecreationMapFeatureGeometryDto } from './UpdateRecreationMapFeatureGeometryDto';
+import {
+  UpdateRecreationMapFeatureGeometryDtoFromJSON,
+  UpdateRecreationMapFeatureGeometryDtoFromJSONTyped,
+  UpdateRecreationMapFeatureGeometryDtoToJSON,
+  UpdateRecreationMapFeatureGeometryDtoToJSONTyped,
+} from './UpdateRecreationMapFeatureGeometryDto';
+
 /**
  *
  * @export
@@ -20,23 +28,35 @@ import { mapValues } from '../runtime';
  */
 export interface UpdateRecreationResourceGeospatialDto {
   /**
-   * UTM zone number for the site point (integer). Must be between 1 and 60.
-   * @type {number}
+   * Validated shapefile features to persist as map feature rows
+   * @type {Array<UpdateRecreationMapFeatureGeometryDto>}
    * @memberof UpdateRecreationResourceGeospatialDto
    */
-  utm_zone: number;
+  newFeatures: Array<UpdateRecreationMapFeatureGeometryDto>;
   /**
-   * UTM easting value (meters) for the site point. Positive numeric value expected.
-   * @type {number}
+   * Validated shapefile features to persist as map feature rows
+   * @type {Array<UpdateRecreationMapFeatureGeometryDto>}
    * @memberof UpdateRecreationResourceGeospatialDto
    */
-  utm_easting: number;
+  amendedFeatures: Array<UpdateRecreationMapFeatureGeometryDto>;
   /**
-   * UTM northing value (meters) for the site point. Positive numeric value expected.
-   * @type {number}
+   * Validated shapefile features to persist as map feature rows
+   * @type {Array<UpdateRecreationMapFeatureGeometryDto>}
    * @memberof UpdateRecreationResourceGeospatialDto
    */
-  utm_northing: number;
+  retiredFeatures: Array<UpdateRecreationMapFeatureGeometryDto>;
+  /**
+   * Recreation resource type code to store with request features
+   * @type {object}
+   * @memberof UpdateRecreationResourceGeospatialDto
+   */
+  recreation_type_code?: object | null;
+  /**
+   * Submitter name/email captured at request creation time
+   * @type {object}
+   * @memberof UpdateRecreationResourceGeospatialDto
+   */
+  submitted_by?: object | null;
 }
 
 /**
@@ -45,10 +65,11 @@ export interface UpdateRecreationResourceGeospatialDto {
 export function instanceOfUpdateRecreationResourceGeospatialDto(
   value: object,
 ): value is UpdateRecreationResourceGeospatialDto {
-  if (!('utm_zone' in value) || value['utm_zone'] === undefined) return false;
-  if (!('utm_easting' in value) || value['utm_easting'] === undefined)
+  if (!('newFeatures' in value) || value['newFeatures'] === undefined)
     return false;
-  if (!('utm_northing' in value) || value['utm_northing'] === undefined)
+  if (!('amendedFeatures' in value) || value['amendedFeatures'] === undefined)
+    return false;
+  if (!('retiredFeatures' in value) || value['retiredFeatures'] === undefined)
     return false;
   return true;
 }
@@ -67,9 +88,21 @@ export function UpdateRecreationResourceGeospatialDtoFromJSONTyped(
     return json;
   }
   return {
-    utm_zone: json['utm_zone'],
-    utm_easting: json['utm_easting'],
-    utm_northing: json['utm_northing'],
+    newFeatures: (json['newFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoFromJSON,
+    ),
+    amendedFeatures: (json['amendedFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoFromJSON,
+    ),
+    retiredFeatures: (json['retiredFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoFromJSON,
+    ),
+    recreation_type_code:
+      json['recreation_type_code'] == null
+        ? undefined
+        : json['recreation_type_code'],
+    submitted_by:
+      json['submitted_by'] == null ? undefined : json['submitted_by'],
   };
 }
 
@@ -88,8 +121,16 @@ export function UpdateRecreationResourceGeospatialDtoToJSONTyped(
   }
 
   return {
-    utm_zone: value['utm_zone'],
-    utm_easting: value['utm_easting'],
-    utm_northing: value['utm_northing'],
+    newFeatures: (value['newFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoToJSON,
+    ),
+    amendedFeatures: (value['amendedFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoToJSON,
+    ),
+    retiredFeatures: (value['retiredFeatures'] as Array<any>).map(
+      UpdateRecreationMapFeatureGeometryDtoToJSON,
+    ),
+    recreation_type_code: value['recreation_type_code'],
+    submitted_by: value['submitted_by'],
   };
 }

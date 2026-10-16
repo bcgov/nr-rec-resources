@@ -113,4 +113,14 @@ export class RecreationResourceGeospatialDto {
     nullable: true,
   })
   longitude?: number | null;
+
+  @ApiProperty({
+    description:
+      'Optional array of section identifiers/names for the existing features associated with this recreation resource',
+    type: [String],
+    required: false,
+    example: ['Section A', 'Section B'],
+    nullable: true,
+  })
+  section_ids?: string[] | null;
 }

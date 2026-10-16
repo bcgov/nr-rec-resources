@@ -48,8 +48,16 @@ describe('SpatialSubmissionPreview', () => {
   };
 
   const mockFeatureSectionIds: FeatureSectionId[] = [
-    { featureIndex: 1, sectionId: 'Section 1' },
-    { featureIndex: 2, sectionId: 'Section 2' },
+    {
+      featureIndex: 1,
+      sectionId: 'Section 1',
+      editAction: null,
+    },
+    {
+      featureIndex: 2,
+      sectionId: 'Section 2',
+      editAction: null,
+    },
   ];
 
   const defaultProps = {
@@ -64,6 +72,9 @@ describe('SpatialSubmissionPreview', () => {
     isCreatingRequest: false,
     requestCreated: false,
     onCreateRequest: mockOnCreateRequest,
+    existingSectionIds: [],
+    onSectionActionChange: () => {},
+    editMode: false,
   };
 
   it('returns null when no feature collection', () => {
@@ -311,6 +322,7 @@ describe('SpatialSubmissionPreview', () => {
     const features = Array.from({ length: 5 }, (_, i) => ({
       featureIndex: i + 1,
       sectionId: `Section ${i + 1}`,
+      editAction: null,
     }));
 
     const props = {
@@ -326,8 +338,16 @@ describe('SpatialSubmissionPreview', () => {
 
   it('uses feature number as fallback label when section ID is null', () => {
     const featureSectionIdsWithNull: FeatureSectionId[] = [
-      { featureIndex: 1, sectionId: null },
-      { featureIndex: 2, sectionId: 'Section 2' },
+      {
+        featureIndex: 1,
+        sectionId: null,
+        editAction: null,
+      },
+      {
+        featureIndex: 2,
+        sectionId: 'Section 2',
+        editAction: null,
+      },
     ];
 
     const props = {
@@ -343,7 +363,11 @@ describe('SpatialSubmissionPreview', () => {
 
   it('trims whitespace from section ID for display', () => {
     const featureSectionIdsWithWhitespace: FeatureSectionId[] = [
-      { featureIndex: 1, sectionId: '  Trimmed Section  ' },
+      {
+        featureIndex: 1,
+        sectionId: '  Trimmed Section  ',
+        editAction: null,
+      },
     ];
 
     const props = {

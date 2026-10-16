@@ -182,6 +182,18 @@ vi.mock(
   }),
 );
 
+const mockUpdateMapFeatures = vi.fn();
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceMapFeatures',
+  () => ({
+    useUpdateRecreationResourceMapFeatures: () => ({
+      mutateAsync: mockUpdateMapFeatures,
+      isPending: false,
+    }),
+  }),
+);
+
 vi.mock('@/components/RecResourceSpatial/spatialSubmissionUtils', () => ({
   ACTION_CODES: ['I', 'U'],
   ACCURACY_CODES: ['1', '5', '10', '100', '1000'],

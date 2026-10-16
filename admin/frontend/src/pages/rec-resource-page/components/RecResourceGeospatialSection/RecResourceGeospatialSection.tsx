@@ -12,6 +12,8 @@ import { ExhibitASection } from './ExhibitASection/ExhibitASection';
 import { IMAP_URL } from '@/constants/urls';
 import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
 import './RecResourceGeospatialSection.scss';
+import { SpatialSubmissionSection } from '@/components/RecResourceSpatial/SpatialSubmissionSection';
+
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
   maximumFractionDigits: 4,
@@ -35,6 +37,7 @@ export function RecResourceGeospatialSection() {
     total_length_km,
     total_area_hectares,
     right_of_way_m,
+    section_ids,
   } = geospatialData || {};
 
   const hasGeometryData = utm_zone && utm_easting && utm_northing;
@@ -160,19 +163,39 @@ export function RecResourceGeospatialSection() {
         </div>
       </div>
 
-      {/* ── Map + action buttons ── */}
+      {/* ── Location map ── */}
       {recResourceWithGeometry && (
-        <RecResourceLocationSection
-          recResource={recResourceWithGeometry}
-          showHeading={false}
-          imapUrl={imapUrl}
-        />
+        <div className="geospatial-section__card">
+          <div className="geospatial-section__card-header">
+            <h2 className="geospatial-section__card-title">Location map</h2>
+          </div>
+          <div className="geospatial-section__card-body">
+            <RecResourceLocationSection
+              recResource={recResourceWithGeometry}
+              showHeading={false}
+              imapUrl={imapUrl}
+            />
+          </div>
+        </div>
       )}
 
       {/* ── Exhibit A ── */}
       <div className="geospatial-section__card">
         <ExhibitASection recResourceId={recResourceId} />
       </div>
+
+      <SpatialSubmissionSection
+        recResourceId={recResourceId}
+        defaultRecreationTypeCode={recResource?.rec_resource_type_code}
+        defaultNaturalResourceDistrict={
+          recResource?.natural_resource_org_unit_name || undefined
+        }
+        defaultRecreationDistrict={
+          recResource?.recreation_district?.district_code
+        }
+        editMode={true}
+        existingSectionIds={section_ids ?? undefined}
+      />
     </Stack>
   );
 }
