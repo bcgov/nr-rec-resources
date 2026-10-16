@@ -63,6 +63,10 @@ export class EnvironmentVariables {
   @IsString()
   BCGW_CSS_CLIENT_ID?: string;
 
+  @IsOptional()
+  @IsString()
+  SNCSC_CSS_CLIENT_ID?: string;
+
   // Forest Client API configuration
   @IsUrl({ require_tld: false })
   @IsNotEmpty()

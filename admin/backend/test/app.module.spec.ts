@@ -4,6 +4,7 @@ import { AppService } from '@/app.service';
 import { AuthModule } from '@/auth';
 import { ActModule } from '@/act/act.module';
 import { BcgwModule } from '@/bcgw/bcgw.module';
+import { SncscModule } from '@/sncsc/sncsc.module';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -53,13 +54,14 @@ describe('AppModule', () => {
       const moduleFixture = AppModule;
       const metadata = Reflect.getMetadata('imports', moduleFixture);
 
-      expect(metadata).toHaveLength(11);
+      expect(metadata).toHaveLength(12);
       expect(metadata).toEqual(
         expect.arrayContaining([
           PassportModule,
           AuthModule,
           ActModule,
           BcgwModule,
+          SncscModule,
           expect.any(Function), // ClsModule.forRoot() returns a DynamicModule
           expect.any(Object), // AppConfigModule
           expect.any(Object), // UserContextModule

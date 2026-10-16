@@ -75,11 +75,32 @@ inbound and outbound data directions.
 - Auth note: `closures-fully-attributed` currently enforces the BCGW Keycloak
   bearer strategy in controller guards.
 
+### SNCSC Integration API (Inbound -> DB writes)
+
+- Base path: `/api/v1/sncsc/spatial-submissions`
+- Purpose: SNCSC pushes adjudication/clearance decisions for spatial
+  submissions.
+- Endpoint:
+  - `PUT /api/v1/sncsc/spatial-submissions/:application_guid/status`
+- Authentication and authorization: OAuth2 Client Credentials via CSS/Keycloak;
+  token must include the `sncsc-int` role.
+- Request payload fields:
+  - `@type` = `PermitApplicationStatusResource`
+  - `status` = `CLR | APP | REJ`
+  - `statusDate` (epoch milliseconds)
+  - `comment` (nullable)
+  - `adjudicationReportDocumentUri` (nullable; required for APP)
+  - `userId`
+- Persistence: updates are applied to `rst.recreation_spatial_submission`
+  addressed by `application_guid`.
+
 ### Database Update and Exchange Flows
 
 - ACT -> Admin API -> `rst.act_advisories_flat` (write/update/delete flow).
 - Admin users -> Admin API -> operational RST tables (core CRUD workflows).
 - BCGW -> Admin API -> SQL export views (read-only pull flow from BCGW side).
+- SNCSC -> Admin API -> `rst.recreation_spatial_submission` (status/adjudication
+  updates).
 
 ### Data Direction Quick Reference
 

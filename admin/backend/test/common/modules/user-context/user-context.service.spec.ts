@@ -46,11 +46,22 @@ describe('UserContextService', () => {
       );
     });
 
-    it('should throw UnauthorizedUserException if user has no idir_username', () => {
+    it('should fall back to preferred_username if idir_username is missing', () => {
       const mockUser = {
         sub: '123',
         iss: 'https://issuer',
         preferred_username: 'testuser@idir',
+        email: 'test@example.com',
+      } as KeycloakUserToken;
+      clsService.get.mockReturnValue(mockUser);
+
+      expect(service.getCurrentUserName()).toBe('testuser@idir');
+    });
+
+    it('should throw UnauthorizedUserException if user has no idir_username and no preferred_username', () => {
+      const mockUser = {
+        sub: '123',
+        iss: 'https://issuer',
         email: 'test@example.com',
       } as KeycloakUserToken;
       clsService.get.mockReturnValue(mockUser);

@@ -23,6 +23,12 @@ export enum RecreationResourceAuthRole {
    * to access the Act CUD advisory endpoints.
    */
   ACT_SERVICE = 'test-act',
+  /**
+   * Service account role assigned (via CSS) to the SNCSC integration client.
+   * Intended for SNCSC-protected endpoints that use a dedicated OAuth2
+   * Client Credentials flow.
+   */
+  SNCSC_SERVICE = 'sncsc-int',
   RST_SUPER_ADMIN = 'rst-super-admin',
   RST_DEVELOPER = 'rst-developer',
 }
@@ -50,6 +56,12 @@ export const AUTH_STRATEGY = {
    * CSS client provisioned for the BC Geographic Warehouse ingestion system.
    */
   BCGW_KEYCLOAK: 'bcgw-keycloak',
+  /**
+   * Passport strategy name used to authenticate the SNCSC integration.
+   * Tokens are issued via the OAuth2 Client Credentials grant flow from the
+   * CSS client provisioned for SNCSC.
+   */
+  SNCSC_KEYCLOAK: 'sncsc-keycloak',
 } as const;
 
 // Environment variable keys
