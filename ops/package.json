@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "sync-advisories": "tsx src/advisories/sync-advisories.ts",
-    "export-closed-resources": "tsx src/closures/export-closed-resources.ts"
+    "check-csv-columns": "tsx src/fta-notes/check-csv-columns.ts",
+    "export-closed-resources": "tsx src/closures/export-closed-resources.ts",
+    "import-fta-notes": "tsx src/fta-notes/import-fta-notes.ts",
+    "sync-advisories": "tsx src/advisories/sync-advisories.ts"
   },
   "dependencies": {
     "@aws-sdk/client-guardduty": "^3.1136.0",
     "@aws-sdk/client-s3": "^3.1136.0",
     "axios": "^1.9.0",
+    "csv-parse": "^5.6.0",
     "pg": "^8.11.0",
     "winston": "^3.17.0",
     "yargs": "^17.7.2"
