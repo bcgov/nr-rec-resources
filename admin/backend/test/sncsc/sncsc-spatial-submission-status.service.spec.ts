@@ -101,6 +101,48 @@ describe('SncscSpatialSubmissionStatusService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('throws BadRequestException when statusDate is not a valid epoch value', async () => {
+    prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
+      application_guid: 'date-guid',
+    });
+
+    await expect(
+      service.updateStatus('date-guid', {
+        '@type': SNCSC_STATUS_RESOURCE_TYPE,
+        status: 'APP',
+        statusDate: Number.NaN,
+        comment: 'ok',
+        adjudicationReportDocumentUri: 'dms://sncsc/reports/789',
+        userId: 'SNCSC_USER_01',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('updates REJ status with REJECT decision mapping', async () => {
+    prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
+      application_guid: 'rej-ok-guid',
+    });
+
+    await service.updateStatus('rej-ok-guid', {
+      '@type': SNCSC_STATUS_RESOURCE_TYPE,
+      status: 'REJ',
+      statusDate: 1791436445000,
+      comment: '  Rejected: insufficient detail  ',
+      adjudicationReportDocumentUri: '  dms://sncsc/reports/999  ',
+      userId: 'SNCSC_USER_01',
+    });
+
+    const [{ data }] =
+      prisma.recreation_spatial_submission.update.mock.calls.at(-1)!;
+    expect(data.decision).toBe('REJECT');
+    expect(data.adjudication_ind).toBe(true);
+    expect(data.adjudicated_by).toBe('SNCSC_USER_01');
+    expect(data.adjudication_comment).toBe('Rejected: insufficient detail');
+    expect(data.adjudication_report_document_uri).toBe(
+      'dms://sncsc/reports/999',
+    );
+  });
+
   it('normalizes CLR payload to null decision/comment/report', async () => {
     prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
       application_guid: 'clr-guid',
