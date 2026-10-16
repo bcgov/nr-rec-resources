@@ -16,6 +16,19 @@ export class CreateAgreementHolderDto extends AgreementDateRangeDto {
   clientNumber: string;
 
   @ApiProperty({
+    example: '00',
+    required: false,
+    description: 'Client location number (2-digit code)',
+  })
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @IsString()
+  @Matches(/^\d{2}$/, {
+    message: 'clientLocationNumber must be a 2-digit code.',
+  })
+  clientLocationNumber?: string;
+
+  @ApiProperty({
     example: false,
     required: false,
     description:

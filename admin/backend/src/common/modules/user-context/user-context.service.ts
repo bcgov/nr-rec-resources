@@ -18,16 +18,18 @@ export class UserContextService {
 
   /**
    * Gets the current user's IDIR username
-   * @throws {UnauthorizedUserException} If user is not authenticated or missing IDIR username
+   * Falls back to preferred_username for service-account tokens.
+   * @throws {UnauthorizedUserException} If user is not authenticated or has no usable username
    */
   getCurrentUserName(): string {
     const user = this.cls.get<KeycloakUserToken>(this.USER_KEY);
+    const username = user?.idir_username || user?.preferred_username;
 
-    if (!user?.idir_username) {
+    if (!username) {
       throw new UnauthorizedUserException();
     }
 
-    return user.idir_username;
+    return username;
   }
 
   /**

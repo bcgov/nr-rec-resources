@@ -33,6 +33,7 @@ export default defineConfig({
       RST_STORAGE_CLOUDFRONT_URL: 'https://test-cdn.example.com',
       AWS_REGION: 'ca-central-1',
       EXHIBIT_A_DOCS_BUCKET: 'rst-lza-exhibit-a-docs-dev',
+      BCGW_EXPORTS_BUCKET: 'rst-bcgw-exports-dev',
     },
     coverage: {
       provider: 'v8',

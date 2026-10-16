@@ -53,6 +53,7 @@ model recreation_resource {
   recreation_resource_note             recreation_resource_note[]
   recreation_resource_reservation_info recreation_resource_reservation_info?
   recreation_site_description          recreation_site_description?
+  recreation_spatial_submission        recreation_spatial_submission[]
   recreation_status                    recreation_status?
   recreation_structure                 recreation_structure[]
   recreation_resource_type_view_admin  recreation_resource_type_view_admin[]
@@ -124,11 +125,12 @@ model recreation_status_code {
 }
 
 model recreation_resource_type_code {
-  rec_resource_type_code String                   @id @db.VarChar(10)
-  description            String                   @db.VarChar(200)
-  updated_at             DateTime?                @default(now()) @db.Timestamp(6)
-  sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_map_feature recreation_map_feature[]
+  rec_resource_type_code        String                          @id @db.VarChar(10)
+  description                   String                          @db.VarChar(200)
+  updated_at                    DateTime?                       @default(now()) @db.Timestamp(6)
+  sys_period                    Unsupported("tstzrange")        @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_map_feature        recreation_map_feature[]
+  recreation_spatial_submission recreation_spatial_submission[]
 
   @@schema("rst")
 }
@@ -881,6 +883,7 @@ model recreation_agreement_holder {
   agreement_holder_id       Int                      @id @default(autoincrement())
   visible_on_public_website Boolean                  @default(false)
   cancelled                 Boolean                  @default(false)
+  client_locn_code          String?                  @db.VarChar(2)
   recreation_resource       recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([client_number])
@@ -903,6 +906,7 @@ model recreation_agreement_holder_history {
   agreement_holder_id       Int?
   visible_on_public_website Boolean?
   cancelled                 Boolean?
+  client_locn_code          String?                  @db.VarChar(2)
 
   @@ignore
   @@schema("rst")
@@ -1640,6 +1644,68 @@ model recreation_asset_code_history {
   has_width     Boolean                  @default(false)
   has_area      Boolean                  @default(false)
   default_value Decimal?                 @db.Decimal(7, 2)
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_spatial_submission {
+  application_guid                 String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  submission_id                    String                         @unique @default(dbgenerated("(nextval('recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)")) @db.VarChar(50)
+  tenure_id                        String                         @db.VarChar(20)
+  status_request_guid              String?                        @unique @db.VarChar(50)
+  status_request_type_code         String                         @db.VarChar(3)
+  status                           String                         @default("PND") @db.VarChar(3)
+  purpose_code                     String                         @db.VarChar(1)
+  recreation_resource_type         String?                        @db.VarChar(3)
+  submission_date                  DateTime                       @db.Date
+  org_unit_code                    String                         @db.VarChar(6)
+  adjudication_ind                 Boolean                        @default(false)
+  adjudicated_by                   String?                        @db.VarChar(30)
+  adjudication_date                DateTime?                      @db.Timestamp(6)
+  adjudication_comment             String?
+  adjudication_report_document_uri String?                        @db.VarChar(2048)
+  decision                         String?                        @db.VarChar(7)
+  updated_at                       DateTime?                      @default(now()) @db.Timestamp(6)
+  updated_by                       String?
+  created_at                       DateTime?                      @default(now()) @db.Timestamp(6)
+  created_by                       String?
+  sys_period                       Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource_type_code    recreation_resource_type_code? @relation(fields: [recreation_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource              recreation_resource            @relation(fields: [tenure_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([org_unit_code], map: "idx_recreation_spatial_submission_org_unit_code")
+  @@index([status], map: "idx_recreation_spatial_submission_status")
+  @@index([submission_date], map: "idx_recreation_spatial_submission_submission_date")
+  @@index([tenure_id], map: "idx_recreation_spatial_submission_tenure_id")
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_spatial_submission_history {
+  application_guid                 String                   @db.Uuid
+  submission_id                    String                   @db.VarChar(50)
+  tenure_id                        String                   @db.VarChar(20)
+  status_request_guid              String?                  @db.VarChar(50)
+  status_request_type_code         String                   @db.VarChar(3)
+  status                           String                   @db.VarChar(3)
+  purpose_code                     String                   @db.VarChar(1)
+  recreation_resource_type         String?                  @db.VarChar(3)
+  submission_date                  DateTime                 @db.Date
+  org_unit_code                    String                   @db.VarChar(6)
+  adjudication_ind                 Boolean
+  adjudicated_by                   String?                  @db.VarChar(30)
+  adjudication_date                DateTime?                @db.Timestamp(6)
+  adjudication_comment             String?
+  adjudication_report_document_uri String?                  @db.VarChar(2048)
+  decision                         String?                  @db.VarChar(7)
+  updated_at                       DateTime?                @db.Timestamp(6)
+  updated_by                       String?
+  created_at                       DateTime?                @db.Timestamp(6)
+  created_by                       String?
+  sys_period                       Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")

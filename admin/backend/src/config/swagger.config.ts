@@ -2,6 +2,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ACT_API_TAG } from '@/act/act.constants';
 import { AUTH_STRATEGY } from '@/auth';
+import { SNCSC_API_TAG } from '@/sncsc/sncsc.constants';
 
 export function setupAdminSwagger(
   app: NestExpressApplication,
@@ -35,6 +36,11 @@ export function setupAdminSwagger(
       'Secure CUD endpoints consumed by the Act integration to push ' +
         'advisory changes into act_advisories_flat. Requires a CSS-issued ' +
         'OAuth2 Client Credentials bearer token carrying the act-service role.',
+    )
+    .addTag(
+      SNCSC_API_TAG,
+      'Secure endpoints consumed by SNCSC to push spatial submission adjudication status updates. ' +
+        'Requires a CSS-issued OAuth2 Client Credentials bearer token carrying the sncsc-int role.',
     )
     .addBearerAuth(
       {
@@ -73,6 +79,20 @@ export function setupAdminSwagger(
       'BCGW integration OAuth2 Client Credentials flow via CSS. ' +
       'Used to authenticate the BC Geographic Warehouse ingestion system ' +
       'against the closures-fully-attributed endpoint.',
+    flows: {
+      clientCredentials: {
+        tokenUrl: actTokenProxyPath,
+        scopes: {},
+      },
+    },
+  };
+
+  document.components.securitySchemes[AUTH_STRATEGY.SNCSC_KEYCLOAK] = {
+    type: 'oauth2',
+    description:
+      'SNCSC integration OAuth2 Client Credentials flow via CSS. ' +
+      'Use the SNCSC CSS Client ID and Client Secret in Swagger Authorize ' +
+      'to request a bearer token for SNCSC-protected endpoints.',
     flows: {
       clientCredentials: {
         tokenUrl: actTokenProxyPath,

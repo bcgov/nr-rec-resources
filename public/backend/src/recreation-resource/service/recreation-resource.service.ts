@@ -95,31 +95,19 @@ export class RecreationResourceService {
   }
 
   /**
-   * The single partner shown publicly for a resource: visible on the website,
-   * not cancelled, and whose agreement has not lapsed. Ordered by
-   * agreement_holder_id so "first" is deterministic when a resource has more
-   * than one qualifying partner.
+   * The single partner shown publicly for a resource: visible on the website
+   * and not cancelled. An expired agreement does not hide its partner. Who
+   * gets displayed is staff-controlled, so the partner stays up until someone
+   * turns the toggle off in the admin app. Ordered by agreement_holder_id so
+   * "first" is deterministic when a resource has more than one qualifying
+   * partner.
    */
   async findSiteOperatorClientNumber(id: string): Promise<string | null> {
-    // agreement_end_date is a date-only column, so Prisma hands back UTC
-    // midnight. Comparing against today's UTC midnight with gte keeps an
-    // agreement current through the whole of its end date rather than
-    // expiring it at the start of that day.
-    const now = new Date();
-    const todayUtc = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-    );
-
     const supportsCancelledFlag = await this.hasCancelledFlag();
     const where: Record<string, any> = {
       rec_resource_id: id,
       visible_on_public_website: true,
       client_number: { not: null },
-      // An open-ended agreement (no end date) never expires.
-      OR: [
-        { agreement_end_date: null },
-        { agreement_end_date: { gte: todayUtc } },
-      ],
     };
 
     if (supportsCancelledFlag) {

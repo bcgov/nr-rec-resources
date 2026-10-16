@@ -16,6 +16,7 @@ import { ActModule } from './act/act.module';
 import { BcgwModule } from './bcgw/bcgw.module';
 import { PartnerModule } from './partner/partner.module';
 import { PrismaService } from './prisma.service';
+import { SncscModule } from './sncsc/sncsc.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PrismaService } from './prisma.service';
     RecreationResourceModule,
     ActModule,
     BcgwModule,
+    SncscModule,
     PartnerModule,
     UserContextModule,
     ApiMetricsModule.forRoot({

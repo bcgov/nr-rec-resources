@@ -120,7 +120,7 @@ describe('RecreationResourceService', () => {
       );
     });
 
-    it('should exclude lapsed agreements but keep open-ended ones', async () => {
+    it('should keep displaying a partner whose agreement has expired', async () => {
       vi.mocked(
         prismaService.recreation_agreement_holder.findFirst,
       ).mockResolvedValueOnce({ client_number: '01' } as any);
@@ -131,15 +131,10 @@ describe('RecreationResourceService', () => {
         prismaService.recreation_agreement_holder.findFirst,
       ).mock.calls[0]?.[0]?.where as any;
 
-      expect(where.OR).toStrictEqual([
-        { agreement_end_date: null },
-        { agreement_end_date: { gte: expect.any(Date) } },
-      ]);
-      // compared against today's UTC midnight, so an agreement ending today
-      // is still current for the whole of that day
-      const cutoff = where.OR[1].agreement_end_date.gte as Date;
-      expect(cutoff.getUTCHours()).toBe(0);
-      expect(cutoff.getUTCMinutes()).toBe(0);
+      // the end date plays no part: staff turn the toggle off when a partner
+      // should stop showing
+      expect(where.OR).toBeUndefined();
+      expect(where.agreement_end_date).toBeUndefined();
     });
 
     it('should return null when the resource has no qualifying partner', async () => {

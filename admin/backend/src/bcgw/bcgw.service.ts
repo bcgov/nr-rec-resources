@@ -1,271 +1,159 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+  Optional,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+import { S3Service } from '@/s3/s3.service';
 import { PrismaService } from 'src/prisma.service';
-import { getBcgwRecreationResources } from '@prisma-generated-sql/getBcgwRecreationResources';
-import { getBcgwClosuresShort } from '@prisma-generated-sql/getBcgwClosuresShort';
-import { getBcgwRecreationLines } from '@prisma-generated-sql/getBcgwRecreationLines';
-import { getBcgwRecreationPolygons } from '@prisma-generated-sql/getBcgwRecreationPolygons';
-import {
-  BcgwFeatureCollectionDto,
-  BcgwFeatureDto,
-  BcgwPaginationMetaDto,
-  BcgwRecreationResourceDto,
-} from './dto/bcgw-recreation-resource.dto';
-import {
-  BcgwClosuresShortDto,
-  BcgwClosuresShortFeatureCollectionDto,
-  BcgwClosuresShortFeatureDto,
-} from './dto/bcgw-closures-short.dto';
-import {
-  BcgwRecreationLinesDto,
-  BcgwRecreationLinesFeatureCollectionDto,
-  BcgwRecreationLinesFeatureDto,
-} from './dto/bcgw-recreation-lines.dto';
-import {
-  BcgwRecreationPolygonsDto,
-  BcgwRecreationPolygonsFeatureCollectionDto,
-  BcgwRecreationPolygonsFeatureDto,
-} from './dto/bcgw-recreation-polygons.dto';
+import { BcgwExportService } from './export/bcgw-export.service';
+import { BcgwLayer, findBcgwLayer } from './export/bcgw-layers';
+import { BcgwPaginatedResult } from './dto/bcgw-paginated-features.dto';
 
+/**
+ * How long a redirect's presigned URL stays valid. Long enough for BCGW to
+ * download a large layer over a slow link, short enough that a leaked URL
+ * expires quickly.
+ */
+const DOWNLOAD_URL_EXPIRY_SECONDS = 3600;
+
+/** Row shape returned by the paginated layer queries. */
+type LayerRow = Record<string, unknown> & { total_count: number | null };
+
+/**
+ * Serves BCGW layers two ways.
+ *
+ * The bulk path is a presigned URL for the file BcgwExportService produced out of
+ * band, which is how BCGW consumes a whole layer in one GET. The paginated path
+ * reads the views live, for debugging and for any consumer that would rather page
+ * than download a whole layer.
+ *
+ * The two can disagree: pagination sees the materialized views as of their last
+ * refresh, while a download sees the last export run. That is expected, and the
+ * manifest's generated_at is what makes the download's age legible.
+ */
 @Injectable()
 export class BcgwService {
-  static readonly PAGE_SIZE = 1000;
+  private readonly logger = new Logger(BcgwService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional()
+    @Inject(S3Service)
+    private readonly s3Service: S3Service | null,
+  ) {}
 
-  async findAll(page: number = 1): Promise<BcgwFeatureCollectionDto> {
-    const { currentPage, offset } = this.paginationParams(page);
-    const rows = await this.prisma.$queryRawTyped(
-      getBcgwRecreationResources(BcgwService.PAGE_SIZE, offset),
-    );
-    return this.buildCollection(rows, currentPage, (r) => this.toFeature(r));
+  /**
+   * The bucket is optional config, so reads go through here to fail with
+   * something explainable instead of a null dereference.
+   */
+  private requireS3(): S3Service {
+    if (!this.s3Service) {
+      throw new ServiceUnavailableException(
+        'BCGW layer downloads are not configured on this environment ' +
+          '(BCGW_EXPORTS_BUCKET is unset).',
+      );
+    }
+    return this.s3Service;
   }
 
-  async findAllShort(
+  /**
+   * Presigned download URL for a layer's most recent export.
+   *
+   * @param layerName - Layer name, matching the endpoint path segment
+   * @returns A presigned URL for the gzipped GeoJSON file
+   * @throws NotFoundException if no export has been produced yet
+   */
+  async getLayerDownloadUrl(layerName: string): Promise<string> {
+    const s3 = this.requireS3();
+    const key = BcgwExportService.dataKey(layerName);
+
+    if (!(await s3.objectExists(key))) {
+      this.logger.warn(`No export available for layer "${layerName}"`);
+      throw new NotFoundException(
+        `No export is available for "${layerName}" yet. The export job runs on a ` +
+          `schedule; if this persists, check that it is enabled and succeeding.`,
+      );
+    }
+
+    return s3.getSignedUrl(key, DOWNLOAD_URL_EXPIRY_SECONDS);
+  }
+
+  /**
+   * One page of a layer, read live from the `bcgw` views.
+   *
+   * @param layerName - Layer name, matching the endpoint path segment
+   * @param page - 1-indexed page number; anything lower is clamped to 1
+   * @throws NotFoundException if the layer name is not recognised
+   */
+  async findLayerPage<TProperties>(
+    layerName: string,
     page: number = 1,
-  ): Promise<BcgwClosuresShortFeatureCollectionDto> {
-    const { currentPage, offset } = this.paginationParams(page);
-    const rows = await this.prisma.$queryRawTyped(
-      getBcgwClosuresShort(BcgwService.PAGE_SIZE, offset),
-    );
-    return this.buildCollection(rows, currentPage, (r) =>
-      this.toClosuresShortFeature(r),
-    );
-  }
+  ): Promise<BcgwPaginatedResult<TProperties>> {
+    const layer = findBcgwLayer(layerName);
+    if (!layer) {
+      throw new NotFoundException(`Unknown BCGW layer "${layerName}"`);
+    }
 
-  async findAllLines(
-    page: number = 1,
-  ): Promise<BcgwRecreationLinesFeatureCollectionDto> {
-    const { currentPage, offset } = this.paginationParams(page);
-    const rows = await this.prisma.$queryRawTyped(
-      getBcgwRecreationLines(BcgwService.PAGE_SIZE, offset),
-    );
-    return this.buildCollection(rows, currentPage, (r) =>
-      this.toRecreationLinesFeature(r),
-    );
-  }
-
-  async findAllPolygons(
-    page: number = 1,
-  ): Promise<BcgwRecreationPolygonsFeatureCollectionDto> {
-    const { currentPage, offset } = this.paginationParams(page);
-    const rows = await this.prisma.$queryRawTyped(
-      getBcgwRecreationPolygons(BcgwService.PAGE_SIZE, offset),
-    );
-    return this.buildCollection(rows, currentPage, (r) =>
-      this.toRecreationPolygonsFeature(r),
-    );
-  }
-
-  private paginationParams(page: number): {
-    currentPage: number;
-    offset: number;
-  } {
-    const currentPage = Math.max(page, 1);
-    return { currentPage, offset: (currentPage - 1) * BcgwService.PAGE_SIZE };
-  }
-
-  private buildCollection<
-    TRow extends { total_count: number | null },
-    TFeature,
-  >(
-    rows: TRow[],
-    currentPage: number,
-    mapper: (row: TRow) => TFeature,
-  ): {
-    type: 'FeatureCollection';
-    features: TFeature[];
-    meta: BcgwPaginationMetaDto;
-  } {
+    const currentPage = Math.max(Math.trunc(page) || 1, 1);
+    const offset = (currentPage - 1) * layer.pageSize;
+    const rows = await this.queryPage(layer, offset);
     const total = rows.length > 0 ? (rows[0]!.total_count ?? 0) : 0;
+
     return {
       type: 'FeatureCollection',
-      features: rows.map(mapper),
+      features: rows.map((row) => this.toFeature<TProperties>(row)),
       meta: {
         total,
         page: currentPage,
-        totalPages: Math.ceil(total / BcgwService.PAGE_SIZE),
-        pageSize: BcgwService.PAGE_SIZE,
+        totalPages: Math.ceil(total / layer.pageSize),
+        pageSize: layer.pageSize,
       },
     };
   }
 
-  private toRecreationPolygonsFeature(
-    row: getBcgwRecreationPolygons.Result,
-  ): BcgwRecreationPolygonsFeatureDto {
-    const properties: BcgwRecreationPolygonsDto = {
-      rmf_skey: row.rmf_skey,
-      rec_resource_id: row.forest_file_id,
-      section_id: row.section_id,
-      rec_resource_type_code: row.recreation_map_feature_code,
-      rec_resource_type: row.project_type,
-      retirement_date: row.retirement_date,
-      amendment_id: row.amendment_id,
-      map_label: row.map_label,
-      rec_resource_name: row.project_name,
-      recreation_feature_code: row.recreation_feature_code,
-      resource_feature_ind: row.resource_feature_ind,
-      arch_impact_assess_ind: row.arch_impact_assess_ind,
-      closest_community: row.site_location,
-      project_established_date: row.project_established_date,
-      display_on_public_site_ind: row.recreation_view_ind,
-      recreation_district_code: row.recreation_district_code,
-      defined_campsites: Number(row.defined_campsites),
-      life_cycle_status_code: row.life_cycle_status_code,
-      rec_status_code: row.file_status_code,
-      district_code: row.geographic_district_code,
-      org_unit_name: row.geographic_district_name,
-      feature_area: row.feature_area != null ? Number(row.feature_area) : null,
-      feature_perimeter:
-        row.feature_perimeter != null ? Number(row.feature_perimeter) : null,
-      feature_area_sqm: row.feature_area_sqm,
-      feature_length_m:
-        row.feature_length_m != null ? Number(row.feature_length_m) : null,
-    };
+  /**
+   * Wraps the layer's query so the total can come back with the page rather than
+   * costing a second scan. `COUNT(*) OVER ()` is evaluated before LIMIT, so it
+   * counts the whole layer.
+   *
+   * The query text is static and the user-supplied values are parameterised, so
+   * $queryRawUnsafe is only carrying the interpolated column and view names that
+   * the layer definitions own.
+   */
+  private queryPage(layer: BcgwLayer, offset: number): Promise<LayerRow[]> {
+    return this.prisma.$queryRawUnsafe<LayerRow[]>(
+      `SELECT page.*, COUNT(*) OVER ()::int AS total_count
+       FROM (${layer.query}) AS page
+       ORDER BY ${layer.orderBy} ASC
+       LIMIT $1 OFFSET $2`,
+      layer.pageSize,
+      offset,
+    );
+  }
+
+  /**
+   * Geometry arrives as GeoJSON text and has to be parsed so it nests as an object
+   * in the response. That parse is what made the full inline responses so
+   * expensive, but at one page it is cheap - which is the whole point of the page
+   * sizes in the layer definitions.
+   */
+  private toFeature<TProperties>(
+    row: LayerRow,
+  ): BcgwPaginatedResult<TProperties>['features'][number] {
+    const { geometry, total_count: _total, ...properties } = row;
 
     return {
       type: 'Feature',
-      geometry: row.geometry ? JSON.parse(row.geometry) : null,
-      properties,
-    };
-  }
-
-  private toRecreationLinesFeature(
-    row: getBcgwRecreationLines.Result,
-  ): BcgwRecreationLinesFeatureDto {
-    const properties: BcgwRecreationLinesDto = {
-      rmf_skey: row.rmf_skey,
-      rec_resource_id: row.forest_file_id,
-      section_id: row.section_id,
-      rec_resource_type_code: row.recreation_map_feature_code,
-      rec_resource_type: row.project_type,
-      retirement_date: row.retirement_date,
-      amendment_id: row.amendment_id,
-      map_label: row.map_label,
-      rec_resource_name: row.project_name,
-      recreation_feature_code: row.recreation_feature_code,
-      resource_feature_ind: row.resource_feature_ind,
-      right_of_way: row.right_of_way != null ? Number(row.right_of_way) : null,
-      arch_impact_assess_ind: row.arch_impact_assess_ind,
-      closest_community: row.site_location,
-      project_established_date: row.project_established_date,
-      display_on_public_site_ind: row.recreation_view_ind,
-      recreation_district_code: row.recreation_district_code,
-      defined_campsites: Number(row.defined_campsites),
-      life_cycle_status_code: row.life_cycle_status_code,
-      rec_status_code: row.file_status_code,
-      district_code: row.district_code,
-      district_name: row.district_name,
-      feature_length:
-        row.feature_length != null ? Number(row.feature_length) : null,
-      feature_length_m:
-        row.feature_length_m != null ? Number(row.feature_length_m) : null,
-    };
-
-    return {
-      type: 'Feature',
-      geometry: row.geometry ? JSON.parse(row.geometry) : null,
-      properties,
-    };
-  }
-
-  private toClosuresShortFeature(
-    row: getBcgwClosuresShort.Result,
-  ): BcgwClosuresShortFeatureDto {
-    const properties: BcgwClosuresShortDto = {
-      rec_resource_id: row.forest_file_id,
-      rec_resource_name: row.project_name,
-      rec_resource_type: row.project_type,
-      closure_ind: row.closure_ind,
-      closure_date: row.closure_date,
-      closure_type: row.closure_type,
-      closest_community: row.site_location,
-      defined_campsites: Number(row.defined_campsites),
-      recreation_district_code: row.recreation_district_code,
-      recreation_district_name: row.recreation_district_name,
-      org_unit_name: row.org_unit_name,
-      closure_comment: row.closure_comment,
-      site_description: row.site_description,
-      driving_directions: row.driving_directions,
-      latitude: row.latitude,
-      longitude: row.longitude,
-      shape: row.shape,
-    };
-
-    return {
-      type: 'Feature',
-      geometry: row.shape ? JSON.parse(row.shape) : null,
-      properties,
-    };
-  }
-
-  private toFeature(row: getBcgwRecreationResources.Result): BcgwFeatureDto {
-    const properties: BcgwRecreationResourceDto = {
-      rec_resource_id: row.forest_file_id,
-      rec_resource_name: row.project_name,
-      rec_resource_type_code: row.project_type_code,
-      rec_resource_type: row.project_type,
-      project_established_date: row.project_established_date,
-      closure_ind: row.closure_ind,
-      closure_date: row.closure_date,
-      closure_type: row.closure_type,
-      closure_comment: row.closure_comment,
-      display_on_public_site_ind: row.recreation_view_ind,
-      rec_status_code: row.file_status_st,
-      rec_status_description: row.status_description,
-      closest_community: row.site_location,
-      defined_campsites: Number(row.defined_campsites),
-      description: row.site_description_brief,
-      arch_impact_assess_ind: row.arch_impact_assess_ind,
-      total_feature_area:
-        row.tenure_app_total_area != null
-          ? Number(row.tenure_app_total_area)
+      geometry:
+        typeof geometry === 'string' && geometry.length > 0
+          ? JSON.parse(geometry)
           : null,
-      total_feature_length:
-        row.tenure_app_total_length != null
-          ? Number(row.tenure_app_total_length)
-          : null,
-      site_description: row.site_description,
-      site_description_date: row.site_description_date,
-      driving_directions: row.driving_directions,
-      driving_directions_date: row.driving_directions_date,
-      recreation_feature_code: row.rec_feature_code,
-      recreation_feature_description: row.rec_feature_description,
-      recreation_district_code: row.recreation_district_code,
-      recreation_district_name: row.recreation_district_name,
-      org_unit_code: row.org_unit_code,
-      org_unit_name: row.org_unit_name,
-      utm_zone: row.utm_zone,
-      utm_easting: row.utm_easting,
-      utm_northing: row.utm_northing,
-      latitude: row.latitude,
-      longitude: row.longitude,
-      shape: row.shape,
-    };
-
-    return {
-      type: 'Feature',
-      geometry: row.shape ? JSON.parse(row.shape) : null,
-      properties,
+      // The query is untyped at the driver boundary, so the column list in the
+      // layer definition is what guarantees this matches the layer's DTO.
+      properties: properties as TProperties,
     };
   }
 }

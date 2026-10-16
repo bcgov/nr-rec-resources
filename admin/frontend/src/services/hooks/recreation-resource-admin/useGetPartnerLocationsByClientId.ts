@@ -10,15 +10,27 @@ import { createRetryHandler } from './helpers';
 
 export const useGetPartnerLocations = (
   mutationOptions: UseMutationOptions<
-    ClientLocationDto[],
+    ClientLocationDto[] | ClientLocationDto,
     ResponseError,
-    string
+    { clientId: string; locationId?: string }
   > = {},
 ) => {
   const api: PartnersApi = usePartnersApiClient();
 
-  return useMutation<ClientLocationDto[], ResponseError, string>({
-    mutationFn: async (clientId: string) => {
+  return useMutation<
+    ClientLocationDto[] | ClientLocationDto,
+    ResponseError,
+    { clientId: string; locationId?: string }
+  >({
+    mutationFn: async ({ clientId, locationId }) => {
+      // If locationId is provided, search for specific location
+      if (locationId) {
+        return await api.searchPartnerByClientId({
+          clientId,
+          locationNumber: locationId,
+        });
+      }
+      // Otherwise, get all locations for the client
       return await api.getPartnerLocationsByClientId({
         clientId,
       });

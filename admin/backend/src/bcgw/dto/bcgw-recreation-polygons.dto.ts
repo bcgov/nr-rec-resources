@@ -4,7 +4,10 @@ import {
   nullableNumberProperty,
   nullableStringProperty,
 } from './bcgw-nullable-property.helpers';
-import { BcgwPaginationMetaDto } from './bcgw-recreation-resource.dto';
+import {
+  BcgwFeatureBaseDto,
+  BcgwFeatureCollectionBaseDto,
+} from './bcgw-paginated-features.dto';
 
 export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
   @ApiProperty({
@@ -124,10 +127,7 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
   feature_length_m: number | null;
 }
 
-export class BcgwRecreationPolygonsFeatureDto {
-  @ApiProperty({ example: 'Feature' })
-  type: 'Feature';
-
+export class BcgwRecreationPolygonsFeatureDto extends BcgwFeatureBaseDto {
   @ApiProperty({
     description:
       'GeoJSON Polygon geometry (WGS84), null when no geometry exists.',
@@ -151,17 +151,7 @@ export class BcgwRecreationPolygonsFeatureDto {
   properties: BcgwRecreationPolygonsDto;
 }
 
-export class BcgwRecreationPolygonsFeatureCollectionDto {
-  @ApiProperty({ example: 'FeatureCollection' })
-  type: 'FeatureCollection';
-
-  @ApiProperty({
-    description: 'Array of GeoJSON Feature objects',
-    isArray: true,
-    type: () => BcgwRecreationPolygonsFeatureDto,
-  })
+export class BcgwRecreationPolygonsFeatureCollectionDto extends BcgwFeatureCollectionBaseDto {
+  @ApiProperty({ isArray: true, type: () => BcgwRecreationPolygonsFeatureDto })
   features: BcgwRecreationPolygonsFeatureDto[];
-
-  @ApiProperty({ type: () => BcgwPaginationMetaDto })
-  meta: BcgwPaginationMetaDto;
 }

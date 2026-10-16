@@ -5,6 +5,7 @@ apis/BcgwApi.ts
 apis/HealthApi.ts
 apis/PartnersApi.ts
 apis/RecreationResourcesApi.ts
+apis/SncscApi.ts
 apis/index.ts
 index.ts
 models/ActAdvisoryBulkResponseDto.ts
@@ -104,6 +105,7 @@ models/UpdateRecreationNoteDto.ts
 models/UpdateRecreationResourceDto.ts
 models/UpdateRecreationResourceGeospatialDto.ts
 models/UpdateRecreationResourceReservationDto.ts
+models/UpdateSpatialSubmissionStatusDto.ts
 models/UpdateTrailDto.ts
 models/ValidationErrorDetailDto.ts
 models/index.ts
