@@ -80,7 +80,7 @@
                     <div class="box box-primary">
                         <div class="box-header with-border">
                             <i class="ion ion-key"></i>
-                            <h3 class="box-title">46 Foreign Key Constraints</h3>
+                            <h3 class="box-title">48 Foreign Key Constraints</h3>
                             <div class="box-tools pull-right">
                                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
                                 <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
@@ -134,6 +134,42 @@
                                             <table border='0' cellspacing='0' cellpadding='0'>
                                                 <tr>
                                                     <td><a href='tables/recreation_activity_code.html'>recreation_activity_code</a><span>.recreation_activity_code</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>recreation_spatial_submission_recreation_resource_type_fkey</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/recreation_spatial_submission.html'>recreation_spatial_submission</a><span>.recreation_resource_type</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/recreation_resource_type_code.html'>recreation_resource_type_code</a><span>.rec_resource_type_code</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>recreation_spatial_submission_tenure_id_fkey</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/recreation_spatial_submission.html'>recreation_spatial_submission</a><span>.tenure_id</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/recreation_resource.html'>recreation_resource</a><span>.rec_resource_id</span></td>
                                                 </tr>
                                             </table>
                                         </td>
@@ -966,6 +1002,36 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <tr>
+                                        <td><a href='tables/recreation_spatial_submission.html'>recreation_spatial_submission</a></td>
+                                        <td>chk_spatial_submission_adjudication</td>
+                                        <td>(((adjudication_ind &#61; true) AND ((status)::text &#61; ANY ((ARRAY[&#39;APP&#39;::character varying, &#39;REJ&#39;::character varying])::text[])) AND (adjudicated_by IS NOT NULL) AND (adjudication_date IS NOT NULL)) OR ((adjudication_ind &#61; false) AND ((status)::text &#61; ANY ((ARRAY[&#39;PND&#39;::character varying, &#39;CLR&#39;::character varying, &#39;FAI&#39;::character varying])::text[])) AND (adjudicated_by IS NULL) AND (adjudication_date IS NULL)))</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href='tables/recreation_spatial_submission.html'>recreation_spatial_submission</a></td>
+                                        <td>chk_spatial_submission_decision</td>
+                                        <td>(((decision)::text &#61; ANY ((ARRAY[&#39;APPROVE&#39;::character varying, &#39;REJECT&#39;::character varying])::text[])) OR (decision IS NULL))</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href='tables/recreation_spatial_submission.html'>recreation_spatial_submission</a></td>
+                                        <td>chk_spatial_submission_purpose</td>
+                                        <td>((purpose_code)::text &#61; ANY ((ARRAY[&#39;N&#39;::character varying, &#39;A&#39;::character varying, &#39;R&#39;::character varying])::text[]))</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href='tables/recreation_spatial_submission.html'>recreation_spatial_submission</a></td>
+                                        <td>chk_spatial_submission_status</td>
+                                        <td>((status)::text &#61; ANY ((ARRAY[&#39;CLR&#39;::character varying, &#39;APP&#39;::character varying, &#39;REJ&#39;::character varying, &#39;PND&#39;::character varying, &#39;FAI&#39;::character varying])::text[]))</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href='tables/recreation_spatial_submission.html'>recreation_spatial_submission</a></td>
+                                        <td>chk_spatial_submission_status_business_rules</td>
+                                        <td>((((status)::text &#61; &#39;CLR&#39;::text) AND (decision IS NULL) AND (adjudication_comment IS NULL) AND (adjudication_report_document_uri IS NULL)) OR (((status)::text &#61; &#39;APP&#39;::text) AND ((decision)::text &#61; &#39;APPROVE&#39;::text) AND (adjudication_report_document_uri IS NOT NULL)) OR (((status)::text &#61; &#39;REJ&#39;::text) AND ((decision)::text &#61; &#39;REJECT&#39;::text) AND (adjudication_comment IS NOT NULL)) OR ((status)::text &#61; ANY ((ARRAY[&#39;PND&#39;::character varying, &#39;FAI&#39;::character varying])::text[])))</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href='tables/recreation_spatial_submission.html'>recreation_spatial_submission</a></td>
+                                        <td>chk_spatial_submission_status_request_type</td>
+                                        <td>((status_request_type_code)::text &#61; ANY ((ARRAY[&#39;RL&#39;::character varying, &#39;RPO&#39;::character varying])::text[]))</td>
+                                    </tr>
                                     <tr>
                                         <td><a href='tables/recreation_asset.html'>recreation_asset</a></td>
                                         <td>chk_no_self_parent</td>

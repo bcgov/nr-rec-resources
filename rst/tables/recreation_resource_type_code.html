@@ -140,6 +140,11 @@
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
+                                            <tr>
+                                                <td title="recreation_spatial_submission.recreation_resource_type references recreation_resource_type_code.rec_resource_type_code via recreation_spatial_submission_recreation_resource_type_fkey"><a href='recreation_spatial_submission.html'>recreation_spatial_submission</a><span class='relatedKey'>.recreation_resource_type</span></td>
+                                                <td class="constraint detail">recreation_spatial_submission_recreation_resource_type_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -260,36 +265,41 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="512,5,793,240">
-<area shape="rect" id="node2" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,120,468,307">
+<area shape="rect" id="node1" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="533,5,815,240">
+<area shape="rect" id="node2" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,261,468,448">
+<area shape="rect" id="node3" href="recreation_spatial_submission.html" target="_top" title="recreation_spatial_submission" alt="" coords="512,257,836,580">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_resource_type_code.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="512,5,793,240">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="117,25,357,113">
-<area shape="rect" id="node3" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,131,468,317">
-<area shape="rect" id="node4" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="837,8,1159,96">
+<area shape="rect" id="node1" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="533,5,815,240">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="117,103,357,191">
+<area shape="rect" id="node3" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,272,468,459">
+<area shape="rect" id="node4" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="880,8,1201,96">
+<area shape="rect" id="node5" href="recreation_spatial_submission.html" target="_top" title="recreation_spatial_submission" alt="" coords="512,257,836,580">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_resource_type_code.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
 <area shape="rect" id="node1" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="566,5,847,240">
-<area shape="rect" id="node2" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,188,468,375">
+<area shape="rect" id="node2" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,255,468,441">
 <area shape="rect" id="node3" href="recreation_resource_type_code_history.html" target="_top" title="recreation_resource_type_code_history" alt="" coords="512,257,901,375">
+<area shape="rect" id="node4" href="recreation_spatial_submission.html" target="_top" title="recreation_spatial_submission" alt="" coords="545,392,869,715">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_resource_type_code.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="410,111,631,199">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,75,245,163">
-<area shape="rect" id="node3" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="850,5,1131,240">
-<area shape="rect" id="node4" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="289,253,752,440">
-<area shape="rect" id="node5" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="1229,115,1551,203">
-<area shape="rect" id="node6" href="recreation_resource_type_code_history.html" target="_top" title="recreation_resource_type_code_history" alt="" coords="796,293,1185,411">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="410,584,631,672">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,511,245,599">
+<area shape="rect" id="node3" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="850,480,1131,715">
+<area shape="rect" id="node4" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="289,343,752,529">
+<area shape="rect" id="node5" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="1261,589,1582,677">
+<area shape="rect" id="node6" href="recreation_resource_type_code_history.html" target="_top" title="recreation_resource_type_code_history" alt="" coords="796,345,1185,463">
+<area shape="rect" id="node7" href="recreation_spatial_submission.html" target="_top" title="recreation_spatial_submission" alt="" coords="829,5,1153,328">
+<area shape="rect" id="node8" href="recreation_spatial_submission_history.html" target="_top" title="recreation_spatial_submission_history" alt="" coords="1229,8,1613,96">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_resource_type_code.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>

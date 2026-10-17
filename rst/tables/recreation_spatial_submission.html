@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>recreation_spatial_submission - default.rst</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="../bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="../bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="../bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="../bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="../bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="../bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='../fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='../fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="../bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="../schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="../bower/html5shiv/html5shiv.min.js"></script>
+        <script src="../bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="../../index.html" class="navbar-brand"><b>default</b></a><span class="navbar-brand" style="padding-left: 0">.rst</span>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="../index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="../columns.html" title="All of the columns in the schema">Columns</a></li>
+                                <li><a href="../constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+                                <li><a href="../relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <li><a href="../orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+                                <li><a href="../anomalies.html" title="Things that might not be quite right">Anomalies</a></li>
+                                <li><a href="../routines.html" title="Procedures and functions">Routines</a></li>
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>recreation_spatial_submission</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>Tracks spatial submission requests sent to SNCSC and their adjudication outcomes.</p>
+                        </div><!-- /.box-body -->
+                    </div>
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                            <h3 id="Columns" class="box-title">Columns</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="standard_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Size</th>
+                                    <th title='Are nulls allowed?'>Nulls</th>
+                                    <th title='Is column automatically updated?'>Auto</th>
+                                    <th title='Default value'>Default</th>
+                                    <th title='Columns in tables that reference this column'>Children</th>
+                                    <th title='Columns in tables that are referenced by this column'>Parents</th>
+                                    <th title='Comments' class="toggle"><span>Comments</span></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="application_guid">application_guid</span></td>
+                                    <td>uuid</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>gen_random_uuid()</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_spatial_submission_history.application_guid&#39;s name implies that it&#39;s a child of recreation_spatial_submission.application_guid, but it doesn&#39;t reference that column."><a href='recreation_spatial_submission_history.html'>recreation_spatial_submission_history</a><span class='relatedKey'>.application_guid</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Primary GUID for the submission record in RST.</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="submission_id">submission_id</span></td>
+                                    <td>varchar</td>
+                                    <td>50</td>
+                                    <td title=''></td>
+                                    <td title='Automatically updated by the database'>√</td>
+                                    <td>(nextval(&#39;rst.recreation_spatial_submission_submission_id_seq&#39;::regclass))::character varying(50)</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Client-facing submission identifier (auto-generated incremental value when omitted).</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="tenure_id">tenure_id</span></td>
+                                    <td>varchar</td>
+                                    <td>20</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_spatial_submission.tenure_id references recreation_resource.rec_resource_id via recreation_spatial_submission_tenure_id_fkey"><a href='recreation_resource.html'>recreation_resource</a><span class='relatedKey'>.rec_resource_id</span></td>
+                                                <td class="constraint detail">recreation_spatial_submission_tenure_id_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Tenure identifier (FK to rst.recreation_resource.rec_resource_id).</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="status_request_guid">status_request_guid</span></td>
+                                    <td>varchar</td>
+                                    <td>50</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>SNCSC internal record key returned after submission creation.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="status_request_type_code">status_request_type_code</span></td>
+                                    <td>varchar</td>
+                                    <td>3</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Request geometry type: RL (Linear) or RPO (Polygonal).</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="status">status</span></td>
+                                    <td>varchar</td>
+                                    <td>3</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>&#39;PND&#39;::character varying</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Submission lifecycle status: PND, CLR, APP, REJ, or FAI.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="purpose_code">purpose_code</span></td>
+                                    <td>varchar</td>
+                                    <td>1</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Submission purpose: N (New), A (Amend), or R (Retire).</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="recreation_resource_type">recreation_resource_type</span></td>
+                                    <td>varchar</td>
+                                    <td>3</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_spatial_submission.recreation_resource_type references recreation_resource_type_code.rec_resource_type_code via recreation_spatial_submission_recreation_resource_type_fkey"><a href='recreation_resource_type_code.html'>recreation_resource_type_code</a><span class='relatedKey'>.rec_resource_type_code</span></td>
+                                                <td class="constraint detail">recreation_spatial_submission_recreation_resource_type_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Recreation resource type code associated to the submission.</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="submission_date">submission_date</span></td>
+                                    <td>date</td>
+                                    <td>13</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Date the spatial request was sent to SNCSC.</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="org_unit_code">org_unit_code</span></td>
+                                    <td>varchar</td>
+                                    <td>6</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Natural resource organization unit code associated to the submission context.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="adjudication_ind">adjudication_ind</span></td>
+                                    <td>bool</td>
+                                    <td>1</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>false</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Indicates whether a final adjudication decision has been made (true only for APP or REJ).</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="adjudicated_by">adjudicated_by</span></td>
+                                    <td>varchar</td>
+                                    <td>30</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>IDIR of the adjudicator.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="adjudication_date">adjudication_date</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Date and time of adjudication.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="adjudication_comment">adjudication_comment</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Adjudication notes, including reject reason where applicable.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="adjudication_report_document_uri">adjudication_report_document_uri</span></td>
+                                    <td>varchar</td>
+                                    <td>2048</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Document URI for the adjudication report/exhibit output.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="decision">decision</span></td>
+                                    <td>varchar</td>
+                                    <td>7</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Adjudication decision value: APPROVE or REJECT.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="updated_at">updated_at</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>now()</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="updated_by">updated_by</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="created_at">created_at</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>now()</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="created_by">created_by</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="sys_period">sys_period</span></td>
+                                    <td>tstzrange</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 id="Indexes" class="box-title">Indexes</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="indexes_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Type</th>
+                                    <th>Sort</th>
+                                    <th>Column(s)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> recreation_spatial_submission_pkey</td>
+                                    <td>Primary key</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>application_guid</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_recreation_spatial_submission_org_unit_code</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>org_unit_code</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_recreation_spatial_submission_status</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>status</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_recreation_spatial_submission_submission_date</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>submission_date</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_recreation_spatial_submission_tenure_id</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>tenure_id</td>
+                                </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> recreation_spatial_submission_status_request_guid_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>status_request_guid</td>
+                                </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> recreation_spatial_submission_submission_id_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>submission_id</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div><!-- /.box-body -->
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 class="box-title">Check Constraints</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="check_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Constraint</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>chk_spatial_submission_decision</td>
+                                    <td>(((decision)::text &#61; ANY ((ARRAY[&#39;APPROVE&#39;::character varying, &#39;REJECT&#39;::character varying])::text[])) OR (decision IS NULL))</td>
+                                </tr>
+                                <tr>
+                                    <td>chk_spatial_submission_status_request_type</td>
+                                    <td>((status_request_type_code)::text &#61; ANY ((ARRAY[&#39;RL&#39;::character varying, &#39;RPO&#39;::character varying])::text[]))</td>
+                                </tr>
+                                <tr>
+                                    <td>chk_spatial_submission_adjudication</td>
+                                    <td>(((adjudication_ind &#61; true) AND ((status)::text &#61; ANY ((ARRAY[&#39;APP&#39;::character varying, &#39;REJ&#39;::character varying])::text[])) AND (adjudicated_by IS NOT NULL) AND (adjudication_date IS NOT NULL)) OR ((adjudication_ind &#61; false) AND ((status)::text &#61; ANY ((ARRAY[&#39;PND&#39;::character varying, &#39;CLR&#39;::character varying, &#39;FAI&#39;::character varying])::text[])) AND (adjudicated_by IS NULL) AND (adjudication_date IS NULL)))</td>
+                                </tr>
+                                <tr>
+                                    <td>chk_spatial_submission_status</td>
+                                    <td>((status)::text &#61; ANY ((ARRAY[&#39;CLR&#39;::character varying, &#39;APP&#39;::character varying, &#39;REJ&#39;::character varying, &#39;PND&#39;::character varying, &#39;FAI&#39;::character varying])::text[]))</td>
+                                </tr>
+                                <tr>
+                                    <td>chk_spatial_submission_status_business_rules</td>
+                                    <td>((((status)::text &#61; &#39;CLR&#39;::text) AND (decision IS NULL) AND (adjudication_comment IS NULL) AND (adjudication_report_document_uri IS NULL)) OR (((status)::text &#61; &#39;APP&#39;::text) AND ((decision)::text &#61; &#39;APPROVE&#39;::text) AND (adjudication_report_document_uri IS NOT NULL)) OR (((status)::text &#61; &#39;REJ&#39;::text) AND ((decision)::text &#61; &#39;REJECT&#39;::text) AND (adjudication_comment IS NOT NULL)) OR ((status)::text &#61; ANY ((ARRAY[&#39;PND&#39;::character varying, &#39;FAI&#39;::character varying])::text[])))</td>
+                                </tr>
+                                <tr>
+                                    <td>chk_spatial_submission_purpose</td>
+                                    <td>((purpose_code)::text &#61; ANY ((ARRAY[&#39;N&#39;::character varying, &#39;A&#39;::character varying, &#39;R&#39;::character varying])::text[]))</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-code-fork"></i>
+                            <h3 id="Relationships" class="box-title">Relationships</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="nav-tabs-custom"><!-- Tabs within a box -->
+                                <h5>Close relationships within degrees of separation</h5>
+                                <ul class="nav nav-tabs pull-left ui-sortable-handle">
+                                    <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
+                                    <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
+                                </ul>
+                                <div class="tab-content no-padding">
+                                    <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="recreation_spatial_submission.html" target="_top" title="recreation_spatial_submission" alt="" coords="376,5,867,691">
+<area shape="rect" id="node2" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,265,332,383">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="30,13,307,248">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_spatial_submission.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="act_advisories_flat.html" target="_top" title="act_advisories_flat" alt="" coords="951,637,1177,725">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="473,1004,750,1239">
+<area shape="rect" id="node16" href="recreation_control_access_code.html" target="_top" title="recreation_control_access_code" alt="" coords="40,1133,369,1221">
+<area shape="rect" id="node17" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,923,340,1011">
+<area shape="rect" id="node18" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,1028,404,1116">
+<area shape="rect" id="node19" href="recreation_risk_rating_code.html" target="_top" title="recreation_risk_rating_code" alt="" coords="55,1239,354,1327">
+<area shape="rect" id="node3" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="953,743,1175,831">
+<area shape="rect" id="node4" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="949,848,1179,936">
+<area shape="rect" id="node5" href="recreation_activity_code_trails.html" target="_top" title="recreation_activity_code_trails" alt="" coords="903,953,1225,1041">
+<area shape="rect" id="node6" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="906,1059,1222,1147">
+<area shape="rect" id="node7" href="recreation_asset.html" target="_top" title="recreation_asset" alt="" coords="958,1164,1170,1252">
+<area shape="rect" id="node8" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="909,1269,1219,1357">
+<area shape="rect" id="node9" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="912,1375,1216,1463">
+<area shape="rect" id="node10" href="recreation_establishment_order_docs.html" target="_top" title="recreation_establishment_order_docs" alt="" coords="875,1480,1253,1568">
+<area shape="rect" id="node11" href="recreation_exhibit_a_doc.html" target="_top" title="recreation_exhibit_a_doc" alt="" coords="926,1585,1202,1673">
+<area shape="rect" id="node12" href="recreation_feature.html" target="_top" title="recreation_feature" alt="" coords="949,1691,1179,1779">
+<area shape="rect" id="node13" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="967,1796,1161,1884">
+<area shape="rect" id="node14" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="929,1901,1199,1989">
+<area shape="rect" id="node15" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="448,2056,775,2173">
+<area shape="rect" id="node20" href="recreation_resource_document.html" target="_top" title="recreation_resource_document" alt="" coords="900,5,1228,93">
+<area shape="rect" id="node21" href="recreation_resource_image.html" target="_top" title="recreation_resource_image" alt="" coords="917,111,1211,199">
+<area shape="rect" id="node22" href="recreation_resource_reservation_info.html" target="_top" title="recreation_resource_reservation_info" alt="" coords="876,216,1252,304">
+<area shape="rect" id="node23" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="916,321,1212,409">
+<area shape="rect" id="node24" href="recreation_spatial_submission.html" target="_top" title="recreation_spatial_submission" alt="" coords="819,2007,1309,2692">
+<area shape="rect" id="node25" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="954,427,1174,515">
+<area shape="rect" id="node26" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="942,532,1186,620">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_spatial_submission.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="recreation_spatial_submission.html" target="_top" title="recreation_spatial_submission" alt="" coords="376,5,867,691">
+<area shape="rect" id="node2" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,265,332,383">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="30,13,307,248">
+<area shape="rect" id="node4" href="recreation_spatial_submission_history.html" target="_top" title="recreation_spatial_submission_history" alt="" coords="911,8,1295,125">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_spatial_submission.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="act_advisories_flat.html" target="_top" title="act_advisories_flat" alt="" coords="951,987,1177,1075">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="473,1495,750,1729">
+<area shape="rect" id="node21" href="recreation_control_access_code.html" target="_top" title="recreation_control_access_code" alt="" coords="40,1609,369,1697">
+<area shape="rect" id="node22" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,1504,340,1592">
+<area shape="rect" id="node23" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,2075,404,2163">
+<area shape="rect" id="node24" href="recreation_risk_rating_code.html" target="_top" title="recreation_risk_rating_code" alt="" coords="55,2373,354,2461">
+<area shape="rect" id="node3" href="act_advisories_flat_history.html" target="_top" title="act_advisories_flat_history" alt="" coords="919,1092,1209,1180">
+<area shape="rect" id="node4" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="953,2217,1175,2305">
+<area shape="rect" id="node5" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="1403,2181,1687,2269">
+<area shape="rect" id="node6" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="949,1339,1179,1427">
+<area shape="rect" id="node7" href="recreation_activity_code_trails.html" target="_top" title="recreation_activity_code_trails" alt="" coords="903,1444,1225,1532">
+<area shape="rect" id="node8" href="recreation_activity_code_trails_history.html" target="_top" title="recreation_activity_code_trails_history" alt="" coords="871,1549,1257,1637">
+<area shape="rect" id="node9" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="906,1655,1222,1743">
+<area shape="rect" id="node10" href="recreation_asset.html" target="_top" title="recreation_asset" alt="" coords="958,1760,1170,1848">
+<area shape="rect" id="node11" href="recreation_asset_history.html" target="_top" title="recreation_asset_history" alt="" coords="927,1865,1201,1953">
+<area shape="rect" id="node12" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="909,1971,1219,2059">
+<area shape="rect" id="node13" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="912,2076,1216,2164">
+<area shape="rect" id="node14" href="recreation_establishment_order_docs.html" target="_top" title="recreation_establishment_order_docs" alt="" coords="875,1197,1253,1285">
+<area shape="rect" id="node15" href="recreation_exhibit_a_doc.html" target="_top" title="recreation_exhibit_a_doc" alt="" coords="1407,1232,1683,1320">
+<area shape="rect" id="node16" href="recreation_feature.html" target="_top" title="recreation_feature" alt="" coords="949,2323,1179,2411">
+<area shape="rect" id="node17" href="recreation_feature_history.html" target="_top" title="recreation_feature_history" alt="" coords="918,2428,1210,2516">
+<area shape="rect" id="node18" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="967,2533,1161,2621">
+<area shape="rect" id="node19" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="1410,2601,1681,2689">
+<area shape="rect" id="node20" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="448,3024,775,3141">
+<area shape="rect" id="node25" href="recreation_resource_document.html" target="_top" title="recreation_resource_document" alt="" coords="900,87,1228,175">
+<area shape="rect" id="node26" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="913,2675,1215,2763">
+<area shape="rect" id="node27" href="recreation_resource_image.html" target="_top" title="recreation_resource_image" alt="" coords="917,192,1211,280">
+<area shape="rect" id="node28" href="recreation_resource_reservation_info.html" target="_top" title="recreation_resource_reservation_info" alt="" coords="876,297,1252,385">
+<area shape="rect" id="node29" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="895,5,1233,69">
+<area shape="rect" id="node30" href="recreation_resource_type_code_history.html" target="_top" title="recreation_resource_type_code_history" alt="" coords="869,3519,1259,3607">
+<area shape="rect" id="node31" href="recreation_resource_type_view_admin.html" target="_top" title="recreation_resource_type_view_admin" alt="" coords="875,403,1253,467">
+<area shape="rect" id="node32" href="recreation_resource_type_view_public.html" target="_top" title="recreation_resource_type_view_public" alt="" coords="875,484,1253,548">
+<area shape="rect" id="node33" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="916,565,1212,653">
+<area shape="rect" id="node34" href="recreation_spatial_submission.html" target="_top" title="recreation_spatial_submission" alt="" coords="819,2816,1309,3501">
+<area shape="rect" id="node35" href="recreation_spatial_submission_history.html" target="_top" title="recreation_spatial_submission_history" alt="" coords="1353,2819,1737,2936">
+<area shape="rect" id="node36" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="954,671,1174,759">
+<area shape="rect" id="node37" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="942,776,1186,864">
+<area shape="rect" id="node38" href="recreation_structure_history.html" target="_top" title="recreation_structure_history" alt="" coords="910,881,1218,969">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_spatial_submission.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /.box-body -->
+                    </div>
+                </section>
+                <script>
+                    var config = {
+                        pagination: true
+                    }
+                </script>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.2.4</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="../bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="../bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="../bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="../bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="../bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="../bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="../bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="../bower/pdfmake/pdfmake.min.js"></script>
+        <script src="../bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="../bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="../bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="../bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="../bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="../bower/codemirror/codemirror.js"></script>
+        <script src="../bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="../bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="table.js"></script>
+        <script src="../schemaSpy.js"></script>
+    </body>
+</html>

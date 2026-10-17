@@ -5,6 +5,7 @@
       <sequence increment="1" name="recreation_activity_code_trails_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_asset_code_asset_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_fee_fdl_log_id_seq" startValue="1"/>
+      <sequence increment="1" name="recreation_spatial_submission_submission_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_status_code_status_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_structure_code_structure_code_seq" startValue="1"/>
    </sequences>
@@ -342,6 +343,7 @@
          <column autoUpdated="true" defaultValue="null" digits="0" id="10" name="agreement_holder_id" nullable="false" remarks="Surrogate primary key. The FTA sync inserts FTA's own values explicitly; the identity sequence starts above 1000000 so RST-generated values cannot collide with them." size="10" type="int4" typeCode="4"/>
          <column autoUpdated="false" defaultValue="false" digits="0" id="11" name="visible_on_public_website" nullable="false" remarks="Whether this partner is shown on the public website. Set to true by the FTA sync on insert; not overwritten on subsequent syncs." size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="false" digits="0" id="12" name="cancelled" nullable="false" remarks="Whether the agreement has been cancelled. Owned by RST and deliberately not refreshed by the FTA sync. Cancellation is one-way; the admin API rejects un-cancelling." size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="client_locn_code" nullable="true" remarks="location code for the client" size="2" type="varchar" typeCode="12"/>
          <primaryKey column="agreement_holder_id" sequenceNumberInPK="1"/>
          <index name="recreation_agreement_holder_pkey" unique="true">
             <column ascending="true" name="agreement_holder_id"/>
@@ -367,6 +369,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="agreement_holder_id" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="visible_on_public_website" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="cancelled" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="client_locn_code" nullable="true" remarks="" size="2" type="varchar" typeCode="12"/>
       </table>
       <table name="recreation_asset" remarks="Individualised asset entities with parent-child relationships (e.g., Campsite → Table). Geometry stored in recreation_asset_geom." schema="rst" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="asset_id" nullable="false" remarks="Unique surrogate identifier for the individual asset." size="19" type="int8" typeCode="-5">
@@ -814,8 +817,8 @@
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="9" name="saturday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="10" name="sunday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="recreation_fee_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12">
-            <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
             <parent column="recreation_fee_code" foreignKey="recreation_fee_recreation_fee_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_code"/>
+            <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
          </column>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="12" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
@@ -1233,6 +1236,7 @@
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_type_view_admin"/>
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_type_view_public"/>
             <child column="rec_resource_id" foreignKey="recreation_site_description_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_site_description"/>
+            <child column="tenure_id" foreignKey="recreation_spatial_submission_tenure_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
             <child column="rec_resource_id" foreignKey="recreation_status_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_status"/>
             <child column="rec_resource_id" foreignKey="recreation_structure_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_structure"/>
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_structure_history"/>
@@ -1549,6 +1553,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_type_code" nullable="false" remarks="Identifies the Recreation Resource Type Code" size="10" type="varchar" typeCode="12">
             <child column="recreation_resource_type" foreignKey="recreation_map_feature_recreation_resource_type_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_map_feature"/>
             <child column="rec_resource_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_type_code_history"/>
+            <child column="recreation_resource_type" foreignKey="recreation_spatial_submission_recreation_resource_type_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="Description of the code value" size="200" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
@@ -1655,6 +1660,88 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
+      <table name="recreation_spatial_submission" remarks="Tracks spatial submission requests sent to SNCSC and their adjudication outcomes." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="application_guid" nullable="false" remarks="Primary GUID for the submission record in RST." size="2147483647" type="uuid" typeCode="1111">
+            <child column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_history"/>
+         </column>
+         <column autoUpdated="true" defaultValue="(nextval('rst.recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)" digits="0" id="1" name="submission_id" nullable="false" remarks="Client-facing submission identifier (auto-generated incremental value when omitted)." size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="tenure_id" nullable="false" remarks="Tenure identifier (FK to rst.recreation_resource.rec_resource_id)." size="20" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="recreation_spatial_submission_tenure_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="status_request_guid" nullable="true" remarks="SNCSC internal record key returned after submission creation." size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="status_request_type_code" nullable="false" remarks="Request geometry type: RL (Linear) or RPO (Polygonal)." size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="'PND'::character varying" digits="0" id="5" name="status" nullable="false" remarks="Submission lifecycle status: PND, CLR, APP, REJ, or FAI." size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="purpose_code" nullable="false" remarks="Submission purpose: N (New), A (Amend), or R (Retire)." size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="recreation_resource_type" nullable="true" remarks="Recreation resource type code associated to the submission." size="3" type="varchar" typeCode="12">
+            <parent column="rec_resource_type_code" foreignKey="recreation_spatial_submission_recreation_resource_type_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_type_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="submission_date" nullable="false" remarks="Date the spatial request was sent to SNCSC." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="org_unit_code" nullable="false" remarks="Natural resource organization unit code associated to the submission context." size="6" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="10" name="adjudication_ind" nullable="false" remarks="Indicates whether a final adjudication decision has been made (true only for APP or REJ)." size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="adjudicated_by" nullable="true" remarks="IDIR of the adjudicator." size="30" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="12" name="adjudication_date" nullable="true" remarks="Date and time of adjudication." size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="adjudication_comment" nullable="true" remarks="Adjudication notes, including reject reason where applicable." size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="adjudication_report_document_uri" nullable="true" remarks="Document URI for the adjudication report/exhibit output." size="2048" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="decision" nullable="true" remarks="Adjudication decision value: APPROVE or REJECT." size="7" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="16" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="18" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="20" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="application_guid" sequenceNumberInPK="1"/>
+         <index name="recreation_spatial_submission_pkey" unique="true">
+            <column ascending="true" name="application_guid"/>
+         </index>
+         <index name="idx_recreation_spatial_submission_org_unit_code" unique="false">
+            <column ascending="true" name="org_unit_code"/>
+         </index>
+         <index name="idx_recreation_spatial_submission_status" unique="false">
+            <column ascending="true" name="status"/>
+         </index>
+         <index name="idx_recreation_spatial_submission_submission_date" unique="false">
+            <column ascending="true" name="submission_date"/>
+         </index>
+         <index name="idx_recreation_spatial_submission_tenure_id" unique="false">
+            <column ascending="true" name="tenure_id"/>
+         </index>
+         <index name="recreation_spatial_submission_status_request_guid_key" unique="true">
+            <column ascending="true" name="status_request_guid"/>
+         </index>
+         <index name="recreation_spatial_submission_submission_id_key" unique="true">
+            <column ascending="true" name="submission_id"/>
+         </index>
+         <checkConstraint constraint="(((adjudication_ind = true) AND ((status)::text = ANY ((ARRAY['APP'::character varying, 'REJ'::character varying])::text[])) AND (adjudicated_by IS NOT NULL) AND (adjudication_date IS NOT NULL)) OR ((adjudication_ind = false) AND ((status)::text = ANY ((ARRAY['PND'::character varying, 'CLR'::character varying, 'FAI'::character varying])::text[])) AND (adjudicated_by IS NULL) AND (adjudication_date IS NULL)))" name="chk_spatial_submission_adjudication"/>
+         <checkConstraint constraint="(((decision)::text = ANY ((ARRAY['APPROVE'::character varying, 'REJECT'::character varying])::text[])) OR (decision IS NULL))" name="chk_spatial_submission_decision"/>
+         <checkConstraint constraint="((purpose_code)::text = ANY ((ARRAY['N'::character varying, 'A'::character varying, 'R'::character varying])::text[]))" name="chk_spatial_submission_purpose"/>
+         <checkConstraint constraint="((status)::text = ANY ((ARRAY['CLR'::character varying, 'APP'::character varying, 'REJ'::character varying, 'PND'::character varying, 'FAI'::character varying])::text[]))" name="chk_spatial_submission_status"/>
+         <checkConstraint constraint="((((status)::text = 'CLR'::text) AND (decision IS NULL) AND (adjudication_comment IS NULL) AND (adjudication_report_document_uri IS NULL)) OR (((status)::text = 'APP'::text) AND ((decision)::text = 'APPROVE'::text) AND (adjudication_report_document_uri IS NOT NULL)) OR (((status)::text = 'REJ'::text) AND ((decision)::text = 'REJECT'::text) AND (adjudication_comment IS NOT NULL)) OR ((status)::text = ANY ((ARRAY['PND'::character varying, 'FAI'::character varying])::text[])))" name="chk_spatial_submission_status_business_rules"/>
+         <checkConstraint constraint="((status_request_type_code)::text = ANY ((ARRAY['RL'::character varying, 'RPO'::character varying])::text[]))" name="chk_spatial_submission_status_request_type"/>
+      </table>
+      <table name="recreation_spatial_submission_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="application_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="submission_id" nullable="false" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="tenure_id" nullable="false" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="status_request_guid" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="status_request_type_code" nullable="false" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="status" nullable="false" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="purpose_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="recreation_resource_type" nullable="true" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="submission_date" nullable="false" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="org_unit_code" nullable="false" remarks="" size="6" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="adjudication_ind" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="adjudicated_by" nullable="true" remarks="" size="30" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="12" name="adjudication_date" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="adjudication_comment" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="adjudication_report_document_uri" nullable="true" remarks="" size="2048" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="decision" nullable="true" remarks="" size="7" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="16" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="18" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_status" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="" size="200" type="varchar" typeCode="12">
