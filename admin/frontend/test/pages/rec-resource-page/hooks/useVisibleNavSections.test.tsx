@@ -36,12 +36,13 @@ describe('useVisibleNavSections', () => {
 
     const { result } = renderHook(() => useVisibleNavSections());
 
-    expect(result.current).toHaveLength(9);
+    expect(result.current).toHaveLength(10);
     expect(result.current.map(([key]) => key)).toEqual([
       RecResourceNavKey.OVERVIEW,
       RecResourceNavKey.FILES,
       RecResourceNavKey.ACTIVITIES,
       RecResourceNavKey.FEES,
+      RecResourceNavKey.NOTES,
       RecResourceNavKey.ASSETS,
       RecResourceNavKey.PARTNERS,
       RecResourceNavKey.GEOSPATIAL,
@@ -75,7 +76,7 @@ describe('useVisibleNavSections', () => {
 
     const { result } = renderHook(() => useVisibleNavSections());
 
-    expect(result.current).toHaveLength(8);
+    expect(result.current).toHaveLength(9);
     expect(result.current.map(([key]) => key)).not.toContain(
       RecResourceNavKey.PARTNERS,
     );
