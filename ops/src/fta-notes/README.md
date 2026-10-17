@@ -6,7 +6,7 @@ checking the CSVs against the `fta` mirror tables.
 ## Prerequisites
 
 - Node.js v18+
-- A database migrated to at least `V1.1.93`
+- A database migrated to at least `V1.1.95`
 - The two CSV extracts. They are not committed to this repo
 
 ```bash
@@ -95,7 +95,7 @@ be partly populated.
 Source descriptions come from `rst.recreation_file_source_code`.
 
 Escaping and date conversion happen in the database, through
-`rst.fta_note_to_html` and `rst.fta_note_pivot_date` from migration `V1.1.93`.
+`rst.fta_note_to_html` and `rst.fta_note_pivot_date` from migration `V1.1.95`.
 Every path that imports FTA notes calls them, so keep the logic there.
 
 ### A note on date formats
