@@ -112,8 +112,35 @@ jobs:
               ./backend-el-1.0.0.tgz
 
             if [ "${{ github.event_name }}" == "pull_request" ]; then
-              oc create job $RELEASE_NAME-daily-${{github.run_number}} --from=cronjob/$RELEASE_NAME-daily
-              oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-daily-${{github.run_number}}
+              JOB="$RELEASE_NAME-daily-${{github.run_number}}"
+              oc create job "$JOB" --from=cronjob/$RELEASE_NAME-daily
+
+              # Wait for whichever condition lands first. The job's own budget is
+              # activeDeadlineSeconds 3600 and runFlywayTasks can spend 600s of
+              # that waiting on ECS, so a fixed 600s wait raced the job it was
+              # watching. Polling both conditions also fails fast instead of
+              # sitting out the full deadline.
+              OUTCOME=""
+              DEADLINE=$((SECONDS + 3600))
+              while [ $SECONDS -lt $DEADLINE ]; do
+                if [ "$(oc get job "$JOB" -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}')" = "True" ]; then
+                  OUTCOME="complete"
+                  break
+                fi
+                if [ "$(oc get job "$JOB" -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}')" = "True" ]; then
+                  OUTCOME="failed"
+                  break
+                fi
+                sleep 15
+              done
+
+              if [ "$OUTCOME" != "complete" ]; then
+                echo "Job $JOB did not complete (outcome: ${OUTCOME:-timed out})"
+                oc describe job "$JOB" || true
+                oc logs "job/$JOB" --tail=300 --all-containers || true
+                exit 1
+              fi
+              echo "Job $JOB completed"
             fi
   clean_up:
     name: Clean up
