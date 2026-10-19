@@ -58,6 +58,21 @@ describe('SpatialSubmissionPreview', () => {
       sectionId: 'Section 2',
       editAction: null,
     },
+    {
+      featureIndex: 3,
+      sectionId: 'Section 3',
+      editAction: 'NEW',
+    },
+    {
+      featureIndex: 4,
+      sectionId: 'Section 4',
+      editAction: 'AMEND',
+    },
+    {
+      featureIndex: 5,
+      sectionId: 'Section 5',
+      editAction: 'RETIRE',
+    },
   ];
 
   const defaultProps = {

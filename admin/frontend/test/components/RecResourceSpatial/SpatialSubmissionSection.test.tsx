@@ -3,12 +3,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SpatialSubmissionSection } from '@/components/RecResourceSpatial/SpatialSubmissionSection';
 import { useGetRecreationResourceOptions } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceOptions';
 import { useCreateRecreationResourceMapFeatures } from '@/services/hooks/recreation-resource-admin/useCreateRecreationResourceMapFeatures';
+import { useUpdateRecreationResourceMapFeatures } from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceMapFeatures';
 import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 
 const {
   mockValidateGeometry,
   mockReadSpatialFile,
   mockCreateMapFeatures,
+  mockUpdateMapFeatures,
   mockExtractSectionIdDetails,
   mockPrepareFeatureCollectionForSectionEditing,
   mockUpdateFeatureSectionId,
@@ -30,6 +32,16 @@ const {
     return [];
   }),
   mockCreateMapFeatures: vi.fn(async () => ({
+    rec_resource_id: 'REC123',
+    spatial_feature_geometry: ['{"type":"Polygon","coordinates":[]}'],
+    site_point_geometry: undefined,
+    utm_zone: null,
+    utm_easting: null,
+    utm_northing: null,
+    latitude: null,
+    longitude: null,
+  })),
+  mockUpdateMapFeatures: vi.fn(async () => ({
     rec_resource_id: 'REC123',
     spatial_feature_geometry: ['{"type":"Polygon","coordinates":[]}'],
     site_point_geometry: undefined,
@@ -182,15 +194,10 @@ vi.mock(
   }),
 );
 
-const mockUpdateMapFeatures = vi.fn();
-
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceMapFeatures',
   () => ({
-    useUpdateRecreationResourceMapFeatures: () => ({
-      mutateAsync: mockUpdateMapFeatures,
-      isPending: false,
-    }),
+    useUpdateRecreationResourceMapFeatures: vi.fn(),
   }),
 );
 
@@ -226,6 +233,10 @@ vi.mock('@/components/RecResourceSpatial/SpatialSubmissionMap', () => ({
 describe('SpatialSubmissionSection', () => {
   const mockUseCreateRecreationResourceMapFeatures = vi.mocked(
     useCreateRecreationResourceMapFeatures,
+  );
+
+  const mockUseUpdateRecreationResourceMapFeatures = vi.mocked(
+    useUpdateRecreationResourceMapFeatures,
   );
 
   beforeEach(() => {
@@ -288,6 +299,10 @@ describe('SpatialSubmissionSection', () => {
     } as any);
     mockUseCreateRecreationResourceMapFeatures.mockReturnValue({
       mutateAsync: mockCreateMapFeatures,
+      isPending: false,
+    } as any);
+    mockUseUpdateRecreationResourceMapFeatures.mockReturnValue({
+      mutateAsync: mockUpdateMapFeatures,
       isPending: false,
     } as any);
   });
@@ -533,6 +548,117 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByLabelText('Spatial File')).toBeDisabled();
     expect(screen.getByText('Validate')).toBeDisabled();
     expect(screen.getByText('Create Request')).toBeDisabled();
+
+    expect(screen.getByTestId('spatial-editor-map')).toBeDefined();
+  });
+
+  it('validates spatial file, and amends the sessions on edit mode', async () => {
+    mockReadSpatialFile.mockResolvedValueOnce({
+      type: 'FeatureCollection',
+      crs: { type: 'name', properties: { name: 'EPSG:3005' } },
+      features: [
+        {
+          type: 'Feature',
+          properties: {
+            OBJECTID: 1,
+            DISTRICT: 'DNC',
+            section_id: 'River Way South',
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [1210000, 475000],
+              [1215000, 480000],
+            ],
+          },
+        },
+        {
+          type: 'Feature',
+          properties: {
+            OBJECTID: 2,
+            DISTRICT: 'DNC',
+            section_id: 'North Loop 1',
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [1216000, 475000],
+              [1220000, 480000],
+            ],
+          },
+        },
+      ],
+    } as any);
+
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode="SIT"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
+        editMode={true}
+        existingSectionIds={[]}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/recreation type/i), {
+      target: { value: 'RTE' },
+    });
+    fireEvent.change(screen.getByLabelText('Feature type'), {
+      target: { value: 'LineString' },
+    });
+    fireEvent.change(screen.getByLabelText('Email Address'), {
+      target: { value: 'valid@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Telephone Number'), {
+      target: { value: '6045550100' },
+    });
+    fireEvent.change(screen.getByLabelText('Submitter Name'), {
+      target: { value: 'Valid User' },
+    });
+
+    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    fireEvent.change(fileInput, { target: { files: [shpFile] } });
+
+    fireEvent.click(screen.getByText('Validate'));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Spatial file validated successfully.'),
+      ).toBeDefined();
+    });
+
+    expect(screen.getByText('Sections (2)')).toBeDefined();
+    expect(screen.getByTestId('selected-feature-index')).toHaveTextContent('0');
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /North Loop 1.*Feature #2/i }),
+    );
+    expect(screen.getByDisplayValue('North Loop 1')).toBeDefined();
+
+    fireEvent.change(screen.getByLabelText('Section ID / name'), {
+      target: { value: 'North Loop Renamed' },
+    });
+
+    expect(screen.getByDisplayValue('North Loop Renamed')).toBeDefined();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Select feature 2 from map' }),
+    );
+    expect(screen.getByDisplayValue('North Loop Renamed')).toBeDefined();
+
+    expect(
+      screen.getByRole('button', { name: 'Create Request' }),
+    ).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+
+    await waitFor(() => {
+      expect(mockUpdateMapFeatures).toHaveBeenCalled();
+    });
 
     expect(screen.getByTestId('spatial-editor-map')).toBeDefined();
   });
