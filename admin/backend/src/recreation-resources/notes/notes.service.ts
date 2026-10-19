@@ -1,3 +1,5 @@
+import { RecreationResourceAuthRole } from '@/auth';
+import { UserContextService } from '@/common/modules/user-context/user-context.service';
 import { PrismaService } from '@/prisma.service';
 import {
   ForbiddenException,
@@ -27,8 +29,30 @@ type NoteRecord = {
 
 @Injectable()
 export class NotesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userContext: UserContextService,
+  ) {}
   private readonly logger = new Logger(NotesService.name);
+
+  private isSuperAdmin(): boolean {
+    return (
+      this.userContext
+        .getCurrentUser()
+        .client_roles?.includes(RecreationResourceAuthRole.RST_SUPER_ADMIN) ??
+      false
+    );
+  }
+
+  /** Super admins may change any note, everyone else only their own. */
+  private canChange(note: NoteRecord): boolean {
+    if (note.source_system === NOTE_SOURCE_FTA) return false;
+
+    return (
+      this.isSuperAdmin() ||
+      note.created_by === this.userContext.getIdentityProviderPrefixedUsername()
+    );
+  }
 
   private static readonly SELECT = {
     note_id: true,
@@ -51,7 +75,7 @@ export class NotesService {
       // date only, so the client never deals with a timezone
       date_logged: note.date_logged.toISOString().slice(0, 10),
       created_by: note.created_by,
-      is_editable: note.source_system !== NOTE_SOURCE_FTA,
+      is_editable: this.canChange(note),
     };
   }
 
@@ -74,6 +98,12 @@ export class NotesService {
     if (note.source_system === NOTE_SOURCE_FTA) {
       throw new ForbiddenException(
         'Notes imported from FTA are historical records and cannot be changed or removed',
+      );
+    }
+
+    if (!this.canChange(note)) {
+      throw new ForbiddenException(
+        'Only the staff member who created this note, or a super admin, can change or remove it',
       );
     }
 

@@ -40,7 +40,13 @@ import { NotesService } from './notes.service';
 })
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
+@AuthRoles(
+  [
+    RecreationResourceAuthRole.RST_ADMIN,
+    RecreationResourceAuthRole.RST_SUPER_ADMIN,
+  ],
+  ROLE_MODE.ANY,
+)
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
@@ -50,6 +56,7 @@ export class NotesController {
       RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
     ],
     ROLE_MODE.ANY,
   )
@@ -128,7 +135,7 @@ export class NotesController {
     operationId: 'updateRecreationResourceNote',
     summary: 'Update a note for a recreation resource',
     description:
-      'Updates a staff-authored note. Notes imported from FTA are read-only',
+      'Updates a staff-authored note. Notes imported from FTA are read-only, and only the note author or a super admin may change one',
   })
   @ApiParam({
     name: 'rec_resource_id',
@@ -152,7 +159,8 @@ export class NotesController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Note was imported from FTA and cannot be changed',
+    description:
+      'Note was imported from FTA, or belongs to another staff member and the caller is not a super admin',
   })
   @ApiResponse({
     status: 404,
@@ -186,7 +194,7 @@ export class NotesController {
     operationId: 'deleteRecreationResourceNote',
     summary: 'Delete a note for a recreation resource',
     description:
-      'Removes a staff-authored note. The previous row is retained in the note history table. Notes imported from FTA cannot be removed',
+      'Removes a staff-authored note. The previous row is retained in the note history table. Notes imported from FTA cannot be removed, and only the note author or a super admin may remove one',
   })
   @ApiParam({
     name: 'rec_resource_id',
@@ -205,7 +213,8 @@ export class NotesController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Note was imported from FTA and cannot be removed',
+    description:
+      'Note was imported from FTA, or belongs to another staff member and the caller is not a super admin',
   })
   @ApiResponse({
     status: 404,

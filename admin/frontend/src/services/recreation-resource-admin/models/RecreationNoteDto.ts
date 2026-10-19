@@ -62,7 +62,7 @@ export interface RecreationNoteDto {
    */
   created_by: string | null;
   /**
-   * False for notes imported from FTA, which are locked from editing and deletion
+   * Whether the calling user may change this note. False for notes imported from FTA, and for notes another staff member created unless the caller is a super admin
    * @type {boolean}
    * @memberof RecreationNoteDto
    */
