@@ -428,4 +428,49 @@ describe('SpatialSubmissionPreview', () => {
       screen.queryByText('No section features were available to edit.'),
     ).toBeNull();
   });
+
+  it('renders correct badge text for different edit actions', () => {
+    const featureSectionIdsWithActions: FeatureSectionId[] = [
+      { featureIndex: 1, sectionId: 'Sec 1', editAction: 'NEW' },
+      { featureIndex: 2, sectionId: 'Sec 2', editAction: 'AMEND' },
+      { featureIndex: 3, sectionId: 'Sec 3', editAction: 'RETIRE' },
+      { featureIndex: 4, sectionId: 'Sec 4', editAction: null },
+    ];
+    const props = {
+      ...defaultProps,
+      featureSectionIds: featureSectionIdsWithActions,
+    };
+    render(<SpatialSubmissionPreview {...props} />);
+
+    expect(screen.getByText('Amend')).toBeDefined();
+    expect(screen.getByText('Retire')).toBeDefined();
+    expect(screen.getAllByText('New').length).toBe(2); // Both 'NEW' and null render 'New'
+  });
+
+  it('renders action dropdown when feature exists in existingSectionIds and calls onSectionActionChange', () => {
+    const mockOnSectionActionChange = vi.fn();
+    const featureSectionIds: FeatureSectionId[] = [
+      { featureIndex: 1, sectionId: 'Existing Section', editAction: 'AMEND' },
+    ];
+    const props = {
+      ...defaultProps,
+      featureSectionIds,
+      selectedSectionFeature: featureSectionIds[0],
+      existingSectionIds: ['Existing Section'],
+      onSectionActionChange: mockOnSectionActionChange,
+    };
+
+    render(<SpatialSubmissionPreview {...props} />);
+
+    const select = screen.getByLabelText(
+      'Select action for the selected feature',
+    );
+    expect(select).toBeDefined();
+
+    fireEvent.change(select, { target: { value: 'RETIRE' } });
+    expect(mockOnSectionActionChange).toHaveBeenCalledWith(
+      'Existing Section',
+      'RETIRE',
+    );
+  });
 });
