@@ -47,8 +47,10 @@ spec:
                   value: "{{ .Values.config.awsS3Bucket }}"
                 - name: spring_profiles_active
                   value: "openshift"
-                - name: JOB_MODE # for backend-el app to run the daily job
-                  value: "daily"
+                # TEMPORARY: "probe" instead of "daily" to diagnose the note
+                # extracts. Revert to "daily".
+                - name: JOB_MODE
+                  value: "probe"
               volumeMounts:
                 - name: {{ .Release.Name }}-csv
                   mountPath: /uploads
