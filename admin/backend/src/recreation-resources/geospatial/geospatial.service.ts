@@ -243,6 +243,7 @@ export class GeospatialService {
       UPDATE rst.recreation_map_feature
       SET
         amendment_id =  ${(amendment_id ?? 0) + 1},
+        amend_status_date = now(),
         recreation_resource_type = ${recreation_type_code || null},
         retirement_date = null,
         updated_by = ${submitted_by || null},

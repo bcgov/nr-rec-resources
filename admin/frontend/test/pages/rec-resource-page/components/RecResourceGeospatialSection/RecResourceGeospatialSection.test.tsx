@@ -1,27 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const mockUseRecResource = vi.fn();
 const mockUseGetRecreationResourceGeospatial = vi.fn();
-
-const renderWithProviders = (ui: React.ReactElement) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        // Disable retries in tests to fail fast and avoid console noise
-        retry: false,
-      },
-    },
-  });
-
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>{ui}</AuthProvider>
-    </QueryClientProvider>,
-  );
-};
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, className }: any) => (
@@ -71,7 +52,6 @@ vi.mock('@/hooks/useAuthorizations', () => ({
     ADMIN: 'rst-admin',
     DEVELOPER: 'rst-developer',
   },
-  useUserRoles: () => ['rst-viewer', 'rst-admin', 'rst-developer'],
   useAuthorizations: () => mockUseAuthorizations(),
 }));
 
@@ -84,14 +64,11 @@ vi.mock(
   }),
 );
 
-vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceSpatial/SpatialSubmissionSection',
-  () => ({
-    SpatialSubmissionSection: () => (
-      <div data-testid="mock-spatial-submission">SpatialSubmissionSection</div>
-    ),
-  }),
-);
+vi.mock('@/components/RecResourceSpatial/SpatialSubmissionSection', () => ({
+  SpatialSubmissionSection: () => (
+    <div data-testid="mock-spatial-submission">SpatialSubmissionSection</div>
+  ),
+}));
 
 const { RecResourceGeospatialSection } = await import(
   '@/pages/rec-resource-page/components/RecResourceGeospatialSection/RecResourceGeospatialSection'
@@ -125,14 +102,14 @@ describe('RecResourceGeospatialSection', () => {
   });
 
   it('renders header and edit link', () => {
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Geospatial')).toBeDefined();
     expect(screen.getByText('Edit')).toBeDefined();
   });
 
   it('renders geospatial overview items with formatted coordinates', () => {
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('UTM zone')).toBeDefined();
     expect(screen.getByText('10')).toBeDefined();
@@ -151,7 +128,7 @@ describe('RecResourceGeospatialSection', () => {
   });
 
   it('renders RecResourceLocationSection when recResource exists', () => {
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
 
     expect(screen.getByTestId('mock-location')).toHaveTextContent(
       'LocationSection rendered',
@@ -163,7 +140,7 @@ describe('RecResourceGeospatialSection', () => {
       data: {},
     });
 
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
 
     expect(screen.queryByText('Edit')).toBeNull();
   });
@@ -173,14 +150,14 @@ describe('RecResourceGeospatialSection', () => {
       data: undefined,
     });
 
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Geospatial')).toBeDefined();
     expect(screen.queryByText('Edit')).toBeNull();
   });
 
   it('renders ExhibitASection', () => {
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
     expect(screen.getByTestId('mock-exhibit-a')).toBeDefined();
   });
 
@@ -190,7 +167,7 @@ describe('RecResourceGeospatialSection', () => {
       isLoading: false,
     });
 
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
     expect(screen.queryByTestId('mock-location')).toBeNull();
   });
 
@@ -202,7 +179,7 @@ describe('RecResourceGeospatialSection', () => {
     });
 
     // Should render without throwing (imapUrl falls back to IMAP_URL constant)
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
     expect(screen.getByText('Geospatial')).toBeDefined();
   });
 
@@ -223,7 +200,7 @@ describe('RecResourceGeospatialSection', () => {
       },
     });
 
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Total area (ha)')).toBeDefined();
     expect(screen.getByText('61.6545')).toBeDefined();
@@ -250,7 +227,7 @@ describe('RecResourceGeospatialSection', () => {
       },
     });
 
-    renderWithProviders(<RecResourceGeospatialSection />);
+    render(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Total length (km)')).toBeDefined();
     expect(screen.getByText('41.103')).toBeDefined();
