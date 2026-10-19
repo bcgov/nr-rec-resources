@@ -120,9 +120,21 @@ jobs:
               # that waiting on ECS, so a fixed 600s wait raced the job it was
               # watching. Polling both conditions also fails fast instead of
               # sitting out the full deadline.
+              #
+              # The pod logs are snapshotted on every pass because the job
+              # controller deletes the pod once it exceeds the backoff limit,
+              # which leaves nothing for `oc logs` to read afterwards.
               OUTCOME=""
+              POD_LOG="$RUNNER_TEMP/$JOB.log"
               DEADLINE=$((SECONDS + 3600))
               while [ $SECONDS -lt $DEADLINE ]; do
+                POD=$(oc get pods -l batch.kubernetes.io/job-name="$JOB" \
+                  -o jsonpath='{.items[-1:].metadata.name}' 2>/dev/null || true)
+                if [ -n "$POD" ] && oc logs "$POD" --all-containers --timestamps \
+                    > "$POD_LOG.partial" 2>/dev/null; then
+                  mv "$POD_LOG.partial" "$POD_LOG"
+                fi
+
                 if [ "$(oc get job "$JOB" -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}')" = "True" ]; then
                   OUTCOME="complete"
                   break
@@ -134,10 +146,15 @@ jobs:
                 sleep 15
               done
 
+              # TEMPORARY: printed on success too, so the schema probe output is
+              # readable from here. Revert along with the probe.
+              echo "--- pod logs ($JOB, outcome: ${OUTCOME:-timed out}) ---"
+              tail -n 300 "$POD_LOG" 2>/dev/null || echo "no pod logs were captured"
+              echo "--- end pod logs ---"
+
               if [ "$OUTCOME" != "complete" ]; then
                 echo "Job $JOB did not complete (outcome: ${OUTCOME:-timed out})"
                 oc describe job "$JOB" || true
-                oc logs "job/$JOB" --tail=300 --all-containers || true
                 exit 1
               fi
               echo "Job $JOB completed"
