@@ -111,7 +111,7 @@ describe('useDeleteNote', () => {
     await remove(result);
 
     expect(addErrorNotification).toHaveBeenCalledWith(
-      'Notes imported from FTA cannot be removed',
+      'Imported notes cannot be removed, and other notes can only be removed by their author or a super admin',
       'deleteNote-locked',
     );
   });

@@ -1,3 +1,4 @@
+import { UserContextService } from '@/common/modules/user-context/user-context.service';
 import { PrismaService } from '@/prisma.service';
 import { NotesService } from '@/recreation-resources/notes/notes.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
@@ -18,6 +19,21 @@ describe('NotesService', () => {
     },
   };
 
+  const AUTHOR = 'IDIR\\jdoe';
+  const OTHER = 'IDIR\\someone-else';
+
+  const mockUserContext = {
+    getIdentityProviderPrefixedUsername: vi.fn(),
+    getCurrentUser: vi.fn(),
+  };
+
+  const signInAs = (username: string, roles: string[] = ['rst-admin']) => {
+    mockUserContext.getIdentityProviderPrefixedUsername.mockReturnValue(
+      username,
+    );
+    mockUserContext.getCurrentUser.mockReturnValue({ client_roles: roles });
+  };
+
   beforeEach(async () => {
     module = await Test.createTestingModule({
       providers: [
@@ -26,10 +42,15 @@ describe('NotesService', () => {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
+        {
+          provide: UserContextService,
+          useValue: mockUserContext,
+        },
       ],
     }).compile();
 
     service = module.get<NotesService>(NotesService);
+    signInAs(AUTHOR);
   });
 
   afterEach(async () => {
@@ -295,6 +316,125 @@ describe('NotesService', () => {
       expect(
         mockPrismaService.recreation_resource_note.delete,
       ).not.toHaveBeenCalled();
+    });
+  });
+  describe('ownership', () => {
+    const otherUsersNote = () => makeDbRow({ created_by: OTHER });
+
+    it("marks another staff member's note as not editable", async () => {
+      mockPrismaService.recreation_resource_note.findMany.mockResolvedValue([
+        otherUsersNote(),
+      ]);
+
+      const [note] = await service.getAll(REC_RESOURCE_ID);
+
+      expect(note.is_editable).toBe(false);
+    });
+
+    it('marks every note editable for a super admin', async () => {
+      signInAs(AUTHOR, ['rst-super-admin']);
+      mockPrismaService.recreation_resource_note.findMany.mockResolvedValue([
+        otherUsersNote(),
+      ]);
+
+      const [note] = await service.getAll(REC_RESOURCE_ID);
+
+      expect(note.is_editable).toBe(true);
+    });
+
+    it('keeps FTA notes locked even for a super admin', async () => {
+      signInAs(AUTHOR, ['rst-super-admin']);
+      mockPrismaService.recreation_resource_note.findMany.mockResolvedValue([
+        makeDbRow({ source_system: 'FTA', created_by: AUTHOR }),
+      ]);
+
+      const [note] = await service.getAll(REC_RESOURCE_ID);
+
+      expect(note.is_editable).toBe(false);
+    });
+
+    it('tolerates a token with no roles', async () => {
+      mockUserContext.getCurrentUser.mockReturnValue({});
+      mockPrismaService.recreation_resource_note.findMany.mockResolvedValue([
+        otherUsersNote(),
+      ]);
+
+      const [note] = await service.getAll(REC_RESOURCE_ID);
+
+      expect(note.is_editable).toBe(false);
+    });
+
+    it("refuses to update another staff member's note", async () => {
+      mockPrismaService.recreation_resource_note.findUnique.mockResolvedValue(
+        otherUsersNote(),
+      );
+
+      await expect(
+        service.update(REC_RESOURCE_ID, NOTE_ID, { title: 'New title' }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(
+        mockPrismaService.recreation_resource_note.update,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("refuses to delete another staff member's note", async () => {
+      mockPrismaService.recreation_resource_note.findUnique.mockResolvedValue(
+        otherUsersNote(),
+      );
+
+      await expect(service.delete(REC_RESOURCE_ID, NOTE_ID)).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(
+        mockPrismaService.recreation_resource_note.delete,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("lets a super admin update another staff member's note", async () => {
+      signInAs(AUTHOR, ['rst-super-admin']);
+      mockPrismaService.recreation_resource_note.findUnique.mockResolvedValue(
+        otherUsersNote(),
+      );
+      mockPrismaService.recreation_resource_note.update.mockResolvedValue(
+        makeDbRow({ created_by: OTHER, title: 'New title' }),
+      );
+
+      await service.update(REC_RESOURCE_ID, NOTE_ID, { title: 'New title' });
+
+      expect(
+        mockPrismaService.recreation_resource_note.update,
+      ).toHaveBeenCalled();
+    });
+
+    it("lets a super admin delete another staff member's note", async () => {
+      signInAs(AUTHOR, ['rst-super-admin']);
+      mockPrismaService.recreation_resource_note.findUnique.mockResolvedValue(
+        otherUsersNote(),
+      );
+      mockPrismaService.recreation_resource_note.delete.mockResolvedValue(
+        otherUsersNote(),
+      );
+
+      await service.delete(REC_RESOURCE_ID, NOTE_ID);
+
+      expect(
+        mockPrismaService.recreation_resource_note.delete,
+      ).toHaveBeenCalled();
+    });
+
+    it('lets the author update their own note', async () => {
+      mockPrismaService.recreation_resource_note.findUnique.mockResolvedValue(
+        makeDbRow({ created_by: AUTHOR }),
+      );
+      mockPrismaService.recreation_resource_note.update.mockResolvedValue(
+        makeDbRow({ created_by: AUTHOR }),
+      );
+
+      await service.update(REC_RESOURCE_ID, NOTE_ID, { title: 'New title' });
+
+      expect(
+        mockPrismaService.recreation_resource_note.update,
+      ).toHaveBeenCalled();
     });
   });
 });

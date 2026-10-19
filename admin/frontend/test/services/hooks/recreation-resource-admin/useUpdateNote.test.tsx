@@ -122,7 +122,7 @@ describe('useUpdateNote', () => {
     await update(result);
 
     expect(addErrorNotification).toHaveBeenCalledWith(
-      'Notes imported from FTA cannot be changed',
+      'Imported notes cannot be changed, and other notes can only be changed by their author or a super admin',
       'updateNote-locked',
     );
   });

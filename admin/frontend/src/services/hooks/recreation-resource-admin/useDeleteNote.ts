@@ -45,7 +45,7 @@ export function useDeleteNote() {
       const statusCode = error.response?.status;
       if (statusCode === 403) {
         addErrorNotification(
-          'Notes imported from FTA cannot be removed',
+          'Imported notes cannot be removed, and other notes can only be removed by their author or a super admin',
           'deleteNote-locked',
         );
       } else if (statusCode === 404) {

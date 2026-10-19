@@ -51,7 +51,7 @@ export function useUpdateNote() {
       const statusCode = error.response?.status;
       if (statusCode === 403) {
         addErrorNotification(
-          'Notes imported from FTA cannot be changed',
+          'Imported notes cannot be changed, and other notes can only be changed by their author or a super admin',
           'updateNote-locked',
         );
       } else if (statusCode === 404) {
