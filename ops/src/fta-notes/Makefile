@@ -36,12 +36,3 @@ import-fta-notes-dry: ## Dry run - report what would be imported without writing
 import-fta-notes-clean: ## Delete all FTA-sourced notes, then re-import
 	@cd "$(OPS)" && DATABASE_URL="$(DB_URL)" \
 		npx tsx src/fta-notes/import-fta-notes.ts $(CSV_ARGS) --clean $(ARGS)
-
-.PHONY: check-csv-columns
-check-csv-columns: ## Verify both CSV headers match their fta mirror table column order
-	@cd "$(OPS)" && DATABASE_URL="$(DB_URL)" \
-		npx tsx src/fta-notes/check-csv-columns.ts \
-			--csv "$(call abs_path,$(NOTES_CSV))" --table fta.provforest_note
-	@cd "$(OPS)" && DATABASE_URL="$(DB_URL)" \
-		npx tsx src/fta-notes/check-csv-columns.ts \
-			--csv "$(call abs_path,$(ASSOC_CSV))" --table fta.associated_use

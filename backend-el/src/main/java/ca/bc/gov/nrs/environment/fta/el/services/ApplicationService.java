@@ -18,9 +18,6 @@ import java.util.List;
 
 @Service
 public class ApplicationService {
-  /** Only recreation files reach rst. */
-  private static final String REC_FILE_PREFIX = "REC";
-
   private final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
   @Value("${ca.bc.gov.nrs.environment.fta.el.file-base-path}")
   private String fileBasePath;
@@ -74,8 +71,6 @@ public class ApplicationService {
   private final RecreationTrailSegmentRepository recreationTrailSegmentRepository;
   private final RecreationUserDaysCodeRepository recreationUserDaysCodeRepository;
   private final RecreatnEventRepository recreatnEventRepository;
-  private final ProvforestNoteRepository provforestNoteRepository;
-  private final AssociatedUseRepository associatedUseRepository;
 
   public ApplicationService(S3UploaderService s3UploaderService,
                             FlywayTaskRunnerService flywayTaskRunnerService,
@@ -109,8 +104,6 @@ public class ApplicationService {
                             RecreationOccupancyCodeRepository recreationOccupancyCodeRepository,
                             RecreationPlanRepository recreationPlanRepository,
                             ProvForestUseRepository provForestUseRepository,
-                            ProvforestNoteRepository provforestNoteRepository,
-                            AssociatedUseRepository associatedUseRepository,
                             OrgUnitRepository orgUnitRepository,
                             RecreationProjectRepository recreationProjectRepository,
                             RecreationRemedRepairCodeRepository recreationRemedRepairCodeRepository,
@@ -160,8 +153,6 @@ public class ApplicationService {
     this.recreationOccupancyCodeRepository = recreationOccupancyCodeRepository;
     this.recreationPlanRepository = recreationPlanRepository;
     this.provForestUseRepository = provForestUseRepository;
-    this.provforestNoteRepository = provforestNoteRepository;
-    this.associatedUseRepository = associatedUseRepository;
     this.orgUnitRepository = orgUnitRepository;
     this.recreationProjectRepository = recreationProjectRepository;
     this.recreationRemedRepairCodeRepository = recreationRemedRepairCodeRepository;
@@ -212,8 +203,6 @@ public class ApplicationService {
     extractAndUploadRecreationOccupancyCode();
     extractAndUploadRecreationPlan();
     extractAndUploadProvForestUse();
-    extractAndUploadProvforestNote();
-    extractAndUploadAssociatedUse();
     extractAndUploadOrgUnit();
     extractAndUploadRecreationProject();
     extractAndUploadRecreationRemedRepairCode();
@@ -244,63 +233,6 @@ public class ApplicationService {
     extractAndUploadRecreationComment();
 
     this.flywayTaskRunnerService.runFlywayTasks();
-  }
-
-  /**
-   * Extracts only the two note sources, for verifying a note change without
-   * running the full daily extract.
-   */
-  public void extractAndUploadNotes() {
-    extractAndUploadProvforestNote();
-    extractAndUploadAssociatedUse();
-  }
-
-  private void extractAndUploadProvforestNote() {
-    var results = this.provforestNoteRepository.findByForestFileIdStartingWith(REC_FILE_PREFIX);
-    var entityMetadata = getEntityMetadata(ProvforestNote.class);
-    try (
-      var out = new FileWriter(entityMetadata.filePath());
-      var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
-      for (var item : results) {
-        printer.printRecord(item.getProvforestNoteSkey(),
-          item.getForestFileId(),
-          item.getNote(),
-          item.getEntryUserid(),
-          item.getEntryTimestamp(),
-          item.getUpdateUserid(),
-          item.getUpdateTimestamp(),
-          item.getRevisionCount());
-      }
-      printer.flush();
-      this.s3UploaderService.uploadFileToS3(entityMetadata.filePath(), entityMetadata.fileName());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void extractAndUploadAssociatedUse() {
-    var results = this.associatedUseRepository.findByForestFileIdStartingWith(REC_FILE_PREFIX);
-    var entityMetadata = getEntityMetadata(AssociatedUse.class);
-    try (
-      var out = new FileWriter(entityMetadata.filePath());
-      var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
-      for (var item : results) {
-        printer.printRecord(item.getForestFileId(),
-          item.getFileSourceCode(),
-          item.getAssociatedFileId(),
-          item.getFileAssociationTypeCode(),
-          item.getAssociationEndDate(),
-          item.getEntryUserid(),
-          item.getEntryTimestamp(),
-          item.getUpdateUserid(),
-          item.getUpdateTimestamp(),
-          item.getRevisionCount());
-      }
-      printer.flush();
-      this.s3UploaderService.uploadFileToS3(entityMetadata.filePath(), entityMetadata.fileName());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 
   private void extractAndUploadRecreationMapFeature() {
