@@ -17,6 +17,7 @@ import { BcgwModule } from './bcgw/bcgw.module';
 import { PartnerModule } from './partner/partner.module';
 import { PrismaService } from './prisma.service';
 import { SncscModule } from './sncsc/sncsc.module';
+import { ExhibitAModule } from './exhibit-a/exhibit-a.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SncscModule } from './sncsc/sncsc.module';
     ActModule,
     BcgwModule,
     SncscModule,
+    ExhibitAModule,
     PartnerModule,
     UserContextModule,
     ApiMetricsModule.forRoot({
