@@ -143,3 +143,34 @@
     color: $colorGrey;
   }
 }
+
+.badge {
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  height: fit-content;
+  padding: 4.2px 7.8px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Subclasses for dynamic background/text colors */
+.badge-new {
+  background-color: $colorBlueLight; /* Example light blue */
+  color: $colorBlue;
+}
+
+.badge-amend {
+  background-color: $colorBackgroundGrey; /* Example light gray */
+  color: $colorGrey;
+}
+
+.badge-retire {
+  background-color: $colorRedLight; /* Example light red */
+  color: $colorRed;
+}

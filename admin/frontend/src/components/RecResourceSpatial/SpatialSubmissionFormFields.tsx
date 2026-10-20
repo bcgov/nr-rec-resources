@@ -21,6 +21,7 @@ interface SpatialSubmissionFormFieldsProps {
   isProcessing: boolean;
   onSpatialFilesChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onValidateSpatialFile: () => void;
+  editMode?: boolean;
 }
 
 export const SpatialSubmissionFormFields = ({
@@ -36,24 +37,27 @@ export const SpatialSubmissionFormFields = ({
   isProcessing,
   onSpatialFilesChange,
   onValidateSpatialFile,
+  editMode = false,
 }: SpatialSubmissionFormFieldsProps) => {
   return (
     <>
-      <Col xs={12} md={6}>
-        <Form.Group>
-          <Form.Label>Recreation Name (optional)</Form.Label>
-          <Form.Control
-            aria-label="Recreation Name"
-            value={values.recreationName}
-            onChange={(e) =>
-              setValues((prev) => ({
-                ...prev,
-                recreationName: e.target.value,
-              }))
-            }
-          />
-        </Form.Group>
-      </Col>
+      {!editMode && (
+        <Col xs={12} md={6}>
+          <Form.Group>
+            <Form.Label>Recreation Name (optional)</Form.Label>
+            <Form.Control
+              aria-label="Recreation Name"
+              value={values.recreationName}
+              onChange={(e) =>
+                setValues((prev) => ({
+                  ...prev,
+                  recreationName: e.target.value,
+                }))
+              }
+            />
+          </Form.Group>
+        </Col>
+      )}
 
       <Col xs={12} md={6}>
         <Form.Group>
@@ -165,61 +169,67 @@ export const SpatialSubmissionFormFields = ({
         </Form.Group>
       </Col>
 
-      <Col xs={12} md={6}>
-        <Form.Group>
-          <Form.Label>Natural Resource District</Form.Label>
-          <Form.Select
-            aria-label="Natural Resource District"
-            disabled={areDistrictOptionsLoading}
-            required
-            isInvalid={hasMissingField('districtCode')}
-            value={values.metadata.districtCode}
-            onChange={(e) => setMetadata('districtCode', e.target.value)}
-          >
-            <option value="">
-              {areDistrictOptionsLoading
-                ? 'Loading districts...'
-                : 'Select district'}
-            </option>
-            {naturalResourceDistrictOptions.map((district) => (
-              <option key={district.id ?? district.label} value={district.id}>
-                {district.label}
+      {!editMode && (
+        <Col xs={12} md={6}>
+          <Form.Group>
+            <Form.Label>Natural Resource District</Form.Label>
+            <Form.Select
+              aria-label="Natural Resource District"
+              disabled={areDistrictOptionsLoading}
+              required
+              isInvalid={hasMissingField('districtCode')}
+              value={values.metadata.districtCode}
+              onChange={(e) => setMetadata('districtCode', e.target.value)}
+            >
+              <option value="">
+                {areDistrictOptionsLoading
+                  ? 'Loading districts...'
+                  : 'Select district'}
               </option>
-            ))}
-          </Form.Select>
-          <Form.Control.Feedback type="invalid">
-            This is required.
-          </Form.Control.Feedback>
-        </Form.Group>
-      </Col>
+              {naturalResourceDistrictOptions.map((district) => (
+                <option key={district.id ?? district.label} value={district.id}>
+                  {district.label}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              This is required.
+            </Form.Control.Feedback>
+          </Form.Group>
+        </Col>
+      )}
 
-      <Col xs={12} md={6}>
-        <Form.Group>
-          <Form.Label>Recreation District</Form.Label>
-          <Form.Select
-            aria-label="Recreation District"
-            disabled={areDistrictOptionsLoading}
-            required
-            isInvalid={hasMissingField('recreationDistrict')}
-            value={values.metadata.recreationDistrict}
-            onChange={(e) => setMetadata('recreationDistrict', e.target.value)}
-          >
-            <option value="">
-              {areDistrictOptionsLoading
-                ? 'Loading districts...'
-                : 'Select district'}
-            </option>
-            {recreationDistrictOptions.map((district) => (
-              <option key={district.id ?? district.label} value={district.id}>
-                {district.label}
+      {!editMode && (
+        <Col xs={12} md={6}>
+          <Form.Group>
+            <Form.Label>Recreation District</Form.Label>
+            <Form.Select
+              aria-label="Recreation District"
+              disabled={areDistrictOptionsLoading}
+              required
+              isInvalid={hasMissingField('recreationDistrict')}
+              value={values.metadata.recreationDistrict}
+              onChange={(e) =>
+                setMetadata('recreationDistrict', e.target.value)
+              }
+            >
+              <option value="">
+                {areDistrictOptionsLoading
+                  ? 'Loading districts...'
+                  : 'Select district'}
               </option>
-            ))}
-          </Form.Select>
-          <Form.Control.Feedback type="invalid">
-            This is required.
-          </Form.Control.Feedback>
-        </Form.Group>
-      </Col>
+              {recreationDistrictOptions.map((district) => (
+                <option key={district.id ?? district.label} value={district.id}>
+                  {district.label}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              This is required.
+            </Form.Control.Feedback>
+          </Form.Group>
+        </Col>
+      )}
 
       <Col xs={12} md={6}>
         <Form.Group>

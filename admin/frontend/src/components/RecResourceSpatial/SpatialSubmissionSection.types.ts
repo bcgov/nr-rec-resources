@@ -6,6 +6,8 @@ export interface SpatialSubmissionSectionProps {
   defaultRecreationTypeCode?: string;
   defaultNaturalResourceDistrict?: string;
   defaultRecreationDistrict?: string;
+  editMode?: boolean;
+  existingSectionIds?: string[];
 }
 
 export interface WizardValues {

@@ -34,6 +34,7 @@ export interface SubmissionMetadata {
 export interface FeatureSectionId {
   featureIndex: number;
   sectionId: string | null;
+  editAction: 'NEW' | 'AMEND' | 'RETIRE' | null;
 }
 
 export interface SpatialFeature {

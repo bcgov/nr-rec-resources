@@ -91,6 +91,7 @@ export * from './UpdateRecreationAccessCodeDto';
 export * from './UpdateRecreationAssetDto';
 export * from './UpdateRecreationAssetRepairDto';
 export * from './UpdateRecreationFeeDto';
+export * from './UpdateRecreationMapFeatureGeometryDto';
 export * from './UpdateRecreationResourceDto';
 export * from './UpdateRecreationResourceGeospatialDto';
 export * from './UpdateRecreationResourceReservationDto';

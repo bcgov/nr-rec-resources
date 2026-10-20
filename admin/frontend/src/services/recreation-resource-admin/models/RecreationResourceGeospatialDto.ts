@@ -85,6 +85,12 @@ export interface RecreationResourceGeospatialDto {
    * @memberof RecreationResourceGeospatialDto
    */
   longitude?: number | null;
+  /**
+   * Optional array of section identifiers/names for the existing features associated with this recreation resource
+   * @type {Array<string>}
+   * @memberof RecreationResourceGeospatialDto
+   */
+  section_ids?: Array<string> | null;
 }
 
 /**
@@ -135,6 +141,7 @@ export function RecreationResourceGeospatialDtoFromJSONTyped(
       json['utm_northing'] == null ? undefined : json['utm_northing'],
     latitude: json['latitude'] == null ? undefined : json['latitude'],
     longitude: json['longitude'] == null ? undefined : json['longitude'],
+    section_ids: json['section_ids'] == null ? undefined : json['section_ids'],
   };
 }
 
@@ -164,5 +171,6 @@ export function RecreationResourceGeospatialDtoToJSONTyped(
     utm_northing: value['utm_northing'],
     latitude: value['latitude'],
     longitude: value['longitude'],
+    section_ids: value['section_ids'],
   };
 }
