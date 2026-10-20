@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "check-csv-columns": "tsx src/fta-notes/check-csv-columns.ts",
+    "sync-advisories": "tsx src/advisories/sync-advisories.ts",
     "export-closed-resources": "tsx src/closures/export-closed-resources.ts",
-    "import-fta-notes": "tsx src/fta-notes/import-fta-notes.ts",
-    "sync-advisories": "tsx src/advisories/sync-advisories.ts"
+    "import-fta-notes": "tsx src/fta-notes/import-fta-notes.ts"
   },
   "dependencies": {
     "@aws-sdk/client-guardduty": "^3.1136.0",

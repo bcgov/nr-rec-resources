@@ -33,12 +33,9 @@ const NOTE_TYPE_CODE = 'NOTE';
 /** Rows per multi-value insert. Postgres caps a statement at 65535 parameters. */
 const INSERT_CHUNK_SIZE = 500;
 
-type Target = 'rst' | 'fta';
-
 interface ParsedArgs {
   notesCsv: string;
   assocCsv: string;
-  target: Target;
   dryRun: boolean;
   clean: boolean;
 }
@@ -242,112 +239,7 @@ class FtaNoteImporter {
     return inserted;
   }
 
-  /**
-   * Loads both extracts into the fta mirror tables, so the real
-   * fta_to_rst transform can be run against them. The CSVs carry two-digit
-   * years, which the mirror's date columns cannot parse, so the dates are
-   * pivoted on the way in.
-   */
-  private async loadIntoFta(args: ParsedArgs): Promise<void> {
-    const notes = readCsv(args.notesCsv);
-    const assoc = readCsv(args.assocCsv);
-
-    this.logger.info('Read CSV extracts', {
-      provforestNoteRows: notes.length,
-      associatedUseRows: assoc.length,
-    });
-
-    if (args.dryRun) {
-      this.logger.info('Dry run, nothing written');
-      return;
-    }
-
-    await this.pool.query('truncate fta.provforest_note, fta.associated_use');
-
-    for (let i = 0; i < notes.length; i += INSERT_CHUNK_SIZE) {
-      const chunk = notes.slice(i, i + INSERT_CHUNK_SIZE);
-      const values: string[] = [];
-      const params: unknown[] = [];
-      chunk.forEach((row, index) => {
-        const b = index * 8;
-        values.push(
-          `($${b + 1}, $${b + 2}, $${b + 3}, $${b + 4},` +
-            ` rst.fta_note_pivot_date($${b + 5}), $${b + 6},` +
-            ` rst.fta_note_pivot_date($${b + 7}), $${b + 8})`,
-        );
-        params.push(
-          row.PROVFOREST_NOTE_SKEY,
-          row.FOREST_FILE_ID,
-          row.NOTE,
-          row.ENTRY_USERID,
-          row.ENTRY_TIMESTAMP,
-          row.UPDATE_USERID,
-          row.UPDATE_TIMESTAMP,
-          row.REVISION_COUNT,
-        );
-      });
-      await this.pool.query(
-        `insert into fta.provforest_note (
-           provforest_note_skey, forest_file_id, note, entry_userid,
-           entry_timestamp, update_userid, update_timestamp, revision_count
-         ) values ${values.join(', ')}`,
-        params,
-      );
-    }
-
-    for (let i = 0; i < assoc.length; i += INSERT_CHUNK_SIZE) {
-      const chunk = assoc.slice(i, i + INSERT_CHUNK_SIZE);
-      const values: string[] = [];
-      const params: unknown[] = [];
-      chunk.forEach((row, index) => {
-        const b = index * 10;
-        values.push(
-          `($${b + 1}, $${b + 2}, $${b + 3}, $${b + 4}, $${b + 5}, $${b + 6},` +
-            ` rst.fta_note_pivot_date($${b + 7}), $${b + 8},` +
-            ` rst.fta_note_pivot_date($${b + 9}), $${b + 10})`,
-        );
-        params.push(
-          row.FOREST_FILE_ID,
-          row.FILE_SOURCE_CODE,
-          row.ASSOCIATED_FILE_ID,
-          row.FILE_ASSOCIATION_TYPE_CODE || null,
-          row.ASSOCIATION_END_DATE || null,
-          row.ENTRY_USERID,
-          row.ENTRY_TIMESTAMP,
-          row.UPDATE_USERID,
-          row.UPDATE_TIMESTAMP,
-          row.REVISION_COUNT,
-        );
-      });
-      await this.pool.query(
-        `insert into fta.associated_use (
-           forest_file_id, file_source_code, associated_file_id,
-           file_association_type_code, association_end_date, entry_userid,
-           entry_timestamp, update_userid, update_timestamp, revision_count
-         ) values ${values.join(', ')}`,
-        params,
-      );
-    }
-
-    const staged = await this.pool.query<{ notes: string; assoc: string }>(
-      `select (select count(*) from fta.provforest_note) as notes,
-              (select count(*) from fta.associated_use) as assoc`,
-    );
-
-    this.logger.info('Staged into fta', {
-      provforestNote: staged.rows[0].notes,
-      associatedUse: staged.rows[0].assoc,
-    });
-    this.logger.info(
-      'Now run the transform: migrations/fta/sql/V1.1.24__fta_to_rst_recreation_resource_note.sql',
-    );
-  }
-
   async run(args: ParsedArgs): Promise<void> {
-    if (args.target === 'fta') {
-      return this.loadIntoFta(args);
-    }
-
     const [resourceIds, sourceDescriptions] = await Promise.all([
       this.loadResourceIds(),
       this.loadFileSourceDescriptions(),
@@ -425,13 +317,6 @@ async function parseArgs(): Promise<ParsedArgs> {
       demandOption: true,
       description: 'Path to ASSOCIATED_USE.csv',
     })
-    .option('target', {
-      type: 'string',
-      choices: ['rst', 'fta'] as const,
-      default: 'rst',
-      description:
-        'rst writes finished notes; fta stages the mirror tables so the real transform can be run against them',
-    })
     .option('dry-run', {
       type: 'boolean',
       default: false,
@@ -450,7 +335,6 @@ async function parseArgs(): Promise<ParsedArgs> {
   return {
     notesCsv: parsed['notes-csv'] as string,
     assocCsv: parsed['assoc-csv'] as string,
-    target: parsed.target as Target,
     dryRun: parsed['dry-run'] as boolean,
     clean: parsed.clean as boolean,
   };
@@ -482,12 +366,11 @@ async function main(): Promise<void> {
     logger.info('Starting FTA note import', {
       notesCsv: args.notesCsv,
       assocCsv: args.assocCsv,
-      target: args.target,
       dryRun: args.dryRun,
       clean: args.clean,
     });
 
-    if (args.clean && !args.dryRun && args.target === 'rst') {
+    if (args.clean && !args.dryRun) {
       logger.warn(
         '--clean flag set: deleting all FTA-sourced notes before importing',
       );
