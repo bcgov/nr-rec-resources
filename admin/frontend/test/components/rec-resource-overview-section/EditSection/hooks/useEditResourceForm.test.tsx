@@ -157,29 +157,32 @@ describe('useEditResourceForm', () => {
       expect(result.current.updateMutation).toBe(mockUpdateMutation);
     });
 
-    it('should initialize selectedAccessOptions with grouped options from recResource', () => {
+    it('should initialize selectedAccessOptions with option values from recResource', () => {
       const { result } = renderHookWithResource();
 
       expect(result.current.selectedAccessOptions).toEqual([
-        {
-          label: 'Sub Access 1',
-          value: 'SUB1',
-          group: 'AC1',
-          groupLabel: 'Access Type 1',
-        },
-        {
-          label: 'Sub Access 2',
-          value: 'SUB2',
-          group: 'AC1',
-          groupLabel: 'Access Type 1',
-        },
-        {
-          label: 'Sub Access 3',
-          value: 'SUB3',
-          group: 'AC2',
-          groupLabel: 'Access Type 2',
-        },
+        'AC1|SUB1',
+        'AC1|SUB2',
+        'AC2|SUB3',
       ]);
+    });
+
+    it('should select the access-only option when a code has no sub-access codes', () => {
+      const resource = {
+        ...mockRecResource,
+        access_codes: [
+          { code: 'T', description: 'Trail', sub_access_codes: [] },
+          {
+            code: 'AC1',
+            description: 'Access Type 1',
+            sub_access_codes: [{ code: 'SUB1', description: 'Sub Access 1' }],
+          },
+        ],
+      } as unknown as RecreationResourceDetailUIModel;
+
+      const { result } = renderHookWithResource(resource);
+
+      expect(result.current.selectedAccessOptions).toEqual(['T|', 'AC1|SUB1']);
     });
 
     it.each([
@@ -245,20 +248,7 @@ describe('useEditResourceForm', () => {
       const { result } = renderHookWithResource();
 
       const formData = createFormData({
-        selected_access_options: [
-          {
-            label: 'Sub Access 1',
-            value: 'SUB1',
-            group: 'AC1',
-            groupLabel: 'Access Type 1',
-          },
-          {
-            label: 'Sub Access 2',
-            value: 'SUB2',
-            group: 'AC1',
-            groupLabel: 'Access Type 1',
-          },
-        ],
+        selected_access_options: ['AC1|SUB1', 'AC1|SUB2'],
       });
 
       await submitFormAndAssert(result, formData, {
@@ -297,26 +287,7 @@ describe('useEditResourceForm', () => {
       const { result } = renderHookWithResource();
 
       const formData = createFormData({
-        selected_access_options: [
-          {
-            label: 'Sub Access 1',
-            value: 'SUB1',
-            group: 'AC1',
-            groupLabel: 'Access Type 1',
-          },
-          {
-            label: 'Sub Access 2',
-            value: 'SUB2',
-            group: 'AC1',
-            groupLabel: 'Access Type 1',
-          },
-          {
-            label: 'Sub Access 3',
-            value: 'SUB3',
-            group: 'AC2',
-            groupLabel: 'Access Type 2',
-          },
-        ],
+        selected_access_options: ['AC1|SUB1', 'AC1|SUB2', 'AC2|SUB3'],
       });
 
       await submitFormAndAssert(result, formData, {
@@ -339,6 +310,38 @@ describe('useEditResourceForm', () => {
           {
             access_code: 'AC2',
             sub_access_codes: ['SUB3'],
+          },
+        ],
+      });
+    });
+
+    it('should submit an access code with no sub-access codes', async () => {
+      const { result } = renderHookWithResource();
+
+      const formData = createFormData({
+        selected_access_options: ['T|', 'AC1|SUB1'],
+      });
+
+      await submitFormAndAssert(result, formData, {
+        maintenance_standard_code: 'M',
+        control_access_code: 'CA2',
+        status_code: 2,
+        risk_rating_code: null,
+        project_established_date: null,
+        district_code: null,
+        display_on_public_site: false,
+        site_description: null,
+        name: null,
+        driving_directions: null,
+        closest_community: null,
+        access_codes: [
+          {
+            access_code: 'T',
+            sub_access_codes: [],
+          },
+          {
+            access_code: 'AC1',
+            sub_access_codes: ['SUB1'],
           },
         ],
       });
@@ -583,14 +586,7 @@ describe('useEditResourceForm', () => {
 
       const { result } = renderHookWithResource(updatedResource);
 
-      expect(result.current.selectedAccessOptions).toEqual([
-        {
-          label: 'New Sub',
-          value: 'NEWSUB1',
-          group: 'NEW1',
-          groupLabel: 'New Access',
-        },
-      ]);
+      expect(result.current.selectedAccessOptions).toEqual(['NEW1|NEWSUB1']);
     });
   });
 

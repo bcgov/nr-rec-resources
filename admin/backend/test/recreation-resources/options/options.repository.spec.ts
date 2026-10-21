@@ -1,4 +1,8 @@
 import { PrismaService } from '@/prisma.service';
+import {
+  OPTION_TABLE_MAPPINGS,
+  OPTION_TYPES,
+} from '@/recreation-resources/options/options.constants';
 import { OptionsRepository } from '@/recreation-resources/options/options.repository';
 import { Test, TestingModule } from '@nestjs/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -414,6 +418,83 @@ describe('OptionsRepository', () => {
         distinct: ['org_unit_code'],
         orderBy: { org_unit_name: 'asc' },
       });
+    });
+  });
+
+  // Guards against a regression where findAllByTypes de-duplicated on idField
+  // alone, collapsing composite-key tables like access/sub-access down to one
+  // row per parent code.
+  describe('composite-key mappings', () => {
+    const accessMapping = OPTION_TABLE_MAPPINGS[OPTION_TYPES.ACCESS];
+    const accessRows = [
+      {
+        access_code: 'R',
+        access_code_description: 'Road',
+        sub_access_code: '2W',
+        sub_access_code_description: '2 wheel drive',
+      },
+      {
+        access_code: 'R',
+        access_code_description: 'Road',
+        sub_access_code: '4W',
+        sub_access_code_description: '4 wheel drive',
+      },
+      {
+        access_code: 'B',
+        access_code_description: 'Boat-in',
+        sub_access_code: 'BM',
+        sub_access_code_description: 'Motorized',
+      },
+    ];
+
+    const expectedAccessOptions = [
+      {
+        id: 'R',
+        label: 'Road',
+        children: [
+          { id: '2W', label: '2 wheel drive' },
+          { id: '4W', label: '4 wheel drive' },
+        ],
+      },
+      {
+        id: 'B',
+        label: 'Boat-in',
+        children: [{ id: 'BM', label: 'Motorized' }],
+      },
+    ];
+
+    it('should keep every sub-access row in findAllByTypes', async () => {
+      (prisma as any).$transaction.mockResolvedValue([accessRows]);
+
+      const result = await repository.findAllByTypes([
+        { type: 'access', mapping: accessMapping },
+      ] as any);
+
+      expect(
+        (prisma as any).recreation_access_and_sub_access_code.findMany,
+      ).toHaveBeenCalledWith(
+        expect.not.objectContaining({ distinct: expect.anything() }),
+      );
+      expect(result.access).toEqual(expectedAccessOptions);
+    });
+
+    it('should return the same access options from both query paths', async () => {
+      (
+        prisma as any
+      ).recreation_access_and_sub_access_code.findMany.mockResolvedValue(
+        accessRows,
+      );
+      (prisma as any).$transaction.mockResolvedValue([accessRows]);
+
+      const fromSingleType = await repository.findAllByType(
+        accessMapping as any,
+      );
+      const fromMultiType = await repository.findAllByTypes([
+        { type: 'access', mapping: accessMapping },
+      ] as any);
+
+      expect(fromSingleType).toEqual(expectedAccessOptions);
+      expect(fromSingleType).toEqual(fromMultiType.access);
     });
   });
 

@@ -1,4 +1,3 @@
-import { GroupedOption } from '@/components';
 import { ROUTE_PATHS } from '@/constants/routes';
 import {
   RecreationResourceDetailUIModel,
@@ -16,6 +15,10 @@ import { useMemo } from 'react';
 import { useForm, useWatch, type Resolver } from 'react-hook-form';
 import { useNavigate } from '@tanstack/react-router';
 import { EditResourceFormData, createEditResourceSchema } from '../schemas';
+import {
+  buildAccessOptionValue,
+  parseAccessOptionValue,
+} from '../utils/accessOptionValue';
 
 /**
  * Custom hook for managing edit resource form logic
@@ -38,17 +41,19 @@ export const useEditResourceForm = (
 
   // Get default values from resource data
   const defaultValues: EditResourceFormData = useMemo(() => {
-    const selectedAccessOptions: GroupedOption[] = [];
+    const selectedAccessOptions: string[] = [];
 
     if (recResource.access_codes && Array.isArray(recResource.access_codes)) {
       recResource.access_codes.forEach((accessCode) => {
+        if (!accessCode.sub_access_codes?.length) {
+          selectedAccessOptions.push(buildAccessOptionValue(accessCode.code));
+          return;
+        }
+
         accessCode.sub_access_codes.forEach((subAccessCode) => {
-          selectedAccessOptions.push({
-            label: subAccessCode.description,
-            value: subAccessCode.code,
-            group: accessCode.code,
-            groupLabel: accessCode.description,
-          });
+          selectedAccessOptions.push(
+            buildAccessOptionValue(accessCode.code, subAccessCode.code),
+          );
         });
       });
     }
@@ -91,7 +96,7 @@ export const useEditResourceForm = (
     useWatch({ control, name: 'selected_access_options' }) || [];
 
   const onSubmit = async (data: EditResourceFormData) => {
-    // Build access codes structure from selected sub-access options
+    // Build access codes structure from the selected option values
     const accessCodesMap: Record<
       string,
       {
@@ -100,20 +105,25 @@ export const useEditResourceForm = (
       }
     > = {};
 
-    // Process each selected sub-access option
-    data.selected_access_options.forEach((option: GroupedOption) => {
-      const parentId = option.group;
+    data.selected_access_options.forEach((optionValue) => {
+      const { accessCode, subAccessCode } = parseAccessOptionValue(optionValue);
+
+      if (!accessCode) {
+        return;
+      }
 
       // Initialize parent access code if not exists
-      if (!accessCodesMap[parentId]) {
-        accessCodesMap[parentId] = {
-          access_code: parentId,
+      if (!accessCodesMap[accessCode]) {
+        accessCodesMap[accessCode] = {
+          access_code: accessCode,
           sub_access_codes: [],
         };
       }
 
-      // Add the sub-access code
-      accessCodesMap[parentId].sub_access_codes.push(option.value);
+      // an access type selected without a sub-access contributes the parent only
+      if (subAccessCode) {
+        accessCodesMap[accessCode].sub_access_codes.push(subAccessCode);
+      }
     });
 
     // Prepare update data with proper type conversion
