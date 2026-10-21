@@ -115,12 +115,6 @@ export interface BcgwClosuresShortDto {
    * @memberof BcgwClosuresShortDto
    */
   longitude: number | null;
-  /**
-   * GeoJSON Point geometry (WGS84)
-   * @type {string}
-   * @memberof BcgwClosuresShortDto
-   */
-  shape: string | null;
 }
 
 /**
@@ -190,7 +184,6 @@ export function instanceOfBcgwClosuresShortDto(
     return false;
   if (!('latitude' in value) || value['latitude'] === undefined) return false;
   if (!('longitude' in value) || value['longitude'] === undefined) return false;
-  if (!('shape' in value) || value['shape'] === undefined) return false;
   return true;
 }
 
@@ -223,7 +216,6 @@ export function BcgwClosuresShortDtoFromJSONTyped(
     driving_directions: json['driving_directions'],
     latitude: json['latitude'],
     longitude: json['longitude'],
-    shape: json['shape'],
   };
 }
 
@@ -256,6 +248,5 @@ export function BcgwClosuresShortDtoToJSONTyped(
     driving_directions: value['driving_directions'],
     latitude: value['latitude'],
     longitude: value['longitude'],
-    shape: value['shape'],
   };
 }

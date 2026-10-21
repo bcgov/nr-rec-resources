@@ -19,9 +19,28 @@ describe('RecreationResourceService', () => {
       findPendingMapFeatureRequests: vi.fn(),
     } as unknown as RecreationResourceRepository;
     prisma = {
+      recreation_resource: {
+        update: vi.fn(),
+      },
       $queryRawTyped: vi.fn(),
     } as unknown as PrismaService;
     service = new RecreationResourceService(repo, prisma);
+  });
+
+  it('should update the recreation resource status code to AR', async () => {
+    const recResourceId = 'REC123';
+    (prisma.recreation_resource.update as any).mockResolvedValue({
+      rec_resource_id: recResourceId,
+      rec_status_code: 'AR',
+    });
+
+    await service.archive(recResourceId);
+
+    expect(prisma.recreation_resource.update).toHaveBeenCalledTimes(1);
+    expect(prisma.recreation_resource.update).toHaveBeenCalledWith({
+      where: { rec_resource_id: recResourceId },
+      data: { rec_status_code: 'AR' },
+    });
   });
 
   it('should return suggestions in correct format', async () => {

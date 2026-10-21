@@ -16,12 +16,14 @@ models/ActAdvisoryUpsertDto.ts
 models/AdminSearchResponseDto.ts
 models/AdminSearchResultRowDto.ts
 models/AgreementHolderClientPublicViewDto.ts
+models/ArchiveRecreationResourceById200Response.ts
 models/BadRequestResponseDto.ts
 models/BcgwClosuresShortDto.ts
 models/BcgwClosuresShortFeatureCollectionDto.ts
 models/BcgwClosuresShortFeatureDto.ts
 models/BcgwFeatureCollectionDto.ts
 models/BcgwFeatureDto.ts
+models/BcgwLayerManifestDto.ts
 models/BcgwPaginationMetaDto.ts
 models/BcgwRecreationLinesDto.ts
 models/BcgwRecreationLinesFeatureCollectionDto.ts

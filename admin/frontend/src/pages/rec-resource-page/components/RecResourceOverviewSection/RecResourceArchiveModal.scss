@@ -1,0 +1,20 @@
+@import '@shared/styles/variables';
+
+.archive-resource-modal__header {
+  background-color: #{$colorBackgroundGrey};
+}
+
+.archive-resource-modal__title {
+  font: var(--typography-bold-body, 700 1rem/1.688rem 'BC Sans');
+}
+
+.archive-resource-modal__body {
+  background-color: $colorWhite;
+}
+
+.archive-resource-modal__subtitle {
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 19.2px;
+  line-height: 27.6px;
+}

@@ -286,4 +286,54 @@ export class RecreationResourceController {
       updateData,
     );
   }
+
+  /**
+   * PUT /recreation-resources/:rec_resource_id/archive
+   *
+   * Updates a recreation resource status to AR by its ID.
+   * Mirrors the frontend EditableGuard: only super-admins may archive resources.
+   *
+   * @param rec_resource_id - The ID of the recreation resource
+   * @throws ForbiddenException if a non-super-admin tries to archive the resource
+   * @throws NotFoundException if resource not found
+   */
+  @AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN], ROLE_MODE.ANY)
+  @Put(':rec_resource_id/archive')
+  @ApiOperation({
+    summary: 'Archive recreation resource by ID',
+    operationId: 'archiveRecreationResourceById',
+    description:
+      'Archives a recreation resource. Changes the rec_status_code to AR.',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    required: true,
+    description: 'Resource identifier',
+    type: 'string',
+    example: 'REC0002',
+  })
+  @ApiOkResponse({
+    description: 'Resource archived successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Resource REC0001 archived successfully',
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request - validation errors or invalid ID',
+    type: BadRequestResponseDto,
+  })
+  async archive(
+    @Param('rec_resource_id') rec_resource_id: string,
+  ): Promise<{ message: string }> {
+    // Service layer will throw appropriate exceptions (NotFoundException, BadRequestException)
+    // Controller just passes through - let NestJS exception filters handle HTTP responses
+    await this.recreationResourceService.archive(rec_resource_id);
+    return { message: `Resource ${rec_resource_id} archived successfully` };
+  }
 }
