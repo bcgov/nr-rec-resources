@@ -44,6 +44,8 @@ public class FtaRstExporterApplication implements CommandLineRunner {
     } else if (jobMode.equals(JOB_MODE_DAILY)) {
       logger.info("Running daily CSV extraction and upload");
       this.applicationService.extractAndUploadCSVToS3();
+      logger.info("Running tenure extraction and upload as part of daily job");
+      this.tenureExportService.extractAndUploadTenureDataToS3();
     } else if (jobMode.equals(JOB_MODE_TENURE)) {
       logger.info("Running tenure extraction and upload");
       this.tenureExportService.extractAndUploadTenureDataToS3();
