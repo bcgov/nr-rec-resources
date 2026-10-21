@@ -546,7 +546,7 @@ export function BulkAssetEditModal({
     >
       <Modal.Header closeButton className="bulk-asset-edit-modal__header">
         <Modal.Title className="bulk-asset-edit-modal__title">
-          Bulk update
+          Update assets
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="bulk-asset-edit-modal__body">
