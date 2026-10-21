@@ -14,6 +14,8 @@ import {
   latitudeRegisterOptions,
   longitudeRegisterOptions,
 } from './coordinateRegisterOptions';
+import { HelpIcon } from '@/components/help-icon';
+import { ACTUAL_VALUE_HELP_TEXT, DEFAULT_VALUE_HELP_TEXT } from './helperTexts';
 
 export interface AssetEditFormValues {
   asset_comment: string;
@@ -259,7 +261,13 @@ export function AssetCardEdit({
 
               {!isCampsite && (
                 <Form.Group controlId={`asset-default-value-${id}`}>
-                  <Form.Label>Default Value</Form.Label>
+                  <Form.Label>
+                    Default value
+                    <HelpIcon
+                      id="edit-default-value-help"
+                      text={DEFAULT_VALUE_HELP_TEXT}
+                    />
+                  </Form.Label>
                   <InputGroup>
                     <InputGroup.Text>$</InputGroup.Text>
 
@@ -275,7 +283,13 @@ export function AssetCardEdit({
 
               {!isCampsite && (
                 <Form.Group controlId={`asset-actual-value-${id}`}>
-                  <Form.Label>Actual Value</Form.Label>
+                  <Form.Label>
+                    Actual value
+                    <HelpIcon
+                      id="edit-actual-value-help"
+                      text={ACTUAL_VALUE_HELP_TEXT}
+                    />
+                  </Form.Label>
                   <InputGroup>
                     <InputGroup.Text>$</InputGroup.Text>
                     <Form.Control
