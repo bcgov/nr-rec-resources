@@ -1,5 +1,6 @@
 import { AdvisoryDto } from '@/service/recreation-resource';
 import { SafeHtml } from '@shared/components/safe-html';
+import { formatDateFull } from '@shared/utils';
 import blueIcon from '@/images/icons/advisories/blue-icon.svg';
 import yellowIcon from '@/images/icons/advisories/yellow-icon.svg';
 import redIcon from '@/images/icons/advisories/red-icon.svg';
@@ -12,6 +13,54 @@ interface AdvisoriesItemProps {
   isCollapsed: boolean;
   onToggle: () => void;
 }
+
+interface AdvisoryDateLine {
+  label: string;
+  value: string;
+}
+
+/**
+ * Each date has its own `is_*_displayed` flag set upstream in ACT; a date is
+ * only shown when its flag is on and the date itself is present.
+ */
+const getDateLines = (advisory: AdvisoryDto): AdvisoryDateLine[] => {
+  const show = (isDisplayed: boolean, date?: Date) =>
+    isDisplayed && date ? formatDateFull(date) : null;
+
+  const start = show(
+    advisory.is_effective_date_displayed,
+    advisory.effective_date,
+  );
+  const end = show(advisory.is_end_date_displayed, advisory.end_date);
+  const posted = show(
+    advisory.is_advisory_date_displayed,
+    advisory.advisory_date,
+  );
+  const updated = show(
+    advisory.is_updated_date_displayed,
+    advisory.updated_date,
+  );
+
+  const lines: AdvisoryDateLine[] = [];
+
+  if (start && end) {
+    // a range that starts and ends on the same day shows the date once
+    lines.push({
+      label: 'In effect',
+      value: start === end ? start : `${start} to ${end}`,
+    });
+  } else if (start) {
+    lines.push({ label: 'Starts', value: start });
+  }
+  if (posted) {
+    lines.push({ label: 'Posted', value: posted });
+  }
+  if (updated) {
+    lines.push({ label: 'Updated', value: updated });
+  }
+
+  return lines;
+};
 
 const getIconForUrgency = (urgency: string) => {
   switch (urgency) {
@@ -32,6 +81,8 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
   isCollapsed,
   onToggle,
 }) => {
+  const dateLines = getDateLines(advisory);
+
   return (
     <div className={`advisory-item ${isLast ? 'advisory-item--last' : ''}`}>
       <div
@@ -64,19 +115,15 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
         <div className="advisory-description">
           {advisory.description && <SafeHtml html={advisory.description} />}
         </div>
-        {advisory.is_advisory_date_displayed && (
-          <p className="advisory-date">
-            Posted{' '}
-            {advisory.advisory_date && (
-              <strong>
-                {new Date(advisory.advisory_date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </strong>
-            )}
-          </p>
+        {dateLines.length > 0 && (
+          <div className="advisory-dates">
+            {dateLines.map(({ label, value }) => (
+              <p className="advisory-date" key={label}>
+                {`${label}: `}
+                <strong>{value}</strong>
+              </p>
+            ))}
+          </div>
         )}
       </div>
     </div>
