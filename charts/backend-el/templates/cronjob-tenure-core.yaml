@@ -1,0 +1,66 @@
+{{- if .Values.tenureImageCronEnabled }}
+{{/* Manual cronjob to run only TENURE_APPLICATION and TENURE_APPLICATION_MAP_FEATURE exports */}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-tenure-core
+  labels:
+    {{- include "labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.tenureCoreSchedule | quote }}
+  suspend: {{ .Values.tenureImageCronSuspend }}
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: {{ .Values.successHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.failedHistoryLimit }}
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "labels" . | nindent 8 }}
+    spec:
+      backoffLimit: {{ .Values.backoffLimit }}
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            {{- include "labels" . | nindent 12 }}
+        spec:
+          volumes:
+            - name: {{ .Release.Name }}-csv
+              {{- if .Values.scratch.usePersistentVolume }}
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-csv
+              {{- else }}
+              emptyDir:
+                sizeLimit: {{ .Values.scratch.emptyDirSizeLimit | quote }}
+              {{- end }}
+          containers:
+            - name: {{ .Chart.Name }}
+              image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"
+              resources:
+                {{- toYaml .Values.resources | nindent 16 }}
+              envFrom:
+                - secretRef:
+                    name: {{ .Release.Name }}-backend-el
+                - secretRef:
+                    name: aws-secrets
+              env:
+                - name: DB_PORT
+                  value: "1543"
+                - name: FILE_BASE_PATH
+                  value: "/uploads"
+                - name: SPRING_JPA_SHOW_SQL
+                  value: "false"
+                - name: AWS_LZA_S3_BUCKET
+                  value: "{{ .Values.config.awsS3Bucket }}"
+                - name: spring_profiles_active
+                  value: "openshift"
+                - name: JOB_MODE
+                  value: "tenure"
+                - name: TENURE_IMAGE_EXPORT_TARGET
+                  value: "core"
+              volumeMounts:
+                - name: {{ .Release.Name }}-csv
+                  mountPath: /uploads
+          restartPolicy: OnFailure
+{{- end }}
+

@@ -11,14 +11,17 @@ export interface UpdateRecreationResourceMapFeaturesRequest {
   newFeatures: Array<{
     geometry: Record<string, unknown>;
     sectionId?: string;
+    featureAreaHectares?: number;
   }>;
   amendedFeatures: Array<{
     geometry: Record<string, unknown>;
     sectionId?: string;
+    featureAreaHectares?: number;
   }>;
   retiredFeatures: Array<{
     geometry: Record<string, unknown>;
     sectionId?: string;
+    featureAreaHectares?: number;
   }>;
   recreationTypeCode?: string;
   submittedBy?: string;
@@ -48,14 +51,23 @@ export function useUpdateRecreationResourceMapFeatures() {
             newFeatures: newFeatures.map((feature) => ({
               geometry: feature.geometry,
               section_id: feature.sectionId,
+              ...(typeof feature.featureAreaHectares === 'number'
+                ? { feature_area_hectares: feature.featureAreaHectares }
+                : {}),
             })),
             amendedFeatures: amendedFeatures.map((feature) => ({
               geometry: feature.geometry,
               section_id: feature.sectionId,
+              ...(typeof feature.featureAreaHectares === 'number'
+                ? { feature_area_hectares: feature.featureAreaHectares }
+                : {}),
             })),
             retiredFeatures: retiredFeatures.map((feature) => ({
               geometry: feature.geometry,
               section_id: feature.sectionId,
+              ...(typeof feature.featureAreaHectares === 'number'
+                ? { feature_area_hectares: feature.featureAreaHectares }
+                : {}),
             })),
             recreation_type_code: recreationTypeCode,
             submitted_by: submittedBy,

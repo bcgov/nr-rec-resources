@@ -2,6 +2,7 @@ import * as shapefile from 'shapefile';
 import shp from 'shpjs';
 import JSZip from 'jszip';
 import proj4 from 'proj4';
+import type { SpatialFeature } from './spatialSubmission.types';
 import {
   BC_EXTENT_3005,
   REQUIRED_SHP_FILE_MESSAGE,
@@ -43,6 +44,78 @@ proj4.defs(
   '+proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs',
 );
 proj4.defs('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs');
+
+const DBF_AREA_FIELDS_IN_HECTARES = new Set([
+  'areaha',
+  'hectares',
+  'hectare',
+  'featurearea',
+]);
+
+const DBF_AREA_FIELDS_IN_SQUARE_METRES = new Set([
+  'shapearea',
+  'shapestarea',
+  'featureareasqm',
+  'areasqm',
+  'squarem',
+  'squaremetres',
+]);
+
+const normalizeAreaFieldName = (fieldName: string): string =>
+  fieldName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+const toFiniteNumber = (value: unknown): number | null => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number(value.replaceAll(',', '').trim());
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+};
+
+export const getFeatureAreaHectares = (
+  feature: SpatialFeature,
+): number | undefined => {
+  const properties = feature?.properties;
+  if (!properties || typeof properties !== 'object') {
+    return undefined;
+  }
+
+  for (const [fieldName, rawValue] of Object.entries(properties)) {
+    const value = toFiniteNumber(rawValue);
+    if (value === null || value < 0) {
+      continue;
+    }
+
+    const normalized = normalizeAreaFieldName(fieldName);
+
+    if (DBF_AREA_FIELDS_IN_HECTARES.has(normalized)) {
+      return value;
+    }
+
+    if (DBF_AREA_FIELDS_IN_SQUARE_METRES.has(normalized)) {
+      return value / 10000;
+    }
+
+    if (
+      normalized.includes('area') &&
+      (normalized.includes('sqm') || normalized.includes('squarem'))
+    ) {
+      return value / 10000;
+    }
+
+    if (normalized.includes('area')) {
+      // Fallback for datasets that store area in generic AREA-style columns.
+      return value;
+    }
+  }
+
+  return undefined;
+};
 
 type ParsedFeatureCollection = {
   type: 'FeatureCollection';
