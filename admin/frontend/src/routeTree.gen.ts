@@ -30,25 +30,6 @@ import { Route as RecResourceIdOverviewEditRouteImport } from './routes/rec-reso
 import { Route as RecResourceIdPartnersIndexRouteImport } from './routes/rec-resource/$id/partners/index'
 import { Route as RecResourceIdPartnersEditRouteImport } from './routes/rec-resource/$id/partners/edit'
 import { Route as RecResourceIdReservationIndexRouteImport } from './routes/rec-resource/$id/reservation/index'
-import { Route as RecResourceIdPartnersIndexRouteImport } from './routes/rec-resource/$id/partners/index'
-import { Route as RecResourceIdOverviewIndexRouteImport } from './routes/rec-resource/$id/overview/index'
-import { Route as RecResourceIdGeospatialIndexRouteImport } from './routes/rec-resource/$id/geospatial/index'
-import { Route as RecResourceIdFeesIndexRouteImport } from './routes/rec-resource/$id/fees/index'
-import { Route as RecResourceIdAssetsIndexRouteImport } from './routes/rec-resource/$id/assets/index'
-import { Route as RecResourceIdAdvisoriesIndexRouteImport } from './routes/rec-resource/$id/advisories/index'
-import { Route as RecResourceIdActivitiesFeaturesIndexRouteImport } from './routes/rec-resource/$id/activities-features/index'
-import { Route as RecResourceIdActivitiesFeaturesEditRouteImport } from './routes/rec-resource/$id/activities-features/edit'
-import { Route as RecResourceIdAdvisoriesIndexRouteImport } from './routes/rec-resource/$id/advisories/index'
-import { Route as RecResourceIdAssetsIndexRouteImport } from './routes/rec-resource/$id/assets/index'
-import { Route as RecResourceIdAssetsEditRouteImport } from './routes/rec-resource/$id/assets/edit'
-import { Route as RecResourceIdFeesIndexRouteImport } from './routes/rec-resource/$id/fees/index'
-import { Route as RecResourceIdFeesAddRouteImport } from './routes/rec-resource/$id/fees/add'
-import { Route as RecResourceIdGeospatialIndexRouteImport } from './routes/rec-resource/$id/geospatial/index'
-import { Route as RecResourceIdGeospatialEditRouteImport } from './routes/rec-resource/$id/geospatial/edit'
-import { Route as RecResourceIdOverviewIndexRouteImport } from './routes/rec-resource/$id/overview/index'
-import { Route as RecResourceIdOverviewEditRouteImport } from './routes/rec-resource/$id/overview/edit'
-import { Route as RecResourceIdPartnersIndexRouteImport } from './routes/rec-resource/$id/partners/index'
-import { Route as RecResourceIdReservationIndexRouteImport } from './routes/rec-resource/$id/reservation/index'
 import { Route as RecResourceIdReservationEditRouteImport } from './routes/rec-resource/$id/reservation/edit'
 import { Route as RecResourceIdFeesFeeIdEditRouteImport } from './routes/rec-resource/$id/fees/$feeId/edit'
 
@@ -474,6 +455,13 @@ declare module '@tanstack/react-router' {
       path: '/partners'
       fullPath: '/rec-resource/$id/partners/'
       preLoaderRoute: typeof RecResourceIdPartnersIndexRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/partners/edit': {
+      id: '/rec-resource/$id/partners/edit'
+      path: '/partners/edit'
+      fullPath: '/rec-resource/$id/partners/edit'
+      preLoaderRoute: typeof RecResourceIdPartnersEditRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
     '/rec-resource/$id/reservation/': {

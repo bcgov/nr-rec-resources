@@ -223,6 +223,22 @@ export class RecreationResourceService {
   }
 
   /**
+   * Updates a recreation resource status to AR by its ID.
+   *
+   * Note: Prisma errors are automatically handled by the global AllExceptionsFilter
+   * and converted to appropriate HTTP exceptions (404, 400, 500).
+   *
+   * @param rec_resource_id - The resource ID
+   */
+  async archive(rec_resource_id: string): Promise<void> {
+    // Perform the update - Prisma errors will be caught by global exception filter
+    await this.prisma.recreation_resource.update({
+      where: { rec_resource_id },
+      data: { rec_status_code: 'AR' },
+    });
+  }
+
+  /**
    * Checks if a suggestion has required fields.
    */
   private isValidSuggestion(

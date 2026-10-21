@@ -15,6 +15,7 @@
 import * as runtime from '../runtime';
 import type {
   AdminSearchResponseDto,
+  ArchiveRecreationResourceById200Response,
   BadRequestResponseDto,
   ConsentFormDownloadResponseDto,
   CreateRecreationFeeDto,
@@ -56,6 +57,8 @@ import type {
 import {
   AdminSearchResponseDtoFromJSON,
   AdminSearchResponseDtoToJSON,
+  ArchiveRecreationResourceById200ResponseFromJSON,
+  ArchiveRecreationResourceById200ResponseToJSON,
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
   ConsentFormDownloadResponseDtoFromJSON,
@@ -131,6 +134,10 @@ import {
   UpdateTrailDtoFromJSON,
   UpdateTrailDtoToJSON,
 } from '../models/index';
+
+export interface ArchiveRecreationResourceByIdRequest {
+  recResourceId: string;
+}
 
 export interface CreateEstablishmentOrderDocRequest {
   recResourceId: string;
@@ -408,6 +415,70 @@ export interface UpdateTrailRequest {
  *
  */
 export class RecreationResourcesApi extends runtime.BaseAPI {
+  /**
+   * Archives a recreation resource. Changes the rec_status_code to AR.
+   * Archive recreation resource by ID
+   */
+  async archiveRecreationResourceByIdRaw(
+    requestParameters: ArchiveRecreationResourceByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ArchiveRecreationResourceById200Response>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling archiveRecreationResourceById().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/recreation-resources/{rec_resource_id}/archive`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      ArchiveRecreationResourceById200ResponseFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Archives a recreation resource. Changes the rec_status_code to AR.
+   * Archive recreation resource by ID
+   */
+  async archiveRecreationResourceById(
+    requestParameters: ArchiveRecreationResourceByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<ArchiveRecreationResourceById200Response> {
+    const response = await this.archiveRecreationResourceByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
   /**
    * Uploads a PDF document to S3 and creates a database record
    * Create a new establishment order document

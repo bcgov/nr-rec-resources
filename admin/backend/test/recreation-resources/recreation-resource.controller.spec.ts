@@ -27,6 +27,7 @@ describe('RecreationResourceController', () => {
             getPendingMapFeatureRequests: vi.fn(),
             findOne: vi.fn(),
             update: vi.fn(),
+            archive: vi.fn(),
           },
         },
         {
@@ -297,6 +298,41 @@ describe('RecreationResourceController', () => {
         controller.update('REC123', { control_access_code: 'INVALID' }, false),
       ).rejects.toThrow(
         'Invalid reference: control_access_code does not exist',
+      );
+    });
+  });
+
+  describe('archive', () => {
+    it('should call service.archive and return success message', async () => {
+      (service.archive as any).mockResolvedValue(undefined);
+
+      const result = await controller.archive('REC123');
+
+      expect(service.archive).toHaveBeenCalledWith('REC123');
+      expect(result).toEqual({
+        message: 'Resource REC123 archived successfully',
+      });
+    });
+
+    it('should propagate NotFoundException from service', async () => {
+      const error = new Error(
+        "Recreation resource with ID 'NOT_FOUND' not found",
+      );
+      error.name = 'NotFoundException';
+      (service.archive as any).mockRejectedValue(error);
+
+      await expect(controller.archive('NOT_FOUND')).rejects.toThrow(
+        "Recreation resource with ID 'NOT_FOUND' not found",
+      );
+    });
+
+    it('should propagate BadRequestException from service', async () => {
+      const error = new Error('Invalid resource state for archiving');
+      error.name = 'BadRequestException';
+      (service.archive as any).mockRejectedValue(error);
+
+      await expect(controller.archive('REC123')).rejects.toThrow(
+        'Invalid resource state for archiving',
       );
     });
   });
