@@ -167,24 +167,6 @@ describe('useEditResourceForm', () => {
       ]);
     });
 
-    it('should select the access-only option when a code has no sub-access codes', () => {
-      const resource = {
-        ...mockRecResource,
-        access_codes: [
-          { code: 'T', description: 'Trail', sub_access_codes: [] },
-          {
-            code: 'AC1',
-            description: 'Access Type 1',
-            sub_access_codes: [{ code: 'SUB1', description: 'Sub Access 1' }],
-          },
-        ],
-      } as unknown as RecreationResourceDetailUIModel;
-
-      const { result } = renderHookWithResource(resource);
-
-      expect(result.current.selectedAccessOptions).toEqual(['T|', 'AC1|SUB1']);
-    });
-
     it.each([
       ['empty array', []],
       ['null', null],
@@ -310,38 +292,6 @@ describe('useEditResourceForm', () => {
           {
             access_code: 'AC2',
             sub_access_codes: ['SUB3'],
-          },
-        ],
-      });
-    });
-
-    it('should submit an access code with no sub-access codes', async () => {
-      const { result } = renderHookWithResource();
-
-      const formData = createFormData({
-        selected_access_options: ['T|', 'AC1|SUB1'],
-      });
-
-      await submitFormAndAssert(result, formData, {
-        maintenance_standard_code: 'M',
-        control_access_code: 'CA2',
-        status_code: 2,
-        risk_rating_code: null,
-        project_established_date: null,
-        district_code: null,
-        display_on_public_site: false,
-        site_description: null,
-        name: null,
-        driving_directions: null,
-        closest_community: null,
-        access_codes: [
-          {
-            access_code: 'T',
-            sub_access_codes: [],
-          },
-          {
-            access_code: 'AC1',
-            sub_access_codes: ['SUB1'],
           },
         ],
       });

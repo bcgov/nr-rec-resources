@@ -45,27 +45,17 @@ export const useResourceOptions = (options?: UseResourceOptionsParams) => {
       const accessCode = accessOption.id || '';
       const accessLabel = accessOption.label || '';
 
-      // nothing selectable without a code to save
       if (!accessCode) {
         return;
       }
 
       const groupedOptions: GroupedOptions = {
         label: accessLabel,
-        options: [
-          // most resources record an access type without a sub-access, so that has to be
-          // selectable too, not just the sub-access codes under it
-          {
-            label: `${accessLabel} (no sub-access)`,
-            value: buildAccessOptionValue(accessCode),
-            group: accessCode,
-            groupLabel: accessLabel,
-          },
-        ],
+        options: [],
       };
 
       accessOption.children?.forEach((child) => {
-        // a child without a code would duplicate the access-only option above
+        // nothing selectable without a code to save
         if (!child.id) {
           return;
         }

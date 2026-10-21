@@ -45,12 +45,7 @@ export const useEditResourceForm = (
 
     if (recResource.access_codes && Array.isArray(recResource.access_codes)) {
       recResource.access_codes.forEach((accessCode) => {
-        if (!accessCode.sub_access_codes?.length) {
-          selectedAccessOptions.push(buildAccessOptionValue(accessCode.code));
-          return;
-        }
-
-        accessCode.sub_access_codes.forEach((subAccessCode) => {
+        accessCode.sub_access_codes?.forEach((subAccessCode) => {
           selectedAccessOptions.push(
             buildAccessOptionValue(accessCode.code, subAccessCode.code),
           );
@@ -108,7 +103,7 @@ export const useEditResourceForm = (
     data.selected_access_options.forEach((optionValue) => {
       const { accessCode, subAccessCode } = parseAccessOptionValue(optionValue);
 
-      if (!accessCode) {
+      if (!accessCode || !subAccessCode) {
         return;
       }
 
@@ -120,10 +115,8 @@ export const useEditResourceForm = (
         };
       }
 
-      // an access type selected without a sub-access contributes the parent only
-      if (subAccessCode) {
-        accessCodesMap[accessCode].sub_access_codes.push(subAccessCode);
-      }
+      // Add the sub-access code
+      accessCodesMap[accessCode].sub_access_codes.push(subAccessCode);
     });
 
     // Prepare update data with proper type conversion

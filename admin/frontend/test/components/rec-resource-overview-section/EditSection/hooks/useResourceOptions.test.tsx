@@ -195,12 +195,6 @@ describe('useResourceOptions', () => {
         label: 'Access Group 1',
         options: [
           {
-            label: 'Access Group 1 (no sub-access)',
-            value: 'access1|',
-            group: 'access1',
-            groupLabel: 'Access Group 1',
-          },
-          {
             label: 'Child 1',
             value: 'access1|child1',
             group: 'access1',
@@ -217,7 +211,7 @@ describe('useResourceOptions', () => {
     ]);
   });
 
-  it('should offer an access-only option alongside each sub-access code', () => {
+  it('should build composite values from the access and sub-access codes', () => {
     const mockAccessData = [
       {
         id: 'T',
@@ -239,12 +233,6 @@ describe('useResourceOptions', () => {
       {
         label: 'Trail',
         options: [
-          {
-            label: 'Trail (no sub-access)',
-            value: 'T|',
-            group: 'T',
-            groupLabel: 'Trail',
-          },
           {
             label: 'Multi-use',
             value: 'T|TM',
