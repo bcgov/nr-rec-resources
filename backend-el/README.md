@@ -63,6 +63,16 @@ backend-el/
   - `FlywayTaskRunnerService.java`: Runs Flyway migrations via ECS tasks using
     `FLYWAY_TASK_LZA_CONFIGS`.
   - `S3UploaderService.java`: Handles S3 uploads.
+  - `TenureExportService.java`: Exports filtered tenure data and related BLOBs
+    to S3.
+
+### Tenure Export Mode (`JOB_MODE=tenure`)
+
+- This mode exports tenure data for application types `RL` and `RPO` from:
+  - `TENURE_APPLICATION`
+  - `TENURE_APPLICATION_IMAGE`
+  - `TENURE_APPLICATION_MAP_FEATURE`
+  - `TENURE_APPLICATION_MF_IMAGE`
 
 ### Flyway ECS Task Runner Configuration
 

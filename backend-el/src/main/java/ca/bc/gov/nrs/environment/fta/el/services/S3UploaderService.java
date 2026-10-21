@@ -1,6 +1,7 @@
 package ca.bc.gov.nrs.environment.fta.el.services;
 
 import java.io.File;
+import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +28,16 @@ public class S3UploaderService {
 
   @Retryable(maxAttempts = 5, backoff = @Backoff(multiplier = 2, delay = 2000))
   public void uploadFileToS3(String filePath, String fileName) {
+    uploadFileToS3(filePath, fileName, fileName);
+  }
+
+  @Retryable(maxAttempts = 5, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public void uploadFileToS3(String filePath, String fileName, String key) {
     try {
       var file = new File(filePath);
       var putObjectRequest = PutObjectRequest.builder()
           .bucket(bucket)
-          .key(fileName)
+          .key(key)
           .build();
       this.s3Client.putObject(putObjectRequest, software.amazon.awssdk.core.sync.RequestBody.fromFile(file));
     } catch (Exception e) {
@@ -47,6 +53,26 @@ public class S3UploaderService {
           .key(filePath + "/" + fileName)
           .build();
       this.s3Client.putObject(putObjectRequest, software.amazon.awssdk.core.sync.RequestBody.fromBytes(fileContent));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Retryable(maxAttempts = 5, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public void uploadStreamToS3(String key, InputStream fileContent, long contentLength, String contentType) {
+    try {
+      var putObjectRequestBuilder = PutObjectRequest.builder()
+          .bucket(bucket)
+          .key(key);
+
+      if (contentType != null && !contentType.isBlank()) {
+        putObjectRequestBuilder.contentType(contentType);
+      }
+
+      this.s3Client.putObject(
+          putObjectRequestBuilder.build(),
+          software.amazon.awssdk.core.sync.RequestBody.fromInputStream(fileContent, contentLength)
+      );
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
