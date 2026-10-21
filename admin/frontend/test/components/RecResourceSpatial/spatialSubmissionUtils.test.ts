@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  getFeatureAreaHectares,
   readSpatialFile,
   validateGeometry,
 } from '@/components/RecResourceSpatial/spatialSubmissionUtils';
@@ -118,6 +119,26 @@ describe('spatialSubmissionUtils', () => {
     await expect(readSpatialFile(badFile)).rejects.toThrow(
       'Upload either one .zip shapefile bundle or .shp with an optional matching .dbf.',
     );
+  });
+
+  it('extracts feature area in hectares from DBF attributes when provided', () => {
+    expect(
+      getFeatureAreaHectares({
+        properties: { AREA_HA: 15.75 },
+      }),
+    ).toBe(15.75);
+
+    expect(
+      getFeatureAreaHectares({
+        properties: { Shape_Area: 250000 },
+      }),
+    ).toBe(25);
+
+    expect(
+      getFeatureAreaHectares({
+        properties: { NAME: 'No area here' },
+      }),
+    ).toBeUndefined();
   });
 
   it('accepts a single .shp upload', async () => {

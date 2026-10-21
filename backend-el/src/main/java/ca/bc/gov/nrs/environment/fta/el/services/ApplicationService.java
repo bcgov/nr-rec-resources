@@ -23,6 +23,7 @@ public class ApplicationService {
   private String fileBasePath;
   private final S3UploaderService s3UploaderService;
   private final FlywayTaskRunnerService flywayTaskRunnerService;
+  private final TenureExportService tenureExportService;
   // Add all the repositories as final members
   private final RecreationAccessCodeRepository recreationAccessCodeRepository;
   private final RecreationAccessRepository recreationAccessRepository;
@@ -74,6 +75,7 @@ public class ApplicationService {
 
   public ApplicationService(S3UploaderService s3UploaderService,
                             FlywayTaskRunnerService flywayTaskRunnerService,
+                            TenureExportService tenureExportService,
                             RecreationAccessRepository recreationAccessRepository,
                             RecreationAccessCodeRepository recreationAccessCodeRepository,
                             RecreationAccessXrefRepository recreationAccessXrefRepository,
@@ -124,6 +126,7 @@ public class ApplicationService {
                             RecreatnEventRepository recreatnEventRepository) {
     this.s3UploaderService = s3UploaderService;
     this.flywayTaskRunnerService = flywayTaskRunnerService;
+    this.tenureExportService = tenureExportService;
     this.recreationAccessRepository = recreationAccessRepository;
     this.recreationAccessCodeRepository = recreationAccessCodeRepository;
     this.recreationAccessXrefRepository = recreationAccessXrefRepository;
@@ -221,6 +224,7 @@ public class ApplicationService {
     extractAndUploadRecreationTrailSegment();
     extractAndUploadRecreationUserDaysCode();
     extractAndUploadRecreatnEvent();
+    this.tenureExportService.extractAndUploadTenureDataToS3();
 
     this.flywayTaskRunnerService.runFlywayTasks();
   }
