@@ -18,6 +18,7 @@ vi.mock('@/components', () => ({
       {children}
     </button>
   ),
+  HelpIcon: () => <span>?</span>,
 }));
 
 vi.mock('@bcgov/design-system-react-components', () => ({
