@@ -7,7 +7,7 @@ export const assetListDataset: ExportDatasetBuilder = {
     SELECT
       ${sql.rstPrimaryColumns()},
       ra.asset_id::text AS "ASSET_ID",
-      parent.asset_name AS "PARENT_ASSET",
+      parent.asset_name AS "CAMPSITE_LOCATION",
       rac.description AS "ASSET_TYPE",
       ra.asset_name AS "ASSET_NAME",
       ra.asset_tag AS "ASSET_TAG",
@@ -18,9 +18,9 @@ export const assetListDataset: ExportDatasetBuilder = {
       ra.actual_value::text AS "ACTUAL_VALUE",
       TO_CHAR(ra.installation_date, 'YYYY-MM-DD') AS "INSTALLATION_DATE",
       ra.created_by AS "CREATED_BY",
-      ${sql.formatTimestamp(Prisma.sql`ra.created_at`)} AS "CREATE_TIMESTAMP",
+      ${sql.formatTimestamp(Prisma.sql`ra.created_at`)} AS "CREATED_AT",
       ra.updated_by AS "UPDATED_BY",
-      ${sql.formatTimestamp(Prisma.sql`ra.updated_at`)} AS "UPDATE_TIMESTAMP"
+      ${sql.formatTimestamp(Prisma.sql`ra.updated_at`)} AS "UPDATED_AT"
     FROM recreation_asset ra
     INNER JOIN recreation_resource rr
       ON rr.rec_resource_id = ra.rec_resource_id

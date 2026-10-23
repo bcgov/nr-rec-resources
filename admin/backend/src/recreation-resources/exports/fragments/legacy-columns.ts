@@ -1,6 +1,8 @@
 import { Prisma } from '@generated/prisma';
 import { describeCode, formatTimestamp } from './formatters';
 
+// RST-side shared columns. Named "legacy" for the shape they mirror, but the
+// headers follow RST/frontend naming -- the FTA fragments below keep FTA's.
 export function legacySharedColumnsBeforeTail(): Prisma.Sql {
   return Prisma.sql`
     COALESCE(geometry_totals.total_area, '0') AS "TOTAL_AREA",
@@ -12,7 +14,7 @@ export function legacySharedColumnsBeforeTail(): Prisma.Sql {
     ${describeCode(
       Prisma.sql`rrtva.rec_resource_type_code`,
       Prisma.sql`rrtva.description`,
-    )} AS "PROJECT_TYPE",
+    )} AS "RESOURCE_TYPE",
     COALESCE(rsc.description, 'Open') AS "PUBLIC_ACCESS_STATUS",
     COALESCE(resource_counts.defined_campsites, '0') AS "DEFINED_CAMPSITES",
     COALESCE(resource_counts.activity_count, '0') AS "ACTIVITY_COUNT"
@@ -23,7 +25,7 @@ export function legacySharedColumnsTail(
   updatedAtExpression: Prisma.Sql,
 ): Prisma.Sql {
   return Prisma.sql`
-    ${formatTimestamp(updatedAtExpression)} AS "UPDATE_TIMESTAMP"
+    ${formatTimestamp(updatedAtExpression)} AS "UPDATED_AT"
   `;
 }
 

@@ -17,9 +17,9 @@ export const partnersListDataset: ExportDatasetBuilder = {
       TO_CHAR(ah.agreement_start_date, 'YYYY-MM-DD') AS "AGREEMENT_START_DATE",
       TO_CHAR(ah.agreement_end_date, 'YYYY-MM-DD') AS "AGREEMENT_END_DATE",
       ah.revision_count AS "REVISION_COUNT",
-      ${sql.formatTimestamp(Prisma.sql`ah.created_at`)} AS "CREATE_TIMESTAMP",
+      ${sql.formatTimestamp(Prisma.sql`ah.created_at`)} AS "CREATED_AT",
       ah.created_by AS "CREATED_BY",
-      ${sql.formatTimestamp(Prisma.sql`ah.updated_at`)} AS "UPDATE_TIMESTAMP",
+      ${sql.formatTimestamp(Prisma.sql`ah.updated_at`)} AS "UPDATED_AT",
       ah.updated_by AS "UPDATED_BY"
     FROM rst.recreation_agreement_holder ah
     INNER JOIN recreation_resource rr

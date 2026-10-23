@@ -203,7 +203,7 @@ describe('export dataset builders', () => {
     );
 
     expect(sql).toContain('"ASSET_ID"');
-    expect(sql).toContain('"PARENT_ASSET"');
+    expect(sql).toContain('"CAMPSITE_LOCATION"');
     expect(sql).toContain('"ASSET_TYPE"');
     expect(sql).toContain('"ASSET_NAME"');
     expect(sql).toContain('"ASSET_TAG"');
@@ -212,15 +212,15 @@ describe('export dataset builders', () => {
     expect(sql).not.toContain('"PARENT_ID"');
     expect(sql).not.toContain('"ASSET_CODE"');
     expect(sql).not.toContain('"LEGACY_STRUCTURE_ID"');
-    expect(sql).toContain('"CREATE_TIMESTAMP"');
-    expect(sql).toContain('"UPDATE_TIMESTAMP"');
+    expect(sql).toContain('"CREATED_AT"');
+    expect(sql).toContain('"UPDATED_AT"');
     // Resource-level legacy columns are omitted: this export is per-asset, and
     // TOTAL_AREA/TOTAL_LENGTH would sit confusingly beside ASSET_AREA/ASSET_LENGTH.
     expect(sql).not.toContain('"TOTAL_AREA"');
     expect(sql).not.toContain('"TOTAL_LENGTH"');
     expect(sql).not.toContain('"DEFINED_CAMPSITES"');
     expect(sql).not.toContain('"ACTIVITY_COUNT"');
-    expect(sql).not.toContain('"PROJECT_TYPE"');
+    expect(sql).not.toContain('"RESOURCE_TYPE"');
     expect(sql).not.toContain('"RISK_RATING"');
     expect(sql).not.toContain('"STATUS"');
     // Groups each parent campsite with its children, parent row first.
@@ -315,7 +315,7 @@ describe('export dataset builders', () => {
     );
 
     expect(sql).toContain('"ASSET_ID"');
-    expect(sql).toContain('"PARENT_ASSET"');
+    expect(sql).toContain('"CAMPSITE_LOCATION"');
     expect(sql).toContain('"ASSET_TYPE"');
     expect(sql).toContain('"ASSET_NAME"');
     expect(sql).toContain('"ASSET_TAG"');
@@ -324,15 +324,15 @@ describe('export dataset builders', () => {
     expect(sql).not.toContain('"PARENT_ID"');
     expect(sql).not.toContain('"ASSET_CODE"');
     expect(sql).not.toContain('"LEGACY_STRUCTURE_ID"');
-    expect(sql).toContain('"CREATE_TIMESTAMP"');
-    expect(sql).toContain('"UPDATE_TIMESTAMP"');
+    expect(sql).toContain('"CREATED_AT"');
+    expect(sql).toContain('"UPDATED_AT"');
     // Resource-level legacy columns are omitted: this export is per-asset, and
     // TOTAL_AREA/TOTAL_LENGTH would sit confusingly beside ASSET_AREA/ASSET_LENGTH.
     expect(sql).not.toContain('"TOTAL_AREA"');
     expect(sql).not.toContain('"TOTAL_LENGTH"');
     expect(sql).not.toContain('"DEFINED_CAMPSITES"');
     expect(sql).not.toContain('"ACTIVITY_COUNT"');
-    expect(sql).not.toContain('"PROJECT_TYPE"');
+    expect(sql).not.toContain('"RESOURCE_TYPE"');
     expect(sql).not.toContain('"RISK_RATING"');
     expect(sql).not.toContain('"STATUS"');
     // Groups each parent campsite with its children, parent row first.
@@ -372,6 +372,17 @@ describe('export dataset shared column contract', () => {
       expect(sql).not.toContain('"STATUS"');
     },
   );
+
+  // RST exports follow RST/frontend naming; the FTA exports keep FTA's legacy
+  // headers. Neither vocabulary should leak into the other.
+  it.each(datasetEntries)('%s uses one naming vocabulary', (id, sql) => {
+    const columns = [...sql.matchAll(/AS "([A-Z0-9_]+)"/g)].map((m) => m[1]!);
+    const ftaNames = ['PROJECT_TYPE', 'UPDATE_TIMESTAMP', 'CREATE_TIMESTAMP'];
+    const rstNames = ['RESOURCE_TYPE', 'UPDATED_AT', 'CREATED_AT'];
+    const forbidden = id.endsWith('-fta') ? rstNames : ftaNames;
+
+    expect(columns.filter((c) => forbidden.includes(c))).toEqual([]);
+  });
 
   // Code/description pairs are collapsed to the readable half, so a bare
   // *_CODE column reaching the output is a regression.
