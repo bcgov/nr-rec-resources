@@ -1,0 +1,2 @@
+ALTER TABLE rst.recreation_map_feature
+DROP recreation_resource_type;

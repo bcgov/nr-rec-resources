@@ -656,7 +656,6 @@ export class GeospatialService {
     rmfSkey: number,
     rec_resource_id: string,
     sectionId: string,
-    recreation_type_code: string | null,
     submitted_by: string | null,
     geometryTypeCode: 'P' | 'L',
     geometryEntry: Record<string, unknown>,
@@ -676,7 +675,6 @@ export class GeospatialService {
         rec_resource_id,
         section_id,
         amendment_id,
-        recreation_resource_type,
         recreation_map_feature_guid,
         created_by,
         amend_status_code
@@ -686,7 +684,6 @@ export class GeospatialService {
         ${rec_resource_id},
         ${geometryTypeCode === 'P' ? null : sectionId},
         ${0},
-        ${recreation_type_code || null},
         ${randomUUID()},
         ${submitted_by || null},
         ${'PND'}
@@ -751,7 +748,6 @@ export class GeospatialService {
   private async updateMapFeatureAndGeometry(
     rmfSkey: number,
     amendment_id: number | null,
-    recreation_type_code: string | null,
     submitted_by: string | null,
     geometryTypeCode: 'P' | 'L',
     geometryEntry: Record<string, unknown>,
@@ -763,7 +759,6 @@ export class GeospatialService {
       SET
         amendment_id =  ${(amendment_id ?? 0) + 1},
         amend_status_date = now(),
-        recreation_resource_type = ${recreation_type_code || null},
         recreation_map_feature_guid = ${randomUUID()},
         retirement_date = null,
         updated_by = ${submitted_by || null},

@@ -5,7 +5,6 @@ with map_feature as (
         rmf.section_id,
         rmf.amendment_id,
         rmf.amend_status_code,
-        rmf.recreation_map_feature_code as recreation_resource_type,
         rmf.amend_status_date,
         rmf.retirement_date,
         rmf.revision_count,
@@ -23,7 +22,7 @@ with map_feature as (
 )
 insert into rst.recreation_map_feature (
     rmf_skey, rec_resource_id, section_id, amendment_id, amend_status_code,
-    recreation_resource_type, amend_status_date, retirement_date, revision_count,
+    amend_status_date, retirement_date, revision_count,
     created_by, created_at, updated_by, updated_at, recreation_map_feature_guid
 )
 select *
@@ -38,7 +37,6 @@ do update set
     rmf_skey = excluded.rmf_skey,
     amendment_id = excluded.amendment_id,
     amend_status_code = excluded.amend_status_code,
-    recreation_resource_type = excluded.recreation_resource_type,
     amend_status_date = excluded.amend_status_date,
     retirement_date = excluded.retirement_date,
     revision_count = excluded.revision_count,
