@@ -1,4 +1,5 @@
 import { type ExportDatasetBuilderContext } from '@/recreation-resources/exports/datasets/types';
+import { EXPORT_DATASET_BUILDERS } from '@/recreation-resources/exports/datasets/registry';
 import { assetListDataset } from '@/recreation-resources/exports/datasets/asset-list.dataset';
 import { partnersListDataset } from '@/recreation-resources/exports/datasets/partners-list.dataset';
 import { assetRepairListDataset } from '@/recreation-resources/exports/datasets/asset-repair-list.dataset';
@@ -11,6 +12,8 @@ import {
   buildRstFilters,
 } from '@/recreation-resources/exports/fragments/filters';
 import {
+  booleanIndicator,
+  describeCode,
   displayIndicator,
   formatTimestamp,
 } from '@/recreation-resources/exports/fragments/formatters';
@@ -48,6 +51,8 @@ function createBuilderContext(
       ftaSharedLegacyExportColumnsBeforeTail,
       ftaSharedLegacyExportColumnsTail,
       displayIndicator,
+      booleanIndicator,
+      describeCode,
       formatTimestamp,
     },
   };
@@ -107,7 +112,7 @@ describe('export dataset builders', () => {
     );
 
     expect(sql).toContain('FROM fta.recreation_inspection_report rir');
-    expect(sql).toContain('"FILE_TYPE_CODE"');
+    expect(sql).toContain('"FILE_TYPE_DESC"');
     expect(sql).toContain('"RECREATION_FEATURE"');
     expect(sql).toContain('"REM_REPAIR_COUNT"');
     expect(sql).toContain(
@@ -122,6 +127,7 @@ describe('export dataset builders', () => {
       closureListFtaDataset.buildQuery,
       createBuilderContext({
         dataset: 'closure-list-fta',
+        includeArchived: false,
       }),
     );
 
@@ -129,7 +135,9 @@ describe('export dataset builders', () => {
     expect(sql).toContain("rc.rec_comment_type_code = 'CLOS'");
     expect(sql).toContain("rc.closure_ind = 'Y'");
     expect(sql).toContain("NULLIF(TRIM(rc.project_comment), '') IS NOT NULL");
-    expect(sql).toContain("COALESCE(pfu.file_status_st, '') <> 'AR'");
+    // archived exclusion comes from the shared FTA filter now, so the
+    // include-archived toggle reaches this dataset too
+    expect(sql).toContain("pfu_archived.file_status_st = 'AR'");
     expect(sql).toContain('"CLOSURE_COMMENT"');
     expect(sql).toContain('"CLOSEST_COMMUNITY"');
     expect(sql).toContain('"VISIBLE_ON_PUBLIC_SITE"');
@@ -331,5 +339,58 @@ describe('export dataset builders', () => {
     expect(sql).toContain(
       'ORDER BY rr.rec_resource_id, COALESCE(ra.parent_id, ra.asset_id), ra.parent_id NULLS FIRST, ra.asset_name, ra.asset_id',
     );
+  });
+});
+
+describe('export dataset shared column contract', () => {
+  const datasetEntries = Object.entries(EXPORT_DATASET_BUILDERS).map(
+    ([id, builder]) =>
+      [
+        id,
+        normalizeDatasetSql(
+          builder!.buildQuery,
+          createBuilderContext({ dataset: id as never }),
+        ),
+      ] as const,
+  );
+
+  // site-inspection-fta predates the shared fragment and rolls its districts
+  // up into REC_DIST, so it is allowed to satisfy this with that column.
+  it.each(datasetEntries)('%s exports a district', (_id, sql) => {
+    expect(sql.includes('"DISTRICT"') || sql.includes('"REC_DIST"')).toBe(true);
+  });
+
+  // This is what makes an archived resource identifiable in the output.
+  it.each(datasetEntries)('%s exports the file status', (_id, sql) => {
+    expect(sql).toContain('"FILE_STATUS"');
+  });
+
+  it.each(datasetEntries)(
+    '%s no longer exports the mislabelled FILE_STATUS_ST',
+    (_id, sql) => {
+      expect(sql).not.toContain('"FILE_STATUS_ST"');
+      expect(sql).not.toContain('"STATUS"');
+    },
+  );
+
+  // Code/description pairs are collapsed to the readable half, so a bare
+  // *_CODE column reaching the output is a regression.
+  it.each(datasetEntries)('%s exports no raw code column', (_id, sql) => {
+    const columns = [...sql.matchAll(/AS "([A-Z0-9_]+)"/g)].map((m) => m[1]!);
+    expect(columns.filter((c) => c.endsWith('_CODE'))).toEqual([]);
+  });
+
+  // Archived rows are part of the export unless the caller opts out, so no
+  // dataset should be carrying an 'AR' predicate at the default settings.
+  it.each(datasetEntries)(
+    '%s includes archived rows by default',
+    (_id, sql) => {
+      expect(sql).not.toContain("'AR'");
+    },
+  );
+
+  it.each(datasetEntries)('%s has no duplicate output columns', (_id, sql) => {
+    const columns = [...sql.matchAll(/AS "([A-Z0-9_]+)"/g)].map((m) => m[1]);
+    expect(columns).toEqual([...new Set(columns)]);
   });
 });

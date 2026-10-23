@@ -1,6 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import {
   IMPLEMENTED_EXPORT_DATASET_IDS,
   type ExportDatasetId,
@@ -32,6 +40,21 @@ export class ExportPreviewQueryDto {
   @IsOptional()
   @IsString()
   resourceType?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Include archived files, and child rows belonging to archived files. ' +
+      'On by default; pass false to leave them out.',
+    type: Boolean,
+    default: true,
+  })
+  @IsBoolean()
+  @IsOptional()
+  // Archived rows ship unless the caller explicitly opts out ("false" / "0")
+  @Transform(
+    ({ value }) => value !== 'false' && value !== false && value !== '0',
+  )
+  includeArchived?: boolean = true;
 
   @ApiPropertyOptional({
     description: 'Preview row limit',

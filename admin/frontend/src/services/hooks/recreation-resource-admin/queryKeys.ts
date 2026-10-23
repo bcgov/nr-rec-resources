@@ -22,6 +22,7 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
           dataset?: string;
           district?: string;
           resourceType?: string;
+          includeArchived?: boolean;
           limit?: number;
         }
       | null
@@ -34,6 +35,7 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
       request?.dataset ?? '',
       request?.district ?? '',
       request?.resourceType ?? '',
+      request?.includeArchived ?? false,
       request?.limit ?? 0,
     ] as const,
   images: (id: string) => ['recreation-resource-admin', 'images', id] as const,
