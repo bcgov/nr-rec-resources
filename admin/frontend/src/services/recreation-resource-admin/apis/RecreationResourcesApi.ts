@@ -198,6 +198,7 @@ export interface DownloadExportCsvRequest {
   dataset: DownloadExportCsvDatasetEnum;
   district?: string;
   resourceType?: string;
+  includeArchived?: boolean;
 }
 
 export interface FinalizeDocUploadRequest {
@@ -247,6 +248,7 @@ export interface GetExportPreviewRequest {
   dataset: GetExportPreviewDatasetEnum;
   district?: string;
   resourceType?: string;
+  includeArchived?: boolean;
   limit?: number;
 }
 
@@ -1324,6 +1326,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       queryParameters['resourceType'] = requestParameters['resourceType'];
     }
 
+    if (requestParameters['includeArchived'] != null) {
+      queryParameters['includeArchived'] = requestParameters['includeArchived'];
+    }
+
     const headerParameters: runtime.HTTPHeaders = {};
 
     if (this.configuration && this.configuration.accessToken) {
@@ -2063,6 +2069,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     if (requestParameters['resourceType'] != null) {
       queryParameters['resourceType'] = requestParameters['resourceType'];
+    }
+
+    if (requestParameters['includeArchived'] != null) {
+      queryParameters['includeArchived'] = requestParameters['includeArchived'];
     }
 
     if (requestParameters['limit'] != null) {
