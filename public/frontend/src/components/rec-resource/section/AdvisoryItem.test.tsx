@@ -132,7 +132,12 @@ describe('AdvisoryItem', () => {
   });
 
   describe('Advisory dates', () => {
-    const renderDates = (overrides: Partial<AdvisoryDto>) => {
+    // noon Pacific, so the rendered calendar date is unambiguous
+    const JUN_4 = new Date('2026-06-04T19:00:00Z');
+    const JUN_8 = new Date('2026-06-08T19:00:00Z');
+    const JUN_9 = new Date('2026-06-09T19:00:00Z');
+
+    const renderDate = (overrides: Partial<AdvisoryDto>) => {
       const { container } = render(
         <AdvisoryItem
           advisory={{ ...defaultAdvisory, ...overrides }}
@@ -140,98 +145,134 @@ describe('AdvisoryItem', () => {
           onToggle={mockOnToggle}
         />,
       );
-      return Array.from(container.querySelectorAll('.advisory-date')).map(
-        (el) => el.textContent,
-      );
+      return container.querySelector('.advisory-date')?.textContent ?? null;
     };
 
-    it('renders a range when effective and end dates are both displayed', () => {
+    // the five shapes the ACT staff form can write
+    it('renders the posting date', () => {
       expect(
-        renderDates({
+        renderDate({
+          is_advisory_date_displayed: true,
+          advisory_date: JUN_4,
+        }),
+      ).toBe('Posted: June 4, 2026');
+    });
+
+    it('renders the updated date', () => {
+      expect(
+        renderDate({
+          is_advisory_date_displayed: false,
+          is_updated_date_displayed: true,
+          updated_date: JUN_9,
+        }),
+      ).toBe('Updated: June 9, 2026');
+    });
+
+    it('renders the start date on its own', () => {
+      expect(
+        renderDate({
+          is_advisory_date_displayed: false,
+          is_effective_date_displayed: true,
+          effective_date: JUN_4,
+        }),
+      ).toBe('Starts: June 4, 2026');
+    });
+
+    it('renders an effective range', () => {
+      expect(
+        renderDate({
           is_advisory_date_displayed: false,
           is_effective_date_displayed: true,
           is_end_date_displayed: true,
-          effective_date: new Date('2026-06-04T12:00:00Z'),
-          end_date: new Date('2026-06-08T12:00:00Z'),
+          effective_date: JUN_4,
+          end_date: JUN_8,
         }),
-      ).toEqual(['In effect: June 4, 2026 to June 8, 2026']);
+      ).toBe('In effect: June 4, 2026 to June 8, 2026');
+    });
+
+    it('renders nothing when no date is flagged for display', () => {
+      expect(renderDate({ is_advisory_date_displayed: false })).toBeNull();
+    });
+
+    // a flag on with no date behind it must not render a dangling label
+    it('renders nothing when the flagged date is missing', () => {
+      expect(renderDate({ advisory_date: undefined })).toBeNull();
     });
 
     it('shows the date once when the range starts and ends the same day', () => {
       expect(
-        renderDates({
+        renderDate({
           is_advisory_date_displayed: false,
           is_effective_date_displayed: true,
           is_end_date_displayed: true,
-          effective_date: new Date('2026-06-04T01:00:00Z'),
-          end_date: new Date('2026-06-04T23:00:00Z'),
+          effective_date: new Date('2026-06-04T08:00:00Z'), // 1am Pacific
+          end_date: new Date('2026-06-05T06:00:00Z'), // 11pm Pacific, same day
         }),
-      ).toEqual(['In effect: June 4, 2026']);
+      ).toBe('In effect: June 4, 2026');
     });
 
-    it('renders "Starts" when there is no end date', () => {
+    it('never shows the end date without the effective date', () => {
       expect(
-        renderDates({
+        renderDate({
           is_advisory_date_displayed: false,
-          is_effective_date_displayed: true,
+          is_effective_date_displayed: false,
           is_end_date_displayed: true,
-          effective_date: new Date('2026-06-04T12:00:00Z'),
-          end_date: undefined,
+          effective_date: JUN_4,
+          end_date: JUN_8,
         }),
-      ).toEqual(['Starts: June 4, 2026']);
+      ).toBeNull();
     });
 
-    it('renders "Starts" when the end date is not flagged for display', () => {
+    it('formats in Pacific time regardless of the viewer timezone', () => {
+      // 11pm Pacific on Jun 4, which is Jun 5 in UTC
       expect(
-        renderDates({
-          is_advisory_date_displayed: false,
-          is_effective_date_displayed: true,
-          is_end_date_displayed: false,
-          effective_date: new Date('2026-06-04T12:00:00Z'),
-          end_date: new Date('2026-06-08T12:00:00Z'),
+        renderDate({
+          is_advisory_date_displayed: true,
+          advisory_date: new Date('2026-06-05T06:00:00Z'),
         }),
-      ).toEqual(['Starts: June 4, 2026']);
+      ).toBe('Posted: June 4, 2026');
     });
 
-    it('renders the updated date only when flagged', () => {
-      const updated_date = new Date('2026-06-09T12:00:00Z');
+    describe('precedence when several flags are on', () => {
+      it('prefers the posting date over everything else', () => {
+        expect(
+          renderDate({
+            is_advisory_date_displayed: true,
+            is_updated_date_displayed: true,
+            is_effective_date_displayed: true,
+            is_end_date_displayed: true,
+            advisory_date: JUN_4,
+            updated_date: JUN_9,
+            effective_date: JUN_4,
+            end_date: JUN_8,
+          }),
+        ).toBe('Posted: June 4, 2026');
+      });
 
-      expect(
-        renderDates({
-          is_advisory_date_displayed: false,
-          is_updated_date_displayed: false,
-          updated_date,
-        }),
-      ).toEqual([]);
+      it('prefers the updated date over the effective range', () => {
+        expect(
+          renderDate({
+            is_advisory_date_displayed: false,
+            is_updated_date_displayed: true,
+            is_effective_date_displayed: true,
+            is_end_date_displayed: true,
+            updated_date: JUN_9,
+            effective_date: JUN_4,
+            end_date: JUN_8,
+          }),
+        ).toBe('Updated: June 9, 2026');
+      });
 
-      expect(
-        renderDates({
-          is_advisory_date_displayed: false,
-          is_updated_date_displayed: true,
-          updated_date,
-        }),
-      ).toEqual(['Updated: June 9, 2026']);
-    });
-
-    it('orders in-effect dates, posted, then updated', () => {
-      expect(
-        renderDates({
-          is_effective_date_displayed: true,
-          is_end_date_displayed: true,
-          is_updated_date_displayed: true,
-          effective_date: new Date('2026-06-04T12:00:00Z'),
-          end_date: new Date('2026-06-08T12:00:00Z'),
-          updated_date: new Date('2026-06-09T12:00:00Z'),
-        }),
-      ).toEqual([
-        'In effect: June 4, 2026 to June 8, 2026',
-        'Posted: June 4, 2026',
-        'Updated: June 9, 2026',
-      ]);
-    });
-
-    it('renders nothing when no date is flagged for display', () => {
-      expect(renderDates({ is_advisory_date_displayed: false })).toEqual([]);
+      it('falls through to the next date when the preferred one is missing', () => {
+        expect(
+          renderDate({
+            is_advisory_date_displayed: true,
+            is_updated_date_displayed: true,
+            advisory_date: undefined,
+            updated_date: JUN_9,
+          }),
+        ).toBe('Updated: June 9, 2026');
+      });
     });
   });
 

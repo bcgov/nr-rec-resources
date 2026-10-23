@@ -19,47 +19,56 @@ interface AdvisoryDateLine {
   value: string;
 }
 
-/**
- * Each date has its own `is_*_displayed` flag set upstream in ACT; a date is
- * only shown when its flag is on and the date itself is present.
- */
-const getDateLines = (advisory: AdvisoryDto): AdvisoryDateLine[] => {
-  const show = (isDisplayed: boolean, date?: Date) =>
-    isDisplayed && date ? formatDateFull(date) : null;
+// advisory dates are BC events authored in Pacific time, so the calendar date
+// staff picked is the one every viewer should see
+const PACIFIC = { timeZone: 'America/Vancouver' } as const;
 
-  const start = show(
-    advisory.is_effective_date_displayed,
-    advisory.effective_date,
-  );
-  const end = show(advisory.is_end_date_displayed, advisory.end_date);
-  const posted = show(
+/**
+ * Picks the single date line to display.
+ *
+ * ACT staff choose one "Displayed date" option, which writes all four
+ * `is_*_displayed` flags at once, so exactly one of the shapes below should be
+ * flagged.
+ */
+const getDateLine = (advisory: AdvisoryDto): AdvisoryDateLine | null => {
+  const displayed = (isDisplayed: boolean, date?: Date) =>
+    isDisplayed && date ? formatDateFull(date, PACIFIC) : null;
+
+  const posted = displayed(
     advisory.is_advisory_date_displayed,
     advisory.advisory_date,
   );
-  const updated = show(
+  if (posted) {
+    return { label: 'Posted', value: posted };
+  }
+
+  const updated = displayed(
     advisory.is_updated_date_displayed,
     advisory.updated_date,
   );
-
-  const lines: AdvisoryDateLine[] = [];
-
-  if (start && end) {
-    // a range that starts and ends on the same day shows the date once
-    lines.push({
-      label: 'In effect',
-      value: start === end ? start : `${start} to ${end}`,
-    });
-  } else if (start) {
-    lines.push({ label: 'Starts', value: start });
-  }
-  if (posted) {
-    lines.push({ label: 'Posted', value: posted });
-  }
   if (updated) {
-    lines.push({ label: 'Updated', value: updated });
+    return { label: 'Updated', value: updated };
   }
 
-  return lines;
+  // the end date never shows without the effective date
+  const start = displayed(
+    advisory.is_effective_date_displayed,
+    advisory.effective_date,
+  );
+  if (!start) {
+    return null;
+  }
+
+  const end = displayed(advisory.is_end_date_displayed, advisory.end_date);
+  if (!end) {
+    return { label: 'Starts', value: start };
+  }
+
+  // a range that starts and ends on the same day shows the date once
+  return {
+    label: 'In effect',
+    value: start === end ? start : `${start} to ${end}`,
+  };
 };
 
 const getIconForUrgency = (urgency: string) => {
@@ -81,7 +90,7 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
   isCollapsed,
   onToggle,
 }) => {
-  const dateLines = getDateLines(advisory);
+  const dateLine = getDateLine(advisory);
 
   return (
     <div className={`advisory-item ${isLast ? 'advisory-item--last' : ''}`}>
@@ -115,15 +124,11 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
         <div className="advisory-description">
           {advisory.description && <SafeHtml html={advisory.description} />}
         </div>
-        {dateLines.length > 0 && (
-          <div className="advisory-dates">
-            {dateLines.map(({ label, value }) => (
-              <p className="advisory-date" key={label}>
-                {`${label}: `}
-                <strong>{value}</strong>
-              </p>
-            ))}
-          </div>
+        {dateLine && (
+          <p className="advisory-date">
+            {`${dateLine.label}: `}
+            <strong>{dateLine.value}</strong>
+          </p>
         )}
       </div>
     </div>
