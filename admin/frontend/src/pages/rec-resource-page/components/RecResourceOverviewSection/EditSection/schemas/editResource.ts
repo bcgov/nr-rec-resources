@@ -1,6 +1,4 @@
-import { GroupedOption } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components';
 import { RecreationResourceOptionUIModel } from '@/services';
-import { MultiValue } from 'react-select';
 import { z } from 'zod';
 
 /**
@@ -32,7 +30,7 @@ export const createEditResourceSchema = (
         },
       ),
     status_code: z.string().optional(),
-    selected_access_options: z.custom<MultiValue<GroupedOption>>().default([]),
+    selected_access_options: z.array(z.string()).default([]),
     district_code: z
       .string()
       .optional()
