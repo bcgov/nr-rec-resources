@@ -34,7 +34,7 @@ export interface BcgwFeatureDto {
    */
   type: string;
   /**
-   * GeoJSON Point geometry (WGS84), null when no site point exists
+   * GeoJSON Point geometry (WGS84), null when no site point exists.
    * @type {object}
    * @memberof BcgwFeatureDto
    */

@@ -36,19 +36,7 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  rec_resource_type_code: string | null;
-  /**
-   *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
-   */
   rec_resource_type: string | null;
-  /**
-   *
-   * @type {Date}
-   * @memberof BcgwRecreationResourceDto
-   */
-  project_established_date: Date | null;
   /**
    *
    * @type {string}
@@ -72,7 +60,73 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
+  closest_community: string | null;
+  /**
+   *
+   * @type {number}
+   * @memberof BcgwRecreationResourceDto
+   */
+  defined_campsites: number;
+  /**
+   *
+   * @type {string}
+   * @memberof BcgwRecreationResourceDto
+   */
+  recreation_district_code: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof BcgwRecreationResourceDto
+   */
+  recreation_district_name: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof BcgwRecreationResourceDto
+   */
+  org_unit_name: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof BcgwRecreationResourceDto
+   */
   closure_comment: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof BcgwRecreationResourceDto
+   */
+  site_description: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof BcgwRecreationResourceDto
+   */
+  driving_directions: string | null;
+  /**
+   * Latitude in decimal degrees (WGS84)
+   * @type {number}
+   * @memberof BcgwRecreationResourceDto
+   */
+  latitude: number | null;
+  /**
+   * Longitude in decimal degrees (WGS84)
+   * @type {number}
+   * @memberof BcgwRecreationResourceDto
+   */
+  longitude: number | null;
+  /**
+   *
+   * @type {string}
+   * @memberof BcgwRecreationResourceDto
+   */
+  rec_resource_type_code: string | null;
+  /**
+   *
+   * @type {Date}
+   * @memberof BcgwRecreationResourceDto
+   */
+  project_established_date: Date | null;
   /**
    *
    * @type {string}
@@ -91,18 +145,6 @@ export interface BcgwRecreationResourceDto {
    * @memberof BcgwRecreationResourceDto
    */
   rec_status_description: string | null;
-  /**
-   *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
-   */
-  closest_community: string | null;
-  /**
-   *
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
-   */
-  defined_campsites: number;
   /**
    *
    * @type {string}
@@ -129,22 +171,10 @@ export interface BcgwRecreationResourceDto {
   total_feature_length: number | null;
   /**
    *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
-   */
-  site_description: string | null;
-  /**
-   *
    * @type {Date}
    * @memberof BcgwRecreationResourceDto
    */
   site_description_date: Date | null;
-  /**
-   *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
-   */
-  driving_directions: string | null;
   /**
    *
    * @type {Date}
@@ -168,25 +198,7 @@ export interface BcgwRecreationResourceDto {
    * @type {string}
    * @memberof BcgwRecreationResourceDto
    */
-  recreation_district_code: string | null;
-  /**
-   *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
-   */
-  recreation_district_name: string | null;
-  /**
-   *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
-   */
   org_unit_code: string | null;
-  /**
-   *
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
-   */
-  org_unit_name: string | null;
   /**
    *
    * @type {number}
@@ -205,24 +217,6 @@ export interface BcgwRecreationResourceDto {
    * @memberof BcgwRecreationResourceDto
    */
   utm_northing: number | null;
-  /**
-   * Latitude in decimal degrees (WGS84)
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
-   */
-  latitude: number | null;
-  /**
-   * Longitude in decimal degrees (WGS84)
-   * @type {number}
-   * @memberof BcgwRecreationResourceDto
-   */
-  longitude: number | null;
-  /**
-   * GeoJSON Point geometry (WGS84)
-   * @type {string}
-   * @memberof BcgwRecreationResourceDto
-   */
-  shape: string | null;
 }
 
 /**
@@ -269,18 +263,8 @@ export function instanceOfBcgwRecreationResourceDto(
   )
     return false;
   if (
-    !('rec_resource_type_code' in value) ||
-    value['rec_resource_type_code'] === undefined
-  )
-    return false;
-  if (
     !('rec_resource_type' in value) ||
     value['rec_resource_type'] === undefined
-  )
-    return false;
-  if (
-    !('project_established_date' in value) ||
-    value['project_established_date'] === undefined
   )
     return false;
   if (!('closure_ind' in value) || value['closure_ind'] === undefined)
@@ -289,7 +273,48 @@ export function instanceOfBcgwRecreationResourceDto(
     return false;
   if (!('closure_type' in value) || value['closure_type'] === undefined)
     return false;
+  if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
+  )
+    return false;
+  if (
+    !('defined_campsites' in value) ||
+    value['defined_campsites'] === undefined
+  )
+    return false;
+  if (
+    !('recreation_district_code' in value) ||
+    value['recreation_district_code'] === undefined
+  )
+    return false;
+  if (
+    !('recreation_district_name' in value) ||
+    value['recreation_district_name'] === undefined
+  )
+    return false;
+  if (!('org_unit_name' in value) || value['org_unit_name'] === undefined)
+    return false;
   if (!('closure_comment' in value) || value['closure_comment'] === undefined)
+    return false;
+  if (!('site_description' in value) || value['site_description'] === undefined)
+    return false;
+  if (
+    !('driving_directions' in value) ||
+    value['driving_directions'] === undefined
+  )
+    return false;
+  if (!('latitude' in value) || value['latitude'] === undefined) return false;
+  if (!('longitude' in value) || value['longitude'] === undefined) return false;
+  if (
+    !('rec_resource_type_code' in value) ||
+    value['rec_resource_type_code'] === undefined
+  )
+    return false;
+  if (
+    !('project_established_date' in value) ||
+    value['project_established_date'] === undefined
+  )
     return false;
   if (
     !('display_on_public_site_ind' in value) ||
@@ -301,16 +326,6 @@ export function instanceOfBcgwRecreationResourceDto(
   if (
     !('rec_status_description' in value) ||
     value['rec_status_description'] === undefined
-  )
-    return false;
-  if (
-    !('closest_community' in value) ||
-    value['closest_community'] === undefined
-  )
-    return false;
-  if (
-    !('defined_campsites' in value) ||
-    value['defined_campsites'] === undefined
   )
     return false;
   if (!('description' in value) || value['description'] === undefined)
@@ -330,16 +345,9 @@ export function instanceOfBcgwRecreationResourceDto(
     value['total_feature_length'] === undefined
   )
     return false;
-  if (!('site_description' in value) || value['site_description'] === undefined)
-    return false;
   if (
     !('site_description_date' in value) ||
     value['site_description_date'] === undefined
-  )
-    return false;
-  if (
-    !('driving_directions' in value) ||
-    value['driving_directions'] === undefined
   )
     return false;
   if (
@@ -357,28 +365,13 @@ export function instanceOfBcgwRecreationResourceDto(
     value['recreation_feature_description'] === undefined
   )
     return false;
-  if (
-    !('recreation_district_code' in value) ||
-    value['recreation_district_code'] === undefined
-  )
-    return false;
-  if (
-    !('recreation_district_name' in value) ||
-    value['recreation_district_name'] === undefined
-  )
-    return false;
   if (!('org_unit_code' in value) || value['org_unit_code'] === undefined)
-    return false;
-  if (!('org_unit_name' in value) || value['org_unit_name'] === undefined)
     return false;
   if (!('utm_zone' in value) || value['utm_zone'] === undefined) return false;
   if (!('utm_easting' in value) || value['utm_easting'] === undefined)
     return false;
   if (!('utm_northing' in value) || value['utm_northing'] === undefined)
     return false;
-  if (!('latitude' in value) || value['latitude'] === undefined) return false;
-  if (!('longitude' in value) || value['longitude'] === undefined) return false;
-  if (!('shape' in value) || value['shape'] === undefined) return false;
   return true;
 }
 
@@ -398,48 +391,47 @@ export function BcgwRecreationResourceDtoFromJSONTyped(
   return {
     rec_resource_id: json['rec_resource_id'],
     rec_resource_name: json['rec_resource_name'],
-    rec_resource_type_code: json['rec_resource_type_code'],
     rec_resource_type: json['rec_resource_type'],
-    project_established_date:
-      json['project_established_date'] == null
-        ? null
-        : new Date(json['project_established_date']),
     closure_ind: json['closure_ind'],
     closure_date:
       json['closure_date'] == null ? null : new Date(json['closure_date']),
     closure_type: json['closure_type'],
+    closest_community: json['closest_community'],
+    defined_campsites: json['defined_campsites'],
+    recreation_district_code: json['recreation_district_code'],
+    recreation_district_name: json['recreation_district_name'],
+    org_unit_name: json['org_unit_name'],
     closure_comment: json['closure_comment'],
+    site_description: json['site_description'],
+    driving_directions: json['driving_directions'],
+    latitude: json['latitude'],
+    longitude: json['longitude'],
+    rec_resource_type_code: json['rec_resource_type_code'],
+    project_established_date:
+      json['project_established_date'] == null
+        ? null
+        : new Date(json['project_established_date']),
     display_on_public_site_ind: json['display_on_public_site_ind'],
     rec_status_code: json['rec_status_code'],
     rec_status_description: json['rec_status_description'],
-    closest_community: json['closest_community'],
-    defined_campsites: json['defined_campsites'],
     description: json['description'],
     arch_impact_assess_ind: json['arch_impact_assess_ind'],
     total_feature_area: json['total_feature_area'],
     total_feature_length: json['total_feature_length'],
-    site_description: json['site_description'],
     site_description_date:
       json['site_description_date'] == null
         ? null
         : new Date(json['site_description_date']),
-    driving_directions: json['driving_directions'],
     driving_directions_date:
       json['driving_directions_date'] == null
         ? null
         : new Date(json['driving_directions_date']),
     recreation_feature_code: json['recreation_feature_code'],
     recreation_feature_description: json['recreation_feature_description'],
-    recreation_district_code: json['recreation_district_code'],
-    recreation_district_name: json['recreation_district_name'],
     org_unit_code: json['org_unit_code'],
-    org_unit_name: json['org_unit_name'],
     utm_zone: json['utm_zone'],
     utm_easting: json['utm_easting'],
     utm_northing: json['utm_northing'],
-    latitude: json['latitude'],
-    longitude: json['longitude'],
-    shape: json['shape'],
   };
 }
 
@@ -460,43 +452,42 @@ export function BcgwRecreationResourceDtoToJSONTyped(
   return {
     rec_resource_id: value['rec_resource_id'],
     rec_resource_name: value['rec_resource_name'],
-    rec_resource_type_code: value['rec_resource_type_code'],
     rec_resource_type: value['rec_resource_type'],
-    project_established_date: (value['project_established_date'] as any)
-      .toISOString()
-      .substring(0, 10),
     closure_ind: value['closure_ind'],
     closure_date: (value['closure_date'] as any).toISOString().substring(0, 10),
     closure_type: value['closure_type'],
+    closest_community: value['closest_community'],
+    defined_campsites: value['defined_campsites'],
+    recreation_district_code: value['recreation_district_code'],
+    recreation_district_name: value['recreation_district_name'],
+    org_unit_name: value['org_unit_name'],
     closure_comment: value['closure_comment'],
+    site_description: value['site_description'],
+    driving_directions: value['driving_directions'],
+    latitude: value['latitude'],
+    longitude: value['longitude'],
+    rec_resource_type_code: value['rec_resource_type_code'],
+    project_established_date: (value['project_established_date'] as any)
+      .toISOString()
+      .substring(0, 10),
     display_on_public_site_ind: value['display_on_public_site_ind'],
     rec_status_code: value['rec_status_code'],
     rec_status_description: value['rec_status_description'],
-    closest_community: value['closest_community'],
-    defined_campsites: value['defined_campsites'],
     description: value['description'],
     arch_impact_assess_ind: value['arch_impact_assess_ind'],
     total_feature_area: value['total_feature_area'],
     total_feature_length: value['total_feature_length'],
-    site_description: value['site_description'],
     site_description_date: (value['site_description_date'] as any)
       .toISOString()
       .substring(0, 10),
-    driving_directions: value['driving_directions'],
     driving_directions_date: (value['driving_directions_date'] as any)
       .toISOString()
       .substring(0, 10),
     recreation_feature_code: value['recreation_feature_code'],
     recreation_feature_description: value['recreation_feature_description'],
-    recreation_district_code: value['recreation_district_code'],
-    recreation_district_name: value['recreation_district_name'],
     org_unit_code: value['org_unit_code'],
-    org_unit_name: value['org_unit_name'],
     utm_zone: value['utm_zone'],
     utm_easting: value['utm_easting'],
     utm_northing: value['utm_northing'],
-    latitude: value['latitude'],
-    longitude: value['longitude'],
-    shape: value['shape'],
   };
 }
