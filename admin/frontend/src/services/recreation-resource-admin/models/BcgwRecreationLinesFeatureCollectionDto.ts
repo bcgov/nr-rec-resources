@@ -41,17 +41,17 @@ export interface BcgwRecreationLinesFeatureCollectionDto {
    */
   type: string;
   /**
-   * Array of GeoJSON Feature objects
-   * @type {Array<BcgwRecreationLinesFeatureDto>}
-   * @memberof BcgwRecreationLinesFeatureCollectionDto
-   */
-  features: Array<BcgwRecreationLinesFeatureDto>;
-  /**
    *
    * @type {BcgwPaginationMetaDto}
    * @memberof BcgwRecreationLinesFeatureCollectionDto
    */
   meta: BcgwPaginationMetaDto;
+  /**
+   *
+   * @type {Array<BcgwRecreationLinesFeatureDto>}
+   * @memberof BcgwRecreationLinesFeatureCollectionDto
+   */
+  features: Array<BcgwRecreationLinesFeatureDto>;
 }
 
 /**
@@ -61,8 +61,8 @@ export function instanceOfBcgwRecreationLinesFeatureCollectionDto(
   value: object,
 ): value is BcgwRecreationLinesFeatureCollectionDto {
   if (!('type' in value) || value['type'] === undefined) return false;
-  if (!('features' in value) || value['features'] === undefined) return false;
   if (!('meta' in value) || value['meta'] === undefined) return false;
+  if (!('features' in value) || value['features'] === undefined) return false;
   return true;
 }
 
@@ -81,10 +81,10 @@ export function BcgwRecreationLinesFeatureCollectionDtoFromJSONTyped(
   }
   return {
     type: json['type'],
+    meta: BcgwPaginationMetaDtoFromJSON(json['meta']),
     features: (json['features'] as Array<any>).map(
       BcgwRecreationLinesFeatureDtoFromJSON,
     ),
-    meta: BcgwPaginationMetaDtoFromJSON(json['meta']),
   };
 }
 
@@ -104,9 +104,9 @@ export function BcgwRecreationLinesFeatureCollectionDtoToJSONTyped(
 
   return {
     type: value['type'],
+    meta: BcgwPaginationMetaDtoToJSON(value['meta']),
     features: (value['features'] as Array<any>).map(
       BcgwRecreationLinesFeatureDtoToJSON,
     ),
-    meta: BcgwPaginationMetaDtoToJSON(value['meta']),
   };
 }

@@ -129,6 +129,27 @@ export class EnvironmentVariables {
   @IsOptional()
   @IsString()
   BCGW_EXPORT_CRON?: string;
+
+  // FTA map service integration
+  @IsOptional()
+  @IsString()
+  CFG_FTA_MAP_SERVICE?: string;
+
+  @IsOptional()
+  @IsString()
+  CFG_FTA_ARC_GIS_SERVERS?: string;
+
+  @IsOptional()
+  @IsString()
+  CFG_OPERATIONAL_LAYER_LIST_URL?: string;
+
+  @IsOptional()
+  @IsString()
+  CFG_FTA_ARC_IMS_SERVER?: string;
+
+  @IsOptional()
+  @IsString()
+  CFG_SDE_RENDER_AGENT_SERVER?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

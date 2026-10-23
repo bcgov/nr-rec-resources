@@ -159,4 +159,39 @@ export class AppConfigService {
       '*/15 * * * *'
     );
   }
+
+  // FTA map export integration
+  get ftaMapService(): string {
+    return this.configService.get('CFG_FTA_MAP_SERVICE', { infer: true }) ?? '';
+  }
+
+  get ftaArcGisServersTemplate(): string {
+    return (
+      this.configService.get('CFG_FTA_ARC_GIS_SERVERS', { infer: true }) ?? ''
+    );
+  }
+
+  get ftaOperationalLayerListUrl(): string {
+    return (
+      this.configService.get('CFG_OPERATIONAL_LAYER_LIST_URL', {
+        infer: true,
+      }) ?? '/xml/fta_osdb_report_layers.xml'
+    );
+  }
+
+  get ftaArcImsServer(): string {
+    return (
+      this.configService.get('CFG_FTA_ARC_IMS_SERVER', {
+        infer: true,
+      }) ?? 'envux10.env.gov.bc.ca'
+    );
+  }
+
+  get sdeRenderAgentServer(): string {
+    return (
+      this.configService.get('CFG_SDE_RENDER_AGENT_SERVER', {
+        infer: true,
+      }) ?? 'BCGW-I.BCGOV'
+    );
+  }
 }
