@@ -131,6 +131,151 @@ describe('AdvisoryItem', () => {
     });
   });
 
+  describe('Advisory dates', () => {
+    // noon Pacific, so the rendered calendar date is unambiguous
+    const JUN_4 = new Date('2026-06-04T19:00:00Z');
+    const JUN_8 = new Date('2026-06-08T19:00:00Z');
+    const JUN_9 = new Date('2026-06-09T19:00:00Z');
+
+    const renderDate = (overrides: Partial<AdvisoryDto>) => {
+      const { container } = render(
+        <AdvisoryItem
+          advisory={{ ...defaultAdvisory, ...overrides }}
+          isCollapsed={false}
+          onToggle={mockOnToggle}
+        />,
+      );
+      return container.querySelector('.advisory-date')?.textContent ?? null;
+    };
+
+    // the five shapes the ACT staff form can write
+    it('renders the posting date', () => {
+      expect(
+        renderDate({
+          is_advisory_date_displayed: true,
+          advisory_date: JUN_4,
+        }),
+      ).toBe('Posted: June 4, 2026');
+    });
+
+    it('renders the updated date', () => {
+      expect(
+        renderDate({
+          is_advisory_date_displayed: false,
+          is_updated_date_displayed: true,
+          updated_date: JUN_9,
+        }),
+      ).toBe('Updated: June 9, 2026');
+    });
+
+    it('renders the start date on its own', () => {
+      expect(
+        renderDate({
+          is_advisory_date_displayed: false,
+          is_effective_date_displayed: true,
+          effective_date: JUN_4,
+        }),
+      ).toBe('Starts: June 4, 2026');
+    });
+
+    it('renders an effective range', () => {
+      expect(
+        renderDate({
+          is_advisory_date_displayed: false,
+          is_effective_date_displayed: true,
+          is_end_date_displayed: true,
+          effective_date: JUN_4,
+          end_date: JUN_8,
+        }),
+      ).toBe('In effect: June 4, 2026 to June 8, 2026');
+    });
+
+    it('renders nothing when no date is flagged for display', () => {
+      expect(renderDate({ is_advisory_date_displayed: false })).toBeNull();
+    });
+
+    // a flag on with no date behind it must not render a dangling label
+    it('renders nothing when the flagged date is missing', () => {
+      expect(renderDate({ advisory_date: undefined })).toBeNull();
+    });
+
+    it('shows the date once when the range starts and ends the same day', () => {
+      expect(
+        renderDate({
+          is_advisory_date_displayed: false,
+          is_effective_date_displayed: true,
+          is_end_date_displayed: true,
+          effective_date: new Date('2026-06-04T08:00:00Z'), // 1am Pacific
+          end_date: new Date('2026-06-05T06:00:00Z'), // 11pm Pacific, same day
+        }),
+      ).toBe('In effect: June 4, 2026');
+    });
+
+    it('never shows the end date without the effective date', () => {
+      expect(
+        renderDate({
+          is_advisory_date_displayed: false,
+          is_effective_date_displayed: false,
+          is_end_date_displayed: true,
+          effective_date: JUN_4,
+          end_date: JUN_8,
+        }),
+      ).toBeNull();
+    });
+
+    it('formats in Pacific time regardless of the viewer timezone', () => {
+      // 11pm Pacific on Jun 4, which is Jun 5 in UTC
+      expect(
+        renderDate({
+          is_advisory_date_displayed: true,
+          advisory_date: new Date('2026-06-05T06:00:00Z'),
+        }),
+      ).toBe('Posted: June 4, 2026');
+    });
+
+    describe('precedence when several flags are on', () => {
+      it('prefers the posting date over everything else', () => {
+        expect(
+          renderDate({
+            is_advisory_date_displayed: true,
+            is_updated_date_displayed: true,
+            is_effective_date_displayed: true,
+            is_end_date_displayed: true,
+            advisory_date: JUN_4,
+            updated_date: JUN_9,
+            effective_date: JUN_4,
+            end_date: JUN_8,
+          }),
+        ).toBe('Posted: June 4, 2026');
+      });
+
+      it('prefers the updated date over the effective range', () => {
+        expect(
+          renderDate({
+            is_advisory_date_displayed: false,
+            is_updated_date_displayed: true,
+            is_effective_date_displayed: true,
+            is_end_date_displayed: true,
+            updated_date: JUN_9,
+            effective_date: JUN_4,
+            end_date: JUN_8,
+          }),
+        ).toBe('Updated: June 9, 2026');
+      });
+
+      it('falls through to the next date when the preferred one is missing', () => {
+        expect(
+          renderDate({
+            is_advisory_date_displayed: true,
+            is_updated_date_displayed: true,
+            advisory_date: undefined,
+            updated_date: JUN_9,
+          }),
+        ).toBe('Updated: June 9, 2026');
+      });
+    });
+  });
+
   describe('Interactions & Toggle State', () => {
     it('renders expanded state correctly (isCollapsed = false)', () => {
       const { container } = render(
