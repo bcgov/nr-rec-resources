@@ -41,17 +41,17 @@ export interface BcgwClosuresShortFeatureCollectionDto {
    */
   type: string;
   /**
-   * Array of GeoJSON Feature objects
-   * @type {Array<BcgwClosuresShortFeatureDto>}
-   * @memberof BcgwClosuresShortFeatureCollectionDto
-   */
-  features: Array<BcgwClosuresShortFeatureDto>;
-  /**
    *
    * @type {BcgwPaginationMetaDto}
    * @memberof BcgwClosuresShortFeatureCollectionDto
    */
   meta: BcgwPaginationMetaDto;
+  /**
+   *
+   * @type {Array<BcgwClosuresShortFeatureDto>}
+   * @memberof BcgwClosuresShortFeatureCollectionDto
+   */
+  features: Array<BcgwClosuresShortFeatureDto>;
 }
 
 /**
@@ -61,8 +61,8 @@ export function instanceOfBcgwClosuresShortFeatureCollectionDto(
   value: object,
 ): value is BcgwClosuresShortFeatureCollectionDto {
   if (!('type' in value) || value['type'] === undefined) return false;
-  if (!('features' in value) || value['features'] === undefined) return false;
   if (!('meta' in value) || value['meta'] === undefined) return false;
+  if (!('features' in value) || value['features'] === undefined) return false;
   return true;
 }
 
@@ -81,10 +81,10 @@ export function BcgwClosuresShortFeatureCollectionDtoFromJSONTyped(
   }
   return {
     type: json['type'],
+    meta: BcgwPaginationMetaDtoFromJSON(json['meta']),
     features: (json['features'] as Array<any>).map(
       BcgwClosuresShortFeatureDtoFromJSON,
     ),
-    meta: BcgwPaginationMetaDtoFromJSON(json['meta']),
   };
 }
 
@@ -104,9 +104,9 @@ export function BcgwClosuresShortFeatureCollectionDtoToJSONTyped(
 
   return {
     type: value['type'],
+    meta: BcgwPaginationMetaDtoToJSON(value['meta']),
     features: (value['features'] as Array<any>).map(
       BcgwClosuresShortFeatureDtoToJSON,
     ),
-    meta: BcgwPaginationMetaDtoToJSON(value['meta']),
   };
 }

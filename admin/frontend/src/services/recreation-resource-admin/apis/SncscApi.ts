@@ -13,11 +13,24 @@
  */
 
 import * as runtime from '../runtime';
-import type { UpdateSpatialSubmissionStatusDto } from '../models/index';
+import type {
+  CreateExhibitAByApplicationGuidRequestDto,
+  CreateExhibitAByApplicationGuidResultDto,
+  UpdateSpatialSubmissionStatusDto,
+} from '../models/index';
 import {
+  CreateExhibitAByApplicationGuidRequestDtoFromJSON,
+  CreateExhibitAByApplicationGuidRequestDtoToJSON,
+  CreateExhibitAByApplicationGuidResultDtoFromJSON,
+  CreateExhibitAByApplicationGuidResultDtoToJSON,
   UpdateSpatialSubmissionStatusDtoFromJSON,
   UpdateSpatialSubmissionStatusDtoToJSON,
 } from '../models/index';
+
+export interface CreateOrGetExhibitAByApplicationGuidRequest {
+  applicationGuid: string;
+  createExhibitAByApplicationGuidRequestDto: CreateExhibitAByApplicationGuidRequestDto;
+}
 
 export interface UpdateSpatialSubmissionStatusFromSncscRequest {
   applicationGuid: string;
@@ -28,6 +41,83 @@ export interface UpdateSpatialSubmissionStatusFromSncscRequest {
  *
  */
 export class SncscApi extends runtime.BaseAPI {
+  /**
+   * Updates spatial submission adjudication comments/audit fields and either generates a new Exhibit A or returns the latest existing Exhibit A URL for the submission.
+   * Generate or retrieve Exhibit A by spatial submission application GUID.
+   */
+  async createOrGetExhibitAByApplicationGuidRaw(
+    requestParameters: CreateOrGetExhibitAByApplicationGuidRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<CreateExhibitAByApplicationGuidResultDto>> {
+    if (requestParameters['applicationGuid'] == null) {
+      throw new runtime.RequiredError(
+        'applicationGuid',
+        'Required parameter "applicationGuid" was null or undefined when calling createOrGetExhibitAByApplicationGuid().',
+      );
+    }
+
+    if (
+      requestParameters['createExhibitAByApplicationGuidRequestDto'] == null
+    ) {
+      throw new runtime.RequiredError(
+        'createExhibitAByApplicationGuidRequestDto',
+        'Required parameter "createExhibitAByApplicationGuidRequestDto" was null or undefined when calling createOrGetExhibitAByApplicationGuid().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      // oauth required
+      headerParameters['Authorization'] = await this.configuration.accessToken(
+        'sncsc-keycloak',
+        [],
+      );
+    }
+
+    let urlPath = `/api/v1/exhibit-a/{application_guid}`;
+    urlPath = urlPath.replace(
+      `{${'application_guid'}}`,
+      encodeURIComponent(String(requestParameters['applicationGuid'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: CreateExhibitAByApplicationGuidRequestDtoToJSON(
+          requestParameters['createExhibitAByApplicationGuidRequestDto'],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      CreateExhibitAByApplicationGuidResultDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Updates spatial submission adjudication comments/audit fields and either generates a new Exhibit A or returns the latest existing Exhibit A URL for the submission.
+   * Generate or retrieve Exhibit A by spatial submission application GUID.
+   */
+  async createOrGetExhibitAByApplicationGuid(
+    requestParameters: CreateOrGetExhibitAByApplicationGuidRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<CreateExhibitAByApplicationGuidResultDto> {
+    const response = await this.createOrGetExhibitAByApplicationGuidRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
   /**
    * Consumes SNCSC PermitApplicationStatusResource payload and applies status/adjudication updates to rst.recreation_spatial_submission.
    * Update a spatial submission adjudication status from SNCSC

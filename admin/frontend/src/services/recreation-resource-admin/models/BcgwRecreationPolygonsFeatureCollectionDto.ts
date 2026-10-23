@@ -41,17 +41,17 @@ export interface BcgwRecreationPolygonsFeatureCollectionDto {
    */
   type: string;
   /**
-   * Array of GeoJSON Feature objects
-   * @type {Array<BcgwRecreationPolygonsFeatureDto>}
-   * @memberof BcgwRecreationPolygonsFeatureCollectionDto
-   */
-  features: Array<BcgwRecreationPolygonsFeatureDto>;
-  /**
    *
    * @type {BcgwPaginationMetaDto}
    * @memberof BcgwRecreationPolygonsFeatureCollectionDto
    */
   meta: BcgwPaginationMetaDto;
+  /**
+   *
+   * @type {Array<BcgwRecreationPolygonsFeatureDto>}
+   * @memberof BcgwRecreationPolygonsFeatureCollectionDto
+   */
+  features: Array<BcgwRecreationPolygonsFeatureDto>;
 }
 
 /**
@@ -61,8 +61,8 @@ export function instanceOfBcgwRecreationPolygonsFeatureCollectionDto(
   value: object,
 ): value is BcgwRecreationPolygonsFeatureCollectionDto {
   if (!('type' in value) || value['type'] === undefined) return false;
-  if (!('features' in value) || value['features'] === undefined) return false;
   if (!('meta' in value) || value['meta'] === undefined) return false;
+  if (!('features' in value) || value['features'] === undefined) return false;
   return true;
 }
 
@@ -81,10 +81,10 @@ export function BcgwRecreationPolygonsFeatureCollectionDtoFromJSONTyped(
   }
   return {
     type: json['type'],
+    meta: BcgwPaginationMetaDtoFromJSON(json['meta']),
     features: (json['features'] as Array<any>).map(
       BcgwRecreationPolygonsFeatureDtoFromJSON,
     ),
-    meta: BcgwPaginationMetaDtoFromJSON(json['meta']),
   };
 }
 
@@ -104,9 +104,9 @@ export function BcgwRecreationPolygonsFeatureCollectionDtoToJSONTyped(
 
   return {
     type: value['type'],
+    meta: BcgwPaginationMetaDtoToJSON(value['meta']),
     features: (value['features'] as Array<any>).map(
       BcgwRecreationPolygonsFeatureDtoToJSON,
     ),
-    meta: BcgwPaginationMetaDtoToJSON(value['meta']),
   };
 }
