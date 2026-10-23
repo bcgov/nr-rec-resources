@@ -9,6 +9,7 @@ import {
 import { StyledAccordion } from '../StyledAccordion';
 import { formatCurrency } from './formatCurrency';
 import './AssetTypeCard.scss';
+import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
 
 interface AssetTypeCardProps {
   eventKey: string;
@@ -70,9 +71,11 @@ export function AssetTypeCard({
                 />
               </span>
             )}
-            <span className="asset-type-card__total-value">
-              {formatCurrency(totalValue)} total value
-            </span>
+            {eventKey !== `${CAMPSITE_STRUCTURE_CODE}` && (
+              <span className="asset-type-card__total-value">
+                {formatCurrency(totalValue)} total value
+              </span>
+            )}
           </div>
           {isEditing ? (
             <div className="d-flex gap-2">
