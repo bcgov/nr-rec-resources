@@ -25,8 +25,8 @@ recreation_resource_document
 recreation_fee
 recreation_establishment_order_docs
 recreation_status
-recreation_fee_fdl_log
 recreation_spatial_submission
+recreation_fee_fdl_log
 recreation_image_consent_form
 recreation_map_feature
 act_advisories_flat
@@ -71,7 +71,6 @@ recreation_activity_code_trails_history
 recreation_activity_history
 recreation_asset_repair
 recreation_defined_campsite
-recreation_exhibit_a_doc
 recreation_feature
 recreation_feature_history
 recreation_fee_history
@@ -81,6 +80,7 @@ recreation_structure
 recreation_structure_history
 recreation_access_history
 recreation_asset_history
+recreation_exhibit_a_doc
 recreation_image_consent_form_history
 recreation_resource_history
 flyway_schema_history

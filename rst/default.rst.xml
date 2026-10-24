@@ -724,6 +724,12 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="8" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="10" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="submission_id" nullable="true" remarks="Spatial submission identifier linked to this Exhibit A output." size="50" type="varchar" typeCode="12">
+            <parent column="submission_id" foreignKey="fk_recreation_exhibit_a_doc_submission_id" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="page_size" nullable="true" remarks="Selected Exhibit A page size (A-E)." size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="page_orientation" nullable="true" remarks="Selected Exhibit A orientation (Portrait or Landscape)." size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="scale" nullable="true" remarks="Selected Exhibit A map scale." size="10" type="int4" typeCode="4"/>
          <primaryKey column="doc_id" sequenceNumberInPK="1"/>
          <index name="recreation_exhibit_a_doc_pkey" unique="true">
             <column ascending="true" name="doc_id"/>
@@ -731,9 +737,14 @@
          <index name="idx_recreation_exhibit_a_doc_rec_resource_id" unique="false">
             <column ascending="true" name="rec_resource_id"/>
          </index>
+         <index name="idx_recreation_exhibit_a_doc_submission_id" unique="false">
+            <column ascending="true" name="submission_id"/>
+         </index>
          <index name="recreation_exhibit_a_doc_s3_key_key" unique="true">
             <column ascending="true" name="s3_key"/>
          </index>
+         <checkConstraint constraint="(((page_orientation)::text = ANY ((ARRAY['Portrait'::character varying, 'Landscape'::character varying])::text[])) OR (page_orientation IS NULL))" name="chk_recreation_exhibit_a_doc_page_orientation"/>
+         <checkConstraint constraint="(((page_size)::text = ANY ((ARRAY['A'::character varying, 'B'::character varying, 'C'::character varying, 'D'::character varying, 'E'::character varying])::text[])) OR (page_size IS NULL))" name="chk_recreation_exhibit_a_doc_page_size"/>
       </table>
       <table name="recreation_exhibit_a_doc_history" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="doc_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111"/>
@@ -749,6 +760,10 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="8" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="submission_id" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="page_size" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="page_orientation" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="scale" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
       </table>
       <table name="recreation_feature" remarks="Associates recreation resources with one or more recreation feature codes." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="Identification assigned to a Recreation Resource." size="20" type="varchar" typeCode="12">
@@ -1665,7 +1680,9 @@
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="application_guid" nullable="false" remarks="Primary GUID for the submission record in RST." size="2147483647" type="uuid" typeCode="1111">
             <child column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_history"/>
          </column>
-         <column autoUpdated="true" defaultValue="(nextval('rst.recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)" digits="0" id="1" name="submission_id" nullable="false" remarks="Client-facing submission identifier (auto-generated incremental value when omitted)." size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="true" defaultValue="(nextval('rst.recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)" digits="0" id="1" name="submission_id" nullable="false" remarks="Client-facing submission identifier (auto-generated incremental value when omitted)." size="50" type="varchar" typeCode="12">
+            <child column="submission_id" foreignKey="fk_recreation_exhibit_a_doc_submission_id" implied="false" onDeleteCascade="false" schema="rst" table="recreation_exhibit_a_doc"/>
+         </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="tenure_id" nullable="false" remarks="Tenure identifier (FK to rst.recreation_resource.rec_resource_id)." size="20" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="recreation_spatial_submission_tenure_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
          </column>

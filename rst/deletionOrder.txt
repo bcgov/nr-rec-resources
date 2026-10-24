@@ -14,6 +14,7 @@ natural_resource_org_unit
 flyway_schema_history
 recreation_resource_history
 recreation_image_consent_form_history
+recreation_exhibit_a_doc
 recreation_asset_history
 recreation_access_history
 recreation_structure_history
@@ -23,7 +24,6 @@ recreation_map_feature_geom
 recreation_fee_history
 recreation_feature_history
 recreation_feature
-recreation_exhibit_a_doc
 recreation_defined_campsite
 recreation_asset_repair
 recreation_activity_history
@@ -68,8 +68,8 @@ act_advisories_flat_history
 act_advisories_flat
 recreation_map_feature
 recreation_image_consent_form
-recreation_spatial_submission
 recreation_fee_fdl_log
+recreation_spatial_submission
 recreation_status
 recreation_establishment_order_docs
 recreation_fee
