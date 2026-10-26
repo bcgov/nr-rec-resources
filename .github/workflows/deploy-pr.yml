@@ -9,6 +9,12 @@ on:
         type: number
         required: true
 
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+  pull-requests: write
+
 concurrency:
   # Do not interrupt previous workflows
   group: ${{ github.workflow }}
