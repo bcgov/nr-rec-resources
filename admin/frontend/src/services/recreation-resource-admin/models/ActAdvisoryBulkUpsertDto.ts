@@ -42,7 +42,13 @@ export interface ActAdvisoryBulkUpsertDto {
    * @type {string}
    * @memberof ActAdvisoryBulkUpsertDto
    */
-  submitted_by: string;
+  submitted_by?: string | null;
+  /**
+   * Name of the person who created the advisory in Act.
+   * @type {string}
+   * @memberof ActAdvisoryBulkUpsertDto
+   */
+  created_by?: string | null;
   /**
    * Display name of the access status.
    * @type {string}
@@ -205,8 +211,6 @@ export function instanceOfActAdvisoryBulkUpsertDto(
   if (!('advisory_number' in value) || value['advisory_number'] === undefined)
     return false;
   if (!('title' in value) || value['title'] === undefined) return false;
-  if (!('submitted_by' in value) || value['submitted_by'] === undefined)
-    return false;
   if (
     !('access_status_name' in value) ||
     value['access_status_name'] === undefined
@@ -277,7 +281,9 @@ export function ActAdvisoryBulkUpsertDtoFromJSONTyped(
     advisory_number: json['advisory_number'],
     title: json['title'],
     description: json['description'] == null ? undefined : json['description'],
-    submitted_by: json['submitted_by'],
+    submitted_by:
+      json['submitted_by'] == null ? undefined : json['submitted_by'],
+    created_by: json['created_by'] == null ? undefined : json['created_by'],
     access_status_name: json['access_status_name'],
     access_status_grouplabel: json['access_status_grouplabel'],
     access_status_description:
@@ -339,6 +345,7 @@ export function ActAdvisoryBulkUpsertDtoToJSONTyped(
     title: value['title'],
     description: value['description'],
     submitted_by: value['submitted_by'],
+    created_by: value['created_by'],
     access_status_name: value['access_status_name'],
     access_status_grouplabel: value['access_status_grouplabel'],
     access_status_description: value['access_status_description'],

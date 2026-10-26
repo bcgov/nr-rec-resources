@@ -20,13 +20,13 @@ import { mapValues } from '../runtime';
  */
 export interface BcgwPaginationMetaDto {
   /**
-   *
+   * Total features in the layer
    * @type {number}
    * @memberof BcgwPaginationMetaDto
    */
   total: number;
   /**
-   *
+   * Current page, 1-indexed
    * @type {number}
    * @memberof BcgwPaginationMetaDto
    */
@@ -38,7 +38,7 @@ export interface BcgwPaginationMetaDto {
    */
   totalPages: number;
   /**
-   *
+   * Features per page. Varies by layer, since the geometry-heavy layers need smaller pages to keep a response within the gateway payload limit.
    * @type {number}
    * @memberof BcgwPaginationMetaDto
    */

@@ -54,7 +54,7 @@ describe('AppModule', () => {
       const moduleFixture = AppModule;
       const metadata = Reflect.getMetadata('imports', moduleFixture);
 
-      expect(metadata).toHaveLength(12);
+      expect(metadata).toHaveLength(13);
       expect(metadata).toEqual(
         expect.arrayContaining([
           PassportModule,
@@ -67,6 +67,8 @@ describe('AppModule', () => {
           expect.any(Object), // UserContextModule
           expect.any(Object), // TerminusModule
           expect.any(Object), // RecreationResourceModule
+          expect.any(Object), // ExhibitAModule
+          expect.any(Object), // PartnerModule
           expect.any(Object), // ApiMetricsModule
         ]),
       );

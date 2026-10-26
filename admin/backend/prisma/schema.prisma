@@ -1191,35 +1191,45 @@ model recreation_resource_image_history {
 }
 
 model recreation_exhibit_a_doc {
-  doc_id              String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  rec_resource_id     String                   @db.VarChar(10)
-  file_name           String                   @db.VarChar
-  extension           String                   @db.VarChar
-  file_size           BigInt?
-  s3_key              String                   @unique @db.VarChar
-  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
-  updated_by          String?
-  created_at          DateTime?                @default(now()) @db.Timestamp(6)
-  created_by          String?
-  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  doc_id                        String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rec_resource_id               String                         @db.VarChar(10)
+  file_name                     String                         @db.VarChar
+  extension                     String                         @db.VarChar
+  file_size                     BigInt?
+  s3_key                        String                         @unique @db.VarChar
+  updated_at                    DateTime?                      @default(now()) @db.Timestamp(6)
+  updated_by                    String?
+  created_at                    DateTime?                      @default(now()) @db.Timestamp(6)
+  created_by                    String?
+  sys_period                    Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  submission_id                 String?                        @db.VarChar(50)
+  page_size                     String?                        @db.VarChar(1)
+  page_orientation              String?                        @db.VarChar(20)
+  scale                         Int?
+  recreation_spatial_submission recreation_spatial_submission? @relation(fields: [submission_id], references: [submission_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_recreation_exhibit_a_doc_submission_id")
+  recreation_resource           recreation_resource            @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([rec_resource_id], map: "idx_recreation_exhibit_a_doc_rec_resource_id")
+  @@index([submission_id], map: "idx_recreation_exhibit_a_doc_submission_id")
   @@schema("rst")
 }
 
 model recreation_exhibit_a_doc_history {
-  doc_id          String                   @db.Uuid
-  rec_resource_id String                   @db.VarChar(10)
-  file_name       String                   @db.VarChar
-  extension       String                   @db.VarChar
-  file_size       BigInt?
-  s3_key          String                   @db.VarChar
-  updated_at      DateTime?                @db.Timestamp(6)
-  updated_by      String?
-  created_at      DateTime?                @db.Timestamp(6)
-  created_by      String?
-  sys_period      Unsupported("tstzrange")
+  doc_id           String                   @db.Uuid
+  rec_resource_id  String                   @db.VarChar(10)
+  file_name        String                   @db.VarChar
+  extension        String                   @db.VarChar
+  file_size        BigInt?
+  s3_key           String                   @db.VarChar
+  updated_at       DateTime?                @db.Timestamp(6)
+  updated_by       String?
+  created_at       DateTime?                @db.Timestamp(6)
+  created_by       String?
+  sys_period       Unsupported("tstzrange")
+  submission_id    String?                  @db.VarChar(50)
+  page_size        String?                  @db.VarChar(1)
+  page_orientation String?                  @db.VarChar(20)
+  scale            Int?
 
   @@ignore
   @@schema("rst")
@@ -1405,7 +1415,7 @@ model act_advisories_flat {
   advisory_number             Int
   title                       String                   @db.VarChar(255)
   description                 String?
-  submitted_by                String                   @db.VarChar(120)
+  submitted_by                String?                  @db.VarChar(120)
   access_status_name          String                   @db.VarChar(100)
   access_status_grouplabel    String                   @db.VarChar(50)
   access_status_description   String?
@@ -1429,6 +1439,7 @@ model act_advisories_flat {
   access_status_precedence    Int                      @default(0)
   event_type_precedence       Int                      @default(0)
   updated_at                  DateTime?                @default(now()) @db.Timestamp(6)
+  created_by                  String?                  @db.VarChar(120)
   recreation_resource         recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([rec_resource_id, advisory_number])
@@ -1441,7 +1452,7 @@ model act_advisories_flat_history {
   advisory_number             Int
   title                       String                   @db.VarChar(255)
   description                 String?
-  submitted_by                String                   @db.VarChar(120)
+  submitted_by                String?                  @db.VarChar(120)
   access_status_name          String                   @db.VarChar(100)
   access_status_grouplabel    String                   @db.VarChar(50)
   access_status_description   String?
@@ -1461,6 +1472,7 @@ model act_advisories_flat_history {
   published_at                DateTime?                @db.Timestamptz(6)
   sys_period                  Unsupported("tstzrange")
   updated_at                  DateTime?                @default(now()) @db.Timestamp(6)
+  created_by                  String?                  @db.VarChar(120)
 
   @@ignore
   @@schema("rst")
@@ -1672,6 +1684,7 @@ model recreation_spatial_submission {
   created_at                       DateTime?                      @default(now()) @db.Timestamp(6)
   created_by                       String?
   sys_period                       Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_exhibit_a_doc         recreation_exhibit_a_doc[]
   recreation_resource_type_code    recreation_resource_type_code? @relation(fields: [recreation_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource              recreation_resource            @relation(fields: [tenure_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 

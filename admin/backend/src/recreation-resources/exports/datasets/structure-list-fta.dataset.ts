@@ -6,8 +6,10 @@ export const structureListFtaDataset: ExportDatasetBuilder = {
   buildQuery: ({ sql }) => Prisma.sql`
     SELECT
       ${sql.ftaPrimaryColumns()},
-      rsf.recreation_structure_code::text AS "STRUCTURE_CODE",
-      rscf.description AS "STRUCTURE_DESC",
+      ${sql.describeCode(
+        Prisma.sql`rsf.recreation_structure_code`,
+        Prisma.sql`rscf.description`,
+      )} AS "STRUCTURE_DESC",
       ${sql.ftaSharedLegacyExportColumnsBeforeTail()},
       ${sql.ftaSharedLegacyExportColumnsTail(
         Prisma.sql`COALESCE(GREATEST(rp.update_timestamp::timestamp, rsf.update_timestamp), rsf.update_timestamp, rp.update_timestamp::timestamp)`,
