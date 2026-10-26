@@ -87,7 +87,7 @@ jobs:
             # Deploy
             cd charts/backend-el
             SECRET_PERSIST=true
-            PVC_SIZE="500Mi"
+            PVC_SIZE="2Gi"
             # if event is PR then use a different bucket
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               export AWS_LZA_S3_BUCKET="fta-rec-rst-lza-uploads"
