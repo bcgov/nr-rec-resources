@@ -53,6 +53,7 @@ describe('AdvisoriesController', () => {
       updated_date: new Date('2027-01-15T00:00:00Z'),
       published_at: null,
       submitted_by: 'Jane Doe',
+      created_by: 'Jane Doe',
       is_advisory_date_displayed: true,
       is_effective_date_displayed: true,
       is_end_date_displayed: false,
