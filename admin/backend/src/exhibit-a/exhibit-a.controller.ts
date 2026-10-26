@@ -39,7 +39,13 @@ import { ExhibitAService } from './exhibit-a.service';
     'Unauthorized - missing, malformed, or expired bearer token. Obtain a CSS token using OAuth2 Client Credentials.',
 })
 @UseGuards(AuthGuard(AUTH_STRATEGY.SNCSC_KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.SNCSC_SERVICE], ROLE_MODE.ALL)
+@AuthRoles(
+  [
+    RecreationResourceAuthRole.SNCSC_SERVICE,
+    RecreationResourceAuthRole.RST_SUPER_ADMIN,
+  ],
+  ROLE_MODE.ANY,
+)
 @Controller({ path: 'exhibit-a', version: '1' })
 export class ExhibitAController {
   constructor(private readonly exhibitAService: ExhibitAService) {}

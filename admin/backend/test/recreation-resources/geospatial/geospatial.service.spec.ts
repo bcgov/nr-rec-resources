@@ -1,11 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { GeospatialService } from '@/recreation-resources/geospatial/geospatial.service';
 import { PrismaService } from '@/prisma.service';
+import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
 
 describe('GeospatialService', () => {
   let service: GeospatialService;
   let prismaMock: any;
+  let sncscStatusRequestServiceMock: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -33,7 +35,54 @@ describe('GeospatialService', () => {
       },
     };
 
-    service = new GeospatialService(prismaMock as unknown as PrismaService);
+    sncscStatusRequestServiceMock = {
+      createStatusRequest: vi.fn().mockResolvedValue('status-request-guid'),
+    };
+
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client-api.example.ca';
+    process.env.FOREST_CLIENT_API_KEY = 'test-api-key';
+
+    service = new GeospatialService(
+      prismaMock as unknown as PrismaService,
+      sncscStatusRequestServiceMock as unknown as SncscStatusRequestService,
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  describe('resolveOrgUnitClientInfo', () => {
+    it('fetches client number and name from Forest Client API when org unit code is DND', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify([
+            {
+              acronym: 'DND',
+              clientName: 'DISTRICT MANAGER NADINA (DND)',
+              clientNumber: '00133887',
+            },
+          ]),
+        ),
+      });
+      vi.stubGlobal('fetch', fetchMock);
+
+      const result = await (service as any).resolveOrgUnitClientInfo('DND');
+
+      expect(result).toEqual({
+        client_number: '00133887',
+        client_name: 'DISTRICT MANAGER NADINA (DND)',
+      });
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/clients/findByAcronym?acronym=DND'),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'X-API-KEY': 'test-api-key',
+          }),
+        }),
+      );
+    });
   });
 
   describe('findGeospatialDataById', () => {

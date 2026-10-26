@@ -75,6 +75,15 @@ export class ExhibitADocsService extends BaseStorageFileService {
     const s3_key = `${rec_resource_id}/${body.document_id}/${body.file_name}.${body.extension}`;
 
     try {
+      if (body.submission_id) {
+        await this.prisma.recreation_exhibit_a_doc.deleteMany({
+          where: {
+            rec_resource_id,
+            submission_id: body.submission_id,
+          },
+        });
+      }
+
       const doc = await this.prisma.recreation_exhibit_a_doc.create({
         data: {
           doc_id: body.document_id,
@@ -83,6 +92,7 @@ export class ExhibitADocsService extends BaseStorageFileService {
           extension: body.extension,
           file_size: BigInt(body.file_size),
           s3_key,
+          submission_id: body.submission_id ?? null,
           created_at: new Date(),
         },
       });
@@ -133,6 +143,7 @@ export class ExhibitADocsService extends BaseStorageFileService {
     return {
       document_id: doc.doc_id,
       rec_resource_id: doc.rec_resource_id,
+      submission_id: doc.submission_id ?? null,
       file_name: doc.file_name,
       extension: doc.extension,
       file_size: doc.file_size ? Number(doc.file_size) : undefined,

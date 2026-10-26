@@ -20,6 +20,18 @@ import { mapValues } from '../runtime';
  */
 export interface PendingMapFeatureRequestRowDto {
   /**
+   * Spatial submission identifier
+   * @type {string}
+   * @memberof PendingMapFeatureRequestRowDto
+   */
+  submission_id?: string | null;
+  /**
+   * Spatial submission application GUID
+   * @type {string}
+   * @memberof PendingMapFeatureRequestRowDto
+   */
+  application_guid?: string | null;
+  /**
    * Recreation resource identifier for the request
    * @type {string}
    * @memberof PendingMapFeatureRequestRowDto
@@ -79,6 +91,12 @@ export interface PendingMapFeatureRequestRowDto {
    * @memberof PendingMapFeatureRequestRowDto
    */
   geometry_types: Array<string>;
+  /**
+   * Exhibit A URL for the submission when available
+   * @type {string}
+   * @memberof PendingMapFeatureRequestRowDto
+   */
+  exhibit_a_url?: string | null;
 }
 
 /**
@@ -115,6 +133,10 @@ export function PendingMapFeatureRequestRowDtoFromJSONTyped(
     return json;
   }
   return {
+    submission_id:
+      json['submission_id'] == null ? undefined : json['submission_id'],
+    application_guid:
+      json['application_guid'] == null ? undefined : json['application_guid'],
     rec_resource_id: json['rec_resource_id'],
     name: json['name'] == null ? undefined : json['name'],
     district_description:
@@ -136,6 +158,8 @@ export function PendingMapFeatureRequestRowDtoFromJSONTyped(
     requested_at:
       json['requested_at'] == null ? undefined : json['requested_at'],
     geometry_types: json['geometry_types'],
+    exhibit_a_url:
+      json['exhibit_a_url'] == null ? undefined : json['exhibit_a_url'],
   };
 }
 
@@ -154,6 +178,8 @@ export function PendingMapFeatureRequestRowDtoToJSONTyped(
   }
 
   return {
+    submission_id: value['submission_id'],
+    application_guid: value['application_guid'],
     rec_resource_id: value['rec_resource_id'],
     name: value['name'],
     district_description: value['district_description'],
@@ -164,5 +190,6 @@ export function PendingMapFeatureRequestRowDtoToJSONTyped(
     feature_count: value['feature_count'],
     requested_at: value['requested_at'],
     geometry_types: value['geometry_types'],
+    exhibit_a_url: value['exhibit_a_url'],
   };
 }

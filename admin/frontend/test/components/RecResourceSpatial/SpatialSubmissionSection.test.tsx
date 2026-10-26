@@ -350,7 +350,7 @@ describe('SpatialSubmissionSection', () => {
       '.zip,.shp,.dbf',
     );
     expect(
-      screen.getByText('Upload your shapefile as a single .zip bundle.'),
+      screen.getByText('File must be a Shape file as a single .zip bundle.'),
     ).toBeDefined();
   });
 

@@ -32,6 +32,12 @@ export interface ExhibitADocDto {
    */
   rec_resource_id: string;
   /**
+   * Spatial submission ID linked to the Exhibit A document
+   * @type {string}
+   * @memberof ExhibitADocDto
+   */
+  submission_id?: string | null;
+  /**
    * File name without extension
    * @type {string}
    * @memberof ExhibitADocDto
@@ -100,6 +106,8 @@ export function ExhibitADocDtoFromJSONTyped(
   return {
     document_id: json['document_id'],
     rec_resource_id: json['rec_resource_id'],
+    submission_id:
+      json['submission_id'] == null ? undefined : json['submission_id'],
     file_name: json['file_name'],
     extension: json['extension'],
     file_size: json['file_size'] == null ? undefined : json['file_size'],
@@ -125,6 +133,7 @@ export function ExhibitADocDtoToJSONTyped(
   return {
     document_id: value['document_id'],
     rec_resource_id: value['rec_resource_id'],
+    submission_id: value['submission_id'],
     file_name: value['file_name'],
     extension: value['extension'],
     file_size: value['file_size'],

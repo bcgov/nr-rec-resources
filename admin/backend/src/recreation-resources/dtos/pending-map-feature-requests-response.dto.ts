@@ -2,6 +2,24 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class PendingMapFeatureRequestRowDto {
   @ApiProperty({
+    description: 'Spatial submission identifier',
+    example: '11234',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  submission_id?: string | null;
+
+  @ApiProperty({
+    description: 'Spatial submission application GUID',
+    example: '6fb3564c-9a6e-4ef0-9cc0-8e040ed5f190',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  application_guid?: string | null;
+
+  @ApiProperty({
     description: 'Recreation resource identifier for the request',
     example: 'REC270156',
   })
@@ -79,6 +97,15 @@ export class PendingMapFeatureRequestRowDto {
     type: [String],
   })
   geometry_types: string[];
+
+  @ApiProperty({
+    description: 'Exhibit A URL for the submission when available',
+    example: 'https://example.com/exhibit-a.pdf',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  exhibit_a_url?: string | null;
 }
 
 export class PendingMapFeatureRequestsResponseDto {

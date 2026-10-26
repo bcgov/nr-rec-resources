@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockUseRecResource = vi.fn();
 const mockUseGetRecreationResourceGeospatial = vi.fn();
+const mockUseGetPendingMapFeatureRequests = vi.fn();
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, className }: any) => (
@@ -29,6 +30,14 @@ vi.mock(
   () => ({
     useGetRecreationResourceGeospatial: (...args: any[]) =>
       mockUseGetRecreationResourceGeospatial(...args),
+  }),
+);
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useGetPendingMapFeatureRequests',
+  () => ({
+    useGetPendingMapFeatureRequests: (...args: any[]) =>
+      mockUseGetPendingMapFeatureRequests(...args),
   }),
 );
 
@@ -97,6 +106,13 @@ describe('RecResourceGeospatialSection', () => {
         utm_northing: 5480000,
         latitude: 49.123456,
         longitude: -123.654321,
+      },
+    });
+
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [],
+        total: 0,
       },
     });
   });

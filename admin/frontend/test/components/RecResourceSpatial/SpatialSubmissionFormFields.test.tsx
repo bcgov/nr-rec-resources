@@ -40,10 +40,19 @@ describe('SpatialSubmissionFormFields', () => {
     expect(screen.getByLabelText('Recreation type')).toBeDefined();
     expect(screen.getByLabelText('Feature type')).toBeDefined();
     expect(screen.getByLabelText('Email Address')).toBeDefined();
-    expect(screen.getByLabelText('Telephone Number')).toBeDefined();
     expect(screen.getByLabelText('Submitter Name')).toBeDefined();
     expect(screen.getByLabelText('Natural Resource District')).toBeDefined();
     expect(screen.getByLabelText('Recreation District')).toBeDefined();
+    expect(
+      screen.getByRole('option', {
+        name: 'Chilliwack Natural Resource District (DCC)',
+      }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole('option', {
+        name: 'Chilliwack Recreation District (RDCC)',
+      }),
+    ).toBeDefined();
     expect(screen.getByLabelText('REC#')).toBeDefined();
     expect(screen.getByLabelText('Coordinate System')).toBeDefined();
     expect(screen.getByLabelText('Spatial File')).toBeDefined();
@@ -161,15 +170,6 @@ describe('SpatialSubmissionFormFields', () => {
     expect(mockSetMetadata).toHaveBeenCalledWith('email', 'test@example.com');
   });
 
-  it('updates telephone when entered', () => {
-    render(<SpatialSubmissionFormFields {...defaultProps} />);
-
-    const input = screen.getByLabelText('Telephone Number');
-    fireEvent.change(input, { target: { value: '6045550100' } });
-
-    expect(mockSetMetadata).toHaveBeenCalledWith('telephone', '6045550100');
-  });
-
   it('updates submitter name when entered', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
@@ -256,15 +256,8 @@ describe('SpatialSubmissionFormFields', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
     expect(
-      screen.getByText('Upload your shapefile as a single .zip bundle.'),
+      screen.getByText('File must be a Shape file as a single .zip bundle.'),
     ).toBeDefined();
-  });
-
-  it('displays telephone placeholder', () => {
-    render(<SpatialSubmissionFormFields {...defaultProps} />);
-
-    const input = screen.getByLabelText('Telephone Number') as HTMLInputElement;
-    expect(input).toHaveAttribute('placeholder', '10 digits (e.g. 6045550100)');
   });
 
   it('displays validation feedback for missing required fields', () => {
@@ -284,7 +277,6 @@ describe('SpatialSubmissionFormFields', () => {
       metadata: {
         ...DEFAULT_WIZARD_VALUES.metadata,
         email: 'user@example.com',
-        telephone: '6045550100',
         contactName: 'John Doe',
         districtCode: 'DCC',
         recreationDistrict: 'RDCC',
@@ -301,9 +293,6 @@ describe('SpatialSubmissionFormFields', () => {
     expect(
       (screen.getByLabelText('Email Address') as HTMLInputElement).value,
     ).toBe('user@example.com');
-    expect(
-      (screen.getByLabelText('Telephone Number') as HTMLInputElement).value,
-    ).toBe('6045550100');
     expect(
       (screen.getByLabelText('Submitter Name') as HTMLInputElement).value,
     ).toBe('John Doe');

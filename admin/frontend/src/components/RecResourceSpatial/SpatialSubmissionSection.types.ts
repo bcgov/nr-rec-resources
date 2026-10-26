@@ -8,6 +8,9 @@ export interface SpatialSubmissionSectionProps {
   defaultRecreationDistrict?: string;
   editMode?: boolean;
   existingSectionIds?: string[];
+  showCreateHeading?: boolean;
+  useGeospatialCompactForm?: boolean;
+  onCancel?: () => void;
 }
 
 export interface WizardValues {
@@ -22,7 +25,6 @@ export type RequiredFieldKey =
   | 'recreationType'
   | 'featureType'
   | 'email'
-  | 'telephone'
   | 'contactName'
   | 'districtCode'
   | 'recreationDistrict';
