@@ -38,11 +38,24 @@ export class ActAdvisoryUpdateDto {
     description:
       'Username / identifier of the person who submitted the advisory in Act.',
     maxLength: 120,
+    type: String,
+    nullable: true,
   })
   @IsOptional()
   @IsString()
   @MaxLength(120)
-  submitted_by?: string;
+  submitted_by?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Name of the person who created the advisory in Act.',
+    maxLength: 120,
+    type: String,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  created_by?: string | null;
 
   @ApiPropertyOptional({
     description: 'Display name of the access status.',
