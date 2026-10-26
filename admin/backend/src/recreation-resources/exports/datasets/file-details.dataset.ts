@@ -6,8 +6,10 @@ export const fileDetailsDataset: ExportDatasetBuilder = {
   buildQuery: ({ sql }) => Prisma.sql`
     SELECT
       ${sql.rstPrimaryColumns()},
-      rrtva.rec_resource_type_code AS "PROJECT_TYPE_CODE",
-      rrtva.description AS "PROJECT_TYPE",
+      ${sql.describeCode(
+        Prisma.sql`rrtva.rec_resource_type_code`,
+        Prisma.sql`rrtva.description`,
+      )} AS "RESOURCE_TYPE",
       COALESCE(geometry_totals.total_area, '0') AS "TOTAL_AREA",
       CASE
         WHEN rr.right_of_way IS NOT NULL
@@ -21,14 +23,15 @@ export const fileDetailsDataset: ExportDatasetBuilder = {
         ELSE '0'
       END AS "TOTAL_TRAIL_AREA",
       COALESCE(geometry_totals.total_length, '0') AS "TOTAL_LENGTH",
-      COALESCE(geometry_totals.total_trail_length_km, 0)::text AS "TOTAL_TRAIL_LNGTH",
-      rr.risk_rating_code AS "RISK_RATING_CODE",
-      rrrc.description AS "RISK_RATING",
-      rs.status_code::text AS "FILE_STATUS_ST",
-      COALESCE(rsc.description, 'Open') AS "STATUS",
+      COALESCE(geometry_totals.total_trail_length_km, 0)::text AS "TOTAL_TRAIL_LENGTH",
+      ${sql.describeCode(
+        Prisma.sql`rr.risk_rating_code`,
+        Prisma.sql`rrrc.description`,
+      )} AS "RISK_RATING",
+      COALESCE(rsc.description, 'Open') AS "PUBLIC_ACCESS_STATUS",
       COALESCE(resource_counts.defined_campsites, '0') AS "DEFINED_CAMPSITES",
       COALESCE(resource_counts.activity_count, '0') AS "ACTIVITY_COUNT",
-      ${sql.formatTimestamp(Prisma.sql`rr.updated_at`)} AS "UPDATE_TIMESTAMP"
+      ${sql.formatTimestamp(Prisma.sql`rr.updated_at`)} AS "UPDATED_AT"
     FROM recreation_resource rr
     ${sql.sharedJoins}
     WHERE ${sql.rstFilters}

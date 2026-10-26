@@ -16,6 +16,7 @@ import * as runtime from '../runtime';
 import type {
   BcgwClosuresShortFeatureCollectionDto,
   BcgwFeatureCollectionDto,
+  BcgwLayerManifestDto,
   BcgwRecreationLinesFeatureCollectionDto,
   BcgwRecreationPolygonsFeatureCollectionDto,
 } from '../models/index';
@@ -24,25 +25,27 @@ import {
   BcgwClosuresShortFeatureCollectionDtoToJSON,
   BcgwFeatureCollectionDtoFromJSON,
   BcgwFeatureCollectionDtoToJSON,
+  BcgwLayerManifestDtoFromJSON,
+  BcgwLayerManifestDtoToJSON,
   BcgwRecreationLinesFeatureCollectionDtoFromJSON,
   BcgwRecreationLinesFeatureCollectionDtoToJSON,
   BcgwRecreationPolygonsFeatureCollectionDtoFromJSON,
   BcgwRecreationPolygonsFeatureCollectionDtoToJSON,
 } from '../models/index';
 
-export interface GetBcgwClosuresFullyAttributedRequest {
+export interface GetBcgwClosuresFullyAttributedPageRequest {
   page?: number;
 }
 
-export interface GetBcgwClosuresShortRequest {
+export interface GetBcgwClosuresShortPageRequest {
   page?: number;
 }
 
-export interface GetBcgwRecreationLinesRequest {
+export interface GetBcgwRecreationLinesPageRequest {
   page?: number;
 }
 
-export interface GetBcgwRecreationPolygonsRequest {
+export interface GetBcgwRecreationPolygonsPageRequest {
   page?: number;
 }
 
@@ -51,18 +54,13 @@ export interface GetBcgwRecreationPolygonsRequest {
  */
 export class BcgwApi extends runtime.BaseAPI {
   /**
-   * Returns a paginated GeoJSON FeatureCollection of recreation resources intended for ingestion by the BC Geographic Warehouse (BCGW) into the WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_FA_SV layer. Data is sourced from a pre-computed materialized view refreshed every 5 minutes.
-   * Get all recreation resources for BCGW ingestion
+   * Recreation resources for the WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_FA_SV layer. Redirects (302) to a presigned URL for the most recent export of this layer, a gzipped GeoJSON FeatureCollection. Clients must follow redirects. Files are regenerated on a schedule from materialized views, so the data is as fresh as the last export run.
+   * Download all recreation resources for BCGW ingestion
    */
   async getBcgwClosuresFullyAttributedRaw(
-    requestParameters: GetBcgwClosuresFullyAttributedRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<BcgwFeatureCollectionDto>> {
+  ): Promise<runtime.ApiResponse<void>> {
     const queryParameters: any = {};
-
-    if (requestParameters['page'] != null) {
-      queryParameters['page'] = requestParameters['page'];
-    }
 
     const headerParameters: runtime.HTTPHeaders = {};
 
@@ -86,20 +84,69 @@ export class BcgwApi extends runtime.BaseAPI {
       initOverrides,
     );
 
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * Recreation resources for the WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_FA_SV layer. Redirects (302) to a presigned URL for the most recent export of this layer, a gzipped GeoJSON FeatureCollection. Clients must follow redirects. Files are regenerated on a schedule from materialized views, so the data is as fresh as the last export run.
+   * Download all recreation resources for BCGW ingestion
+   */
+  async getBcgwClosuresFullyAttributed(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    await this.getBcgwClosuresFullyAttributedRaw(initOverrides);
+  }
+
+  /**
+   * Returns one page of this layer as a GeoJSON FeatureCollection, read live from the materialized views. Page size varies by layer and is reported in `meta`. For the whole layer in one request, use the unsuffixed endpoint, which redirects to a pre-generated file.
+   * Page through recreation resources for BCGW ingestion
+   */
+  async getBcgwClosuresFullyAttributedPageRaw(
+    requestParameters: GetBcgwClosuresFullyAttributedPageRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<BcgwFeatureCollectionDto>> {
+    const queryParameters: any = {};
+
+    if (requestParameters['page'] != null) {
+      queryParameters['page'] = requestParameters['page'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      // oauth required
+      headerParameters['Authorization'] = await this.configuration.accessToken(
+        'bcgw-keycloak',
+        [],
+      );
+    }
+
+    let urlPath = `/api/v1/bcgw/closures-fully-attributed/features`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
     return new runtime.JSONApiResponse(response, (jsonValue) =>
       BcgwFeatureCollectionDtoFromJSON(jsonValue),
     );
   }
 
   /**
-   * Returns a paginated GeoJSON FeatureCollection of recreation resources intended for ingestion by the BC Geographic Warehouse (BCGW) into the WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_FA_SV layer. Data is sourced from a pre-computed materialized view refreshed every 5 minutes.
-   * Get all recreation resources for BCGW ingestion
+   * Returns one page of this layer as a GeoJSON FeatureCollection, read live from the materialized views. Page size varies by layer and is reported in `meta`. For the whole layer in one request, use the unsuffixed endpoint, which redirects to a pre-generated file.
+   * Page through recreation resources for BCGW ingestion
    */
-  async getBcgwClosuresFullyAttributed(
-    requestParameters: GetBcgwClosuresFullyAttributedRequest = {},
+  async getBcgwClosuresFullyAttributedPage(
+    requestParameters: GetBcgwClosuresFullyAttributedPageRequest = {},
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<BcgwFeatureCollectionDto> {
-    const response = await this.getBcgwClosuresFullyAttributedRaw(
+    const response = await this.getBcgwClosuresFullyAttributedPageRaw(
       requestParameters,
       initOverrides,
     );
@@ -107,11 +154,47 @@ export class BcgwApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a paginated GeoJSON FeatureCollection of recreation resources intended for ingestion by the BC Geographic Warehouse (BCGW) into the WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_SV layer. A 20-column subset of the fully attributed closures layer.
-   * Get recreation resources for the short closures BCGW layer
+   * A 20-column subset of the fully attributed closures layer, for the WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_SV layer. Redirects (302) to a presigned URL for the most recent export of this layer, a gzipped GeoJSON FeatureCollection. Clients must follow redirects. Files are regenerated on a schedule from materialized views, so the data is as fresh as the last export run.
+   * Download recreation resources for the short closures BCGW layer
    */
   async getBcgwClosuresShortRaw(
-    requestParameters: GetBcgwClosuresShortRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<void>> {
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    let urlPath = `/api/v1/bcgw/closures-short`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * A 20-column subset of the fully attributed closures layer, for the WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_SV layer. Redirects (302) to a presigned URL for the most recent export of this layer, a gzipped GeoJSON FeatureCollection. Clients must follow redirects. Files are regenerated on a schedule from materialized views, so the data is as fresh as the last export run.
+   * Download recreation resources for the short closures BCGW layer
+   */
+  async getBcgwClosuresShort(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    await this.getBcgwClosuresShortRaw(initOverrides);
+  }
+
+  /**
+   * Returns one page of this layer as a GeoJSON FeatureCollection, read live from the materialized views. Page size varies by layer and is reported in `meta`. For the whole layer in one request, use the unsuffixed endpoint, which redirects to a pre-generated file.
+   * Page through the short closures BCGW layer
+   */
+  async getBcgwClosuresShortPageRaw(
+    requestParameters: GetBcgwClosuresShortPageRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<BcgwClosuresShortFeatureCollectionDto>> {
     const queryParameters: any = {};
@@ -122,7 +205,7 @@ export class BcgwApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
-    let urlPath = `/api/v1/bcgw/closures-short`;
+    let urlPath = `/api/v1/bcgw/closures-short/features`;
 
     const response = await this.request(
       {
@@ -140,14 +223,14 @@ export class BcgwApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a paginated GeoJSON FeatureCollection of recreation resources intended for ingestion by the BC Geographic Warehouse (BCGW) into the WHSE_FOREST_TENURE.FTEN_REC_DTAILS_CLOSURES_SV layer. A 20-column subset of the fully attributed closures layer.
-   * Get recreation resources for the short closures BCGW layer
+   * Returns one page of this layer as a GeoJSON FeatureCollection, read live from the materialized views. Page size varies by layer and is reported in `meta`. For the whole layer in one request, use the unsuffixed endpoint, which redirects to a pre-generated file.
+   * Page through the short closures BCGW layer
    */
-  async getBcgwClosuresShort(
-    requestParameters: GetBcgwClosuresShortRequest = {},
+  async getBcgwClosuresShortPage(
+    requestParameters: GetBcgwClosuresShortPageRequest = {},
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<BcgwClosuresShortFeatureCollectionDto> {
-    const response = await this.getBcgwClosuresShortRaw(
+    const response = await this.getBcgwClosuresShortPageRaw(
       requestParameters,
       initOverrides,
     );
@@ -155,11 +238,47 @@ export class BcgwApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a paginated GeoJSON FeatureCollection of recreation trail/line features intended for ingestion by the BC Geographic Warehouse (BCGW) into the WHSE_FOREST_TENURE.FTEN_RECREATION_LINES_SVW layer. Data is sourced from a pre-computed materialized view refreshed every 5 minutes.
-   * Get recreation line features for BCGW ingestion
+   * Recreation trail/line features for the WHSE_FOREST_TENURE.FTEN_RECREATION_LINES_SVW layer. Redirects (302) to a presigned URL for the most recent export of this layer, a gzipped GeoJSON FeatureCollection. Clients must follow redirects. Files are regenerated on a schedule from materialized views, so the data is as fresh as the last export run.
+   * Download recreation line features for BCGW ingestion
    */
   async getBcgwRecreationLinesRaw(
-    requestParameters: GetBcgwRecreationLinesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<void>> {
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    let urlPath = `/api/v1/bcgw/recreation-lines`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * Recreation trail/line features for the WHSE_FOREST_TENURE.FTEN_RECREATION_LINES_SVW layer. Redirects (302) to a presigned URL for the most recent export of this layer, a gzipped GeoJSON FeatureCollection. Clients must follow redirects. Files are regenerated on a schedule from materialized views, so the data is as fresh as the last export run.
+   * Download recreation line features for BCGW ingestion
+   */
+  async getBcgwRecreationLines(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    await this.getBcgwRecreationLinesRaw(initOverrides);
+  }
+
+  /**
+   * Returns one page of this layer as a GeoJSON FeatureCollection, read live from the materialized views. Page size varies by layer and is reported in `meta`. For the whole layer in one request, use the unsuffixed endpoint, which redirects to a pre-generated file.
+   * Page through recreation line features for BCGW ingestion
+   */
+  async getBcgwRecreationLinesPageRaw(
+    requestParameters: GetBcgwRecreationLinesPageRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<BcgwRecreationLinesFeatureCollectionDto>> {
     const queryParameters: any = {};
@@ -170,7 +289,7 @@ export class BcgwApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
-    let urlPath = `/api/v1/bcgw/recreation-lines`;
+    let urlPath = `/api/v1/bcgw/recreation-lines/features`;
 
     const response = await this.request(
       {
@@ -188,14 +307,14 @@ export class BcgwApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a paginated GeoJSON FeatureCollection of recreation trail/line features intended for ingestion by the BC Geographic Warehouse (BCGW) into the WHSE_FOREST_TENURE.FTEN_RECREATION_LINES_SVW layer. Data is sourced from a pre-computed materialized view refreshed every 5 minutes.
-   * Get recreation line features for BCGW ingestion
+   * Returns one page of this layer as a GeoJSON FeatureCollection, read live from the materialized views. Page size varies by layer and is reported in `meta`. For the whole layer in one request, use the unsuffixed endpoint, which redirects to a pre-generated file.
+   * Page through recreation line features for BCGW ingestion
    */
-  async getBcgwRecreationLines(
-    requestParameters: GetBcgwRecreationLinesRequest = {},
+  async getBcgwRecreationLinesPage(
+    requestParameters: GetBcgwRecreationLinesPageRequest = {},
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<BcgwRecreationLinesFeatureCollectionDto> {
-    const response = await this.getBcgwRecreationLinesRaw(
+    const response = await this.getBcgwRecreationLinesPageRaw(
       requestParameters,
       initOverrides,
     );
@@ -203,11 +322,47 @@ export class BcgwApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a paginated GeoJSON FeatureCollection of recreation polygon features intended for ingestion by the BC Geographic Warehouse (BCGW) into the WHSE_FOREST_TENURE.FTEN_RECREATION_POLY_SVW layer. Data is sourced from a pre-computed materialized view refreshed every 5 minutes.
-   * Get recreation polygon features for BCGW ingestion
+   * Recreation polygon features for the WHSE_FOREST_TENURE.FTEN_RECREATION_POLY_SVW layer. Redirects (302) to a presigned URL for the most recent export of this layer, a gzipped GeoJSON FeatureCollection. Clients must follow redirects. Files are regenerated on a schedule from materialized views, so the data is as fresh as the last export run.
+   * Download recreation polygon features for BCGW ingestion
    */
   async getBcgwRecreationPolygonsRaw(
-    requestParameters: GetBcgwRecreationPolygonsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<void>> {
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    let urlPath = `/api/v1/bcgw/recreation-polygons`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * Recreation polygon features for the WHSE_FOREST_TENURE.FTEN_RECREATION_POLY_SVW layer. Redirects (302) to a presigned URL for the most recent export of this layer, a gzipped GeoJSON FeatureCollection. Clients must follow redirects. Files are regenerated on a schedule from materialized views, so the data is as fresh as the last export run.
+   * Download recreation polygon features for BCGW ingestion
+   */
+  async getBcgwRecreationPolygons(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    await this.getBcgwRecreationPolygonsRaw(initOverrides);
+  }
+
+  /**
+   * Returns one page of this layer as a GeoJSON FeatureCollection, read live from the materialized views. Page size varies by layer and is reported in `meta`. For the whole layer in one request, use the unsuffixed endpoint, which redirects to a pre-generated file.
+   * Page through recreation polygon features for BCGW ingestion
+   */
+  async getBcgwRecreationPolygonsPageRaw(
+    requestParameters: GetBcgwRecreationPolygonsPageRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<BcgwRecreationPolygonsFeatureCollectionDto>> {
     const queryParameters: any = {};
@@ -218,7 +373,7 @@ export class BcgwApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
-    let urlPath = `/api/v1/bcgw/recreation-polygons`;
+    let urlPath = `/api/v1/bcgw/recreation-polygons/features`;
 
     const response = await this.request(
       {
@@ -236,17 +391,56 @@ export class BcgwApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a paginated GeoJSON FeatureCollection of recreation polygon features intended for ingestion by the BC Geographic Warehouse (BCGW) into the WHSE_FOREST_TENURE.FTEN_RECREATION_POLY_SVW layer. Data is sourced from a pre-computed materialized view refreshed every 5 minutes.
-   * Get recreation polygon features for BCGW ingestion
+   * Returns one page of this layer as a GeoJSON FeatureCollection, read live from the materialized views. Page size varies by layer and is reported in `meta`. For the whole layer in one request, use the unsuffixed endpoint, which redirects to a pre-generated file.
+   * Page through recreation polygon features for BCGW ingestion
    */
-  async getBcgwRecreationPolygons(
-    requestParameters: GetBcgwRecreationPolygonsRequest = {},
+  async getBcgwRecreationPolygonsPage(
+    requestParameters: GetBcgwRecreationPolygonsPageRequest = {},
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<BcgwRecreationPolygonsFeatureCollectionDto> {
-    const response = await this.getBcgwRecreationPolygonsRaw(
+    const response = await this.getBcgwRecreationPolygonsPageRaw(
       requestParameters,
       initOverrides,
     );
+    return await response.value();
+  }
+
+  /**
+   * Refreshes the BCGW materialized views and regenerates every layer file. Returns one manifest per exported layer, or an empty array when another run already holds the export lock.
+   * Run the BCGW layer export now
+   */
+  async runBcgwExportRaw(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<BcgwLayerManifestDto>>> {
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    let urlPath = `/api/v1/bcgw/export`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(BcgwLayerManifestDtoFromJSON),
+    );
+  }
+
+  /**
+   * Refreshes the BCGW materialized views and regenerates every layer file. Returns one manifest per exported layer, or an empty array when another run already holds the export lock.
+   * Run the BCGW layer export now
+   */
+  async runBcgwExport(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<BcgwLayerManifestDto>> {
+    const response = await this.runBcgwExportRaw(initOverrides);
     return await response.value();
   }
 }

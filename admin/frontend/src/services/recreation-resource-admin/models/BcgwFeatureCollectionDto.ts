@@ -41,17 +41,17 @@ export interface BcgwFeatureCollectionDto {
    */
   type: string;
   /**
-   * Array of GeoJSON Feature objects
-   * @type {Array<BcgwFeatureDto>}
-   * @memberof BcgwFeatureCollectionDto
-   */
-  features: Array<BcgwFeatureDto>;
-  /**
    *
    * @type {BcgwPaginationMetaDto}
    * @memberof BcgwFeatureCollectionDto
    */
   meta: BcgwPaginationMetaDto;
+  /**
+   *
+   * @type {Array<BcgwFeatureDto>}
+   * @memberof BcgwFeatureCollectionDto
+   */
+  features: Array<BcgwFeatureDto>;
 }
 
 /**
@@ -61,8 +61,8 @@ export function instanceOfBcgwFeatureCollectionDto(
   value: object,
 ): value is BcgwFeatureCollectionDto {
   if (!('type' in value) || value['type'] === undefined) return false;
-  if (!('features' in value) || value['features'] === undefined) return false;
   if (!('meta' in value) || value['meta'] === undefined) return false;
+  if (!('features' in value) || value['features'] === undefined) return false;
   return true;
 }
 
@@ -81,8 +81,8 @@ export function BcgwFeatureCollectionDtoFromJSONTyped(
   }
   return {
     type: json['type'],
-    features: (json['features'] as Array<any>).map(BcgwFeatureDtoFromJSON),
     meta: BcgwPaginationMetaDtoFromJSON(json['meta']),
+    features: (json['features'] as Array<any>).map(BcgwFeatureDtoFromJSON),
   };
 }
 
@@ -102,7 +102,7 @@ export function BcgwFeatureCollectionDtoToJSONTyped(
 
   return {
     type: value['type'],
-    features: (value['features'] as Array<any>).map(BcgwFeatureDtoToJSON),
     meta: BcgwPaginationMetaDtoToJSON(value['meta']),
+    features: (value['features'] as Array<any>).map(BcgwFeatureDtoToJSON),
   };
 }
