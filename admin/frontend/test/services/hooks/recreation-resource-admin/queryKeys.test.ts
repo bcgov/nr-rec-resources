@@ -23,6 +23,7 @@ describe('RECREATION_RESOURCE_QUERY_KEYS', () => {
       'file-details',
       'RDKA',
       'SIT',
+      false,
       50,
     ]);
   });
@@ -35,8 +36,32 @@ describe('RECREATION_RESOURCE_QUERY_KEYS', () => {
       '',
       '',
       '',
+      false,
       0,
     ]);
+  });
+
+  // The archived toggle has to change the key, or React Query would serve the
+  // previous result when the user flips it.
+  it('varies the preview key by includeArchived', () => {
+    const base = {
+      dataset: 'file-details',
+      district: 'RDKA',
+      resourceType: 'SIT',
+      limit: 50,
+    };
+
+    expect(
+      RECREATION_RESOURCE_QUERY_KEYS.exportPreview({
+        ...base,
+        includeArchived: true,
+      }),
+    ).not.toEqual(
+      RECREATION_RESOURCE_QUERY_KEYS.exportPreview({
+        ...base,
+        includeArchived: false,
+      }),
+    );
   });
 
   it('builds option and detail keys', () => {
