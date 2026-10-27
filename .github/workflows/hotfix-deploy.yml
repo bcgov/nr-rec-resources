@@ -19,6 +19,15 @@ on:
           - test
           - prod
 
+permissions:
+  actions: read
+  id-token: write
+  contents: write
+  packages: write
+  pull-requests: write
+  security-events: write
+  attestations: write
+
 concurrency:
   # Do not interrupt previous workflows
   group: ${{ github.workflow }}
