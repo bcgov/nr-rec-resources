@@ -1370,7 +1370,7 @@ model act_advisories_flat {
   advisory_number             Int
   title                       String                   @db.VarChar(255)
   description                 String?
-  submitted_by                String                   @db.VarChar(120)
+  submitted_by                String?                  @db.VarChar(120)
   access_status_name          String                   @db.VarChar(100)
   access_status_grouplabel    String                   @db.VarChar(50)
   access_status_description   String?
@@ -1394,6 +1394,7 @@ model act_advisories_flat {
   access_status_precedence    Int                      @default(0)
   event_type_precedence       Int                      @default(0)
   updated_at                  DateTime?                @default(now()) @db.Timestamp(6)
+  created_by                  String?                  @db.VarChar(120)
   recreation_resource         recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([rec_resource_id, advisory_number])
@@ -1406,7 +1407,7 @@ model act_advisories_flat_history {
   advisory_number             Int
   title                       String                   @db.VarChar(255)
   description                 String?
-  submitted_by                String                   @db.VarChar(120)
+  submitted_by                String?                  @db.VarChar(120)
   access_status_name          String                   @db.VarChar(100)
   access_status_grouplabel    String                   @db.VarChar(50)
   access_status_description   String?
@@ -1426,6 +1427,7 @@ model act_advisories_flat_history {
   published_at                DateTime?                @db.Timestamptz(6)
   sys_period                  Unsupported("tstzrange")
   updated_at                  DateTime?                @default(now()) @db.Timestamp(6)
+  created_by                  String?                  @db.VarChar(120)
 
   @@ignore
   @@schema("rst")

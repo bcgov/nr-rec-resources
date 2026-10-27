@@ -52,6 +52,7 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/admin/backend/dist ./dist
+COPY --from=build /app/admin/backend/src/exhibit-a/assets ./dist/admin/backend/src/exhibit-a/assets
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 8000

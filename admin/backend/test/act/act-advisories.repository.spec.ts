@@ -22,6 +22,7 @@ describe('ActAdvisoriesRepository', () => {
     advisory_number: 3791,
     title: 'Bear in area',
     submitted_by: 'act-service-account',
+    created_by: 'Jane Doe',
     access_status_name: 'Open with restrictions',
     access_status_grouplabel: 'Open',
     event_type: 'Wildlife',
@@ -106,6 +107,50 @@ describe('ActAdvisoriesRepository', () => {
           access_status_precedence: 0,
           event_type_precedence: 0,
         }),
+      }),
+    );
+  });
+
+  it('writes null for both author fields when Act omits them', async () => {
+    mockPrismaService.act_advisories_flat.findUnique.mockResolvedValue(null);
+    mockPrismaService.act_advisories_flat.upsert.mockResolvedValue({
+      rec_resource_id: 'REC0002',
+      advisory_number: 3791,
+    });
+
+    const {
+      submitted_by: _submitted_by,
+      created_by: _created_by,
+      ...withoutAuthors
+    } = basePayload;
+    await repository.upsert(withoutAuthors as ActAdvisoryUpsertDto);
+
+    expect(mockPrismaService.act_advisories_flat.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          submitted_by: null,
+          created_by: null,
+        }),
+        update: expect.objectContaining({
+          submitted_by: null,
+          created_by: null,
+        }),
+      }),
+    );
+  });
+
+  it('persists created_by as sent by Act', async () => {
+    mockPrismaService.act_advisories_flat.findUnique.mockResolvedValue(null);
+    mockPrismaService.act_advisories_flat.upsert.mockResolvedValue({
+      rec_resource_id: 'REC0002',
+      advisory_number: 3791,
+    });
+
+    await repository.upsert({ ...basePayload, created_by: 'Priya Sandhu' });
+
+    expect(mockPrismaService.act_advisories_flat.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ created_by: 'Priya Sandhu' }),
       }),
     );
   });

@@ -361,40 +361,6 @@ export interface UpdateRecreationResourceGeospatialRequest {
   updateRecreationResourceGeospatialDto: UpdateRecreationResourceGeospatialDto;
 }
 
-export interface CreateRecreationMapFeaturesDto {
-  features: Array<{
-    geometry: Record<string, unknown>;
-    section_id?: string;
-  }>;
-  recreation_type_code?: string;
-  natural_resource_district_code?: string;
-  recreation_district_code?: string;
-  submitted_by?: string;
-}
-
-export interface CreateRecreationResourceMapFeaturesRequest {
-  recResourceId: string;
-  createRecreationMapFeaturesDto: CreateRecreationMapFeaturesDto;
-}
-
-export interface PendingMapFeatureRequestRowDto {
-  rec_resource_id: string;
-  name?: string | null;
-  district_description?: string | null;
-  recreation_district?: string | null;
-  natural_resource_district?: string | null;
-  recreation_type?: string | null;
-  amend_status_code: string;
-  feature_count: number;
-  requested_at?: string | null;
-  geometry_types: string[];
-}
-
-export interface PendingMapFeatureRequestsResponseDto {
-  data: PendingMapFeatureRequestRowDto[];
-  total: number;
-}
-
 export interface UpdateRecreationResourceReservationRequest {
   recResourceId: string;
   updateRecreationResourceReservationDto: UpdateRecreationResourceReservationDto;

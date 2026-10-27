@@ -290,8 +290,11 @@ export class AdvisoryDto {
     description:
       'Name of the person or organization that submitted the advisory',
     example: 'John Doe, Park Ranger',
+    required: false,
+    type: String,
+    nullable: true,
   })
-  submitted_by: string;
+  submitted_by: string | null;
 
   @ApiProperty({
     description: 'Access status group label for the advisory',

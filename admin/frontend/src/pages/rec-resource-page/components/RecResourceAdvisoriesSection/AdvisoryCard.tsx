@@ -158,7 +158,7 @@ export const AdvisoryCard = ({
                 <FontAwesomeIcon icon={faUser} aria-hidden="true" />
                 <span className="fw-semibold">Published by</span>
               </div>
-              <div>{advisory.submitted_by}</div>
+              <div>{advisory.created_by || '-'}</div>
             </Stack>
           </Col>
         </Row>

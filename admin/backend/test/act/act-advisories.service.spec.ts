@@ -27,6 +27,7 @@ describe('ActAdvisoriesService', () => {
     advisory_number: 3791,
     title: 'Bear in area',
     submitted_by: 'act-service-account',
+    created_by: 'Jane Doe',
     access_status_name: 'Open with restrictions',
     access_status_grouplabel: 'Open',
     event_type: 'Wildlife',
