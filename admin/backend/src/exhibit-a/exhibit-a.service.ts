@@ -512,6 +512,11 @@ export class ExhibitAService {
     const fileName = leaf.replace(/\.pdf$/i, '');
 
     await this.prisma.$executeRaw`
+      WITH archived AS (
+        DELETE FROM rst.recreation_exhibit_a_doc
+        WHERE rec_resource_id = ${input.recResourceId}
+          AND submission_id = ${input.submissionId}
+      )
       INSERT INTO rst.recreation_exhibit_a_doc (
         rec_resource_id,
         file_name,
@@ -522,6 +527,7 @@ export class ExhibitAService {
         page_size,
         page_orientation,
         scale,
+        generation_method,
         created_by,
         updated_by
       )
@@ -535,6 +541,7 @@ export class ExhibitAService {
         ${input.size},
         ${input.orientation},
         ${input.scale},
+        'regenerate',
         ${input.userId},
         ${input.userId}
       )

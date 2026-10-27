@@ -24,7 +24,7 @@ export interface FinalizeExhibitAUploadRequestDto {
    * @type {string}
    * @memberof FinalizeExhibitAUploadRequestDto
    */
-  submission_id?: string;
+  submission_id?: string | null;
   /**
    * Document ID returned from presign endpoint
    * @type {string}

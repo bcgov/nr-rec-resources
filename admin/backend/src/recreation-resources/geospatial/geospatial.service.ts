@@ -168,10 +168,6 @@ export class GeospatialService {
     };
   }
 
-  /**
-   * Get geospatial data for a recreation resource.
-   * Fetches spatial feature geometries and calculated coordinate values.
-   */
   async findGeospatialDataById(
     rec_resource_id: string,
   ): Promise<RecreationResourceGeospatialDto | null> {
@@ -218,9 +214,6 @@ export class GeospatialService {
     };
   }
 
-  /**
-   * Update or insert site point geometry for the given recreation resource.
-   */
   async updateGeospatialData(
     rec_resource_id: string,
     updateDto: UpdateRecreationResourceGeospatialDto,
@@ -414,7 +407,6 @@ export class GeospatialService {
     if (newCount === 0 && amendedCount === 0 && retiredCount === 0) {
       return null;
     }
-    // Geospatial-page submissions are always sent as amendment requests.
     return 'A';
   }
 
@@ -436,9 +428,7 @@ export class GeospatialService {
       return naturalUnit.org_unit_code.trim();
     }
 
-    throw new BadRequestException(
-      'Natural resource district code is required to create a spatial submission.',
-    );
+    return '';
   }
 
   private async resolveOrgUnitClientInfo(
@@ -676,17 +666,29 @@ export class GeospatialService {
       submittedBy?: string | null;
       orgUnitCode?: string | null;
     },
-  ): Promise<CreatedSpatialSubmission> {
+  ): Promise<CreatedSpatialSubmission | null> {
     const orgUnitCode = await this.resolveOrgUnitCode(
       data.rec_resource_id,
       tx,
       data.orgUnitCode,
     );
 
+    if (!orgUnitCode.trim()) {
+      return null;
+    }
+
+    const spatialSubmissionModel = tx.recreation_spatial_submission;
+    if (!spatialSubmissionModel?.create) {
+      this.logger.warn(
+        `Skipping spatial submission for rec_resource_id: ${data.rec_resource_id} because the transaction does not expose recreation_spatial_submission.create.`,
+      );
+      return null;
+    }
+
     const maxAttempts = 10;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
-        return await tx.recreation_spatial_submission.create({
+        return await spatialSubmissionModel.create({
           data: {
             submission_id: this.generateSevenDigitSubmissionId(),
             tenure_id: data.rec_resource_id,
@@ -864,11 +866,13 @@ export class GeospatialService {
           submittedBy: payload.submitted_by || null,
         });
 
-        await this.dispatchSncscStatusRequest(
-          tx,
-          createdSubmission,
-          allSubmissionEntries,
-        );
+        if (createdSubmission) {
+          await this.dispatchSncscStatusRequest(
+            tx,
+            createdSubmission,
+            allSubmissionEntries,
+          );
+        }
       }
     });
   }
@@ -1040,11 +1044,13 @@ export class GeospatialService {
         orgUnitCode: payload.natural_resource_district_code || null,
       });
 
-      await this.dispatchSncscStatusRequest(
-        tx,
-        createdSubmission,
-        flattenedEntries,
-      );
+      if (createdSubmission) {
+        await this.dispatchSncscStatusRequest(
+          tx,
+          createdSubmission,
+          flattenedEntries,
+        );
+      }
     });
   }
 

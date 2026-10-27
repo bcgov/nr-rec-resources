@@ -86,7 +86,7 @@ export interface RecreationResourceAdvisoryDto {
    */
   published_at?: Date | null;
   /**
-   * Submitted by.
+   * Submitted by. Not always populated by Act.
    * @type {string}
    * @memberof RecreationResourceAdvisoryDto
    */

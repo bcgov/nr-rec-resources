@@ -29,6 +29,16 @@ export class ExhibitADocDto {
   extension: string;
 
   @ApiProperty({
+    description:
+      'How this Exhibit A document was produced: direct upload or regenerate flow',
+    example: 'upload',
+    required: false,
+    nullable: true,
+    enum: ['upload', 'regenerate'],
+  })
+  generation_method?: 'upload' | 'regenerate' | null;
+
+  @ApiProperty({
     description: 'File size in bytes',
     example: 1024000,
     required: false,

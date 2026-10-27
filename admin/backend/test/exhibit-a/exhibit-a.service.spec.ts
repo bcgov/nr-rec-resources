@@ -497,7 +497,15 @@ describe('ExhibitAService', () => {
       scale: 30000,
     });
     expect(prisma.$executeRaw).toHaveBeenCalledTimes(2);
-    expect(prisma.$executeRaw.mock.calls[1]).toContain('Landscape');
+    const metadataCall = prisma.$executeRaw.mock.calls[1]!;
+    expect(metadataCall).toContain('Landscape');
+    const metadataSqlFragments = metadataCall[0] as {
+      raw?: string[];
+    };
+    expect(metadataSqlFragments.raw?.join(' ')).toContain('regenerate');
+    expect(metadataSqlFragments.raw?.join(' ')).toContain(
+      'DELETE FROM rst.recreation_exhibit_a_doc',
+    );
     expect(result).toEqual({
       submissionId: 'S1234567',
       pdfUrl: 'https://example.com/s3/exhibit-a-S1234567-456.pdf',
