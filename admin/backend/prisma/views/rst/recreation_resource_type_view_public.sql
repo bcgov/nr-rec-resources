@@ -3,27 +3,23 @@ SELECT
   CASE
     WHEN (
       (rr.display_on_public_site = TRUE)
-      AND (
-        (rmf.recreation_resource_type) :: text = 'RR' :: text
-      )
+      AND ((rr.recreation_resource_type) :: text = 'RR' :: text)
     ) THEN 'SIT' :: character varying
     WHEN (
       (rr.display_on_public_site = TRUE)
       AND (
-        (rmf.recreation_resource_type) :: text = ANY (
-          (
-            ARRAY ['RTR'::character varying, 'TBL'::character varying, 'TRB'::character varying]
-          ) :: text []
+        (rr.recreation_resource_type) :: text = ANY (
+          ARRAY [('RTR'::character varying)::text, ('TBL'::character varying)::text, ('TRB'::character varying)::text]
         )
       )
     ) THEN 'RTE' :: character varying
     WHEN (
       (rr.display_on_public_site = TRUE)
       AND (
-        (rmf.recreation_resource_type) :: text = 'IFT' :: text
+        (rr.recreation_resource_type) :: text = 'IFT' :: text
       )
     ) THEN 'IF' :: character varying
-    ELSE rmf.recreation_resource_type
+    ELSE rr.recreation_resource_type
   END AS rec_resource_type_code,
   CASE
     WHEN (
@@ -33,51 +29,30 @@ SELECT
   END AS description
 FROM
   (
-    (
-      recreation_resource rr
-      LEFT JOIN (
-        SELECT
-          DISTINCT ON (recreation_map_feature.rec_resource_id) recreation_map_feature.rec_resource_id,
-          recreation_map_feature.recreation_resource_type,
-          recreation_map_feature.amend_status_date
-        FROM
-          recreation_map_feature
-        ORDER BY
-          recreation_map_feature.rec_resource_id,
-          recreation_map_feature.amend_status_date DESC
-      ) rmf ON (
-        (
-          (rr.rec_resource_id) :: text = (rmf.rec_resource_id) :: text
-        )
-      )
-    )
+    recreation_resource rr
     LEFT JOIN recreation_resource_type_code rrtc ON (
       (
         (
           CASE
             WHEN (
               (rr.display_on_public_site = TRUE)
-              AND (
-                (rmf.recreation_resource_type) :: text = 'RR' :: text
-              )
+              AND ((rr.recreation_resource_type) :: text = 'RR' :: text)
             ) THEN 'SIT' :: character varying
             WHEN (
               (rr.display_on_public_site = TRUE)
               AND (
-                (rmf.recreation_resource_type) :: text = ANY (
-                  (
-                    ARRAY ['RTR'::character varying, 'TBL'::character varying, 'TRB'::character varying]
-                  ) :: text []
+                (rr.recreation_resource_type) :: text = ANY (
+                  ARRAY [('RTR'::character varying)::text, ('TBL'::character varying)::text, ('TRB'::character varying)::text]
                 )
               )
             ) THEN 'RTE' :: character varying
             WHEN (
               (rr.display_on_public_site = TRUE)
               AND (
-                (rmf.recreation_resource_type) :: text = 'IFT' :: text
+                (rr.recreation_resource_type) :: text = 'IFT' :: text
               )
             ) THEN 'IF' :: character varying
-            ELSE rmf.recreation_resource_type
+            ELSE rr.recreation_resource_type
           END
         ) :: text = (rrtc.rec_resource_type_code) :: text
       )

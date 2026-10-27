@@ -54,6 +54,8 @@ model recreation_resource {
   recreation_site_description          recreation_site_description?
   recreation_status                    recreation_status?
   recreation_structure                 recreation_structure[]
+  recreation_resource_type      String?                        @db.VarChar(3)
+  recreation_resource_type_code recreation_resource_type_code? @relation(fields: [recreation_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_type_view_admin  recreation_resource_type_view_admin[]
   recreation_resource_type_view_public recreation_resource_type_view_public[]
 
@@ -123,7 +125,7 @@ model recreation_resource_type_code {
   description            String                   @db.VarChar(200)
   updated_at             DateTime?                @default(now()) @db.Timestamp(6)
   sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_map_feature recreation_map_feature[]
+  recreation_resource recreation_resource[]
 
   @@schema("rst")
 }
@@ -278,7 +280,6 @@ model recreation_map_feature {
   section_id                    String?                        @db.VarChar(30)
   amendment_id                  Int?
   amend_status_code             String?                        @db.VarChar(3)
-  recreation_resource_type      String?                        @db.VarChar(3)
   amend_status_date             DateTime?                      @db.Date
   retirement_date               DateTime?                      @db.Date
   revision_count                Int?
@@ -289,12 +290,10 @@ model recreation_map_feature {
   created_by                    String?
   sys_period                    Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_resource           recreation_resource?           @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
-  recreation_resource_type_code recreation_resource_type_code? @relation(fields: [recreation_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_map_feature_geom   recreation_map_feature_geom?
 
   @@unique([rec_resource_id, section_id])
   @@index([rec_resource_id], map: "idx_recreation_map_feature_rec_resource_id")
-  @@index([recreation_resource_type], map: "idx_recreation_map_feature_recreation_resource_type")
   @@index([rmf_skey], map: "idx_recreation_map_feature_rmf_skey")
   @@schema("rst")
 }

@@ -158,7 +158,6 @@ export class GeospatialService {
     rmfSkey: number,
     rec_resource_id: string,
     sectionId: string,
-    recreation_type_code: string | null,
     submitted_by: string | null,
     geometryTypeCode: 'P' | 'L',
     geometryEntry: Record<string, unknown>,
@@ -179,7 +178,6 @@ export class GeospatialService {
         rec_resource_id,
         section_id,
         amendment_id,
-        recreation_resource_type,
         created_by,
         amend_status_code
       )
@@ -188,7 +186,6 @@ export class GeospatialService {
         ${rec_resource_id},
         ${sectionId},
         ${0},
-        ${recreation_type_code || null},
         ${submitted_by || null},
         ${'PND'}
       )
@@ -233,7 +230,6 @@ export class GeospatialService {
   private async updateMapFeatureAndGeometry(
     rmfSkey: number,
     amendment_id: number | null,
-    recreation_type_code: string | null,
     submitted_by: string | null,
     geometryTypeCode: 'P' | 'L',
     geometryEntry: Record<string, unknown>,
@@ -244,7 +240,6 @@ export class GeospatialService {
       SET
         amendment_id =  ${(amendment_id ?? 0) + 1},
         amend_status_date = now(),
-        recreation_resource_type = ${recreation_type_code || null},
         retirement_date = null,
         updated_by = ${submitted_by || null},
         amend_status_code = ${'PND'}
@@ -331,6 +326,15 @@ export class GeospatialService {
         "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
       );
 
+      if (payload.recreation_type_code) {
+        await tx.recreation_resource.update({
+          where: { rec_resource_id },
+          data: {
+            recreation_resource_type: payload.recreation_type_code,
+          },
+        });
+      }
+
       const flattenedNewEntries: FlatGeometryEntry[] =
         this.flattenFeatures(newFeatures);
       this.logger.log(
@@ -355,7 +359,6 @@ export class GeospatialService {
           nextRmfSkey,
           rec_resource_id,
           entry.sectionId,
-          payload.recreation_type_code || null,
           payload.submitted_by || null,
           entry.geometryTypeCode,
           entry.geometry,
@@ -394,7 +397,6 @@ export class GeospatialService {
           await this.updateMapFeatureAndGeometry(
             rmf_skey,
             amendment_id,
-            payload.recreation_type_code || null,
             payload.submitted_by || null,
             entry.geometryTypeCode,
             entry.geometry,
@@ -474,6 +476,7 @@ export class GeospatialService {
             rec_resource_id,
             name: payload.rec_resource_name || null,
             district_code: payload.recreation_district_code || null,
+            recreation_resource_type: payload.recreation_type_code || null,
             created_by: payload.submitted_by || null,
           },
         });
@@ -481,6 +484,7 @@ export class GeospatialService {
         const resourcePatch: {
           district_code?: string;
           name?: string;
+          recreation_resource_type?: string;
         } = {};
 
         if (
@@ -492,6 +496,10 @@ export class GeospatialService {
 
         if (payload.rec_resource_name?.trim()) {
           resourcePatch.name = payload.rec_resource_name.trim();
+        }
+
+        if (payload.recreation_type_code) {
+          resourcePatch.recreation_resource_type = payload.recreation_type_code;
         }
 
         if (Object.keys(resourcePatch).length) {
@@ -585,7 +593,6 @@ export class GeospatialService {
           rmfSkey,
           rec_resource_id,
           entry.sectionId,
-          payload.recreation_type_code || null,
           payload.submitted_by || null,
           entry.geometryTypeCode,
           entry.geometry,
