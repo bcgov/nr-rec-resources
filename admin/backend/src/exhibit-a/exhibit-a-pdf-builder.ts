@@ -66,7 +66,10 @@ const ASSET_DIRS = [
   fileURLToPath(new URL('./assets/', import.meta.url)),
   ...[
     'src/exhibit-a/assets',
+    'dist/exhibit-a/assets',
     'dist/admin/backend/src/exhibit-a/assets',
+    'admin/backend/dist/exhibit-a/assets',
+    'admin/backend/dist/admin/backend/src/exhibit-a/assets',
     'frontend/public/images',
     'frontend/public/images/exhibit-A',
     'admin/frontend/public/images/exhibit-A',
