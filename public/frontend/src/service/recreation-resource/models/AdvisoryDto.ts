@@ -42,7 +42,7 @@ export interface AdvisoryDto {
    * @type {string}
    * @memberof AdvisoryDto
    */
-  submitted_by: string;
+  submitted_by?: string | null;
   /**
    * Access status group label for the advisory
    * @type {string}
@@ -178,8 +178,6 @@ export function instanceOfAdvisoryDto(value: object): value is AdvisoryDto {
   if (!('advisory_number' in value) || value['advisory_number'] === undefined)
     return false;
   if (!('title' in value) || value['title'] === undefined) return false;
-  if (!('submitted_by' in value) || value['submitted_by'] === undefined)
-    return false;
   if (
     !('access_status_grouplabel' in value) ||
     value['access_status_grouplabel'] === undefined
@@ -257,7 +255,8 @@ export function AdvisoryDtoFromJSONTyped(
     advisory_number: json['advisory_number'],
     title: json['title'],
     description: json['description'] == null ? undefined : json['description'],
-    submitted_by: json['submitted_by'],
+    submitted_by:
+      json['submitted_by'] == null ? undefined : json['submitted_by'],
     access_status_grouplabel: json['access_status_grouplabel'],
     access_status_name: json['access_status_name'],
     access_status_description: json['access_status_description'],
