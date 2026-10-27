@@ -1,10 +1,10 @@
 export const ACTUAL_VALUE_HELP_TEXT = (
   <span>
-    Recorded value to each asset based on its purchase, construction, or
-    donation value. This amount is applied to every asset.
+    Recorded value for each asset based on its purchase, construction, or
+    donation value. This amount is applied to each asset.
     <br />
     <br />
-    Example: If Actual Value = $50 and there are 10 assets, each asset will have
+    Example: If Actual value = $50 and there are 10 assets, each asset will have
     a value of $50.
   </span>
 );

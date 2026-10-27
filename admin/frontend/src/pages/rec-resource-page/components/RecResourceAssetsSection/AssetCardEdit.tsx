@@ -264,7 +264,7 @@ export function AssetCardEdit({
                   <Form.Label>
                     Default value
                     <HelpIcon
-                      id="edit-default-value-help"
+                      id={`edit-default-value-help-${id}`}
                       text={DEFAULT_VALUE_HELP_TEXT}
                     />
                   </Form.Label>
@@ -286,7 +286,7 @@ export function AssetCardEdit({
                   <Form.Label>
                     Actual value
                     <HelpIcon
-                      id="edit-actual-value-help"
+                      id={`edit-actual-value-help-${id}`}
                       text={ACTUAL_VALUE_HELP_TEXT}
                     />
                   </Form.Label>
