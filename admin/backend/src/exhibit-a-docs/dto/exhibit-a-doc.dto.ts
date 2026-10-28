@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ExhibitADocDto {
   @ApiProperty({
@@ -12,6 +12,14 @@ export class ExhibitADocDto {
   rec_resource_id: string;
 
   @ApiProperty({
+    description: 'Spatial submission ID linked to the Exhibit A document',
+    example: '12345',
+    required: false,
+    nullable: true,
+  })
+  submission_id?: string | null;
+
+  @ApiProperty({
     description: 'File name without extension',
     example: 'exhibit-a-2024',
   })
@@ -19,6 +27,16 @@ export class ExhibitADocDto {
 
   @ApiProperty({ description: 'File extension', example: 'pdf' })
   extension: string;
+
+  @ApiProperty({
+    description:
+      'How this Exhibit A document was produced: direct upload or regenerate flow',
+    example: 'upload',
+    required: false,
+    nullable: true,
+    enum: ['upload', 'regenerate'],
+  })
+  generation_method?: 'upload' | 'regenerate' | null;
 
   @ApiProperty({
     description: 'File size in bytes',
@@ -47,6 +65,16 @@ export class ExhibitADocDto {
 }
 
 export class FinalizeExhibitAUploadRequestDto {
+  @ApiProperty({
+    description: 'Spatial submission ID to associate this document with',
+    example: '12345',
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  submission_id?: string;
+
   @ApiProperty({
     description: 'Document ID returned from presign endpoint',
     example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',

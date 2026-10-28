@@ -32,6 +32,12 @@ export interface ExhibitADocDto {
    */
   rec_resource_id: string;
   /**
+   * Spatial submission ID linked to the Exhibit A document
+   * @type {object}
+   * @memberof ExhibitADocDto
+   */
+  submission_id?: object | null;
+  /**
    * File name without extension
    * @type {string}
    * @memberof ExhibitADocDto
@@ -43,6 +49,12 @@ export interface ExhibitADocDto {
    * @memberof ExhibitADocDto
    */
   extension: string;
+  /**
+   * How this Exhibit A document was produced: direct upload or regenerate flow
+   * @type {string}
+   * @memberof ExhibitADocDto
+   */
+  generation_method?: ExhibitADocDtoGenerationMethodEnum | null;
   /**
    * File size in bytes
    * @type {number}
@@ -68,6 +80,16 @@ export interface ExhibitADocDto {
    */
   created_at?: Date;
 }
+
+/**
+ * @export
+ */
+export const ExhibitADocDtoGenerationMethodEnum = {
+  Upload: 'upload',
+  Regenerate: 'regenerate',
+} as const;
+export type ExhibitADocDtoGenerationMethodEnum =
+  (typeof ExhibitADocDtoGenerationMethodEnum)[keyof typeof ExhibitADocDtoGenerationMethodEnum];
 
 /**
  * Check if a given object implements the ExhibitADocDto interface.
@@ -100,8 +122,12 @@ export function ExhibitADocDtoFromJSONTyped(
   return {
     document_id: json['document_id'],
     rec_resource_id: json['rec_resource_id'],
+    submission_id:
+      json['submission_id'] == null ? undefined : json['submission_id'],
     file_name: json['file_name'],
     extension: json['extension'],
+    generation_method:
+      json['generation_method'] == null ? undefined : json['generation_method'],
     file_size: json['file_size'] == null ? undefined : json['file_size'],
     s3_key: json['s3_key'],
     url: json['url'],
@@ -125,8 +151,10 @@ export function ExhibitADocDtoToJSONTyped(
   return {
     document_id: value['document_id'],
     rec_resource_id: value['rec_resource_id'],
+    submission_id: value['submission_id'],
     file_name: value['file_name'],
     extension: value['extension'],
+    generation_method: value['generation_method'],
     file_size: value['file_size'],
     s3_key: value['s3_key'],
     url: value['url'],

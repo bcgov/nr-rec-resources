@@ -19,19 +19,21 @@ const mockDoc = {
   extension: 'pdf',
   file_size: BigInt(1024),
   s3_key: S3_KEY,
+  generation_method: 'upload',
   created_at: new Date('2024-01-01'),
   updated_at: new Date('2024-01-01'),
 };
 
 const mockPrisma = {
+  $queryRaw: vi.fn(),
   recreation_resource: {
     findUnique: vi.fn(),
   },
   recreation_exhibit_a_doc: {
     findMany: vi.fn(),
     findUnique: vi.fn(),
-    create: vi.fn(),
     delete: vi.fn(),
+    deleteMany: vi.fn(),
   },
 };
 
@@ -75,12 +77,14 @@ describe('ExhibitADocsService', () => {
       mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
 
       const result = await service.getAll(REC_RESOURCE_ID);
+      const first = result[0]!;
 
       expect(result).toHaveLength(1);
-      expect(result[0].document_id).toBe(DOC_ID);
-      expect(result[0].rec_resource_id).toBe(REC_RESOURCE_ID);
-      expect(result[0].file_name).toBe('exhibit-a');
-      expect(result[0].url).toBe(PRESIGNED_URL);
+      expect(first.document_id).toBe(DOC_ID);
+      expect(first.rec_resource_id).toBe(REC_RESOURCE_ID);
+      expect(first.file_name).toBe('exhibit-a');
+      expect(first.generation_method).toBe('upload');
+      expect(first.url).toBe(PRESIGNED_URL);
       expect(mockPrisma.recreation_exhibit_a_doc.findMany).toHaveBeenCalledWith(
         {
           where: { rec_resource_id: REC_RESOURCE_ID },
@@ -95,6 +99,26 @@ describe('ExhibitADocsService', () => {
       const result = await service.getAll(REC_RESOURCE_ID);
 
       expect(result).toEqual([]);
+    });
+
+    it('maps nullable db values safely', async () => {
+      mockPrisma.recreation_exhibit_a_doc.findMany.mockResolvedValue([
+        {
+          ...mockDoc,
+          file_size: null,
+          generation_method: null,
+          created_at: null,
+        },
+      ]);
+      mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
+
+      const result = await service.getAll(REC_RESOURCE_ID);
+
+      expect(result[0]).toMatchObject({
+        file_size: undefined,
+        generation_method: null,
+        created_at: undefined,
+      });
     });
   });
 
@@ -139,7 +163,7 @@ describe('ExhibitADocsService', () => {
       mockPrisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: REC_RESOURCE_ID,
       });
-      mockPrisma.recreation_exhibit_a_doc.create.mockResolvedValue(mockDoc);
+      mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
       mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
 
       const result = await service.finalizeUpload(
@@ -150,15 +174,11 @@ describe('ExhibitADocsService', () => {
       expect(result.document_id).toBe(DOC_ID);
       expect(result.s3_key).toBe(S3_KEY);
       expect(result.url).toBe(PRESIGNED_URL);
-      expect(mockPrisma.recreation_exhibit_a_doc.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          doc_id: DOC_ID,
-          rec_resource_id: REC_RESOURCE_ID,
-          file_name: 'exhibit-a',
-          extension: 'pdf',
-          s3_key: S3_KEY,
-        }),
-      });
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+      const sqlCall = mockPrisma.$queryRaw.mock.calls[0]?.[0] as {
+        raw?: string[];
+      };
+      expect(sqlCall.raw?.join(' ')).toContain('upload');
     });
 
     it('should throw 404 when resource does not exist', async () => {
@@ -188,13 +208,36 @@ describe('ExhibitADocsService', () => {
       mockPrisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: REC_RESOURCE_ID,
       });
-      mockPrisma.recreation_exhibit_a_doc.create.mockRejectedValue(
-        new Error('DB error'),
-      );
+      mockPrisma.$queryRaw.mockRejectedValue(new Error('DB error'));
 
       await expect(
         service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
       ).rejects.toThrow(HttpException);
+    });
+
+    it('deletes existing docs for a submission before insert when submission_id is provided', async () => {
+      mockPrisma.recreation_resource.findUnique.mockResolvedValue({
+        rec_resource_id: REC_RESOURCE_ID,
+      });
+      mockPrisma.recreation_exhibit_a_doc.deleteMany.mockResolvedValue({
+        count: 1,
+      });
+      mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
+      mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
+
+      await service.finalizeUpload(REC_RESOURCE_ID, {
+        ...finalizeBody,
+        submission_id: '1234567',
+      });
+
+      expect(
+        mockPrisma.recreation_exhibit_a_doc.deleteMany,
+      ).toHaveBeenCalledWith({
+        where: {
+          rec_resource_id: REC_RESOURCE_ID,
+          submission_id: '1234567',
+        },
+      });
     });
   });
 

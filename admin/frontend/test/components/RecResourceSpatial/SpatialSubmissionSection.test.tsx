@@ -327,12 +327,12 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByRole('option', { name: 'Polygon' })).toBeDefined();
     expect(
       screen.getByRole('option', {
-        name: 'Chilliwack Natural Resource District',
+        name: 'Chilliwack Natural Resource District (DCC)',
       }),
     ).toBeDefined();
     expect(
       screen.getByRole('option', {
-        name: 'Chilliwack Recreation District',
+        name: 'Chilliwack Recreation District (RDCC)',
       }),
     ).toBeDefined();
     expect(screen.getByLabelText('Natural Resource District')).toHaveValue(
@@ -350,7 +350,7 @@ describe('SpatialSubmissionSection', () => {
       '.zip,.shp,.dbf',
     );
     expect(
-      screen.getByText('Upload your shapefile as a single .zip bundle.'),
+      screen.getByText('File must be a Shape file as a single .zip bundle.'),
     ).toBeDefined();
   });
 
@@ -385,10 +385,6 @@ describe('SpatialSubmissionSection', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/recreation type/i)).toHaveValue('SIT');
     });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
-    });
-
     fireEvent.click(screen.getByText('Validate'));
 
     await waitFor(() => {
@@ -458,9 +454,6 @@ describe('SpatialSubmissionSection', () => {
     });
     fireEvent.change(screen.getByLabelText('Email Address'), {
       target: { value: 'valid@example.com' },
-    });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
     });
     fireEvent.change(screen.getByLabelText('Submitter Name'), {
       target: { value: 'Valid User' },
@@ -610,9 +603,6 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Email Address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
-    });
     fireEvent.change(screen.getByLabelText('Submitter Name'), {
       target: { value: 'Valid User' },
     });
@@ -704,9 +694,6 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Email Address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
-    });
     fireEvent.change(screen.getByLabelText('Submitter Name'), {
       target: { value: 'Valid User' },
     });
@@ -763,6 +750,10 @@ describe('SpatialSubmissionSection', () => {
   });
 
   it('shows validation message when a non-.shp file is uploaded', async () => {
+    mockReadSpatialFile.mockRejectedValueOnce(
+      new Error('Only .zip or .shp uploads are supported in this workflow.'),
+    );
+
     render(
       <SpatialSubmissionSection
         recResourceId="REC123"
@@ -781,7 +772,7 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.click(screen.getByText('Validate'));
 
     await waitFor(() => {
-      expect(screen.getByText(/Unable to parse shapefile/i)).toBeDefined();
+      expect(screen.getByText(/Unable to parse shapefile:/i)).toBeDefined();
     });
 
     expect(
@@ -838,9 +829,6 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Feature type'), {
       target: { value: 'Polygon' },
     });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
-    });
 
     const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
@@ -862,5 +850,37 @@ describe('SpatialSubmissionSection', () => {
         screen.getByText(/Unable to create request: Service unavailable/),
       ).toBeDefined();
     });
+  });
+
+  it('requests only resource type options when using compact geospatial form', () => {
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        useGeospatialCompactForm={true}
+      />,
+    );
+
+    expect(mockUseGetRecreationResourceOptions).toHaveBeenCalledWith([
+      GetOptionsByTypesTypesEnum.ResourceType,
+    ]);
+    expect(screen.queryByLabelText('Natural Resource District')).toBeNull();
+    expect(screen.queryByLabelText('Recreation District')).toBeNull();
+  });
+
+  it('renders embedded heading and cancel handler when provided', () => {
+    const onCancel = vi.fn();
+
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        showCreateHeading={true}
+        onCancel={onCancel}
+      />,
+    );
+
+    expect(screen.getByText('Create new')).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 });

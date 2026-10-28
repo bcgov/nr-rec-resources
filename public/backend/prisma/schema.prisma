@@ -1617,6 +1617,7 @@ model recreation_exhibit_a_doc {
   created_at          DateTime?                @default(now()) @db.Timestamp(6)
   created_by          String?
   sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  generation_method   String?                  @db.VarChar(20)
   recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([rec_resource_id], map: "idx_recreation_exhibit_a_doc_rec_resource_id")
@@ -1636,6 +1637,7 @@ model recreation_exhibit_a_doc_history {
   created_at      DateTime?                @db.Timestamp(6)
   created_by      String?
   sys_period      Unsupported("tstzrange")
+  generation_method String?                @db.VarChar(20)
 
   @@ignore
   @@schema("rst")
