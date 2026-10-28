@@ -33,16 +33,20 @@ import { ExhibitAService } from './exhibit-a.service';
 
 @ApiTags('sncsc')
 @ApiExtraModels(CreateExhibitAByApplicationGuidResultDto)
+@ApiOAuth2([], AUTH_STRATEGY.KEYCLOAK)
 @ApiOAuth2([], AUTH_STRATEGY.SNCSC_KEYCLOAK)
 @ApiUnauthorizedResponse({
   description:
-    'Unauthorized - missing, malformed, or expired bearer token. Obtain a CSS token using OAuth2 Client Credentials.',
+    'Unauthorized - missing, malformed, or expired bearer token.',
 })
-@UseGuards(AuthGuard(AUTH_STRATEGY.SNCSC_KEYCLOAK), AuthRolesGuard)
+@UseGuards(
+  AuthGuard([AUTH_STRATEGY.KEYCLOAK, AUTH_STRATEGY.SNCSC_KEYCLOAK]),
+  AuthRolesGuard,
+)
 @AuthRoles(
   [
-    RecreationResourceAuthRole.SNCSC_SERVICE,
     RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    RecreationResourceAuthRole.SNCSC_SERVICE,
   ],
   ROLE_MODE.ANY,
 )
