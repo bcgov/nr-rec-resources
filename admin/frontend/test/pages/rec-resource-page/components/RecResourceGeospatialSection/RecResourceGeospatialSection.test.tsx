@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockUseRecResource = vi.fn();
@@ -89,10 +89,43 @@ vi.mock(
   }),
 );
 
+const mockAddSuccessNotification = vi.fn();
+const mockAddErrorNotification = vi.fn();
+
+vi.mock('@/store/notificationStore', () => ({
+  addErrorNotification: (...args: any[]) => mockAddErrorNotification(...args),
+  addSuccessNotification: (...args: any[]) =>
+    mockAddSuccessNotification(...args),
+}));
+
 vi.mock('@/components/file/DocumentUploadModal', () => ({
-  DocumentUploadModal: ({ show }: { show: boolean }) =>
+  DocumentUploadModal: ({
+    show,
+    fileName,
+    onFileNameChange,
+    onConfirm,
+    onCancel,
+  }: {
+    show: boolean;
+    fileName: string;
+    onFileNameChange?: (value: string) => void;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+  }) =>
     show ? (
-      <div data-testid="mock-document-upload-modal">Upload modal</div>
+      <div data-testid="mock-document-upload-modal">
+        <input
+          aria-label="document-file-name-input"
+          value={fileName}
+          onChange={(event) => onFileNameChange?.(event.target.value)}
+        />
+        <button type="button" onClick={onConfirm}>
+          Confirm upload
+        </button>
+        <button type="button" onClick={onCancel}>
+          Cancel upload
+        </button>
+      </div>
     ) : null,
 }));
 
@@ -128,9 +161,16 @@ const { RecResourceGeospatialSection } = await import(
 describe('RecResourceGeospatialSection', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
+    mockAddSuccessNotification.mockClear();
+    mockAddErrorNotification.mockClear();
+    mockInvalidateQueries.mockClear();
+    mockInvalidateQueries.mockResolvedValue(undefined);
+
     mockUseAuthContext.mockReturnValue({
       user: {
         email: 'idir.user@gov.bc.ca',
@@ -414,14 +454,14 @@ describe('RecResourceGeospatialSection', () => {
   });
 
   it('disables upload and regenerate actions for non-super-admin users', () => {
-    mockUseAuthorizations.mockReturnValueOnce({
+    mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
       canViewFeatureFlag: true,
       canEditFeatureFlag: true,
       isSuperAdmin: false,
     });
-    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
       data: {
         data: [
           {
@@ -441,5 +481,194 @@ describe('RecResourceGeospatialSection', () => {
 
     expect(screen.getByRole('button', { name: /Upload/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /Regenerate/i })).toBeDisabled();
+  });
+
+  it('opens the upload modal and uploads exhibit A successfully', async () => {
+    const presignMutate = vi.fn().mockResolvedValue({
+      url: 'https://example.com/presign',
+      document_id: 'doc-1',
+    });
+    const finalizeMutate = vi.fn().mockResolvedValue({
+      url: 'https://example.com/final.pdf',
+    });
+
+    mockPresignExhibitAUpload.mockReturnValue({
+      mutateAsync: presignMutate,
+      isPending: false,
+    });
+    mockFinalizeExhibitAUpload.mockReturnValue({
+      mutateAsync: finalizeMutate,
+      isPending: false,
+    });
+
+    // mockReturnValue (not Once) so re-renders keep the same row
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-6',
+            rec_resource_id: 'REC0001',
+            application_guid: 'app-guid-6',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            requested_at: '2026-09-01T12:00:00Z',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Upload Exhibit A/i }));
+
+    fireEvent.change(screen.getByLabelText('Upload Exhibit A document'), {
+      target: {
+        files: [
+          new File(['exhibit'], 'report.pdf', { type: 'application/pdf' }),
+        ],
+      },
+    });
+
+    expect(screen.getByTestId('mock-document-upload-modal')).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm upload' }));
+
+    // Wait for the LAST side effect in the chain; everything before it has run
+    await waitFor(() => {
+      expect(mockAddSuccessNotification).toHaveBeenCalledWith(
+        'Exhibit A uploaded successfully.',
+      );
+    });
+
+    expect(presignMutate).toHaveBeenCalledWith({
+      recResourceId: 'REC0001',
+      fileName: 'report.pdf',
+    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://example.com/presign',
+      expect.objectContaining({
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/pdf' },
+      }),
+    );
+    expect(finalizeMutate).toHaveBeenCalledWith({
+      recResourceId: 'REC0001',
+      submission_id: 'SUB-6',
+      document_id: 'doc-1',
+      file_name: 'report',
+      extension: 'pdf',
+      file_size: expect.any(Number),
+    });
+  });
+
+  it('notifies when exhibit A upload fails', async () => {
+    const presignMutate = vi.fn().mockResolvedValue({
+      url: 'https://example.com/presign',
+      document_id: 'doc-1',
+    });
+
+    mockPresignExhibitAUpload.mockReturnValue({
+      mutateAsync: presignMutate,
+      isPending: false,
+    });
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Server Error',
+      }),
+    );
+
+    // The component logs the caught error; keep test output clean
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-7',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Point'],
+            requested_at: '2026-10-01T12:00:00Z',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Upload Exhibit A/i }));
+
+    fireEvent.change(screen.getByLabelText('Upload Exhibit A document'), {
+      target: {
+        files: [
+          new File(['exhibit'], 'failed.pdf', { type: 'application/pdf' }),
+        ],
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm upload' }));
+
+    await waitFor(() => {
+      expect(mockAddErrorNotification).toHaveBeenCalledWith(
+        'Failed to upload Exhibit A. Please try again.',
+      );
+    });
+
+    expect(mockAddSuccessNotification).not.toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('regenerates exhibit A for a submission and notifies on success', async () => {
+    const regenerateMutate = vi.fn().mockResolvedValue({
+      pdfUrl: 'https://example.com/regenerated.pdf',
+    });
+
+    mockCreateOrGetExhibitAByApplicationGuid.mockReturnValue({
+      mutateAsync: regenerateMutate,
+      isPending: false,
+    });
+
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-8',
+            application_guid: 'app-guid-8',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'APPROVED_NEW',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            requested_at: '2026-11-01T12:00:00Z',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Regenerate/i }));
+
+    await waitFor(() => {
+      expect(mockAddSuccessNotification).toHaveBeenCalledWith(
+        'Exhibit A regenerated successfully.',
+      );
+    });
+
+    expect(regenerateMutate).toHaveBeenCalledWith({
+      applicationGuid: 'app-guid-8',
+      userId: 'IDIR\\idir.user',
+      generate: true,
+    });
   });
 });

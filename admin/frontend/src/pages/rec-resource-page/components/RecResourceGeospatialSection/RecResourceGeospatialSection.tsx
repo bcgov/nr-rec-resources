@@ -557,6 +557,7 @@ export function RecResourceGeospatialSection() {
                         finalizeMutation.isPending
                       }
                       onClick={() => handleUploadStart(row)}
+                      aria-label="Upload Exhibit A"
                     >
                       <FontAwesomeIcon icon={faArrowUpFromBracket} /> Upload
                     </Button>
