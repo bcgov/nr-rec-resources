@@ -71,6 +71,14 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   recreation_feature_code: string | null;
 
   @ApiProperty(
+    nullableStringProperty(
+      'The code and description of the recreation feature, e.g., B2 - Sand Beach.',
+      'B2 - Sand Beach',
+    ),
+  )
+  recreation_feature_description: string | null;
+
+  @ApiProperty(
     nullableNumberProperty(
       'The entire width of the Right of Way for the linear feature.',
       10,

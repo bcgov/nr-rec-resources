@@ -124,7 +124,8 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         amendment_id,
         map_label,
         project_name                      AS rec_resource_name,
-        recreation_feature_code,
+        l.recreation_feature_code,
+        l.recreation_feature_code || ' - ' || rfc.description AS recreation_feature_description,
         resource_feature_ind,
         right_of_way::float8              AS right_of_way,
         arch_impact_assess_ind,
@@ -140,7 +141,9 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         feature_length::float8            AS feature_length,
         feature_length_m::float8          AS feature_length_m,
         geometry
-      FROM bcgw.recreation_lines`,
+      FROM bcgw.recreation_lines l
+      LEFT JOIN rst.recreation_feature_code rfc
+        ON l.recreation_feature_code = rfc.recreation_feature_code`,
     orderBy: 'rmf_skey',
     // Long trail geometries, so a page is far heavier per feature here.
     pageSize: 250,
@@ -158,7 +161,8 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         amendment_id,
         map_label,
         project_name                      AS rec_resource_name,
-        recreation_feature_code,
+        p.recreation_feature_code,
+        p.recreation_feature_code || ' - ' || rfc.description AS recreation_feature_description,
         resource_feature_ind,
         arch_impact_assess_ind,
         site_location                     AS closest_community,
@@ -170,12 +174,15 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         file_status_code                  AS rec_status_code,
         geographic_district_code          AS district_code,
         geographic_district_name          AS org_unit_name,
+        geographic_district_name          AS district_name,
         feature_area::float8              AS feature_area,
         feature_perimeter::float8         AS feature_perimeter,
         feature_area_sqm,
         feature_length_m::float8          AS feature_length_m,
         geometry
-      FROM bcgw.recreation_polygons`,
+      FROM bcgw.recreation_polygons p
+      LEFT JOIN rst.recreation_feature_code rfc
+        ON p.recreation_feature_code = rfc.recreation_feature_code`,
     orderBy: 'rmf_skey',
     pageSize: 500,
   },
