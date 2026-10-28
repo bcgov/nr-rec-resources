@@ -327,12 +327,12 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByRole('option', { name: 'Polygon' })).toBeDefined();
     expect(
       screen.getByRole('option', {
-        name: 'Chilliwack Natural Resource District',
+        name: 'Chilliwack Natural Resource District (DCC)',
       }),
     ).toBeDefined();
     expect(
       screen.getByRole('option', {
-        name: 'Chilliwack Recreation District',
+        name: 'Chilliwack Recreation District (RDCC)',
       }),
     ).toBeDefined();
     expect(screen.getByLabelText('Natural Resource District')).toHaveValue(
@@ -385,10 +385,6 @@ describe('SpatialSubmissionSection', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/recreation type/i)).toHaveValue('SIT');
     });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
-    });
-
     fireEvent.click(screen.getByText('Validate'));
 
     await waitFor(() => {
@@ -458,9 +454,6 @@ describe('SpatialSubmissionSection', () => {
     });
     fireEvent.change(screen.getByLabelText('Email Address'), {
       target: { value: 'valid@example.com' },
-    });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
     });
     fireEvent.change(screen.getByLabelText('Submitter Name'), {
       target: { value: 'Valid User' },
@@ -610,9 +603,6 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Email Address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
-    });
     fireEvent.change(screen.getByLabelText('Submitter Name'), {
       target: { value: 'Valid User' },
     });
@@ -704,9 +694,6 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Email Address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
-    });
     fireEvent.change(screen.getByLabelText('Submitter Name'), {
       target: { value: 'Valid User' },
     });
@@ -763,6 +750,10 @@ describe('SpatialSubmissionSection', () => {
   });
 
   it('shows validation message when a non-.shp file is uploaded', async () => {
+    mockReadSpatialFile.mockRejectedValueOnce(
+      new Error('Only .zip or .shp uploads are supported in this workflow.'),
+    );
+
     render(
       <SpatialSubmissionSection
         recResourceId="REC123"
@@ -781,7 +772,7 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.click(screen.getByText('Validate'));
 
     await waitFor(() => {
-      expect(screen.getByText(/Unable to parse shapefile/i)).toBeDefined();
+      expect(screen.getByText(/Unable to parse shapefile:/i)).toBeDefined();
     });
 
     expect(
@@ -837,9 +828,6 @@ describe('SpatialSubmissionSection', () => {
 
     fireEvent.change(screen.getByLabelText('Feature type'), {
       target: { value: 'Polygon' },
-    });
-    fireEvent.change(screen.getByLabelText('Telephone Number'), {
-      target: { value: '6045550100' },
     });
 
     const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;

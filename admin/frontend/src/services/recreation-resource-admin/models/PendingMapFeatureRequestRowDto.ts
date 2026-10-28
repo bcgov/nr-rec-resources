@@ -32,6 +32,12 @@ export interface PendingMapFeatureRequestRowDto {
    */
   application_guid?: string | null;
   /**
+   * SNCSC status request GUID for deep linking to submission status
+   * @type {string}
+   * @memberof PendingMapFeatureRequestRowDto
+   */
+  status_request_guid?: string | null;
+  /**
    * Recreation resource identifier for the request
    * @type {string}
    * @memberof PendingMapFeatureRequestRowDto
@@ -137,6 +143,10 @@ export function PendingMapFeatureRequestRowDtoFromJSONTyped(
       json['submission_id'] == null ? undefined : json['submission_id'],
     application_guid:
       json['application_guid'] == null ? undefined : json['application_guid'],
+    status_request_guid:
+      json['status_request_guid'] == null
+        ? undefined
+        : json['status_request_guid'],
     rec_resource_id: json['rec_resource_id'],
     name: json['name'] == null ? undefined : json['name'],
     district_description:
@@ -180,6 +190,7 @@ export function PendingMapFeatureRequestRowDtoToJSONTyped(
   return {
     submission_id: value['submission_id'],
     application_guid: value['application_guid'],
+    status_request_guid: value['status_request_guid'],
     rec_resource_id: value['rec_resource_id'],
     name: value['name'],
     district_description: value['district_description'],

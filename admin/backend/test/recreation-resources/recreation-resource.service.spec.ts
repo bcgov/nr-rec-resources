@@ -230,6 +230,34 @@ describe('RecreationResourceService', () => {
     });
   });
 
+  it('should include optional submission and exhibit fields when present', async () => {
+    (repo.findPendingMapFeatureRequests as any).mockResolvedValue([
+      {
+        rec_resource_id: 'REC500003',
+        name: 'Pending Area',
+        district_description: 'Test District',
+        recreation_district: 'Test District',
+        natural_resource_district: 'Natural District',
+        recreation_type: 'Interpretive Forest',
+        amend_status_code: 'PND',
+        feature_count: 2,
+        requested_at: new Date('2026-09-24T12:00:00.000Z'),
+        geometry_types: ['Polygon'],
+        submission_id: '7654321',
+        application_guid: 'app-guid-123',
+        exhibit_a_url: 'https://example.com/exhibit-a.pdf',
+      },
+    ]);
+
+    const result = await service.getPendingMapFeatureRequests();
+
+    expect(result.data[0]).toMatchObject({
+      submission_id: '7654321',
+      application_guid: 'app-guid-123',
+      exhibit_a_url: 'https://example.com/exhibit-a.pdf',
+    });
+  });
+
   it('should map admin search results into response DTO shape', async () => {
     const query: AdminSearchQueryDto = {
       q: 'lake',

@@ -203,6 +203,13 @@ export function RecResourceGeospatialSection() {
         });
   };
 
+  const buildSncscSubmissionUrl = (statusRequestGuid?: string | null) => {
+    const sncscWebUrl =
+      import.meta.env.VITE_SNCSC_WEB_URL || import.meta.env.SNCSC_WEB_URL || '';
+    if (!sncscWebUrl || !statusRequestGuid) return null;
+    return `${sncscWebUrl.replace(/\/+$/, '')}/${statusRequestGuid}`;
+  };
+
   const getPurposeLabel = (statusCode: string) => {
     const normalized = statusCode.toUpperCase();
     if (normalized.includes('AMEND')) return 'Amendment';
@@ -465,18 +472,27 @@ export function RecResourceGeospatialSection() {
               },
               {
                 header: 'Reference',
-                render: (row) =>
-                  row.application_guid ? (
-                    <span className="geospatial-submissions-reference">
+                render: (row) => {
+                  const statusRequestGuid = row.status_request_guid;
+                  const sncscUrl = buildSncscSubmissionUrl(statusRequestGuid);
+
+                  return sncscUrl ? (
+                    <a
+                      href={sncscUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="geospatial-submissions-reference"
+                    >
                       SNCSC Link{' '}
                       <FontAwesomeIcon
                         icon={faArrowUpRightFromSquare}
                         className="ms-1"
                       />
-                    </span>
+                    </a>
                   ) : (
                     <span className="text-muted">-</span>
-                  ),
+                  );
+                },
               },
               {
                 header: 'Status',

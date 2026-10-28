@@ -373,7 +373,10 @@ describe('spatialSubmission.sectionIds', () => {
       const result = extractSectionIdDetails(featureCollection);
 
       expect(result.fieldName).toBe('section_id');
-      expect(result.sectionIds).toEqual(['Section 1', 'Section 2']);
+      expect(result.featureSectionIds.map((entry) => entry.sectionId)).toEqual([
+        'Section 1',
+        'Section 2',
+      ]);
       expect(result.featureSectionIds).toHaveLength(2);
       expect(result.issues).toEqual([]);
     });
@@ -432,7 +435,6 @@ describe('spatialSubmission.sectionIds', () => {
       const result = extractSectionIdDetails(featureCollection);
 
       expect(result.fieldName).toBeNull();
-      expect(result.sectionIds).toEqual([]);
       expect(result.featureSectionIds).toEqual([]);
       expect(result.issues).toEqual([]);
     });
@@ -441,11 +443,10 @@ describe('spatialSubmission.sectionIds', () => {
       const result = extractSectionIdDetails(null);
 
       expect(result.fieldName).toBeNull();
-      expect(result.sectionIds).toEqual([]);
       expect(result.featureSectionIds).toEqual([]);
     });
 
-    it('sorts section IDs alphanumerically', () => {
+    it('preserves section ID order as uploaded', () => {
       const featureCollection = {
         features: [
           { properties: { section_id: 'Section 3' }, geometry: {} },
@@ -457,11 +458,11 @@ describe('spatialSubmission.sectionIds', () => {
 
       const result = extractSectionIdDetails(featureCollection);
 
-      expect(result.sectionIds).toEqual([
-        'Section 1',
-        'Section 2',
+      expect(result.featureSectionIds.map((entry) => entry.sectionId)).toEqual([
         'Section 3',
+        'Section 1',
         'Section 20',
+        'Section 2',
       ]);
     });
 
@@ -504,8 +505,10 @@ describe('spatialSubmission.sectionIds', () => {
 
       const result = extractSectionIdDetails(featureCollection);
 
-      expect(result.sectionIds).toContain('Section 1');
-      expect(result.sectionIds).toContain('Section 2');
+      expect(result.featureSectionIds.map((entry) => entry.sectionId)).toEqual([
+        'Section 1',
+        'Section 2',
+      ]);
     });
 
     it('handles map_label as fallback field', () => {
@@ -531,7 +534,7 @@ describe('spatialSubmission.sectionIds', () => {
 
       const result = extractSectionIdDetails(featureCollection);
 
-      expect(result.sectionIds[0]).toBe('Section');
+      expect(result.featureSectionIds[0]?.sectionId).toBe('Section');
     });
 
     it('reports multiple missing features correctly', () => {

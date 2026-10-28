@@ -323,6 +323,9 @@ export class RecreationResourceService {
       if (row.application_guid != null) {
         dto.application_guid = row.application_guid;
       }
+      if (row.status_request_guid != null) {
+        dto.status_request_guid = row.status_request_guid;
+      }
       if (row.exhibit_a_url != null) {
         dto.exhibit_a_url = row.exhibit_a_url;
       }

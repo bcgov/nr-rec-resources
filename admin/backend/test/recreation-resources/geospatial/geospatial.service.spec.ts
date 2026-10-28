@@ -83,6 +83,72 @@ describe('GeospatialService', () => {
         }),
       );
     });
+
+    it('throws when Forest Client API URL is not configured', async () => {
+      delete process.env.FOREST_CLIENT_API_URL;
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws when Forest Client API key is not configured', async () => {
+      delete process.env.FOREST_CLIENT_API_KEY;
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws when Forest Client API returns non-2xx', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          text: vi.fn().mockResolvedValue('nope'),
+        }),
+      );
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(/Unable to resolve client info from Forest Client API/);
+    });
+
+    it('throws when Forest Client API returns invalid JSON', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          text: vi.fn().mockResolvedValue('not json'),
+        }),
+      );
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(/returned invalid JSON/);
+    });
+
+    it('throws when Forest Client API response has no matching complete mapping', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify([
+              {
+                acronym: 'DND',
+                clientName: 'District',
+                clientNumber: '',
+              },
+            ]),
+          ),
+        }),
+      );
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(/No client mapping was returned by Forest Client API/);
+    });
   });
 
   describe('findGeospatialDataById', () => {

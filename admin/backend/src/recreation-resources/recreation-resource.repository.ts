@@ -509,6 +509,7 @@ export class RecreationResourceRepository {
     Array<{
       submission_id: string | null;
       application_guid: string | null;
+      status_request_guid: string | null;
       rec_resource_id: string;
       name: string | null;
       district_description: string | null;
@@ -526,6 +527,7 @@ export class RecreationResourceRepository {
       Array<{
         submission_id: string | null;
         application_guid: string | null;
+        status_request_guid: string | null;
         rec_resource_id: string;
         name: string | null;
         district_description: string | null;
@@ -542,6 +544,7 @@ export class RecreationResourceRepository {
       SELECT
         rss.submission_id,
         rss.application_guid::text AS application_guid,
+        rss.status_request_guid::text AS status_request_guid,
         rss.tenure_id AS rec_resource_id,
         rr.name,
         rdc.description AS district_description,
@@ -585,6 +588,7 @@ export class RecreationResourceRepository {
       GROUP BY
         rss.submission_id,
         rss.application_guid,
+        rss.status_request_guid,
         rss.tenure_id,
         rr.name,
         rdc.description,

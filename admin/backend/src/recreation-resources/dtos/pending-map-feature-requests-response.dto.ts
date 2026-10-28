@@ -20,6 +20,16 @@ export class PendingMapFeatureRequestRowDto {
   application_guid?: string | null;
 
   @ApiProperty({
+    description:
+      'SNCSC status request GUID for deep linking to submission status',
+    example: '8f4d2684-8a11-4a3a-ad3c-ec4a6f4fb3f5',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  status_request_guid?: string | null;
+
+  @ApiProperty({
     description: 'Recreation resource identifier for the request',
     example: 'REC270156',
   })

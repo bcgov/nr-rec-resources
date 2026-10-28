@@ -100,6 +100,26 @@ describe('ExhibitADocsService', () => {
 
       expect(result).toEqual([]);
     });
+
+    it('maps nullable db values safely', async () => {
+      mockPrisma.recreation_exhibit_a_doc.findMany.mockResolvedValue([
+        {
+          ...mockDoc,
+          file_size: null,
+          generation_method: null,
+          created_at: null,
+        },
+      ]);
+      mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
+
+      const result = await service.getAll(REC_RESOURCE_ID);
+
+      expect(result[0]).toMatchObject({
+        file_size: undefined,
+        generation_method: null,
+        created_at: undefined,
+      });
+    });
   });
 
   describe('presignUpload', () => {
@@ -193,6 +213,31 @@ describe('ExhibitADocsService', () => {
       await expect(
         service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
       ).rejects.toThrow(HttpException);
+    });
+
+    it('deletes existing docs for a submission before insert when submission_id is provided', async () => {
+      mockPrisma.recreation_resource.findUnique.mockResolvedValue({
+        rec_resource_id: REC_RESOURCE_ID,
+      });
+      mockPrisma.recreation_exhibit_a_doc.deleteMany.mockResolvedValue({
+        count: 1,
+      });
+      mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
+      mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
+
+      await service.finalizeUpload(REC_RESOURCE_ID, {
+        ...finalizeBody,
+        submission_id: '1234567',
+      });
+
+      expect(
+        mockPrisma.recreation_exhibit_a_doc.deleteMany,
+      ).toHaveBeenCalledWith({
+        where: {
+          rec_resource_id: REC_RESOURCE_ID,
+          submission_id: '1234567',
+        },
+      });
     });
   });
 
