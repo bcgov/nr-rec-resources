@@ -297,4 +297,41 @@ describe('SpatialSubmissionFormFields', () => {
       (screen.getByLabelText('Submitter Name') as HTMLInputElement).value,
     ).toBe('John Doe');
   });
+
+  it('renders compact geospatial variant fields and cancel action', () => {
+    const onCancel = vi.fn();
+    render(
+      <SpatialSubmissionFormFields
+        {...defaultProps}
+        variant="geospatial"
+        onCancel={onCancel}
+      />,
+    );
+
+    expect(screen.queryByText('Recreation information')).toBeNull();
+    expect(screen.queryByLabelText('Recreation Name')).toBeNull();
+    expect(screen.queryByLabelText('Natural Resource District')).toBeNull();
+    expect(screen.queryByLabelText('Recreation District')).toBeNull();
+    expect(screen.getByText('Upload Spatial File (.zip)')).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('groups recreation types by polygon and linear labels with ungrouped fallback', () => {
+    render(
+      <SpatialSubmissionFormFields
+        {...defaultProps}
+        recreationTypeOptions={[
+          { id: 'SIT', label: 'Recreation Site' },
+          { id: 'RTE', label: 'Recreation trail established' },
+          { id: 'OTH', label: 'Other type' },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole('group', { name: 'Polygon' })).toBeDefined();
+    expect(screen.getByRole('group', { name: 'Linear' })).toBeDefined();
+    expect(screen.getByRole('option', { name: 'Other type' })).toBeDefined();
+  });
 });

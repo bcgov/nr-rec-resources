@@ -136,6 +136,51 @@ describe('SncscStatusRequestService', () => {
     expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 
+  it('falls back through all token strategies before succeeding', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        mockResponse({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          text: async () => 'attempt 1 failed',
+        }),
+      )
+      .mockResolvedValueOnce(
+        mockResponse({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          text: async () => 'attempt 2 failed',
+        }),
+      )
+      .mockResolvedValueOnce(
+        mockResponse({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          text: async () => 'attempt 3 failed',
+        }),
+      )
+      .mockResolvedValueOnce(
+        mockResponse({ ok: true, json: async () => ({ access_token: 't4' }) }),
+      )
+      .mockResolvedValueOnce(
+        mockResponse({ ok: true, json: async () => ({ guid: 'status-guid' }) }),
+      );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(service.createStatusRequest({})).resolves.toBe('status-guid');
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+
+    const fourthTokenCall = fetchMock.mock.calls[3];
+    expect((fourthTokenCall?.[1] as RequestInit)?.headers).not.toMatchObject({
+      Authorization: expect.any(String),
+    });
+  });
+
   it('throws when token response has no access_token', async () => {
     const fetchMock = vi
       .fn()

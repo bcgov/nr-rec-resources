@@ -851,4 +851,36 @@ describe('SpatialSubmissionSection', () => {
       ).toBeDefined();
     });
   });
+
+  it('requests only resource type options when using compact geospatial form', () => {
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        useGeospatialCompactForm={true}
+      />,
+    );
+
+    expect(mockUseGetRecreationResourceOptions).toHaveBeenCalledWith([
+      GetOptionsByTypesTypesEnum.ResourceType,
+    ]);
+    expect(screen.queryByLabelText('Natural Resource District')).toBeNull();
+    expect(screen.queryByLabelText('Recreation District')).toBeNull();
+  });
+
+  it('renders embedded heading and cancel handler when provided', () => {
+    const onCancel = vi.fn();
+
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        showCreateHeading={true}
+        onCancel={onCancel}
+      />,
+    );
+
+    expect(screen.getByText('Create new')).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
 });

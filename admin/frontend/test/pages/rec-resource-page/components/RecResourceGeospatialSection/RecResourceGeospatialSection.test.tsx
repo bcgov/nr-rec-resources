@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockUseRecResource = vi.fn();
@@ -372,5 +372,74 @@ describe('RecResourceGeospatialSection', () => {
 
     expect(screen.queryByRole('link', { name: /SNCSC Link/i })).toBeNull();
     expect(screen.getAllByText('-').length).toBeGreaterThan(0);
+  });
+
+  it('maps pending status and purpose labels', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-3',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'APPROVED_AMEND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+          },
+          {
+            submission_id: 'SUB-4',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'REJECTED_RETIRE',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+          },
+        ],
+        total: 2,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.getByText('APPROVED')).toBeDefined();
+    expect(screen.getByText('REJECTED')).toBeDefined();
+    expect(screen.getByText('Amendment')).toBeDefined();
+    expect(screen.getByText('Retire')).toBeDefined();
+  });
+
+  it('shows compact create form after clicking Create new', () => {
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create new' }));
+
+    expect(screen.getByTestId('mock-spatial-submission')).toBeDefined();
+  });
+
+  it('disables upload and regenerate actions for non-super-admin users', () => {
+    mockUseAuthorizations.mockReturnValueOnce({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
+      isSuperAdmin: false,
+    });
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-5',
+            application_guid: 'app-guid-5',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.getByRole('button', { name: /Upload/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Regenerate/i })).toBeDisabled();
   });
 });

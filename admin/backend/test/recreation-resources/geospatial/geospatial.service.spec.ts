@@ -198,6 +198,164 @@ describe('GeospatialService', () => {
     });
   });
 
+  describe('spatial submission helpers', () => {
+    it('returns empty feature request elements when there are no entries', async () => {
+      const tx = {
+        $queryRaw: vi.fn(),
+      };
+
+      await expect(
+        (service as any).buildFeatureRequestElements(tx, 'REC123', []),
+      ).resolves.toEqual([]);
+      expect(tx.$queryRaw).not.toHaveBeenCalled();
+    });
+
+    it('builds polygon and linear feature request elements', async () => {
+      const tx = {
+        $queryRaw: vi.fn().mockResolvedValue([
+          {
+            section_id: 'A',
+            recreation_map_feature_guid: 'guid-a',
+            recreation_resource_type: 'SIT',
+            geometry_type_code: 'P',
+            geometry_json: JSON.stringify({
+              type: 'MultiPolygon',
+              coordinates: [],
+            }),
+          },
+        ]),
+      };
+
+      const entries = [
+        {
+          sectionId: 'A',
+          geometryTypeCode: 'P',
+          geometry: { type: 'MultiPolygon', coordinates: [] },
+        },
+        {
+          sectionId: 'B',
+          geometryTypeCode: 'L',
+          geometry: { type: 'MultiLineString', coordinates: [] },
+        },
+      ];
+
+      const result = await (service as any).buildFeatureRequestElements(
+        tx,
+        'REC123',
+        entries,
+      );
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({
+        featureGeometryTypeCode: 'polygon',
+        mapFeatureGuid: 'guid-a',
+        mapFeatureTypeCode: 'SIT',
+        polygon: expect.objectContaining({
+          type: 'MultiPolygon',
+          crs: expect.any(Object),
+        }),
+      });
+      expect(result[1]).toMatchObject({
+        featureGeometryTypeCode: 'linear',
+        mapFeatureTypeCode: '',
+        linear: expect.objectContaining({
+          type: 'MultiLineString',
+          crs: expect.any(Object),
+        }),
+      });
+    });
+
+    it('dispatches SNCSC status request and stores returned guid', async () => {
+      const tx = {
+        recreation_spatial_submission: {
+          update: vi.fn(),
+        },
+      };
+      vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
+        client_number: '00133887',
+        client_name: 'District Manager',
+      });
+      vi.spyOn(service as any, 'buildFeatureRequestElements').mockResolvedValue(
+        [
+          {
+            '@type': 'FeatureRequestResource',
+            mapFeatureGuid: 'map-guid-1',
+            featureRecordGuid: 'feature-guid-1',
+            featureGeometryTypeCode: 'polygon',
+            mapFeatureTypeCode: 'SIT',
+            polygon: { type: 'MultiPolygon', coordinates: [] },
+          },
+        ],
+      );
+
+      await (service as any).dispatchSncscStatusRequest(
+        tx,
+        {
+          application_guid: 'app-guid-1',
+          submission_id: '1234567',
+          tenure_id: 'REC123',
+          org_unit_code: 'DND',
+          status_request_type_code: 'RPO',
+          purpose_code: 'N',
+        },
+        [{ sectionId: 'A', geometryTypeCode: 'P', geometry: {} }],
+      );
+
+      expect(
+        sncscStatusRequestServiceMock.createStatusRequest,
+      ).toHaveBeenCalledTimes(1);
+      expect(tx.recreation_spatial_submission.update).toHaveBeenCalledWith({
+        where: { application_guid: 'app-guid-1' },
+        data: {
+          status_request_guid: 'status-request-guid',
+          updated_by: 'system',
+        },
+      });
+    });
+
+    it('creates a spatial submission when org unit code is provided', async () => {
+      const tx = {
+        natural_resource_org_unit: {
+          findUnique: vi.fn(),
+        },
+        recreation_spatial_submission: {
+          create: vi.fn().mockResolvedValue({
+            application_guid: 'app-guid-1',
+            submission_id: '1234567',
+            tenure_id: 'REC123',
+            org_unit_code: 'DND',
+            status_request_type_code: 'RPO',
+            purpose_code: 'N',
+          }),
+        },
+      };
+
+      const created = await (service as any).createSpatialSubmission(tx, {
+        rec_resource_id: 'REC123',
+        statusRequestTypeCode: 'RPO',
+        purposeCode: 'N',
+        recreationTypeCode: 'SIT',
+        submittedBy: 'idir\\tester',
+        orgUnitCode: ' DND ',
+      });
+
+      expect(created).toMatchObject({
+        application_guid: 'app-guid-1',
+        org_unit_code: 'DND',
+      });
+      expect(tx.recreation_spatial_submission.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            tenure_id: 'REC123',
+            org_unit_code: 'DND',
+            status_request_type_code: 'RPO',
+            purpose_code: 'N',
+          }),
+        }),
+      );
+    });
+  });
+
   describe('updateGeospatialData', () => {
     it('executes updateMapFeaturesFromValidatedFile successfully', async () => {
       prismaMock.$queryRawUnsafe
