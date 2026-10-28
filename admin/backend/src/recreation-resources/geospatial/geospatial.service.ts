@@ -12,7 +12,6 @@ import { getRecreationResourceGeospatialData } from '@prisma-generated-sql/getRe
 import { RecreationResourceGeospatialDto } from './dto/recreation-resource-geospatial.dto';
 import { CreateRecreationMapFeaturesDto } from './dto/create-recreation-map-features.dto';
 import {
-  UpdateRecreationMapFeatureGeometryDto,
   UpdateRecreationResourceGeospatialDto,
 } from './dto/update-recreation-resource-geospatial.dto';
 
@@ -20,6 +19,13 @@ type FlatGeometryEntry = {
   geometry: Record<string, unknown>;
   geometryTypeCode: 'P' | 'L';
   sectionId: string;
+  featureAreaHectares: number | null;
+};
+
+type MapFeatureGeometryInput = {
+  geometry: Record<string, unknown>;
+  section_id?: string | null;
+  feature_area_hectares?: number | null;
 };
 
 type RmfData = {
@@ -87,9 +93,16 @@ const normalizeGeometryEntry = (
   geometry: any,
   featureIndex: number,
   sectionIdBase?: string | null,
+  featureAreaHectares?: number | null,
 ): FlatGeometryEntry | null => {
   const normalizedSectionIdBase = sectionIdBase?.trim() || null;
   const sectionId = normalizedSectionIdBase || `${featureIndex + 1}`;
+  const normalizedFeatureAreaHectares =
+    typeof featureAreaHectares === 'number' &&
+    Number.isFinite(featureAreaHectares) &&
+    featureAreaHectares >= 0
+      ? featureAreaHectares
+      : null;
 
   if (!geometry?.type) {
     return null;
@@ -103,6 +116,7 @@ const normalizeGeometryEntry = (
       },
       geometryTypeCode: 'P',
       sectionId,
+      featureAreaHectares: normalizedFeatureAreaHectares,
     };
   }
 
@@ -111,6 +125,7 @@ const normalizeGeometryEntry = (
       geometry,
       geometryTypeCode: 'P',
       sectionId,
+      featureAreaHectares: normalizedFeatureAreaHectares,
     };
   }
 
@@ -122,6 +137,7 @@ const normalizeGeometryEntry = (
       },
       geometryTypeCode: 'L',
       sectionId,
+      featureAreaHectares: null,
     };
   }
 
@@ -130,6 +146,7 @@ const normalizeGeometryEntry = (
       geometry,
       geometryTypeCode: 'L',
       sectionId,
+      featureAreaHectares: null,
     };
   }
 
@@ -236,6 +253,7 @@ export class GeospatialService {
     recreation_type_code: string | null,
     submitted_by: string | null,
     geometryTypeCode: 'P' | 'L',
+    featureAreaHectares: number | null,
     geometryEntry: Record<string, unknown>,
     tx: Prisma.TransactionClient,
   ): Promise<void> {
@@ -286,7 +304,10 @@ export class GeospatialService {
         normalized.geom_3005,
         CASE
           WHEN normalized.geometry_type_code = 'P'
-            THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+            THEN COALESCE(
+              ${featureAreaHectares},
+              ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+            )
           ELSE NULL
         END,
         CASE
@@ -313,6 +334,7 @@ export class GeospatialService {
     recreation_type_code: string | null,
     submitted_by: string | null,
     geometryTypeCode: 'P' | 'L',
+    featureAreaHectares: number | null,
     geometryEntry: Record<string, unknown>,
     tx: Prisma.TransactionClient,
   ): Promise<void> {
@@ -344,7 +366,10 @@ export class GeospatialService {
           geometry           = normalized.geom_3005,
           feature_area       = CASE
                                 WHEN normalized.geometry_type_code = 'P'
-                                  THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+                                  THEN COALESCE(
+                                    ${featureAreaHectares},
+                                    ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+                                  )
                                 ELSE NULL
                               END,
           feature_length     = CASE
@@ -382,11 +407,16 @@ export class GeospatialService {
   }
 
   private flattenFeatures(
-    features: Array<UpdateRecreationMapFeatureGeometryDto>,
+    features: Array<MapFeatureGeometryInput>,
   ): FlatGeometryEntry[] {
     return features
       .map((feature, index) =>
-        normalizeGeometryEntry(feature.geometry, index, feature.section_id),
+        normalizeGeometryEntry(
+          feature.geometry,
+          index,
+          feature.section_id,
+          feature.feature_area_hectares,
+        ),
       )
       .filter((entry): entry is FlatGeometryEntry => entry !== null);
   }
@@ -769,6 +799,7 @@ export class GeospatialService {
           payload.recreation_type_code || null,
           payload.submitted_by || null,
           entry.geometryTypeCode,
+          entry.featureAreaHectares,
           entry.geometry,
           tx,
         );
@@ -808,6 +839,7 @@ export class GeospatialService {
             payload.recreation_type_code || null,
             payload.submitted_by || null,
             entry.geometryTypeCode,
+            entry.featureAreaHectares,
             entry.geometry,
             tx,
           );
@@ -1029,6 +1061,7 @@ export class GeospatialService {
           payload.recreation_type_code || null,
           payload.submitted_by || null,
           entry.geometryTypeCode,
+          entry.featureAreaHectares,
           entry.geometry,
           tx,
         );

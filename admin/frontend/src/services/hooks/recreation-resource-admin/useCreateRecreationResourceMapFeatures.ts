@@ -12,6 +12,7 @@ export interface CreateRecreationResourceMapFeaturesRequest {
   features: Array<{
     geometry: Record<string, unknown>;
     sectionId?: string;
+    featureAreaHectares?: number;
   }>;
   recreationTypeCode?: string;
   naturalResourceDistrictCode?: string;
@@ -44,6 +45,9 @@ export function useCreateRecreationResourceMapFeatures() {
             features: features.map((feature) => ({
               geometry: feature.geometry,
               section_id: feature.sectionId,
+              ...(typeof feature.featureAreaHectares === 'number'
+                ? { feature_area_hectares: feature.featureAreaHectares }
+                : {}),
             })),
             recreation_type_code: recreationTypeCode,
             rec_resource_name: recResourceName,

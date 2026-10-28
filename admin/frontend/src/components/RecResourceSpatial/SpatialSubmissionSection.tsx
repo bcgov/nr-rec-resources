@@ -8,6 +8,7 @@ import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin
 import {
   DEFAULT_SECTION_ID_FIELD_NAME,
   extractSectionIdDetails,
+  getFeatureAreaHectares,
   prepareFeatureCollectionForSectionEditing,
   readSpatialFile,
   updateFeatureSectionId,
@@ -371,6 +372,7 @@ export const SpatialSubmissionSection = ({
             sectionId: requiresSectionIds
               ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
               : undefined,
+            featureAreaHectares: getFeatureAreaHectares(feature),
             editAction: featureSectionIds[index]?.editAction ?? 'NEW',
           }),
         );
@@ -381,18 +383,21 @@ export const SpatialSubmissionSection = ({
             .map((f) => ({
               geometry: f.geometry,
               sectionId: f.sectionId,
+              featureAreaHectares: f.featureAreaHectares,
             })),
           amendedFeatures: mappedFeatures
             .filter((f) => f.editAction === 'AMEND')
             .map((f) => ({
               geometry: f.geometry,
               sectionId: f.sectionId,
+              featureAreaHectares: f.featureAreaHectares,
             })),
           retiredFeatures: mappedFeatures
             .filter((f) => f.editAction === 'RETIRE')
             .map((f) => ({
               geometry: f.geometry,
               sectionId: f.sectionId,
+              featureAreaHectares: f.featureAreaHectares,
             })),
           recreationTypeCode: values.recreationType || undefined,
           submittedBy: submittedBy || undefined,
@@ -408,6 +413,7 @@ export const SpatialSubmissionSection = ({
               sectionId: requiresSectionIds
                 ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
                 : undefined,
+              featureAreaHectares: getFeatureAreaHectares(feature),
             }),
           ),
           recreationTypeCode: values.recreationType || undefined,

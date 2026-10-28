@@ -93,7 +93,7 @@ jobs:
               export AWS_LZA_S3_BUCKET="fta-rec-rst-lza-uploads"
               export RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
               SECRET_PERSIST=false
-              PVC_SIZE="200Mi"
+              PVC_SIZE="2Gi"
             else
               export AWS_LZA_S3_BUCKET="${{ secrets.AWS_LZA_S3_BUCKET }}"
               export RELEASE_NAME="backend-el"

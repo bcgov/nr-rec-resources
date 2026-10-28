@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
@@ -29,6 +30,18 @@ export class CreateRecreationMapFeatureGeometryDto {
   @IsOptional()
   @IsString()
   section_id?: string | null;
+
+  @ApiProperty({
+    description:
+      'Optional polygon area supplied from DBF attributes (hectares). Falls back to system-calculated area when omitted.',
+    required: false,
+    nullable: true,
+    example: 12.3456,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  feature_area_hectares?: number | null;
 }
 
 export class CreateRecreationMapFeaturesDto {
