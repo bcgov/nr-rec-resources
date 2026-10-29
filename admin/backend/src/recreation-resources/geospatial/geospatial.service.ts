@@ -744,32 +744,25 @@ export class GeospatialService {
     const elements: FeatureRequestElement[] = [];
     const usedMapFeatureGuids = new Set<string>();
 
-    const reserveUniqueMapFeatureGuid = (
-      preferredGuid: string,
-      seed: string,
-    ): string => {
+    const reserveUniqueMapFeatureGuid = (preferredGuid: string): string => {
       if (!usedMapFeatureGuids.has(preferredGuid)) {
         usedMapFeatureGuids.add(preferredGuid);
         return preferredGuid;
       }
 
-      let attempt = 1;
-      let candidate = toDeterministicUuid(`${seed}:${attempt}`);
+      let candidate = randomUUID();
       while (usedMapFeatureGuids.has(candidate)) {
-        attempt += 1;
-        candidate = toDeterministicUuid(`${seed}:${attempt}`);
+        candidate = randomUUID();
       }
 
       usedMapFeatureGuids.add(candidate);
       return candidate;
     };
 
-    for (const [entryIndex, entry] of entries.entries()) {
+    for (const [entry] of entries.entries()) {
       const matchingRows = featureRowsBySectionId.get(entry.sectionId) ?? [];
       const row = matchingRows.shift();
-      const mapFeatureGuid =
-        row?.recreation_map_feature_guid ||
-        toDeterministicUuid(`${recResourceId}:${entry.sectionId}:map-feature`);
+      const mapFeatureGuid = row?.recreation_map_feature_guid || randomUUID();
       const featureRecordGuid = randomUUID();
 
       const parsedGeometry = row?.geometry_json
@@ -784,10 +777,8 @@ export class GeospatialService {
       const geometryPayload = this.buildFeatureGeoJson(parsedGeometry);
 
       if (isPolygon) {
-        const uniqueMapFeatureGuid = reserveUniqueMapFeatureGuid(
-          mapFeatureGuid,
-          `${recResourceId}:${entry.sectionId}:polygon:${entryIndex + 1}`,
-        );
+        const uniqueMapFeatureGuid =
+          reserveUniqueMapFeatureGuid(mapFeatureGuid);
 
         elements.push({
           '@type': 'FeatureRequestResource',
@@ -801,12 +792,9 @@ export class GeospatialService {
         const lineStrings = this.toSncscLineStrings(parsedGeometry);
         lineStrings.forEach((lineString, lineIndex) => {
           const preferredMapFeatureGuid =
-            lineIndex === 0
-              ? mapFeatureGuid
-              : toDeterministicUuid(`${mapFeatureGuid}:${lineIndex + 1}`);
+            lineIndex === 0 ? mapFeatureGuid : randomUUID();
           const uniqueMapFeatureGuid = reserveUniqueMapFeatureGuid(
             preferredMapFeatureGuid,
-            `${recResourceId}:${entry.sectionId}:line:${entryIndex + 1}:${lineIndex + 1}`,
           );
 
           elements.push({
@@ -886,7 +874,9 @@ export class GeospatialService {
       | Record<string, unknown>
       | undefined;
     if (!featureRequests) {
-      throw new BadRequestException('SNCSC payload is missing featureRequests.');
+      throw new BadRequestException(
+        'SNCSC payload is missing featureRequests.',
+      );
     }
 
     if (featureRequests['@type'] !== 'FeatureRequestResources') {

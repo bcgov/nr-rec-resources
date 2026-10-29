@@ -1,6 +1,7 @@
 # Exhibit A generation workflow
 
-This document describes the end-to-end Exhibit A workflow used by the admin geospatial page, including:
+This document describes the end-to-end Exhibit A workflow used by the admin
+geospatial page, including:
 
 - generate/regenerate Exhibit A from a spatial submission
 - upload a manual Exhibit A PDF
@@ -8,7 +9,8 @@ This document describes the end-to-end Exhibit A workflow used by the admin geos
 
 ## Scope and entry points
 
-- UI page: `admin/frontend/src/pages/rec-resource-page/components/RecResourceGeospatialSection/RecResourceGeospatialSection.tsx`
+- UI page:
+  `admin/frontend/src/pages/rec-resource-page/components/RecResourceGeospatialSection/RecResourceGeospatialSection.tsx`
 - Generate/regenerate API: `POST /api/v1/exhibit-a/:application_guid`
 - Upload APIs:
   - `POST /api/v1/recreation-resources/:rec_resource_id/exhibit-a-docs/presign`
@@ -19,7 +21,8 @@ This document describes the end-to-end Exhibit A workflow used by the admin geos
 ## Roles and access
 
 - `GET .../exhibit-a-docs` allows viewer/admin/super-admin.
-- `POST .../exhibit-a-docs/presign` and `POST .../exhibit-a-docs/finalize` require super-admin.
+- `POST .../exhibit-a-docs/presign` and `POST .../exhibit-a-docs/finalize`
+  require super-admin.
 - `POST /api/v1/exhibit-a/:application_guid` allows either:
   - `RST_SUPER_ADMIN` (admin app users)
   - `SNCSC_SERVICE` (service-to-service integration)
@@ -44,13 +47,16 @@ This document describes the end-to-end Exhibit A workflow used by the admin geos
 
 From the row action `Regenerate` in `RecResourceGeospatialSection`:
 
-1. UI checks `application_guid` and `submission_id` exist and user is super-admin.
+1. UI checks `application_guid` and `submission_id` exist and user is
+   super-admin.
 2. UI shows spinner notification: `Generating Exhibit A...`.
 3. UI calls `useCreateOrGetExhibitAByApplicationGuid` with:
    - `applicationGuid`: row `application_guid`
    - `generate: true`
-   - `userId`: first available of `idir_username`, `preferred_username`, `email`, else `system`
-4. On success, UI stores returned `pdfUrl` by `submission_id` and refreshes pending requests.
+   - `userId`: first available of `idir_username`, `preferred_username`,
+     `email`, else `system`
+4. On success, UI stores returned `pdfUrl` by `submission_id` and refreshes
+   pending requests.
 5. On failure, UI shows error notification.
 6. Spinner notification is removed in `finally`.
 
@@ -63,7 +69,8 @@ Controller:
 
 Service (`ExhibitAService.createOrGetByApplicationGuid`):
 
-1. Load submission by `application_guid` from `rst.recreation_spatial_submission`.
+1. Load submission by `application_guid` from
+   `rst.recreation_spatial_submission`.
 2. Persist adjudication fields on the submission:
    - `adjudication_comment` (JSON string or `null`)
    - `updated_by`, `created_by` (if empty), `updated_at`
@@ -105,8 +112,10 @@ Optional body fields:
 
 Behavior:
 
-- If optional layout values are omitted, service derives them from geometry extent.
-- If `generate=false`, service returns latest existing Exhibit A record URL (no new PDF generation).
+- If optional layout values are omitted, service derives them from geometry
+  extent.
+- If `generate=false`, service returns latest existing Exhibit A record URL (no
+  new PDF generation).
 
 ### ArcGIS dependency and payload details
 
@@ -114,10 +123,12 @@ Generation uses two ArcGIS endpoints:
 
 1. FTA MapServer base URL (for layers):
    - template from `CFG_FTA_ARC_GIS_SERVERS` or default
-   - default template: `https://test.maps.gov.bc.ca/arcgis/rest/services/fta/%d/MapServer`
+   - default template:
+     `https://test.maps.gov.bc.ca/arcgis/rest/services/fta/%d/MapServer`
 2. ArcGIS Export Web Map task (for rendered image):
    - from `CFG_FTA_MAP_SERVICE` or default
-   - default: `https://test.maps.gov.bc.ca/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task/execute`
+   - default:
+     `https://test.maps.gov.bc.ca/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task/execute`
 
 MapServer resolution:
 
@@ -207,7 +218,8 @@ Map image fitting behavior:
 
 ### Header fields persisted and rendered
 
-Header values are loaded from joined submission/resource/org-unit data and include:
+Header values are loaded from joined submission/resource/org-unit data and
+include:
 
 - identifiers: `submission_id`, `application_guid`, `tenure_id`
 - naming/context: `title`, `district_name`, `forest_district`, `forest_region`
@@ -221,8 +233,10 @@ Header values are loaded from joined submission/resource/org-unit data and inclu
 Same endpoint, with `generate=false`:
 
 1. Submission adjudication fields are still updated.
-2. Service loads latest row from `rst.recreation_exhibit_a_doc` for `submission_id`.
-3. If found, service returns a signed URL to existing `s3_key` and saved map metadata.
+2. Service loads latest row from `rst.recreation_exhibit_a_doc` for
+   `submission_id`.
+3. If found, service returns a signed URL to existing `s3_key` and saved map
+   metadata.
 4. If not found, service returns `404 Not Found`.
 
 ## Manual upload workflow (override/fallback path)
@@ -239,7 +253,8 @@ From row action `Upload`:
    - `submission_id`
    - `document_id` from presign response
    - file metadata (`file_name`, `extension`, `file_size`)
-6. On success, UI stores returned URL for the row and refreshes pending requests.
+6. On success, UI stores returned URL for the row and refreshes pending
+   requests.
 7. On failure, UI shows upload error notification.
 
 ### Backend behavior
@@ -254,8 +269,10 @@ Presign (`POST .../exhibit-a-docs/presign`):
 Finalize (`POST .../exhibit-a-docs/finalize`):
 
 1. Validate recreation resource exists and `document_id` format.
-2. Build final `s3_key`: `{rec_resource_id}/{document_id}/{file_name}.{extension}`.
-3. If `submission_id` provided, delete existing docs for same submission/resource.
+2. Build final `s3_key`:
+   `{rec_resource_id}/{document_id}/{file_name}.{extension}`.
+3. If `submission_id` provided, delete existing docs for same
+   submission/resource.
 4. Insert row into `rst.recreation_exhibit_a_doc` with:
    - `generation_method='upload'`
    - submission link and file metadata
@@ -269,17 +286,22 @@ Important columns used by workflow:
 
 - identity/linking: `doc_id`, `rec_resource_id`, `submission_id`
 - file metadata: `file_name`, `extension`, `file_size`, `s3_key`
-- generation metadata: `generation_method`, `page_size`, `page_orientation`, `scale`
+- generation metadata: `generation_method`, `page_size`, `page_orientation`,
+  `scale`
 - auditing/timestamps: `created_by`, `updated_by`, `created_at`, `updated_at`
 
-There is exactly one active Exhibit A row per `rec_resource_id + submission_id` after each upload/regenerate operation, because each operation deletes prior rows for that pair before insert.
+There is exactly one active Exhibit A row per `rec_resource_id + submission_id`
+after each upload/regenerate operation, because each operation deletes prior
+rows for that pair before insert.
 
 ## Error and recovery behavior
 
 - Missing submission, resource, or document rows return `404`.
-- ArcGIS/S3/network upstream failures are surfaced as gateway-style errors from generation service.
+- ArcGIS/S3/network upstream failures are surfaced as gateway-style errors from
+  generation service.
 - UI catches action errors and shows notifications.
-- Signed URLs are ephemeral; UI refresh/list actions obtain fresh signed URLs from backend.
+- Signed URLs are ephemeral; UI refresh/list actions obtain fresh signed URLs
+  from backend.
 
 ## Related components and hooks
 
@@ -294,9 +316,9 @@ There is exactly one active Exhibit A row per `rec_resource_id + submission_id` 
 
 ## Quick verification checklist
 
-- Regenerate button enabled only for super-admin and rows with `application_guid`.
+- Regenerate button enabled only for super-admin and rows with
+  `application_guid`.
 - Successful regenerate sets `generation_method` to `regenerate` in DB row.
 - Successful upload sets `generation_method` to `upload` in DB row.
 - Table row View/Download links open returned signed URL.
 - Re-running regenerate/upload for same submission replaces prior row.
-
