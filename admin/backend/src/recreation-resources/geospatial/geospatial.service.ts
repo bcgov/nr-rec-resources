@@ -369,7 +369,7 @@ export class GeospatialService {
       VALUES (
         ${rmfSkey},
         ${rec_resource_id},
-        ${sectionId},
+        ${geometryTypeCode === 'P' ? null : sectionId},
         ${0},
         ${recreation_type_code || null},
         ${randomUUID()},
@@ -859,6 +859,8 @@ export class GeospatialService {
       },
     };
 
+    this.validateSncscPayloadTypes(payload);
+
     console.log('SNCSC status request payload:', JSON.stringify(payload));
 
     const statusRequestGuid =
@@ -870,6 +872,43 @@ export class GeospatialService {
         status_request_guid: statusRequestGuid,
         updated_by: 'system',
       },
+    });
+  }
+
+  private validateSncscPayloadTypes(payload: Record<string, unknown>): void {
+    if (payload['@type'] !== 'StatusRequestResource') {
+      throw new BadRequestException(
+        "SNCSC payload is missing required '@type' = 'StatusRequestResource'.",
+      );
+    }
+
+    const featureRequests = payload.featureRequests as
+      | Record<string, unknown>
+      | undefined;
+    if (!featureRequests) {
+      throw new BadRequestException('SNCSC payload is missing featureRequests.');
+    }
+
+    if (featureRequests['@type'] !== 'FeatureRequestResources') {
+      throw new BadRequestException(
+        "SNCSC payload featureRequests is missing required '@type' = 'FeatureRequestResources'.",
+      );
+    }
+
+    const elements = featureRequests.elements;
+    if (!Array.isArray(elements)) {
+      throw new BadRequestException(
+        'SNCSC payload featureRequests.elements must be an array.',
+      );
+    }
+
+    elements.forEach((element, index) => {
+      const typedElement = element as Record<string, unknown>;
+      if (typedElement['@type'] !== 'FeatureRequestResource') {
+        throw new BadRequestException(
+          `SNCSC payload featureRequests.elements[${index}] is missing required '@type' = 'FeatureRequestResource'.`,
+        );
+      }
     });
   }
 
@@ -985,6 +1024,41 @@ export class GeospatialService {
       this.logger.log(
         `Creating ${newFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
       );
+
+      const linearSectionIds = Array.from(
+        new Set(
+          flattenedNewEntries
+            .filter((entry) => entry.geometryTypeCode === 'L')
+            .map((entry) => entry.sectionId),
+        ),
+      );
+      const existingLinearsBySection = new Map<
+        string,
+        { rmf_skey: number; amendment_id: number | null }
+      >();
+      if (linearSectionIds.length) {
+        const existingLinears = await tx.recreation_map_feature.findMany({
+          where: {
+            rec_resource_id,
+            section_id: { in: linearSectionIds },
+          },
+          select: {
+            section_id: true,
+            rmf_skey: true,
+            amendment_id: true,
+          },
+        });
+
+        existingLinears
+          .filter((row) => row.section_id)
+          .forEach((row) => {
+            existingLinearsBySection.set(row.section_id!, {
+              rmf_skey: row.rmf_skey,
+              amendment_id: row.amendment_id,
+            });
+          });
+      }
+
       let nextRmfSkey = 0;
       // Only generate a new rmf_skey if there are new features
       if (newFeatures.length > 0) {
@@ -1000,6 +1074,23 @@ export class GeospatialService {
         nextRmfSkey = Number(max_rmf_skey) + 1;
       }
       for (const entry of flattenedNewEntries) {
+        if (entry.geometryTypeCode === 'L') {
+          const existingLinear = existingLinearsBySection.get(entry.sectionId);
+          if (existingLinear) {
+            await this.updateMapFeatureAndGeometry(
+              existingLinear.rmf_skey,
+              existingLinear.amendment_id,
+              payload.recreation_type_code || null,
+              payload.submitted_by || null,
+              entry.geometryTypeCode,
+              entry.geometry,
+              entry.sourceMetrics,
+              tx,
+            );
+            continue;
+          }
+        }
+
         await this.insertMapFeatureAndGeometry(
           nextRmfSkey,
           rec_resource_id,
@@ -1020,6 +1111,13 @@ export class GeospatialService {
         `Updating ${amendedFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
       );
       for (const entry of flattenedAmendedEntries) {
+        if (entry.geometryTypeCode === 'P') {
+          this.logger.warn(
+            `Skipping polygon amendment lookup by section_id for rec_resource_id: ${rec_resource_id}; polygons do not persist section_id.`,
+          );
+          continue;
+        }
+
         const rmfDataQuery = [
           'SELECT rmf_skey, amendment_id',
           'FROM rst.recreation_map_feature',
@@ -1060,6 +1158,13 @@ export class GeospatialService {
         `Retiring ${retiredFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
       );
       for (const entry of flattenedRetiredEntries) {
+        if (entry.geometryTypeCode === 'P') {
+          this.logger.warn(
+            `Skipping polygon retirement lookup by section_id for rec_resource_id: ${rec_resource_id}; polygons do not persist section_id.`,
+          );
+          continue;
+        }
+
         const rmfDataQuery = [
           'SELECT rmf_skey, amendment_id',
           'FROM rst.recreation_map_feature',
