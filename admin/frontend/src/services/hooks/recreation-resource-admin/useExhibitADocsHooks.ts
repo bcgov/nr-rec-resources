@@ -61,12 +61,18 @@ export function useCreateOrGetExhibitAByApplicationGuid() {
       applicationGuid: string;
       userId: string;
       generate: boolean;
+      size?: 'A' | 'B' | 'C' | 'D' | 'E';
+      orientation?: 'P' | 'L';
+      scale?: 5000 | 10000 | 15000 | 20000 | 30000 | 50000 | 75000 | 100000;
     }) =>
       api.createOrGetExhibitAByApplicationGuid({
         applicationGuid: params.applicationGuid,
         createExhibitAByApplicationGuidRequestDto: {
           generate: params.generate,
           userId: params.userId,
+          size: params.size,
+          orientation: params.orientation,
+          scale: params.scale,
         },
       }),
     retry: createRetryHandler(),
