@@ -368,6 +368,7 @@ export const SpatialSubmissionSection = ({
         const mappedFeatures = editableFeatureCollection.features.map(
           (feature: any, index: number) => ({
             geometry: feature.geometry,
+            properties: feature.properties ?? {},
             sectionId: requiresSectionIds
               ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
               : undefined,
@@ -380,18 +381,21 @@ export const SpatialSubmissionSection = ({
             .filter((f) => f.editAction === 'NEW')
             .map((f) => ({
               geometry: f.geometry,
+              properties: f.properties,
               sectionId: f.sectionId,
             })),
           amendedFeatures: mappedFeatures
             .filter((f) => f.editAction === 'AMEND')
             .map((f) => ({
               geometry: f.geometry,
+              properties: f.properties,
               sectionId: f.sectionId,
             })),
           retiredFeatures: mappedFeatures
             .filter((f) => f.editAction === 'RETIRE')
             .map((f) => ({
               geometry: f.geometry,
+              properties: f.properties,
               sectionId: f.sectionId,
             })),
           recreationTypeCode: values.recreationType || undefined,
@@ -405,6 +409,7 @@ export const SpatialSubmissionSection = ({
           features: editableFeatureCollection.features.map(
             (feature: any, index: number) => ({
               geometry: feature.geometry,
+              properties: feature.properties ?? {},
               sectionId: requiresSectionIds
                 ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
                 : undefined,

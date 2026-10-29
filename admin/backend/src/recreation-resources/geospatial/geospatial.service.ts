@@ -20,6 +20,12 @@ type FlatGeometryEntry = {
   geometry: Record<string, unknown>;
   geometryTypeCode: 'P' | 'L';
   sectionId: string;
+  sourceMetrics?: {
+    areaHa?: number | null;
+    lengthKm?: number | null;
+    perimeterKm?: number | null;
+    rightOfWayM?: number | null;
+  };
 };
 
 type RmfData = {
@@ -83,54 +89,156 @@ const toDeterministicUuid = (seed: string): string => {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 };
 
+const toFiniteNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const getNumericProperty = (
+  properties: Record<string, unknown> | null | undefined,
+  keys: string[],
+): number | null => {
+  if (!properties) return null;
+
+  const normalized = new Map(
+    Object.entries(properties).map(([key, value]) => [
+      key.toUpperCase(),
+      value,
+    ]),
+  );
+
+  for (const key of keys) {
+    const value = normalized.get(key.toUpperCase());
+    const parsed = toFiniteNumber(value);
+    if (parsed !== null) {
+      return parsed;
+    }
+  }
+
+  return null;
+};
+
+const deriveLinearLengthKm = (
+  rawLength: number | null,
+  rightOfWayM: number | null,
+  areaHa: number | null,
+): number | null => {
+  if (rawLength === null) {
+    return null;
+  }
+
+  const lengthKmCandidate = rawLength;
+  const lengthMetersCandidate = rawLength / 1000;
+
+  if (rightOfWayM !== null && rightOfWayM > 0 && areaHa !== null) {
+    const areaFromKm = (lengthKmCandidate * rightOfWayM) / 10;
+    const areaFromMeters = (lengthMetersCandidate * rightOfWayM) / 10;
+    return Math.abs(areaFromMeters - areaHa) <= Math.abs(areaFromKm - areaHa)
+      ? lengthMetersCandidate
+      : lengthKmCandidate;
+  }
+
+  return rawLength > 1000 ? lengthMetersCandidate : lengthKmCandidate;
+};
+
+const extractSourceMetrics = (
+  geometryType: string,
+  properties: Record<string, unknown> | null | undefined,
+): FlatGeometryEntry['sourceMetrics'] => {
+  const areaHa = getNumericProperty(properties, ['FEATURE_AR']);
+  const perimeterKm = getNumericProperty(properties, ['FEATURE_PE']);
+  const rawLength = getNumericProperty(properties, ['FEATURE_LE']);
+  const rightOfWayM = getNumericProperty(properties, ['FEATURE__1']);
+
+  if (geometryType === 'L' || geometryType === 'LineString') {
+    return {
+      areaHa,
+      perimeterKm,
+      rightOfWayM,
+      lengthKm: deriveLinearLengthKm(rawLength, rightOfWayM, areaHa),
+    };
+  }
+
+  return {
+    areaHa,
+    perimeterKm,
+    rightOfWayM,
+    lengthKm: rawLength,
+  };
+};
+
 const normalizeGeometryEntry = (
   geometry: any,
   featureIndex: number,
   sectionIdBase?: string | null,
-): FlatGeometryEntry | null => {
+  properties?: Record<string, unknown> | null,
+): FlatGeometryEntry[] => {
   const normalizedSectionIdBase = sectionIdBase?.trim() || null;
   const sectionId = normalizedSectionIdBase || `${featureIndex + 1}`;
 
   if (!geometry?.type) {
-    return null;
+    return [];
   }
 
   if (geometry.type === 'Polygon') {
-    return {
-      geometry: {
-        type: 'MultiPolygon',
-        coordinates: [geometry.coordinates],
+    const sourceMetrics = extractSourceMetrics(geometry.type, properties);
+    return [
+      {
+        geometry: {
+          type: 'MultiPolygon',
+          coordinates: [geometry.coordinates],
+        },
+        geometryTypeCode: 'P',
+        sectionId,
+        sourceMetrics,
       },
-      geometryTypeCode: 'P',
-      sectionId,
-    };
+    ];
   }
 
   if (geometry.type === 'MultiPolygon') {
-    return {
-      geometry,
-      geometryTypeCode: 'P',
-      sectionId,
-    };
+    const sourceMetrics = extractSourceMetrics(geometry.type, properties);
+    return [
+      {
+        geometry,
+        geometryTypeCode: 'P',
+        sectionId,
+        sourceMetrics,
+      },
+    ];
   }
 
   if (geometry.type === 'LineString') {
-    return {
-      geometry: {
-        type: 'MultiLineString',
-        coordinates: [geometry.coordinates],
+    const sourceMetrics = extractSourceMetrics(geometry.type, properties);
+    return [
+      {
+        geometry,
+        geometryTypeCode: 'L',
+        sectionId,
+        sourceMetrics,
       },
-      geometryTypeCode: 'L',
-      sectionId,
-    };
+    ];
   }
 
   if (geometry.type === 'MultiLineString') {
-    return {
-      geometry,
+    const sourceMetrics = extractSourceMetrics(geometry.type, properties);
+    const coordinates = Array.isArray(geometry.coordinates)
+      ? geometry.coordinates
+      : [];
+
+    return coordinates.map((lineCoordinates, index) => ({
+      geometry: {
+        type: 'LineString',
+        coordinates: lineCoordinates,
+      },
       geometryTypeCode: 'L',
-      sectionId,
-    };
+      // Persist each trail section as its own feature for downstream SNCSC parity.
+      sectionId: `${sectionId}-${index + 1}`,
+      sourceMetrics,
+    }));
   }
 
   throw new BadRequestException(
@@ -237,14 +345,13 @@ export class GeospatialService {
     submitted_by: string | null,
     geometryTypeCode: 'P' | 'L',
     geometryEntry: Record<string, unknown>,
+    sourceMetrics: FlatGeometryEntry['sourceMetrics'] | undefined,
     tx: Prisma.TransactionClient,
   ): Promise<void> {
     const geometry = Prisma.sql`
-          public.ST_Multi(
             public.ST_SetSRID(
               public.ST_GeomFromGeoJSON(${JSON.stringify(geometryEntry)}),
               3005
-            )
           )
         `;
 
@@ -265,7 +372,7 @@ export class GeospatialService {
         ${sectionId},
         ${0},
         ${recreation_type_code || null},
-        ${toDeterministicUuid(`${rec_resource_id}:${sectionId}:map-feature`)},
+        ${randomUUID()},
         ${submitted_by || null},
         ${'PND'}
       )
@@ -286,23 +393,42 @@ export class GeospatialService {
         normalized.geom_3005,
         CASE
           WHEN normalized.geometry_type_code = 'P'
-            THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
-          ELSE NULL
-        END,
-        CASE
+            THEN COALESCE(
+              normalized.source_area_ha,
+              ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+            )
           WHEN normalized.geometry_type_code = 'L'
-            THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
+            THEN CASE
+                   WHEN normalized.source_right_of_way_m IS NOT NULL AND normalized.length_km IS NOT NULL
+                     THEN ROUND((normalized.length_km * normalized.source_right_of_way_m / 10)::numeric, 4)
+                   ELSE NULL
+                 END
           ELSE NULL
         END,
+        COALESCE(
+          normalized.length_km,
+          CASE
+            WHEN normalized.geometry_type_code = 'L'
+              THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
+            ELSE NULL
+          END
+        ),
         CASE
           WHEN normalized.geometry_type_code = 'P'
-            THEN ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
+            THEN COALESCE(
+              normalized.source_perimeter_km,
+              ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
+            )
           ELSE NULL
         END
       FROM (
         SELECT
           CAST(${geometryTypeCode} AS varchar(1)) AS geometry_type_code,
-          ${geometry} AS geom_3005
+          ${geometry} AS geom_3005,
+          CAST(${sourceMetrics?.areaHa ?? null} AS numeric) AS source_area_ha,
+          CAST(${sourceMetrics?.lengthKm ?? null} AS numeric) AS length_km,
+          CAST(${sourceMetrics?.perimeterKm ?? null} AS numeric) AS source_perimeter_km,
+          CAST(${sourceMetrics?.rightOfWayM ?? null} AS numeric) AS source_right_of_way_m
       ) AS normalized
     `);
   }
@@ -314,6 +440,7 @@ export class GeospatialService {
     submitted_by: string | null,
     geometryTypeCode: 'P' | 'L',
     geometryEntry: Record<string, unknown>,
+    sourceMetrics: FlatGeometryEntry['sourceMetrics'] | undefined,
     tx: Prisma.TransactionClient,
   ): Promise<void> {
     await tx.$executeRaw(Prisma.sql`
@@ -329,11 +456,9 @@ export class GeospatialService {
     `);
 
     const geometry = Prisma.sql`
-      public.ST_Multi(
-        public.ST_SetSRID(
-          public.ST_GeomFromGeoJSON(${JSON.stringify(geometryEntry)}),
-          3005
-        )
+      public.ST_SetSRID(
+        public.ST_GeomFromGeoJSON(${JSON.stringify(geometryEntry)}),
+        3005
       )
     `;
 
@@ -344,23 +469,42 @@ export class GeospatialService {
           geometry           = normalized.geom_3005,
           feature_area       = CASE
                                 WHEN normalized.geometry_type_code = 'P'
-                                  THEN ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
-                                ELSE NULL
-                              END,
-          feature_length     = CASE
+                                  THEN COALESCE(
+                                    normalized.source_area_ha,
+                                    ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+                                  )
                                 WHEN normalized.geometry_type_code = 'L'
-                                  THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
+                                  THEN CASE
+                                         WHEN normalized.source_right_of_way_m IS NOT NULL AND normalized.length_km IS NOT NULL
+                                           THEN ROUND((normalized.length_km * normalized.source_right_of_way_m / 10)::numeric, 4)
+                                         ELSE NULL
+                                       END
                                 ELSE NULL
                               END,
+          feature_length     = COALESCE(
+                                normalized.length_km,
+                                CASE
+                                  WHEN normalized.geometry_type_code = 'L'
+                                    THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
+                                  ELSE NULL
+                                END
+                              ),
           feature_perimeter  = CASE
                                 WHEN normalized.geometry_type_code = 'P'
-                                  THEN ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
+                                  THEN COALESCE(
+                                    normalized.source_perimeter_km,
+                                    ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
+                                  )
                                 ELSE NULL
                               END
         FROM (
           SELECT
             CAST(${geometryTypeCode} AS varchar(1)) AS geometry_type_code,
-            ${geometry} AS geom_3005
+            ${geometry} AS geom_3005,
+            CAST(${sourceMetrics?.areaHa ?? null} AS numeric) AS source_area_ha,
+            CAST(${sourceMetrics?.lengthKm ?? null} AS numeric) AS length_km,
+            CAST(${sourceMetrics?.perimeterKm ?? null} AS numeric) AS source_perimeter_km,
+            CAST(${sourceMetrics?.rightOfWayM ?? null} AS numeric) AS source_right_of_way_m
         ) AS normalized
         WHERE rmf_skey = ${rmfSkey}
       `);
@@ -382,13 +526,23 @@ export class GeospatialService {
   }
 
   private flattenFeatures(
-    features: Array<UpdateRecreationMapFeatureGeometryDto>,
+    features: Array<
+      | UpdateRecreationMapFeatureGeometryDto
+      | {
+          geometry: Record<string, unknown>;
+          section_id?: string | null;
+          properties?: Record<string, unknown> | null;
+        }
+    >,
   ): FlatGeometryEntry[] {
-    return features
-      .map((feature, index) =>
-        normalizeGeometryEntry(feature.geometry, index, feature.section_id),
-      )
-      .filter((entry): entry is FlatGeometryEntry => entry !== null);
+    return features.flatMap((feature, index) =>
+      normalizeGeometryEntry(
+        feature.geometry,
+        index,
+        feature.section_id,
+        feature.properties ?? null,
+      ),
+    );
   }
 
   private deriveStatusRequestTypeCode(
@@ -426,6 +580,17 @@ export class GeospatialService {
 
     if (naturalUnit?.org_unit_code?.trim()) {
       return naturalUnit.org_unit_code.trim();
+    }
+
+    const latestSubmission =
+      await tx.recreation_spatial_submission?.findFirst?.({
+        where: { tenure_id: rec_resource_id },
+        orderBy: { created_at: 'desc' },
+        select: { org_unit_code: true },
+      });
+
+    if (latestSubmission?.org_unit_code?.trim()) {
+      return latestSubmission.org_unit_code.trim();
     }
 
     return '';
@@ -495,6 +660,33 @@ export class GeospatialService {
     };
   }
 
+  /** SNCSC expects linear geometries as LineString, not MultiLineString. */
+  private toSncscLineStrings(
+    geometry: Record<string, unknown>,
+  ): Record<string, unknown>[] {
+    const type = geometry.type;
+    if (type === 'LineString') {
+      return [geometry];
+    }
+
+    if (type === 'MultiLineString') {
+      const coordinates = Array.isArray(geometry.coordinates)
+        ? geometry.coordinates
+        : [];
+
+      if (coordinates.length === 0) {
+        return [{ type: 'LineString', coordinates: [] }];
+      }
+
+      return coordinates.map((lineCoords) => ({
+        type: 'LineString',
+        coordinates: lineCoords,
+      }));
+    }
+
+    return [geometry];
+  }
+
   private async buildFeatureRequestElements(
     tx: Prisma.TransactionClient,
     recResourceId: string,
@@ -536,16 +728,45 @@ export class GeospatialService {
         AND rmf.section_id IN (${Prisma.join(sectionIds)})
     `);
 
-    const featureBySectionId = new Map(
-      featureRows
-        .filter((row) => row.section_id)
-        .map((row) => [row.section_id!, row]),
-    );
+    const featureRowsBySectionId = new Map<
+      string,
+      Array<(typeof featureRows)[number]>
+    >();
+    featureRows
+      .filter((row) => row.section_id)
+      .forEach((row) => {
+        const sectionId = row.section_id!;
+        const sectionRows = featureRowsBySectionId.get(sectionId) ?? [];
+        sectionRows.push(row);
+        featureRowsBySectionId.set(sectionId, sectionRows);
+      });
 
     const elements: FeatureRequestElement[] = [];
+    const usedMapFeatureGuids = new Set<string>();
 
-    for (const entry of entries) {
-      const row = featureBySectionId.get(entry.sectionId);
+    const reserveUniqueMapFeatureGuid = (
+      preferredGuid: string,
+      seed: string,
+    ): string => {
+      if (!usedMapFeatureGuids.has(preferredGuid)) {
+        usedMapFeatureGuids.add(preferredGuid);
+        return preferredGuid;
+      }
+
+      let attempt = 1;
+      let candidate = toDeterministicUuid(`${seed}:${attempt}`);
+      while (usedMapFeatureGuids.has(candidate)) {
+        attempt += 1;
+        candidate = toDeterministicUuid(`${seed}:${attempt}`);
+      }
+
+      usedMapFeatureGuids.add(candidate);
+      return candidate;
+    };
+
+    for (const [entryIndex, entry] of entries.entries()) {
+      const matchingRows = featureRowsBySectionId.get(entry.sectionId) ?? [];
+      const row = matchingRows.shift();
       const mapFeatureGuid =
         row?.recreation_map_feature_guid ||
         toDeterministicUuid(`${recResourceId}:${entry.sectionId}:map-feature`);
@@ -563,22 +784,39 @@ export class GeospatialService {
       const geometryPayload = this.buildFeatureGeoJson(parsedGeometry);
 
       if (isPolygon) {
+        const uniqueMapFeatureGuid = reserveUniqueMapFeatureGuid(
+          mapFeatureGuid,
+          `${recResourceId}:${entry.sectionId}:polygon:${entryIndex + 1}`,
+        );
+
         elements.push({
           '@type': 'FeatureRequestResource',
-          mapFeatureGuid,
+          mapFeatureGuid: uniqueMapFeatureGuid,
           featureRecordGuid,
           featureGeometryTypeCode: 'polygon',
           mapFeatureTypeCode: row?.recreation_resource_type || '',
           polygon: geometryPayload,
         });
       } else {
-        elements.push({
-          '@type': 'FeatureRequestResource',
-          mapFeatureGuid,
-          featureRecordGuid,
-          featureGeometryTypeCode: 'linear',
-          mapFeatureTypeCode: row?.recreation_resource_type || '',
-          linear: geometryPayload,
+        const lineStrings = this.toSncscLineStrings(parsedGeometry);
+        lineStrings.forEach((lineString, lineIndex) => {
+          const preferredMapFeatureGuid =
+            lineIndex === 0
+              ? mapFeatureGuid
+              : toDeterministicUuid(`${mapFeatureGuid}:${lineIndex + 1}`);
+          const uniqueMapFeatureGuid = reserveUniqueMapFeatureGuid(
+            preferredMapFeatureGuid,
+            `${recResourceId}:${entry.sectionId}:line:${entryIndex + 1}:${lineIndex + 1}`,
+          );
+
+          elements.push({
+            '@type': 'FeatureRequestResource',
+            mapFeatureGuid: uniqueMapFeatureGuid,
+            featureRecordGuid: randomUUID(),
+            featureGeometryTypeCode: 'linear',
+            mapFeatureTypeCode: row?.recreation_resource_type || '',
+            linear: this.buildFeatureGeoJson(lineString),
+          });
         });
       }
     }
@@ -770,6 +1008,7 @@ export class GeospatialService {
           payload.submitted_by || null,
           entry.geometryTypeCode,
           entry.geometry,
+          entry.sourceMetrics,
           tx,
         );
         nextRmfSkey++;
@@ -809,6 +1048,7 @@ export class GeospatialService {
             payload.submitted_by || null,
             entry.geometryTypeCode,
             entry.geometry,
+            entry.sourceMetrics,
             tx,
           );
         }
@@ -1030,6 +1270,7 @@ export class GeospatialService {
           payload.submitted_by || null,
           entry.geometryTypeCode,
           entry.geometry,
+          entry.sourceMetrics,
           tx,
         );
       }

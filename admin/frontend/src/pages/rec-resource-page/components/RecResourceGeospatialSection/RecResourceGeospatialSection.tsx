@@ -62,7 +62,7 @@ export function RecResourceGeospatialSection() {
   const recResourceId = params?.id;
   const { recResource } = useRecResource();
   const { isSuperAdmin } = useAuthorizations();
-  const { user } = useAuthContext();
+  const { user, authService } = useAuthContext();
   const queryClient = useQueryClient();
   const isArchived = recResource?.rec_status_code === 'AR';
   const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
@@ -210,12 +210,35 @@ export function RecResourceGeospatialSection() {
     return `${sncscWebUrl.replace(/\/+$/, '')}/${statusRequestGuid}`;
   };
 
-  const getPurposeLabel = (statusCode: string) => {
-    const normalized = statusCode.toUpperCase();
-    if (normalized.includes('AMEND')) return 'Amendment';
-    if (normalized.includes('RETIRE')) return 'Retire';
-    if (normalized.includes('NEW')) return 'New';
-    return '-';
+  const getPurposeDisplay = (purposeCode?: string | null) => {
+    const normalized = purposeCode?.toUpperCase().trim() ?? '';
+    if (normalized === 'N') {
+      return {
+        label: 'NEW',
+        bgColor: COLOR_GREEN_LIGHTEST,
+        textColor: COLOR_GREEN_DARKER,
+      };
+    }
+    if (normalized === 'A') {
+      return {
+        label: 'AMEND',
+        bgColor: COLOR_YELLOW_ADVISORY_BG,
+        textColor: COLOR_GOLD_DARK,
+      };
+    }
+    if (normalized === 'R') {
+      return {
+        label: 'RETIRE',
+        bgColor: COLOR_RED_LIGHT,
+        textColor: COLOR_RED,
+      };
+    }
+
+    return {
+      label: '-',
+      bgColor: COLOR_BACKGROUND_GREY,
+      textColor: COLOR_GREY,
+    };
   };
 
   const getStatusDisplay = (statusCode?: string | null) => {
@@ -262,6 +285,14 @@ export function RecResourceGeospatialSection() {
     }
 
     return row.exhibit_a_url ?? null;
+  };
+
+  const getAdjudicationReportUrl = (row: PendingMapFeatureRequestRowDto) => {
+    const url = row.adjudication_report;
+    if (!url) return null;
+
+    // Backward compatibility for older payloads still returning /api/v1 paths.
+    return url.startsWith('/api/v1/') ? url.replace('/api/v1/', '/api/') : url;
   };
 
   const handleUploadStart = useCallback(
@@ -396,6 +427,58 @@ export function RecResourceGeospatialSection() {
     [isSuperAdmin, queryClient, regenerateMutation, user],
   );
 
+  const handleViewAdjudicationReport = useCallback(
+    async (row: PendingMapFeatureRequestRowDto) => {
+      const reportUrl = getAdjudicationReportUrl(row);
+      if (!reportUrl) return;
+
+      const popup = window.open('about:blank', '_blank');
+      try {
+        const token = await authService.getToken();
+        const response = await fetch(reportUrl, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${String(token ?? '')}`,
+            Accept: 'application/pdf, application/octet-stream',
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(
+            `Adjudication report fetch failed: ${response.status} ${response.statusText} ${errorText}`,
+          );
+        }
+
+        const bytes = await response.arrayBuffer();
+        if (bytes.byteLength === 0) {
+          throw new Error('Adjudication report response was empty.');
+        }
+
+        // Upstream may return octet-stream/attachment; force PDF for browser viewer.
+        const pdfBlob = new Blob([bytes], { type: 'application/pdf' });
+        const objectUrl = URL.createObjectURL(pdfBlob);
+
+        if (popup && !popup.closed) {
+          popup.location.replace(objectUrl);
+        } else {
+          window.open(objectUrl, '_blank', 'noopener,noreferrer');
+        }
+
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      } catch (error) {
+        if (popup) {
+          popup.close();
+        }
+        console.error('Adjudication report view failed:', error);
+        addErrorNotification(
+          'Unable to open adjudication report. Please try again.',
+        );
+      }
+    },
+    [authService],
+  );
+
   const submissionRows = (pendingMapFeatureRequests?.data ?? [])
     .filter((row) => row.rec_resource_id === recResourceId)
     .sort((a, b) => {
@@ -475,22 +558,44 @@ export function RecResourceGeospatialSection() {
                 render: (row) => {
                   const statusRequestGuid = row.status_request_guid;
                   const sncscUrl = buildSncscSubmissionUrl(statusRequestGuid);
+                  const adjudicationUrl = getAdjudicationReportUrl(row);
 
-                  return sncscUrl ? (
-                    <a
-                      href={sncscUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="geospatial-submissions-reference"
-                    >
-                      SNCSC Link{' '}
-                      <FontAwesomeIcon
-                        icon={faArrowUpRightFromSquare}
-                        className="ms-1"
-                      />
-                    </a>
-                  ) : (
-                    <span className="text-muted">-</span>
+                  if (!sncscUrl && !adjudicationUrl) {
+                    return <span className="text-muted">-</span>;
+                  }
+
+                  return (
+                    <div className="d-flex align-items-center justify-content-center gap-3 w-100">
+                      {sncscUrl ? (
+                        <a
+                          href={sncscUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="geospatial-submissions-reference"
+                        >
+                          SNCSC Link{' '}
+                          <FontAwesomeIcon
+                            icon={faArrowUpRightFromSquare}
+                            className="ms-1"
+                          />
+                        </a>
+                      ) : null}
+                      {adjudicationUrl ? (
+                        <button
+                          type="button"
+                          className="geospatial-submissions-reference btn btn-link p-0"
+                          onClick={() => {
+                            void handleViewAdjudicationReport(row);
+                          }}
+                        >
+                          Adj.Report{' '}
+                          <FontAwesomeIcon
+                            icon={faArrowUpRightFromSquare}
+                            className="ms-1"
+                          />
+                        </button>
+                      ) : null}
+                    </div>
                   );
                 },
               },
@@ -513,7 +618,23 @@ export function RecResourceGeospatialSection() {
               },
               {
                 header: 'Purpose',
-                render: (row) => getPurposeLabel(row.amend_status_code),
+                render: (row) => {
+                  const purposeCode = (
+                    row as unknown as Record<string, unknown>
+                  )['purpose_code'] as string | null | undefined;
+                  const purpose = getPurposeDisplay(purposeCode);
+                  if (purpose.label === '-') {
+                    return '-';
+                  }
+
+                  return (
+                    <CustomBadge
+                      label={purpose.label}
+                      bgColor={purpose.bgColor}
+                      textColor={purpose.textColor}
+                    />
+                  );
+                },
               },
               {
                 header: 'Exhibit A',

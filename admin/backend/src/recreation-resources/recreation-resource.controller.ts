@@ -17,6 +17,7 @@ import {
   Param,
   Put,
   Query,
+  Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -28,9 +29,11 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiProduces,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import type { Response } from 'express';
 import { RecreationResourceDetailDto } from './dtos/recreation-resource-detail.dto';
 import { NextRecResourceIdDto } from './dtos/next-rec-resource-id.dto';
 import { AdminSearchQueryDto } from './dtos/admin-search-query.dto';
@@ -172,6 +175,35 @@ export class RecreationResourceController {
   })
   async getPendingMapFeatureRequests(): Promise<PendingMapFeatureRequestsResponseDto> {
     return await this.recreationResourceService.getPendingMapFeatureRequests();
+  }
+
+  @Get('pending-requests/:application_guid/adjudication-report')
+  @ApiOperation({
+    operationId: 'getPendingRequestAdjudicationReport',
+    summary: 'Get adjudication report PDF for a pending request',
+  })
+  @ApiParam({
+    name: 'application_guid',
+    required: true,
+    description: 'Spatial submission application GUID',
+    type: String,
+  })
+  @ApiProduces('application/pdf')
+  async getPendingRequestAdjudicationReport(
+    @Param('application_guid') applicationGuid: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const { contentType, content } =
+      await this.recreationResourceService.getPendingRequestAdjudicationReport(
+        applicationGuid,
+      );
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader(
+      'Content-Disposition',
+      'inline; filename="adjudication-report.pdf"',
+    );
+    res.send(content);
   }
 
   /**

@@ -97,6 +97,33 @@ export class AppConfigService {
     );
   }
 
+  get snsccDmClientId(): string {
+    return this.configService.get('SNSCC_DM_CLIENT_ID', { infer: true }) ?? '';
+  }
+
+  get snsccDmClientSecret(): string {
+    return (
+      this.configService.get('SNSCC_DM_CLIENT_SECRET', {
+        infer: true,
+      }) ?? ''
+    );
+  }
+
+  get sncscDmClientId(): string {
+    return (
+      this.configService.get('SNCSC_DM_CLIENT_ID', { infer: true }) ||
+      this.snsccDmClientId
+    );
+  }
+
+  get sncscDmClientSecret(): string {
+    return (
+      this.configService.get('SNCSC_DM_CLIENT_SECRET', {
+        infer: true,
+      }) || this.snsccDmClientSecret
+    );
+  }
+
   get sncscBaseUrl(): string {
     return this.configService.get('SNCSC_BASE_URL', { infer: true }) ?? '';
   }
