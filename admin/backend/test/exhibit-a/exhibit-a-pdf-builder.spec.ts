@@ -183,4 +183,62 @@ describe('ExhibitAPdfBuilder', () => {
     expect(lines).toContain('LENGTH (km):');
     expect(lines).toContain('NAD 1983 BC Env Albers');
   });
+
+  it('renders RIGHT OF WAY for linear submissions and omits AREA', async () => {
+    const builder = new ExhibitAPdfBuilder();
+    vi.spyOn(builder as any, 'asset').mockImplementation(() => MINIMAL_PNG);
+    const drawTextSpy = vi.spyOn(PDFPage.prototype, 'drawText');
+    const drawLineSpy = vi.spyOn(PDFPage.prototype, 'drawLine');
+
+    await builder.build({
+      ...baseInput,
+      header: {
+        ...baseInput.header,
+        geometry_mode: 'linear',
+        area_ha: 25.1234,
+        width_m: 20,
+        length_km: 12.9876,
+      },
+      coordinateRows: [],
+    });
+
+    const lines = drawTextSpy.mock.calls.map(([text]) => String(text).trim());
+    expect(lines).toContain('RIGHT OF WAY (m):');
+    expect(lines).toContain('20');
+    expect(lines).toContain('LENGTH (km):');
+    expect(lines).toContain('12.9876');
+    expect(lines).not.toContain('AREA (Ha):');
+    expect(
+      drawLineSpy.mock.calls.some(([options]) => options?.thickness === 3.4),
+    ).toBe(true);
+  });
+
+  it('renders AREA only for polygon submissions', async () => {
+    const builder = new ExhibitAPdfBuilder();
+    vi.spyOn(builder as any, 'asset').mockImplementation(() => MINIMAL_PNG);
+    const drawTextSpy = vi.spyOn(PDFPage.prototype, 'drawText');
+    const drawLineSpy = vi.spyOn(PDFPage.prototype, 'drawLine');
+
+    await builder.build({
+      ...baseInput,
+      header: {
+        ...baseInput.header,
+        geometry_mode: 'polygon',
+        area_ha: 39.6485,
+        width_m: 10,
+        length_km: 39.6485,
+      },
+      coordinateRows: [],
+    });
+
+    const lines = drawTextSpy.mock.calls.map(([text]) => String(text).trim());
+    expect(lines).toContain('AREA (Ha):');
+    expect(lines).toContain('39.6485');
+    expect(lines).not.toContain('RIGHT OF WAY (m):');
+    expect(lines).not.toContain('WIDTH (m):');
+    expect(lines).not.toContain('LENGTH (km):');
+    expect(
+      drawLineSpy.mock.calls.some(([options]) => options?.thickness === 3.4),
+    ).toBe(false);
+  });
 });

@@ -36,8 +36,7 @@ import { ExhibitAService } from './exhibit-a.service';
 @ApiOAuth2([], AUTH_STRATEGY.KEYCLOAK)
 @ApiOAuth2([], AUTH_STRATEGY.SNCSC_KEYCLOAK)
 @ApiUnauthorizedResponse({
-  description:
-    'Unauthorized - missing, malformed, or expired bearer token.',
+  description: 'Unauthorized - missing, malformed, or expired bearer token.',
 })
 @UseGuards(
   AuthGuard([AUTH_STRATEGY.KEYCLOAK, AUTH_STRATEGY.SNCSC_KEYCLOAK]),

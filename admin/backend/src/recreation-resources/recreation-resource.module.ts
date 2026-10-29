@@ -19,6 +19,7 @@ import { ReservationModule } from './reservation/reservation.module';
 import { TrailsModule } from './trails/trails.module';
 import { AdvisoriesModule } from './advisories/advisories.module';
 import { RecreationAssetModule } from '@/resource-asset/resource-asset.module';
+import { SncscModule } from '@/sncsc/sncsc.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { RecreationAssetModule } from '@/resource-asset/resource-asset.module';
     TrailsModule,
     AdvisoriesModule,
     RecreationAssetModule,
+    SncscModule,
   ],
   controllers: [RecreationResourceController],
   providers: [

@@ -62,6 +62,14 @@ import {
 } from './exhibit-a.arcgis.helpers';
 
 type Json = Record<string, unknown>;
+type PrismaRawQueryError = {
+  code?: string;
+  message?: string;
+  meta?: {
+    code?: string;
+    message?: string;
+  };
+};
 
 const spans = (e: SpatialBounds): [number, number] => [
   Math.abs(e.xmax - e.xmin),
@@ -112,6 +120,7 @@ export class ExhibitAService {
 
     const { sourceGeometries, geometryFeatures, labelFeatures } =
       this.toGraphics(featureRows);
+    const geometryMode = this.detectGeometryMode(sourceGeometries);
 
     if (geometryFeatures.length === 0) {
       throw new BadGatewayException(
@@ -144,6 +153,7 @@ export class ExhibitAService {
       width_m: header.width_m ?? null,
       project_type: header.project_type ?? header.mgt_unit_type,
       length_km: header.length_km ?? totalLengthKm,
+      geometry_mode: geometryMode,
     };
     const layout = {
       submissionId,
@@ -362,6 +372,25 @@ export class ExhibitAService {
     return { coordinateRows, pofcPoints, poftPoints, totalLengthKm };
   }
 
+  /** Classifies submission geometry so Exhibit A metrics can be rendered contextually. */
+  private detectGeometryMode(
+    sourceGeometries: GeoJsonGeometry[],
+  ): ExhibitAPdfHeader['geometry_mode'] {
+    const hasLine = sourceGeometries.some(
+      (geometry) =>
+        geometry.type === 'LineString' || geometry.type === 'MultiLineString',
+    );
+    const hasPolygon = sourceGeometries.some(
+      (geometry) =>
+        geometry.type === 'Polygon' || geometry.type === 'MultiPolygon',
+    );
+
+    if (hasLine && hasPolygon) return 'mixed';
+    if (hasLine) return 'linear';
+    if (hasPolygon) return 'polygon';
+    return null;
+  }
+
   /* ------------------------------ database ------------------------------ */
 
   private async loadSubmissionHeader(submissionId: string): Promise<HeaderRow> {
@@ -511,41 +540,90 @@ export class ExhibitAService {
     const leaf = input.s3Key.split('/').pop() || input.s3Key;
     const fileName = leaf.replace(/\.pdf$/i, '');
 
-    await this.prisma.$executeRaw`
-      WITH archived AS (
-        DELETE FROM rst.recreation_exhibit_a_doc
-        WHERE rec_resource_id = ${input.recResourceId}
-          AND submission_id = ${input.submissionId}
-      )
-      INSERT INTO rst.recreation_exhibit_a_doc (
-        rec_resource_id,
-        file_name,
-        extension,
-        file_size,
-        s3_key,
-        submission_id,
-        page_size,
-        page_orientation,
-        scale,
-        generation_method,
-        created_by,
-        updated_by
-      )
-      VALUES (
-        ${input.recResourceId},
-        ${fileName},
-        'pdf',
-        ${input.fileSize},
-        ${input.s3Key},
-        ${input.submissionId},
-        ${input.size},
-        ${input.orientation},
-        ${input.scale},
-        'regenerate',
-        ${input.userId},
-        ${input.userId}
-      )
-    `;
+    try {
+      await this.prisma.$executeRaw`
+        WITH archived AS (
+          DELETE FROM rst.recreation_exhibit_a_doc
+          WHERE rec_resource_id = ${input.recResourceId}
+            AND submission_id = ${input.submissionId}
+        )
+        INSERT INTO rst.recreation_exhibit_a_doc (
+          rec_resource_id,
+          file_name,
+          extension,
+          file_size,
+          s3_key,
+          submission_id,
+          page_size,
+          page_orientation,
+          scale,
+          generation_method,
+          created_by,
+          updated_by
+        )
+        VALUES (
+          ${input.recResourceId},
+          ${fileName},
+          'pdf',
+          ${input.fileSize},
+          ${input.s3Key},
+          ${input.submissionId},
+          ${input.size},
+          ${input.orientation},
+          ${input.scale},
+          'regenerate',
+          ${input.userId},
+          ${input.userId}
+        )
+      `;
+    } catch (error) {
+      if (!this.isMissingGenerationMethodColumn(error)) {
+        throw error;
+      }
+
+      await this.prisma.$executeRaw`
+        WITH archived AS (
+          DELETE FROM rst.recreation_exhibit_a_doc
+          WHERE rec_resource_id = ${input.recResourceId}
+            AND submission_id = ${input.submissionId}
+        )
+        INSERT INTO rst.recreation_exhibit_a_doc (
+          rec_resource_id,
+          file_name,
+          extension,
+          file_size,
+          s3_key,
+          submission_id,
+          page_size,
+          page_orientation,
+          scale,
+          created_by,
+          updated_by
+        )
+        VALUES (
+          ${input.recResourceId},
+          ${fileName},
+          'pdf',
+          ${input.fileSize},
+          ${input.s3Key},
+          ${input.submissionId},
+          ${input.size},
+          ${input.orientation},
+          ${input.scale},
+          ${input.userId},
+          ${input.userId}
+        )
+      `;
+    }
+  }
+
+  private isMissingGenerationMethodColumn(error: unknown): boolean {
+    const raw = error as PrismaRawQueryError;
+    if (raw?.code !== 'P2010') return false;
+    if (raw?.meta?.code !== '42703') return false;
+
+    const message = `${raw.meta?.message ?? ''} ${raw.message ?? ''}`;
+    return message.includes('generation_method');
   }
 
   /** The SRID fix-up is computed once per row (LATERAL) instead of twice. */
