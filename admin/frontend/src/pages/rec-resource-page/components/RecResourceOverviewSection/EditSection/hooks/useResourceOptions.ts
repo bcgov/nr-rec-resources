@@ -1,4 +1,5 @@
 import { GroupedOptions } from '@/components/form/GroupedMultiSelectField';
+import { buildAccessOptionValue } from '../utils/accessOptionValue';
 import {
   RecreationResourceOptionUIModel,
   useGetRecreationResourceOptions,
@@ -41,17 +42,29 @@ export const useResourceOptions = (options?: UseResourceOptionsParams) => {
     const groups: GroupedOptions[] = [];
 
     accessOptions?.options.forEach((accessOption) => {
+      const accessCode = accessOption.id || '';
+      const accessLabel = accessOption.label || '';
+
+      if (!accessCode) {
+        return;
+      }
+
       const groupedOptions: GroupedOptions = {
-        label: accessOption.label,
+        label: accessLabel,
         options: [],
       };
 
       accessOption.children?.forEach((child) => {
+        // nothing selectable without a code to save
+        if (!child.id) {
+          return;
+        }
+
         groupedOptions.options.push({
           label: child.label || '',
-          value: child.id || '',
-          group: accessOption.id || '',
-          groupLabel: accessOption.label || '',
+          value: buildAccessOptionValue(accessCode, child.id),
+          group: accessCode,
+          groupLabel: accessLabel,
         });
       });
 
