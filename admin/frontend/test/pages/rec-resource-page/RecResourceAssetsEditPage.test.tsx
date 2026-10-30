@@ -128,6 +128,7 @@ let queuedAssetPayload: AssetEditFormValues = {
   longitude: '-123.4',
   latitude: '49.2',
   actual_value: '88.1',
+  parent_id: '',
 };
 
 vi.mock(
@@ -241,6 +242,7 @@ describe('RecResourceAssetsEditPage', () => {
       longitude: '-123.4',
       latitude: '49.2',
       actual_value: '88.1',
+      parent_id: '',
     };
 
     vi.mocked(useParams).mockReturnValue({ id: 'REC123' } as any);
@@ -352,6 +354,7 @@ describe('RecResourceAssetsEditPage', () => {
           latitude: 49.2,
           longitude: -123.4,
           geometry_type_code: 'PT',
+          parent_id: null,
         },
       });
       expect(mockUpdateRepair).toHaveBeenCalledWith({
