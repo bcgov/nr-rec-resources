@@ -4,7 +4,7 @@ import { Card, Form, InputGroup, Button } from 'react-bootstrap';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal/DeleteConfirmationModal';
 import { AssetCardRepairsEdit } from './AssetCardRepairsEdit';
-import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
+import { CAMPSITE_STRUCTURE_CODE, CampsiteGroup } from './campsiteGrouping';
 import { isTrailAssetCode } from './trailStations';
 import type { Asset, AssetCode, RepairCode } from './types';
 import type { UpdateRecreationAssetRepairDto } from '@/services/recreation-resource-admin';
@@ -16,6 +16,7 @@ import {
 } from './coordinateRegisterOptions';
 import { HelpIcon } from '@/components/help-icon';
 import { ACTUAL_VALUE_HELP_TEXT, DEFAULT_VALUE_HELP_TEXT } from './helperTexts';
+import { getEndNumberOrString } from './assetEditShared';
 
 export interface AssetEditFormValues {
   asset_comment: string;
@@ -25,6 +26,7 @@ export interface AssetEditFormValues {
   longitude: string;
   latitude: string;
   actual_value: string;
+  parent_id: string;
 }
 
 export type AssetDeleteMode = 'unassign-children' | 'delete-with-campsite';
@@ -35,6 +37,7 @@ interface AssetCardEditProps {
   assetCodes?: AssetCode[];
   className?: string;
   recResourceId: string;
+  campsites?: CampsiteGroup[];
   onChange: (assetId: number, values: AssetEditFormValues) => void;
   onRepairChange?: (
     repairId: number,
@@ -51,6 +54,7 @@ export function AssetCardEdit({
   assetCodes = [],
   className = '',
   recResourceId,
+  campsites,
   onChange,
   onRepairChange,
   onDelete,
@@ -98,6 +102,7 @@ export function AssetCardEdit({
       latitude: asset.latitude != null ? String(asset.latitude) : '',
       actual_value:
         asset.actual_value != null ? String(asset.actual_value) : '',
+      parent_id: asset.parent_id != null ? String(asset.parent_id) : '',
     },
   });
 
@@ -130,6 +135,7 @@ export function AssetCardEdit({
     latitudeRegisterOptions(getValues),
   );
   const actualValueField = register('actual_value');
+  const campsiteField = register('parent_id');
 
   const id = asset.asset_id;
 
@@ -302,6 +308,35 @@ export function AssetCardEdit({
                       }}
                     />
                   </InputGroup>
+                </Form.Group>
+              )}
+              {!isCampsite && (
+                <Form.Group
+                  controlId="field-campsite"
+                  className="d-flex flex-column h-100"
+                >
+                  <Form.Label>Assign to campsite</Form.Label>
+                  <Form.Select
+                    className="mt-auto"
+                    {...campsiteField}
+                    onChange={(e) => {
+                      void campsiteField.onChange(e);
+                      handleChange('parent_id', e.target.value);
+                    }}
+                  >
+                    <option value="">Select campsite...</option>
+                    {campsites &&
+                      campsites.map((c) => {
+                        return (
+                          <option
+                            value={c.campsite.asset_id}
+                            key={c.campsite.asset_id}
+                          >
+                            {getEndNumberOrString(c.campsite.asset_name)}
+                          </option>
+                        );
+                      })}
+                  </Form.Select>
                 </Form.Group>
               )}
             </div>

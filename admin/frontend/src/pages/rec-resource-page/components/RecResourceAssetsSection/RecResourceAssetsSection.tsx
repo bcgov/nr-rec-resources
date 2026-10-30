@@ -422,6 +422,7 @@ export function RecResourceAssetsSection() {
                         repairCodes={repairCodes}
                         recResourceId={recResourceId}
                         assetCodes={assetCodes}
+                        campsites={campsiteGroups}
                       />
                     ))}
                   </Stack>
@@ -457,6 +458,7 @@ export function RecResourceAssetsSection() {
                             linkedAssetCount={children.length}
                             className="asset-card--campsite"
                             recResourceId={recResourceId}
+                            campsites={campsiteGroups}
                             onChange={handleEditChange}
                             saveAttemptCount={campsiteSaveAttemptCount}
                             onRepairChange={handleRepairChange}
@@ -481,6 +483,7 @@ export function RecResourceAssetsSection() {
                                     ).length
                                   }
                                   recResourceId={recResourceId}
+                                  campsites={campsiteGroups}
                                   onChange={handleEditChange}
                                   saveAttemptCount={campsiteSaveAttemptCount}
                                   onRepairChange={handleRepairChange}
@@ -496,6 +499,7 @@ export function RecResourceAssetsSection() {
                             asset={campsite}
                             repairCodes={repairCodes}
                             assetCodes={assetCodes}
+                            campsites={campsiteGroups}
                             className="asset-card--campsite"
                             recResourceId={recResourceId}
                           />
@@ -511,6 +515,7 @@ export function RecResourceAssetsSection() {
                                   key={child.asset_id}
                                   asset={child}
                                   repairCodes={repairCodes}
+                                  campsites={campsiteGroups}
                                   assetCodes={assetCodes}
                                   recResourceId={recResourceId}
                                 />
