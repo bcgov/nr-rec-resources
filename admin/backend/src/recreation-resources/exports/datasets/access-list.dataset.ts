@@ -6,10 +6,14 @@ export const accessListDataset: ExportDatasetBuilder = {
   buildQuery: ({ sql }) => Prisma.sql`
     SELECT
       ${sql.rstPrimaryColumns()},
-      ra.access_code AS "ACCESS_CODE",
-      rac.description AS "ACCESS_DESC",
-      ra.sub_access_code AS "SUB_ACCESS_CODE",
-      rsac.description AS "SUB_ACCESS_DESC",
+      ${sql.describeCode(
+        Prisma.sql`ra.access_code`,
+        Prisma.sql`rac.description`,
+      )} AS "ACCESS_DESC",
+      ${sql.describeCode(
+        Prisma.sql`ra.sub_access_code`,
+        Prisma.sql`rsac.description`,
+      )} AS "SUB_ACCESS_DESC",
       ${sql.legacySharedColumnsBeforeTail()},
       ${sql.legacySharedColumnsTail(
         Prisma.sql`COALESCE(GREATEST(rr.updated_at, ra.updated_at), rr.updated_at, ra.updated_at)`,

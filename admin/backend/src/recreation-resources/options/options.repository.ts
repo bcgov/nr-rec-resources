@@ -62,7 +62,7 @@ export class OptionsRepository {
 
       return model.findMany({
         select: selectFields,
-        distinct: mapping.distinctFields ?? [mapping.idField],
+        ...(mapping.distinctFields ? { distinct: mapping.distinctFields } : {}),
         ...(mapping.whereClause ? { where: mapping.whereClause } : {}),
         orderBy: { [mapping.labelField]: 'asc' },
       });

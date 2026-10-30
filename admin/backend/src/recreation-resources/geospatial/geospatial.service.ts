@@ -4,8 +4,10 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
+import { createHash, randomInt, randomUUID } from 'node:crypto';
 import { Prisma } from '@generated/prisma';
 import { PrismaService } from '@/prisma.service';
+import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
 import { getRecreationResourceGeospatialData } from '@prisma-generated-sql/getRecreationResourceGeospatialData';
 import { RecreationResourceGeospatialDto } from './dto/recreation-resource-geospatial.dto';
 import { CreateRecreationMapFeaturesDto } from './dto/create-recreation-map-features.dto';
@@ -23,6 +25,62 @@ type FlatGeometryEntry = {
 type RmfData = {
   rmf_skey: number | null;
   amendment_id: number | null;
+};
+
+type SpatialSubmissionTypeCode = 'RL' | 'RPO';
+type SpatialSubmissionPurposeCode = 'N' | 'A' | 'R';
+
+type CreatedSpatialSubmission = {
+  application_guid: string;
+  submission_id: string;
+  tenure_id: string;
+  org_unit_code: string;
+  status_request_type_code: string;
+  purpose_code: string;
+};
+
+type OrgUnitClientInfo = {
+  client_number: string;
+  client_name: string;
+};
+
+type ForestClientByAcronymDto = {
+  acronym?: string;
+  clientName?: string;
+  clientNumber?: string;
+};
+
+type FeatureRequestElement = {
+  '@type': 'FeatureRequestResource';
+  mapFeatureGuid: string;
+  featureRecordGuid: string;
+  featureGeometryTypeCode: 'polygon' | 'linear';
+  mapFeatureTypeCode: string;
+} & (
+  | { featureGeometryTypeCode: 'polygon'; polygon: Record<string, unknown> }
+  | { featureGeometryTypeCode: 'linear'; linear: Record<string, unknown> }
+);
+
+const DETERMINISTIC_GUID_NAMESPACE = 'rst-sncsc';
+const BC_ALBERS_CRS = {
+  type: 'name',
+  properties: {
+    name: 'EPSG:1000003005',
+  },
+} as const;
+
+const toDeterministicUuid = (seed: string): string => {
+  const hash = createHash('sha1')
+    .update(`${DETERMINISTIC_GUID_NAMESPACE}:${seed}`)
+    .digest('hex')
+    .slice(0, 32)
+    .split('');
+
+  hash[12] = '5';
+  hash[16] = ((parseInt(hash[16] || '0', 16) & 0x3) | 0x8).toString(16);
+
+  const hex = hash.join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 };
 
 const normalizeGeometryEntry = (
@@ -84,12 +142,32 @@ const normalizeGeometryEntry = (
 export class GeospatialService {
   private readonly logger = new Logger(GeospatialService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sncscStatusRequestService: SncscStatusRequestService,
+  ) {}
 
-  /**
-   * Get geospatial data for a recreation resource
-   * Fetches spatial feature geometries and calculated coordinate values
-   */
+  private get forestClientBaseUrl(): string {
+    const value = process.env.FOREST_CLIENT_API_URL?.trim();
+    if (!value) {
+      throw new BadRequestException('FOREST_CLIENT_API_URL is not configured.');
+    }
+
+    return value.replace(/\/+$/, '');
+  }
+
+  private get forestClientHeaders(): Record<string, string> {
+    const apiKey = process.env.FOREST_CLIENT_API_KEY?.trim();
+    if (!apiKey) {
+      throw new BadRequestException('FOREST_CLIENT_API_KEY is not configured.');
+    }
+
+    return {
+      'X-API-KEY': apiKey,
+      Accept: 'application/json',
+    };
+  }
+
   async findGeospatialDataById(
     rec_resource_id: string,
   ): Promise<RecreationResourceGeospatialDto | null> {
@@ -136,9 +214,6 @@ export class GeospatialService {
     };
   }
 
-  /**
-   * Update or insert site point geometry for the given recreation resource.
-   */
   async updateGeospatialData(
     rec_resource_id: string,
     updateDto: UpdateRecreationResourceGeospatialDto,
@@ -180,6 +255,7 @@ export class GeospatialService {
         section_id,
         amendment_id,
         recreation_resource_type,
+        recreation_map_feature_guid,
         created_by,
         amend_status_code
       )
@@ -189,6 +265,7 @@ export class GeospatialService {
         ${sectionId},
         ${0},
         ${recreation_type_code || null},
+        ${toDeterministicUuid(`${rec_resource_id}:${sectionId}:map-feature`)},
         ${submitted_by || null},
         ${'PND'}
       )
@@ -314,6 +391,340 @@ export class GeospatialService {
       .filter((entry): entry is FlatGeometryEntry => entry !== null);
   }
 
+  private deriveStatusRequestTypeCode(
+    entries: FlatGeometryEntry[],
+  ): SpatialSubmissionTypeCode {
+    return entries.some((entry) => entry.geometryTypeCode === 'L')
+      ? 'RL'
+      : 'RPO';
+  }
+
+  private derivePurposeCodeForUpdate(
+    newCount: number,
+    amendedCount: number,
+    retiredCount: number,
+  ): SpatialSubmissionPurposeCode | null {
+    if (newCount === 0 && amendedCount === 0 && retiredCount === 0) {
+      return null;
+    }
+    return 'A';
+  }
+
+  private async resolveOrgUnitCode(
+    rec_resource_id: string,
+    tx: Prisma.TransactionClient,
+    fallbackOrgUnitCode?: string | null,
+  ): Promise<string> {
+    if (fallbackOrgUnitCode?.trim()) {
+      return fallbackOrgUnitCode.trim();
+    }
+
+    const naturalUnit = await tx.natural_resource_org_unit.findUnique({
+      where: { rec_resource_id },
+      select: { org_unit_code: true },
+    });
+
+    if (naturalUnit?.org_unit_code?.trim()) {
+      return naturalUnit.org_unit_code.trim();
+    }
+
+    return '';
+  }
+
+  private async resolveOrgUnitClientInfo(
+    orgUnitCode: string,
+  ): Promise<OrgUnitClientInfo> {
+    return this.fetchClientInfoByAcronym(orgUnitCode.trim());
+  }
+
+  private async fetchClientInfoByAcronym(
+    acronym: string,
+  ): Promise<OrgUnitClientInfo> {
+    const query = new URLSearchParams({ acronym });
+    const response = await fetch(
+      `${this.forestClientBaseUrl}/api/clients/findByAcronym?${query.toString()}`,
+      {
+        headers: this.forestClientHeaders,
+      },
+    );
+
+    const bodyText = await response.text();
+    if (!response.ok) {
+      throw new BadRequestException(
+        `Unable to resolve client info from Forest Client API for org unit code: ${acronym}`,
+      );
+    }
+
+    let records: ForestClientByAcronymDto[] = [];
+    try {
+      records = bodyText
+        ? (JSON.parse(bodyText) as ForestClientByAcronymDto[])
+        : [];
+    } catch {
+      throw new BadRequestException(
+        `Forest Client API returned invalid JSON for org unit code: ${acronym}`,
+      );
+    }
+    const normalizedAcronym = acronym.trim().toUpperCase();
+
+    const match = records.find(
+      (record) =>
+        record.acronym?.toUpperCase() === normalizedAcronym &&
+        record.clientNumber?.trim() &&
+        record.clientName?.trim(),
+    );
+
+    if (!match?.clientNumber || !match.clientName) {
+      throw new BadRequestException(
+        `No client mapping was returned by Forest Client API for org unit code: ${acronym}`,
+      );
+    }
+
+    return {
+      client_number: match.clientNumber,
+      client_name: match.clientName,
+    };
+  }
+
+  private buildFeatureGeoJson(
+    geometry: Record<string, unknown>,
+  ): Record<string, unknown> {
+    return {
+      ...geometry,
+      crs: BC_ALBERS_CRS,
+    };
+  }
+
+  private async buildFeatureRequestElements(
+    tx: Prisma.TransactionClient,
+    recResourceId: string,
+    entries: FlatGeometryEntry[],
+  ): Promise<FeatureRequestElement[]> {
+    const sectionIds = Array.from(
+      new Set(entries.map((entry) => entry.sectionId)),
+    );
+
+    if (!sectionIds.length) {
+      return [];
+    }
+
+    const featureRows = await tx.$queryRaw<
+      {
+        section_id: string | null;
+        recreation_map_feature_guid: string | null;
+        recreation_resource_type: string | null;
+        geometry_type_code: string | null;
+        geometry_json: string | null;
+      }[]
+    >(Prisma.sql`
+      SELECT
+        rmf.section_id,
+        rmf.recreation_map_feature_guid,
+        rmf.recreation_resource_type,
+        rmfg.geometry_type_code,
+        public.ST_AsGeoJSON(
+          CASE
+            WHEN public.ST_SRID(rmfg.geometry) = 0
+              THEN public.ST_SetSRID(rmfg.geometry, 3005)
+            ELSE rmfg.geometry
+          END
+        ) AS geometry_json
+      FROM rst.recreation_map_feature rmf
+      INNER JOIN rst.recreation_map_feature_geom rmfg
+        ON rmfg.rmf_skey = rmf.rmf_skey
+      WHERE rmf.rec_resource_id = ${recResourceId}
+        AND rmf.section_id IN (${Prisma.join(sectionIds)})
+    `);
+
+    const featureBySectionId = new Map(
+      featureRows
+        .filter((row) => row.section_id)
+        .map((row) => [row.section_id!, row]),
+    );
+
+    const elements: FeatureRequestElement[] = [];
+
+    for (const entry of entries) {
+      const row = featureBySectionId.get(entry.sectionId);
+      const mapFeatureGuid =
+        row?.recreation_map_feature_guid ||
+        toDeterministicUuid(`${recResourceId}:${entry.sectionId}:map-feature`);
+      const featureRecordGuid = randomUUID();
+
+      const parsedGeometry = row?.geometry_json
+        ? (JSON.parse(row.geometry_json) as Record<string, unknown>)
+        : entry.geometry;
+      const normalizedGeometryTypeCode = (
+        row?.geometry_type_code ||
+        entry.geometryTypeCode ||
+        ''
+      ).toUpperCase();
+      const isPolygon = normalizedGeometryTypeCode === 'P';
+      const geometryPayload = this.buildFeatureGeoJson(parsedGeometry);
+
+      if (isPolygon) {
+        elements.push({
+          '@type': 'FeatureRequestResource',
+          mapFeatureGuid,
+          featureRecordGuid,
+          featureGeometryTypeCode: 'polygon',
+          mapFeatureTypeCode: row?.recreation_resource_type || '',
+          polygon: geometryPayload,
+        });
+      } else {
+        elements.push({
+          '@type': 'FeatureRequestResource',
+          mapFeatureGuid,
+          featureRecordGuid,
+          featureGeometryTypeCode: 'linear',
+          mapFeatureTypeCode: row?.recreation_resource_type || '',
+          linear: geometryPayload,
+        });
+      }
+    }
+
+    return elements;
+  }
+
+  private async dispatchSncscStatusRequest(
+    tx: Prisma.TransactionClient,
+    submission: CreatedSpatialSubmission,
+    entries: FlatGeometryEntry[],
+  ): Promise<void> {
+    const client = await this.resolveOrgUnitClientInfo(
+      submission.org_unit_code,
+    );
+    const featureRequests = await this.buildFeatureRequestElements(
+      tx,
+      submission.tenure_id,
+      entries,
+    );
+
+    const payload: Record<string, unknown> = {
+      '@type': 'StatusRequestResource',
+      applicationGUID: submission.application_guid,
+      tenureGuid: toDeterministicUuid(submission.tenure_id),
+      tenureId: submission.tenure_id,
+      clientNumber: client.client_number,
+      clientName: client.client_name,
+      adjudicationInd: 'Y',
+      externalSubmissionID: submission.submission_id,
+      businessArea: 'S',
+      statusRequestTypeCode: submission.status_request_type_code,
+      statusClearanceStatusCode: 'PENDING',
+      orgUnitCode: submission.org_unit_code,
+      purposeCode: submission.purpose_code,
+      bctsSubmissionInd: 'N',
+      featureRequests: {
+        '@type': 'FeatureRequestResources',
+        elements: featureRequests,
+      },
+    };
+
+    console.log('SNCSC status request payload:', JSON.stringify(payload));
+
+    const statusRequestGuid =
+      await this.sncscStatusRequestService.createStatusRequest(payload);
+
+    await tx.recreation_spatial_submission.update({
+      where: { application_guid: submission.application_guid },
+      data: {
+        status_request_guid: statusRequestGuid,
+        updated_by: 'system',
+      },
+    });
+  }
+
+  private generateSevenDigitSubmissionId(): string {
+    return randomInt(1000000, 10000000).toString();
+  }
+
+  private isSubmissionIdUniqueConflict(error: unknown): boolean {
+    if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
+      return false;
+    }
+
+    if (error.code !== 'P2002') {
+      return false;
+    }
+
+    const target = error.meta?.target;
+    if (Array.isArray(target)) {
+      return target.includes('submission_id');
+    }
+
+    return typeof target === 'string' && target.includes('submission_id');
+  }
+
+  private async createSpatialSubmission(
+    tx: Prisma.TransactionClient,
+    data: {
+      rec_resource_id: string;
+      statusRequestTypeCode: SpatialSubmissionTypeCode;
+      purposeCode: SpatialSubmissionPurposeCode;
+      recreationTypeCode?: string | null;
+      submittedBy?: string | null;
+      orgUnitCode?: string | null;
+    },
+  ): Promise<CreatedSpatialSubmission | null> {
+    const orgUnitCode = await this.resolveOrgUnitCode(
+      data.rec_resource_id,
+      tx,
+      data.orgUnitCode,
+    );
+
+    if (!orgUnitCode.trim()) {
+      return null;
+    }
+
+    const spatialSubmissionModel = tx.recreation_spatial_submission;
+    if (!spatialSubmissionModel?.create) {
+      this.logger.warn(
+        `Skipping spatial submission for rec_resource_id: ${data.rec_resource_id} because the transaction does not expose recreation_spatial_submission.create.`,
+      );
+      return null;
+    }
+
+    const maxAttempts = 10;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        return await spatialSubmissionModel.create({
+          data: {
+            submission_id: this.generateSevenDigitSubmissionId(),
+            tenure_id: data.rec_resource_id,
+            status_request_type_code: data.statusRequestTypeCode,
+            purpose_code: data.purposeCode,
+            recreation_resource_type: data.recreationTypeCode || null,
+            submission_date: new Date(),
+            org_unit_code: orgUnitCode,
+            created_by: data.submittedBy || null,
+            updated_by: data.submittedBy || null,
+          },
+          select: {
+            application_guid: true,
+            submission_id: true,
+            tenure_id: true,
+            org_unit_code: true,
+            status_request_type_code: true,
+            purpose_code: true,
+          },
+        });
+      } catch (error) {
+        if (
+          this.isSubmissionIdUniqueConflict(error) &&
+          attempt < maxAttempts - 1
+        ) {
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    throw new ConflictException(
+      'Unable to generate a unique 7-digit submission ID.',
+    );
+  }
+
   /**
    * Update map feature rows and geometry rows from a validated shapefile payload.
    * Updates only recreation_map_feature and recreation_map_feature_geom records.
@@ -431,6 +842,36 @@ export class GeospatialService {
           );
         } else {
           await this.retireFeature(rmf_skey, payload.submitted_by || null, tx);
+        }
+      }
+
+      const allSubmissionEntries = [
+        ...flattenedNewEntries,
+        ...flattenedAmendedEntries,
+        ...flattenedRetiredEntries,
+      ];
+      const purposeCode = this.derivePurposeCodeForUpdate(
+        flattenedNewEntries.length,
+        flattenedAmendedEntries.length,
+        flattenedRetiredEntries.length,
+      );
+
+      if (allSubmissionEntries.length > 0 && purposeCode) {
+        const createdSubmission = await this.createSpatialSubmission(tx, {
+          rec_resource_id,
+          statusRequestTypeCode:
+            this.deriveStatusRequestTypeCode(allSubmissionEntries),
+          purposeCode,
+          recreationTypeCode: payload.recreation_type_code || null,
+          submittedBy: payload.submitted_by || null,
+        });
+
+        if (createdSubmission) {
+          await this.dispatchSncscStatusRequest(
+            tx,
+            createdSubmission,
+            allSubmissionEntries,
+          );
         }
       }
     });
@@ -590,6 +1031,24 @@ export class GeospatialService {
           entry.geometryTypeCode,
           entry.geometry,
           tx,
+        );
+      }
+
+      const createdSubmission = await this.createSpatialSubmission(tx, {
+        rec_resource_id,
+        statusRequestTypeCode:
+          this.deriveStatusRequestTypeCode(flattenedEntries),
+        purposeCode: 'N',
+        recreationTypeCode: payload.recreation_type_code || null,
+        submittedBy: payload.submitted_by || null,
+        orgUnitCode: payload.natural_resource_district_code || null,
+      });
+
+      if (createdSubmission) {
+        await this.dispatchSncscStatusRequest(
+          tx,
+          createdSubmission,
+          flattenedEntries,
         );
       }
     });

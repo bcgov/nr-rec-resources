@@ -14,7 +14,12 @@ import {
   legacySharedColumnsBeforeTail,
   legacySharedColumnsTail,
 } from './fragments/legacy-columns';
-import { displayIndicator, formatTimestamp } from './fragments/formatters';
+import {
+  booleanIndicator,
+  describeCode,
+  displayIndicator,
+  formatTimestamp,
+} from './fragments/formatters';
 import {
   ftaPrimaryColumns,
   rstPrimaryColumns,
@@ -50,10 +55,19 @@ export class ExportRepository {
     dataset,
     district,
     resourceType,
+    includeArchived,
     limit,
   }: ExportQueryContext): Prisma.Sql {
-    const rstFilters = buildRstFilters({ district, resourceType });
-    const ftaFilters = buildFtaFilters({ district, resourceType });
+    const rstFilters = buildRstFilters({
+      district,
+      resourceType,
+      includeArchived,
+    });
+    const ftaFilters = buildFtaFilters({
+      district,
+      resourceType,
+      includeArchived,
+    });
     const sharedJoins = buildSharedJoins();
     const ftaSharedJoins = buildFtaSharedJoins();
     const builder = EXPORT_DATASET_BUILDERS[dataset];
@@ -69,6 +83,7 @@ export class ExportRepository {
         dataset,
         district,
         resourceType,
+        includeArchived,
         limit,
         rstFilters,
         ftaFilters,
@@ -108,6 +123,7 @@ export class ExportRepository {
     dataset,
     district,
     resourceType,
+    includeArchived,
     limit,
     rstFilters,
     ftaFilters,
@@ -124,6 +140,7 @@ export class ExportRepository {
         dataset,
         district,
         resourceType,
+        includeArchived,
         limit,
       },
       sql: {
@@ -138,6 +155,8 @@ export class ExportRepository {
         ftaSharedLegacyExportColumnsBeforeTail,
         ftaSharedLegacyExportColumnsTail,
         displayIndicator,
+        booleanIndicator,
+        describeCode,
         formatTimestamp,
       },
     };

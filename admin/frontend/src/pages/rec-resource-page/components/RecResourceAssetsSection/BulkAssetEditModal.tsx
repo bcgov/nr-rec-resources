@@ -1,5 +1,5 @@
 import { Col, Form, InputGroup, Modal, Row } from 'react-bootstrap';
-import { CustomButton } from '@/components';
+import { CustomButton, HelpIcon } from '@/components';
 import './BulkAssetEditModal.scss';
 import { AssetTypeGroup } from './assetTypeGrouping';
 import { Checkbox } from '@bcgov/design-system-react-components';
@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import { CampsiteGroup } from './campsiteGrouping';
 import { useBulkUpdateAssets } from '@/services/hooks/recreation-resource-admin';
 import { AssetCode } from './types';
+import { ACTUAL_VALUE_HELP_TEXT } from './helperTexts';
 
 interface BulkAssetEditModalProps {
   show: boolean;
@@ -375,7 +376,13 @@ export function BulkAssetEditModal({
               controlId="field-value"
               className="d-flex flex-column h-100"
             >
-              <Form.Label>Actual Value</Form.Label>
+              <Form.Label>
+                Actual value
+                <HelpIcon
+                  id="edit-actual-value-help"
+                  text={ACTUAL_VALUE_HELP_TEXT}
+                />
+              </Form.Label>
               <InputGroup className="custom-input-group mt-auto">
                 <InputGroup.Text>$</InputGroup.Text>
                 <Form.Control
@@ -492,7 +499,7 @@ export function BulkAssetEditModal({
                   {checkChanges(asset.actual_value, editFields.actualValue) && (
                     <Col>
                       <div className="d-flex flex-column h-100">
-                        <div className="bold-field">Actual Value</div>
+                        <div className="bold-field">Actual value</div>
                         <div className="mt-auto">
                           {asset.actual_value
                             ? `$${asset.actual_value}`

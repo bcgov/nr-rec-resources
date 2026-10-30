@@ -6,8 +6,10 @@ export const fileDetailsFtaDataset: ExportDatasetBuilder = {
   buildQuery: ({ sql }) => Prisma.sql`
     SELECT
       ${sql.ftaPrimaryColumns()},
-      project_type_fta.recreation_map_feature_code AS "PROJECT_TYPE_CODE",
-      rmfc_fta.description AS "PROJECT_TYPE",
+      ${sql.describeCode(
+        Prisma.sql`project_type_fta.recreation_map_feature_code`,
+        Prisma.sql`rmfc_fta.description`,
+      )} AS "PROJECT_TYPE",
       COALESCE(geometry_totals_fta.total_area, '0') AS "TOTAL_AREA",
       CASE
         WHEN rp.right_of_way IS NOT NULL
@@ -22,8 +24,10 @@ export const fileDetailsFtaDataset: ExportDatasetBuilder = {
       END AS "TOTAL_TRAIL_AREA",
       COALESCE(geometry_totals_fta.total_length, '0') AS "TOTAL_LENGTH",
       COALESCE(geometry_totals_fta.total_trail_length_km, 0)::text AS "TOTAL_TRAIL_LNGTH",
-      rp.recreation_risk_rating_code AS "RISK_RATING_CODE",
-      rrrc_fta.description AS "RISK_RATING",
+      ${sql.describeCode(
+        Prisma.sql`rp.recreation_risk_rating_code`,
+        Prisma.sql`rrrc_fta.description`,
+      )} AS "RISK_RATING",
       COALESCE(resource_counts_fta.defined_campsites, '0') AS "DEFINED_CAMPSITES",
       COALESCE(resource_counts_fta.structure_count, '0') AS "STRUCTURE_COUNT",
       COALESCE(resource_counts_fta.activity_count, '0') AS "ACTIVITY_COUNT",

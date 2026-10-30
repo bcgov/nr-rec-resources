@@ -135,8 +135,8 @@ describe('recResourcePartnersLoader', () => {
 
     const result = await recResourcePartnersLoader(mockArgs);
 
-    // Must not be null: this value becomes initialData, and a null would
-    // survive the `= []` default in the consumers and throw on .map().
+    // Must not be null: a null would survive the `= []` default in the
+    // consumers and throw on .map().
     expect(result).toEqual({
       parentKey: 'parentValue',
       partnersInfo: [],

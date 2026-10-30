@@ -81,6 +81,30 @@ export class AppConfigService {
     return this.configService.get('SNCSC_CSS_CLIENT_ID', { infer: true }) ?? '';
   }
 
+  get sncscIntegrationClientId(): string {
+    return (
+      this.configService.get('SNCSC_INTEGRATION_CLIENT_ID', {
+        infer: true,
+      }) ?? ''
+    );
+  }
+
+  get sncscIntegrationClientSecret(): string {
+    return (
+      this.configService.get('SNCSC_INTEGRATION_CLIENT_SECRET', {
+        infer: true,
+      }) ?? ''
+    );
+  }
+
+  get sncscBaseUrl(): string {
+    return this.configService.get('SNCSC_BASE_URL', { infer: true }) ?? '';
+  }
+
+  get sncscTokenUrl(): string {
+    return this.configService.get('SNCSC_TOKEN_URL', { infer: true }) ?? '';
+  }
+
   get forestClientApiUrl(): string {
     return this.configService.get('FOREST_CLIENT_API_URL', { infer: true })!;
   }

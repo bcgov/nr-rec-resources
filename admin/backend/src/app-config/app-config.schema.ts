@@ -67,6 +67,22 @@ export class EnvironmentVariables {
   @IsString()
   SNCSC_CSS_CLIENT_ID?: string;
 
+  @IsOptional()
+  @IsString()
+  SNCSC_INTEGRATION_CLIENT_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  SNCSC_INTEGRATION_CLIENT_SECRET?: string;
+
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  SNCSC_BASE_URL?: string;
+
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  SNCSC_TOKEN_URL?: string;
+
   // Forest Client API configuration
   @IsUrl({ require_tld: false })
   @IsNotEmpty()

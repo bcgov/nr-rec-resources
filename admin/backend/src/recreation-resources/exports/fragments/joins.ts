@@ -2,6 +2,10 @@ import { Prisma } from '@generated/prisma';
 
 export function buildSharedJoins(): Prisma.Sql {
   return Prisma.sql`
+    LEFT JOIN recreation_district_code rdc_rst
+      ON rdc_rst.district_code = rr.district_code
+    LEFT JOIN recreation_resource_status_code rrsc_rst
+      ON rrsc_rst.recreation_resource_status_code = rr.rec_status_code
     LEFT JOIN recreation_resource_type_view_admin rrtva
       ON rrtva.rec_resource_id = rr.rec_resource_id
     LEFT JOIN recreation_status rs
@@ -78,6 +82,31 @@ export function buildSharedJoins(): Prisma.Sql {
 
 export function buildFtaSharedJoins(): Prisma.Sql {
   return Prisma.sql`
+    LEFT JOIN (
+      SELECT DISTINCT ON (rdx.forest_file_id)
+        rdx.forest_file_id,
+        rdx.recreation_district_code
+      FROM fta.recreation_district_xref rdx
+      ORDER BY rdx.forest_file_id, rdx.update_timestamp DESC NULLS LAST
+    ) district_fta
+      ON district_fta.forest_file_id = rp.forest_file_id
+    LEFT JOIN fta.recreation_district_code rdc_fta
+      ON rdc_fta.recreation_district_code = district_fta.recreation_district_code
+    -- prov_forest_use has no unique key on forest_file_id, so pick the latest
+    -- row rather than letting a duplicate multiply the export rows
+    LEFT JOIN (
+      SELECT DISTINCT ON (pfu.forest_file_id)
+        pfu.forest_file_id,
+        pfu.file_status_st
+      FROM fta.prov_forest_use pfu
+      ORDER BY
+        pfu.forest_file_id,
+        pfu.file_status_date DESC NULLS LAST,
+        pfu.update_timestamp DESC NULLS LAST
+    ) pfu_fta
+      ON pfu_fta.forest_file_id = rp.forest_file_id
+    LEFT JOIN fta.recreation_file_status_code rfsc_fta
+      ON rfsc_fta.recreation_file_status_code = pfu_fta.file_status_st
     LEFT JOIN (
       SELECT DISTINCT ON (rmf_type.forest_file_id)
         rmf_type.forest_file_id,

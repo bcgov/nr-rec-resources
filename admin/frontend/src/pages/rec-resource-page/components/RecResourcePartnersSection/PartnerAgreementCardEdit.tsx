@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Button,
   Col,
@@ -60,20 +59,20 @@ export const PartnerAgreementCardEdit = ({
   onCancelAgreement,
   disabled = false,
 }: PartnerAgreementCardEditProps) => {
-  const [touched, setTouched] = useState(false);
   // Deleting a partner is a super-admin action; regular admins do not see the
   // button at all. The API enforces this independently via SuperAdminGuard.
   const { isSuperAdmin } = useAuthorizations();
   // A cancelled agreement is frozen: its dates and public-website visibility
   // are no longer editable. Delete stays available.
   const isFrozen = disabled || partner.cancelled;
-  const dateError = getDateOrderError(draft);
+  // Cancelling writes the cancel date into the end date and the API skips the
+  // order check while doing it, so an inverted pair on a cancelled agreement is
+  // expected rather than wrong. Flagging it would also point at frozen inputs.
+  const dateError = partner.cancelled ? null : getDateOrderError(draft);
   const toggleName = `partner-visibility-${partner.agreement_holder_id}`;
 
-  const update = (patch: Partial<PartnerAgreementDraft>) => {
-    setTouched(true);
+  const update = (patch: Partial<PartnerAgreementDraft>) =>
     onDraftChange(partner.agreement_holder_id, { ...draft, ...patch });
-  };
 
   return (
     <div className="partner-panel partner-panel--edit">
@@ -150,7 +149,7 @@ export const PartnerAgreementCardEdit = ({
               type="date"
               value={draft.agreementEndDate}
               disabled={isFrozen}
-              isInvalid={touched && Boolean(dateError)}
+              isInvalid={Boolean(dateError)}
               onChange={(e) => update({ agreementEndDate: e.target.value })}
             />
             <Form.Control.Feedback type="invalid">
