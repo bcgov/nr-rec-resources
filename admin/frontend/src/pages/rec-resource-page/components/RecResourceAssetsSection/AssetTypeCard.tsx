@@ -10,6 +10,7 @@ import { StyledAccordion } from '../StyledAccordion';
 import { formatCurrency } from './formatCurrency';
 import './AssetTypeCard.scss';
 import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
+import { dismissActiveHelp } from '@/components/help-icon/HelpIcon';
 
 interface AssetTypeCardProps {
   eventKey: string;
@@ -83,6 +84,7 @@ export function AssetTypeCard({
                 variant="outline-primary"
                 className="asset-summary-action-btn"
                 onClick={(e) => {
+                  dismissActiveHelp();
                   e.stopPropagation();
                   onCancel?.();
                 }}
@@ -94,6 +96,7 @@ export function AssetTypeCard({
                 variant="primary"
                 className="asset-summary-action-btn"
                 onClick={(e) => {
+                  dismissActiveHelp();
                   e.stopPropagation();
                   onSave?.();
                 }}
