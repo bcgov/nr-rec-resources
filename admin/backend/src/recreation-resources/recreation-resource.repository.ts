@@ -516,6 +516,7 @@ export class RecreationResourceRepository {
       recreation_district: string | null;
       natural_resource_district: string | null;
       recreation_type: string | null;
+      purpose_code: string | null;
       amend_status_code: string;
       feature_count: number;
       requested_at: Date | null;
@@ -534,6 +535,7 @@ export class RecreationResourceRepository {
         recreation_district: string | null;
         natural_resource_district: string | null;
         recreation_type: string | null;
+        purpose_code: string | null;
         amend_status_code: string;
         feature_count: bigint;
         requested_at: Date | null;
@@ -552,6 +554,7 @@ export class RecreationResourceRepository {
         nru.org_unit_name AS natural_resource_district,
         STRING_AGG(DISTINCT rrtva.description, ', ')
           FILTER (WHERE rrtva.description IS NOT NULL) AS recreation_type,
+        rss.purpose_code,
         rss.status AS amend_status_code,
         COALESCE(COUNT(DISTINCT rmf.rmf_skey), 0)::bigint AS feature_count,
         COALESCE(rss.created_at, rss.submission_date::timestamp) AS requested_at,
@@ -583,7 +586,7 @@ export class RecreationResourceRepository {
         ON nru.rec_resource_id = rss.tenure_id
       LEFT JOIN rst.recreation_resource_type_view_admin rrtva
         ON rrtva.rec_resource_id = rss.tenure_id
-      WHERE rss.status = 'PND'
+      WHERE rss.status IN ('PND', 'APP')
         AND rss.tenure_id IS NOT NULL
       GROUP BY
         rss.submission_id,

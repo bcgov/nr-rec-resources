@@ -72,6 +72,14 @@ export class SncscApi extends runtime.BaseAPI {
     headerParameters['Content-Type'] = 'application/json';
 
     if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    if (this.configuration && this.configuration.accessToken) {
       // oauth required
       headerParameters['Authorization'] = await this.configuration.accessToken(
         'sncsc-keycloak',

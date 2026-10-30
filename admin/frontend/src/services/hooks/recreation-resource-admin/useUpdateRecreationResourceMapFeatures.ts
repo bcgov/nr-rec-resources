@@ -11,14 +11,17 @@ export interface UpdateRecreationResourceMapFeaturesRequest {
   newFeatures: Array<{
     geometry: Record<string, unknown>;
     sectionId?: string;
+    properties?: Record<string, unknown>;
   }>;
   amendedFeatures: Array<{
     geometry: Record<string, unknown>;
     sectionId?: string;
+    properties?: Record<string, unknown>;
   }>;
   retiredFeatures: Array<{
     geometry: Record<string, unknown>;
     sectionId?: string;
+    properties?: Record<string, unknown>;
   }>;
   recreationTypeCode?: string;
   submittedBy?: string;
@@ -48,14 +51,17 @@ export function useUpdateRecreationResourceMapFeatures() {
             newFeatures: newFeatures.map((feature) => ({
               geometry: feature.geometry,
               section_id: feature.sectionId,
+              properties: feature.properties,
             })),
             amendedFeatures: amendedFeatures.map((feature) => ({
               geometry: feature.geometry,
               section_id: feature.sectionId,
+              properties: feature.properties,
             })),
             retiredFeatures: retiredFeatures.map((feature) => ({
               geometry: feature.geometry,
               section_id: feature.sectionId,
+              properties: feature.properties,
             })),
             recreation_type_code: recreationTypeCode,
             submitted_by: submittedBy,

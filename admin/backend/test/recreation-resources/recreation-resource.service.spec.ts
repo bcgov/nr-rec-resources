@@ -4,12 +4,15 @@ import { OPEN_STATUS } from '@/recreation-resources/recreation-resource.constant
 import { UpdateRecreationResourceDto } from '@/recreation-resources/dtos/update-recreation-resource.dto';
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { RecreationResourceService } from '@/recreation-resources/recreation-resource.service';
+import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
+import { NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('RecreationResourceService', () => {
   let service: RecreationResourceService;
   let repo: RecreationResourceRepository;
   let prisma: PrismaService;
+  let sncscStatusRequestService: SncscStatusRequestService;
 
   beforeEach(() => {
     repo = {
@@ -20,8 +23,18 @@ describe('RecreationResourceService', () => {
     } as unknown as RecreationResourceRepository;
     prisma = {
       $queryRawTyped: vi.fn(),
+      recreation_spatial_submission: {
+        findUnique: vi.fn(),
+      },
     } as unknown as PrismaService;
-    service = new RecreationResourceService(repo, prisma);
+    sncscStatusRequestService = {
+      fetchAdjudicationReportContent: vi.fn(),
+    } as unknown as SncscStatusRequestService;
+    service = new RecreationResourceService(
+      repo,
+      prisma,
+      sncscStatusRequestService,
+    );
   });
 
   it('should return suggestions in correct format', async () => {
@@ -257,6 +270,8 @@ describe('RecreationResourceService', () => {
       application_guid: 'app-guid-123',
       status_request_guid: 'status-guid-123',
       exhibit_a_url: 'https://example.com/exhibit-a.pdf',
+      adjudication_report:
+        '/api/recreation-resources/pending-requests/app-guid-123/adjudication-report',
     });
   });
 
@@ -286,6 +301,49 @@ describe('RecreationResourceService', () => {
     expect(result.data[0]).not.toHaveProperty('application_guid');
     expect(result.data[0]).not.toHaveProperty('status_request_guid');
     expect(result.data[0]).not.toHaveProperty('exhibit_a_url');
+    expect(result.data[0]).not.toHaveProperty('adjudication_report');
+  });
+
+  it('should fetch adjudication report content for an application guid', async () => {
+    (prisma.recreation_spatial_submission.findUnique as any).mockResolvedValue({
+      adjudication_report_document_uri:
+        'https://sncsc.example.com/documents/abc',
+    });
+    (
+      sncscStatusRequestService.fetchAdjudicationReportContent as any
+    ).mockResolvedValue({
+      contentType: 'application/pdf',
+      content: Buffer.from('pdf-bytes'),
+    });
+
+    const result =
+      await service.getPendingRequestAdjudicationReport('app-guid-123');
+
+    expect(prisma.recreation_spatial_submission.findUnique).toHaveBeenCalled();
+    expect(
+      sncscStatusRequestService.fetchAdjudicationReportContent,
+    ).toHaveBeenCalledWith('https://sncsc.example.com/documents/abc');
+    expect(result.contentType).toBe('application/pdf');
+  });
+
+  it('should throw NotFoundException when submission is missing for adjudication report', async () => {
+    (prisma.recreation_spatial_submission.findUnique as any).mockResolvedValue(
+      null,
+    );
+
+    await expect(
+      service.getPendingRequestAdjudicationReport('missing-guid'),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('should throw NotFoundException when adjudication report URI is missing', async () => {
+    (prisma.recreation_spatial_submission.findUnique as any).mockResolvedValue({
+      adjudication_report_document_uri: null,
+    });
+
+    await expect(
+      service.getPendingRequestAdjudicationReport('app-guid-123'),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('should map admin search results into response DTO shape', async () => {

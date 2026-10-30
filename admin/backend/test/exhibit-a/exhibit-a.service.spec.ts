@@ -515,6 +515,72 @@ describe('ExhibitAService', () => {
     });
   });
 
+  it('falls back when recreation_exhibit_a_doc.generation_method is missing', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        application_guid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+        submission_id: 'S1234567',
+        tenure_id: 'REC0001',
+      },
+    ]);
+
+    const generateSpy = vi.spyOn(service, 'generate').mockResolvedValue({
+      submissionId: 'S1234567',
+      pageSize: ExhibitAPageSize.B,
+      pageOrientation: ExhibitAPageOrientation.Landscape,
+      scale: 30000,
+      mapImageUrl: 'https://example.com/map.jpg',
+      pdfBuffer: Buffer.from('%PDF-1.4 test', 'ascii'),
+      pdfKey: 'REC0001/exhibit-a-S1234567-456.pdf',
+      pdfUrl: 'https://example.com/s3/exhibit-a-S1234567-456.pdf',
+    });
+
+    prisma.$executeRaw
+      .mockResolvedValueOnce(1)
+      .mockRejectedValueOnce({
+        code: 'P2010',
+        meta: {
+          code: '42703',
+          message:
+            'column "generation_method" of relation "recreation_exhibit_a_doc" does not exist',
+        },
+      })
+      .mockResolvedValueOnce(1);
+
+    await expect(
+      service.createOrGetByApplicationGuid(
+        '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+        {
+          generate: true,
+          userId: 'TESTER1',
+          adjudicationComments: [],
+          size: ExhibitAPageSize.B,
+          orientation: ExhibitAPageOrientation.Landscape,
+          scale: 30000,
+        },
+      ),
+    ).resolves.toMatchObject({ submissionId: 'S1234567' });
+
+    expect(generateSpy).toHaveBeenCalledWith('S1234567', {
+      pageSize: ExhibitAPageSize.B,
+      pageOrientation: ExhibitAPageOrientation.Landscape,
+      scale: 30000,
+    });
+    expect(prisma.$executeRaw).toHaveBeenCalledTimes(3);
+
+    const failedMetadataCall = prisma.$executeRaw.mock.calls[1]![0] as {
+      raw?: string[];
+    };
+    expect(failedMetadataCall.raw?.join(' ')).toContain('generation_method');
+
+    const fallbackMetadataCall = prisma.$executeRaw.mock.calls[2]![0] as {
+      raw?: string[];
+    };
+    expect(fallbackMetadataCall.raw?.join(' ')).not.toContain(
+      'generation_method',
+    );
+  });
+
   it('throws NotFoundException when a submission has no map features', async () => {
     prisma.$queryRaw
       .mockResolvedValueOnce([
