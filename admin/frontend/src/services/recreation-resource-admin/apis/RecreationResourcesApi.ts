@@ -198,6 +198,7 @@ export interface DownloadExportCsvRequest {
   dataset: DownloadExportCsvDatasetEnum;
   district?: string;
   resourceType?: string;
+  includeArchived?: boolean;
 }
 
 export interface FinalizeDocUploadRequest {
@@ -247,6 +248,7 @@ export interface GetExportPreviewRequest {
   dataset: GetExportPreviewDatasetEnum;
   district?: string;
   resourceType?: string;
+  includeArchived?: boolean;
   limit?: number;
 }
 
@@ -357,40 +359,6 @@ export interface UpdateRecreationResourceFeeRequest {
 export interface UpdateRecreationResourceGeospatialRequest {
   recResourceId: string;
   updateRecreationResourceGeospatialDto: UpdateRecreationResourceGeospatialDto;
-}
-
-export interface CreateRecreationMapFeaturesDto {
-  features: Array<{
-    geometry: Record<string, unknown>;
-    section_id?: string;
-  }>;
-  recreation_type_code?: string;
-  natural_resource_district_code?: string;
-  recreation_district_code?: string;
-  submitted_by?: string;
-}
-
-export interface CreateRecreationResourceMapFeaturesRequest {
-  recResourceId: string;
-  createRecreationMapFeaturesDto: CreateRecreationMapFeaturesDto;
-}
-
-export interface PendingMapFeatureRequestRowDto {
-  rec_resource_id: string;
-  name?: string | null;
-  district_description?: string | null;
-  recreation_district?: string | null;
-  natural_resource_district?: string | null;
-  recreation_type?: string | null;
-  amend_status_code: string;
-  feature_count: number;
-  requested_at?: string | null;
-  geometry_types: string[];
-}
-
-export interface PendingMapFeatureRequestsResponseDto {
-  data: PendingMapFeatureRequestRowDto[];
-  total: number;
 }
 
 export interface UpdateRecreationResourceReservationRequest {
@@ -1324,6 +1292,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       queryParameters['resourceType'] = requestParameters['resourceType'];
     }
 
+    if (requestParameters['includeArchived'] != null) {
+      queryParameters['includeArchived'] = requestParameters['includeArchived'];
+    }
+
     const headerParameters: runtime.HTTPHeaders = {};
 
     if (this.configuration && this.configuration.accessToken) {
@@ -2063,6 +2035,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     if (requestParameters['resourceType'] != null) {
       queryParameters['resourceType'] = requestParameters['resourceType'];
+    }
+
+    if (requestParameters['includeArchived'] != null) {
+      queryParameters['includeArchived'] = requestParameters['includeArchived'];
     }
 
     if (requestParameters['limit'] != null) {

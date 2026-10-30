@@ -6,8 +6,10 @@ export const activitiesListDataset: ExportDatasetBuilder = {
   buildQuery: ({ sql }) => Prisma.sql`
     SELECT
       ${sql.rstPrimaryColumns()},
-      ra.recreation_activity_code::text AS "ACTIVITY_CODE",
-      rac.description AS "ACTIVITY_DESC",
+      ${sql.describeCode(
+        Prisma.sql`ra.recreation_activity_code`,
+        Prisma.sql`rac.description`,
+      )} AS "ACTIVITY_DESC",
       ${sql.legacySharedColumnsBeforeTail()},
       ${sql.legacySharedColumnsTail(
         Prisma.sql`COALESCE(GREATEST(rr.updated_at, ra.updated_at), rr.updated_at, ra.updated_at)`,

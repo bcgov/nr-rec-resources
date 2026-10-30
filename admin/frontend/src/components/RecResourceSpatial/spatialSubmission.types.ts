@@ -19,16 +19,10 @@ export interface ValidationIssue {
 
 export interface SubmissionMetadata {
   email: string;
-  telephone: string;
   contactName: string;
   districtCode: string;
   recreationDistrict: string;
   licenseRecNumber: string;
-  rootNamespace: string;
-  actionCode: string;
-  accuracyCode: string;
-  captureMethod: string;
-  dataSource: string;
 }
 
 export interface FeatureSectionId {
@@ -64,7 +58,6 @@ export interface PreparedFeatureCollectionResult {
 
 export interface SectionIdExtractionResult {
   fieldName: string | null;
-  sectionIds: string[];
   featureSectionIds: FeatureSectionId[];
   issues: ValidationIssue[];
 }

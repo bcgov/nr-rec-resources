@@ -129,6 +129,79 @@ describe('AppConfigService', () => {
     it('should return Act CSS client ID', () => {
       expect(service.actCssClientId).toBe('test-act-css-client');
     });
+
+    it('should default optional CSS client IDs to empty string', async () => {
+      vi.stubEnv('BCGW_CSS_CLIENT_ID', undefined as unknown as string);
+      vi.stubEnv('SNCSC_CSS_CLIENT_ID', undefined as unknown as string);
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      const envService = module.get<AppConfigService>(AppConfigService);
+      expect(envService.bcgwCssClientId).toBe('');
+      expect(envService.sncscCssClientId).toBe('');
+    });
+
+    it('should return configured SNCSC integration and endpoint values', async () => {
+      vi.stubEnv('SNCSC_INTEGRATION_CLIENT_ID', 'sncsc-client-id');
+      vi.stubEnv('SNCSC_INTEGRATION_CLIENT_SECRET', 'sncsc-client-secret');
+      vi.stubEnv('SNCSC_BASE_URL', 'https://sncsc.example.com/api');
+      vi.stubEnv('SNCSC_TOKEN_URL', 'https://sncsc.example.com/token');
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      const envService = module.get<AppConfigService>(AppConfigService);
+      expect(envService.sncscIntegrationClientId).toBe('sncsc-client-id');
+      expect(envService.sncscIntegrationClientSecret).toBe(
+        'sncsc-client-secret',
+      );
+      expect(envService.sncscBaseUrl).toBe('https://sncsc.example.com/api');
+      expect(envService.sncscTokenUrl).toBe('https://sncsc.example.com/token');
+    });
+
+    it('should default optional SNCSC integration values to empty string', async () => {
+      vi.stubEnv('SNCSC_INTEGRATION_CLIENT_ID', undefined as unknown as string);
+      vi.stubEnv(
+        'SNCSC_INTEGRATION_CLIENT_SECRET',
+        undefined as unknown as string,
+      );
+      vi.stubEnv('SNCSC_BASE_URL', undefined as unknown as string);
+      vi.stubEnv('SNCSC_TOKEN_URL', undefined as unknown as string);
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      const envService = module.get<AppConfigService>(AppConfigService);
+      expect(envService.sncscIntegrationClientId).toBe('');
+      expect(envService.sncscIntegrationClientSecret).toBe('');
+      expect(envService.sncscBaseUrl).toBe('');
+      expect(envService.sncscTokenUrl).toBe('');
+    });
   });
 
   describe('BCGW Export Configuration', () => {
@@ -182,6 +255,80 @@ describe('AppConfigService', () => {
     it('should return a configured cron expression', async () => {
       vi.stubEnv('BCGW_EXPORT_CRON', '*/5 * * * *');
       expect((await buildService()).bcgwExportCron).toBe('*/5 * * * *');
+    });
+  });
+
+  describe('FTA Integration Configuration', () => {
+    it('should return configured FTA values', async () => {
+      vi.stubEnv(
+        'CFG_FTA_MAP_SERVICE',
+        'https://maps.example.com/Export%20Web%20Map%20Task/execute',
+      );
+      vi.stubEnv(
+        'CFG_FTA_ARC_GIS_SERVERS',
+        'https://maps.example.com/arcgis/rest/services/fta/%d/MapServer',
+      );
+      vi.stubEnv(
+        'CFG_OPERATIONAL_LAYER_LIST_URL',
+        '/xml/custom_report_layers.xml',
+      );
+      vi.stubEnv('CFG_FTA_ARC_IMS_SERVER', 'ims.example.com');
+      vi.stubEnv('CFG_SDE_RENDER_AGENT_SERVER', 'render.example.com');
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      const envService = module.get<AppConfigService>(AppConfigService);
+      expect(envService.ftaMapService).toBe(
+        'https://maps.example.com/Export%20Web%20Map%20Task/execute',
+      );
+      expect(envService.ftaArcGisServersTemplate).toBe(
+        'https://maps.example.com/arcgis/rest/services/fta/%d/MapServer',
+      );
+      expect(envService.ftaOperationalLayerListUrl).toBe(
+        '/xml/custom_report_layers.xml',
+      );
+      expect(envService.ftaArcImsServer).toBe('ims.example.com');
+      expect(envService.sdeRenderAgentServer).toBe('render.example.com');
+    });
+
+    it('should provide defaults when optional FTA values are not set', async () => {
+      vi.stubEnv('CFG_FTA_MAP_SERVICE', undefined as unknown as string);
+      vi.stubEnv('CFG_FTA_ARC_GIS_SERVERS', undefined as unknown as string);
+      vi.stubEnv(
+        'CFG_OPERATIONAL_LAYER_LIST_URL',
+        undefined as unknown as string,
+      );
+      vi.stubEnv('CFG_FTA_ARC_IMS_SERVER', undefined as unknown as string);
+      vi.stubEnv('CFG_SDE_RENDER_AGENT_SERVER', undefined as unknown as string);
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      const envService = module.get<AppConfigService>(AppConfigService);
+      expect(envService.ftaMapService).toBe('');
+      expect(envService.ftaArcGisServersTemplate).toBe('');
+      expect(envService.ftaOperationalLayerListUrl).toBe(
+        '/xml/fta_osdb_report_layers.xml',
+      );
+      expect(envService.ftaArcImsServer).toBe('envux10.env.gov.bc.ca');
+      expect(envService.sdeRenderAgentServer).toBe('BCGW-I.BCGOV');
     });
   });
 });

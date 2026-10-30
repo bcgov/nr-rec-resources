@@ -67,6 +67,22 @@ export class EnvironmentVariables {
   @IsString()
   SNCSC_CSS_CLIENT_ID?: string;
 
+  @IsOptional()
+  @IsString()
+  SNCSC_INTEGRATION_CLIENT_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  SNCSC_INTEGRATION_CLIENT_SECRET?: string;
+
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  SNCSC_BASE_URL?: string;
+
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  SNCSC_TOKEN_URL?: string;
+
   // Forest Client API configuration
   @IsUrl({ require_tld: false })
   @IsNotEmpty()
@@ -129,6 +145,27 @@ export class EnvironmentVariables {
   @IsOptional()
   @IsString()
   BCGW_EXPORT_CRON?: string;
+
+  // FTA map service integration
+  @IsOptional()
+  @IsString()
+  CFG_FTA_MAP_SERVICE?: string;
+
+  @IsOptional()
+  @IsString()
+  CFG_FTA_ARC_GIS_SERVERS?: string;
+
+  @IsOptional()
+  @IsString()
+  CFG_OPERATIONAL_LAYER_LIST_URL?: string;
+
+  @IsOptional()
+  @IsString()
+  CFG_FTA_ARC_IMS_SERVER?: string;
+
+  @IsOptional()
+  @IsString()
+  CFG_SDE_RENDER_AGENT_SERVER?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

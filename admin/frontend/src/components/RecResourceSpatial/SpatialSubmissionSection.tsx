@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Card, Col, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useGetRecreationResourceOptions } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceOptions';
@@ -45,17 +45,27 @@ export const SpatialSubmissionSection = ({
   defaultRecreationDistrict = '',
   editMode = false,
   existingSectionIds = [],
+  showCreateHeading = false,
+  useGeospatialCompactForm = false,
+  onCancel,
 }: SpatialSubmissionSectionProps) => {
   const { user, authService } = useAuthContext();
+  const optionTypes = useMemo(
+    () =>
+      useGeospatialCompactForm
+        ? [GetOptionsByTypesTypesEnum.ResourceType]
+        : [
+            GetOptionsByTypesTypesEnum.NaturalDistrict,
+            GetOptionsByTypesTypesEnum.District,
+            GetOptionsByTypesTypesEnum.ResourceType,
+          ],
+    [useGeospatialCompactForm],
+  );
   const {
     data: districtOptionGroups,
     isLoading: areDistrictOptionsLoading,
     isError: areDistrictOptionsErrored,
-  } = useGetRecreationResourceOptions([
-    GetOptionsByTypesTypesEnum.NaturalDistrict,
-    GetOptionsByTypesTypesEnum.District,
-    GetOptionsByTypesTypesEnum.ResourceType,
-  ]);
+  } = useGetRecreationResourceOptions(optionTypes);
   const [values, setValues] = useState<WizardValues>(() => ({
     ...DEFAULT_WIZARD_VALUES,
     recreationType: defaultRecreationTypeCode,
@@ -93,6 +103,8 @@ export const SpatialSubmissionSection = ({
     useState(true);
   const [showDistrictOptionsNotice, setShowDistrictOptionsNotice] =
     useState(true);
+  const shouldShowDistrictOptionsNotice =
+    !useGeospatialCompactForm && showDistrictOptionsNotice;
 
   const optionGroupsByType = useMemo(() => {
     return new Map(
@@ -133,9 +145,23 @@ export const SpatialSubmissionSection = ({
       ),
     [resourceTypeOptionsResponse],
   );
+  const requiredFields = useMemo<RequiredFieldKey[]>(
+    () =>
+      useGeospatialCompactForm
+        ? ['recreationType', 'featureType', 'email', 'contactName']
+        : [
+            'recreationType',
+            'featureType',
+            'email',
+            'contactName',
+            'districtCode',
+            'recreationDistrict',
+          ],
+    [useGeospatialCompactForm],
+  );
   const missingRequiredFields = useMemo(
-    () => getMissingRequiredFields(values),
-    [values],
+    () => getMissingRequiredFields(values, requiredFields),
+    [requiredFields, values],
   );
   const shouldShowRequiredValidation =
     hasValidateAttempted && missingRequiredFields.length > 0;
@@ -435,10 +461,16 @@ export const SpatialSubmissionSection = ({
     Boolean(editableFeatureCollection?.features?.length) && issues.length === 0;
 
   return (
-    <Card>
-      <div className="exhibit-a-section__header">
-        <h2 className="exhibit-a-section__title">Spatial submission</h2>
-      </div>
+    <div
+      className={`spatial-submission-section${showCreateHeading ? ' spatial-submission-section--embedded' : ''}`}
+    >
+      {showCreateHeading ? (
+        <h3 className="mb-0">Create new</h3>
+      ) : (
+        <div className="exhibit-a-section__header">
+          <h2 className="exhibit-a-section__title">Spatial submission</h2>
+        </div>
+      )}
 
       <div className="exhibit-a-section__grid">
         <SpatialSubmissionAlerts
@@ -451,7 +483,7 @@ export const SpatialSubmissionSection = ({
           createStatus={createStatus}
           onDismissCreateStatus={() => setCreateStatus(null)}
           areDistrictOptionsErrored={areDistrictOptionsErrored}
-          showDistrictOptionsNotice={showDistrictOptionsNotice}
+          showDistrictOptionsNotice={shouldShowDistrictOptionsNotice}
           onDismissDistrictOptionsNotice={() =>
             setShowDistrictOptionsNotice(false)
           }
@@ -471,7 +503,10 @@ export const SpatialSubmissionSection = ({
             isProcessing={isProcessing}
             onSpatialFilesChange={handleSpatialFilesChange}
             onValidateSpatialFile={handleValidateSpatialFile}
+            variant={useGeospatialCompactForm ? 'geospatial' : 'full'}
             editMode={editMode}
+            onCancel={onCancel}
+            showCreateHeading={showCreateHeading}
           />
 
           <Col xs={12}>
@@ -501,6 +536,6 @@ export const SpatialSubmissionSection = ({
           </Col>
         </Row>
       </div>
-    </Card>
+    </div>
   );
 };

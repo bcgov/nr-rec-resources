@@ -1,39 +1,6 @@
 import { RecResourceAdaptiveActivitiesSection } from '@/pages/rec-resource-page/components/RecResourceAdaptiveActivitiesSection/RecResourceAdaptiveActivitiesSection';
-import { RoleGuard } from '@/components/auth';
-import { useParams } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-vi.mock('@tanstack/react-router', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@tanstack/react-router')>();
-  return {
-    ...actual,
-    useParams: vi.fn(),
-    Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
-      <a href={to} data-testid="edit-link">
-        {children}
-      </a>
-    ),
-  };
-});
-
-vi.mock('@/components/auth', () => ({
-  RoleGuard: vi.fn(({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  )),
-}));
-
-vi.mock('@/hooks/useAuthorizations', () => ({
-  ROLES: { ADMIN: 'rst-admin' },
-}));
-
-vi.mock('@/constants/routes', () => ({
-  ROUTE_PATHS: {
-    REC_RESOURCE_ACTIVITIES_FEATURES_EDIT:
-      '/rec-resource/$id/activities-features/edit',
-  },
-}));
 
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceAdaptiveActivitiesSection/AdaptiveActivityList',
@@ -53,8 +20,6 @@ vi.mock(
 describe('RecResourceAdaptiveActivitiesSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useParams).mockReturnValue({ id: 'REC0001' } as any);
-    vi.mocked(RoleGuard).mockImplementation(({ children }) => <>{children}</>);
   });
 
   it('renders the "Accessible activities" heading', () => {
@@ -137,45 +102,5 @@ describe('RecResourceAdaptiveActivitiesSection', () => {
     expect(
       screen.queryByText('No accessible activities assigned.'),
     ).not.toBeInTheDocument();
-  });
-
-  it('shows Edit link for admins (RoleGuard renders children)', () => {
-    render(
-      <RecResourceAdaptiveActivitiesSection
-        recResourceId="REC0001"
-        recreationActivities={[]}
-      />,
-    );
-
-    expect(screen.getByTestId('edit-link')).toHaveTextContent('Edit');
-  });
-
-  it('hides Edit link for viewers (RoleGuard renders nothing)', () => {
-    vi.mocked(RoleGuard).mockImplementation(() => null);
-
-    render(
-      <RecResourceAdaptiveActivitiesSection
-        recResourceId="REC0001"
-        recreationActivities={[]}
-      />,
-    );
-
-    expect(screen.queryByTestId('edit-link')).not.toBeInTheDocument();
-  });
-
-  it('Edit link href contains the resource id', () => {
-    vi.mocked(useParams).mockReturnValue({ id: 'REC9999' } as any);
-
-    render(
-      <RecResourceAdaptiveActivitiesSection
-        recResourceId="REC9999"
-        recreationActivities={[]}
-      />,
-    );
-
-    expect(screen.getByTestId('edit-link')).toHaveAttribute(
-      'href',
-      expect.stringContaining('REC9999'),
-    );
   });
 });

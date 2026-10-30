@@ -81,6 +81,30 @@ export class AppConfigService {
     return this.configService.get('SNCSC_CSS_CLIENT_ID', { infer: true }) ?? '';
   }
 
+  get sncscIntegrationClientId(): string {
+    return (
+      this.configService.get('SNCSC_INTEGRATION_CLIENT_ID', {
+        infer: true,
+      }) ?? ''
+    );
+  }
+
+  get sncscIntegrationClientSecret(): string {
+    return (
+      this.configService.get('SNCSC_INTEGRATION_CLIENT_SECRET', {
+        infer: true,
+      }) ?? ''
+    );
+  }
+
+  get sncscBaseUrl(): string {
+    return this.configService.get('SNCSC_BASE_URL', { infer: true }) ?? '';
+  }
+
+  get sncscTokenUrl(): string {
+    return this.configService.get('SNCSC_TOKEN_URL', { infer: true }) ?? '';
+  }
+
   get forestClientApiUrl(): string {
     return this.configService.get('FOREST_CLIENT_API_URL', { infer: true })!;
   }
@@ -157,6 +181,41 @@ export class AppConfigService {
     return (
       this.configService.get('BCGW_EXPORT_CRON', { infer: true }) ??
       '*/15 * * * *'
+    );
+  }
+
+  // FTA map export integration
+  get ftaMapService(): string {
+    return this.configService.get('CFG_FTA_MAP_SERVICE', { infer: true }) ?? '';
+  }
+
+  get ftaArcGisServersTemplate(): string {
+    return (
+      this.configService.get('CFG_FTA_ARC_GIS_SERVERS', { infer: true }) ?? ''
+    );
+  }
+
+  get ftaOperationalLayerListUrl(): string {
+    return (
+      this.configService.get('CFG_OPERATIONAL_LAYER_LIST_URL', {
+        infer: true,
+      }) ?? '/xml/fta_osdb_report_layers.xml'
+    );
+  }
+
+  get ftaArcImsServer(): string {
+    return (
+      this.configService.get('CFG_FTA_ARC_IMS_SERVER', {
+        infer: true,
+      }) ?? 'envux10.env.gov.bc.ca'
+    );
+  }
+
+  get sdeRenderAgentServer(): string {
+    return (
+      this.configService.get('CFG_SDE_RENDER_AGENT_SERVER', {
+        infer: true,
+      }) ?? 'BCGW-I.BCGOV'
     );
   }
 }
