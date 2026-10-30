@@ -36,6 +36,7 @@ export type ExhibitAPdfHeader = {
   area_ha?: number | null;
   width_m?: number | null;
   length_km?: number | null;
+  map_sheet?: string | null;
   geometry_mode?: 'linear' | 'polygon' | 'mixed' | null;
 };
 
@@ -689,7 +690,7 @@ export class ExhibitAPdfBuilder {
           [
             `At scale page. ${pageDims}`,
             `1:${input.scale.toLocaleString('en-CA')}`,
-            'Map Sheet:',
+            `Map Sheet: ${h.map_sheet ?? ''}`,
           ],
           [
             ...(utmLine ? [utmLine] : []),

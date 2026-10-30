@@ -64,7 +64,7 @@ describe('RequestsPage', () => {
     district_description: 'District description',
     natural_resource_district: undefined,
     recreation_type: undefined,
-    amend_status_code: 'NEW',
+    amend_status_code: 'PND',
     geometry_types: [],
     feature_count: 2,
     requested_at: '2026-10-07T10:30:00Z',
@@ -113,11 +113,33 @@ describe('RequestsPage', () => {
       screen.getByTestId('cell-Natural Resource District'),
     ).toHaveTextContent('-');
     expect(screen.getByTestId('cell-Recreation type')).toHaveTextContent('-');
-    expect(screen.getByTestId('cell-Status')).toHaveTextContent('NEW');
+    expect(screen.getByTestId('cell-Status')).toHaveTextContent('PND');
     expect(screen.getByTestId('cell-Geometry Type')).toHaveTextContent('-');
     expect(screen.getByTestId('cell-Features')).toHaveTextContent('2');
     expect(screen.getByTestId('cell-Requested At')).toHaveTextContent(
       '2026-10-07',
     );
+  });
+
+  it('shows only pending rows when API includes non-pending statuses', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          sampleRow,
+          {
+            ...sampleRow,
+            rec_resource_id: 'REC002',
+            amend_status_code: 'APP',
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<RequestsPage />);
+
+    expect(screen.getByTestId('row-REC001')).toBeInTheDocument();
+    expect(screen.queryByTestId('row-REC002')).not.toBeInTheDocument();
   });
 });
