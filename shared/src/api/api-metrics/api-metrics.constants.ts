@@ -3,6 +3,7 @@ export enum MetricNames {
   REQUEST_COUNT = 'RequestCount',
   RESPONSE_CODE_COUNT = 'ResponseCodeCount',
   ERROR_COUNT = 'ErrorCount',
+  REQUEST_FAILURE_COUNT = 'RequestFailureCount',
 }
 
 export enum ErrorTypes {
@@ -15,6 +16,7 @@ export enum MetricDimensions {
   METHOD = 'Method',
   STATUS_CODE = 'StatusCode',
   ERROR_TYPE = 'ErrorType',
+  ROUTE = 'Route',
 }
 
 export const ENV_VARS = {

@@ -1,7 +1,9 @@
 import { VersioningType } from '@nestjs/common';
+import { ApiMetricsService } from '@shared/api/api-metrics/api-metrics.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AUTH_STRATEGY } from '@/auth';
 import { ACT_API_TAG } from '@/act/act.constants';
+import { AppConfigService } from '@/app-config/app-config.service';
 
 const jsonMiddleware = vi.fn();
 const urlencodedMiddleware = vi.fn();
@@ -174,7 +176,9 @@ describe('bootstrap', () => {
       prefix: 'v',
     });
 
-    expect(appMock.get).toHaveBeenCalledTimes(1);
+    expect(appMock.get).toHaveBeenCalledTimes(2);
+    expect(appMock.get).toHaveBeenCalledWith(AppConfigService);
+    expect(appMock.get).toHaveBeenCalledWith(ApiMetricsService);
 
     expect(builderMocks.setTitle).toHaveBeenCalledWith(
       'Recreation Sites and Trails BC Admin API',

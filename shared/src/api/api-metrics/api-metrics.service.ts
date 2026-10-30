@@ -109,4 +109,37 @@ export class ApiMetricsService {
 
     return datums;
   }
+
+  /**
+   * Datums for a failed request on a route, recorded outside the Nest
+   * enhancer pipeline.
+   *
+   * Two datums on purpose: CloudWatch matches dimension sets exactly, so only
+   * the Route-only datum can be queried by an alarm on Route. The second one
+   * is just for status code breakdowns.
+   */
+  buildRouteFailureDatums(route: string, status: number): MetricDatum[] {
+    const timestamp = new Date();
+    const routeDimension = { Name: MetricDimensions.ROUTE, Value: route };
+
+    return [
+      {
+        MetricName: MetricNames.REQUEST_FAILURE_COUNT,
+        Value: 1,
+        Unit: StandardUnit.Count,
+        Timestamp: timestamp,
+        Dimensions: [routeDimension],
+      },
+      {
+        MetricName: MetricNames.REQUEST_FAILURE_COUNT,
+        Value: 1,
+        Unit: StandardUnit.Count,
+        Timestamp: timestamp,
+        Dimensions: [
+          routeDimension,
+          { Name: MetricDimensions.STATUS_CODE, Value: status.toString() },
+        ],
+      },
+    ];
+  }
 }

@@ -3,10 +3,16 @@ import { globalValidationPipe } from '@/config/global-validation-pipe.config';
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ApiMetricsService } from '@shared/api/api-metrics/api-metrics.service';
 import { json, urlencoded } from 'express';
 import helmet from 'helmet';
+import {
+  ACT_ADVISORIES_PATH,
+  ACT_ADVISORIES_ROUTE_PREFIX,
+} from './act/act.constants';
 import { AppConfigService } from './app-config/app-config.service';
 import { AppModule } from './app.module';
+import { createRouteFailureMetricsHandler } from './config/route-failure-metrics.config';
 import { createSwaggerActTokenProxyHandler } from './config/swagger-act-token-proxy.config';
 import { setupAdminSwagger } from './config/swagger.config';
 import { customLogger } from './common/logger.config';
@@ -53,6 +59,16 @@ export async function bootstrap() {
     type: VersioningType.URI,
     prefix: 'v',
   });
+
+  // Records failed Act requests that ApiMetricsInterceptor never sees, most
+  // importantly the 401 / 403 thrown by guards before interceptors run.
+  app.use(
+    ACT_ADVISORIES_ROUTE_PREFIX,
+    createRouteFailureMetricsHandler(
+      ACT_ADVISORIES_PATH,
+      app.get(ApiMetricsService),
+    ),
+  );
 
   // Same-origin proxy for the Act team's CSS OAuth2 Client Credentials token
   // exchange, so Swagger UI can call it without hitting CSS's CORS/CSP rules.

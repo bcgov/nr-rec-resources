@@ -81,6 +81,13 @@ locals {
   server_error_threshold = 5
   client_error_threshold = 20
 
+  # Routes covered by the request failure middleware in the admin backend.
+  # Add a route here and mount the middleware for it in app.ts, nothing else
+  # is needed.
+  integration_routes = {
+    "act/advisories" = "ACT advisories"
+  }
+
   # Period and evaluation period for alarms
   alarm_period       = 60 # 1 minute
   evaluation_periods = 2  # Check for 2 consecutive periods
@@ -369,7 +376,8 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
           alarms = concat(
             [for key, alarm in aws_cloudwatch_metric_alarm.latency_alarms : alarm.arn if startswith(key, "admin-")],
             [for key, alarm in aws_cloudwatch_metric_alarm.server_error_rate_alarm : alarm.arn if startswith(key, "admin-")],
-            [for key, alarm in aws_cloudwatch_metric_alarm.client_error_rate_alarm : alarm.arn if startswith(key, "admin-")]
+            [for key, alarm in aws_cloudwatch_metric_alarm.client_error_rate_alarm : alarm.arn if startswith(key, "admin-")],
+            [for alarm in aws_cloudwatch_metric_alarm.integration_request_failure_alarm : alarm.arn]
           )
         }
       },
@@ -909,6 +917,36 @@ resource "aws_cloudwatch_metric_alarm" "client_error_rate_alarm" {
   dimensions = {
     ErrorType = "ClientError"
     Operation = each.value.operation
+  }
+
+  tags = merge(local.common_resource_tags, {
+    Name = "API Monitoring Alarms - ${var.app_env}"
+  })
+}
+
+# Alarm for any failed request on an integration route, wherever it failed in
+# the pipeline (auth guard, validation, handler, unmatched subpath). Backed by
+# the request failure middleware, so this also covers the 401 / 403 cases the
+# metrics interceptor never sees.
+resource "aws_cloudwatch_metric_alarm" "integration_request_failure_alarm" {
+  for_each = local.integration_routes
+
+  alarm_name          = "[${var.app_env}] Integration-Request-Failure-Alarm-${each.key}"
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = 0
+  evaluation_periods  = 1
+  datapoints_to_alarm = 1
+  metric_name         = "RequestFailureCount"
+  namespace           = local.api_configs.admin.namespace
+  period              = local.alarm_period
+  statistic           = "Sum"
+  alarm_description   = "At least one request to ${each.value} (${each.key}) failed with a 4xx or 5xx."
+  alarm_actions       = [aws_sns_topic.alarm_topic.arn]
+  ok_actions          = [aws_sns_topic.alarm_topic.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    Route = each.key
   }
 
   tags = merge(local.common_resource_tags, {

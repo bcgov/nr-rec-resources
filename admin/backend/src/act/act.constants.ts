@@ -15,6 +15,11 @@ export const ACT_API_TAG = 'act';
 // URI path segment for Act CUD endpoints
 export const ACT_ADVISORIES_PATH = 'act/advisories';
 
+// Full mounted path, including the global prefix and URI version. Used to
+// scope the failure metrics middleware, so it has to match what the
+// controller actually resolves to.
+export const ACT_ADVISORIES_ROUTE_PREFIX = '/api/v1/act/advisories';
+
 // Log messages for the Act advisories service
 export const ACT_LOG_MESSAGES = {
   UPSERT_RECEIVED: 'Received Act advisory upsert request',
