@@ -98,12 +98,12 @@ export class AppConfigService {
   }
 
   get snsccDmClientId(): string {
-    return this.configService.get('SNSCC_DM_CLIENT_ID', { infer: true }) ?? '';
+    return this.configService.get('SNCSC_DM_CLIENT_ID', { infer: true }) ?? '';
   }
 
   get snsccDmClientSecret(): string {
     return (
-      this.configService.get('SNSCC_DM_CLIENT_SECRET', {
+      this.configService.get('SNCSC_DM_CLIENT_ID', {
         infer: true,
       }) ?? ''
     );

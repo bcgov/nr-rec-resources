@@ -77,15 +77,7 @@ export class EnvironmentVariables {
 
   @IsOptional()
   @IsString()
-  SNSCC_DM_CLIENT_ID?: string;
-
-  @IsOptional()
-  @IsString()
   SNCSC_DM_CLIENT_ID?: string;
-
-  @IsOptional()
-  @IsString()
-  SNSCC_DM_CLIENT_SECRET?: string;
 
   @IsOptional()
   @IsString()

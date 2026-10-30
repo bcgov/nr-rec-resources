@@ -71,6 +71,28 @@ type PrismaRawQueryError = {
   };
 };
 
+type BcgsQueryResponse = {
+  features?: Array<{
+    attributes?: Record<string, unknown>;
+  }>;
+  error?: {
+    message?: string;
+  };
+};
+
+const BCGS_MAP_SHEET_LAYER_URL =
+  'https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_basemapping/MapServer/82/query';
+const BCGS_MAP_SHEET_CANDIDATE_KEYS = [
+  'MAP_TILE_DISPLAY_NAME',
+  'map_tile_display_name',
+  'MAPSHEET',
+  'mapsheet',
+  'MAP_SHEET',
+  'map_sheet',
+  'GRID_NAME',
+  'grid_name',
+] as const;
+
 const spans = (e: SpatialBounds): [number, number] => [
   Math.abs(e.xmax - e.xmin),
   Math.abs(e.ymax - e.ymin),
@@ -129,6 +151,8 @@ export class ExhibitAService {
     }
 
     const extent = calculateExtent(sourceGeometries);
+    const mapSheets = await this.resolveMapSheetsForExtent(extent);
+    const mapSheetLabel = mapSheets.join(', ');
     const utmZone = clamp(
       Math.floor(((extent.xmin + extent.xmax) / 2 + 180) / 6) + 1,
       1,
@@ -137,10 +161,22 @@ export class ExhibitAService {
     const { coordinateRows, pofcPoints, poftPoints, totalLengthKm } =
       this.toSections(featureRows, sourceGeometries, utmZone);
 
-    const scale = options.scale ?? this.determineScale(extent);
-    const pageOrientation =
-      options.pageOrientation ?? this.determineOrientation(extent);
-    const pageSize = options.pageSize ?? this.determinePageSize(extent, scale);
+    const hasExplicitScale = options.scale !== undefined;
+    const hasExplicitPageSize = options.pageSize !== undefined;
+    const hasExplicitOrientation = options.pageOrientation !== undefined;
+    const useExplicitLayout = hasExplicitScale && hasExplicitPageSize;
+
+    const scale =
+      useExplicitLayout || !hasExplicitScale
+        ? (options.scale ?? this.determineScale(extent))
+        : options.scale!;
+    const pageOrientation = hasExplicitOrientation
+      ? options.pageOrientation!
+      : (options.pageOrientation ?? this.determineOrientation(extent));
+    const pageSize =
+      useExplicitLayout || !hasExplicitPageSize
+        ? (options.pageSize ?? this.determinePageSize(extent, scale))
+        : options.pageSize!;
 
     const pdfHeader: ExhibitAPdfHeader = {
       ...header,
@@ -155,6 +191,8 @@ export class ExhibitAService {
       length_km: header.length_km ?? totalLengthKm,
       geometry_mode: geometryMode,
     };
+    (pdfHeader as ExhibitAPdfHeader & { map_sheet?: string | null }).map_sheet =
+      mapSheetLabel || null;
     const layout = {
       submissionId,
       header: pdfHeader,
@@ -170,7 +208,10 @@ export class ExhibitAService {
     const dpi = clamp(MAX_EXPORT_PX / Math.max(inW, inH), MIN_DPI, MAX_DPI);
     const outputSize = [Math.round(inW * dpi), Math.round(inH * dpi)];
 
-    const { mapServerUrl, visibleLayers } = await this.resolveMapServer(scale);
+    const { mapServerUrl, visibleLayers } = await this.resolveMapServer(
+      scale,
+      !useExplicitLayout,
+    );
     const mapImageUrl = await this.exportMapImage(
       buildWebMapJson({
         mapServerUrl,
@@ -389,6 +430,65 @@ export class ExhibitAService {
     if (hasLine) return 'linear';
     if (hasPolygon) return 'polygon';
     return null;
+  }
+
+  private async resolveMapSheetsForExtent(
+    extent: SpatialBounds,
+  ): Promise<string[]> {
+    try {
+      return await this.queryBcgsMapSheetsForExtent(extent);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown error';
+      console.warn(`Map sheet lookup failed: ${message}`);
+      return [];
+    }
+  }
+
+  private async queryBcgsMapSheetsForExtent(
+    extent: SpatialBounds,
+  ): Promise<string[]> {
+    const geometryEnvelope = `${extent.xmin},${extent.ymin},${extent.xmax},${extent.ymax}`;
+    const params = new URLSearchParams({
+      where: '1=1',
+      geometry: geometryEnvelope,
+      geometryType: 'esriGeometryEnvelope',
+      inSR: '4326',
+      spatialRel: 'esriSpatialRelIntersects',
+      outFields: '*',
+      returnGeometry: 'false',
+      f: 'json',
+    });
+
+    const payload = await this.fetchJson<BcgsQueryResponse>(
+      `${BCGS_MAP_SHEET_LAYER_URL}?${params.toString()}`,
+    );
+
+    if (payload.error?.message) {
+      throw new BadGatewayException(payload.error.message);
+    }
+
+    const values = (payload.features ?? [])
+      .map((feature) => {
+        const attrs = feature.attributes ?? {};
+        const key = BCGS_MAP_SHEET_CANDIDATE_KEYS.find(
+          (candidate) => candidate in attrs,
+        );
+        const value = key ? String(attrs[key] ?? '') : '';
+        return value.trim();
+      })
+      .filter((value) => value.length > 0);
+
+    // Keep first-seen order while removing case-insensitive duplicates.
+    const seen = new Set<string>();
+    const unique: string[] = [];
+    for (const value of values) {
+      const normalized = value.toUpperCase();
+      if (seen.has(normalized)) continue;
+      seen.add(normalized);
+      unique.push(value);
+    }
+
+    return unique;
   }
 
   /* ------------------------------ database ------------------------------ */
@@ -713,16 +813,21 @@ export class ExhibitAService {
   }
 
   /** Tries the requested scale first, then the nearest known service scales. */
-  private async resolveMapServer(scale: number): Promise<{
+  private async resolveMapServer(
+    scale: number,
+    allowFallback = true,
+  ): Promise<{
     mapServerUrl: string;
     visibleLayers: number[];
   }> {
-    const candidates = [
-      scale,
-      ...KNOWN_FTA_SERVICE_SCALES.filter((c) => c !== scale).sort(
-        (a, b) => Math.abs(a - scale) - Math.abs(b - scale),
-      ),
-    ];
+    const candidates = allowFallback
+      ? [
+          scale,
+          ...KNOWN_FTA_SERVICE_SCALES.filter((c) => c !== scale).sort(
+            (a, b) => Math.abs(a - scale) - Math.abs(b - scale),
+          ),
+        ]
+      : [scale];
     const errors: string[] = [];
 
     for (const candidate of candidates) {

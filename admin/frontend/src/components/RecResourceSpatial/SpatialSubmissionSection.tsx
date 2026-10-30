@@ -426,14 +426,14 @@ export const SpatialSubmissionSection = ({
 
       setCreateStatus({
         variant: 'success',
-        message: (
-          <>
-            Map feature request created successfully. Go to{' '}
-            <a href={ROUTE_PATHS.REQUESTS}>request page</a> to view this
-            request.
-          </>
-        ),
+        message: <>Map feature request created successfully.</>,
       });
+
+      if (onCancel) {
+        onCancel();
+      } else {
+        window.location.assign(ROUTE_PATHS.REQUESTS);
+      }
     } catch (error) {
       setCreateStatus({
         variant: 'danger',

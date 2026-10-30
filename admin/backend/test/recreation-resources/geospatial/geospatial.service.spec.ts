@@ -196,6 +196,36 @@ describe('GeospatialService', () => {
         section_ids: ['Sec-1', 'Sec-2'],
       });
     });
+
+    it('collapses backend-generated split section IDs for frontend amend matching', async () => {
+      prismaMock.$queryRawTyped.mockResolvedValueOnce([
+        {
+          spatial_feature_geometry: ['geom1'],
+          total_length_km: '10.5',
+          total_area_hectares: '5.2',
+          right_of_way_m: '15',
+          site_point_geometry: 'point-geom',
+          utm_zone: 10,
+          utm_easting: 500000,
+          utm_northing: 5450000,
+          latitude: '49.2827',
+          longitude: '-123.1207',
+        },
+      ]);
+
+      prismaMock.recreation_map_feature.findMany.mockResolvedValueOnce([
+        { section_id: 'Trail-A-1' },
+        { section_id: 'Trail-A-2' },
+        { section_id: 'Trail-A-3' },
+        { section_id: 'Trail-B' },
+        { section_id: 'Trail-C-1' },
+        { section_id: null },
+      ]);
+
+      const result = await service.findGeospatialDataById('REC123');
+
+      expect(result?.section_ids).toEqual(['Trail-A', 'Trail-B', 'Trail-C-1']);
+    });
   });
 
   describe('spatial submission helpers', () => {

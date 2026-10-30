@@ -56,6 +56,17 @@ type ForestClientByAcronymDto = {
   clientNumber?: string;
 };
 
+type MapSheetMatch = {
+  mapSheet: string | null;
+  raw: Record<string, any>;
+};
+
+type QueryResult = {
+  features: Array<{
+    attributes: Record<string, any>;
+  }>;
+};
+
 type FeatureRequestElement = {
   '@type': 'FeatureRequestResource';
   mapFeatureGuid: string;
@@ -68,12 +79,76 @@ type FeatureRequestElement = {
 );
 
 const DETERMINISTIC_GUID_NAMESPACE = 'rst-sncsc';
+const BCGS_MAP_SHEET_LAYER_URL =
+  'https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_basemapping/MapServer/82/query';
+const BCGS_MAP_SHEET_CANDIDATE_KEYS = [
+  'MAP_TILE_DISPLAY_NAME',
+  'map_tile_display_name',
+  'MAPSHEET',
+  'mapsheet',
+  'MAP_SHEET',
+  'map_sheet',
+  'GRID_NAME',
+  'grid_name',
+] as const;
 const BC_ALBERS_CRS = {
   type: 'name',
   properties: {
     name: 'EPSG:1000003005',
   },
 } as const;
+
+const GENERATED_SECTION_SUFFIX_PATTERN = /^(.*)-(\d+)$/;
+
+const normalizeSectionIdsForComparison = (
+  sectionIds: Array<string | null | undefined>,
+): string[] => {
+  const cleanedIds = sectionIds
+    .map((sectionId) => sectionId?.trim())
+    .filter((sectionId): sectionId is string => Boolean(sectionId));
+
+  const generatedGroups = new Map<string, Set<number>>();
+  for (const sectionId of cleanedIds) {
+    const match = sectionId.match(GENERATED_SECTION_SUFFIX_PATTERN);
+    if (!match) continue;
+
+    const baseSectionId = match[1]?.trim();
+    const suffix = Number(match[2]);
+    if (!baseSectionId || !Number.isInteger(suffix) || suffix < 1) continue;
+
+    const indexes = generatedGroups.get(baseSectionId) ?? new Set<number>();
+    indexes.add(suffix);
+    generatedGroups.set(baseSectionId, indexes);
+  }
+
+  // Collapse only backend-generated split IDs like Trail-A-1/Trail-A-2.
+  const collapsibleBases = new Set<string>();
+  for (const [baseSectionId, indexes] of generatedGroups.entries()) {
+    if (!baseSectionId.includes('-')) continue;
+    if (indexes.size < 2 || !indexes.has(1)) continue;
+
+    const maxIndex = Math.max(...indexes);
+    if (maxIndex === indexes.size) {
+      collapsibleBases.add(baseSectionId);
+    }
+  }
+
+  const result: string[] = [];
+  const seen = new Set<string>();
+  for (const sectionId of cleanedIds) {
+    const match = sectionId.match(GENERATED_SECTION_SUFFIX_PATTERN);
+    const normalizedSectionId =
+      match && collapsibleBases.has(match[1] ?? '')
+        ? (match[1] ?? sectionId)
+        : sectionId;
+
+    if (seen.has(normalizedSectionId)) continue;
+    seen.add(normalizedSectionId);
+    result.push(normalizedSectionId);
+  }
+
+  return result;
+};
 
 const toDeterministicUuid = (seed: string): string => {
   const hash = createHash('sha1')
@@ -229,14 +304,14 @@ const normalizeGeometryEntry = (
       ? geometry.coordinates
       : [];
 
-    return coordinates.map((lineCoordinates, index) => ({
+    return coordinates.map((lineCoordinates) => ({
       geometry: {
         type: 'LineString',
         coordinates: lineCoordinates,
       },
       geometryTypeCode: 'L',
       // Persist each trail section as its own feature for downstream SNCSC parity.
-      sectionId: `${sectionId}-${index + 1}`,
+      sectionId,
       sourceMetrics,
     }));
   }
@@ -273,6 +348,169 @@ export class GeospatialService {
     return {
       'X-API-KEY': apiKey,
       Accept: 'application/json',
+    };
+  }
+
+  private async queryBcgsMapSheets(
+    geometryWkt: string,
+    spatialReference = 3005,
+  ): Promise<{
+    matches: MapSheetMatch[];
+    rawFeatures: QueryResult['features'];
+  }> {
+    const params = new URLSearchParams({
+      where: '1=1',
+      geometry: geometryWkt,
+      geometryType: 'esriGeometryPolygon',
+      inSR: String(spatialReference),
+      spatialRel: 'esriSpatialRelIntersects',
+      outFields: '*',
+      returnGeometry: 'false',
+      f: 'json',
+    });
+
+    const response = await fetch(
+      `${BCGS_MAP_SHEET_LAYER_URL}?${params.toString()}`,
+      {
+        headers: {
+          Accept: 'application/json',
+        },
+      },
+    );
+
+    const bodyText = await response.text();
+    if (!response.ok) {
+      throw new BadRequestException(
+        `Unable to query BCGS map sheets (${response.status} ${response.statusText}).`,
+      );
+    }
+
+    let data: QueryResult & { error?: { message?: string } };
+    try {
+      data = bodyText
+        ? (JSON.parse(bodyText) as QueryResult & {
+            error?: { message?: string };
+          })
+        : { features: [] };
+    } catch {
+      throw new BadRequestException(
+        'BCGS map sheet service returned invalid JSON.',
+      );
+    }
+
+    if (data.error?.message) {
+      throw new BadRequestException(data.error.message);
+    }
+
+    const rawFeatures = data.features ?? [];
+    const matches = rawFeatures.map((feature) => {
+      const attrs = feature.attributes ?? {};
+      const key = BCGS_MAP_SHEET_CANDIDATE_KEYS.find(
+        (candidate) => candidate in attrs,
+      );
+
+      return {
+        mapSheet: key ? String(attrs[key]) : null,
+        raw: attrs,
+      };
+    });
+
+    return { matches, rawFeatures };
+  }
+
+  private filterValidMapSheets(matches: MapSheetMatch[]): string[] {
+    return matches
+      .map((match) => match.mapSheet)
+      .filter((value): value is string => !!value && value.trim().length > 0);
+  }
+
+  private chooseBestMapSheet(
+    matches: MapSheetMatch[],
+    rawFeatures?: Array<{ attributes: Record<string, any> }>,
+  ): string | null {
+    const valid = matches.filter(
+      (match) => !!match.mapSheet && match.mapSheet.trim().length > 0,
+    );
+
+    if (!valid.length) return null;
+
+    if (!rawFeatures?.length) {
+      return valid.at(0)?.mapSheet ?? null;
+    }
+
+    // Preserve match/feature index alignment, then rank by overlap area when available.
+    const ranked = matches
+      .map((match, index) => ({
+        mapSheet: match.mapSheet?.trim() ? match.mapSheet : null,
+        area:
+          Number(
+            rawFeatures[index]?.attributes?.SHAPE_AREA ??
+              rawFeatures[index]?.attributes?.AREA ??
+              0,
+          ) || 0,
+      }))
+      .filter((item): item is { mapSheet: string; area: number } =>
+        Boolean(item.mapSheet),
+      );
+
+    if (!ranked.length) {
+      return valid.at(0)?.mapSheet ?? null;
+    }
+
+    ranked.sort((a, b) => b.area - a.area);
+    return ranked.at(0)?.mapSheet ?? null;
+  }
+
+  private async getResourceGeometryEnvelopeWkt(
+    rec_resource_id: string,
+  ): Promise<string | null> {
+    const rows = await this.prisma.$queryRaw<{ geometry_wkt: string | null }[]>(
+      Prisma.sql`
+        SELECT public.ST_AsText(
+                 public.ST_Envelope(
+                   public.ST_Collect(
+                     CASE
+                       WHEN public.ST_SRID(rmfg.geometry) = 0
+                         THEN public.ST_SetSRID(rmfg.geometry, 3005)
+                       ELSE rmfg.geometry
+                     END
+                   )
+                 )
+               ) AS geometry_wkt
+        FROM rst.recreation_map_feature rmf
+        INNER JOIN rst.recreation_map_feature_geom rmfg
+          ON rmfg.rmf_skey = rmf.rmf_skey
+        WHERE rmf.rec_resource_id = ${rec_resource_id}
+          AND rmf.retirement_date IS NULL
+      `,
+    );
+
+    return rows[0]?.geometry_wkt ?? null;
+  }
+
+  async getMapSheetsForExhibitA(rec_resource_id: string): Promise<{
+    allMapSheets: string[];
+    bestMapSheet: string | null;
+  }> {
+    const geometryWkt =
+      await this.getResourceGeometryEnvelopeWkt(rec_resource_id);
+    if (!geometryWkt) {
+      return {
+        allMapSheets: [],
+        bestMapSheet: null,
+      };
+    }
+
+    const { matches, rawFeatures } = await this.queryBcgsMapSheets(
+      geometryWkt,
+      3005,
+    );
+    const allMapSheets = this.filterValidMapSheets(matches);
+    const bestMapSheet = this.chooseBestMapSheet(matches, rawFeatures);
+
+    return {
+      allMapSheets,
+      bestMapSheet,
     };
   }
 
@@ -316,9 +554,9 @@ export class GeospatialService {
       utm_northing: data.utm_northing,
       latitude: data.latitude ? Number(data.latitude) : null,
       longitude: data.longitude ? Number(data.longitude) : null,
-      section_ids: sessions
-        .map((s) => s.section_id)
-        .filter((id): id is string => id != null),
+      section_ids: normalizeSectionIdsForComparison(
+        sessions.map((session) => session.section_id),
+      ),
     };
   }
 
@@ -759,10 +997,10 @@ export class GeospatialService {
       return candidate;
     };
 
-    for (const [entry] of entries.entries()) {
+    for (const entry of entries) {
       const matchingRows = featureRowsBySectionId.get(entry.sectionId) ?? [];
       const row = matchingRows.shift();
-      const mapFeatureGuid = row?.recreation_map_feature_guid || randomUUID();
+      const mapFeatureGuid = randomUUID();
       const featureRecordGuid = randomUUID();
 
       const parsedGeometry = row?.geometry_json
