@@ -1,5 +1,6 @@
 import { AdvisoryDto } from '@/service/recreation-resource';
 import { SafeHtml } from '@shared/components/safe-html';
+import { formatDateFull } from '@shared/utils';
 import blueIcon from '@/images/icons/advisories/blue-icon.svg';
 import yellowIcon from '@/images/icons/advisories/yellow-icon.svg';
 import redIcon from '@/images/icons/advisories/red-icon.svg';
@@ -12,6 +13,63 @@ interface AdvisoriesItemProps {
   isCollapsed: boolean;
   onToggle: () => void;
 }
+
+interface AdvisoryDateLine {
+  label: string;
+  value: string;
+}
+
+// advisory dates are BC events authored in Pacific time, so the calendar date
+// staff picked is the one every viewer should see
+const PACIFIC = { timeZone: 'America/Vancouver' } as const;
+
+/**
+ * Picks the single date line to display.
+ *
+ * ACT staff choose one "Displayed date" option, which writes all four
+ * `is_*_displayed` flags at once, so exactly one of the shapes below should be
+ * flagged.
+ */
+const getDateLine = (advisory: AdvisoryDto): AdvisoryDateLine | null => {
+  const displayed = (isDisplayed: boolean, date?: Date) =>
+    isDisplayed && date ? formatDateFull(date, PACIFIC) : null;
+
+  const posted = displayed(
+    advisory.is_advisory_date_displayed,
+    advisory.advisory_date,
+  );
+  if (posted) {
+    return { label: 'Posted', value: posted };
+  }
+
+  const updated = displayed(
+    advisory.is_updated_date_displayed,
+    advisory.updated_date,
+  );
+  if (updated) {
+    return { label: 'Updated', value: updated };
+  }
+
+  // the end date never shows without the effective date
+  const start = displayed(
+    advisory.is_effective_date_displayed,
+    advisory.effective_date,
+  );
+  if (!start) {
+    return null;
+  }
+
+  const end = displayed(advisory.is_end_date_displayed, advisory.end_date);
+  if (!end) {
+    return { label: 'Starts', value: start };
+  }
+
+  // a range that starts and ends on the same day shows the date once
+  return {
+    label: 'In effect',
+    value: start === end ? start : `${start} to ${end}`,
+  };
+};
 
 const getIconForUrgency = (urgency: string) => {
   switch (urgency) {
@@ -32,6 +90,8 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
   isCollapsed,
   onToggle,
 }) => {
+  const dateLine = getDateLine(advisory);
+
   return (
     <div className={`advisory-item ${isLast ? 'advisory-item--last' : ''}`}>
       <div
@@ -64,18 +124,10 @@ const AdvisoryItem: React.FC<AdvisoriesItemProps> = ({
         <div className="advisory-description">
           {advisory.description && <SafeHtml html={advisory.description} />}
         </div>
-        {advisory.is_advisory_date_displayed && (
+        {dateLine && (
           <p className="advisory-date">
-            Posted{' '}
-            {advisory.advisory_date && (
-              <strong>
-                {new Date(advisory.advisory_date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </strong>
-            )}
+            {`${dateLine.label}: `}
+            <strong>{dateLine.value}</strong>
           </p>
         )}
       </div>
