@@ -8,6 +8,7 @@ import { CampsiteGroup } from './campsiteGrouping';
 import { useBulkUpdateAssets } from '@/services/hooks/recreation-resource-admin';
 import { AssetCode } from './types';
 import { ACTUAL_VALUE_HELP_TEXT } from './helperTexts';
+import { getEndNumberOrString, showCampsideNumber } from './assetEditShared';
 
 interface BulkAssetEditModalProps {
   show: boolean;
@@ -49,8 +50,6 @@ export function BulkAssetEditModal({
     hasArea: false,
   });
 
-  const END_DIGITS_REGEX = /\d+$/;
-
   const sortedAssetTypes = useMemo(
     () =>
       [...assetTypes].sort((a, b) =>
@@ -68,20 +67,6 @@ export function BulkAssetEditModal({
       }),
     [campsites],
   );
-
-  const getEndNumberOrString = (text: string | null) => {
-    if (!text) return text;
-    const match = END_DIGITS_REGEX.exec(text);
-    return match?.[0] ?? text;
-  };
-
-  const showCampsideNumber = (id: number) => {
-    const campsite = campsites.find((c) => c.campsite.asset_id === id);
-    if (campsite?.campsite.asset_name) {
-      return getEndNumberOrString(campsite?.campsite.asset_name);
-    }
-    return;
-  };
 
   const handleCheckboxChange = (assetId: number) => {
     setSelectedAssetIds((prev) =>
@@ -522,12 +507,16 @@ export function BulkAssetEditModal({
                         <div className="bold-field">Assign to Campsite</div>
                         <div className="mt-auto">
                           {asset.parent_id
-                            ? showCampsideNumber(Number(asset.parent_id))
+                            ? showCampsideNumber(
+                                campsites,
+                                Number(asset.parent_id),
+                              )
                             : 'N/A'}{' '}
                           →{' '}
                           <span className="bold-field">
                             {editFields.campsiteId
                               ? showCampsideNumber(
+                                  campsites,
                                   Number(editFields.campsiteId),
                                 )
                               : 'N/A'}

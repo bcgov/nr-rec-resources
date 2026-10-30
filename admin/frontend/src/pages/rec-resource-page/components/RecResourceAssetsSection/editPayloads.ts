@@ -18,6 +18,7 @@ export function buildAssetUpdateDto(
     latitude,
     longitude,
     geometry_type_code: hasCoordinates ? 'PT' : null,
+    parent_id: values.parent_id ? parseNumber(values.parent_id) : null,
   } as UpdateRecreationAssetDto;
 }
 
