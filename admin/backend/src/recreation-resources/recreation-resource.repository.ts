@@ -507,6 +507,9 @@ export class RecreationResourceRepository {
 
   async findPendingMapFeatureRequests(): Promise<
     Array<{
+      submission_id: string | null;
+      application_guid: string | null;
+      status_request_guid: string | null;
       rec_resource_id: string;
       name: string | null;
       district_description: string | null;
@@ -517,10 +520,14 @@ export class RecreationResourceRepository {
       feature_count: number;
       requested_at: Date | null;
       geometry_types: string[];
+      exhibit_a_url: string | null;
     }>
   > {
     const rows = await this.prisma.$queryRaw<
       Array<{
+        submission_id: string | null;
+        application_guid: string | null;
+        status_request_guid: string | null;
         rec_resource_id: string;
         name: string | null;
         district_description: string | null;
@@ -531,19 +538,23 @@ export class RecreationResourceRepository {
         feature_count: bigint;
         requested_at: Date | null;
         geometry_types: string[];
+        exhibit_a_url: string | null;
       }>
     >`
       SELECT
-        rmf.rec_resource_id,
+        rss.submission_id,
+        rss.application_guid::text AS application_guid,
+        rss.status_request_guid::text AS status_request_guid,
+        rss.tenure_id AS rec_resource_id,
         rr.name,
         rdc.description AS district_description,
         rdc.description AS recreation_district,
         nru.org_unit_name AS natural_resource_district,
         STRING_AGG(DISTINCT rrtva.description, ', ')
           FILTER (WHERE rrtva.description IS NOT NULL) AS recreation_type,
-        rmf.amend_status_code,
-        COUNT(DISTINCT rmf.rmf_skey)::bigint AS feature_count,
-        MAX(rmf.created_at) AS requested_at,
+        rss.status AS amend_status_code,
+        COALESCE(COUNT(DISTINCT rmf.rmf_skey), 0)::bigint AS feature_count,
+        COALESCE(rss.created_at, rss.submission_date::timestamp) AS requested_at,
         COALESCE(
           ARRAY_AGG(
             DISTINCT CASE
@@ -556,27 +567,36 @@ export class RecreationResourceRepository {
             WHERE rmfg.geometry_type_code IS NOT NULL
           ),
           ARRAY[]::text[]
-        ) AS geometry_types
-      FROM rst.recreation_map_feature rmf
+        ) AS geometry_types,
+        MAX(rss.adjudication_report_document_uri) AS exhibit_a_url
+      FROM rst.recreation_spatial_submission rss
+      LEFT JOIN rst.recreation_map_feature rmf
+        ON rmf.rec_resource_id = rss.tenure_id
+       AND rmf.retirement_date IS NULL
       LEFT JOIN rst.recreation_map_feature_geom rmfg
         ON rmfg.rmf_skey = rmf.rmf_skey
       LEFT JOIN rst.recreation_resource rr
-        ON rr.rec_resource_id = rmf.rec_resource_id
+        ON rr.rec_resource_id = rss.tenure_id
       LEFT JOIN rst.recreation_district_code rdc
         ON rdc.district_code = rr.district_code
       LEFT JOIN rst.natural_resource_org_unit nru
-        ON nru.rec_resource_id = rmf.rec_resource_id
+        ON nru.rec_resource_id = rss.tenure_id
       LEFT JOIN rst.recreation_resource_type_view_admin rrtva
-        ON rrtva.rec_resource_id = rmf.rec_resource_id
-      WHERE rmf.amend_status_code = 'PND'
-        AND rmf.rec_resource_id IS NOT NULL
+        ON rrtva.rec_resource_id = rss.tenure_id
+      WHERE rss.status = 'PND'
+        AND rss.tenure_id IS NOT NULL
       GROUP BY
-        rmf.rec_resource_id,
+        rss.submission_id,
+        rss.application_guid,
+        rss.status_request_guid,
+        rss.tenure_id,
         rr.name,
         rdc.description,
         nru.org_unit_name,
-        rmf.amend_status_code
-      ORDER BY MAX(rmf.created_at) DESC NULLS LAST, rmf.rec_resource_id ASC
+        rss.status,
+        rss.created_at,
+        rss.submission_date
+      ORDER BY COALESCE(rss.created_at, rss.submission_date::timestamp) DESC NULLS LAST, rss.tenure_id ASC
     `;
 
     return rows.map((row) => ({

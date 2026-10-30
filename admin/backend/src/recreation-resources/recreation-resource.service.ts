@@ -303,18 +303,35 @@ export class RecreationResourceService {
     const rows =
       await this.recreationResourceRepository.findPendingMapFeatureRequests();
 
-    const data: PendingMapFeatureRequestRowDto[] = rows.map((row) => ({
-      rec_resource_id: row.rec_resource_id,
-      name: row.name,
-      district_description: row.district_description,
-      recreation_district: row.recreation_district,
-      natural_resource_district: row.natural_resource_district,
-      recreation_type: row.recreation_type,
-      amend_status_code: row.amend_status_code,
-      feature_count: row.feature_count,
-      requested_at: row.requested_at?.toISOString() ?? null,
-      geometry_types: row.geometry_types,
-    }));
+    const data: PendingMapFeatureRequestRowDto[] = rows.map((row) => {
+      const dto: PendingMapFeatureRequestRowDto = {
+        rec_resource_id: row.rec_resource_id,
+        name: row.name,
+        district_description: row.district_description,
+        recreation_district: row.recreation_district,
+        natural_resource_district: row.natural_resource_district,
+        recreation_type: row.recreation_type,
+        amend_status_code: row.amend_status_code,
+        feature_count: row.feature_count,
+        requested_at: row.requested_at?.toISOString() ?? null,
+        geometry_types: row.geometry_types,
+      };
+
+      if (row.submission_id != null) {
+        dto.submission_id = row.submission_id;
+      }
+      if (row.application_guid != null) {
+        dto.application_guid = row.application_guid;
+      }
+      if (row.status_request_guid != null) {
+        dto.status_request_guid = row.status_request_guid;
+      }
+      if (row.exhibit_a_url != null) {
+        dto.exhibit_a_url = row.exhibit_a_url;
+      }
+
+      return dto;
+    });
 
     return {
       data,

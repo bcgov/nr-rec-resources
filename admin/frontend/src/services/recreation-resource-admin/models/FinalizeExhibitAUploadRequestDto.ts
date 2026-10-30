@@ -20,6 +20,12 @@ import { mapValues } from '../runtime';
  */
 export interface FinalizeExhibitAUploadRequestDto {
   /**
+   * Spatial submission ID to associate this document with
+   * @type {string}
+   * @memberof FinalizeExhibitAUploadRequestDto
+   */
+  submission_id?: string | null;
+  /**
    * Document ID returned from presign endpoint
    * @type {string}
    * @memberof FinalizeExhibitAUploadRequestDto
@@ -73,6 +79,8 @@ export function FinalizeExhibitAUploadRequestDtoFromJSONTyped(
     return json;
   }
   return {
+    submission_id:
+      json['submission_id'] == null ? undefined : json['submission_id'],
     document_id: json['document_id'],
     file_name: json['file_name'],
     extension: json['extension'],
@@ -95,6 +103,7 @@ export function FinalizeExhibitAUploadRequestDtoToJSONTyped(
   }
 
   return {
+    submission_id: value['submission_id'],
     document_id: value['document_id'],
     file_name: value['file_name'],
     extension: value['extension'],

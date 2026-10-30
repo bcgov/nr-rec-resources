@@ -1,5 +1,16 @@
-import { Col, Row, Stack } from 'react-bootstrap';
+import { useCallback, useRef, useState } from 'react';
+import { Button, Col, Row, Stack } from 'react-bootstrap';
+import {
+  faArrowUpFromBracket,
+  faArrowUpRightFromSquare,
+  faDownload,
+  faEye,
+  faRotate,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { EditableGuard } from '@/components/auth';
+import { Table as DataTable } from '@/components';
+import { CustomBadge } from '@/components/custom-badge';
 import { CopyButton } from '@shared/components/copy-button';
 import { FieldItem } from '../shared/FieldItem';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
@@ -8,11 +19,38 @@ import { ROUTE_PATHS } from '@/constants/routes';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
 import { Link } from '@tanstack/react-router';
-import { ExhibitASection } from './ExhibitASection/ExhibitASection';
 import { IMAP_URL } from '@/constants/urls';
 import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
 import './RecResourceGeospatialSection.scss';
 import { SpatialSubmissionSection } from '@/components/RecResourceSpatial/SpatialSubmissionSection';
+import { useGetPendingMapFeatureRequests } from '@/services/hooks/recreation-resource-admin/useGetPendingMapFeatureRequests';
+import { useGetExhibitADocs } from '@/services/hooks/recreation-resource-admin/useGetExhibitADocs';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
+import { useAuthContext } from '@/contexts/AuthContext';
+import {
+  addErrorNotification,
+  addSuccessNotification,
+} from '@/store/notificationStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
+import { DocumentUploadModal } from '@/components/file/DocumentUploadModal';
+import {
+  useCreateOrGetExhibitAByApplicationGuid,
+  useFinalizeExhibitAUpload,
+  usePresignExhibitAUpload,
+} from '@/services/hooks/recreation-resource-admin/useExhibitADocsHooks';
+import { GalleryFile } from '@/pages/rec-resource-page/types';
+import {
+  COLOR_BACKGROUND_GREY,
+  COLOR_GOLD_DARK,
+  COLOR_GREEN_DARKER,
+  COLOR_GREEN_LIGHTEST,
+  COLOR_GREY,
+  COLOR_RED,
+  COLOR_RED_LIGHT,
+  COLOR_YELLOW_ADVISORY_BG,
+} from '@/styles/colors';
+import type { PendingMapFeatureRequestRowDto } from '@/services/recreation-resource-admin/models/PendingMapFeatureRequestRowDto';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
@@ -23,10 +61,32 @@ export function RecResourceGeospatialSection() {
   const params = Route.useParams();
   const recResourceId = params?.id;
   const { recResource } = useRecResource();
+  const { isSuperAdmin } = useAuthorizations();
+  const { user } = useAuthContext();
+  const queryClient = useQueryClient();
   const isArchived = recResource?.rec_status_code === 'AR';
+  const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [selectedSubmissionRow, setSelectedSubmissionRow] =
+    useState<PendingMapFeatureRequestRowDto | null>(null);
+  const [exhibitAUrlBySubmission, setExhibitAUrlBySubmission] = useState<
+    Record<string, string>
+  >({});
+  const [uploadModalState, setUploadModalState] = useState<{
+    show: boolean;
+    file: GalleryFile | null;
+    fileName: string;
+    fileNameError: string;
+  }>({ show: false, file: null, fileName: '', fileNameError: '' });
 
   const { data: geospatialData } =
     useGetRecreationResourceGeospatial(recResourceId);
+  const { data: pendingMapFeatureRequests } = useGetPendingMapFeatureRequests();
+  const { data: exhibitADocs = [] } = useGetExhibitADocs(recResourceId);
+  const presignMutation = usePresignExhibitAUpload();
+  const finalizeMutation = useFinalizeExhibitAUpload();
+  const regenerateMutation = useCreateOrGetExhibitAByApplicationGuid();
 
   const {
     latitude,
@@ -131,8 +191,221 @@ export function RecResourceGeospatialSection() {
         ? buildImapUrlFromUtm(utm_easting, utm_northing, utm_zone)
         : IMAP_URL;
 
+  const formatSubmissionDate = (value?: string | null) => {
+    if (!value) return '-';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? '-'
+      : date.toLocaleDateString('en-CA', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        });
+  };
+
+  const buildSncscSubmissionUrl = (statusRequestGuid?: string | null) => {
+    const sncscWebUrl =
+      import.meta.env.VITE_SNCSC_WEB_URL || import.meta.env.SNCSC_WEB_URL || '';
+    if (!sncscWebUrl || !statusRequestGuid) return null;
+    return `${sncscWebUrl.replace(/\/+$/, '')}/${statusRequestGuid}`;
+  };
+
+  const getPurposeLabel = (statusCode: string) => {
+    const normalized = statusCode.toUpperCase();
+    if (normalized.includes('AMEND')) return 'Amendment';
+    if (normalized.includes('RETIRE')) return 'Retire';
+    if (normalized.includes('NEW')) return 'New';
+    return '-';
+  };
+
+  const getStatusDisplay = (statusCode?: string | null) => {
+    const normalized = statusCode?.toUpperCase().trim() ?? '';
+    if (normalized.startsWith('PND') || normalized.includes('PEND')) {
+      return {
+        label: 'PENDING',
+        bgColor: COLOR_YELLOW_ADVISORY_BG,
+        textColor: COLOR_GOLD_DARK,
+      };
+    }
+    if (normalized.startsWith('REJ') || normalized.includes('REJECT')) {
+      return {
+        label: 'REJECTED',
+        bgColor: COLOR_RED_LIGHT,
+        textColor: COLOR_RED,
+      };
+    }
+    if (normalized.startsWith('APP') || normalized.includes('APPROV')) {
+      return {
+        label: 'APPROVED',
+        bgColor: COLOR_GREEN_LIGHTEST,
+        textColor: COLOR_GREEN_DARKER,
+      };
+    }
+
+    return {
+      label: normalized || '-',
+      bgColor: COLOR_BACKGROUND_GREY,
+      textColor: COLOR_GREY,
+    };
+  };
+
+  const getExhibitAUrl = (row: PendingMapFeatureRequestRowDto) => {
+    if (row.submission_id && exhibitAUrlBySubmission[row.submission_id]) {
+      return exhibitAUrlBySubmission[row.submission_id];
+    }
+
+    const docUrl = exhibitADocs.find(
+      (doc) => doc.submission_id === row.submission_id,
+    )?.url;
+    if (docUrl) {
+      return docUrl;
+    }
+
+    return row.exhibit_a_url ?? null;
+  };
+
+  const handleUploadStart = useCallback(
+    (row: PendingMapFeatureRequestRowDto) => {
+      if (!isSuperAdmin || !row.submission_id) return;
+      setSelectedSubmissionRow(row);
+      fileInputRef.current?.click();
+    },
+    [isSuperAdmin],
+  );
+
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = '';
+      if (!file || !selectedSubmissionRow?.submission_id) return;
+
+      const tempId = crypto.randomUUID();
+      const extension = file.name.split('.').pop() || 'pdf';
+      const galleryFile: GalleryFile = {
+        id: tempId,
+        name: file.name.replace(/\.[^/.]+$/, ''),
+        date: '',
+        url: '',
+        extension,
+        type: 'document',
+        pendingFile: file,
+      };
+
+      setUploadModalState({
+        show: true,
+        file: galleryFile,
+        fileName: galleryFile.name,
+        fileNameError: '',
+      });
+    },
+    [selectedSubmissionRow],
+  );
+
+  const handleUploadConfirm = useCallback(async () => {
+    const selected = selectedSubmissionRow;
+    const { file, fileName } = uploadModalState;
+    if (!selected?.submission_id || !file?.pendingFile || !fileName) return;
+
+    const rawName = `${fileName}.${file.extension}`;
+
+    setUploadModalState((prev) => ({ ...prev, show: false }));
+
+    try {
+      const presigned = await presignMutation.mutateAsync({
+        recResourceId,
+        fileName: rawName,
+      });
+
+      const s3Response = await fetch(presigned.url, {
+        method: 'PUT',
+        body: file.pendingFile,
+        headers: { 'Content-Type': 'application/pdf' },
+      });
+      if (!s3Response.ok) {
+        throw new Error(
+          `S3 upload failed: ${s3Response.status} ${s3Response.statusText}`,
+        );
+      }
+
+      const finalized = await finalizeMutation.mutateAsync({
+        recResourceId,
+        submission_id: selected.submission_id,
+        document_id: presigned.document_id,
+        file_name: fileName,
+        extension: file.extension,
+        file_size: file.pendingFile.size,
+      });
+
+      setExhibitAUrlBySubmission((prev) => ({
+        ...prev,
+        [selected.submission_id!]: finalized.url,
+      }));
+
+      await queryClient.invalidateQueries({
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.pendingRequests(),
+      });
+
+      addSuccessNotification('Exhibit A uploaded successfully.');
+    } catch (error) {
+      console.error('Exhibit A upload failed:', error);
+      addErrorNotification('Failed to upload Exhibit A. Please try again.');
+    }
+  }, [
+    finalizeMutation,
+    presignMutation,
+    queryClient,
+    recResourceId,
+    selectedSubmissionRow,
+    uploadModalState,
+  ]);
+
+  const handleRegenerate = useCallback(
+    async (row: PendingMapFeatureRequestRowDto) => {
+      if (!row.application_guid || !row.submission_id || !isSuperAdmin) return;
+
+      try {
+        const userId =
+          user?.idir_username ||
+          user?.preferred_username ||
+          user?.email ||
+          'system';
+
+        const result = await regenerateMutation.mutateAsync({
+          applicationGuid: row.application_guid,
+          userId,
+          generate: true,
+        });
+
+        setExhibitAUrlBySubmission((prev) => ({
+          ...prev,
+          [row.submission_id!]: result.pdfUrl,
+        }));
+
+        await queryClient.invalidateQueries({
+          queryKey: RECREATION_RESOURCE_QUERY_KEYS.pendingRequests(),
+        });
+
+        addSuccessNotification('Exhibit A regenerated successfully.');
+      } catch (error) {
+        console.error('Exhibit A regeneration failed:', error);
+        addErrorNotification(
+          'Failed to regenerate Exhibit A. Please try again.',
+        );
+      }
+    },
+    [isSuperAdmin, queryClient, regenerateMutation, user],
+  );
+
+  const submissionRows = (pendingMapFeatureRequests?.data ?? [])
+    .filter((row) => row.rec_resource_id === recResourceId)
+    .sort((a, b) => {
+      const aTime = a.requested_at ? Date.parse(a.requested_at) : 0;
+      const bTime = b.requested_at ? Date.parse(b.requested_at) : 0;
+      return bTime - aTime;
+    });
+
   return (
-    <Stack direction="vertical" gap={4}>
+    <Stack className="geospatial-section" direction="vertical" gap={4}>
       {/* ── Geospatial fields card ── */}
       <div className="geospatial-section__card">
         <div className="geospatial-section__card-header d-flex justify-content-between align-items-center">
@@ -179,23 +452,205 @@ export function RecResourceGeospatialSection() {
         </div>
       )}
 
-      {/* ── Exhibit A ── */}
       <div className="geospatial-section__card">
-        <ExhibitASection recResourceId={recResourceId} />
-      </div>
+        <div className="geospatial-section__card-header">
+          <h2 className="geospatial-section__card-title">
+            Spatial submissions
+          </h2>
+        </div>
+        <div className="geospatial-section__card-body">
+          <DataTable<PendingMapFeatureRequestRowDto>
+            className="geospatial-submissions-table"
+            columns={[
+              {
+                header: 'Submission ID',
+                render: (row) => row.submission_id || '-',
+              },
+              {
+                header: 'Date',
+                render: (row) => formatSubmissionDate(row.requested_at),
+              },
+              {
+                header: 'Reference',
+                render: (row) => {
+                  const statusRequestGuid = row.status_request_guid;
+                  const sncscUrl = buildSncscSubmissionUrl(statusRequestGuid);
 
-      <SpatialSubmissionSection
-        recResourceId={recResourceId}
-        defaultRecreationTypeCode={recResource?.rec_resource_type_code}
-        defaultNaturalResourceDistrict={
-          recResource?.natural_resource_org_unit_name || undefined
-        }
-        defaultRecreationDistrict={
-          recResource?.recreation_district?.district_code
-        }
-        editMode={true}
-        existingSectionIds={section_ids ?? undefined}
-      />
+                  return sncscUrl ? (
+                    <a
+                      href={sncscUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="geospatial-submissions-reference"
+                    >
+                      SNCSC Link{' '}
+                      <FontAwesomeIcon
+                        icon={faArrowUpRightFromSquare}
+                        className="ms-1"
+                      />
+                    </a>
+                  ) : (
+                    <span className="text-muted">-</span>
+                  );
+                },
+              },
+              {
+                header: 'Status',
+                render: (row) => {
+                  const status = getStatusDisplay(row.amend_status_code);
+                  if (status.label === '-') {
+                    return '-';
+                  }
+
+                  return (
+                    <CustomBadge
+                      label={status.label}
+                      bgColor={status.bgColor}
+                      textColor={status.textColor}
+                    />
+                  );
+                },
+              },
+              {
+                header: 'Purpose',
+                render: (row) => getPurposeLabel(row.amend_status_code),
+              },
+              {
+                header: 'Exhibit A',
+                render: (row) => (
+                  <div className="geospatial-submissions-actions">
+                    {getExhibitAUrl(row) ? (
+                      <a
+                        href={getExhibitAUrl(row)!}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="geospatial-submissions-action-link"
+                      >
+                        <FontAwesomeIcon icon={faEye} /> View
+                      </a>
+                    ) : (
+                      <span className="geospatial-submissions-action-link geospatial-submissions-action-link--disabled">
+                        <FontAwesomeIcon icon={faEye} /> View
+                      </span>
+                    )}
+                    {getExhibitAUrl(row) ? (
+                      <a
+                        href={getExhibitAUrl(row)!}
+                        download
+                        className="geospatial-submissions-action-link"
+                      >
+                        <FontAwesomeIcon icon={faDownload} /> Download
+                      </a>
+                    ) : (
+                      <span className="geospatial-submissions-action-link geospatial-submissions-action-link--disabled">
+                        <FontAwesomeIcon icon={faDownload} /> Download
+                      </span>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="link"
+                      className="geospatial-submissions-action-button"
+                      disabled={
+                        !isSuperAdmin ||
+                        !row.submission_id ||
+                        presignMutation.isPending ||
+                        finalizeMutation.isPending
+                      }
+                      onClick={() => handleUploadStart(row)}
+                      aria-label="Upload Exhibit A"
+                    >
+                      <FontAwesomeIcon icon={faArrowUpFromBracket} /> Upload
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="link"
+                      className="geospatial-submissions-action-button"
+                      disabled={
+                        !isSuperAdmin ||
+                        !row.application_guid ||
+                        regenerateMutation.isPending
+                      }
+                      onClick={() => {
+                        void handleRegenerate(row);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faRotate} /> Regenerate
+                    </Button>
+                  </div>
+                ),
+              },
+            ]}
+            rows={submissionRows}
+            emptyMessage="No spatial submissions found."
+            getRowKey={(row, index) =>
+              `${row.rec_resource_id}-${row.requested_at ?? 'na'}-${index}`
+            }
+          />
+
+          <EditableGuard isArchived={isArchived}>
+            {!isSpatialSubmissionOpen ? (
+              <div className="mt-3">
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => setIsSpatialSubmissionOpen(true)}
+                >
+                  Create new
+                </Button>
+              </div>
+            ) : null}
+          </EditableGuard>
+
+          {isSpatialSubmissionOpen ? (
+            <div className="mt-4 pt-3 border-top">
+              <SpatialSubmissionSection
+                recResourceId={recResourceId}
+                defaultRecreationTypeCode={recResource?.rec_resource_type_code}
+                defaultNaturalResourceDistrict={
+                  recResource?.natural_resource_org_unit_name || undefined
+                }
+                defaultRecreationDistrict={
+                  recResource?.recreation_district?.district_code
+                }
+                editMode={true}
+                useGeospatialCompactForm={true}
+                existingSectionIds={section_ids ?? undefined}
+                showCreateHeading={true}
+                onCancel={() => setIsSpatialSubmissionOpen(false)}
+              />
+            </div>
+          ) : null}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf"
+            className="d-none"
+            onChange={handleFileInputChange}
+            aria-label="Upload Exhibit A document"
+          />
+
+          <DocumentUploadModal
+            show={uploadModalState.show}
+            file={uploadModalState.file}
+            fileName={uploadModalState.fileName}
+            showAlert={false}
+            fileNameError={uploadModalState.fileNameError}
+            onFileNameChange={(name) =>
+              setUploadModalState((prev) => ({
+                ...prev,
+                fileName: name,
+                fileNameError: '',
+              }))
+            }
+            onCancel={() =>
+              setUploadModalState((prev) => ({ ...prev, show: false }))
+            }
+            onConfirm={handleUploadConfirm}
+            title="Upload Exhibit A document"
+          />
+        </div>
+      </div>
     </Stack>
   );
 }

@@ -24,4 +24,76 @@
   &__card-body {
     padding: 1.25rem;
   }
+
+  .geospatial-submissions-table thead th,
+  .geospatial-submissions-table tbody td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .geospatial-submissions-reference {
+    color: $colorBlue;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .geospatial-submissions-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.375rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+
+  .geospatial-submissions-status-pill--pending {
+    background: #f9efdc;
+    color: #7a5900;
+  }
+
+  .geospatial-submissions-status-pill--rejected {
+    background: #f4e1e2;
+    color: #ce3e39;
+  }
+
+  .geospatial-submissions-status-pill--approved {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  .geospatial-submissions-status-pill--default {
+    background: $colorBackgroundGrey;
+    color: $colorGrey;
+  }
+
+  .geospatial-submissions-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .geospatial-submissions-action-link,
+  .geospatial-submissions-action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0;
+    border: 0;
+    color: $colorGrey;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .geospatial-submissions-action-button.btn.btn-link {
+    color: $colorGrey;
+    text-decoration: none;
+  }
+
+  .geospatial-submissions-action-link--disabled {
+    color: $colorGreyLight;
+    pointer-events: none;
+  }
 }

@@ -1206,6 +1206,7 @@ model recreation_exhibit_a_doc {
   page_size                     String?                        @db.VarChar(1)
   page_orientation              String?                        @db.VarChar(20)
   scale                         Int?
+  generation_method             String?                        @db.VarChar(20)
   recreation_spatial_submission recreation_spatial_submission? @relation(fields: [submission_id], references: [submission_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_recreation_exhibit_a_doc_submission_id")
   recreation_resource           recreation_resource            @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -1230,6 +1231,7 @@ model recreation_exhibit_a_doc_history {
   page_size        String?                  @db.VarChar(1)
   page_orientation String?                  @db.VarChar(20)
   scale            Int?
+  generation_method String?                 @db.VarChar(20)
 
   @@ignore
   @@schema("rst")
