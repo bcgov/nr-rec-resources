@@ -157,28 +157,13 @@ describe('useEditResourceForm', () => {
       expect(result.current.updateMutation).toBe(mockUpdateMutation);
     });
 
-    it('should initialize selectedAccessOptions with grouped options from recResource', () => {
+    it('should initialize selectedAccessOptions with option values from recResource', () => {
       const { result } = renderHookWithResource();
 
       expect(result.current.selectedAccessOptions).toEqual([
-        {
-          label: 'Sub Access 1',
-          value: 'SUB1',
-          group: 'AC1',
-          groupLabel: 'Access Type 1',
-        },
-        {
-          label: 'Sub Access 2',
-          value: 'SUB2',
-          group: 'AC1',
-          groupLabel: 'Access Type 1',
-        },
-        {
-          label: 'Sub Access 3',
-          value: 'SUB3',
-          group: 'AC2',
-          groupLabel: 'Access Type 2',
-        },
+        'AC1|SUB1',
+        'AC1|SUB2',
+        'AC2|SUB3',
       ]);
     });
 
@@ -245,20 +230,7 @@ describe('useEditResourceForm', () => {
       const { result } = renderHookWithResource();
 
       const formData = createFormData({
-        selected_access_options: [
-          {
-            label: 'Sub Access 1',
-            value: 'SUB1',
-            group: 'AC1',
-            groupLabel: 'Access Type 1',
-          },
-          {
-            label: 'Sub Access 2',
-            value: 'SUB2',
-            group: 'AC1',
-            groupLabel: 'Access Type 1',
-          },
-        ],
+        selected_access_options: ['AC1|SUB1', 'AC1|SUB2'],
       });
 
       await submitFormAndAssert(result, formData, {
@@ -297,26 +269,7 @@ describe('useEditResourceForm', () => {
       const { result } = renderHookWithResource();
 
       const formData = createFormData({
-        selected_access_options: [
-          {
-            label: 'Sub Access 1',
-            value: 'SUB1',
-            group: 'AC1',
-            groupLabel: 'Access Type 1',
-          },
-          {
-            label: 'Sub Access 2',
-            value: 'SUB2',
-            group: 'AC1',
-            groupLabel: 'Access Type 1',
-          },
-          {
-            label: 'Sub Access 3',
-            value: 'SUB3',
-            group: 'AC2',
-            groupLabel: 'Access Type 2',
-          },
-        ],
+        selected_access_options: ['AC1|SUB1', 'AC1|SUB2', 'AC2|SUB3'],
       });
 
       await submitFormAndAssert(result, formData, {
@@ -583,14 +536,7 @@ describe('useEditResourceForm', () => {
 
       const { result } = renderHookWithResource(updatedResource);
 
-      expect(result.current.selectedAccessOptions).toEqual([
-        {
-          label: 'New Sub',
-          value: 'NEWSUB1',
-          group: 'NEW1',
-          groupLabel: 'New Access',
-        },
-      ]);
+      expect(result.current.selectedAccessOptions).toEqual(['NEW1|NEWSUB1']);
     });
   });
 
