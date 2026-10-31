@@ -1052,6 +1052,11 @@
                                     </tr>
                                     <tr>
                                         <td><a href='tables/recreation_exhibit_a_doc.html'>recreation_exhibit_a_doc</a></td>
+                                        <td>chk_recreation_exhibit_a_doc_generation_method</td>
+                                        <td>(((generation_method)::text &#61; ANY ((ARRAY[&#39;upload&#39;::character varying, &#39;regenerate&#39;::character varying])::text[])) OR (generation_method IS NULL))</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href='tables/recreation_exhibit_a_doc.html'>recreation_exhibit_a_doc</a></td>
                                         <td>chk_recreation_exhibit_a_doc_page_orientation</td>
                                         <td>(((page_orientation)::text &#61; ANY ((ARRAY[&#39;Portrait&#39;::character varying, &#39;Landscape&#39;::character varying])::text[])) OR (page_orientation IS NULL))</td>
                                     </tr>

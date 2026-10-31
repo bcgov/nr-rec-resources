@@ -603,14 +603,6 @@
                                     <td>(((decision)::text &#61; ANY ((ARRAY[&#39;APPROVE&#39;::character varying, &#39;REJECT&#39;::character varying])::text[])) OR (decision IS NULL))</td>
                                 </tr>
                                 <tr>
-                                    <td>chk_spatial_submission_status_business_rules</td>
-                                    <td>((((status)::text &#61; &#39;CLR&#39;::text) AND (decision IS NULL) AND (adjudication_comment IS NULL) AND (adjudication_report_document_uri IS NULL)) OR (((status)::text &#61; &#39;APP&#39;::text) AND ((decision)::text &#61; &#39;APPROVE&#39;::text) AND (adjudication_report_document_uri IS NOT NULL)) OR (((status)::text &#61; &#39;REJ&#39;::text) AND ((decision)::text &#61; &#39;REJECT&#39;::text) AND (adjudication_comment IS NOT NULL)) OR ((status)::text &#61; ANY ((ARRAY[&#39;PND&#39;::character varying, &#39;FAI&#39;::character varying])::text[])))</td>
-                                </tr>
-                                <tr>
-                                    <td>chk_spatial_submission_status_request_type</td>
-                                    <td>((status_request_type_code)::text &#61; ANY ((ARRAY[&#39;RL&#39;::character varying, &#39;RPO&#39;::character varying])::text[]))</td>
-                                </tr>
-                                <tr>
                                     <td>chk_spatial_submission_status</td>
                                     <td>((status)::text &#61; ANY ((ARRAY[&#39;CLR&#39;::character varying, &#39;APP&#39;::character varying, &#39;REJ&#39;::character varying, &#39;PND&#39;::character varying, &#39;FAI&#39;::character varying])::text[]))</td>
                                 </tr>
@@ -619,8 +611,16 @@
                                     <td>(((adjudication_ind &#61; true) AND ((status)::text &#61; ANY ((ARRAY[&#39;APP&#39;::character varying, &#39;REJ&#39;::character varying])::text[])) AND (adjudicated_by IS NOT NULL) AND (adjudication_date IS NOT NULL)) OR ((adjudication_ind &#61; false) AND ((status)::text &#61; ANY ((ARRAY[&#39;PND&#39;::character varying, &#39;CLR&#39;::character varying, &#39;FAI&#39;::character varying])::text[])) AND (adjudicated_by IS NULL) AND (adjudication_date IS NULL)))</td>
                                 </tr>
                                 <tr>
+                                    <td>chk_spatial_submission_status_request_type</td>
+                                    <td>((status_request_type_code)::text &#61; ANY ((ARRAY[&#39;RL&#39;::character varying, &#39;RPO&#39;::character varying])::text[]))</td>
+                                </tr>
+                                <tr>
                                     <td>chk_spatial_submission_purpose</td>
                                     <td>((purpose_code)::text &#61; ANY ((ARRAY[&#39;N&#39;::character varying, &#39;A&#39;::character varying, &#39;R&#39;::character varying])::text[]))</td>
+                                </tr>
+                                <tr>
+                                    <td>chk_spatial_submission_status_business_rules</td>
+                                    <td>((((status)::text &#61; &#39;CLR&#39;::text) AND (decision IS NULL) AND (adjudication_comment IS NULL) AND (adjudication_report_document_uri IS NULL)) OR (((status)::text &#61; &#39;APP&#39;::text) AND ((decision)::text &#61; &#39;APPROVE&#39;::text) AND (adjudication_report_document_uri IS NOT NULL)) OR (((status)::text &#61; &#39;REJ&#39;::text) AND ((decision)::text &#61; &#39;REJECT&#39;::text) AND (adjudication_comment IS NOT NULL)) OR ((status)::text &#61; ANY ((ARRAY[&#39;PND&#39;::character varying, &#39;FAI&#39;::character varying])::text[])))</td>
                                 </tr>
                                 </tbody>
                             </table>

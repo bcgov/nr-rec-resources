@@ -17,7 +17,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="advisory_number" nullable="false" remarks="Unique number assigned to each advisory for a given resource." size="10" type="int4" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="title" nullable="false" remarks="Title of the advisory, summarizing the issue or situation being reported." size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="description" nullable="true" remarks="Detailed description of the advisory, providing more context about the issue, its impact, and any relevant information for users." size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="submitted_by" nullable="false" remarks="Name of the individual who submitted the advisory, providing accountability and a point of contact for further information." size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="submitted_by" nullable="true" remarks="Name of the individual who submitted the advisory, providing accountability and a point of contact for further information." size="120" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="access_status_name" nullable="false" remarks="Name of the access status associated with the advisory, indicating the current level of access to the resource (e.g. Open, Closed, Restricted)." size="100" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="access_status_grouplabel" nullable="false" remarks="Group label for the access status, categorizing the status into broader groups (e.g. Open, Closed, Restricted)." size="50" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="access_status_description" nullable="true" remarks="Detailed description of the access status, providing more information about what the status means for users and any specific conditions or restrictions that apply." size="2147483647" type="text" typeCode="12"/>
@@ -41,6 +41,7 @@
          <column autoUpdated="false" defaultValue="0" digits="0" id="25" name="access_status_precedence" nullable="false" remarks="Precedence level for the access status associated with the advisory." size="10" type="int4" typeCode="4"/>
          <column autoUpdated="false" defaultValue="0" digits="0" id="26" name="event_type_precedence" nullable="false" remarks="Precedence level for the event type associated with the advisory." size="10" type="int4" typeCode="4"/>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="27" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="28" name="created_by" nullable="true" remarks="Name of the individual who created the advisory in Act. Supplied by the Act integration and used as the published-by value in the admin UI." size="120" type="varchar" typeCode="12"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <primaryKey column="advisory_number" sequenceNumberInPK="2"/>
          <index name="act_advisories_flat_pkey" unique="true">
@@ -55,7 +56,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="advisory_number" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="title" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="description" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="submitted_by" nullable="false" remarks="" size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="submitted_by" nullable="true" remarks="" size="120" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="access_status_name" nullable="false" remarks="" size="100" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="access_status_grouplabel" nullable="false" remarks="" size="50" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="access_status_description" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
@@ -75,6 +76,7 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="21" name="published_at" nullable="true" remarks="" size="35" type="timestamptz" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="23" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="24" name="created_by" nullable="true" remarks="" size="120" type="varchar" typeCode="12"/>
       </table>
       <table name="flyway_schema_history" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="installed_rank" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
@@ -730,6 +732,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="page_size" nullable="true" remarks="Selected Exhibit A page size (A-E)." size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="page_orientation" nullable="true" remarks="Selected Exhibit A orientation (Portrait or Landscape)." size="20" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="scale" nullable="true" remarks="Selected Exhibit A map scale." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="generation_method" nullable="true" remarks="How Exhibit A was produced: upload or regenerate." size="20" type="varchar" typeCode="12"/>
          <primaryKey column="doc_id" sequenceNumberInPK="1"/>
          <index name="recreation_exhibit_a_doc_pkey" unique="true">
             <column ascending="true" name="doc_id"/>
@@ -743,6 +746,7 @@
          <index name="recreation_exhibit_a_doc_s3_key_key" unique="true">
             <column ascending="true" name="s3_key"/>
          </index>
+         <checkConstraint constraint="(((generation_method)::text = ANY ((ARRAY['upload'::character varying, 'regenerate'::character varying])::text[])) OR (generation_method IS NULL))" name="chk_recreation_exhibit_a_doc_generation_method"/>
          <checkConstraint constraint="(((page_orientation)::text = ANY ((ARRAY['Portrait'::character varying, 'Landscape'::character varying])::text[])) OR (page_orientation IS NULL))" name="chk_recreation_exhibit_a_doc_page_orientation"/>
          <checkConstraint constraint="(((page_size)::text = ANY ((ARRAY['A'::character varying, 'B'::character varying, 'C'::character varying, 'D'::character varying, 'E'::character varying])::text[])) OR (page_size IS NULL))" name="chk_recreation_exhibit_a_doc_page_size"/>
       </table>
@@ -764,6 +768,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="page_size" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="page_orientation" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="scale" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="generation_method" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
       </table>
       <table name="recreation_feature" remarks="Associates recreation resources with one or more recreation feature codes." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="Identification assigned to a Recreation Resource." size="20" type="varchar" typeCode="12">
@@ -832,8 +837,8 @@
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="9" name="saturday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="10" name="sunday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="recreation_fee_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12">
-            <parent column="recreation_fee_code" foreignKey="recreation_fee_recreation_fee_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_code"/>
             <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
+            <parent column="recreation_fee_code" foreignKey="recreation_fee_recreation_fee_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_code"/>
          </column>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="12" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
