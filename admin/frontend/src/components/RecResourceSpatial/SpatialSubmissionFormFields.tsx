@@ -125,7 +125,7 @@ export const SpatialSubmissionFormFields = ({
           <Form.Group>
             <Form.Label>Recreation name (Optional)</Form.Label>
             <Form.Control
-              aria-label="Recreation Name"
+              aria-label="Recreation name"
               value={values.recreationName}
               placeholder="Optional"
               onChange={(e) =>
@@ -156,7 +156,7 @@ export const SpatialSubmissionFormFields = ({
           >
             <option value="">
               {recreationTypeOptions.length
-                ? 'Select Recreation type'
+                ? 'Select recreation type'
                 : 'Loading recreation types...'}
             </option>
             {polygonOptions.length ? (
@@ -220,9 +220,9 @@ export const SpatialSubmissionFormFields = ({
       {!isGeospatialVariant ? (
         <Col xs={12} md={6}>
           <Form.Group>
-            <Form.Label>Natural Resource District</Form.Label>
+            <Form.Label>Natural resource district</Form.Label>
             <Form.Select
-              aria-label="Natural Resource District"
+              aria-label="Natural resource district"
               disabled={isDistrictOptionsLoading}
               required
               isInvalid={hasMissingField('districtCode') && !editMode}
@@ -250,9 +250,9 @@ export const SpatialSubmissionFormFields = ({
       {!isGeospatialVariant ? (
         <Col xs={12} md={6}>
           <Form.Group>
-            <Form.Label>Recreation District</Form.Label>
+            <Form.Label>Recreation district</Form.Label>
             <Form.Select
-              aria-label="Recreation District"
+              aria-label="Recreation district"
               disabled={isDistrictOptionsLoading}
               required
               isInvalid={hasMissingField('recreationDistrict') && !editMode}
@@ -294,10 +294,10 @@ export const SpatialSubmissionFormFields = ({
 
       <Col xs={12} md={6}>
         <Form.Group>
-          <Form.Label>Coordinate System</Form.Label>
+          <Form.Label>Coordinate system</Form.Label>
           <Form.Control
             aria-readonly={true}
-            aria-label="Coordinate System"
+            aria-label="Coordinate system"
             value={values.targetCrs}
             readOnly
             disabled={true}
@@ -315,7 +315,7 @@ export const SpatialSubmissionFormFields = ({
         <Form.Group>
           <Form.Label>Submitter name</Form.Label>
           <Form.Control
-            aria-label="Submitter Name"
+            aria-label="Submitter name"
             required
             isInvalid={hasMissingField('contactName')}
             value={values.metadata.contactName}
@@ -331,7 +331,7 @@ export const SpatialSubmissionFormFields = ({
         <Form.Group>
           <Form.Label>Email address</Form.Label>
           <Form.Control
-            aria-label="Email Address"
+            aria-label="Email address"
             type="email"
             required
             isInvalid={hasMissingField('email')}
@@ -353,10 +353,10 @@ export const SpatialSubmissionFormFields = ({
       <Col xs={12}>
         <Form.Group>
           <Form.Label>
-            {isGeospatialVariant ? 'Upload Spatial File (.zip)' : 'Select file'}
+            {isGeospatialVariant ? 'Upload spatial file (.zip)' : 'Select file'}
           </Form.Label>
           <Form.Control
-            aria-label="Spatial File"
+            aria-label="Spatial file"
             type="file"
             accept=".zip,.shp,.dbf"
             multiple

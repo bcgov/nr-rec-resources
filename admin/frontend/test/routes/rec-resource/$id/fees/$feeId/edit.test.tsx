@@ -18,7 +18,7 @@ vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeesEditSection',
   () => ({
     RecResourceFeesEditSection: () => (
-      <div data-testid="rec-resource-fees-edit-section">Edit Fees</div>
+      <div data-testid="rec-resource-fees-edit-section">Edit fees</div>
     ),
   }),
 );
@@ -43,7 +43,7 @@ describe('RecResource Fees FeeId Edit Route', () => {
   }) => [
     { label: 'Home', href: '/' },
     {
-      label: loaderData?.recResource?.name || 'Resource Details',
+      label: loaderData?.recResource?.name || 'Resource details',
       href: '/rec-resource/REC123',
     },
   ];
@@ -97,7 +97,7 @@ describe('RecResource Fees FeeId Edit Route', () => {
     expect(callBeforeLoad().tab).toBe(RecResourceNavKey.FEES);
   });
 
-  it('should generate breadcrumb with Fees and Edit Fee labels', () => {
+  it('should generate breadcrumb with Fees and Edit fee labels', () => {
     const breadcrumb = callBeforeLoad().breadcrumb({
       recResource: { name: 'Test Resource' },
     });
@@ -106,7 +106,7 @@ describe('RecResource Fees FeeId Edit Route', () => {
       { label: 'Home', href: '/' },
       { label: 'Test Resource', href: '/rec-resource/REC123' },
       { label: 'Fees', href: '/rec-resource/REC123/fees' },
-      { label: 'Edit Fee', href: '/rec-resource/REC123/fees/1/edit' },
+      { label: 'Edit fee', href: '/rec-resource/REC123/fees/1/edit' },
     ]);
   });
 });

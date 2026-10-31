@@ -147,7 +147,7 @@ describe('RecResourceLocationSection', () => {
     });
   });
 
-  it('uses default name "Unnamed Resource" when resource name is not provided', async () => {
+  it('uses default name "Unnamed resource" when resource name is not provided', async () => {
     const user = userEvent.setup();
     const resourceWithoutName = {
       rec_resource_id: '456',
@@ -163,7 +163,7 @@ describe('RecResourceLocationSection', () => {
     expect(vi.mocked(trackEvent)).toHaveBeenCalledWith({
       category: 'Map',
       action: 'Export map file',
-      name: 'Unnamed Resource-456-Export map file',
+      name: 'Unnamed resource-456-Export map file',
     });
   });
 

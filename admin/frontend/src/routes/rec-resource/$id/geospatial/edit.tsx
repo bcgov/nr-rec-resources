@@ -23,7 +23,7 @@ export const Route = createFileRoute('/rec-resource/$id/geospatial/edit')({
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Edit Geospatial',
+            label: 'Edit geospatial',
             href: ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
               '$id',
               params.id,

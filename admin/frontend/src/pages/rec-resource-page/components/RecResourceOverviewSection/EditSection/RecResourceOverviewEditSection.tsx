@@ -101,7 +101,7 @@ export const RecResourceOverviewEditSection = () => {
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
-        <h2>Edit Overview</h2>
+        <h2>Edit overview</h2>
         <Stack direction="horizontal" gap={2}>
           <RecResourceOverviewLink
             rec_resource_id={recResource.rec_resource_id}
@@ -156,7 +156,7 @@ export const RecResourceOverviewEditSection = () => {
               </Col>
             )}
 
-            {/* Closest Community */}
+            {/* Closest community */}
             <Col xs={12} md={6}>
               <TextField
                 name="closest_community"
@@ -170,7 +170,7 @@ export const RecResourceOverviewEditSection = () => {
               />
             </Col>
 
-            {/* Maintenance Standard & Control Access */}
+            {/* Maintenance standard & control access */}
             <Col xs={12} md={6}>
               <SelectField<EditResourceFormData>
                 name="maintenance_standard_code"
@@ -254,7 +254,7 @@ export const RecResourceOverviewEditSection = () => {
           <Col xs={12}>
             <RichTextEditor
               name="site_description"
-              label="Site Description"
+              label="Site description"
               control={control}
               errors={errors}
               helpText={DESCRIPTION_HELP_TEXT}
@@ -267,7 +267,7 @@ export const RecResourceOverviewEditSection = () => {
           <Col xs={12}>
             <RichTextEditor
               name="driving_directions"
-              label="Driving Directions"
+              label="Driving directions"
               control={control}
               errors={errors}
               helpText={DRIVING_DIRECTIONS_HELP_TEXT}

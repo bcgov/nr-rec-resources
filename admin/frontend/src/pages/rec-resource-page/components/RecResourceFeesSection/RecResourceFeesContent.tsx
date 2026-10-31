@@ -28,14 +28,14 @@ export const RecResourceFeesContent = ({
                 )}
                 className="btn btn-primary"
               >
-                Add Fee
+                Add fee
               </Link>
             ) : null}
           </EditableGuard>
         </Stack>
       </div>
       <div className="rounded">
-        <div className="fw-bold mb-4">Current Fee Information</div>
+        <div className="fw-bold mb-4">Current fee information</div>
         <RecResourceFeesTable
           fees={fees}
           recResourceId={recResourceId}

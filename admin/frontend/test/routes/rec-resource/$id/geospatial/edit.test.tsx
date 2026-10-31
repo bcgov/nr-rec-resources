@@ -93,7 +93,7 @@ describe('RecResource Geospatial Edit Route', () => {
     expect(breadcrumb[0].label).toBe('Home');
     expect(breadcrumb[1].label).toBe('Test Resource');
     expect(breadcrumb[2]).toEqual({
-      label: 'Edit Geospatial',
+      label: 'Edit geospatial',
       href: '/rec-resource/REC123/geospatial/edit',
     });
   });

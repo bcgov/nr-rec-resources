@@ -217,7 +217,7 @@ describe('RecResourceOverviewEditSection', () => {
     it('should render the edit section with title and action buttons', () => {
       render(<RecResourceOverviewEditSection />);
 
-      expect(screen.getByText('Edit Overview')).toBeInTheDocument();
+      expect(screen.getByText('Edit overview')).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: 'Cancel' }),
       ).toBeInTheDocument();
@@ -226,23 +226,23 @@ describe('RecResourceOverviewEditSection', () => {
 
     const formFields = [
       {
-        label: 'Maintenance Standard',
+        label: 'Maintenance standard',
         testId: 'select-field-maintenance_standard_code',
       },
       {
-        label: 'Controlled Access Type',
+        label: 'Controlled access type',
         testId: 'select-field-control_access_code',
       },
-      { label: 'Risk Rating', testId: 'select-field-risk_rating_code' },
+      { label: 'Risk rating', testId: 'select-field-risk_rating_code' },
       {
-        label: 'Project Established Date',
+        label: 'Project established date',
         testId: 'date-field-project_established_date',
       },
       {
-        label: 'Access and Sub-Access',
+        label: 'Access and sub-access',
         testId: 'grouped-multi-select-field-selected_access_options',
       },
-      { label: 'Recreation District', testId: 'select-field-district_code' },
+      { label: 'Recreation district', testId: 'select-field-district_code' },
     ];
 
     it.each(formFields)('should render $label field', ({ label, testId }) => {

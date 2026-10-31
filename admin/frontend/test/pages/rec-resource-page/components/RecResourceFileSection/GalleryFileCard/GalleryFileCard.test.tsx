@@ -179,7 +179,7 @@ describe('GalleryFileCard', () => {
       const getFileActionHandler = vi.fn(() => mockHandler);
       renderCard({ uploadFailed: true }, getFileActionHandler);
 
-      expect(screen.getByText('Upload Failed')).toBeInTheDocument();
+      expect(screen.getByText('Upload failed')).toBeInTheDocument();
 
       // Test retry button
       fireEvent.click(screen.getByLabelText('Retry'));
@@ -290,7 +290,7 @@ describe('GalleryFileCard', () => {
     it('prioritizes error over loading states', () => {
       renderCard({ uploadFailed: true, isUploading: true });
 
-      expect(screen.getByText('Upload Failed')).toBeInTheDocument();
+      expect(screen.getByText('Upload failed')).toBeInTheDocument();
       expect(screen.queryByText('Uploading')).not.toBeInTheDocument();
     });
 

@@ -141,8 +141,8 @@ describe('TRAIL_TYPE_OPTIONS', () => {
     const blueOption = TRAIL_TYPE_OPTIONS.find((o) => o.id === 'BLUE');
     const blackOption = TRAIL_TYPE_OPTIONS.find((o) => o.id === 'BLACK');
 
-    expect(greenOption?.label).toBe('Green (Easy)');
-    expect(blueOption?.label).toBe('Blue (Intermediate)');
-    expect(blackOption?.label).toBe('Black (Advanced)');
+    expect(greenOption?.label).toBe('Green (easy)');
+    expect(blueOption?.label).toBe('Blue (intermediate)');
+    expect(blackOption?.label).toBe('Black (advanced)');
   });
 });

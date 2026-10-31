@@ -89,7 +89,7 @@ describe('RecResourcePartnerAddNewModal', () => {
     fireEvent.click(screen.getByRole('button', { name: /Next/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Partner Information/i)).toBeInTheDocument();
+      expect(screen.getByText(/Partner information/i)).toBeInTheDocument();
     });
   };
 
@@ -156,7 +156,7 @@ describe('RecResourcePartnerAddNewModal', () => {
       locationNumber: VALID_LOCATION_NUM,
     });
     expect(
-      screen.getByRole('button', { name: /Add Partner/i }),
+      screen.getByRole('button', { name: /Add partner/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
   });
@@ -200,7 +200,7 @@ describe('RecResourcePartnerAddNewModal', () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Partner/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Add partner/i }));
 
     expect(
       screen.getByText('Agreement start date is required.'),
@@ -221,7 +221,7 @@ describe('RecResourcePartnerAddNewModal', () => {
     fireEvent.change(startDateInput, { target: { value: '2000-01-01' } });
     fireEvent.change(endDateInput, { target: { value: '2000-01-02' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Partner/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Add partner/i }));
 
     expect(
       screen.getByText('End date cannot be earlier than today.'),
@@ -239,7 +239,7 @@ describe('RecResourcePartnerAddNewModal', () => {
     fireEvent.change(startDateInput, { target: { value: '2099-12-31' } });
     fireEvent.change(endDateInput, { target: { value: '2099-12-01' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Partner/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Add partner/i }));
 
     expect(
       screen.getByText('Start date cannot be after the end date.'),
@@ -254,7 +254,7 @@ describe('RecResourcePartnerAddNewModal', () => {
     render(<RecResourcePartnerAddNewModal {...defaultProps} />);
     await advanceToStep1();
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Partner/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Add partner/i }));
     expect(
       screen.getByText('Agreement start date is required.'),
     ).toBeInTheDocument();
@@ -277,7 +277,7 @@ describe('RecResourcePartnerAddNewModal', () => {
     fireEvent.change(startDateInput, { target: { value: '2099-01-01' } });
     fireEvent.change(endDateInput, { target: { value: '2099-12-31' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Partner/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Add partner/i }));
 
     expect(mockMutate).toHaveBeenCalledWith(
       {

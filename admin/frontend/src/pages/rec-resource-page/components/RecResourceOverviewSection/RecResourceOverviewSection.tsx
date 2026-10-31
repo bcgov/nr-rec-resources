@@ -21,37 +21,37 @@ export const RecResourceOverviewSection = (
   const overviewItems = [
     {
       key: 'closest-community',
-      label: 'Closest Community',
+      label: 'Closest community',
       value: recResource.closest_community,
     },
     {
       key: 'recreation-district',
-      label: 'Recreation District',
+      label: 'Recreation district',
       value: recResource.recreation_district_description,
     },
     {
       key: 'natural_resource_org',
-      label: 'Natural Resource District',
+      label: 'Natural resource district',
       value: recResource.natural_resource_org_unit_name,
     },
     {
       key: 'maintenance-type',
-      label: 'Maintenance Type',
+      label: 'Maintenance type',
       value: recResource.maintenance_standard_description,
     },
     {
       key: 'project-established-date',
-      label: 'Project Established Date',
+      label: 'Project established date',
       value: recResource.project_established_date_readable_utc,
     },
     {
       key: 'controlled-access-type',
-      label: 'Controlled Access Type',
+      label: 'Controlled access type',
       value: recResource.control_access_code_description,
     },
     {
       key: 'risk-rating',
-      label: 'Risk Rating',
+      label: 'Risk rating',
       value: recResource.risk_rating_description,
     },
   ];
@@ -93,7 +93,7 @@ export const RecResourceOverviewSection = (
       <Row>
         <Col xs={12}>
           <FieldItem
-            label="Access Type"
+            label="Access type"
             value={<RecreationResourceAccessRow recResource={recResource} />}
           />
         </Col>
@@ -112,7 +112,7 @@ export const RecResourceOverviewSection = (
       <Row>
         <Col xs={12}>
           <FieldItem
-            label="Driving Directions"
+            label="Driving directions"
             value={recResource.driving_directions}
             isHtml
           />
