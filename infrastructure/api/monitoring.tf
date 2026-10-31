@@ -81,12 +81,25 @@ locals {
   server_error_threshold = 5
   client_error_threshold = 20
 
+  act_route = "act/advisories"
+
   # Routes covered by the request failure middleware in the admin backend.
   # Add a route here and mount the middleware for it in app.ts, nothing else
   # is needed.
   integration_routes = {
-    "act/advisories" = "ACT advisories"
+    (local.act_route) = "ACT advisories"
   }
+
+  # ACT endpoints and the method each answers on, for the latency dimension
+  act_operations = {
+    upsertActAdvisory     = "POST"
+    bulkUpsertActAdvisory = "POST"
+    updateActAdvisory     = "PUT"
+    deleteActAdvisory     = "DELETE"
+  }
+
+  # CloudWatch matches dimension values exactly, so these have to be listed
+  act_failure_status_codes = ["400", "401", "403", "404", "500"]
 
   # Period and evaluation period for alarms
   alarm_period       = 60 # 1 minute
@@ -828,6 +841,202 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
               }
             ]
           }
+        }
+      }
+    ]
+  })
+}
+
+# ACT Integration Dashboard - admin only, ACT publishes to the admin namespace
+resource "aws_cloudwatch_dashboard" "act_api_dashboard" {
+  count = var.app == "admin" ? 1 : 0
+
+  dashboard_name = "RecreationSitesAndTrailsBC-ActAPI-${var.app_env}"
+
+  dashboard_body = jsonencode({
+    widgets = [
+      # Dashboard Header
+      {
+        type   = "text"
+        x      = 0
+        y      = 0
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "# Recreation Sites & Trails BC - ACT Integration Dashboard (${var.app_env})\nAdvisory changes pushed into RST by the ACT integration, under `/api/v1/act/advisories`.\n_All metrics are shown in 5-minute intervals._"
+        }
+      },
+
+      {
+        type   = "alarm"
+        x      = 0
+        y      = 2
+        width  = 24
+        height = 6
+        properties = {
+          title  = "🔔 Alarm Status - ACT Integration"
+          alarms = [aws_cloudwatch_metric_alarm.integration_request_failure_alarm[local.act_route].arn]
+        }
+      },
+
+      # Section Header for Traffic
+      {
+        type   = "text"
+        x      = 0
+        y      = 8
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "## 📊 Traffic - Requests Reaching Handlers\nPer-endpoint counts from the metrics interceptor. Requests rejected by the auth guards never reach it, so 401s and 403s are **not** counted here - see Failures below for the complete picture."
+        }
+      },
+
+      # Request Count
+      {
+        type   = "metric"
+        x      = 0
+        y      = 10
+        width  = 24
+        height = 6
+        properties = {
+          title   = "📊 [Traffic] ACT Request Volume by Endpoint (5 min)"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            for op in keys(local.act_operations) :
+            [local.api_configs.admin.namespace, "RequestCount", "Operation", op]
+          ]
+        }
+      },
+
+      # Section Header for Failures
+      {
+        type   = "text"
+        x      = 0
+        y      = 16
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "## 🚨 Failures - Every 4xx / 5xx\nRecorded by the route failure middleware on every failed response, including the auth rejections missing from Traffic above. Route-level only, so these cannot be attributed to an individual endpoint. Any failure at all raises the alarm."
+        }
+      },
+
+      # Total failures and the status code breakdown side by side
+      {
+        type   = "metric"
+        x      = 0
+        y      = 18
+        width  = 12
+        height = 6
+        properties = {
+          title   = "🚨 ACT Request Failures - Total"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestFailureCount", "Route", local.act_route, { label = "All failures" }]
+          ]
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 18
+        width  = 12
+        height = 6
+        properties = {
+          title   = "🚨 ACT Request Failures by Status Code"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            for status in local.act_failure_status_codes :
+            [local.api_configs.admin.namespace, "RequestFailureCount", "Route", local.act_route, "StatusCode", status, { label = "HTTP ${status}" }]
+          ]
+        }
+      },
+
+      # Section Header for Per-Endpoint Detail
+      {
+        type   = "text"
+        x      = 0
+        y      = 24
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "## ⚠️ Per-Endpoint Errors & Latency\nBroken down by endpoint, for requests that reached a handler."
+        }
+      },
+
+      # Client & Server Errors side by side
+      {
+        type   = "metric"
+        x      = 0
+        y      = 26
+        width  = 12
+        height = 6
+        properties = {
+          title   = "⚠️ Client Errors by Endpoint"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            for op in keys(local.act_operations) :
+            [local.api_configs.admin.namespace, "ErrorCount", "Operation", op, "ErrorType", "ClientError"]
+          ]
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 26
+        width  = 12
+        height = 6
+        properties = {
+          title   = "🚨 Server Errors by Endpoint"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            for op in keys(local.act_operations) :
+            [local.api_configs.admin.namespace, "ErrorCount", "Operation", op, "ErrorType", "ServerError"]
+          ]
+        }
+      },
+
+      # Latency
+      {
+        type   = "metric"
+        x      = 0
+        y      = 32
+        width  = 24
+        height = 6
+        properties = {
+          title  = "⏱️ ACT Latency by Endpoint (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
+          metrics = [
+            for op, method in local.act_operations :
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", op, "Method", method, { stat = "tm99" }]
+          ]
         }
       }
     ]
