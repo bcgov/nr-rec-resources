@@ -71,11 +71,11 @@ type FeatureRequestElement = {
   '@type': 'FeatureRequestResource';
   mapFeatureGuid: string;
   featureRecordGuid: string;
-  featureGeometryTypeCode: 'polygon' | 'linear';
+  featureGeometryTypeCode: 'polygon' | 'line';
   mapFeatureTypeCode: string;
 } & (
   | { featureGeometryTypeCode: 'polygon'; polygon: Record<string, unknown> }
-  | { featureGeometryTypeCode: 'linear'; linear: Record<string, unknown> }
+  | { featureGeometryTypeCode: 'line'; line: Record<string, unknown> }
 );
 
 const DETERMINISTIC_GUID_NAMESPACE = 'rst-sncsc';
@@ -99,6 +99,8 @@ const BC_ALBERS_CRS = {
 } as const;
 
 const GENERATED_SECTION_SUFFIX_PATTERN = /^(.*)-(\d+)$/;
+const INTERACTIVE_TRANSACTION_TIMEOUT_MS = 20000;
+const INTERACTIVE_TRANSACTION_MAX_WAIT_MS = 10000;
 
 const normalizeSectionIdsForComparison = (
   sectionIds: Array<string | null | undefined>,
@@ -927,7 +929,7 @@ export class GeospatialService {
   }
 
   private async buildFeatureRequestElements(
-    tx: Prisma.TransactionClient,
+    queryClient: Pick<Prisma.TransactionClient, '$queryRaw'>,
     recResourceId: string,
     entries: FlatGeometryEntry[],
   ): Promise<FeatureRequestElement[]> {
@@ -939,7 +941,7 @@ export class GeospatialService {
       return [];
     }
 
-    const featureRows = await tx.$queryRaw<
+    const featureRows = await queryClient.$queryRaw<
       {
         section_id: string | null;
         recreation_map_feature_guid: string | null;
@@ -1041,9 +1043,9 @@ export class GeospatialService {
             '@type': 'FeatureRequestResource',
             mapFeatureGuid: uniqueMapFeatureGuid,
             featureRecordGuid: randomUUID(),
-            featureGeometryTypeCode: 'linear',
+            featureGeometryTypeCode: 'line',
             mapFeatureTypeCode: row?.recreation_resource_type || '',
-            linear: this.buildFeatureGeoJson(lineString),
+            line: this.buildFeatureGeoJson(lineString),
           });
         });
       }
@@ -1053,7 +1055,6 @@ export class GeospatialService {
   }
 
   private async dispatchSncscStatusRequest(
-    tx: Prisma.TransactionClient,
     submission: CreatedSpatialSubmission,
     entries: FlatGeometryEntry[],
   ): Promise<void> {
@@ -1061,7 +1062,7 @@ export class GeospatialService {
       submission.org_unit_code,
     );
     const featureRequests = await this.buildFeatureRequestElements(
-      tx,
+      this.prisma,
       submission.tenure_id,
       entries,
     );
@@ -1094,7 +1095,7 @@ export class GeospatialService {
     const statusRequestGuid =
       await this.sncscStatusRequestService.createStatusRequest(payload);
 
-    await tx.recreation_spatial_submission.update({
+    await this.prisma.recreation_spatial_submission.update({
       where: { application_guid: submission.application_guid },
       data: {
         status_request_guid: statusRequestGuid,
@@ -1244,134 +1245,95 @@ export class GeospatialService {
     const amendedFeatures = payload.amendedFeatures ?? [];
     const retiredFeatures = payload.retiredFeatures ?? [];
 
-    await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRawUnsafe(
-        "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
-      );
+    let pendingStatusRequest: {
+      submission: CreatedSpatialSubmission;
+      entries: FlatGeometryEntry[];
+    } | null = null;
 
-      const flattenedNewEntries: FlatGeometryEntry[] =
-        this.flattenFeatures(newFeatures);
-      this.logger.log(
-        `Creating ${newFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
-      );
-
-      const linearSectionIds = Array.from(
-        new Set(
-          flattenedNewEntries
-            .filter((entry) => entry.geometryTypeCode === 'L')
-            .map((entry) => entry.sectionId),
-        ),
-      );
-      const existingLinearsBySection = new Map<
-        string,
-        { rmf_skey: number; amendment_id: number | null }
-      >();
-      if (linearSectionIds.length) {
-        const existingLinears = await tx.recreation_map_feature.findMany({
-          where: {
-            rec_resource_id,
-            section_id: { in: linearSectionIds },
-          },
-          select: {
-            section_id: true,
-            rmf_skey: true,
-            amendment_id: true,
-          },
-        });
-
-        existingLinears
-          .filter((row) => row.section_id)
-          .forEach((row) => {
-            existingLinearsBySection.set(row.section_id!, {
-              rmf_skey: row.rmf_skey,
-              amendment_id: row.amendment_id,
-            });
-          });
-      }
-
-      let nextRmfSkey = 0;
-      // Only generate a new rmf_skey if there are new features
-      if (newFeatures.length > 0) {
-        const maxRmfSkeyQuery = [
-          'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
-          'FROM rst.recreation_map_feature',
-        ].join(' ');
-
-        const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
-          max_rmf_skey: number | bigint;
-        }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
-
-        nextRmfSkey = Number(max_rmf_skey) + 1;
-      }
-      for (const entry of flattenedNewEntries) {
-        if (entry.geometryTypeCode === 'L') {
-          const existingLinear = existingLinearsBySection.get(entry.sectionId);
-          if (existingLinear) {
-            await this.updateMapFeatureAndGeometry(
-              existingLinear.rmf_skey,
-              existingLinear.amendment_id,
-              payload.recreation_type_code || null,
-              payload.submitted_by || null,
-              entry.geometryTypeCode,
-              entry.geometry,
-              entry.sourceMetrics,
-              tx,
-            );
-            continue;
-          }
-        }
-
-        await this.insertMapFeatureAndGeometry(
-          nextRmfSkey,
-          rec_resource_id,
-          entry.sectionId,
-          payload.recreation_type_code || null,
-          payload.submitted_by || null,
-          entry.geometryTypeCode,
-          entry.geometry,
-          entry.sourceMetrics,
-          tx,
+    await this.prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRawUnsafe(
+          "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
         );
-        nextRmfSkey++;
-      }
 
-      const flattenedAmendedEntries: FlatGeometryEntry[] =
-        this.flattenFeatures(amendedFeatures);
-      this.logger.log(
-        `Updating ${amendedFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
-      );
-      for (const entry of flattenedAmendedEntries) {
-        if (entry.geometryTypeCode === 'P') {
-          this.logger.warn(
-            `Skipping polygon amendment lookup by section_id for rec_resource_id: ${rec_resource_id}; polygons do not persist section_id.`,
-          );
-          continue;
+        const flattenedNewEntries: FlatGeometryEntry[] =
+          this.flattenFeatures(newFeatures);
+        this.logger.log(
+          `Creating ${newFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
+        );
+
+        const linearSectionIds = Array.from(
+          new Set(
+            flattenedNewEntries
+              .filter((entry) => entry.geometryTypeCode === 'L')
+              .map((entry) => entry.sectionId),
+          ),
+        );
+        const existingLinearsBySection = new Map<
+          string,
+          { rmf_skey: number; amendment_id: number | null }
+        >();
+        if (linearSectionIds.length) {
+          const existingLinears = await tx.recreation_map_feature.findMany({
+            where: {
+              rec_resource_id,
+              section_id: { in: linearSectionIds },
+            },
+            select: {
+              section_id: true,
+              rmf_skey: true,
+              amendment_id: true,
+            },
+          });
+
+          existingLinears
+            .filter((row) => row.section_id)
+            .forEach((row) => {
+              existingLinearsBySection.set(row.section_id!, {
+                rmf_skey: row.rmf_skey,
+                amendment_id: row.amendment_id,
+              });
+            });
         }
 
-        const rmfDataQuery = [
-          'SELECT rmf_skey, amendment_id',
-          'FROM rst.recreation_map_feature',
-          `WHERE rec_resource_id = '${rec_resource_id}' AND section_id = '${entry.sectionId}'`,
-        ].join(' ');
+        let nextRmfSkey = 0;
+        // Only generate a new rmf_skey if there are new features
+        if (newFeatures.length > 0) {
+          const maxRmfSkeyQuery = [
+            'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
+            'FROM rst.recreation_map_feature',
+          ].join(' ');
 
-        const [
-          { rmf_skey = null, amendment_id = null } = {
-            rmf_skey: null,
-            amendment_id: null,
-          } as RmfData,
-        ]: Array<{
-          rmf_skey: number | null;
-          amendment_id: number | null;
-        }> = await tx.$queryRawUnsafe(rmfDataQuery);
+          const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
+            max_rmf_skey: number | bigint;
+          }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
 
-        if (rmf_skey === null) {
-          this.logger.error(
-            `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
-          );
-        } else {
-          await this.updateMapFeatureAndGeometry(
-            rmf_skey,
-            amendment_id,
+          nextRmfSkey = Number(max_rmf_skey) + 1;
+        }
+        for (const entry of flattenedNewEntries) {
+          if (entry.geometryTypeCode === 'L') {
+            const existingLinear = existingLinearsBySection.get(
+              entry.sectionId,
+            );
+            if (existingLinear) {
+              await this.updateMapFeatureAndGeometry(
+                existingLinear.rmf_skey,
+                existingLinear.amendment_id,
+                payload.recreation_type_code || null,
+                payload.submitted_by || null,
+                entry.geometryTypeCode,
+                entry.geometry,
+                entry.sourceMetrics,
+                tx,
+              );
+              continue;
+            }
+          }
+
+          await this.insertMapFeatureAndGeometry(
+            nextRmfSkey,
+            rec_resource_id,
+            entry.sectionId,
             payload.recreation_type_code || null,
             payload.submitted_by || null,
             entry.geometryTypeCode,
@@ -1379,77 +1341,139 @@ export class GeospatialService {
             entry.sourceMetrics,
             tx,
           );
+          nextRmfSkey++;
         }
-      }
 
-      const flattenedRetiredEntries: FlatGeometryEntry[] =
-        this.flattenFeatures(retiredFeatures);
-      this.logger.log(
-        `Retiring ${retiredFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
+        const flattenedAmendedEntries: FlatGeometryEntry[] =
+          this.flattenFeatures(amendedFeatures);
+        this.logger.log(
+          `Updating ${amendedFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
+        );
+        for (const entry of flattenedAmendedEntries) {
+          if (entry.geometryTypeCode === 'P') {
+            this.logger.warn(
+              `Skipping polygon amendment lookup by section_id for rec_resource_id: ${rec_resource_id}; polygons do not persist section_id.`,
+            );
+            continue;
+          }
+
+          const rmfDataQuery = [
+            'SELECT rmf_skey, amendment_id',
+            'FROM rst.recreation_map_feature',
+            `WHERE rec_resource_id = '${rec_resource_id}' AND section_id = '${entry.sectionId}'`,
+          ].join(' ');
+
+          const [
+            { rmf_skey = null, amendment_id = null } = {
+              rmf_skey: null,
+              amendment_id: null,
+            } as RmfData,
+          ]: Array<{
+            rmf_skey: number | null;
+            amendment_id: number | null;
+          }> = await tx.$queryRawUnsafe(rmfDataQuery);
+
+          if (rmf_skey === null) {
+            this.logger.error(
+              `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
+            );
+          } else {
+            await this.updateMapFeatureAndGeometry(
+              rmf_skey,
+              amendment_id,
+              payload.recreation_type_code || null,
+              payload.submitted_by || null,
+              entry.geometryTypeCode,
+              entry.geometry,
+              entry.sourceMetrics,
+              tx,
+            );
+          }
+        }
+
+        const flattenedRetiredEntries: FlatGeometryEntry[] =
+          this.flattenFeatures(retiredFeatures);
+        this.logger.log(
+          `Retiring ${retiredFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
+        );
+        for (const entry of flattenedRetiredEntries) {
+          if (entry.geometryTypeCode === 'P') {
+            this.logger.warn(
+              `Skipping polygon retirement lookup by section_id for rec_resource_id: ${rec_resource_id}; polygons do not persist section_id.`,
+            );
+            continue;
+          }
+
+          const rmfDataQuery = [
+            'SELECT rmf_skey, amendment_id',
+            'FROM rst.recreation_map_feature',
+            `WHERE rec_resource_id = '${rec_resource_id}' AND section_id = '${entry.sectionId}'`,
+          ].join(' ');
+
+          const [
+            { rmf_skey = null } = {
+              rmf_skey: null,
+              amendment_id: null,
+            } as RmfData,
+          ]: Array<{
+            rmf_skey: number | null;
+            amendment_id: number | null;
+          }> = await tx.$queryRawUnsafe(rmfDataQuery);
+
+          if (rmf_skey === null) {
+            this.logger.error(
+              `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
+            );
+          } else {
+            await this.retireFeature(
+              rmf_skey,
+              payload.submitted_by || null,
+              tx,
+            );
+          }
+        }
+
+        const allSubmissionEntries = [
+          ...flattenedNewEntries,
+          ...flattenedAmendedEntries,
+          ...flattenedRetiredEntries,
+        ];
+        const purposeCode = this.derivePurposeCodeForUpdate(
+          flattenedNewEntries.length,
+          flattenedAmendedEntries.length,
+          flattenedRetiredEntries.length,
+        );
+
+        if (allSubmissionEntries.length > 0 && purposeCode) {
+          const createdSubmission = await this.createSpatialSubmission(tx, {
+            rec_resource_id,
+            statusRequestTypeCode:
+              this.deriveStatusRequestTypeCode(allSubmissionEntries),
+            purposeCode,
+            recreationTypeCode: payload.recreation_type_code || null,
+            submittedBy: payload.submitted_by || null,
+          });
+
+          if (createdSubmission) {
+            pendingStatusRequest = {
+              submission: createdSubmission,
+              entries: allSubmissionEntries,
+            };
+          }
+        }
+      },
+      {
+        timeout: INTERACTIVE_TRANSACTION_TIMEOUT_MS,
+        maxWait: INTERACTIVE_TRANSACTION_MAX_WAIT_MS,
+      },
+    );
+
+    if (pendingStatusRequest) {
+      await this.dispatchSncscStatusRequest(
+        pendingStatusRequest.submission,
+        pendingStatusRequest.entries,
       );
-      for (const entry of flattenedRetiredEntries) {
-        if (entry.geometryTypeCode === 'P') {
-          this.logger.warn(
-            `Skipping polygon retirement lookup by section_id for rec_resource_id: ${rec_resource_id}; polygons do not persist section_id.`,
-          );
-          continue;
-        }
-
-        const rmfDataQuery = [
-          'SELECT rmf_skey, amendment_id',
-          'FROM rst.recreation_map_feature',
-          `WHERE rec_resource_id = '${rec_resource_id}' AND section_id = '${entry.sectionId}'`,
-        ].join(' ');
-
-        const [
-          { rmf_skey = null } = {
-            rmf_skey: null,
-            amendment_id: null,
-          } as RmfData,
-        ]: Array<{
-          rmf_skey: number | null;
-          amendment_id: number | null;
-        }> = await tx.$queryRawUnsafe(rmfDataQuery);
-
-        if (rmf_skey === null) {
-          this.logger.error(
-            `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
-          );
-        } else {
-          await this.retireFeature(rmf_skey, payload.submitted_by || null, tx);
-        }
-      }
-
-      const allSubmissionEntries = [
-        ...flattenedNewEntries,
-        ...flattenedAmendedEntries,
-        ...flattenedRetiredEntries,
-      ];
-      const purposeCode = this.derivePurposeCodeForUpdate(
-        flattenedNewEntries.length,
-        flattenedAmendedEntries.length,
-        flattenedRetiredEntries.length,
-      );
-
-      if (allSubmissionEntries.length > 0 && purposeCode) {
-        const createdSubmission = await this.createSpatialSubmission(tx, {
-          rec_resource_id,
-          statusRequestTypeCode:
-            this.deriveStatusRequestTypeCode(allSubmissionEntries),
-          purposeCode,
-          recreationTypeCode: payload.recreation_type_code || null,
-          submittedBy: payload.submitted_by || null,
-        });
-
-        if (createdSubmission) {
-          await this.dispatchSncscStatusRequest(
-            tx,
-            createdSubmission,
-            allSubmissionEntries,
-          );
-        }
-      }
-    });
+    }
   }
 
   /**
@@ -1470,164 +1494,181 @@ export class GeospatialService {
       `Creating ${payload.features.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
     );
 
-    await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRawUnsafe(
-        "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
-      );
+    let pendingStatusRequest: {
+      submission: CreatedSpatialSubmission;
+      entries: FlatGeometryEntry[];
+    } | null = null;
 
-      const existingResource = await tx.recreation_resource.findUnique({
-        where: { rec_resource_id },
-        select: {
-          rec_resource_id: true,
-          district_code: true,
-          name: true,
-        },
-      });
+    await this.prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRawUnsafe(
+          "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
+        );
 
-      if (!existingResource) {
-        await tx.recreation_resource.create({
-          data: {
-            rec_resource_id,
-            name: payload.rec_resource_name || null,
-            district_code: payload.recreation_district_code || null,
-            created_by: payload.submitted_by || null,
+        const existingResource = await tx.recreation_resource.findUnique({
+          where: { rec_resource_id },
+          select: {
+            rec_resource_id: true,
+            district_code: true,
+            name: true,
           },
         });
-      } else {
-        const resourcePatch: {
-          district_code?: string;
-          name?: string;
-        } = {};
 
-        if (
-          payload.recreation_district_code &&
-          !existingResource.district_code
-        ) {
-          resourcePatch.district_code = payload.recreation_district_code;
-        }
-
-        if (payload.rec_resource_name?.trim()) {
-          resourcePatch.name = payload.rec_resource_name.trim();
-        }
-
-        if (Object.keys(resourcePatch).length) {
-          await tx.recreation_resource.update({
-            where: { rec_resource_id },
-            data: resourcePatch,
+        if (!existingResource) {
+          await tx.recreation_resource.create({
+            data: {
+              rec_resource_id,
+              name: payload.rec_resource_name || null,
+              district_code: payload.recreation_district_code || null,
+              created_by: payload.submitted_by || null,
+            },
           });
-        }
-      }
+        } else {
+          const resourcePatch: {
+            district_code?: string;
+            name?: string;
+          } = {};
 
-      if (payload.natural_resource_district_code) {
-        const existingNaturalUnit =
-          await tx.natural_resource_org_unit.findUnique({
-            where: { rec_resource_id },
-            select: { rec_resource_id: true },
-          });
+          if (
+            payload.recreation_district_code &&
+            !existingResource.district_code
+          ) {
+            resourcePatch.district_code = payload.recreation_district_code;
+          }
 
-        if (!existingNaturalUnit) {
-          const naturalUnitTemplate =
-            await tx.natural_resource_org_unit.findFirst({
-              where: {
-                org_unit_code: payload.natural_resource_district_code,
-              },
-              orderBy: {
-                effective_date: 'desc',
-              },
+          if (payload.rec_resource_name?.trim()) {
+            resourcePatch.name = payload.rec_resource_name.trim();
+          }
+
+          if (Object.keys(resourcePatch).length) {
+            await tx.recreation_resource.update({
+              where: { rec_resource_id },
+              data: resourcePatch,
             });
-
-          if (naturalUnitTemplate) {
-            await tx.natural_resource_org_unit.create({
-              data: {
-                rec_resource_id,
-                org_unit_no: naturalUnitTemplate.org_unit_no,
-                org_unit_code: naturalUnitTemplate.org_unit_code,
-                org_unit_name: naturalUnitTemplate.org_unit_name,
-                location_code: naturalUnitTemplate.location_code,
-                org_level_code: naturalUnitTemplate.org_level_code,
-                office_name_code: naturalUnitTemplate.office_name_code,
-                region_no: naturalUnitTemplate.region_no,
-                region_code: naturalUnitTemplate.region_code,
-                district_no: naturalUnitTemplate.district_no,
-                district_code: naturalUnitTemplate.district_code,
-                effective_date: naturalUnitTemplate.effective_date,
-                expiry_date: naturalUnitTemplate.expiry_date,
-                updated_at: new Date(),
-              },
-            });
-          } else {
-            this.logger.warn(
-              `No natural_resource_org_unit template found for code ${payload.natural_resource_district_code}; skipping natural district seed for rec_resource_id: ${rec_resource_id}`,
-            );
           }
         }
-      }
 
-      const existingMapFeature = await tx.recreation_map_feature.findFirst({
-        where: { rec_resource_id },
-        select: { rmf_skey: true },
-      });
+        if (payload.natural_resource_district_code) {
+          const existingNaturalUnit =
+            await tx.natural_resource_org_unit.findUnique({
+              where: { rec_resource_id },
+              select: { rec_resource_id: true },
+            });
 
-      if (existingMapFeature) {
-        throw new ConflictException(
-          'Map features already exist for this recreation resource.',
+          if (!existingNaturalUnit) {
+            const naturalUnitTemplate =
+              await tx.natural_resource_org_unit.findFirst({
+                where: {
+                  org_unit_code: payload.natural_resource_district_code,
+                },
+                orderBy: {
+                  effective_date: 'desc',
+                },
+              });
+
+            if (naturalUnitTemplate) {
+              await tx.natural_resource_org_unit.create({
+                data: {
+                  rec_resource_id,
+                  org_unit_no: naturalUnitTemplate.org_unit_no,
+                  org_unit_code: naturalUnitTemplate.org_unit_code,
+                  org_unit_name: naturalUnitTemplate.org_unit_name,
+                  location_code: naturalUnitTemplate.location_code,
+                  org_level_code: naturalUnitTemplate.org_level_code,
+                  office_name_code: naturalUnitTemplate.office_name_code,
+                  region_no: naturalUnitTemplate.region_no,
+                  region_code: naturalUnitTemplate.region_code,
+                  district_no: naturalUnitTemplate.district_no,
+                  district_code: naturalUnitTemplate.district_code,
+                  effective_date: naturalUnitTemplate.effective_date,
+                  expiry_date: naturalUnitTemplate.expiry_date,
+                  updated_at: new Date(),
+                },
+              });
+            } else {
+              this.logger.warn(
+                `No natural_resource_org_unit template found for code ${payload.natural_resource_district_code}; skipping natural district seed for rec_resource_id: ${rec_resource_id}`,
+              );
+            }
+          }
+        }
+
+        const existingMapFeature = await tx.recreation_map_feature.findFirst({
+          where: { rec_resource_id },
+          select: { rmf_skey: true },
+        });
+
+        if (existingMapFeature) {
+          throw new ConflictException(
+            'Map features already exist for this recreation resource.',
+          );
+        }
+
+        const flattenedEntries: FlatGeometryEntry[] = this.flattenFeatures(
+          payload.features,
         );
-      }
 
-      const flattenedEntries: FlatGeometryEntry[] = this.flattenFeatures(
-        payload.features,
-      );
+        if (!flattenedEntries.length) {
+          throw new BadRequestException('No supported geometries were found.');
+        }
 
-      if (!flattenedEntries.length) {
-        throw new BadRequestException('No supported geometries were found.');
-      }
+        const maxRmfSkeyQuery = [
+          'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
+          'FROM rst.recreation_map_feature',
+        ].join(' ');
 
-      const maxRmfSkeyQuery = [
-        'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
-        'FROM rst.recreation_map_feature',
-      ].join(' ');
+        const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
+          max_rmf_skey: number | bigint;
+        }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
 
-      const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
-        max_rmf_skey: number | bigint;
-      }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
+        let nextRmfSkey = Number(max_rmf_skey) + 1;
 
-      let nextRmfSkey = Number(max_rmf_skey) + 1;
+        for (const entry of flattenedEntries) {
+          const rmfSkey = nextRmfSkey;
+          nextRmfSkey += 1;
 
-      for (const entry of flattenedEntries) {
-        const rmfSkey = nextRmfSkey;
-        nextRmfSkey += 1;
+          await this.insertMapFeatureAndGeometry(
+            rmfSkey,
+            rec_resource_id,
+            entry.sectionId,
+            payload.recreation_type_code || null,
+            payload.submitted_by || null,
+            entry.geometryTypeCode,
+            entry.geometry,
+            entry.sourceMetrics,
+            tx,
+          );
+        }
 
-        await this.insertMapFeatureAndGeometry(
-          rmfSkey,
+        const createdSubmission = await this.createSpatialSubmission(tx, {
           rec_resource_id,
-          entry.sectionId,
-          payload.recreation_type_code || null,
-          payload.submitted_by || null,
-          entry.geometryTypeCode,
-          entry.geometry,
-          entry.sourceMetrics,
-          tx,
-        );
-      }
+          statusRequestTypeCode:
+            this.deriveStatusRequestTypeCode(flattenedEntries),
+          purposeCode: 'N',
+          recreationTypeCode: payload.recreation_type_code || null,
+          submittedBy: payload.submitted_by || null,
+          orgUnitCode: payload.natural_resource_district_code || null,
+        });
 
-      const createdSubmission = await this.createSpatialSubmission(tx, {
-        rec_resource_id,
-        statusRequestTypeCode:
-          this.deriveStatusRequestTypeCode(flattenedEntries),
-        purposeCode: 'N',
-        recreationTypeCode: payload.recreation_type_code || null,
-        submittedBy: payload.submitted_by || null,
-        orgUnitCode: payload.natural_resource_district_code || null,
-      });
+        if (createdSubmission) {
+          pendingStatusRequest = {
+            submission: createdSubmission,
+            entries: flattenedEntries,
+          };
+        }
+      },
+      {
+        timeout: INTERACTIVE_TRANSACTION_TIMEOUT_MS,
+        maxWait: INTERACTIVE_TRANSACTION_MAX_WAIT_MS,
+      },
+    );
 
-      if (createdSubmission) {
-        await this.dispatchSncscStatusRequest(
-          tx,
-          createdSubmission,
-          flattenedEntries,
-        );
-      }
-    });
+    if (pendingStatusRequest) {
+      await this.dispatchSncscStatusRequest(
+        pendingStatusRequest.submission,
+        pendingStatusRequest.entries,
+      );
+    }
   }
 
   /**

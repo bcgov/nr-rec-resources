@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BadRequestException, ConflictException } from '@nestjs/common';
-import { GeospatialService } from '@/recreation-resources/geospatial/geospatial.service';
 import { PrismaService } from '@/prisma.service';
 import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
+import { GeospatialService } from '@/recreation-resources/geospatial/geospatial.service';
 
 describe('GeospatialService', () => {
   let service: GeospatialService;
@@ -32,6 +32,9 @@ describe('GeospatialService', () => {
         findUnique: vi.fn(),
         findFirst: vi.fn(),
         create: vi.fn(),
+      },
+      recreation_spatial_submission: {
+        update: vi.fn(),
       },
     };
 
@@ -286,9 +289,9 @@ describe('GeospatialService', () => {
         }),
       });
       expect(result[1]).toMatchObject({
-        featureGeometryTypeCode: 'linear',
+        featureGeometryTypeCode: 'line',
         mapFeatureTypeCode: '',
-        linear: expect.objectContaining({
+        line: expect.objectContaining({
           type: 'LineString',
           crs: expect.any(Object),
         }),
@@ -348,13 +351,13 @@ describe('GeospatialService', () => {
 
       expect(result).toHaveLength(2);
       expect(result[0]).toMatchObject({
-        featureGeometryTypeCode: 'linear',
+        featureGeometryTypeCode: 'line',
         mapFeatureGuid: 'guid-l1',
-        linear: expect.objectContaining({ type: 'LineString' }),
+        line: expect.objectContaining({ type: 'LineString' }),
       });
       expect(result[1]).toMatchObject({
-        featureGeometryTypeCode: 'linear',
-        linear: expect.objectContaining({ type: 'LineString' }),
+        featureGeometryTypeCode: 'line',
+        line: expect.objectContaining({ type: 'LineString' }),
       });
       expect(result[1].mapFeatureGuid).not.toBe('guid-l1');
     });
@@ -426,10 +429,10 @@ describe('GeospatialService', () => {
       expect(result[0]).toMatchObject({ mapFeatureGuid: 'guid-l1-a' });
       expect(result[1]).toMatchObject({ mapFeatureGuid: 'guid-l1-b' });
       expect(result[0]).toMatchObject({
-        linear: expect.objectContaining({ type: 'LineString' }),
+        line: expect.objectContaining({ type: 'LineString' }),
       });
       expect(result[1]).toMatchObject({
-        linear: expect.objectContaining({ type: 'LineString' }),
+        line: expect.objectContaining({ type: 'LineString' }),
       });
     });
 
@@ -503,11 +506,6 @@ describe('GeospatialService', () => {
     });
 
     it('dispatches SNCSC status request and stores returned guid', async () => {
-      const tx = {
-        recreation_spatial_submission: {
-          update: vi.fn(),
-        },
-      };
       vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
         client_number: '00133887',
         client_name: 'District Manager',
@@ -526,7 +524,6 @@ describe('GeospatialService', () => {
       );
 
       await (service as any).dispatchSncscStatusRequest(
-        tx,
         {
           application_guid: 'app-guid-1',
           submission_id: '1234567',
@@ -541,7 +538,9 @@ describe('GeospatialService', () => {
       expect(
         sncscStatusRequestServiceMock.createStatusRequest,
       ).toHaveBeenCalledTimes(1);
-      expect(tx.recreation_spatial_submission.update).toHaveBeenCalledWith({
+      expect(
+        prismaMock.recreation_spatial_submission.update,
+      ).toHaveBeenCalledWith({
         where: { application_guid: 'app-guid-1' },
         data: {
           status_request_guid: 'status-request-guid',

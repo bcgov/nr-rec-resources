@@ -27,6 +27,7 @@ import { useGetPendingMapFeatureRequests } from '@/services/hooks/recreation-res
 import { useGetExhibitADocs } from '@/services/hooks/recreation-resource-admin/useGetExhibitADocs';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import {
   addErrorNotification,
   addSpinnerNotification,
@@ -91,7 +92,9 @@ export function RecResourceGeospatialSection() {
   const recResourceId = params?.id;
   const { recResource } = useRecResource();
   const { isSuperAdmin } = useAuthorizations();
-  const { user, authService } = useAuthContext();
+  const { user } = useAuthContext();
+  const recreationResourceAdminApiClient =
+    useRecreationResourceAdminApiClient();
   const queryClient = useQueryClient();
   const isArchived = recResource?.rec_status_code === 'AR';
   const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
@@ -329,29 +332,8 @@ export function RecResourceGeospatialSection() {
     return row.exhibit_a_url ?? null;
   };
 
-  const getAdjudicationReportUrl = (row: PendingMapFeatureRequestRowDto) => {
-    const url = row.adjudication_report;
-    if (!url) return null;
-
-    // Backward compatibility for older payloads still returning /api/v1 paths.
-    const normalizedPath = url.startsWith('/api/v1/')
-      ? url.replace('/api/v1/', '/api/')
-      : url;
-
-    // Resolve relative API paths against backend host instead of frontend origin.
-    if (normalizedPath.startsWith('/api/')) {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
-      if (apiBaseUrl) {
-        try {
-          return new URL(normalizedPath, apiBaseUrl).toString();
-        } catch {
-          // Fall back to the original path if env config is malformed.
-        }
-      }
-    }
-
-    return normalizedPath;
-  };
+  const hasAdjudicationReport = (row: PendingMapFeatureRequestRowDto) =>
+    Boolean(row.adjudication_report && row.application_guid);
 
   const handleUploadStart = useCallback(
     (row: PendingMapFeatureRequestRowDto) => {
@@ -533,28 +515,30 @@ export function RecResourceGeospatialSection() {
 
   const handleViewAdjudicationReport = useCallback(
     async (row: PendingMapFeatureRequestRowDto) => {
-      const reportUrl = getAdjudicationReportUrl(row);
-      if (!reportUrl) return;
+      if (!row.application_guid) return;
 
       const popup = window.open('about:blank', '_blank');
       try {
-        const token = await authService.getToken();
-        const response = await fetch(reportUrl, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${String(token ?? '')}`,
-            Accept: 'application/pdf, application/octet-stream',
-          },
-        });
+        const response =
+          await recreationResourceAdminApiClient.getPendingRequestAdjudicationReportRaw(
+            {
+              applicationGuid: row.application_guid,
+            },
+            {
+              headers: {
+                Accept: 'application/pdf, application/octet-stream',
+              },
+            },
+          );
 
-        if (!response.ok) {
-          const errorText = await response.text();
+        if (!response.raw.ok) {
+          const errorText = await response.raw.text();
           throw new Error(
-            `Adjudication report fetch failed: ${response.status} ${response.statusText} ${errorText}`,
+            `Adjudication report fetch failed: ${response.raw.status} ${response.raw.statusText} ${errorText}`,
           );
         }
 
-        const bytes = await response.arrayBuffer();
+        const bytes = await response.raw.arrayBuffer();
         if (bytes.byteLength === 0) {
           throw new Error('Adjudication report response was empty.');
         }
@@ -580,7 +564,7 @@ export function RecResourceGeospatialSection() {
         );
       }
     },
-    [authService],
+    [recreationResourceAdminApiClient],
   );
 
   const submissionRows = (pendingMapFeatureRequests?.data ?? [])
@@ -662,9 +646,9 @@ export function RecResourceGeospatialSection() {
                 render: (row) => {
                   const statusRequestGuid = row.status_request_guid;
                   const sncscUrl = buildSncscSubmissionUrl(statusRequestGuid);
-                  const adjudicationUrl = getAdjudicationReportUrl(row);
+                  const canViewAdjudicationReport = hasAdjudicationReport(row);
 
-                  if (!sncscUrl && !adjudicationUrl) {
+                  if (!sncscUrl && !canViewAdjudicationReport) {
                     return <span className="text-muted">-</span>;
                   }
 
@@ -684,7 +668,7 @@ export function RecResourceGeospatialSection() {
                           />
                         </a>
                       ) : null}
-                      {adjudicationUrl ? (
+                      {canViewAdjudicationReport ? (
                         <button
                           type="button"
                           className="geospatial-submissions-reference btn btn-link p-0"
