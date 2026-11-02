@@ -241,4 +241,31 @@ describe('ExhibitAPdfBuilder', () => {
       drawLineSpy.mock.calls.some(([options]) => options?.thickness === 3.4),
     ).toBe(false);
   });
+
+  it('renders AREA + RIGHT OF WAY + LENGTH for mixed geometry submissions', async () => {
+    const builder = new ExhibitAPdfBuilder();
+    vi.spyOn(builder as any, 'asset').mockImplementation(() => MINIMAL_PNG);
+    const drawTextSpy = vi.spyOn(PDFPage.prototype, 'drawText');
+    const drawLineSpy = vi.spyOn(PDFPage.prototype, 'drawLine');
+
+    await builder.build({
+      ...baseInput,
+      header: {
+        ...baseInput.header,
+        geometry_mode: 'mixed',
+        area_ha: 11.1111,
+        width_m: 12.5,
+        length_km: 9.8765,
+      },
+      coordinateRows: [],
+    });
+
+    const lines = drawTextSpy.mock.calls.map(([text]) => String(text).trim());
+    expect(lines).toContain('AREA (Ha):');
+    expect(lines).toContain('RIGHT OF WAY (m):');
+    expect(lines).toContain('LENGTH (km):');
+    expect(
+      drawLineSpy.mock.calls.some(([options]) => options?.thickness === 3.4),
+    ).toBe(false);
+  });
 });

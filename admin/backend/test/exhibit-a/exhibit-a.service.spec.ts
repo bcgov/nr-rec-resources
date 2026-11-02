@@ -735,4 +735,39 @@ describe('ExhibitAService', () => {
       scale: 15000,
     });
   });
+
+  it('normalizes and de-duplicates map sheet values from BCGS query payload', async () => {
+    vi.spyOn(service as any, 'fetchJson').mockResolvedValue({
+      features: [
+        { attributes: { MAP_TILE_DISPLAY_NAME: '82G.001' } },
+        { attributes: { MAP_TILE_DISPLAY_NAME: ' 82g.001 ' } },
+        { attributes: { map_sheet: '82G.002' } },
+        { attributes: { UNKNOWN_KEY: 'ignored' } },
+      ],
+    });
+
+    const result = await (service as any).queryBcgsMapSheetsForExtent({
+      xmin: -123.1,
+      ymin: 49.2,
+      xmax: -123.0,
+      ymax: 49.3,
+    });
+
+    expect(result).toEqual(['82G.001', '82G.002']);
+  });
+
+  it('returns empty map sheet list when map sheet lookup fails', async () => {
+    vi.spyOn(service as any, 'queryBcgsMapSheetsForExtent').mockRejectedValue(
+      new Error('lookup failed'),
+    );
+
+    await expect(
+      (service as any).resolveMapSheetsForExtent({
+        xmin: -123.1,
+        ymin: 49.2,
+        xmax: -123.0,
+        ymax: 49.3,
+      }),
+    ).resolves.toEqual([]);
+  });
 });

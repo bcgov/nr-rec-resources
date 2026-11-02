@@ -524,11 +524,13 @@ export function RecResourceGeospatialSection() {
             {
               applicationGuid: row.application_guid,
             },
-            {
+            ({ init }) => ({
+              ...init,
               headers: {
+                ...(init.headers as Record<string, string> | undefined),
                 Accept: 'application/pdf, application/octet-stream',
               },
-            },
+            }),
           );
 
         if (!response.raw.ok) {

@@ -1058,6 +1058,10 @@ export class GeospatialService {
     submission: CreatedSpatialSubmission,
     entries: FlatGeometryEntry[],
   ): Promise<void> {
+    this.logger.log(
+      `Dispatching SNCSC status request for submission_id: ${submission.submission_id}, tenure_id: ${submission.tenure_id}, type: ${submission.status_request_type_code}`,
+    );
+
     const client = await this.resolveOrgUnitClientInfo(
       submission.org_unit_code,
     );
@@ -1065,6 +1069,10 @@ export class GeospatialService {
       this.prisma,
       submission.tenure_id,
       entries,
+    );
+
+    this.logger.log(
+      `Prepared ${featureRequests.length} SNCSC feature request element(s) for submission_id: ${submission.submission_id}`,
     );
 
     const payload: Record<string, unknown> = {
@@ -1090,18 +1098,34 @@ export class GeospatialService {
 
     this.validateSncscPayloadTypes(payload);
 
-    console.log('SNCSC status request payload:', JSON.stringify(payload));
+    try {
+      const statusRequestGuid =
+        await this.sncscStatusRequestService.createStatusRequest(payload);
 
-    const statusRequestGuid =
-      await this.sncscStatusRequestService.createStatusRequest(payload);
+      if (statusRequestGuid) {
+        await this.prisma.recreation_spatial_submission.update({
+          where: { application_guid: submission.application_guid },
+          data: {
+            status_request_guid: statusRequestGuid,
+            updated_by: 'system',
+          },
+        });
+      } else {
+        this.logger.warn(
+          `SNCSC status request response did not include a status request guid for submission_id: ${submission.submission_id}`,
+        );
+      }
 
-    await this.prisma.recreation_spatial_submission.update({
-      where: { application_guid: submission.application_guid },
-      data: {
-        status_request_guid: statusRequestGuid,
-        updated_by: 'system',
-      },
-    });
+      this.logger.log(
+        `SNCSC status request dispatched successfully for submission_id: ${submission.submission_id}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `SNCSC status request dispatch failed for submission_id: ${submission.submission_id}, tenure_id: ${submission.tenure_id}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      throw error;
+    }
   }
 
   private validateSncscPayloadTypes(payload: Record<string, unknown>): void {
@@ -1245,12 +1269,10 @@ export class GeospatialService {
     const amendedFeatures = payload.amendedFeatures ?? [];
     const retiredFeatures = payload.retiredFeatures ?? [];
 
-    let pendingStatusRequest: {
+    const pendingStatusRequest: {
       submission: CreatedSpatialSubmission;
       entries: FlatGeometryEntry[];
-    } | null = null;
-
-    await this.prisma.$transaction(
+    } | null = await this.prisma.$transaction(
       async (tx) => {
         await tx.$executeRawUnsafe(
           "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
@@ -1455,12 +1477,14 @@ export class GeospatialService {
           });
 
           if (createdSubmission) {
-            pendingStatusRequest = {
+            return {
               submission: createdSubmission,
               entries: allSubmissionEntries,
             };
           }
         }
+
+        return null;
       },
       {
         timeout: INTERACTIVE_TRANSACTION_TIMEOUT_MS,
@@ -1494,12 +1518,10 @@ export class GeospatialService {
       `Creating ${payload.features.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
     );
 
-    let pendingStatusRequest: {
+    const pendingStatusRequest: {
       submission: CreatedSpatialSubmission;
       entries: FlatGeometryEntry[];
-    } | null = null;
-
-    await this.prisma.$transaction(
+    } | null = await this.prisma.$transaction(
       async (tx) => {
         await tx.$executeRawUnsafe(
           "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
@@ -1651,11 +1673,13 @@ export class GeospatialService {
         });
 
         if (createdSubmission) {
-          pendingStatusRequest = {
+          return {
             submission: createdSubmission,
             entries: flattenedEntries,
           };
         }
+
+        return null;
       },
       {
         timeout: INTERACTIVE_TRANSACTION_TIMEOUT_MS,

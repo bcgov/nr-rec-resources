@@ -259,6 +259,7 @@ describe('RecreationResourceService', () => {
         submission_id: '7654321',
         application_guid: 'app-guid-123',
         status_request_guid: 'status-guid-123',
+        purpose_code: 'A',
         exhibit_a_url: 'https://example.com/exhibit-a.pdf',
       },
     ]);
@@ -269,6 +270,7 @@ describe('RecreationResourceService', () => {
       submission_id: '7654321',
       application_guid: 'app-guid-123',
       status_request_guid: 'status-guid-123',
+      purpose_code: 'A',
       exhibit_a_url: 'https://example.com/exhibit-a.pdf',
       adjudication_report:
         '/api/recreation-resources/pending-requests/app-guid-123/adjudication-report',
@@ -300,6 +302,7 @@ describe('RecreationResourceService', () => {
     expect(result.data[0]).not.toHaveProperty('submission_id');
     expect(result.data[0]).not.toHaveProperty('application_guid');
     expect(result.data[0]).not.toHaveProperty('status_request_guid');
+    expect(result.data[0]).not.toHaveProperty('purpose_code');
     expect(result.data[0]).not.toHaveProperty('exhibit_a_url');
     expect(result.data[0]).not.toHaveProperty('adjudication_report');
   });

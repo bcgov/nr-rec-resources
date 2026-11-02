@@ -231,6 +231,97 @@ describe('GeospatialService', () => {
     });
   });
 
+  describe('map sheet lookup', () => {
+    it('returns empty map sheets when resource has no geometry envelope', async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([{ geometry_wkt: null }]);
+
+      await expect(service.getMapSheetsForExhibitA('REC123')).resolves.toEqual({
+        allMapSheets: [],
+        bestMapSheet: null,
+      });
+    });
+
+    it('returns all intersecting map sheets and picks best by overlap area', async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([
+        { geometry_wkt: 'POLYGON((0 0,0 1,1 1,0 0))' },
+      ]);
+
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify({
+              features: [
+                {
+                  attributes: {
+                    MAP_TILE_DISPLAY_NAME: '82G.001',
+                    SHAPE_AREA: 10,
+                  },
+                },
+                {
+                  attributes: {
+                    MAP_TILE_DISPLAY_NAME: '82G.002',
+                    SHAPE_AREA: 25,
+                  },
+                },
+              ],
+            }),
+          ),
+        }),
+      );
+
+      await expect(service.getMapSheetsForExhibitA('REC123')).resolves.toEqual({
+        allMapSheets: ['82G.001', '82G.002'],
+        bestMapSheet: '82G.002',
+      });
+    });
+
+    it('throws when BCGS service returns invalid JSON', async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([
+        { geometry_wkt: 'POLYGON((0 0,0 1,1 1,0 0))' },
+      ]);
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          text: vi.fn().mockResolvedValue('not-json'),
+        }),
+      );
+
+      await expect(service.getMapSheetsForExhibitA('REC123')).rejects.toThrow(
+        /invalid JSON/i,
+      );
+    });
+
+    it('throws when BCGS service returns an error payload', async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([
+        { geometry_wkt: 'POLYGON((0 0,0 1,1 1,0 0))' },
+      ]);
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          text: vi
+            .fn()
+            .mockResolvedValue(
+              JSON.stringify({ error: { message: 'Map sheet service error' } }),
+            ),
+        }),
+      );
+
+      await expect(service.getMapSheetsForExhibitA('REC123')).rejects.toThrow(
+        /Map sheet service error/,
+      );
+    });
+  });
+
   describe('spatial submission helpers', () => {
     it('returns empty feature request elements when there are no entries', async () => {
       const tx = {
@@ -634,6 +725,116 @@ describe('GeospatialService', () => {
           }),
         }),
       );
+    });
+
+    it('returns null when org unit code cannot be resolved', async () => {
+      const tx = {
+        natural_resource_org_unit: {
+          findUnique: vi.fn().mockResolvedValue(null),
+        },
+        recreation_spatial_submission: {
+          findFirst: vi.fn().mockResolvedValue(null),
+          create: vi.fn(),
+        },
+      };
+
+      await expect(
+        (service as any).createSpatialSubmission(tx, {
+          rec_resource_id: 'REC-NO-ORG',
+          statusRequestTypeCode: 'RPO',
+          purposeCode: 'N',
+        }),
+      ).resolves.toBeNull();
+      expect(tx.recreation_spatial_submission.create).not.toHaveBeenCalled();
+    });
+
+    it('returns null when recreation_spatial_submission.create is unavailable', async () => {
+      const tx = {
+        natural_resource_org_unit: {
+          findUnique: vi.fn().mockResolvedValue({ org_unit_code: 'DND' }),
+        },
+        recreation_spatial_submission: {},
+      };
+
+      await expect(
+        (service as any).createSpatialSubmission(tx, {
+          rec_resource_id: 'REC123',
+          statusRequestTypeCode: 'RPO',
+          purposeCode: 'N',
+        }),
+      ).resolves.toBeNull();
+    });
+
+    it('validates SNCSC payload @type structure', () => {
+      const validPayload = {
+        '@type': 'StatusRequestResource',
+        featureRequests: {
+          '@type': 'FeatureRequestResources',
+          elements: [{ '@type': 'FeatureRequestResource' }],
+        },
+      };
+
+      expect(() =>
+        (service as any).validateSncscPayloadTypes(validPayload),
+      ).not.toThrow();
+
+      expect(() =>
+        (service as any).validateSncscPayloadTypes({
+          featureRequests: validPayload.featureRequests,
+        }),
+      ).toThrow(/StatusRequestResource/);
+    });
+  });
+
+  describe('updateMapFeaturesFromValidatedFile', () => {
+    it('amends an existing linear feature from newFeatures when section already exists', async () => {
+      prismaMock.$queryRawUnsafe.mockResolvedValueOnce([{ max_rmf_skey: 10 }]);
+      prismaMock.recreation_map_feature.findMany.mockResolvedValueOnce([
+        { section_id: 'Trail-1', rmf_skey: 77, amendment_id: 2 },
+      ]);
+      prismaMock.natural_resource_org_unit.findUnique.mockResolvedValueOnce({
+        org_unit_code: 'DND',
+      });
+      prismaMock.recreation_spatial_submission = {
+        create: vi.fn().mockResolvedValue({
+          application_guid: 'app-guid-1',
+          submission_id: '7654321',
+          tenure_id: 'REC123',
+          org_unit_code: 'DND',
+          status_request_type_code: 'RL',
+          purpose_code: 'A',
+        }),
+        update: vi.fn(),
+      };
+
+      vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
+        client_number: '00133887',
+        client_name: 'District Manager',
+      });
+      vi.spyOn(service as any, 'buildFeatureRequestElements').mockResolvedValue(
+        [],
+      );
+
+      const updateSpy = vi.spyOn(service as any, 'updateMapFeatureAndGeometry');
+      const insertSpy = vi.spyOn(service as any, 'insertMapFeatureAndGeometry');
+
+      await service.updateMapFeaturesFromValidatedFile('REC123', {
+        newFeatures: [
+          {
+            section_id: 'Trail-1',
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [0, 0],
+                [1, 1],
+              ],
+            },
+          },
+        ],
+      } as any);
+
+      expect(updateSpy).toHaveBeenCalledTimes(1);
+      expect(insertSpy).not.toHaveBeenCalled();
     });
   });
 

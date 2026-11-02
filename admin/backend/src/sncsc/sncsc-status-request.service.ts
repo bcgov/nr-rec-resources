@@ -5,8 +5,6 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 
 type SncscTokenResponse = {
   access_token?: string;
@@ -22,37 +20,6 @@ export class SncscStatusRequestService {
   private readonly logger = new Logger(SncscStatusRequestService.name);
 
   constructor(private readonly appConfigService: AppConfigService) {}
-
-  private async persistOutboundStatusRequest(
-    payload: Record<string, unknown>,
-  ): Promise<string | null> {
-    try {
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const logDir = join(process.cwd(), 'logs', 'sncsc-status-requests');
-      await mkdir(logDir, { recursive: true });
-
-      const filePath = join(logDir, `status-request-${timestamp}.json`);
-      const content = JSON.stringify(
-        {
-          timestamp: new Date().toISOString(),
-          method: 'POST',
-          url: this.statusRequestUrl,
-          payload,
-        },
-        null,
-        2,
-      );
-
-      await writeFile(filePath, content, 'utf8');
-      return filePath;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(
-        `Unable to write SNCSC outbound payload log file: ${message}`,
-      );
-      return null;
-    }
-  }
 
   private get tokenUrl(): string {
     return `${this.appConfigService.sncscBaseUrl.replace(/\/+$/, '')}/oauth2/v1/oauth/token`;
@@ -236,7 +203,6 @@ export class SncscStatusRequestService {
     payload: Record<string, unknown>,
   ): Promise<string | null> {
     const token = await this.getAccessToken();
-    const payloadLogFile = await this.persistOutboundStatusRequest(payload);
 
     // Helpful request-boundary log for troubleshooting SNCSC payload issues.
     console.log(
@@ -245,7 +211,6 @@ export class SncscStatusRequestService {
         {
           method: 'POST',
           url: this.statusRequestUrl,
-          ...(payloadLogFile ? { payloadLogFile } : {}),
           payload,
         },
         null,

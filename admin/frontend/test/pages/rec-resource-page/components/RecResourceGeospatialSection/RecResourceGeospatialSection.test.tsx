@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockUseRecResource = vi.fn();
@@ -101,11 +107,16 @@ vi.mock(
 
 const mockAddSuccessNotification = vi.fn();
 const mockAddErrorNotification = vi.fn();
+const mockAddSpinnerNotification = vi.fn();
+const mockRemoveNotification = vi.fn();
 
 vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: (...args: any[]) => mockAddErrorNotification(...args),
   addSuccessNotification: (...args: any[]) =>
     mockAddSuccessNotification(...args),
+  addSpinnerNotification: (...args: any[]) =>
+    mockAddSpinnerNotification(...args),
+  removeNotification: (...args: any[]) => mockRemoveNotification(...args),
 }));
 
 vi.mock('@/components/file/DocumentUploadModal', () => ({
@@ -178,6 +189,8 @@ describe('RecResourceGeospatialSection', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
     mockAddSuccessNotification.mockClear();
     mockAddErrorNotification.mockClear();
+    mockAddSpinnerNotification.mockClear();
+    mockRemoveNotification.mockClear();
     mockInvalidateQueries.mockClear();
     mockInvalidateQueries.mockResolvedValue(undefined);
 
@@ -448,6 +461,7 @@ describe('RecResourceGeospatialSection', () => {
             submission_id: 'SUB-3',
             rec_resource_id: 'REC0001',
             amend_status_code: 'APPROVED_AMEND',
+            purpose_code: 'A',
             feature_count: 1,
             geometry_types: ['Polygon'],
           },
@@ -455,6 +469,7 @@ describe('RecResourceGeospatialSection', () => {
             submission_id: 'SUB-4',
             rec_resource_id: 'REC0001',
             amend_status_code: 'REJECTED_RETIRE',
+            purpose_code: 'R',
             feature_count: 1,
             geometry_types: ['Polygon'],
           },
@@ -467,8 +482,8 @@ describe('RecResourceGeospatialSection', () => {
 
     expect(screen.getByText('APPROVED')).toBeDefined();
     expect(screen.getByText('REJECTED')).toBeDefined();
-    expect(screen.getByText('Amendment')).toBeDefined();
-    expect(screen.getByText('Retire')).toBeDefined();
+    expect(screen.getByText('AMEND')).toBeDefined();
+    expect(screen.getByText('RETIRE')).toBeDefined();
   });
 
   it('shows compact create form after clicking Create new', () => {
@@ -684,6 +699,16 @@ describe('RecResourceGeospatialSection', () => {
     render(<RecResourceGeospatialSection />);
 
     fireEvent.click(screen.getByRole('button', { name: /Regenerate/i }));
+    const modal = screen.getByRole('dialog');
+
+    fireEvent.change(within(modal).getAllByRole('combobox')[0], {
+      target: { value: 'A' },
+    });
+    fireEvent.click(within(modal).getByLabelText('Landscape'));
+    fireEvent.change(within(modal).getAllByRole('combobox')[1], {
+      target: { value: '10000' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'Regenerate' }));
 
     await waitFor(() => {
       expect(mockAddSuccessNotification).toHaveBeenCalledWith(
@@ -695,6 +720,9 @@ describe('RecResourceGeospatialSection', () => {
       applicationGuid: 'app-guid-8',
       userId: 'IDIR\\idir.user',
       generate: true,
+      size: 'A',
+      orientation: 'L',
+      scale: 10000,
     });
   });
 
@@ -733,12 +761,17 @@ describe('RecResourceGeospatialSection', () => {
     await waitFor(() => {
       expect(mockGetPendingRequestAdjudicationReportRaw).toHaveBeenCalledWith(
         { applicationGuid: 'app-guid-9' },
-        {
-          headers: {
-            Accept: 'application/pdf, application/octet-stream',
-          },
-        },
+        expect.any(Function),
       );
+    });
+
+    const requestInitOverride =
+      mockGetPendingRequestAdjudicationReportRaw.mock.calls[0]?.[1];
+    expect(requestInitOverride).toBeTypeOf('function');
+    expect(
+      requestInitOverride({ init: { headers: {} } }).headers,
+    ).toMatchObject({
+      Accept: 'application/pdf, application/octet-stream',
     });
   });
 });
