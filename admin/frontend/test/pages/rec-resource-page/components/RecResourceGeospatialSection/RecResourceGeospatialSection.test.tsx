@@ -177,6 +177,9 @@ describe('RecResourceGeospatialSection', () => {
         idir_username: 'IDIR\\idir.user',
         preferred_username: 'idir.user',
       },
+      authService: {
+        getToken: vi.fn().mockResolvedValue('test-token'),
+      },
     });
 
     mockUseAuthorizations.mockReturnValue({
@@ -669,6 +672,59 @@ describe('RecResourceGeospatialSection', () => {
       applicationGuid: 'app-guid-8',
       userId: 'IDIR\\idir.user',
       generate: true,
+    });
+  });
+
+  it('uses backend API base URL for relative adjudication report paths', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'https://backend.example.ca/api');
+    const popupStub = {
+      closed: false,
+      location: { replace: vi.fn() },
+      close: vi.fn(),
+    };
+    vi.stubGlobal('open', vi.fn().mockReturnValue(popupStub));
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:report');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8)),
+      }),
+    );
+
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-9',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            adjudication_report:
+              '/api/v1/recreation-resource/SUB-9/adjudication-report',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Adj.Report/i }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://backend.example.ca/api/recreation-resource/SUB-9/adjudication-report',
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.objectContaining({
+            Authorization: 'Bearer test-token',
+          }),
+        }),
+      );
     });
   });
 });

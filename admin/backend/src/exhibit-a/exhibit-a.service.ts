@@ -208,10 +208,7 @@ export class ExhibitAService {
     const dpi = clamp(MAX_EXPORT_PX / Math.max(inW, inH), MIN_DPI, MAX_DPI);
     const outputSize = [Math.round(inW * dpi), Math.round(inH * dpi)];
 
-    const { mapServerUrl, visibleLayers } = await this.resolveMapServer(
-      scale,
-      !useExplicitLayout,
-    );
+    const { mapServerUrl, visibleLayers } = await this.resolveMapServer(scale);
     const mapImageUrl = await this.exportMapImage(
       buildWebMapJson({
         mapServerUrl,

@@ -334,7 +334,23 @@ export function RecResourceGeospatialSection() {
     if (!url) return null;
 
     // Backward compatibility for older payloads still returning /api/v1 paths.
-    return url.startsWith('/api/v1/') ? url.replace('/api/v1/', '/api/') : url;
+    const normalizedPath = url.startsWith('/api/v1/')
+      ? url.replace('/api/v1/', '/api/')
+      : url;
+
+    // Resolve relative API paths against backend host instead of frontend origin.
+    if (normalizedPath.startsWith('/api/')) {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+      if (apiBaseUrl) {
+        try {
+          return new URL(normalizedPath, apiBaseUrl).toString();
+        } catch {
+          // Fall back to the original path if env config is malformed.
+        }
+      }
+    }
+
+    return normalizedPath;
   };
 
   const handleUploadStart = useCallback(

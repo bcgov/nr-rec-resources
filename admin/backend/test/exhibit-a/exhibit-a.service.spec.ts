@@ -100,6 +100,9 @@ describe('ExhibitAService', () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
+        new Response(JSON.stringify({ features: [] }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
         new Response(
           JSON.stringify({ layers: [{ id: 0 }, { id: 2 }, { id: 5 }] }),
           { status: 200 },
@@ -127,10 +130,13 @@ describe('ExhibitAService', () => {
     });
 
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
-      'http://maps.gov.bc.ca/arcgis/rest/services/fta/',
+      'bcgw_pub_whse_basemapping/MapServer/82/query',
     );
 
-    const exportCallInit = fetchMock.mock.calls[1]?.[1];
+    const exportCall = fetchMock.mock.calls.find(
+      ([, init]) => init?.method === 'POST',
+    );
+    const exportCallInit = exportCall?.[1];
     const params = new URLSearchParams(String(exportCallInit?.body ?? ''));
     const webMapJson = JSON.parse(params.get('Web_Map_as_JSON') ?? '{}') as {
       operationalLayers?: Array<{ id?: string; visibleLayers?: number[] }>;
@@ -140,7 +146,7 @@ describe('ExhibitAService', () => {
     );
     expect(ftaLayer?.visibleLayers).toEqual([0, 2, 5]);
 
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(result.mapImageUrl).toBe('https://example.com/map.jpg');
     expect(result.pageSize).toBe(ExhibitAPageSize.B);
     expect(result.pageOrientation).toBe(ExhibitAPageOrientation.Landscape);
@@ -191,6 +197,9 @@ describe('ExhibitAService', () => {
       ]);
 
     vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ features: [] }), { status: 200 }),
+      )
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({ layers: [{ id: 0 }, { id: 2 }, { id: 5 }] }),
@@ -274,6 +283,9 @@ describe('ExhibitAService', () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
+        new Response(JSON.stringify({ features: [] }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
         new Response(JSON.stringify({ message: 'not found' }), { status: 404 }),
       )
       .mockResolvedValueOnce(
@@ -304,7 +316,10 @@ describe('ExhibitAService', () => {
       pageOrientation: ExhibitAPageOrientation.Portrait,
     });
 
-    const exportCallInit = fetchMock.mock.calls[2]?.[1];
+    const exportCall = fetchMock.mock.calls.find(
+      ([, init]) => init?.method === 'POST',
+    );
+    const exportCallInit = exportCall?.[1];
     const params = new URLSearchParams(String(exportCallInit?.body ?? ''));
     const webMapJson = JSON.parse(params.get('Web_Map_as_JSON') ?? '{}') as {
       baseMap?: { baseMapLayers?: Array<{ url?: string }> };
@@ -363,6 +378,9 @@ describe('ExhibitAService', () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
+        new Response(JSON.stringify({ features: [] }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
         new Response(JSON.stringify({ layers: [] }), { status: 200 }),
       )
       .mockResolvedValueOnce(
@@ -393,7 +411,10 @@ describe('ExhibitAService', () => {
       pageOrientation: ExhibitAPageOrientation.Landscape,
     });
 
-    const exportCallInit = fetchMock.mock.calls[2]?.[1];
+    const exportCall = fetchMock.mock.calls.find(
+      ([, init]) => init?.method === 'POST',
+    );
+    const exportCallInit = exportCall?.[1];
     const params = new URLSearchParams(String(exportCallInit?.body ?? ''));
     const webMapJson = JSON.parse(params.get('Web_Map_as_JSON') ?? '{}') as {
       operationalLayers?: Array<{ id?: string; visibleLayers?: number[] }>;

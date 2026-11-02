@@ -304,14 +304,15 @@ const normalizeGeometryEntry = (
       ? geometry.coordinates
       : [];
 
-    return coordinates.map((lineCoordinates) => ({
+    return coordinates.map((lineCoordinates, lineIndex) => ({
       geometry: {
         type: 'LineString',
         coordinates: lineCoordinates,
       },
       geometryTypeCode: 'L',
-      // Persist each trail section as its own feature for downstream SNCSC parity.
-      sectionId,
+      // Preserve per-line section IDs so each split line can be amended/retired independently.
+      sectionId:
+        coordinates.length > 1 ? `${sectionId}-${lineIndex + 1}` : sectionId,
       sourceMetrics,
     }));
   }
@@ -1000,7 +1001,8 @@ export class GeospatialService {
     for (const entry of entries) {
       const matchingRows = featureRowsBySectionId.get(entry.sectionId) ?? [];
       const row = matchingRows.shift();
-      const mapFeatureGuid = randomUUID();
+      const mapFeatureGuid =
+        row?.recreation_map_feature_guid?.trim() || randomUUID();
       const featureRecordGuid = randomUUID();
 
       const parsedGeometry = row?.geometry_json
