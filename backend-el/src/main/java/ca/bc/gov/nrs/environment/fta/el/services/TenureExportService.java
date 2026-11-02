@@ -26,8 +26,6 @@ import java.util.Locale;
 @Service
 public class TenureExportService {
 
-  private static final String TYPE_CODE_RL = "RL";
-  private static final String TYPE_CODE_RPO = "RPO";
   private static final HexFormat HEX_FORMAT = HexFormat.of();
 
   private static final String REC_TENURE_APPLICATION_SQL = """
@@ -65,6 +63,7 @@ public class TenureExportService {
   private final Logger logger = LoggerFactory.getLogger(TenureExportService.class);
   private final DataSource dataSource;
   private final S3UploaderService s3UploaderService;
+  private final TenureApplicationService tenureApplicationService;
 
   @Value("${ca.bc.gov.nrs.environment.fta.el.file-base-path}")
   private String fileBasePath;
@@ -90,9 +89,14 @@ public class TenureExportService {
   @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.export-target:all}")
   private String tenureImageExportTarget;
 
-  public TenureExportService(DataSource dataSource, S3UploaderService s3UploaderService) {
+  public TenureExportService(
+      DataSource dataSource,
+      S3UploaderService s3UploaderService,
+      TenureApplicationService tenureApplicationService
+  ) {
     this.dataSource = dataSource;
     this.s3UploaderService = s3UploaderService;
+    this.tenureApplicationService = tenureApplicationService;
   }
 
   public void extractAndUploadTenureDataToS3() {
@@ -156,8 +160,7 @@ public class TenureExportService {
       PreparedStatement preparedStatement = connection.prepareStatement(sql)
     ) {
       preparedStatement.setFetchSize(tenureFetchSize);
-      preparedStatement.setString(1, TYPE_CODE_RL);
-      preparedStatement.setString(2, TYPE_CODE_RPO);
+      bindExportTypeCodes(preparedStatement);
 
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
         ResultSetMetaData metadata = resultSet.getMetaData();
@@ -228,8 +231,7 @@ public class TenureExportService {
         CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.DEFAULT)
       ) {
         preparedStatement.setFetchSize(tenureFetchSize);
-        preparedStatement.setString(1, TYPE_CODE_RL);
-        preparedStatement.setString(2, TYPE_CODE_RPO);
+        bindExportTypeCodes(preparedStatement);
 
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
           var metadata = resultSet.getMetaData();
@@ -259,8 +261,7 @@ public class TenureExportService {
       PreparedStatement preparedStatement = connection.prepareStatement(sql)
     ) {
       preparedStatement.setFetchSize(tenureFetchSize);
-      preparedStatement.setString(1, TYPE_CODE_RL);
-      preparedStatement.setString(2, TYPE_CODE_RPO);
+      bindExportTypeCodes(preparedStatement);
 
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
         ResultSetMetaData metadata = resultSet.getMetaData();
@@ -450,6 +451,15 @@ public class TenureExportService {
       case "application/pdf" -> ".pdf";
       default -> "";
     };
+  }
+
+  private void bindExportTypeCodes(PreparedStatement preparedStatement) throws SQLException {
+    var typeCodes = tenureApplicationService.getExportTypeCodes();
+    if (typeCodes.size() != 2) {
+      throw new IllegalStateException("Expected exactly 2 tenure application type codes for export");
+    }
+    preparedStatement.setString(1, typeCodes.get(0));
+    preparedStatement.setString(2, typeCodes.get(1));
   }
 
   private String toHex(byte[] bytes) {
