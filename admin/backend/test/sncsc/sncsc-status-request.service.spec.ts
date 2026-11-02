@@ -40,6 +40,8 @@ describe('SncscStatusRequestService', () => {
       sncscBaseUrl: 'https://sncsc.example.com///',
       sncscIntegrationClientId: 'client-id',
       sncscIntegrationClientSecret: 'client-secret',
+      sncscDmClientId: 'dm-client-id',
+      sncscDmClientSecret: 'dm-client-secret',
     } as AppConfigService;
 
     service = new SncscStatusRequestService(appConfigMock);
@@ -270,5 +272,98 @@ describe('SncscStatusRequestService', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(service.createStatusRequest({})).resolves.toBeNull();
+  });
+
+  it('fetches adjudication report content using DM client credentials', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        mockResponse({
+          ok: true,
+          json: async () => ({ access_token: 'dm-token' }),
+        }),
+      )
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        arrayBuffer: async () =>
+          Uint8Array.from([0x25, 0x50, 0x44, 0x46]).buffer,
+      } as Response);
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await service.fetchAdjudicationReportContent(
+      'https://dm.example.com/documents/abc///',
+    );
+
+    expect(result.contentType).toBe('application/pdf');
+    expect(result.content).toBeInstanceOf(Buffer);
+    expect(String(fetchMock.mock.calls[1]?.[0])).toBe(
+      'https://dm.example.com/documents/abc/content',
+    );
+  });
+
+  it('does not use unscoped token fallback for DM token requests', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      mockResponse({
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+        text: async () => 'bad DM credentials',
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      service.fetchAdjudicationReportContent(
+        'https://dm.example.com/documents/abc',
+      ),
+    ).rejects.toThrow(BadGatewayException);
+
+    // DM token flow allows only two scoped attempts.
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('throws when DM config is missing', async () => {
+    appConfigMock.sncscDmClientSecret = ' ';
+
+    await expect(
+      service.fetchAdjudicationReportContent(
+        'https://dm.example.com/documents/abc',
+      ),
+    ).rejects.toThrow(
+      new InternalServerErrorException(
+        'SNCSC_DM_CLIENT_SECRET is not configured.',
+      ),
+    );
+  });
+
+  it('throws when adjudication report fetch fails', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        mockResponse({
+          ok: true,
+          json: async () => ({ access_token: 'dm-token' }),
+        }),
+      )
+      .mockResolvedValueOnce(
+        mockResponse({
+          ok: false,
+          status: 502,
+          statusText: 'Bad Gateway',
+          text: async () => 'report downstream failed',
+        }),
+      );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      service.fetchAdjudicationReportContent(
+        'https://dm.example.com/documents/abc',
+      ),
+    ).rejects.toThrow(
+      new BadGatewayException('Unable to fetch SNCSC adjudication report.'),
+    );
   });
 });

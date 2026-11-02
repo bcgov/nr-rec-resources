@@ -80,6 +80,12 @@ export interface PendingMapFeatureRequestRowDto {
    */
   amend_status_code: string;
   /**
+   * Submission purpose code from recreation_spatial_submission
+   * @type {string}
+   * @memberof PendingMapFeatureRequestRowDto
+   */
+  purpose_code?: string | null;
+  /**
    * Number of map feature rows included in the request
    * @type {number}
    * @memberof PendingMapFeatureRequestRowDto
@@ -103,6 +109,12 @@ export interface PendingMapFeatureRequestRowDto {
    * @memberof PendingMapFeatureRequestRowDto
    */
   exhibit_a_url?: string | null;
+  /**
+   * Backend endpoint that returns the adjudication report PDF when available
+   * @type {string}
+   * @memberof PendingMapFeatureRequestRowDto
+   */
+  adjudication_report?: string | null;
 }
 
 /**
@@ -164,12 +176,18 @@ export function PendingMapFeatureRequestRowDtoFromJSONTyped(
     recreation_type:
       json['recreation_type'] == null ? undefined : json['recreation_type'],
     amend_status_code: json['amend_status_code'],
+    purpose_code:
+      json['purpose_code'] == null ? undefined : json['purpose_code'],
     feature_count: json['feature_count'],
     requested_at:
       json['requested_at'] == null ? undefined : json['requested_at'],
     geometry_types: json['geometry_types'],
     exhibit_a_url:
       json['exhibit_a_url'] == null ? undefined : json['exhibit_a_url'],
+    adjudication_report:
+      json['adjudication_report'] == null
+        ? undefined
+        : json['adjudication_report'],
   };
 }
 
@@ -198,9 +216,11 @@ export function PendingMapFeatureRequestRowDtoToJSONTyped(
     natural_resource_district: value['natural_resource_district'],
     recreation_type: value['recreation_type'],
     amend_status_code: value['amend_status_code'],
+    purpose_code: value['purpose_code'],
     feature_count: value['feature_count'],
     requested_at: value['requested_at'],
     geometry_types: value['geometry_types'],
     exhibit_a_url: value['exhibit_a_url'],
+    adjudication_report: value['adjudication_report'],
   };
 }

@@ -331,4 +331,21 @@ describe('AppConfigService', () => {
       expect(envService.sdeRenderAgentServer).toBe('BCGW-I.BCGOV');
     });
   });
+
+  describe('Additional required config getters', () => {
+    it('returns Forest Client API settings', () => {
+      expect(service.forestClientApiUrl).toBe(
+        'https://forest-client.example.com',
+      );
+      expect(service.forestClientApiKey).toBe('test-forest-client-api-key');
+    });
+
+    it('returns AWS and storage settings', () => {
+      expect(service.awsRegion).toBe('ca-central-1');
+      expect(service.awsEndpointUrl).toBeUndefined();
+      expect(service.recResourceStorageCloudfrontUrl).toBe(
+        'https://test-cdn.example.com',
+      );
+    });
+  });
 });

@@ -100,6 +100,9 @@ describe('ExhibitAService', () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
+        new Response(JSON.stringify({ features: [] }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
         new Response(
           JSON.stringify({ layers: [{ id: 0 }, { id: 2 }, { id: 5 }] }),
           { status: 200 },
@@ -127,10 +130,13 @@ describe('ExhibitAService', () => {
     });
 
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
-      'http://maps.gov.bc.ca/arcgis/rest/services/fta/',
+      'bcgw_pub_whse_basemapping/MapServer/82/query',
     );
 
-    const exportCallInit = fetchMock.mock.calls[1]?.[1];
+    const exportCall = fetchMock.mock.calls.find(
+      ([, init]) => init?.method === 'POST',
+    );
+    const exportCallInit = exportCall?.[1];
     const params = new URLSearchParams(String(exportCallInit?.body ?? ''));
     const webMapJson = JSON.parse(params.get('Web_Map_as_JSON') ?? '{}') as {
       operationalLayers?: Array<{ id?: string; visibleLayers?: number[] }>;
@@ -140,7 +146,7 @@ describe('ExhibitAService', () => {
     );
     expect(ftaLayer?.visibleLayers).toEqual([0, 2, 5]);
 
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(result.mapImageUrl).toBe('https://example.com/map.jpg');
     expect(result.pageSize).toBe(ExhibitAPageSize.B);
     expect(result.pageOrientation).toBe(ExhibitAPageOrientation.Landscape);
@@ -191,6 +197,9 @@ describe('ExhibitAService', () => {
       ]);
 
     vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ features: [] }), { status: 200 }),
+      )
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({ layers: [{ id: 0 }, { id: 2 }, { id: 5 }] }),
@@ -274,6 +283,9 @@ describe('ExhibitAService', () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
+        new Response(JSON.stringify({ features: [] }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
         new Response(JSON.stringify({ message: 'not found' }), { status: 404 }),
       )
       .mockResolvedValueOnce(
@@ -304,7 +316,10 @@ describe('ExhibitAService', () => {
       pageOrientation: ExhibitAPageOrientation.Portrait,
     });
 
-    const exportCallInit = fetchMock.mock.calls[2]?.[1];
+    const exportCall = fetchMock.mock.calls.find(
+      ([, init]) => init?.method === 'POST',
+    );
+    const exportCallInit = exportCall?.[1];
     const params = new URLSearchParams(String(exportCallInit?.body ?? ''));
     const webMapJson = JSON.parse(params.get('Web_Map_as_JSON') ?? '{}') as {
       baseMap?: { baseMapLayers?: Array<{ url?: string }> };
@@ -363,6 +378,9 @@ describe('ExhibitAService', () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
+        new Response(JSON.stringify({ features: [] }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
         new Response(JSON.stringify({ layers: [] }), { status: 200 }),
       )
       .mockResolvedValueOnce(
@@ -393,7 +411,10 @@ describe('ExhibitAService', () => {
       pageOrientation: ExhibitAPageOrientation.Landscape,
     });
 
-    const exportCallInit = fetchMock.mock.calls[2]?.[1];
+    const exportCall = fetchMock.mock.calls.find(
+      ([, init]) => init?.method === 'POST',
+    );
+    const exportCallInit = exportCall?.[1];
     const params = new URLSearchParams(String(exportCallInit?.body ?? ''));
     const webMapJson = JSON.parse(params.get('Web_Map_as_JSON') ?? '{}') as {
       operationalLayers?: Array<{ id?: string; visibleLayers?: number[] }>;
@@ -513,6 +534,72 @@ describe('ExhibitAService', () => {
       orientation: ExhibitAPageOrientation.Landscape,
       scale: 30000,
     });
+  });
+
+  it('falls back when recreation_exhibit_a_doc.generation_method is missing', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        application_guid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+        submission_id: 'S1234567',
+        tenure_id: 'REC0001',
+      },
+    ]);
+
+    const generateSpy = vi.spyOn(service, 'generate').mockResolvedValue({
+      submissionId: 'S1234567',
+      pageSize: ExhibitAPageSize.B,
+      pageOrientation: ExhibitAPageOrientation.Landscape,
+      scale: 30000,
+      mapImageUrl: 'https://example.com/map.jpg',
+      pdfBuffer: Buffer.from('%PDF-1.4 test', 'ascii'),
+      pdfKey: 'REC0001/exhibit-a-S1234567-456.pdf',
+      pdfUrl: 'https://example.com/s3/exhibit-a-S1234567-456.pdf',
+    });
+
+    prisma.$executeRaw
+      .mockResolvedValueOnce(1)
+      .mockRejectedValueOnce({
+        code: 'P2010',
+        meta: {
+          code: '42703',
+          message:
+            'column "generation_method" of relation "recreation_exhibit_a_doc" does not exist',
+        },
+      })
+      .mockResolvedValueOnce(1);
+
+    await expect(
+      service.createOrGetByApplicationGuid(
+        '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+        {
+          generate: true,
+          userId: 'TESTER1',
+          adjudicationComments: [],
+          size: ExhibitAPageSize.B,
+          orientation: ExhibitAPageOrientation.Landscape,
+          scale: 30000,
+        },
+      ),
+    ).resolves.toMatchObject({ submissionId: 'S1234567' });
+
+    expect(generateSpy).toHaveBeenCalledWith('S1234567', {
+      pageSize: ExhibitAPageSize.B,
+      pageOrientation: ExhibitAPageOrientation.Landscape,
+      scale: 30000,
+    });
+    expect(prisma.$executeRaw).toHaveBeenCalledTimes(3);
+
+    const failedMetadataCall = prisma.$executeRaw.mock.calls[1]![0] as {
+      raw?: string[];
+    };
+    expect(failedMetadataCall.raw?.join(' ')).toContain('generation_method');
+
+    const fallbackMetadataCall = prisma.$executeRaw.mock.calls[2]![0] as {
+      raw?: string[];
+    };
+    expect(fallbackMetadataCall.raw?.join(' ')).not.toContain(
+      'generation_method',
+    );
   });
 
   it('throws NotFoundException when a submission has no map features', async () => {
@@ -647,5 +734,40 @@ describe('ExhibitAService', () => {
       pageOrientation: ExhibitAPageOrientation.Portrait,
       scale: 15000,
     });
+  });
+
+  it('normalizes and de-duplicates map sheet values from BCGS query payload', async () => {
+    vi.spyOn(service as any, 'fetchJson').mockResolvedValue({
+      features: [
+        { attributes: { MAP_TILE_DISPLAY_NAME: '82G.001' } },
+        { attributes: { MAP_TILE_DISPLAY_NAME: ' 82g.001 ' } },
+        { attributes: { map_sheet: '82G.002' } },
+        { attributes: { UNKNOWN_KEY: 'ignored' } },
+      ],
+    });
+
+    const result = await (service as any).queryBcgsMapSheetsForExtent({
+      xmin: -123.1,
+      ymin: 49.2,
+      xmax: -123.0,
+      ymax: 49.3,
+    });
+
+    expect(result).toEqual(['82G.001', '82G.002']);
+  });
+
+  it('returns empty map sheet list when map sheet lookup fails', async () => {
+    vi.spyOn(service as any, 'queryBcgsMapSheetsForExtent').mockRejectedValue(
+      new Error('lookup failed'),
+    );
+
+    await expect(
+      (service as any).resolveMapSheetsForExtent({
+        xmin: -123.1,
+        ymin: 49.2,
+        xmax: -123.0,
+        ymax: 49.3,
+      }),
+    ).resolves.toEqual([]);
   });
 });

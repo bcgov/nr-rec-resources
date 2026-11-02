@@ -31,6 +31,12 @@ export interface UpdateRecreationMapFeatureGeometryDto {
    * @memberof UpdateRecreationMapFeatureGeometryDto
    */
   section_id?: object | null;
+  /**
+   * Original DBF properties for this feature (e.g., FEATURE_AR, FEATURE_PE, FEATURE__1, FEATURE_LE)
+   * @type {{ [key: string]: any; }}
+   * @memberof UpdateRecreationMapFeatureGeometryDto
+   */
+  properties?: { [key: string]: any } | null;
 }
 
 /**
@@ -59,6 +65,7 @@ export function UpdateRecreationMapFeatureGeometryDtoFromJSONTyped(
   return {
     geometry: json['geometry'],
     section_id: json['section_id'] == null ? undefined : json['section_id'],
+    properties: json['properties'] == null ? undefined : json['properties'],
   };
 }
 
@@ -79,5 +86,6 @@ export function UpdateRecreationMapFeatureGeometryDtoToJSONTyped(
   return {
     geometry: value['geometry'],
     section_id: value['section_id'],
+    properties: value['properties'],
   };
 }

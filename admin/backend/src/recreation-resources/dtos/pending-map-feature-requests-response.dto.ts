@@ -87,6 +87,15 @@ export class PendingMapFeatureRequestRowDto {
   amend_status_code: string;
 
   @ApiProperty({
+    description: 'Submission purpose code from recreation_spatial_submission',
+    example: 'N',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  purpose_code?: string | null;
+
+  @ApiProperty({
     description: 'Number of map feature rows included in the request',
     example: 3,
   })
@@ -116,6 +125,17 @@ export class PendingMapFeatureRequestRowDto {
     type: String,
   })
   exhibit_a_url?: string | null;
+
+  @ApiProperty({
+    description:
+      'Backend endpoint that returns the adjudication report PDF when available',
+    example:
+      '/api/recreation-resources/pending-requests/6fb3564c-9a6e-4ef0-9cc0-8e040ed5f190/adjudication-report',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  adjudication_report?: string | null;
 }
 
 export class PendingMapFeatureRequestsResponseDto {
