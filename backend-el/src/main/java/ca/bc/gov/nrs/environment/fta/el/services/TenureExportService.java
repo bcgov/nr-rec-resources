@@ -43,6 +43,17 @@ public class TenureExportService {
       ORDER BY tai.TENURE_APP_ID
       """;
 
+  private static final String REC_TENURE_APP_IMAGE_UPLOAD_SQL = """
+      SELECT ta.FOREST_FILE_ID,
+             ta.SUBMISSION_ID,
+             ta.TENURE_APP_ID,
+             tai.*
+      FROM TENURE_APPLICATION ta
+      JOIN TENURE_APPLICATION_IMAGE tai ON ta.TENURE_APP_ID = tai.TENURE_APP_ID
+      WHERE ta.TENURE_APPLICATION_TYPE_CODE IN (?, ?)
+      ORDER BY tai.TENURE_APP_ID
+      """;
+
   private static final String REC_TENURE_MAP_FEATURE_SQL = """
       SELECT tamf.*
       FROM TENURE_APPLICATION ta
@@ -53,6 +64,18 @@ public class TenureExportService {
 
   private static final String REC_TENURE_MF_IMAGE_SQL = """
       SELECT tami.*
+      FROM TENURE_APPLICATION ta
+      JOIN TENURE_APPLICATION_MAP_FEATURE tamf ON ta.TENURE_APP_ID = tamf.TENURE_APP_ID
+      JOIN TENURE_APPLICATION_MF_IMAGE tami ON tamf.MAP_FEATURE_ID = tami.MAP_FEATURE_ID
+      WHERE ta.TENURE_APPLICATION_TYPE_CODE IN (?, ?)
+      ORDER BY tami.MAP_FEATURE_ID
+      """;
+
+  private static final String REC_TENURE_MF_IMAGE_UPLOAD_SQL = """
+      SELECT ta.FOREST_FILE_ID,
+             ta.SUBMISSION_ID,
+             tamf.MAP_FEATURE_ID,
+             tami.*
       FROM TENURE_APPLICATION ta
       JOIN TENURE_APPLICATION_MAP_FEATURE tamf ON ta.TENURE_APP_ID = tamf.TENURE_APP_ID
       JOIN TENURE_APPLICATION_MF_IMAGE tami ON tamf.MAP_FEATURE_ID = tami.MAP_FEATURE_ID
@@ -120,10 +143,10 @@ public class TenureExportService {
 
     if (tenureImageObjectUploadEnabled) {
       if (shouldExportAppImages(imageExportTarget)) {
-        uploadImageObjectsToS3(REC_TENURE_APP_IMAGE_SQL, exhibitImagePrefix, "TENURE_APP_IMAGE");
+        uploadImageObjectsToS3(REC_TENURE_APP_IMAGE_UPLOAD_SQL, exhibitImagePrefix, "TENURE_APP_IMAGE");
       }
       if (shouldExportMfImages(imageExportTarget)) {
-        uploadImageObjectsToS3(REC_TENURE_MF_IMAGE_SQL, mapImagePrefix, "TENURE_MF_IMAGE");
+        uploadImageObjectsToS3(REC_TENURE_MF_IMAGE_UPLOAD_SQL, mapImagePrefix, "TENURE_MF_IMAGE");
       }
     }
   }
@@ -170,8 +193,8 @@ public class TenureExportService {
           return;
         }
 
+        int forestFileIdColumnIndex = findColumnIndex(metadata, "FOREST_FILE_ID");
         int recResourceIdColumnIndex = findColumnIndex(metadata, "REC_RESOURCE_ID");
-        int submissionIdColumnIndex = findColumnIndex(metadata, "SUBMISSION_ID");
         int fileNameColumnIndex = findColumnIndex(metadata, "FILE_NAME", "IMAGE_FILE_NAME", "ATTACHMENT_FILE_NAME");
         int contentTypeColumnIndex = findColumnIndex(metadata, "CONTENT_TYPE", "MIME_TYPE");
         int imageIdColumnIndex = findColumnIndex(metadata,
@@ -193,8 +216,9 @@ public class TenureExportService {
           }
 
           long contentLength = blob.length();
-          String recResourceId = sanitizePathSegment(getColumnValue(resultSet, recResourceIdColumnIndex), "unknown_resource");
-          String submissionId = sanitizePathSegment(getColumnValue(resultSet, submissionIdColumnIndex), "unknown_submission");
+          String forestFileId = sanitizePathSegment(getColumnValue(resultSet, forestFileIdColumnIndex), "");
+          String recResourceId = sanitizePathSegment(getColumnValue(resultSet, recResourceIdColumnIndex), "");
+          String resourceKey = !forestFileId.isBlank() ? forestFileId : (!recResourceId.isBlank() ? recResourceId : "unknown_resource");
           String contentType = getColumnValue(resultSet, contentTypeColumnIndex);
           String defaultFileName = fallbackFilePrefix + "_" + (uploadedRows + 1) + extensionFromContentType(contentType);
           String fileName = sanitizeFileName(getColumnValue(resultSet, fileNameColumnIndex), defaultFileName);
@@ -204,7 +228,7 @@ public class TenureExportService {
             fileName = fileName + "_" + stableId;
           }
 
-          String objectKey = String.format("%s/%s/%s/%s", sanitizePrefix(rootPrefix), recResourceId, submissionId, fileName);
+          String objectKey = String.format("%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, fileName);
           try (InputStream stream = blob.getBinaryStream()) {
             s3UploaderService.uploadStreamToS3(objectKey, stream, contentLength, contentType);
           } finally {
