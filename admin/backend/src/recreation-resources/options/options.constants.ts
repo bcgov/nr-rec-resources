@@ -96,6 +96,7 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     labelField: 'closest_community',
     prismaModel: 'recreation_resource',
     middleware: transformClosestCommunityOptions,
+    distinctFields: ['closest_community'],
   },
   [OPTION_TYPES.REC_STATUS_CODE]: {
     idField: 'recreation_resource_status_code',

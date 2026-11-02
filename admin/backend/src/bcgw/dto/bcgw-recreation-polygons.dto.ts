@@ -72,6 +72,14 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
 
   @ApiProperty(
     nullableStringProperty(
+      'The code and description of the recreation feature, e.g., B2 - Sand Beach.',
+      'B2 - Sand Beach',
+    ),
+  )
+  recreation_feature_description: string | null;
+
+  @ApiProperty(
+    nullableStringProperty(
       'A comma-separated list of codes relating to the recreation districts that the feature is within, e.g., RDCC,RDCS.',
       'RDCC',
     ),
@@ -93,6 +101,14 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
     ),
   )
   org_unit_name: string | null;
+
+  @ApiProperty(
+    nullableStringProperty(
+      'The name of the natural resource district associated with this feature. Same value as org_unit_name, exposed under the BCGW DISTRICT_NAME column name.',
+      'Chilliwack Natural Resource District',
+    ),
+  )
+  district_name: string | null;
 
   @ApiProperty(
     nullableNumberProperty(
