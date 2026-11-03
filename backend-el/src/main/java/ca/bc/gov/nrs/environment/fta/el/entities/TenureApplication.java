@@ -223,4 +223,3 @@ public class TenureApplication {
     this.tenureApplicationTypeCode = tenureApplicationTypeCode;
   }
 }
-

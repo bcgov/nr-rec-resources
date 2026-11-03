@@ -19,4 +19,3 @@ public interface TenureApplicationMapFeatureRepository extends JpaRepository<Ten
       """, nativeQuery = true)
   List<TenureApplicationMapFeature> findAllByTenureApplicationTypeCodes(@Param("typeCodes") Collection<String> typeCodes);
 }
-

@@ -54,4 +54,3 @@ public class TenureApplicationService {
     return tenureApplicationMfImageRepository.findAllByTenureApplicationTypeCodes(EXPORT_TYPE_CODES);
   }
 }
-

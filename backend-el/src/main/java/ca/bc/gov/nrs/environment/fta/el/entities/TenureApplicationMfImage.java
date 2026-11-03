@@ -93,4 +93,3 @@ public class TenureApplicationMfImage {
 	this.updateTimestamp = updateTimestamp;
   }
 }
-

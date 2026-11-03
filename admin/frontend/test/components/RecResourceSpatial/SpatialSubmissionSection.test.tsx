@@ -11,6 +11,7 @@ const {
   mockReadSpatialFile,
   mockCreateMapFeatures,
   mockUpdateMapFeatures,
+  mockGetFeatureAreaHectares,
   mockExtractSectionIdDetails,
   mockPrepareFeatureCollectionForSectionEditing,
   mockUpdateFeatureSectionId,
@@ -51,6 +52,10 @@ const {
     latitude: null,
     longitude: null,
   })),
+  mockGetFeatureAreaHectares: vi.fn((feature: any) => {
+    const objectId = feature?.properties?.OBJECTID;
+    return objectId === 1 ? 1.1 : objectId === 2 ? 2.2 : undefined;
+  }),
   mockReadSpatialFile: vi.fn(async (input: File | File[] | FileList) => {
     const files = input instanceof File ? [input] : Array.from(input);
     const hasShpUpload = files.some((file) =>
@@ -210,6 +215,7 @@ vi.mock('@/components/RecResourceSpatial/spatialSubmissionUtils', () => ({
   extractSectionIdDetails: mockExtractSectionIdDetails,
   prepareFeatureCollectionForSectionEditing:
     mockPrepareFeatureCollectionForSectionEditing,
+  getFeatureAreaHectares: mockGetFeatureAreaHectares,
   validateGeometry: mockValidateGeometry,
   readSpatialFile: mockReadSpatialFile,
   updateFeatureSectionId: mockUpdateFeatureSectionId,
@@ -528,6 +534,7 @@ describe('SpatialSubmissionSection', () => {
               section_id: 'River Way South',
             },
             sectionId: 'River Way South',
+            featureAreaHectares: 1.1,
           },
           {
             geometry: {
@@ -543,6 +550,7 @@ describe('SpatialSubmissionSection', () => {
               section_id: 'North Loop Renamed',
             },
             sectionId: 'North Loop Renamed',
+            featureAreaHectares: 2.2,
           },
         ],
       });

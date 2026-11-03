@@ -85,19 +85,21 @@ describe('useUpdateRecreationResourceMapFeatures', () => {
           {
             geometry: requestPayload.newFeatures[0].geometry,
             section_id: 'Sec-1',
-            feature_area_hectares: 4.5,
+            properties: undefined,
           },
         ],
         amendedFeatures: [
           {
             geometry: requestPayload.amendedFeatures[0].geometry,
             section_id: 'Sec-2',
+            properties: undefined,
           },
         ],
         retiredFeatures: [
           {
             geometry: requestPayload.retiredFeatures[0].geometry,
             section_id: 'Sec-3',
+            properties: undefined,
           },
         ],
         recreation_type_code: 'SIT',

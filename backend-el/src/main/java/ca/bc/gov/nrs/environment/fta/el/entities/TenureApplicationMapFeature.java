@@ -202,4 +202,3 @@ public class TenureApplicationMapFeature {
     this.tenureAppId = tenureAppId;
   }
 }
-

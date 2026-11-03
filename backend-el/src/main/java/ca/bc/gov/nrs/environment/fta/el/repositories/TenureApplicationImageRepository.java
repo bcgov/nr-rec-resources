@@ -19,4 +19,3 @@ public interface TenureApplicationImageRepository extends JpaRepository<TenureAp
       """, nativeQuery = true)
   List<TenureApplicationImage> findAllByTenureApplicationTypeCodes(@Param("typeCodes") Collection<String> typeCodes);
 }
-

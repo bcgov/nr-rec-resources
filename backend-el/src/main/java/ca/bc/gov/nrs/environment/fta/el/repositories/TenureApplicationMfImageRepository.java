@@ -20,4 +20,3 @@ public interface TenureApplicationMfImageRepository extends JpaRepository<Tenure
       """, nativeQuery = true)
   List<TenureApplicationMfImage> findAllByTenureApplicationTypeCodes(@Param("typeCodes") Collection<String> typeCodes);
 }
-

@@ -90,7 +90,7 @@ describe('useCreateRecreationResourceMapFeatures', () => {
           {
             geometry: { type: 'Point', coordinates: [1, 2] },
             section_id: 'S1',
-            feature_area_hectares: 9.25,
+            properties: undefined,
           },
           {
             geometry: {
@@ -101,6 +101,7 @@ describe('useCreateRecreationResourceMapFeatures', () => {
               ],
             },
             section_id: undefined,
+            properties: undefined,
           },
         ],
         recreation_type_code: 'TRAIL',
