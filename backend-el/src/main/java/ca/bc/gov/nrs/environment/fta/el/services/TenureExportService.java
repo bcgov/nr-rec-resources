@@ -194,6 +194,7 @@ public class TenureExportService {
         }
 
         int forestFileIdColumnIndex = findColumnIndex(metadata, "FOREST_FILE_ID");
+        int submissionIdColumnIndex = findColumnIndex(metadata, "SUBMISSION_ID");
         int recResourceIdColumnIndex = findColumnIndex(metadata, "REC_RESOURCE_ID");
         int fileNameColumnIndex = findColumnIndex(metadata, "FILE_NAME", "IMAGE_FILE_NAME", "ATTACHMENT_FILE_NAME");
         int contentTypeColumnIndex = findColumnIndex(metadata, "CONTENT_TYPE", "MIME_TYPE");
@@ -217,6 +218,7 @@ public class TenureExportService {
 
           long contentLength = blob.length();
           String forestFileId = sanitizePathSegment(getColumnValue(resultSet, forestFileIdColumnIndex), "");
+          String submissionId = sanitizePathSegment(getColumnValue(resultSet, submissionIdColumnIndex), "unknown_submission");
           String recResourceId = sanitizePathSegment(getColumnValue(resultSet, recResourceIdColumnIndex), "");
           String resourceKey = !forestFileId.isBlank() ? forestFileId : (!recResourceId.isBlank() ? recResourceId : "unknown_resource");
           String contentType = getColumnValue(resultSet, contentTypeColumnIndex);
@@ -228,7 +230,7 @@ public class TenureExportService {
             fileName = fileName + "_" + stableId;
           }
 
-          String objectKey = String.format("%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, fileName);
+          String objectKey = String.format("%s/%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, submissionId, fileName);
           try (InputStream stream = blob.getBinaryStream()) {
             s3UploaderService.uploadStreamToS3(objectKey, stream, contentLength, contentType);
           } finally {
