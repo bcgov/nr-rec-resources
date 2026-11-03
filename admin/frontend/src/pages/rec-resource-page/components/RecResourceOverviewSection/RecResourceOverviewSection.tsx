@@ -1,7 +1,7 @@
 import { ROUTE_PATHS } from '@/constants/routes';
 import { EditableGuard } from '@/components/auth';
 import { RecreationResourceDetailUIModel } from '@/services';
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { Col, Dropdown, Row, Stack } from 'react-bootstrap';
 import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
@@ -18,6 +18,7 @@ type RecResourceOverviewSectionProps = {
 export const RecResourceOverviewSection = (
   props: RecResourceOverviewSectionProps,
 ) => {
+  const navigate = useNavigate();
   const { recResource } = props;
   const { isSuperAdmin } = useAuthorizations();
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
@@ -66,22 +67,25 @@ export const RecResourceOverviewSection = (
       <div className="d-flex justify-content-between align-items-center">
         <h2>Overview</h2>
         <Stack direction="horizontal" gap={2}>
-          <EditableGuard isArchived={isArchived}>
-            <Link
-              to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
-                '$id',
-                recResource.rec_resource_id,
-              )}
-              className="btn btn-outline-primary"
-            >
-              Edit
-            </Link>
-          </EditableGuard>
           <Dropdown>
             <Dropdown.Toggle variant="secondary" id="overview-actions-dropdown">
               Actions
             </Dropdown.Toggle>
             <Dropdown.Menu align="end">
+              <EditableGuard isArchived={isArchived}>
+                <Dropdown.Item
+                  onClick={() =>
+                    navigate({
+                      to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
+                        '$id',
+                        recResource.rec_resource_id,
+                      ),
+                    })
+                  }
+                >
+                  Edit
+                </Dropdown.Item>
+              </EditableGuard>
               {isSuperAdmin && (
                 <Dropdown.Item
                   onClick={() => setIsArchiveModalOpen(true)}

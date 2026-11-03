@@ -26,7 +26,7 @@ export function useArchiveRecResource() {
       onFail: () =>
         addErrorNotification(
           'Failed to archive resource after multiple attempts. Please try again later.',
-          'updateActivities-error',
+          'archiveResource-error',
         ),
     }),
     onSuccess: (data, variables) => {
