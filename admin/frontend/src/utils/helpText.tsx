@@ -75,7 +75,7 @@ export const ACTIVITIES_EDIT_HELP_TEXT =
   'Select the activities that are supported and appropriate at this resource. Choose only what is allowed and realistically doable (avoid “nice to have” activities that aren’t supported or conflict with restrictions).';
 
 export const FEATURES_HELP_TEXT =
-  'Notable natural/cultural features visitors or staff should know about (e.g., sensitive habitats, heritage features, viewpoints)';
+  'Notable natural/cultural features visitors or staff should know about (e.g., sensitive habitats, heritage features, viewpoints).';
 
 export const FEATURES_EDIT_HELP_TEXT =
   'Capture notable natural/cultural features visitors or staff should know about (e.g., sensitive habitats, heritage features, viewpoints). Keep it factual; avoid exact locations for sensitive resources if that increases risk.';

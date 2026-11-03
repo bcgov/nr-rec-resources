@@ -1,6 +1,7 @@
 import { ROUTE_PATHS } from '@/constants/routes';
 import { HelpIcon } from '@/components';
 import { InfoBanner } from '@/pages/rec-resource-page/components/shared/InfoBanner';
+import { NotVisibleOnPublicSiteBadge } from '@/pages/rec-resource-page/components/shared/NotVisibleOnPublicSiteBadge';
 import {
   ACTIVITIES_EDIT_HELP_TEXT,
   BETA_FEATURES_BANNER_TEXT,
@@ -156,8 +157,9 @@ export const RecResourceActivitiesFeaturesEditPage = () => {
           <InfoBanner variant="beta" title={BETA_FEATURES_BANNER_TITLE}>
             {BETA_FEATURES_BANNER_TEXT}
           </InfoBanner>
-          <div className="d-flex justify-content-between align-items-center">
-            <h2>Accessible activities</h2>
+          <div className="d-flex align-items-center gap-2">
+            <h2 className="mb-0">Accessible activities</h2>
+            <NotVisibleOnPublicSiteBadge />
           </div>
           <RecResourceAdaptiveActivitiesEditSection
             control={activitiesFormControl}
@@ -168,8 +170,9 @@ export const RecResourceActivitiesFeaturesEditPage = () => {
         </Stack>
 
         <Stack direction="vertical" gap={4}>
-          <div className="d-flex justify-content-between align-items-center">
-            <h2>Low mobility access</h2>
+          <div className="d-flex align-items-center gap-2">
+            <h2 className="mb-0">Low mobility access</h2>
+            <NotVisibleOnPublicSiteBadge />
           </div>
           <RecResourceLowMobilityEditSection
             control={activitiesFormControl}
