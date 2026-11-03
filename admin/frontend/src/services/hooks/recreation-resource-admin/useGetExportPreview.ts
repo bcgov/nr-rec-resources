@@ -12,6 +12,7 @@ export interface ExportPreviewRequest {
   dataset: string;
   district?: string;
   resourceType?: string;
+  includeArchived?: boolean;
   limit?: number;
 }
 
@@ -35,6 +36,7 @@ export function useGetExportPreview(request: ExportPreviewRequest | null) {
         dataset: request.dataset as GetExportPreviewDatasetEnum,
         district: request.district,
         resourceType: request.resourceType,
+        includeArchived: request.includeArchived,
         limit: request.limit,
       });
 

@@ -75,17 +75,41 @@ export class ExhibitADocsService extends BaseStorageFileService {
     const s3_key = `${rec_resource_id}/${body.document_id}/${body.file_name}.${body.extension}`;
 
     try {
-      const doc = await this.prisma.recreation_exhibit_a_doc.create({
-        data: {
-          doc_id: body.document_id,
+      if (body.submission_id) {
+        await this.prisma.recreation_exhibit_a_doc.deleteMany({
+          where: {
+            rec_resource_id,
+            submission_id: body.submission_id,
+          },
+        });
+      }
+
+      const rows = await this.prisma.$queryRaw<any[]>`
+        INSERT INTO rst.recreation_exhibit_a_doc (
+          doc_id,
           rec_resource_id,
-          file_name: body.file_name,
-          extension: body.extension,
-          file_size: BigInt(body.file_size),
+          file_name,
+          extension,
+          file_size,
           s3_key,
-          created_at: new Date(),
-        },
-      });
+          submission_id,
+          generation_method,
+          created_at
+        )
+        VALUES (
+          ${body.document_id}::uuid,
+          ${rec_resource_id},
+          ${body.file_name},
+          ${body.extension},
+          ${BigInt(body.file_size)},
+          ${s3_key},
+          ${body.submission_id ?? null},
+          'upload',
+          CURRENT_TIMESTAMP
+        )
+        RETURNING *
+      `;
+      const doc = rows[0];
 
       const url = await this.s3Service.getSignedUrl(doc.s3_key);
 
@@ -133,10 +157,12 @@ export class ExhibitADocsService extends BaseStorageFileService {
     return {
       document_id: doc.doc_id,
       rec_resource_id: doc.rec_resource_id,
+      submission_id: doc.submission_id ?? null,
       file_name: doc.file_name,
       extension: doc.extension,
       file_size: doc.file_size ? Number(doc.file_size) : undefined,
       s3_key: doc.s3_key,
+      generation_method: doc.generation_method ?? null,
       url,
       created_at: doc.created_at ?? undefined,
     };

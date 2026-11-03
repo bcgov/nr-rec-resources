@@ -5,6 +5,8 @@ export interface ExportQueryContext {
   dataset: ExportDatasetId;
   district?: string;
   resourceType?: string;
+  /** Archived files are included unless this is explicitly false. */
+  includeArchived?: boolean;
   limit?: number;
 }
 
@@ -22,6 +24,8 @@ export interface ExportDatasetSqlContext {
     updatedAtExpression: Prisma.Sql,
   ) => Prisma.Sql;
   displayIndicator: (expression: Prisma.Sql) => Prisma.Sql;
+  booleanIndicator: (expression: Prisma.Sql) => Prisma.Sql;
+  describeCode: (code: Prisma.Sql, description: Prisma.Sql) => Prisma.Sql;
   formatTimestamp: (expression: Prisma.Sql) => Prisma.Sql;
 }
 

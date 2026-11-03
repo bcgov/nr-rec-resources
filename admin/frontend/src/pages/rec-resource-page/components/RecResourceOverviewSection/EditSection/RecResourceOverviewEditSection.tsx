@@ -127,7 +127,7 @@ export const RecResourceOverviewEditSection = () => {
         <Stack direction="vertical" gap={4}>
           <Row>
             <Col xs={12}>
-              <Controller<EditResourceFormData>
+              <Controller<EditResourceFormData, 'display_on_public_site'>
                 name="display_on_public_site"
                 control={control}
                 render={({ field }) => (

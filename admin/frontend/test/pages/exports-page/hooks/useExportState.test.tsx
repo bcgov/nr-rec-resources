@@ -65,6 +65,38 @@ describe('useExportState', () => {
     });
   });
 
+  it('passes includeArchived through to the preview and resets it on dataset change', () => {
+    const { result } = renderHook(() => useExportState());
+
+    act(() => {
+      result.current.filters.handlers.handleDatasetChange(
+        toSelectChangeEvent('file-details'),
+      );
+    });
+
+    expect(result.current.filters.includeArchived).toBe(true);
+
+    act(() => {
+      result.current.filters.handlers.handleIncludeArchivedChange(
+        toSelectChangeEvent('false'),
+      );
+    });
+
+    expect(result.current.filters.includeArchived).toBe(false);
+    expect(mockUseGetExportPreview).toHaveBeenLastCalledWith(
+      expect.objectContaining({ includeArchived: false }),
+    );
+
+    // switching datasets puts the archived opt-out back to the default
+    act(() => {
+      result.current.filters.handlers.handleDatasetChange(
+        toSelectChangeEvent('objective-list'),
+      );
+    });
+
+    expect(result.current.filters.includeArchived).toBe(true);
+  });
+
   it('resets filters on dataset change and disables preview for unavailable datasets', () => {
     const { result } = renderHook(() => useExportState());
 
@@ -101,6 +133,7 @@ describe('useExportState', () => {
       dataset: 'file-details',
       district: undefined,
       resourceType: undefined,
+      includeArchived: true,
       limit: 50,
     });
   });
@@ -157,6 +190,7 @@ describe('useExportState', () => {
       dataset: 'file-details',
       district: undefined,
       resourceType: undefined,
+      includeArchived: true,
     });
     expect(anchor.download).toBe('exports.csv');
     expect(anchor.href).toBe('blob:test-download');

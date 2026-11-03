@@ -33,6 +33,7 @@ export const useExportState = () => {
   const [selectedDataset, setSelectedDataset] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedResourceType, setSelectedResourceType] = useState('');
+  const [includeArchived, setIncludeArchived] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const {
@@ -79,6 +80,7 @@ export const useExportState = () => {
           dataset: selectedDataset,
           district: selectedDistrict || undefined,
           resourceType: selectedResourceType || undefined,
+          includeArchived,
           limit: 50,
         }
       : null;
@@ -93,6 +95,7 @@ export const useExportState = () => {
     setSelectedDataset(datasetId);
     setSelectedDistrict('');
     setSelectedResourceType('');
+    setIncludeArchived(true);
   };
 
   const handleDatasetChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -107,6 +110,12 @@ export const useExportState = () => {
     setSelectedResourceType(event.target.value);
   };
 
+  const handleIncludeArchivedChange = (
+    event: ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setIncludeArchived(event.target.value === 'true');
+  };
+
   const handleDownload = async () => {
     if (!selectedDataset || isDownloading) {
       return;
@@ -119,6 +128,7 @@ export const useExportState = () => {
         dataset: selectedDataset as DownloadExportCsvDatasetEnum,
         district: selectedDistrict || undefined,
         resourceType: selectedResourceType || undefined,
+        includeArchived,
       });
       const blob = await response.value();
       const downloadUrl = URL.createObjectURL(blob);
@@ -155,12 +165,14 @@ export const useExportState = () => {
     filters: {
       district: selectedDistrict,
       resourceType: selectedResourceType,
+      includeArchived,
       options: { districtOptions, resourceTypeOptions },
       isLoading: isLoadingFilters,
       handlers: {
         handleDatasetChange,
         handleDistrictChange,
         handleResourceTypeChange,
+        handleIncludeArchivedChange,
       },
     },
     preview: {

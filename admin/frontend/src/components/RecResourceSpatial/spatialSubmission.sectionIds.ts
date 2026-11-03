@@ -148,7 +148,7 @@ export const extractSectionIdDetails = (
   const issues: ValidationIssue[] = [];
 
   if (!features.length) {
-    return { fieldName: null, sectionIds: [], featureSectionIds: [], issues };
+    return { fieldName: null, featureSectionIds: [], issues };
   }
 
   let fieldName = pickSectionIdFieldName(features);
@@ -174,7 +174,7 @@ export const extractSectionIdDetails = (
         : 'No Section ID field was found: the uploaded file has no attributes at all.',
     });
 
-    return { fieldName: null, sectionIds: [], featureSectionIds: [], issues };
+    return { fieldName: null, featureSectionIds: [], issues };
   }
 
   const extractRawValue = (feature: any): string | null => {
@@ -233,10 +233,5 @@ export const extractSectionIdDetails = (
     }
   });
 
-  const sectionIds = Array.from(featureIndicesBySectionId.keys()).sort(
-    (first, second) =>
-      first.localeCompare(second, undefined, { numeric: true }),
-  );
-
-  return { fieldName, sectionIds, featureSectionIds, issues };
+  return { fieldName, featureSectionIds, issues };
 };

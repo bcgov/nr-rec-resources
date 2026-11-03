@@ -10,13 +10,7 @@ import {
   SHAPEFILE_MAX_FILE_SIZE_BYTES,
 } from './spatialSubmission.constants';
 
-export {
-  ACCURACY_CODES,
-  ACTION_CODES,
-  CAPTURE_METHODS,
-  DATA_SOURCES,
-  DEFAULT_SECTION_ID_FIELD_NAME,
-} from './spatialSubmission.constants';
+export { DEFAULT_SECTION_ID_FIELD_NAME } from './spatialSubmission.constants';
 
 export type {
   FeatureSectionId,

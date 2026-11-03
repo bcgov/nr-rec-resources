@@ -8,20 +8,52 @@ import type {
 } from './SpatialSubmissionSection.types';
 import type { SubmissionMetadata } from './spatialSubmissionUtils';
 
+const POLYGON_RECREATION_TYPE_LABELS = [
+  'Interpretive forest',
+  'Recreation Reserve',
+  'Recreation Site',
+  'Trail based recreation area',
+] as const;
+
+const LINEAR_RECREATION_TYPE_LABELS = [
+  'Interpretive forest trail',
+  'Recreation trail established',
+  'Rec trail established',
+  'Recreation trail reserve',
+  'Trail based recreation linear',
+] as const;
+
+const normalizeOptionLabel = (label?: string | null): string =>
+  (label ?? '').trim().toLowerCase();
+
+const getDistrictOptionLabel = (district: SpatialOption): string => {
+  const label = district.label?.trim() ?? '';
+  const abbreviation = district.id?.trim() ?? '';
+
+  if (label && abbreviation) {
+    return `${label} (${abbreviation})`;
+  }
+
+  return label || abbreviation;
+};
+
 interface SpatialSubmissionFormFieldsProps {
   values: WizardValues;
   setValues: Dispatch<SetStateAction<WizardValues>>;
   setMetadata: (name: keyof SubmissionMetadata, value: string) => void;
   hasMissingField: (field: RequiredFieldKey) => boolean;
   recreationTypeOptions: SpatialOption[];
-  naturalResourceDistrictOptions: SpatialOption[];
-  recreationDistrictOptions: SpatialOption[];
-  areDistrictOptionsLoading: boolean;
+  naturalResourceDistrictOptions?: SpatialOption[];
+  recreationDistrictOptions?: SpatialOption[];
+  areDistrictOptionsLoading?: boolean;
   requestCreated: boolean;
   isProcessing: boolean;
   onSpatialFilesChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onValidateSpatialFile: () => void;
+  variant?: 'full' | 'geospatial';
   editMode?: boolean;
+  showCreateHeading?: boolean;
+  onCancel?: () => void;
 }
 
 export const SpatialSubmissionFormFields = ({
@@ -37,17 +69,65 @@ export const SpatialSubmissionFormFields = ({
   isProcessing,
   onSpatialFilesChange,
   onValidateSpatialFile,
+  variant = 'full',
   editMode = false,
+  showCreateHeading = false,
+  onCancel,
 }: SpatialSubmissionFormFieldsProps) => {
+  const isGeospatialVariant = variant === 'geospatial';
+  const normalizedNaturalResourceDistrictOptions =
+    naturalResourceDistrictOptions ?? [];
+  const normalizedRecreationDistrictOptions = recreationDistrictOptions ?? [];
+  const isDistrictOptionsLoading = areDistrictOptionsLoading ?? false;
+  const groupedOptionLookup = new Set<string>();
+  const polygonOptions = POLYGON_RECREATION_TYPE_LABELS.flatMap(
+    (targetLabel) => {
+      const match = recreationTypeOptions.find(
+        (option) =>
+          normalizeOptionLabel(option.label) ===
+          normalizeOptionLabel(targetLabel),
+      );
+      if (match?.id) {
+        groupedOptionLookup.add(match.id);
+      }
+      return match ? [match] : [];
+    },
+  );
+
+  const linearOptions = LINEAR_RECREATION_TYPE_LABELS.flatMap((targetLabel) => {
+    const match = recreationTypeOptions.find(
+      (option) =>
+        normalizeOptionLabel(option.label) ===
+        normalizeOptionLabel(targetLabel),
+    );
+    if (match?.id) {
+      groupedOptionLookup.add(match.id);
+    }
+    return match ? [match] : [];
+  });
+
+  const ungroupedOptions = recreationTypeOptions.filter(
+    (option) => !option.id || !groupedOptionLookup.has(option.id),
+  );
+
   return (
     <>
-      {!editMode && (
+      {!isGeospatialVariant ? (
+        <Col xs={12}>
+          <h4 className={showCreateHeading ? 'mb-0' : 'mb-0 mt-2'}>
+            Recreation information
+          </h4>
+        </Col>
+      ) : null}
+
+      {!isGeospatialVariant ? (
         <Col xs={12} md={6}>
           <Form.Group>
-            <Form.Label>Recreation Name (optional)</Form.Label>
+            <Form.Label>Recreation name (Optional)</Form.Label>
             <Form.Control
               aria-label="Recreation Name"
               value={values.recreationName}
+              placeholder="Optional"
               onChange={(e) =>
                 setValues((prev) => ({
                   ...prev,
@@ -57,7 +137,7 @@ export const SpatialSubmissionFormFields = ({
             />
           </Form.Group>
         </Col>
-      )}
+      ) : null}
 
       <Col xs={12} md={6}>
         <Form.Group>
@@ -79,7 +159,25 @@ export const SpatialSubmissionFormFields = ({
                 ? 'Select Recreation type'
                 : 'Loading recreation types...'}
             </option>
-            {recreationTypeOptions.map((typeOption) => (
+            {polygonOptions.length ? (
+              <optgroup label="Polygon">
+                {polygonOptions.map((typeOption) => (
+                  <option key={typeOption.id} value={typeOption.id}>
+                    {typeOption.label}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
+            {linearOptions.length ? (
+              <optgroup label="Linear">
+                {linearOptions.map((typeOption) => (
+                  <option key={typeOption.id} value={typeOption.id}>
+                    {typeOption.label}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
+            {ungroupedOptions.map((typeOption) => (
               <option key={typeOption.id} value={typeOption.id}>
                 {typeOption.label}
               </option>
@@ -119,76 +217,26 @@ export const SpatialSubmissionFormFields = ({
         </Form.Group>
       </Col>
 
-      <Col xs={12} md={6}>
-        <Form.Group>
-          <Form.Label>Email Address</Form.Label>
-          <Form.Control
-            aria-label="Email Address"
-            type="email"
-            required
-            isInvalid={hasMissingField('email')}
-            value={values.metadata.email}
-            onChange={(e) => setMetadata('email', e.target.value)}
-          />
-          <Form.Control.Feedback type="invalid">
-            This is required.
-          </Form.Control.Feedback>
-        </Form.Group>
-      </Col>
-
-      <Col xs={12} md={6}>
-        <Form.Group>
-          <Form.Label>Telephone Number</Form.Label>
-          <Form.Control
-            aria-label="Telephone Number"
-            required
-            isInvalid={hasMissingField('telephone')}
-            value={values.metadata.telephone}
-            onChange={(e) => setMetadata('telephone', e.target.value)}
-            placeholder="10 digits (e.g. 6045550100)"
-          />
-          <Form.Control.Feedback type="invalid">
-            This is required.
-          </Form.Control.Feedback>
-        </Form.Group>
-      </Col>
-
-      <Col xs={12} md={6}>
-        <Form.Group>
-          <Form.Label>Submitter Name</Form.Label>
-          <Form.Control
-            aria-label="Submitter Name"
-            required
-            isInvalid={hasMissingField('contactName')}
-            value={values.metadata.contactName}
-            onChange={(e) => setMetadata('contactName', e.target.value)}
-          />
-          <Form.Control.Feedback type="invalid">
-            This is required.
-          </Form.Control.Feedback>
-        </Form.Group>
-      </Col>
-
-      {!editMode && (
+      {!isGeospatialVariant ? (
         <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>Natural Resource District</Form.Label>
             <Form.Select
               aria-label="Natural Resource District"
-              disabled={areDistrictOptionsLoading}
+              disabled={isDistrictOptionsLoading}
               required
-              isInvalid={hasMissingField('districtCode')}
+              isInvalid={hasMissingField('districtCode') && !editMode}
               value={values.metadata.districtCode}
               onChange={(e) => setMetadata('districtCode', e.target.value)}
             >
               <option value="">
-                {areDistrictOptionsLoading
+                {isDistrictOptionsLoading
                   ? 'Loading districts...'
                   : 'Select district'}
               </option>
-              {naturalResourceDistrictOptions.map((district) => (
+              {normalizedNaturalResourceDistrictOptions.map((district) => (
                 <option key={district.id ?? district.label} value={district.id}>
-                  {district.label}
+                  {getDistrictOptionLabel(district)}
                 </option>
               ))}
             </Form.Select>
@@ -197,30 +245,30 @@ export const SpatialSubmissionFormFields = ({
             </Form.Control.Feedback>
           </Form.Group>
         </Col>
-      )}
+      ) : null}
 
-      {!editMode && (
+      {!isGeospatialVariant ? (
         <Col xs={12} md={6}>
           <Form.Group>
             <Form.Label>Recreation District</Form.Label>
             <Form.Select
               aria-label="Recreation District"
-              disabled={areDistrictOptionsLoading}
+              disabled={isDistrictOptionsLoading}
               required
-              isInvalid={hasMissingField('recreationDistrict')}
+              isInvalid={hasMissingField('recreationDistrict') && !editMode}
               value={values.metadata.recreationDistrict}
               onChange={(e) =>
                 setMetadata('recreationDistrict', e.target.value)
               }
             >
               <option value="">
-                {areDistrictOptionsLoading
+                {isDistrictOptionsLoading
                   ? 'Loading districts...'
                   : 'Select district'}
               </option>
-              {recreationDistrictOptions.map((district) => (
+              {normalizedRecreationDistrictOptions.map((district) => (
                 <option key={district.id ?? district.label} value={district.id}>
-                  {district.label}
+                  {getDistrictOptionLabel(district)}
                 </option>
               ))}
             </Form.Select>
@@ -229,11 +277,11 @@ export const SpatialSubmissionFormFields = ({
             </Form.Control.Feedback>
           </Form.Group>
         </Col>
-      )}
+      ) : null}
 
       <Col xs={12} md={6}>
         <Form.Group>
-          <Form.Label>REC#</Form.Label>
+          <Form.Label>Rec #</Form.Label>
           <Form.Control
             aria-readonly={true}
             aria-label="REC#"
@@ -257,9 +305,56 @@ export const SpatialSubmissionFormFields = ({
         </Form.Group>
       </Col>
 
+      {!isGeospatialVariant ? (
+        <Col xs={12}>
+          <h4 className="mb-0 mt-3">Contact information</h4>
+        </Col>
+      ) : null}
+
       <Col xs={12} md={6}>
         <Form.Group>
-          <Form.Label>Upload Spatial File (.zip or .shp)</Form.Label>
+          <Form.Label>Submitter name</Form.Label>
+          <Form.Control
+            aria-label="Submitter Name"
+            required
+            isInvalid={hasMissingField('contactName')}
+            value={values.metadata.contactName}
+            onChange={(e) => setMetadata('contactName', e.target.value)}
+          />
+          <Form.Control.Feedback type="invalid">
+            This is required.
+          </Form.Control.Feedback>
+        </Form.Group>
+      </Col>
+
+      <Col xs={12} md={6}>
+        <Form.Group>
+          <Form.Label>Email address</Form.Label>
+          <Form.Control
+            aria-label="Email Address"
+            type="email"
+            required
+            isInvalid={hasMissingField('email')}
+            value={values.metadata.email}
+            onChange={(e) => setMetadata('email', e.target.value)}
+          />
+          <Form.Control.Feedback type="invalid">
+            This is required.
+          </Form.Control.Feedback>
+        </Form.Group>
+      </Col>
+
+      {!isGeospatialVariant ? (
+        <Col xs={12}>
+          <h4 className="mb-0 mt-3">Upload spatial file</h4>
+        </Col>
+      ) : null}
+
+      <Col xs={12}>
+        <Form.Group>
+          <Form.Label>
+            {isGeospatialVariant ? 'Upload Spatial File (.zip)' : 'Select file'}
+          </Form.Label>
           <Form.Control
             aria-label="Spatial File"
             type="file"
@@ -269,12 +364,12 @@ export const SpatialSubmissionFormFields = ({
             disabled={requestCreated}
           />
           <Form.Text muted>
-            Upload your shapefile as a single .zip bundle.
+            File must be a Shape file as a single .zip bundle.
           </Form.Text>
         </Form.Group>
       </Col>
 
-      <Col xs={12} className="spatial-submission-section__actions mb-5 mt-5">
+      <Col xs={12} className="spatial-submission-section__actions mt-4">
         <Button
           variant="primary"
           className="spatial-submission-section__validate-button"
@@ -290,6 +385,15 @@ export const SpatialSubmissionFormFields = ({
             'Validate'
           )}
         </Button>
+        {onCancel ? (
+          <Button
+            variant="outline-primary"
+            className="spatial-submission-section__cancel-button"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+        ) : null}
       </Col>
     </>
   );

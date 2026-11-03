@@ -3,6 +3,7 @@
 .header {
   &.main {
     background-color: $colorBlue;
+    z-index: 1100;
   }
 
   &__logo {

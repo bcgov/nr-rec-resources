@@ -6,10 +6,13 @@ import type {
 
 export const getMissingRequiredFields = (
   values: WizardValues,
+  requiredFields: RequiredFieldKey[] = Object.keys(
+    REQUIRED_FIELD_VALUE_SELECTORS,
+  ) as RequiredFieldKey[],
 ): RequiredFieldKey[] => {
-  return (
-    Object.keys(REQUIRED_FIELD_VALUE_SELECTORS) as RequiredFieldKey[]
-  ).filter((field) => !REQUIRED_FIELD_VALUE_SELECTORS[field](values).trim());
+  return requiredFields.filter(
+    (field) => !REQUIRED_FIELD_VALUE_SELECTORS[field](values).trim(),
+  );
 };
 
 export const requiresSectionIdsForFeatureCollection = (

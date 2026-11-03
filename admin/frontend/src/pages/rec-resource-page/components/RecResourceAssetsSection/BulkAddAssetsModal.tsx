@@ -14,6 +14,7 @@ import {
   validateCoordinateRow,
   type RowErrors,
 } from './BulkAddModalShared';
+import { ACTUAL_VALUE_HELP_TEXT, DEFAULT_VALUE_HELP_TEXT } from './helperTexts';
 
 interface BulkAddAssetsModalProps {
   show: boolean;
@@ -226,17 +227,6 @@ export function BulkAddAssetsModal({
     onCreate();
   };
 
-  const actualValueHelpText = (
-    <span>
-      Recorded value for each asset based on its purchase, construction, or
-      donation value. This amount is applied to every asset being added.
-      <br />
-      <br />
-      Example: If Actual Value = $50 and you add 10 assets, each asset will have
-      a value of $50.
-    </span>
-  );
-
   return (
     <BulkAddModalLayout
       show={show}
@@ -335,7 +325,7 @@ export function BulkAddAssetsModal({
               Default value
               <HelpIcon
                 id="bulk-default-value-help"
-                text="Estimated replacement cost of asset using provincial standard rates."
+                text={DEFAULT_VALUE_HELP_TEXT}
               />
             </Form.Label>
             <InputGroup>
@@ -357,7 +347,7 @@ export function BulkAddAssetsModal({
               Actual value
               <HelpIcon
                 id="bulk-actual-value-help"
-                text={actualValueHelpText}
+                text={ACTUAL_VALUE_HELP_TEXT}
               />
             </Form.Label>
             <InputGroup>

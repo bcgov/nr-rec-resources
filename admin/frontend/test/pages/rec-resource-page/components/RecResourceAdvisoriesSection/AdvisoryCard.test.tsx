@@ -54,6 +54,7 @@ const baseAdvisory: RecreationResourceAdvisoryDto = {
   updated_date: new Date('2027-01-15T00:00:00Z'),
   published_at: new Date('2027-01-01T00:00:00Z'),
   submitted_by: 'Jane Doe',
+  created_by: 'Priya Sandhu',
   is_advisory_date_displayed: true,
   is_effective_date_displayed: true,
   is_end_date_displayed: false,
@@ -285,9 +286,20 @@ describe('AdvisoryCard', () => {
       expect(screen.getByText('Published by')).toBeInTheDocument();
     });
 
-    it('renders submitted_by value', () => {
+    it('renders created_by as the published-by value', () => {
       renderCard();
-      expect(screen.getByText('Jane Doe')).toBeInTheDocument();
+      expect(screen.getByText('Priya Sandhu')).toBeInTheDocument();
+      expect(screen.queryByText('Jane Doe')).not.toBeInTheDocument();
+    });
+
+    it('renders dash when created_by is null', () => {
+      renderCard({ ...baseAdvisory, created_by: null });
+      expect(screen.getAllByText('-').length).toBeGreaterThan(0);
+    });
+
+    it('renders dash when created_by is an empty string', () => {
+      renderCard({ ...baseAdvisory, created_by: '' });
+      expect(screen.getAllByText('-').length).toBeGreaterThan(0);
     });
 
     it('renders dash when expiry_date is null', () => {

@@ -18,9 +18,9 @@ export const assetRepairListDataset: ExportDatasetBuilder = {
       rap.trail_segment_start AS "TRAIL_SEGMENT_START",
       rap.trail_segment_end AS "TRAIL_SEGMENT_END",
       rap.created_by AS "CREATED_BY",
-      ${sql.formatTimestamp(Prisma.sql`rap.created_at`)} AS "CREATE_TIMESTAMP",
+      ${sql.formatTimestamp(Prisma.sql`rap.created_at`)} AS "CREATED_AT",
       rap.updated_by AS "UPDATED_BY",
-      ${sql.formatTimestamp(Prisma.sql`rap.updated_at`)} AS "UPDATE_TIMESTAMP"
+      ${sql.formatTimestamp(Prisma.sql`rap.updated_at`)} AS "UPDATED_AT"
     FROM recreation_asset_repair rap
     INNER JOIN recreation_asset ra
       ON ra.asset_id = rap.asset_id

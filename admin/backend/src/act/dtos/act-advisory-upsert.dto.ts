@@ -67,16 +67,30 @@ export class ActAdvisoryUpsertDto {
   @IsString()
   description?: string | null;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
       'Username / identifier of the person who submitted the advisory in Act.',
     example: 'jdoe',
     maxLength: 120,
+    type: String,
+    nullable: true,
   })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @MaxLength(120)
-  submitted_by: string;
+  submitted_by?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Name of the person who created the advisory in Act.',
+    example: 'Jane Doe',
+    maxLength: 120,
+    type: String,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  created_by?: string | null;
 
   @ApiProperty({
     description: 'Display name of the access status.',

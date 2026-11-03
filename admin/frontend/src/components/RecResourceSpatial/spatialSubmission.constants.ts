@@ -1,14 +1,3 @@
-export const ACTION_CODES = ['I', 'U'] as const;
-export const ACCURACY_CODES = ['1', '5', '10', '100', '1000'] as const;
-export const CAPTURE_METHODS = ['GPS', 'DIGITIZE', 'Ortho', 'Mono'] as const;
-export const DATA_SOURCES = [
-  'AirPhoto',
-  'TRIM',
-  'Satellite',
-  'Survey',
-  'Unknown',
-] as const;
-
 export const BC_EXTENT_3005 = {
   minX: 100000,
   maxX: 1900000,

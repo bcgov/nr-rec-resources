@@ -118,6 +118,11 @@ export class ActAdvisoriesRepository {
 
   /**
    * Shared normalized payload used by both create and full update operations.
+   *
+   * created_by is stored as sent by Act. It shares a name with the audit column the
+   * audit extension manages, but the extension only fills created_by on Prisma `create`
+   * operations - this repository uses `upsert`/`update`, so nothing overwrites it. Switching
+   * the write below to `create` would silently replace Act's value with the service account.
    */
   private toWriteInput(
     payload: ActAdvisoryUpsertDto,
@@ -128,7 +133,8 @@ export class ActAdvisoriesRepository {
     return {
       title: payload.title,
       description: payload.description ?? null,
-      submitted_by: payload.submitted_by,
+      submitted_by: payload.submitted_by ?? null,
+      created_by: payload.created_by ?? null,
       access_status_name: payload.access_status_name,
       access_status_grouplabel: payload.access_status_grouplabel,
       access_status_description: payload.access_status_description ?? null,
@@ -177,6 +183,7 @@ export class ActAdvisoriesRepository {
       'title',
       'description',
       'submitted_by',
+      'created_by',
       'access_status_name',
       'access_status_grouplabel',
       'access_status_description',

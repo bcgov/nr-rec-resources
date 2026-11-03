@@ -63,11 +63,21 @@ export class RecreationResourceAdvisoryDto {
   })
   published_at: Date | null;
 
-  @ApiProperty({
-    description: 'Submitted by (published by)',
+  @ApiPropertyOptional({
+    description: 'Submitted by. Not always populated by Act.',
     example: 'Jane Doe',
+    type: String,
+    nullable: true,
   })
-  submitted_by: string;
+  submitted_by: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Created by (shown as "published by" in the UI)',
+    example: 'Jane Doe',
+    type: String,
+    nullable: true,
+  })
+  created_by: string | null;
 
   @ApiProperty({
     description: 'Whether to display the advisory date',

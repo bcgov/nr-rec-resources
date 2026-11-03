@@ -50,6 +50,7 @@ const ADVISORY_BASE_EXAMPLE = {
   advisory_number: 3791,
   title: 'Bear in area',
   submitted_by: 'jdoe',
+  created_by: 'Jane Doe',
   access_status_name: 'Open with restrictions',
   access_status_grouplabel: 'Open',
   event_type: 'Wildlife',
@@ -288,6 +289,7 @@ export class ActAdvisoriesController {
           description:
             'Bear activity has expanded to the lake trail area. Visitors should avoid the shoreline trail until further notice.',
           submitted_by: 'jdoe',
+          created_by: 'Jane Doe',
           access_status_name: 'Closed',
           access_status_grouplabel: 'Closed',
           access_status_description:
@@ -318,7 +320,8 @@ export class ActAdvisoriesController {
         summary: 'Payload with nullable fields = null',
         value: {
           title: 'Bear activity expanded near lake trail',
-          submitted_by: 'jdoe',
+          submitted_by: null,
+          created_by: null,
           access_status_name: 'Closed',
           access_status_grouplabel: 'Closed',
           event_type: 'Wildlife',

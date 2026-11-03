@@ -2,6 +2,7 @@
 locals {
   region = "ca-central-1"
   period = 300
+  is_prod = contains(["prod", "production"], lower(var.app_env))
 
 
   public_operations_with_latency = {
@@ -23,6 +24,45 @@ locals {
     createRecreationresourceDocument     = 4000
     updateDocumentResource               = 3000
     deleteDocumentResource               = 1500
+  }
+
+  # SNCSC tuning: tighter thresholds and faster alarm cadence in prod.
+  sncsc_latency_thresholds = {
+    createRecreationResourceMapFeatures    = local.is_prod ? 3000 : 5000
+    createOrGetExhibitAByApplicationGuid   = local.is_prod ? 2500 : 4000
+    updateSpatialSubmissionStatusFromSncsc = local.is_prod ? 1500 : 3000
+    getSncscOauthToken                      = local.is_prod ? 1000 : 2000
+  }
+
+  sncsc_alarm_period             = local.is_prod ? 60 : 300
+  sncsc_alarm_evaluation_periods = local.is_prod ? 2 : 1
+  sncsc_alarm_datapoints         = local.is_prod ? 2 : 1
+
+  sncsc_operations = [
+    {
+      operation = "createRecreationResourceMapFeatures"
+      method    = "POST"
+      threshold = local.sncsc_latency_thresholds["createRecreationResourceMapFeatures"]
+    },
+    {
+      operation = "createOrGetExhibitAByApplicationGuid"
+      method    = "POST"
+      threshold = local.sncsc_latency_thresholds["createOrGetExhibitAByApplicationGuid"]
+    },
+    {
+      operation = "updateSpatialSubmissionStatusFromSncsc"
+      method    = "PUT"
+      threshold = local.sncsc_latency_thresholds["updateSpatialSubmissionStatusFromSncsc"]
+    },
+    {
+      operation = "getSncscOauthToken"
+      method    = "POST"
+      threshold = local.sncsc_latency_thresholds["getSncscOauthToken"]
+    }
+  ]
+
+  sncsc_operations_map = {
+    for op in local.sncsc_operations : op.operation => op
   }
 
 
@@ -826,6 +866,228 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
   })
 }
 
+# SNCSC API Dashboard
+resource "aws_cloudwatch_dashboard" "sncsc_api_dashboard" {
+  dashboard_name = "RecreationSitesAndTrailsBC-SNCSCAPI-${var.app_env}"
+
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type   = "text"
+        x      = 0
+        y      = 0
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "# Recreation Sites & Trails BC - SNCSC API Dashboard (${var.app_env})\nMonitor request volume, error rates, and latency for SNCSC integration operations."
+        }
+      },
+      {
+        type   = "alarm"
+        x      = 0
+        y      = 2
+        width  = 24
+        height = 6
+        properties = {
+          title = "Alarm Status - SNCSC API"
+          alarms = concat(
+            [for _, alarm in aws_cloudwatch_metric_alarm.sncsc_latency_alarms : alarm.arn],
+            [for _, alarm in aws_cloudwatch_metric_alarm.sncsc_server_error_rate_alarm : alarm.arn],
+            [for _, alarm in aws_cloudwatch_metric_alarm.sncsc_client_error_rate_alarm : alarm.arn]
+          )
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 8
+        width  = 24
+        height = 6
+        properties = {
+          title   = "SNCSC API Request Volume by Operation (5 min)"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          metrics = [
+            for op in local.sncsc_operations :
+            [local.api_configs.admin.namespace, "RequestCount", "Operation", op.operation]
+          ]
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 14
+        width  = 12
+        height = 6
+        properties = {
+          title   = "SNCSC API Client Errors (4xx)"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          metrics = [
+            for op in local.sncsc_operations :
+            [local.api_configs.admin.namespace, "ErrorCount", "Operation", op.operation, "ErrorType", "ClientError"]
+          ]
+          yAxis = { left = { label = "Count" } }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 14
+        width  = 12
+        height = 6
+        properties = {
+          title   = "SNCSC API Server Errors (5xx)"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          metrics = [
+            for op in local.sncsc_operations :
+            [local.api_configs.admin.namespace, "ErrorCount", "Operation", op.operation, "ErrorType", "ServerError"]
+          ]
+          yAxis = { left = { label = "Count" } }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 20
+        width  = 24
+        height = 6
+        properties = {
+          title  = "SNCSC API Latency Overview (TM95/TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
+          metrics = concat(
+            [
+              for op in local.sncsc_operations :
+              [local.api_configs.admin.namespace, "RequestLatency", "Operation", op.operation, "Method", op.method, { stat = "tm95", label = "${op.operation} (tm95)" }]
+            ],
+            [
+              for op in local.sncsc_operations :
+              [local.api_configs.admin.namespace, "RequestLatency", "Operation", op.operation, "Method", op.method, { stat = "tm99", label = "${op.operation} (tm99)" }]
+            ]
+          )
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 26
+        width  = 12
+        height = 6
+        properties = {
+          title  = "createOrGetExhibitAByApplicationGuid Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "createOrGetExhibitAByApplicationGuid", "Method", "POST", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.sncsc_operations_map["createOrGetExhibitAByApplicationGuid"].threshold
+                label = "Threshold: ${local.sncsc_operations_map["createOrGetExhibitAByApplicationGuid"].threshold}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 26
+        width  = 12
+        height = 6
+        properties = {
+          title  = "updateSpatialSubmissionStatusFromSncsc Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "updateSpatialSubmissionStatusFromSncsc", "Method", "PUT", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.sncsc_operations_map["updateSpatialSubmissionStatusFromSncsc"].threshold
+                label = "Threshold: ${local.sncsc_operations_map["updateSpatialSubmissionStatusFromSncsc"].threshold}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 32
+        width  = 12
+        height = 6
+        properties = {
+          title  = "createRecreationResourceMapFeatures Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "createRecreationResourceMapFeatures", "Method", "POST", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.sncsc_operations_map["createRecreationResourceMapFeatures"].threshold
+                label = "Threshold: ${local.sncsc_operations_map["createRecreationResourceMapFeatures"].threshold}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 32
+        width  = 12
+        height = 6
+        properties = {
+          title  = "getSncscOauthToken Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getSncscOauthToken", "Method", "POST", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.sncsc_operations_map["getSncscOauthToken"].threshold
+                label = "Threshold: ${local.sncsc_operations_map["getSncscOauthToken"].threshold}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  })
+}
+
 # CloudWatch Alarms
 
 # Latency alarms for all operations across both APIs
@@ -913,6 +1175,83 @@ resource "aws_cloudwatch_metric_alarm" "client_error_rate_alarm" {
 
   tags = merge(local.common_resource_tags, {
     Name = "API Monitoring Alarms - ${var.app_env}"
+  })
+}
+
+# SNCSC-specific alarms (method-aware)
+resource "aws_cloudwatch_metric_alarm" "sncsc_latency_alarms" {
+  for_each = local.sncsc_operations_map
+
+  alarm_name          = "[${var.app_env}] High-Latency-Alarm-sncsc-${each.key}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = local.sncsc_alarm_evaluation_periods
+  datapoints_to_alarm = local.sncsc_alarm_datapoints
+  metric_name         = "RequestLatency"
+  namespace           = local.api_configs.admin.namespace
+  period              = local.sncsc_alarm_period
+  statistic           = "Average"
+  threshold           = each.value.threshold
+  alarm_description   = "Latency for SNCSC operation ${each.key} exceeds ${each.value.threshold}ms in ${local.sncsc_alarm_datapoints}/${local.sncsc_alarm_evaluation_periods} periods"
+  alarm_actions       = [aws_sns_topic.alarm_topic.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    Operation = each.key
+    Method    = each.value.method
+  }
+
+  tags = merge(local.common_resource_tags, {
+    Name = "SNCSC API Latency Alarms - ${var.app_env}"
+  })
+}
+
+resource "aws_cloudwatch_metric_alarm" "sncsc_server_error_rate_alarm" {
+  for_each = local.sncsc_operations_map
+
+  alarm_name          = "[${var.app_env}] High-Server-Error-Rate-Alarm-sncsc-${each.key}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = local.sncsc_alarm_evaluation_periods
+  metric_name         = "ErrorCount"
+  namespace           = local.api_configs.admin.namespace
+  period              = local.sncsc_alarm_period
+  statistic           = "Sum"
+  threshold           = local.server_error_threshold
+  alarm_description   = "High server error rate (5xx) detected for SNCSC operation ${each.key}."
+  alarm_actions       = [aws_sns_topic.alarm_topic.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    ErrorType = "ServerError"
+    Operation = each.key
+  }
+
+  tags = merge(local.common_resource_tags, {
+    Name = "SNCSC API Error Alarms - ${var.app_env}"
+  })
+}
+
+resource "aws_cloudwatch_metric_alarm" "sncsc_client_error_rate_alarm" {
+  for_each = local.sncsc_operations_map
+
+  alarm_name          = "[${var.app_env}] High-Client-Error-Rate-Alarm-sncsc-${each.key}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = local.sncsc_alarm_evaluation_periods
+  metric_name         = "ErrorCount"
+  namespace           = local.api_configs.admin.namespace
+  period              = local.sncsc_alarm_period
+  statistic           = "Sum"
+  threshold           = local.client_error_threshold
+  alarm_description   = "High client error rate (4xx) detected for SNCSC operation ${each.key}."
+  alarm_actions       = [aws_sns_topic.alarm_topic.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    ErrorType = "ClientError"
+    Operation = each.key
+  }
+
+  tags = merge(local.common_resource_tags, {
+    Name = "SNCSC API Error Alarms - ${var.app_env}"
   })
 }
 

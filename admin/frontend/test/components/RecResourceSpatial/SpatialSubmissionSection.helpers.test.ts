@@ -16,7 +16,6 @@ describe('SpatialSubmissionSection.helpers', () => {
         metadata: {
           ...DEFAULT_WIZARD_VALUES.metadata,
           email: 'user@example.com',
-          telephone: '6045550100',
           contactName: 'John Doe',
           districtCode: 'DCC',
           recreationDistrict: 'RDCC',
@@ -35,7 +34,6 @@ describe('SpatialSubmissionSection.helpers', () => {
         metadata: {
           ...DEFAULT_WIZARD_VALUES.metadata,
           email: 'user@example.com',
-          telephone: '6045550100',
           contactName: 'John Doe',
           districtCode: 'DCC',
           recreationDistrict: 'RDCC',
@@ -54,7 +52,6 @@ describe('SpatialSubmissionSection.helpers', () => {
         metadata: {
           ...DEFAULT_WIZARD_VALUES.metadata,
           email: 'user@example.com',
-          telephone: '6045550100',
           contactName: 'John Doe',
           districtCode: 'DCC',
           recreationDistrict: 'RDCC',
@@ -73,7 +70,6 @@ describe('SpatialSubmissionSection.helpers', () => {
         metadata: {
           ...DEFAULT_WIZARD_VALUES.metadata,
           email: '',
-          telephone: '6045550100',
           contactName: 'John Doe',
           districtCode: 'DCC',
           recreationDistrict: 'RDCC',
@@ -84,25 +80,6 @@ describe('SpatialSubmissionSection.helpers', () => {
       expect(result).toContain('email');
     });
 
-    it('returns telephone when empty', () => {
-      const values: WizardValues = {
-        ...DEFAULT_WIZARD_VALUES,
-        recreationType: 'SIT',
-        featureType: 'Polygon',
-        metadata: {
-          ...DEFAULT_WIZARD_VALUES.metadata,
-          email: 'user@example.com',
-          telephone: '',
-          contactName: 'John Doe',
-          districtCode: 'DCC',
-          recreationDistrict: 'RDCC',
-        },
-      };
-
-      const result = getMissingRequiredFields(values);
-      expect(result).toContain('telephone');
-    });
-
     it('returns contactName when empty', () => {
       const values: WizardValues = {
         ...DEFAULT_WIZARD_VALUES,
@@ -111,7 +88,6 @@ describe('SpatialSubmissionSection.helpers', () => {
         metadata: {
           ...DEFAULT_WIZARD_VALUES.metadata,
           email: 'user@example.com',
-          telephone: '6045550100',
           contactName: '',
           districtCode: 'DCC',
           recreationDistrict: 'RDCC',
@@ -130,7 +106,6 @@ describe('SpatialSubmissionSection.helpers', () => {
         metadata: {
           ...DEFAULT_WIZARD_VALUES.metadata,
           email: 'user@example.com',
-          telephone: '6045550100',
           contactName: 'John Doe',
           districtCode: '',
           recreationDistrict: 'RDCC',
@@ -149,7 +124,6 @@ describe('SpatialSubmissionSection.helpers', () => {
         metadata: {
           ...DEFAULT_WIZARD_VALUES.metadata,
           email: 'user@example.com',
-          telephone: '6045550100',
           contactName: 'John Doe',
           districtCode: 'DCC',
           recreationDistrict: '',
@@ -168,7 +142,6 @@ describe('SpatialSubmissionSection.helpers', () => {
         metadata: {
           ...DEFAULT_WIZARD_VALUES.metadata,
           email: '',
-          telephone: '',
           contactName: '',
           districtCode: '',
           recreationDistrict: '',
@@ -176,11 +149,10 @@ describe('SpatialSubmissionSection.helpers', () => {
       };
 
       const result = getMissingRequiredFields(values);
-      expect(result).toHaveLength(7);
+      expect(result).toHaveLength(6);
       expect(result).toContain('recreationType');
       expect(result).toContain('featureType');
       expect(result).toContain('email');
-      expect(result).toContain('telephone');
       expect(result).toContain('contactName');
       expect(result).toContain('districtCode');
       expect(result).toContain('recreationDistrict');
@@ -194,7 +166,6 @@ describe('SpatialSubmissionSection.helpers', () => {
         metadata: {
           ...DEFAULT_WIZARD_VALUES.metadata,
           email: '  ',
-          telephone: '6045550100',
           contactName: '\t\n',
           districtCode: 'DCC',
           recreationDistrict: 'RDCC',

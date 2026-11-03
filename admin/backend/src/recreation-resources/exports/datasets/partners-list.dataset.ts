@@ -11,25 +11,33 @@ export const partnersListDataset: ExportDatasetBuilder = {
         ELSE 'No'
       END AS "IS_RECREATION_OPERATOR",
       ah.client_number AS "CLIENT_NUMBER",
-      ah.visible_on_public_website AS "DISPLAY_ON_WEBSITE",
+      ${sql.booleanIndicator(
+        Prisma.sql`ah.visible_on_public_website`,
+      )} AS "DISPLAY_ON_WEBSITE",
       TO_CHAR(ah.agreement_start_date, 'YYYY-MM-DD') AS "AGREEMENT_START_DATE",
       TO_CHAR(ah.agreement_end_date, 'YYYY-MM-DD') AS "AGREEMENT_END_DATE",
       ah.revision_count AS "REVISION_COUNT",
-      ${sql.formatTimestamp(Prisma.sql`ah.created_at`)} AS "CREATE_TIMESTAMP",
+      ${sql.formatTimestamp(Prisma.sql`ah.created_at`)} AS "CREATED_AT",
       ah.created_by AS "CREATED_BY",
-      ${sql.formatTimestamp(Prisma.sql`ah.updated_at`)} AS "UPDATE_TIMESTAMP",
+      ${sql.formatTimestamp(Prisma.sql`ah.updated_at`)} AS "UPDATED_AT",
       ah.updated_by AS "UPDATED_BY"
     FROM rst.recreation_agreement_holder ah
     INNER JOIN recreation_resource rr
       ON rr.rec_resource_id = ah.rec_resource_id
     LEFT JOIN recreation_resource_type_view_admin rrtva
       ON rrtva.rec_resource_id = rr.rec_resource_id
+    LEFT JOIN recreation_district_code rdc_rst
+      ON rdc_rst.district_code = rr.district_code
+    LEFT JOIN recreation_resource_status_code rrsc_rst
+      ON rrsc_rst.recreation_resource_status_code = rr.rec_status_code
     LEFT OUTER JOIN rst.recreation_fee rf
 	    ON rf.rec_resource_id = rr.rec_resource_id
     WHERE ${sql.rstFilters}
     GROUP BY
       rr.rec_resource_id,
       rr.name,
+      rdc_rst.description,
+      rrsc_rst.description,
       ah.rec_resource_id,
       ah.client_number,
       ah.visible_on_public_website,

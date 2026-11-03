@@ -18,10 +18,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { createLogger, Logger } from '../logger';
 
-/**
- * Identifier written to the `created_by` / `updated_by` audit columns
- * so we can tell which job inserted/updated each row.
- */
+/** Logger label for this job. */
 const SYNC_SOURCE = 'sync-advisories';
 const SCHEDULED_AND_PUBLISHED_ENDPOINT =
   '/api/public-advisory-audits/scheduled-and-published';
@@ -47,6 +44,7 @@ interface AdvisoryData {
   updatedDate?: string;
   publishedAt?: string;
   submittedByName?: string;
+  createdByName?: string;
   isReservationsAffected: boolean;
   isAdvisoryDateDisplayed: boolean;
   isEffectiveDateDisplayed: boolean;
@@ -178,7 +176,7 @@ class AdvisorySync {
     try {
       const query = `
         INSERT INTO rst.act_advisories_flat (
-          rec_resource_id, advisory_number, title, description, submitted_by,
+          rec_resource_id, advisory_number, title, description, submitted_by, created_by,
           access_status_name, access_status_grouplabel, access_status_description,
           event_type, urgency, advisory_status,
           is_reservations_affected, is_advisory_date_displayed, is_effective_date_displayed,
@@ -188,12 +186,13 @@ class AdvisorySync {
           listing_rank, urgency_sequence, access_status_precedence, event_type_precedence
         ) VALUES (
                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-                   $17, $18, $19, $20, $21, $22, $23, $24, $25, $26
+                   $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27
                  )
           ON CONFLICT (rec_resource_id, advisory_number) DO UPDATE SET
           title = EXCLUDED.title,
                                                               description = EXCLUDED.description,
                                                               submitted_by = EXCLUDED.submitted_by,
+                                                              created_by = EXCLUDED.created_by,
                                                               access_status_name = EXCLUDED.access_status_name,
                                                               access_status_grouplabel = EXCLUDED.access_status_grouplabel,
                                                               access_status_description = EXCLUDED.access_status_description,
@@ -216,8 +215,6 @@ class AdvisorySync {
                                                               access_status_precedence = EXCLUDED.access_status_precedence,
                                                               event_type_precedence = EXCLUDED.event_type_precedence,
                                                               updated_at = now();
-        -- NOTE: created_at is intentionally NOT in the ON CONFLICT UPDATE SET
-        -- so the original insert timestamp is preserved on re-syncs.
       `;
 
       const values = [
@@ -226,6 +223,7 @@ class AdvisorySync {
         advisory.title,
         advisory.description || null,
         advisory.submittedByName || null,
+        advisory.createdByName || null,
         advisory.accessStatus?.accessStatus || 'Unknown',
         advisory.accessStatus?.groupLabel || 'Unknown',
         advisory.accessStatus?.description || null,

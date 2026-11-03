@@ -165,7 +165,7 @@ describe('useResourceOptions', () => {
     );
   });
 
-  it('should handle access options with null/undefined values', () => {
+  it('should skip access options and children with null/undefined codes', () => {
     const mockAccessData = [
       {
         id: 'access1',
@@ -196,34 +196,55 @@ describe('useResourceOptions', () => {
         options: [
           {
             label: 'Child 1',
-            value: 'child1',
-            group: 'access1',
-            groupLabel: 'Access Group 1',
-          },
-          {
-            label: 'Child 2',
-            value: '',
+            value: 'access1|child1',
             group: 'access1',
             groupLabel: 'Access Group 1',
           },
           {
             label: '',
-            value: 'child3',
-            group: 'access1',
-            groupLabel: 'Access Group 1',
-          },
-          {
-            label: '',
-            value: '',
+            value: 'access1|child3',
             group: 'access1',
             groupLabel: 'Access Group 1',
           },
         ],
       },
+    ]);
+  });
+
+  it('should build composite values from the access and sub-access codes', () => {
+    const mockAccessData = [
       {
-        label: null,
+        id: 'T',
+        label: 'Trail',
+        children: [
+          { id: 'TM', label: 'Multi-use' },
+          { id: 'TN', label: 'Non-motorized' },
+        ],
+      },
+    ];
+
+    mockUseGetRecreationResourceOptions.mockReturnValue(
+      createMockOptions([mockAccessData]) as any,
+    );
+
+    const { result } = renderHook(() => useResourceOptions(), { wrapper });
+
+    expect(result.current.groupedAccessOptions).toEqual([
+      {
+        label: 'Trail',
         options: [
-          { label: 'Child 4', value: 'child4', group: '', groupLabel: '' },
+          {
+            label: 'Multi-use',
+            value: 'T|TM',
+            group: 'T',
+            groupLabel: 'Trail',
+          },
+          {
+            label: 'Non-motorized',
+            value: 'T|TN',
+            group: 'T',
+            groupLabel: 'Trail',
+          },
         ],
       },
     ]);

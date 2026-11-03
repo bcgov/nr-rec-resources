@@ -1,7 +1,13 @@
 import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql/getRecreationResourceSpatialFeatureGeometry';
 import { getRecreationResourceSuggestions } from '@prisma-generated-sql/getRecreationResourceSuggestions';
 import { PrismaService } from '@/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
 import {
   RecreationNaturalResourceDto,
   RecreationResourceDetailDto,
@@ -33,6 +39,8 @@ export class RecreationResourceService {
   constructor(
     private readonly recreationResourceRepository: RecreationResourceRepository,
     private readonly prisma: PrismaService,
+    @Optional()
+    private readonly sncscStatusRequestService?: SncscStatusRequestService,
   ) {}
 
   /**
@@ -319,22 +327,78 @@ export class RecreationResourceService {
     const rows =
       await this.recreationResourceRepository.findPendingMapFeatureRequests();
 
-    const data: PendingMapFeatureRequestRowDto[] = rows.map((row) => ({
-      rec_resource_id: row.rec_resource_id,
-      name: row.name,
-      district_description: row.district_description,
-      recreation_district: row.recreation_district,
-      natural_resource_district: row.natural_resource_district,
-      recreation_type: row.recreation_type,
-      amend_status_code: row.amend_status_code,
-      feature_count: row.feature_count,
-      requested_at: row.requested_at?.toISOString() ?? null,
-      geometry_types: row.geometry_types,
-    }));
+    const data: PendingMapFeatureRequestRowDto[] = rows.map((row) => {
+      const dto: PendingMapFeatureRequestRowDto = {
+        rec_resource_id: row.rec_resource_id,
+        name: row.name,
+        district_description: row.district_description,
+        recreation_district: row.recreation_district,
+        natural_resource_district: row.natural_resource_district,
+        recreation_type: row.recreation_type,
+        amend_status_code: row.amend_status_code,
+        feature_count: row.feature_count,
+        requested_at: row.requested_at?.toISOString() ?? null,
+        geometry_types: row.geometry_types,
+      };
+
+      if (row.submission_id != null) {
+        dto.submission_id = row.submission_id;
+      }
+      if (row.application_guid != null) {
+        dto.application_guid = row.application_guid;
+      }
+      if (row.status_request_guid != null) {
+        dto.status_request_guid = row.status_request_guid;
+      }
+      if (row.purpose_code != null) {
+        dto.purpose_code = row.purpose_code;
+      }
+      if (row.exhibit_a_url != null) {
+        dto.exhibit_a_url = row.exhibit_a_url;
+      }
+      if (row.exhibit_a_url != null && row.application_guid != null) {
+        dto.adjudication_report = `/api/recreation-resources/pending-requests/${row.application_guid}/adjudication-report`;
+      }
+
+      return dto;
+    });
 
     return {
       data,
       total: data.length,
     };
+  }
+
+  async getPendingRequestAdjudicationReport(
+    applicationGuid: string,
+  ): Promise<{ contentType: string; content: Buffer }> {
+    const submission =
+      await this.prisma.recreation_spatial_submission.findUnique({
+        where: { application_guid: applicationGuid },
+        select: {
+          adjudication_report_document_uri: true,
+        },
+      });
+
+    if (!submission) {
+      throw new NotFoundException(
+        `Spatial submission not found for application_guid: ${applicationGuid}`,
+      );
+    }
+
+    const uri = submission.adjudication_report_document_uri?.trim();
+    if (!uri) {
+      throw new NotFoundException(
+        `No adjudication report found for application_guid: ${applicationGuid}`,
+      );
+    }
+
+    if (!this.sncscStatusRequestService) {
+      throw new InternalServerErrorException(
+        'SNCSC status request service is not available.',
+      );
+    }
+
+    return this.sncscStatusRequestService.fetchAdjudicationReportContent(uri);
   }
 }

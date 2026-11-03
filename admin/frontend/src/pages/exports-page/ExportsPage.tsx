@@ -12,6 +12,7 @@ export const ExportsPage = () => {
     handleDatasetChange,
     handleDistrictChange,
     handleResourceTypeChange,
+    handleIncludeArchivedChange,
   } = filters.handlers;
 
   const hasSelectedDataset = Boolean(datasets.selected);
@@ -61,8 +62,8 @@ export const ExportsPage = () => {
               </Alert>
             )}
 
-            <Row className="g-3">
-              <Col md={4}>
+            <Row className="g-3 align-items-end">
+              <Col md={6} xl={3}>
                 <Form.Group controlId="export-dataset">
                   <Form.Label>Dataset</Form.Label>
                   <Form.Select
@@ -95,7 +96,7 @@ export const ExportsPage = () => {
                 </Form.Group>
               </Col>
 
-              <Col md={4}>
+              <Col md={6} xl={3}>
                 <Form.Group controlId="export-district">
                   <Form.Label>District</Form.Label>
                   <Form.Select
@@ -117,7 +118,7 @@ export const ExportsPage = () => {
                 </Form.Group>
               </Col>
 
-              <Col md={4}>
+              <Col md={6} xl={3}>
                 <Form.Group controlId="export-resource-type">
                   <Form.Label>Recreation resource type</Form.Label>
                   <Form.Select
@@ -133,6 +134,20 @@ export const ExportsPage = () => {
                         {option.label}
                       </option>
                     ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+
+              <Col md={6} xl={3}>
+                <Form.Group controlId="export-include-archived">
+                  <Form.Label>Include archived resources?</Form.Label>
+                  <Form.Select
+                    value={filters.includeArchived ? 'true' : 'false'}
+                    onChange={handleIncludeArchivedChange}
+                    disabled={areFilterSelectsDisabled}
+                  >
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
                   </Form.Select>
                 </Form.Group>
               </Col>

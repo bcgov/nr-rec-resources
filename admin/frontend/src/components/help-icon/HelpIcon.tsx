@@ -24,6 +24,10 @@ const store = {
   },
 };
 
+export function dismissActiveHelp() {
+  store.setActiveId(null);
+}
+
 /** Small inline ? badge that shows a tooltip on click (only one open at a time) */
 export function HelpIcon({ text, id }: HelpIconProps) {
   const show = useSyncExternalStore(store.subscribe, store.getSnapshot) === id;

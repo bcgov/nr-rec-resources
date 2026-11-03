@@ -13,7 +13,7 @@ export class CreateRecreationMapFeatureGeometryDto {
   @ApiProperty({
     description:
       'GeoJSON geometry extracted from a validated shapefile feature',
-    type: 'object',
+    type: Object,
     additionalProperties: true,
   } satisfies ApiPropertyOptions)
   @IsObject()
@@ -29,6 +29,18 @@ export class CreateRecreationMapFeatureGeometryDto {
   @IsOptional()
   @IsString()
   section_id?: string | null;
+
+  @ApiProperty({
+    description:
+      'Original DBF properties for this feature (e.g., FEATURE_AR, FEATURE_PE, FEATURE__1, FEATURE_LE)',
+    required: false,
+    nullable: true,
+    type: Object,
+    additionalProperties: true,
+  } satisfies ApiPropertyOptions)
+  @IsOptional()
+  @IsObject()
+  properties?: Record<string, unknown> | null;
 }
 
 export class CreateRecreationMapFeaturesDto {

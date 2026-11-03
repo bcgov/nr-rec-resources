@@ -580,7 +580,6 @@ function checkExtentWithinBc(feature: any): boolean {
 function validateFeatureGeometry(
   feature: any,
   index: number,
-  options: GeometryValidationOptions,
   issues: ValidationIssue[],
 ): number {
   const geometry = feature?.geometry;
@@ -858,7 +857,7 @@ export function validateGeometry(
       mismatchedGeometryTypes.add(geometry.type ?? 'Unknown');
     }
 
-    totalVertices += validateFeatureGeometry(feature, index, options, issues);
+    totalVertices += validateFeatureGeometry(feature, index, issues);
   });
 
   const polygonParts = features.flatMap((feature, index) =>

@@ -87,9 +87,33 @@ export const RecResourcePartnersEditSection = ({
   );
   const navigateToView = () => void navigate({ to: viewPath });
 
+  /**
+   * What a save would actually send. Cancelled agreements are frozen and never
+   * submitted, and an unchanged card has no payload.
+   */
+  const pendingUpdates = useMemo(
+    () =>
+      partners
+        .filter((partner) => !partner.cancelled)
+        .map((partner) => {
+          const draft = drafts[partner.agreement_holder_id] ?? toDraft(partner);
+          return {
+            partner,
+            draft,
+            payload: buildUpdatePayload(partner, draft),
+          };
+        })
+        .filter(({ payload }) => Object.keys(payload).length > 0),
+    [partners, drafts],
+  );
+
+  /**
+   * Only a card that is being sent can block the save. The API checks date
+   * order per record it updates.
+   */
   const hasDateErrors = useMemo(
-    () => Object.values(drafts).some((draft) => getDateOrderError(draft)),
-    [drafts],
+    () => pendingUpdates.some(({ draft }) => getDateOrderError(draft)),
+    [pendingUpdates],
   );
 
   /**
@@ -197,27 +221,14 @@ export const RecResourcePartnersEditSection = ({
     if (hasDateErrors) return;
     setShowMainPartnerWarning(false);
 
-    // Only changed cards produce a request; untouched ones are skipped.
-    // Cancelled agreements are frozen, so they never contribute.
-    const changed = partners
-      .filter((partner) => !partner.cancelled)
-      .map((partner) => ({
-        partner,
-        payload: buildUpdatePayload(
-          partner,
-          drafts[partner.agreement_holder_id] ?? toDraft(partner),
-        ),
-      }))
-      .filter(({ payload }) => Object.keys(payload).length > 0);
-
-    if (changed.length === 0) {
+    if (pendingUpdates.length === 0) {
       navigateToView();
       return;
     }
 
     setIsSaving(true);
     try {
-      for (const { partner, payload } of changed) {
+      for (const { partner, payload } of pendingUpdates) {
         await updateAgreementHolder({
           recResourceId,
           agreementHolderId: partner.agreement_holder_id,

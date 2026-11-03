@@ -8,9 +8,11 @@ export const campsiteListFtaDataset: ExportDatasetBuilder = {
       ${sql.ftaPrimaryColumns()},
       rdc.campsite_number::text AS "CAMPSITE_NUMBER",
       rdc.estimated_repair_cost::text AS "ESTIMATED_REPAIR_COST",
-      rdc.recreation_remed_repair_code AS "RECREATION_REMED_REPAIR_CODE",
       TO_CHAR(rdc.repair_complete_date, 'YYYY-MM-DD') AS "REPAIR_COMPLETE_DATE",
-      rrc.description AS "RECREATION_REMED_REPAIR",
+      ${sql.describeCode(
+        Prisma.sql`rdc.recreation_remed_repair_code`,
+        Prisma.sql`rrc.description`,
+      )} AS "RECREATION_REMED_REPAIR",
       ${sql.ftaSharedLegacyExportColumnsBeforeTail()},
       ${sql.ftaSharedLegacyExportColumnsTail(
         Prisma.sql`COALESCE(GREATEST(rp.update_timestamp::timestamp, rdc.update_timestamp), rdc.update_timestamp, rp.update_timestamp::timestamp)`,

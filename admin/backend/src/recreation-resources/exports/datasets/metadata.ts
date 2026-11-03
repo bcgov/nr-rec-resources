@@ -24,9 +24,9 @@ export type ExportDatasetSource = 'RST' | 'FTA';
 
 export const NOT_IMPLEMENTED_INFO = 'not-implemented';
 export const MISSING_FTA_LEGACY_METADATA_INFO =
-  'Legacy rollup region, org unit, file type, and file status fields are not currently included in this export.';
+  'Legacy rollup region, org unit, and file type fields are not currently included in this export.';
 export const MISSING_FTA_SITE_INSPECTION_METADATA_INFO =
-  'Legacy rollup region, org unit, file status, management unit, and associated files fields are not currently included in this export. PROJECT_CODE_DESC and TENURE_APP_ID remain excluded pending a confirmed source. H_REM_REPAIR_COUNT and LAST_C_E_INSPECTION_DATE remain excluded because their legacy mappings are still ambiguous. REC_PROJECT_SKEY and PARAM_* remain intentionally excluded.';
+  'Legacy rollup region, org unit, management unit, and associated files fields are not currently included in this export. PROJECT_CODE_DESC and TENURE_APP_ID remain excluded pending a confirmed source. H_REM_REPAIR_COUNT and LAST_C_E_INSPECTION_DATE remain excluded because their legacy mappings are still ambiguous. REC_PROJECT_SKEY and PARAM_* remain intentionally excluded.';
 export const MISSING_RST_STRUCTURE_COUNT_INFO =
   'STRUCTURE_COUNT is not implemented in this export yet because RST does not yet fully import structure data.';
 
@@ -136,7 +136,7 @@ export const ALL_EXPORT_DATASETS: ExportDatasetDefinition[] = [
     id: 'closure-list-fta',
     label: 'Closure list',
     source: 'FTA',
-    info: 'Includes only non-archived resources that are closed and have closure comment text.',
+    info: 'Includes only resources that are closed and have closure comment text.',
   },
   {
     id: 'asset-repair-list',

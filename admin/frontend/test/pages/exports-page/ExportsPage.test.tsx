@@ -45,12 +45,14 @@ describe('ExportsPage', () => {
       filters: {
         district: '',
         resourceType: '',
+        includeArchived: true,
         options: { districtOptions: [], resourceTypeOptions: [] },
         isLoading: false,
         handlers: {
           handleDatasetChange: vi.fn(),
           handleDistrictChange: vi.fn(),
           handleResourceTypeChange: vi.fn(),
+          handleIncludeArchivedChange: vi.fn(),
         },
       },
       preview: {
@@ -108,12 +110,14 @@ describe('ExportsPage', () => {
       filters: {
         district: '',
         resourceType: '',
+        includeArchived: true,
         options: { districtOptions: [], resourceTypeOptions: [] },
         isLoading: false,
         handlers: {
           handleDatasetChange: vi.fn(),
           handleDistrictChange: vi.fn(),
           handleResourceTypeChange: vi.fn(),
+          handleIncludeArchivedChange: vi.fn(),
         },
       },
       preview: {
@@ -155,12 +159,14 @@ describe('ExportsPage', () => {
       filters: {
         district: '',
         resourceType: '',
+        includeArchived: true,
         options: { districtOptions: [], resourceTypeOptions: [] },
         isLoading: true,
         handlers: {
           handleDatasetChange: vi.fn(),
           handleDistrictChange: vi.fn(),
           handleResourceTypeChange: vi.fn(),
+          handleIncludeArchivedChange: vi.fn(),
         },
       },
       preview: {
@@ -207,6 +213,7 @@ describe('ExportsPage', () => {
     const handleDatasetChange = vi.fn();
     const handleDistrictChange = vi.fn();
     const handleResourceTypeChange = vi.fn();
+    const handleIncludeArchivedChange = vi.fn();
     const handleDownload = vi.fn();
 
     mockUseExportState.mockReturnValue({
@@ -234,6 +241,7 @@ describe('ExportsPage', () => {
       filters: {
         district: '',
         resourceType: '',
+        includeArchived: true,
         options: {
           districtOptions: [{ id: 'RDKA', label: 'Kootenay Boundary' }],
           resourceTypeOptions: [{ id: 'SIT', label: 'Recreation site' }],
@@ -243,6 +251,7 @@ describe('ExportsPage', () => {
           handleDatasetChange,
           handleDistrictChange,
           handleResourceTypeChange,
+          handleIncludeArchivedChange,
         },
       },
       preview: {
@@ -269,11 +278,15 @@ describe('ExportsPage', () => {
     fireEvent.change(screen.getByLabelText('Recreation resource type'), {
       target: { value: 'SIT' },
     });
+    fireEvent.change(screen.getByLabelText('Include archived resources?'), {
+      target: { value: 'false' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Download CSV' }));
 
     expect(handleDatasetChange).toHaveBeenCalledOnce();
     expect(handleDistrictChange).toHaveBeenCalledOnce();
     expect(handleResourceTypeChange).toHaveBeenCalledOnce();
+    expect(handleIncludeArchivedChange).toHaveBeenCalledOnce();
     expect(handleDownload).toHaveBeenCalledOnce();
   });
 });

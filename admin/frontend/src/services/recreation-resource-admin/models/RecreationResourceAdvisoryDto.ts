@@ -86,11 +86,17 @@ export interface RecreationResourceAdvisoryDto {
    */
   published_at?: Date | null;
   /**
-   * Submitted by (published by)
+   * Submitted by. Not always populated by Act.
    * @type {string}
    * @memberof RecreationResourceAdvisoryDto
    */
-  submitted_by: string;
+  submitted_by?: string | null;
+  /**
+   * Created by (shown as "published by" in the UI)
+   * @type {string}
+   * @memberof RecreationResourceAdvisoryDto
+   */
+  created_by?: string | null;
   /**
    * Whether to display the advisory date
    * @type {boolean}
@@ -136,8 +142,6 @@ export function instanceOfRecreationResourceAdvisoryDto(
     return false;
   if (!('urgency' in value) || value['urgency'] === undefined) return false;
   if (!('advisory_date' in value) || value['advisory_date'] === undefined)
-    return false;
-  if (!('submitted_by' in value) || value['submitted_by'] === undefined)
     return false;
   if (
     !('is_advisory_date_displayed' in value) ||
@@ -193,7 +197,9 @@ export function RecreationResourceAdvisoryDtoFromJSONTyped(
       json['updated_date'] == null ? undefined : new Date(json['updated_date']),
     published_at:
       json['published_at'] == null ? undefined : new Date(json['published_at']),
-    submitted_by: json['submitted_by'],
+    submitted_by:
+      json['submitted_by'] == null ? undefined : json['submitted_by'],
+    created_by: json['created_by'] == null ? undefined : json['created_by'],
     is_advisory_date_displayed: json['is_advisory_date_displayed'],
     is_effective_date_displayed: json['is_effective_date_displayed'],
     is_end_date_displayed: json['is_end_date_displayed'],
@@ -243,6 +249,7 @@ export function RecreationResourceAdvisoryDtoToJSONTyped(
         ? null
         : (value['published_at'] as any)?.toISOString(),
     submitted_by: value['submitted_by'],
+    created_by: value['created_by'],
     is_advisory_date_displayed: value['is_advisory_date_displayed'],
     is_effective_date_displayed: value['is_effective_date_displayed'],
     is_end_date_displayed: value['is_end_date_displayed'],

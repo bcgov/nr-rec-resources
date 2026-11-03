@@ -1,6 +1,80 @@
 @import '@/styles/variables';
 
 .spatial-submission-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-inline: 16px;
+
+  @media (min-width: 992px) {
+    padding-inline: 24px;
+  }
+
+  &--embedded {
+    max-width: none;
+  }
+
+  h3 {
+    color: $colorBlue;
+    font-size: 23.04px;
+    line-height: 33px;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  h4 {
+    font-size: 16px;
+    line-height: 26px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+  }
+
+  .row.gy-3 {
+    row-gap: 8px !important;
+  }
+
+  .form-label {
+    margin-bottom: 2px;
+    font-size: 13.33px;
+    line-height: 21px;
+    font-weight: 400;
+    color: #1a1a1a;
+  }
+
+  .form-control,
+  .form-select {
+    height: 44px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid #656565;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 26px;
+    color: #1a1a1a;
+  }
+
+  .form-control::placeholder {
+    color: #656565;
+    opacity: 1;
+  }
+
+  .form-control:disabled,
+  .form-select:disabled,
+  .form-control[readonly] {
+    background: #edebe9;
+    color: #656565;
+    opacity: 1;
+  }
+
+  .form-text {
+    margin-top: 2px;
+    font-size: 13.33px;
+    line-height: 21px;
+    color: #656565 !important;
+  }
+
   &__notifications {
     position: fixed;
     top: calc(#{$headerHeight} + 8px);
@@ -14,12 +88,13 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
     padding: 0;
   }
 
   &__validate-button,
-  &__create-button {
+  &__create-button,
+  &__cancel-button {
     display: inline-flex;
     flex-direction: row;
     justify-content: center;
@@ -37,10 +112,10 @@
   }
 
   &__validate-button {
-    width: 186px;
-    background: #ffffff !important;
+    min-width: 140px;
+    background: #003366 !important;
     border: 1px solid #003366 !important;
-    color: #003366 !important;
+    color: #ffffff !important;
   }
 
   &__create-button {
@@ -48,6 +123,13 @@
     background: #003366 !important;
     border: 1px solid #003366 !important;
     color: #ffffff !important;
+  }
+
+  &__cancel-button {
+    width: 140px;
+    background: #ffffff !important;
+    border: 1px solid #003366 !important;
+    color: #003366 !important;
   }
 
   &__validate-button:disabled,

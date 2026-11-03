@@ -6,10 +6,14 @@ export const accessListFtaDataset: ExportDatasetBuilder = {
   buildQuery: ({ sql }) => Prisma.sql`
     SELECT
       ${sql.ftaPrimaryColumns()},
-      ra.recreation_access_code AS "ACCESS_CODE",
-      rac.description AS "ACCESS_DESC",
-      ra.recreation_sub_access_code AS "SUB_ACCESS_CODE",
-      rsac.description AS "SUB_ACCESS_DESC",
+      ${sql.describeCode(
+        Prisma.sql`ra.recreation_access_code`,
+        Prisma.sql`rac.description`,
+      )} AS "ACCESS_DESC",
+      ${sql.describeCode(
+        Prisma.sql`ra.recreation_sub_access_code`,
+        Prisma.sql`rsac.description`,
+      )} AS "SUB_ACCESS_DESC",
       ${sql.ftaSharedLegacyExportColumnsBeforeTail()},
       ${sql.ftaSharedLegacyExportColumnsTail(
         Prisma.sql`COALESCE(GREATEST(rp.update_timestamp::timestamp, ra.update_timestamp), ra.update_timestamp, rp.update_timestamp::timestamp)`,

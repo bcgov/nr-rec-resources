@@ -1,11 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BadRequestException, ConflictException } from '@nestjs/common';
-import { GeospatialService } from '@/recreation-resources/geospatial/geospatial.service';
 import { PrismaService } from '@/prisma.service';
+import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
+import { GeospatialService } from '@/recreation-resources/geospatial/geospatial.service';
 
 describe('GeospatialService', () => {
   let service: GeospatialService;
   let prismaMock: any;
+  let sncscStatusRequestServiceMock: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -31,9 +33,125 @@ describe('GeospatialService', () => {
         findFirst: vi.fn(),
         create: vi.fn(),
       },
+      recreation_spatial_submission: {
+        update: vi.fn(),
+      },
     };
 
-    service = new GeospatialService(prismaMock as unknown as PrismaService);
+    sncscStatusRequestServiceMock = {
+      createStatusRequest: vi.fn().mockResolvedValue('status-request-guid'),
+    };
+
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client-api.example.ca';
+    process.env.FOREST_CLIENT_API_KEY = 'test-api-key';
+
+    service = new GeospatialService(
+      prismaMock as unknown as PrismaService,
+      sncscStatusRequestServiceMock as unknown as SncscStatusRequestService,
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  describe('resolveOrgUnitClientInfo', () => {
+    it('fetches client number and name from Forest Client API when org unit code is DND', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify([
+            {
+              acronym: 'DND',
+              clientName: 'DISTRICT MANAGER NADINA (DND)',
+              clientNumber: '00133887',
+            },
+          ]),
+        ),
+      });
+      vi.stubGlobal('fetch', fetchMock);
+
+      const result = await (service as any).resolveOrgUnitClientInfo('DND');
+
+      expect(result).toEqual({
+        client_number: '00133887',
+        client_name: 'DISTRICT MANAGER NADINA (DND)',
+      });
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/clients/findByAcronym?acronym=DND'),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'X-API-KEY': 'test-api-key',
+          }),
+        }),
+      );
+    });
+
+    it('throws when Forest Client API URL is not configured', async () => {
+      delete process.env.FOREST_CLIENT_API_URL;
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws when Forest Client API key is not configured', async () => {
+      delete process.env.FOREST_CLIENT_API_KEY;
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws when Forest Client API returns non-2xx', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          text: vi.fn().mockResolvedValue('nope'),
+        }),
+      );
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(/Unable to resolve client info from Forest Client API/);
+    });
+
+    it('throws when Forest Client API returns invalid JSON', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          text: vi.fn().mockResolvedValue('not json'),
+        }),
+      );
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(/returned invalid JSON/);
+    });
+
+    it('throws when Forest Client API response has no matching complete mapping', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify([
+              {
+                acronym: 'DND',
+                clientName: 'District',
+                clientNumber: '',
+              },
+            ]),
+          ),
+        }),
+      );
+
+      await expect(
+        (service as any).resolveOrgUnitClientInfo('DND'),
+      ).rejects.toThrow(/No client mapping was returned by Forest Client API/);
+    });
   });
 
   describe('findGeospatialDataById', () => {
@@ -80,6 +198,643 @@ describe('GeospatialService', () => {
         longitude: -123.1207,
         section_ids: ['Sec-1', 'Sec-2'],
       });
+    });
+
+    it('collapses backend-generated split section IDs for frontend amend matching', async () => {
+      prismaMock.$queryRawTyped.mockResolvedValueOnce([
+        {
+          spatial_feature_geometry: ['geom1'],
+          total_length_km: '10.5',
+          total_area_hectares: '5.2',
+          right_of_way_m: '15',
+          site_point_geometry: 'point-geom',
+          utm_zone: 10,
+          utm_easting: 500000,
+          utm_northing: 5450000,
+          latitude: '49.2827',
+          longitude: '-123.1207',
+        },
+      ]);
+
+      prismaMock.recreation_map_feature.findMany.mockResolvedValueOnce([
+        { section_id: 'Trail-A-1' },
+        { section_id: 'Trail-A-2' },
+        { section_id: 'Trail-A-3' },
+        { section_id: 'Trail-B' },
+        { section_id: 'Trail-C-1' },
+        { section_id: null },
+      ]);
+
+      const result = await service.findGeospatialDataById('REC123');
+
+      expect(result?.section_ids).toEqual(['Trail-A', 'Trail-B', 'Trail-C-1']);
+    });
+  });
+
+  describe('map sheet lookup', () => {
+    it('returns empty map sheets when resource has no geometry envelope', async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([{ geometry_wkt: null }]);
+
+      await expect(service.getMapSheetsForExhibitA('REC123')).resolves.toEqual({
+        allMapSheets: [],
+        bestMapSheet: null,
+      });
+    });
+
+    it('returns all intersecting map sheets and picks best by overlap area', async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([
+        { geometry_wkt: 'POLYGON((0 0,0 1,1 1,0 0))' },
+      ]);
+
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify({
+              features: [
+                {
+                  attributes: {
+                    MAP_TILE_DISPLAY_NAME: '82G.001',
+                    SHAPE_AREA: 10,
+                  },
+                },
+                {
+                  attributes: {
+                    MAP_TILE_DISPLAY_NAME: '82G.002',
+                    SHAPE_AREA: 25,
+                  },
+                },
+              ],
+            }),
+          ),
+        }),
+      );
+
+      await expect(service.getMapSheetsForExhibitA('REC123')).resolves.toEqual({
+        allMapSheets: ['82G.001', '82G.002'],
+        bestMapSheet: '82G.002',
+      });
+    });
+
+    it('throws when BCGS service returns invalid JSON', async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([
+        { geometry_wkt: 'POLYGON((0 0,0 1,1 1,0 0))' },
+      ]);
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          text: vi.fn().mockResolvedValue('not-json'),
+        }),
+      );
+
+      await expect(service.getMapSheetsForExhibitA('REC123')).rejects.toThrow(
+        /invalid JSON/i,
+      );
+    });
+
+    it('throws when BCGS service returns an error payload', async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([
+        { geometry_wkt: 'POLYGON((0 0,0 1,1 1,0 0))' },
+      ]);
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          statusText: 'OK',
+          text: vi
+            .fn()
+            .mockResolvedValue(
+              JSON.stringify({ error: { message: 'Map sheet service error' } }),
+            ),
+        }),
+      );
+
+      await expect(service.getMapSheetsForExhibitA('REC123')).rejects.toThrow(
+        /Map sheet service error/,
+      );
+    });
+  });
+
+  describe('spatial submission helpers', () => {
+    it('returns empty feature request elements when there are no entries', async () => {
+      const tx = {
+        $queryRaw: vi.fn(),
+      };
+
+      await expect(
+        (service as any).buildFeatureRequestElements(tx, 'REC123', []),
+      ).resolves.toEqual([]);
+      expect(tx.$queryRaw).not.toHaveBeenCalled();
+    });
+
+    it('builds polygon and linear feature request elements', async () => {
+      const tx = {
+        $queryRaw: vi.fn().mockResolvedValue([
+          {
+            section_id: 'A',
+            recreation_map_feature_guid: 'guid-a',
+            recreation_resource_type: 'SIT',
+            geometry_type_code: 'P',
+            geometry_json: JSON.stringify({
+              type: 'MultiPolygon',
+              coordinates: [],
+            }),
+          },
+        ]),
+      };
+
+      const entries = [
+        {
+          sectionId: 'A',
+          geometryTypeCode: 'P',
+          geometry: { type: 'MultiPolygon', coordinates: [] },
+        },
+        {
+          sectionId: 'B',
+          geometryTypeCode: 'L',
+          geometry: { type: 'MultiLineString', coordinates: [] },
+        },
+      ];
+
+      const result = await (service as any).buildFeatureRequestElements(
+        tx,
+        'REC123',
+        entries,
+      );
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({
+        featureGeometryTypeCode: 'polygon',
+        mapFeatureGuid: 'guid-a',
+        mapFeatureTypeCode: 'SIT',
+        polygon: expect.objectContaining({
+          type: 'MultiPolygon',
+          crs: expect.any(Object),
+        }),
+      });
+      expect(result[1]).toMatchObject({
+        featureGeometryTypeCode: 'line',
+        mapFeatureTypeCode: '',
+        line: expect.objectContaining({
+          type: 'LineString',
+          crs: expect.any(Object),
+        }),
+      });
+    });
+
+    it('splits MultiLineString into one SNCSC linear element per line section', async () => {
+      const tx = {
+        $queryRaw: vi.fn().mockResolvedValue([
+          {
+            section_id: 'L1',
+            recreation_map_feature_guid: 'guid-l1',
+            recreation_resource_type: 'RTE',
+            geometry_type_code: 'L',
+            geometry_json: JSON.stringify({
+              type: 'MultiLineString',
+              coordinates: [
+                [
+                  [0, 0],
+                  [1, 1],
+                ],
+                [
+                  [2, 2],
+                  [3, 3],
+                ],
+              ],
+            }),
+          },
+        ]),
+      };
+
+      const entries = [
+        {
+          sectionId: 'L1',
+          geometryTypeCode: 'L',
+          geometry: {
+            type: 'MultiLineString',
+            coordinates: [
+              [
+                [0, 0],
+                [1, 1],
+              ],
+              [
+                [2, 2],
+                [3, 3],
+              ],
+            ],
+          },
+        },
+      ];
+
+      const result = await (service as any).buildFeatureRequestElements(
+        tx,
+        'REC123',
+        entries,
+      );
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({
+        featureGeometryTypeCode: 'line',
+        mapFeatureGuid: 'guid-l1',
+        line: expect.objectContaining({ type: 'LineString' }),
+      });
+      expect(result[1]).toMatchObject({
+        featureGeometryTypeCode: 'line',
+        line: expect.objectContaining({ type: 'LineString' }),
+      });
+      expect(result[1].mapFeatureGuid).not.toBe('guid-l1');
+    });
+
+    it('builds one SNCSC feature element per entry when section IDs repeat', async () => {
+      const tx = {
+        $queryRaw: vi.fn().mockResolvedValue([
+          {
+            section_id: 'L1',
+            recreation_map_feature_guid: 'guid-l1-a',
+            recreation_resource_type: 'RTE',
+            geometry_type_code: 'L',
+            geometry_json: JSON.stringify({
+              type: 'LineString',
+              coordinates: [
+                [0, 0],
+                [1, 1],
+              ],
+            }),
+          },
+          {
+            section_id: 'L1',
+            recreation_map_feature_guid: 'guid-l1-b',
+            recreation_resource_type: 'RTE',
+            geometry_type_code: 'L',
+            geometry_json: JSON.stringify({
+              type: 'LineString',
+              coordinates: [
+                [2, 2],
+                [3, 3],
+              ],
+            }),
+          },
+        ]),
+      };
+
+      const entries = [
+        {
+          sectionId: 'L1',
+          geometryTypeCode: 'L',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [0, 0],
+              [1, 1],
+            ],
+          },
+        },
+        {
+          sectionId: 'L1',
+          geometryTypeCode: 'L',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [2, 2],
+              [3, 3],
+            ],
+          },
+        },
+      ];
+
+      const result = await (service as any).buildFeatureRequestElements(
+        tx,
+        'REC123',
+        entries,
+      );
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({ mapFeatureGuid: 'guid-l1-a' });
+      expect(result[1]).toMatchObject({ mapFeatureGuid: 'guid-l1-b' });
+      expect(result[0]).toMatchObject({
+        line: expect.objectContaining({ type: 'LineString' }),
+      });
+      expect(result[1]).toMatchObject({
+        line: expect.objectContaining({ type: 'LineString' }),
+      });
+    });
+
+    it('ensures mapFeatureGuid is unique even when stored rows reuse the same guid', async () => {
+      const tx = {
+        $queryRaw: vi.fn().mockResolvedValue([
+          {
+            section_id: 'S1',
+            recreation_map_feature_guid: 'dup-guid',
+            recreation_resource_type: 'RTE',
+            geometry_type_code: 'L',
+            geometry_json: JSON.stringify({
+              type: 'LineString',
+              coordinates: [
+                [0, 0],
+                [1, 1],
+              ],
+            }),
+          },
+          {
+            section_id: 'S2',
+            recreation_map_feature_guid: 'dup-guid',
+            recreation_resource_type: 'RTE',
+            geometry_type_code: 'L',
+            geometry_json: JSON.stringify({
+              type: 'LineString',
+              coordinates: [
+                [2, 2],
+                [3, 3],
+              ],
+            }),
+          },
+        ]),
+      };
+
+      const entries = [
+        {
+          sectionId: 'S1',
+          geometryTypeCode: 'L',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [0, 0],
+              [1, 1],
+            ],
+          },
+        },
+        {
+          sectionId: 'S2',
+          geometryTypeCode: 'L',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [2, 2],
+              [3, 3],
+            ],
+          },
+        },
+      ];
+
+      const result = await (service as any).buildFeatureRequestElements(
+        tx,
+        'REC123',
+        entries,
+      );
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({ mapFeatureGuid: 'dup-guid' });
+      expect(result[1].mapFeatureGuid).not.toBe('dup-guid');
+      expect(new Set(result.map((item) => item.mapFeatureGuid)).size).toBe(2);
+    });
+
+    it('dispatches SNCSC status request and stores returned guid', async () => {
+      vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
+        client_number: '00133887',
+        client_name: 'District Manager',
+      });
+      vi.spyOn(service as any, 'buildFeatureRequestElements').mockResolvedValue(
+        [
+          {
+            '@type': 'FeatureRequestResource',
+            mapFeatureGuid: 'map-guid-1',
+            featureRecordGuid: 'feature-guid-1',
+            featureGeometryTypeCode: 'polygon',
+            mapFeatureTypeCode: 'SIT',
+            polygon: { type: 'MultiPolygon', coordinates: [] },
+          },
+        ],
+      );
+
+      await (service as any).dispatchSncscStatusRequest(
+        {
+          application_guid: 'app-guid-1',
+          submission_id: '1234567',
+          tenure_id: 'REC123',
+          org_unit_code: 'DND',
+          status_request_type_code: 'RPO',
+          purpose_code: 'N',
+        },
+        [{ sectionId: 'A', geometryTypeCode: 'P', geometry: {} }],
+      );
+
+      expect(
+        sncscStatusRequestServiceMock.createStatusRequest,
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        prismaMock.recreation_spatial_submission.update,
+      ).toHaveBeenCalledWith({
+        where: { application_guid: 'app-guid-1' },
+        data: {
+          status_request_guid: 'status-request-guid',
+          updated_by: 'system',
+        },
+      });
+    });
+
+    it('creates a spatial submission when org unit code is provided', async () => {
+      const tx = {
+        natural_resource_org_unit: {
+          findUnique: vi.fn(),
+        },
+        recreation_spatial_submission: {
+          create: vi.fn().mockResolvedValue({
+            application_guid: 'app-guid-1',
+            submission_id: '1234567',
+            tenure_id: 'REC123',
+            org_unit_code: 'DND',
+            status_request_type_code: 'RPO',
+            purpose_code: 'N',
+          }),
+        },
+      };
+
+      const created = await (service as any).createSpatialSubmission(tx, {
+        rec_resource_id: 'REC123',
+        statusRequestTypeCode: 'RPO',
+        purposeCode: 'N',
+        recreationTypeCode: 'SIT',
+        submittedBy: 'idir\\tester',
+        orgUnitCode: ' DND ',
+      });
+
+      expect(created).toMatchObject({
+        application_guid: 'app-guid-1',
+        org_unit_code: 'DND',
+      });
+      expect(tx.recreation_spatial_submission.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            tenure_id: 'REC123',
+            org_unit_code: 'DND',
+            status_request_type_code: 'RPO',
+            purpose_code: 'N',
+          }),
+        }),
+      );
+    });
+
+    it('falls back to latest submission org unit code when natural unit is missing', async () => {
+      const tx = {
+        natural_resource_org_unit: {
+          findUnique: vi.fn().mockResolvedValue(null),
+        },
+        recreation_spatial_submission: {
+          findFirst: vi.fn().mockResolvedValue({ org_unit_code: 'DCC' }),
+          create: vi.fn().mockResolvedValue({
+            application_guid: 'app-guid-2',
+            submission_id: '7654321',
+            tenure_id: 'REC999',
+            org_unit_code: 'DCC',
+            status_request_type_code: 'RL',
+            purpose_code: 'A',
+          }),
+        },
+      };
+
+      const created = await (service as any).createSpatialSubmission(tx, {
+        rec_resource_id: 'REC999',
+        statusRequestTypeCode: 'RL',
+        purposeCode: 'A',
+        recreationTypeCode: 'RTE',
+        submittedBy: 'idir\\tester',
+      });
+
+      expect(created).toMatchObject({
+        application_guid: 'app-guid-2',
+        org_unit_code: 'DCC',
+      });
+      expect(tx.recreation_spatial_submission.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { tenure_id: 'REC999' },
+        }),
+      );
+      expect(tx.recreation_spatial_submission.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            org_unit_code: 'DCC',
+            purpose_code: 'A',
+          }),
+        }),
+      );
+    });
+
+    it('returns null when org unit code cannot be resolved', async () => {
+      const tx = {
+        natural_resource_org_unit: {
+          findUnique: vi.fn().mockResolvedValue(null),
+        },
+        recreation_spatial_submission: {
+          findFirst: vi.fn().mockResolvedValue(null),
+          create: vi.fn(),
+        },
+      };
+
+      await expect(
+        (service as any).createSpatialSubmission(tx, {
+          rec_resource_id: 'REC-NO-ORG',
+          statusRequestTypeCode: 'RPO',
+          purposeCode: 'N',
+        }),
+      ).resolves.toBeNull();
+      expect(tx.recreation_spatial_submission.create).not.toHaveBeenCalled();
+    });
+
+    it('returns null when recreation_spatial_submission.create is unavailable', async () => {
+      const tx = {
+        natural_resource_org_unit: {
+          findUnique: vi.fn().mockResolvedValue({ org_unit_code: 'DND' }),
+        },
+        recreation_spatial_submission: {},
+      };
+
+      await expect(
+        (service as any).createSpatialSubmission(tx, {
+          rec_resource_id: 'REC123',
+          statusRequestTypeCode: 'RPO',
+          purposeCode: 'N',
+        }),
+      ).resolves.toBeNull();
+    });
+
+    it('validates SNCSC payload @type structure', () => {
+      const validPayload = {
+        '@type': 'StatusRequestResource',
+        featureRequests: {
+          '@type': 'FeatureRequestResources',
+          elements: [{ '@type': 'FeatureRequestResource' }],
+        },
+      };
+
+      expect(() =>
+        (service as any).validateSncscPayloadTypes(validPayload),
+      ).not.toThrow();
+
+      expect(() =>
+        (service as any).validateSncscPayloadTypes({
+          featureRequests: validPayload.featureRequests,
+        }),
+      ).toThrow(/StatusRequestResource/);
+    });
+  });
+
+  describe('updateMapFeaturesFromValidatedFile', () => {
+    it('amends an existing linear feature from newFeatures when section already exists', async () => {
+      prismaMock.$queryRawUnsafe.mockResolvedValueOnce([{ max_rmf_skey: 10 }]);
+      prismaMock.recreation_map_feature.findMany.mockResolvedValueOnce([
+        { section_id: 'Trail-1', rmf_skey: 77, amendment_id: 2 },
+      ]);
+      prismaMock.natural_resource_org_unit.findUnique.mockResolvedValueOnce({
+        org_unit_code: 'DND',
+      });
+      prismaMock.recreation_spatial_submission = {
+        create: vi.fn().mockResolvedValue({
+          application_guid: 'app-guid-1',
+          submission_id: '7654321',
+          tenure_id: 'REC123',
+          org_unit_code: 'DND',
+          status_request_type_code: 'RL',
+          purpose_code: 'A',
+        }),
+        update: vi.fn(),
+      };
+
+      vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
+        client_number: '00133887',
+        client_name: 'District Manager',
+      });
+      vi.spyOn(service as any, 'buildFeatureRequestElements').mockResolvedValue(
+        [],
+      );
+
+      const updateSpy = vi.spyOn(service as any, 'updateMapFeatureAndGeometry');
+      const insertSpy = vi.spyOn(service as any, 'insertMapFeatureAndGeometry');
+
+      await service.updateMapFeaturesFromValidatedFile('REC123', {
+        newFeatures: [
+          {
+            section_id: 'Trail-1',
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [0, 0],
+                [1, 1],
+              ],
+            },
+          },
+        ],
+      } as any);
+
+      expect(updateSpy).toHaveBeenCalledTimes(1);
+      expect(insertSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -189,6 +944,78 @@ describe('GeospatialService', () => {
       await expect(
         service.createMapFeaturesFromValidatedFile('REC123', payload),
       ).resolves.toBeUndefined();
+    });
+
+    it('persists MultiLineString upload as one LineString feature per section', async () => {
+      prismaMock.recreation_resource.findUnique.mockResolvedValueOnce({
+        rec_resource_id: 'REC123',
+      });
+      prismaMock.recreation_map_feature.findFirst.mockResolvedValueOnce(null);
+      prismaMock.$queryRawUnsafe.mockResolvedValueOnce([{ max_rmf_skey: 0 }]);
+      prismaMock.natural_resource_org_unit.findUnique.mockResolvedValueOnce({
+        org_unit_code: 'DND',
+      });
+      prismaMock.recreation_spatial_submission = {
+        create: vi.fn().mockResolvedValue({
+          application_guid: 'app-guid-1',
+          submission_id: '1234567',
+          tenure_id: 'REC123',
+          org_unit_code: 'DND',
+          status_request_type_code: 'RL',
+          purpose_code: 'N',
+        }),
+        update: vi.fn(),
+      };
+      vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
+        client_number: '00133887',
+        client_name: 'District Manager',
+      });
+      vi.spyOn(service as any, 'buildFeatureRequestElements').mockResolvedValue(
+        [],
+      );
+
+      const insertSpy = vi.spyOn(service as any, 'insertMapFeatureAndGeometry');
+
+      const payload: any = {
+        features: [
+          {
+            section_id: 'Trail-A',
+            geometry: {
+              type: 'MultiLineString',
+              coordinates: [
+                [
+                  [0, 0],
+                  [1, 1],
+                ],
+                [
+                  [2, 2],
+                  [3, 3],
+                ],
+              ],
+            },
+          },
+        ],
+      };
+
+      await service.createMapFeaturesFromValidatedFile('REC123', payload);
+
+      expect(insertSpy).toHaveBeenCalledTimes(2);
+      expect(insertSpy.mock.calls[0]?.[2]).toBe('Trail-A-1');
+      expect(insertSpy.mock.calls[0]?.[6]).toMatchObject({
+        type: 'LineString',
+        coordinates: [
+          [0, 0],
+          [1, 1],
+        ],
+      });
+      expect(insertSpy.mock.calls[1]?.[2]).toBe('Trail-A-2');
+      expect(insertSpy.mock.calls[1]?.[6]).toMatchObject({
+        type: 'LineString',
+        coordinates: [
+          [2, 2],
+          [3, 3],
+        ],
+      });
     });
   });
 

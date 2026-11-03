@@ -205,6 +205,7 @@ export interface DownloadExportCsvRequest {
   dataset: DownloadExportCsvDatasetEnum;
   district?: string;
   resourceType?: string;
+  includeArchived?: boolean;
 }
 
 export interface FinalizeDocUploadRequest {
@@ -254,6 +255,7 @@ export interface GetExportPreviewRequest {
   dataset: GetExportPreviewDatasetEnum;
   district?: string;
   resourceType?: string;
+  includeArchived?: boolean;
   limit?: number;
 }
 
@@ -271,6 +273,10 @@ export interface GetOptionsByTypeRequest {
 
 export interface GetOptionsByTypesRequest {
   types: Array<GetOptionsByTypesTypesEnum>;
+}
+
+export interface GetPendingRequestAdjudicationReportRequest {
+  applicationGuid: string;
 }
 
 export interface GetRecreationResourceAdvisoriesRequest {
@@ -364,40 +370,6 @@ export interface UpdateRecreationResourceFeeRequest {
 export interface UpdateRecreationResourceGeospatialRequest {
   recResourceId: string;
   updateRecreationResourceGeospatialDto: UpdateRecreationResourceGeospatialDto;
-}
-
-export interface CreateRecreationMapFeaturesDto {
-  features: Array<{
-    geometry: Record<string, unknown>;
-    section_id?: string;
-  }>;
-  recreation_type_code?: string;
-  natural_resource_district_code?: string;
-  recreation_district_code?: string;
-  submitted_by?: string;
-}
-
-export interface CreateRecreationResourceMapFeaturesRequest {
-  recResourceId: string;
-  createRecreationMapFeaturesDto: CreateRecreationMapFeaturesDto;
-}
-
-export interface PendingMapFeatureRequestRowDto {
-  rec_resource_id: string;
-  name?: string | null;
-  district_description?: string | null;
-  recreation_district?: string | null;
-  natural_resource_district?: string | null;
-  recreation_type?: string | null;
-  amend_status_code: string;
-  feature_count: number;
-  requested_at?: string | null;
-  geometry_types: string[];
-}
-
-export interface PendingMapFeatureRequestsResponseDto {
-  data: PendingMapFeatureRequestRowDto[];
-  total: number;
 }
 
 export interface UpdateRecreationResourceReservationRequest {
@@ -1395,6 +1367,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       queryParameters['resourceType'] = requestParameters['resourceType'];
     }
 
+    if (requestParameters['includeArchived'] != null) {
+      queryParameters['includeArchived'] = requestParameters['includeArchived'];
+    }
+
     const headerParameters: runtime.HTTPHeaders = {};
 
     if (this.configuration && this.configuration.accessToken) {
@@ -2136,6 +2112,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       queryParameters['resourceType'] = requestParameters['resourceType'];
     }
 
+    if (requestParameters['includeArchived'] != null) {
+      queryParameters['includeArchived'] = requestParameters['includeArchived'];
+    }
+
     if (requestParameters['limit'] != null) {
       queryParameters['limit'] = requestParameters['limit'];
     }
@@ -2525,6 +2505,65 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   ): Promise<PendingMapFeatureRequestsResponseDto> {
     const response = await this.getPendingMapFeatureRequestsRaw(initOverrides);
     return await response.value();
+  }
+
+  /**
+   * Get adjudication report PDF for a pending request
+   */
+  async getPendingRequestAdjudicationReportRaw(
+    requestParameters: GetPendingRequestAdjudicationReportRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<void>> {
+    if (requestParameters['applicationGuid'] == null) {
+      throw new runtime.RequiredError(
+        'applicationGuid',
+        'Required parameter "applicationGuid" was null or undefined when calling getPendingRequestAdjudicationReport().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/recreation-resources/pending-requests/{application_guid}/adjudication-report`;
+    urlPath = urlPath.replace(
+      `{${'application_guid'}}`,
+      encodeURIComponent(String(requestParameters['applicationGuid'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * Get adjudication report PDF for a pending request
+   */
+  async getPendingRequestAdjudicationReport(
+    requestParameters: GetPendingRequestAdjudicationReportRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    await this.getPendingRequestAdjudicationReportRaw(
+      requestParameters,
+      initOverrides,
+    );
   }
 
   /**

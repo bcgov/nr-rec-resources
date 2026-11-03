@@ -18,6 +18,7 @@ vi.mock('@/components', () => ({
       {children}
     </button>
   ),
+  HelpIcon: () => <span>?</span>,
 }));
 
 vi.mock('@bcgov/design-system-react-components', () => ({
@@ -146,7 +147,7 @@ describe('BulkAssetEditModal', () => {
 
   it('renders modal when show is true', () => {
     render(<BulkAssetEditModal {...defaultProps} />);
-    expect(screen.getByText('Bulk update')).toBeInTheDocument();
+    expect(screen.getByText('Update assets')).toBeInTheDocument();
     expect(screen.getByText('Select asset type')).toBeInTheDocument();
   });
 

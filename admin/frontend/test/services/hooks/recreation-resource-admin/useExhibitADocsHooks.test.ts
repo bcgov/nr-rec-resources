@@ -2,12 +2,35 @@ import {
   usePresignExhibitAUpload,
   useFinalizeExhibitAUpload,
   useDeleteExhibitADoc,
+  useCreateOrGetExhibitAByApplicationGuid,
 } from '@/services/hooks/recreation-resource-admin/useExhibitADocsHooks';
 import * as ApiClientModule from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import * as HelpersModule from '@/services/hooks/recreation-resource-admin/helpers';
+import * as AuthContextModule from '@/contexts/AuthContext';
 import { TestQueryClientProvider } from '@test/test-utils';
 import { renderHook, waitFor } from '@testing-library/react';
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
+
+const mockCreateOrGetExhibitAByApplicationGuid = vi.fn();
+let capturedSncscConfig: any = null;
+
+vi.mock('@/services/recreation-resource-admin', () => ({
+  Configuration: class MockConfiguration {
+    constructor(config: any) {
+      capturedSncscConfig = config;
+      Object.assign(this, config);
+    }
+  },
+  RecreationResourcesApi: vi.fn(),
+  SncscApi: class MockSncscApi {
+    createOrGetExhibitAByApplicationGuid =
+      mockCreateOrGetExhibitAByApplicationGuid;
+  },
+}));
+
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuthContext: vi.fn(),
+}));
 
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient',
@@ -30,11 +53,18 @@ describe('useExhibitADocsHooks', () => {
   const useRecreationResourceAdminApiClient =
     ApiClientModule.useRecreationResourceAdminApiClient as Mock;
   const createRetryHandler = HelpersModule.createRetryHandler as Mock;
+  const useAuthContext = AuthContextModule.useAuthContext as Mock;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    capturedSncscConfig = null;
     useRecreationResourceAdminApiClient.mockReturnValue(mockApi);
     createRetryHandler.mockReturnValue(() => false);
+    useAuthContext.mockReturnValue({
+      authService: {
+        getToken: vi.fn().mockResolvedValue('token-123'),
+      },
+    });
   });
 
   describe('usePresignExhibitAUpload', () => {
@@ -194,6 +224,61 @@ describe('useExhibitADocsHooks', () => {
           documentId: 'doc-1',
         }),
       ).rejects.toThrow('delete failed');
+    });
+  });
+
+  describe('useCreateOrGetExhibitAByApplicationGuid', () => {
+    it('creates SNCSC mutation and maps params', async () => {
+      vi.stubEnv('VITE_API_BASE_URL', 'https://example.ca/api');
+      mockCreateOrGetExhibitAByApplicationGuid.mockResolvedValue({
+        pdfUrl: 'https://files.example.ca/exhibit-a.pdf',
+      });
+
+      const { result } = renderHook(
+        () => useCreateOrGetExhibitAByApplicationGuid(),
+        {
+          wrapper: TestQueryClientProvider,
+        },
+      );
+
+      await expect(
+        result.current.mutateAsync({
+          applicationGuid: 'app-guid-1',
+          userId: 'idir\\tester',
+          generate: true,
+        }),
+      ).resolves.toEqual({
+        pdfUrl: 'https://files.example.ca/exhibit-a.pdf',
+      });
+
+      expect(mockCreateOrGetExhibitAByApplicationGuid).toHaveBeenCalledWith({
+        applicationGuid: 'app-guid-1',
+        createExhibitAByApplicationGuidRequestDto: {
+          generate: true,
+          userId: 'idir\\tester',
+        },
+      });
+      expect(capturedSncscConfig.basePath).toBe('https://example.ca');
+      expect(createRetryHandler).toHaveBeenCalled();
+    });
+
+    it('formats access token as bearer token and falls back to empty token', async () => {
+      vi.stubEnv('VITE_API_BASE_URL', 'https://example.ca/api');
+
+      const getToken = vi
+        .fn()
+        .mockResolvedValueOnce('abc')
+        .mockResolvedValueOnce('');
+      useAuthContext.mockReturnValue({ authService: { getToken } });
+
+      renderHook(() => useCreateOrGetExhibitAByApplicationGuid(), {
+        wrapper: TestQueryClientProvider,
+      });
+
+      await expect(capturedSncscConfig.accessToken()).resolves.toBe(
+        'Bearer abc',
+      );
+      await expect(capturedSncscConfig.accessToken()).resolves.toBe('');
     });
   });
 });

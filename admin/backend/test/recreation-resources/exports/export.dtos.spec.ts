@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { ExportDatasetDto } from '@/recreation-resources/exports/dtos/export-dataset.dto';
 import { ExportDownloadQueryDto } from '@/recreation-resources/exports/dtos/export-download-query.dto';
 import { ExportPreviewQueryDto } from '@/recreation-resources/exports/dtos/export-preview-query.dto';
@@ -38,6 +39,56 @@ describe('Export DTOs', () => {
     expect(await validate(defaultDto)).toHaveLength(0);
     expect(defaultDto.limit).toBe(50);
     expect((await validate(invalidDto)).length).toBeGreaterThan(0);
+  });
+
+  // Both query DTOs inherit the shared filters from ExportQueryDto, so the
+  // decorators have to carry through the subclass.
+  it.each([
+    ['download', ExportDownloadQueryDto],
+    ['preview', ExportPreviewQueryDto],
+  ])('inherits the shared export filters on the %s query', async (_n, Dto) => {
+    const dto = plainToInstance(Dto, {
+      dataset: 'file-details',
+      district: 'RDKA',
+      resourceType: 'SIT',
+    });
+
+    expect(await validate(dto)).toHaveLength(0);
+    expect(dto.district).toBe('RDKA');
+    expect(dto.resourceType).toBe('SIT');
+    // the inherited @Transform default
+    expect(dto.includeArchived).toBe(true);
+
+    // and the inherited opt-out still parses off a query string
+    const optedOut = plainToInstance(Dto, {
+      dataset: 'file-details',
+      includeArchived: 'false',
+    });
+
+    expect(await validate(optedOut)).toHaveLength(0);
+    expect(optedOut.includeArchived).toBe(false);
+  });
+
+  // Swagger collects model properties off the prototype chain; if that broke,
+  // the generated client would silently lose these query params.
+  it.each([
+    ['download', ExportDownloadQueryDto, false],
+    ['preview', ExportPreviewQueryDto, true],
+  ])('documents the shared filters on the %s query', (_n, Dto, hasLimit) => {
+    const documented = (
+      (Reflect.getMetadata(
+        'swagger/apiModelPropertiesArray',
+        Dto.prototype,
+      ) as string[]) ?? []
+    ).map((key) => key.slice(1));
+
+    expect(documented).toEqual([
+      'dataset',
+      'district',
+      'resourceType',
+      'includeArchived',
+      ...(hasLimit ? ['limit'] : []),
+    ]);
   });
 
   it('assigns response DTO properties', () => {

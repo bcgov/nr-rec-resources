@@ -36,7 +36,13 @@ export interface ActAdvisoryUpdateDto {
    * @type {string}
    * @memberof ActAdvisoryUpdateDto
    */
-  submitted_by?: string;
+  submitted_by?: string | null;
+  /**
+   * Name of the person who created the advisory in Act.
+   * @type {string}
+   * @memberof ActAdvisoryUpdateDto
+   */
+  created_by?: string | null;
   /**
    * Display name of the access status.
    * @type {string}
@@ -209,6 +215,7 @@ export function ActAdvisoryUpdateDtoFromJSONTyped(
     description: json['description'] == null ? undefined : json['description'],
     submitted_by:
       json['submitted_by'] == null ? undefined : json['submitted_by'],
+    created_by: json['created_by'] == null ? undefined : json['created_by'],
     access_status_name:
       json['access_status_name'] == null
         ? undefined
@@ -292,6 +299,7 @@ export function ActAdvisoryUpdateDtoToJSONTyped(
     title: value['title'],
     description: value['description'],
     submitted_by: value['submitted_by'],
+    created_by: value['created_by'],
     access_status_name: value['access_status_name'],
     access_status_grouplabel: value['access_status_grouplabel'],
     access_status_description: value['access_status_description'],

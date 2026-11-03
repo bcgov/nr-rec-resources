@@ -6,8 +6,10 @@ export const activitiesListFtaDataset: ExportDatasetBuilder = {
   buildQuery: ({ sql }) => Prisma.sql`
     SELECT
       ${sql.ftaPrimaryColumns()},
-      ra.recreation_activity_code::text AS "ACTIVITY_CODE",
-      rac.description AS "ACTIVITY_DESC",
+      ${sql.describeCode(
+        Prisma.sql`ra.recreation_activity_code`,
+        Prisma.sql`rac.description`,
+      )} AS "ACTIVITY_DESC",
       ra.activity_rank::text AS "ACTIVITY_RANK",
       ${sql.ftaSharedLegacyExportColumnsBeforeTail()},
       ${sql.ftaSharedLegacyExportColumnsTail(
