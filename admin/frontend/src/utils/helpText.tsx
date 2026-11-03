@@ -17,7 +17,7 @@ export const PROJECT_ESTABLISHED_DATE_HELP_TEXT =
   'This is the legal date on which the recreation site, trail, or interpretive forest is established.';
 
 export const ACCESS_SUBACCES_HELP_TEXT =
-  'Select how users access the site (Example: road, walk-in, water access).';
+  'Select how the site is accessed. After choosing an access type (such as road, walk-in, or water access), select the most appropriate subtype to provide additional detail (such as 2WD, 4WD, trail class, or boat-in).';
 
 export const DRIVING_DIRECTIONS_HELP_TEXT =
   'Provide clear, step‑by‑step directions from a recognizable starting point (nearest highway/community). Include major turns, distances, road type/conditions, and seasonal constraints; avoid private or sensitive routing details.';
@@ -41,3 +41,47 @@ export const RECREATION_OPERATOR_HELP_TEXT = (
     displayed when a volunteer partner is authorized to collect fees.
   </>
 );
+
+export const MAINTENANCE_TYPE_HELP_TEXT = (
+  <>
+    <p className="mb-2">
+      Displays to public website, provides information to visitors on the level
+      of service at this resource.
+    </p>
+    <p className="mb-2">
+      <strong>Maintained to standard:</strong> RSTBC standards; partner or
+      contractor maintained.
+    </p>
+    <p className="mb-0">
+      <strong>User maintained:</strong> Limited maintenance; pack in, pack out.
+    </p>
+  </>
+);
+
+export const CONTROLLED_ACCESS_TYPE_HELP_TEXT = (
+  <>
+    <p className="mb-2">
+      Does not display to public website, for internal purposes only. Identifies
+      barriers to access.
+    </p>
+    <p className="mb-0">(None, Gated, or Restricted use)</p>
+  </>
+);
+
+export const ACTIVITIES_HELP_TEXT =
+  'Activities that are supported and appropriate at this resource';
+
+export const ACTIVITIES_EDIT_HELP_TEXT =
+  'Select the activities that are supported and appropriate at this resource. Choose only what is allowed and realistically doable (avoid “nice to have” activities that aren’t supported or conflict with restrictions).';
+
+export const FEATURES_HELP_TEXT =
+  'Notable natural/cultural features visitors or staff should know about (e.g., sensitive habitats, heritage features, viewpoints)';
+
+export const FEATURES_EDIT_HELP_TEXT =
+  'Capture notable natural/cultural features visitors or staff should know about (e.g., sensitive habitats, heritage features, viewpoints). Keep it factual; avoid exact locations for sensitive resources if that increases risk.';
+
+export const BETA_FEATURES_BANNER_TITLE =
+  'Accessible activities and low mobility access';
+
+export const BETA_FEATURES_BANNER_TEXT =
+  'These features are in beta and not visible on the public website. Information and functionality may change as we learn from staff use and feedback. If something doesn’t look right, please let us know.';

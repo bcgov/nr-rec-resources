@@ -1,5 +1,11 @@
 import { ROUTE_PATHS } from '@/constants/routes';
+import { HelpIcon } from '@/components';
 import { EditableGuard } from '@/components/auth';
+import {
+  CONTROLLED_ACCESS_TYPE_HELP_TEXT,
+  MAINTENANCE_TYPE_HELP_TEXT,
+  RISK_RATING_HELP_TEXT,
+} from '@/utils/helpText';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { Link } from '@tanstack/react-router';
 import { Col, Row, Stack } from 'react-bootstrap';
@@ -36,7 +42,15 @@ export const RecResourceOverviewSection = (
     },
     {
       key: 'maintenance-type',
-      label: 'Maintenance Type',
+      label: (
+        <>
+          Maintenance Type{' '}
+          <HelpIcon
+            id="maintenance-type-help"
+            text={MAINTENANCE_TYPE_HELP_TEXT}
+          />
+        </>
+      ),
       value: recResource.maintenance_standard_description,
     },
     {
@@ -46,12 +60,25 @@ export const RecResourceOverviewSection = (
     },
     {
       key: 'controlled-access-type',
-      label: 'Controlled Access Type',
+      label: (
+        <>
+          Controlled Access Type{' '}
+          <HelpIcon
+            id="controlled-access-type-help"
+            text={CONTROLLED_ACCESS_TYPE_HELP_TEXT}
+          />
+        </>
+      ),
       value: recResource.control_access_code_description,
     },
     {
       key: 'risk-rating',
-      label: 'Risk Rating',
+      label: (
+        <>
+          Risk Rating{' '}
+          <HelpIcon id="risk-rating-help" text={RISK_RATING_HELP_TEXT} />
+        </>
+      ),
       value: recResource.risk_rating_description,
     },
   ];

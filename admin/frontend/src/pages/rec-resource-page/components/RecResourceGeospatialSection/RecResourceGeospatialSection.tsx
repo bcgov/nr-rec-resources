@@ -16,6 +16,11 @@ import { FieldItem } from '../shared/FieldItem';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { Route } from '@/routes/rec-resource/$id/geospatial';
 import { ROUTE_PATHS } from '@/constants/routes';
+import {
+  GEOMETRY_NUMBER_FORMAT,
+  SITE_TYPE_CODES,
+  TRAIL_TYPE_CODES,
+} from '@/constants/geospatial';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
 import { Link } from '@tanstack/react-router';
@@ -54,11 +59,6 @@ import {
   COLOR_YELLOW_ADVISORY_BG,
 } from '@/styles/colors';
 import type { PendingMapFeatureRequestRowDto } from '@/services/recreation-resource-admin/models/PendingMapFeatureRequestRowDto';
-
-const geometryNumberFormat: Intl.NumberFormatOptions = {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 4,
-};
 
 type ExhibitAPageSize = 'A' | 'B' | 'C' | 'D' | 'E';
 type ExhibitAPageOrientation = 'L' | 'P';
@@ -147,9 +147,6 @@ export function RecResourceGeospatialSection() {
 
   const hasGeometryData = utm_zone && utm_easting && utm_northing;
 
-  const SITE_TYPE_CODES = ['IF', 'RR', 'SIT', 'RTR', 'TRB'];
-  const TRAIL_TYPE_CODES = ['TBL', 'IFT', 'RTE'];
-
   const isTrail = TRAIL_TYPE_CODES.includes(
     recResource?.rec_resource_type_code ?? '',
   );
@@ -190,7 +187,7 @@ export function RecResourceGeospatialSection() {
             label: 'Total area (ha)',
             value:
               total_area_hectares != null
-                ? `${total_area_hectares.toLocaleString('en-CA', geometryNumberFormat)}`
+                ? `${total_area_hectares.toLocaleString('en-CA', GEOMETRY_NUMBER_FORMAT)}`
                 : null,
           },
         ]
@@ -202,7 +199,7 @@ export function RecResourceGeospatialSection() {
             label: 'Total length (km)',
             value:
               total_length_km != null
-                ? `${total_length_km.toLocaleString('en-CA', geometryNumberFormat)}`
+                ? `${total_length_km.toLocaleString('en-CA', GEOMETRY_NUMBER_FORMAT)}`
                 : null,
           },
           {
@@ -210,7 +207,7 @@ export function RecResourceGeospatialSection() {
             label: 'Right-of-way width (m)',
             value:
               right_of_way_m != null
-                ? `${right_of_way_m.toLocaleString('en-CA', geometryNumberFormat)}`
+                ? `${right_of_way_m.toLocaleString('en-CA', GEOMETRY_NUMBER_FORMAT)}`
                 : null,
           },
         ]

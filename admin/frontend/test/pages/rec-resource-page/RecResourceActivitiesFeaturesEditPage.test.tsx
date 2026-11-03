@@ -50,6 +50,11 @@ vi.mock(
         Adaptive Activities Edit Section
       </div>
     ),
+    RecResourceLowMobilityEditSection: () => (
+      <div data-testid="low-mobility-edit-section">
+        Low Mobility Edit Section
+      </div>
+    ),
   }),
 );
 
@@ -82,6 +87,7 @@ vi.mock(
   () => ({
     useAdaptiveActivitiesOptions: () => ({
       options: [],
+      lowMobilityOptions: [],
       isLoading: false,
     }),
   }),
