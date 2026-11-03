@@ -25,6 +25,7 @@ describe('RecreationResourceController', () => {
             getSuggestions: vi.fn(),
             getNextRecResourceId: vi.fn(),
             getPendingMapFeatureRequests: vi.fn(),
+            getPendingRequestAdjudicationReport: vi.fn(),
             findOne: vi.fn(),
             update: vi.fn(),
           },
@@ -323,5 +324,32 @@ describe('RecreationResourceController', () => {
     expect(service.getPendingMapFeatureRequests).toHaveBeenCalledTimes(1);
     expect(result.total).toBe(1);
     expect(result.data[0]?.amend_status_code).toBe('PND');
+  });
+
+  it('should stream adjudication report content with PDF headers', async () => {
+    (service.getPendingRequestAdjudicationReport as any).mockResolvedValue({
+      contentType: 'application/pdf',
+      content: Buffer.from('pdf-bytes'),
+    });
+
+    const res = {
+      setHeader: vi.fn(),
+      send: vi.fn(),
+    } as any;
+
+    await controller.getPendingRequestAdjudicationReport('app-guid-123', res);
+
+    expect(service.getPendingRequestAdjudicationReport).toHaveBeenCalledWith(
+      'app-guid-123',
+    );
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Type',
+      'application/pdf',
+    );
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Disposition',
+      'inline; filename="adjudication-report.pdf"',
+    );
+    expect(res.send).toHaveBeenCalledWith(Buffer.from('pdf-bytes'));
   });
 });

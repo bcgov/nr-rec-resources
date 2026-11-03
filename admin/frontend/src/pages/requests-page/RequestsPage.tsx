@@ -8,6 +8,9 @@ import { Link } from '@tanstack/react-router';
 
 export const RequestsPage = () => {
   const { data, isLoading, isError } = useGetPendingMapFeatureRequests();
+  const pendingRows = (data?.data ?? []).filter(
+    (row) => row.amend_status_code === 'PND',
+  );
 
   return (
     <PageLayout>
@@ -95,7 +98,7 @@ export const RequestsPage = () => {
                   : '-',
             },
           ]}
-          rows={data?.data ?? []}
+          rows={pendingRows}
           emptyMessage="No pending requests found."
           getRowKey={(row) => row.rec_resource_id}
         />

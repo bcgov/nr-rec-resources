@@ -36,6 +36,8 @@ export type ExhibitAPdfHeader = {
   area_ha?: number | null;
   width_m?: number | null;
   length_km?: number | null;
+  map_sheet?: string | null;
+  geometry_mode?: 'linear' | 'polygon' | 'mixed' | null;
 };
 
 /** One section: its length and start (PofC) / end (PofT) points in UTM metres. */
@@ -86,6 +88,7 @@ const BOLD_LABELS = [
   'MAP PROJ:',
   'Project Type:',
   'AREA (Ha):',
+  'RIGHT OF WAY (m):',
   'WIDTH (m):',
   'LENGTH (km):',
   'Drawn By:',
@@ -108,6 +111,9 @@ const PAD_Y = 2;
 const LIST_MAX_FONT = 6; // section list font range (pt)
 const LIST_MIN_FONT = 4;
 const LIST_MIN_FONT_PORTRAIT = 3.4;
+const GEOMETRY_SYMBOL_TEXT = '(shown in bold black)';
+const GEOMETRY_SYMBOL_BORDER = 1.8;
+const GEOMETRY_SYMBOL_LINE = 3.4;
 
 const clamp = (v: number, min: number, max: number) =>
   Math.max(min, Math.min(max, v));
@@ -269,10 +275,66 @@ export class ExhibitAPdfBuilder {
         end: { x: x2, y: y2 },
         thickness: BORDER,
       });
+    const thickLine = (
+      p: PDFPage,
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+      thickness = GEOMETRY_SYMBOL_LINE,
+    ) =>
+      p.drawLine({
+        start: { x: x1, y: y1 },
+        end: { x: x2, y: y2 },
+        thickness,
+      });
     const hLine = (p: PDFPage, r: Rect, y: number) =>
       line(p, r.x, y, r.x + r.width, y);
     const box = (p: PDFPage, r: Rect) =>
       p.drawRectangle({ ...r, borderColor: BLACK, borderWidth: BORDER });
+    const drawGeometryPreview = (p: PDFPage, cell: Rect) => {
+      const mode = h.geometry_mode;
+
+      if (mode === 'linear') {
+        textCentered(
+          p,
+          GEOMETRY_SYMBOL_TEXT,
+          cell.x + cell.width / 2,
+          cell.y + cell.height * 0.58,
+          SIZE,
+        );
+        const pad = Math.max(12, cell.width * 0.16);
+        thickLine(
+          p,
+          cell.x + pad,
+          cell.y + cell.height * 0.34,
+          cell.x + cell.width - pad,
+          cell.y + cell.height * 0.34,
+        );
+        return;
+      }
+
+      const swatchW = cell.width * 0.86;
+      const swatchH = Math.min(cell.height * 0.76, 26);
+      const swatchX = cell.x + (cell.width - swatchW) / 2;
+      const swatchY = cell.y + (cell.height - swatchH) / 2;
+      p.drawRectangle({
+        x: swatchX,
+        y: swatchY,
+        width: swatchW,
+        height: swatchH,
+        borderColor: BLACK,
+        borderWidth: GEOMETRY_SYMBOL_BORDER,
+        color: rgb(0.87, 0.87, 0.87),
+      });
+      textCentered(
+        p,
+        GEOMETRY_SYMBOL_TEXT,
+        cell.x + cell.width / 2,
+        swatchY + swatchH * 0.38,
+        SIZE,
+      );
+    };
 
     // ---- section list ----
     const zone = h.utm_zone ?? '';
@@ -399,6 +461,18 @@ export class ExhibitAPdfBuilder {
         const cellX = meta.x + row.w * ci;
         const x = cellX + PAD_X;
         if (ci) line(page, cellX, top - rh, cellX, top);
+
+        const isGeometryPreviewCell =
+          ri === 1 && ci === 2 && lines[0] === GEOMETRY_SYMBOL_TEXT;
+        if (isGeometryPreviewCell) {
+          drawGeometryPreview(page, {
+            x: cellX,
+            y: top - rh,
+            width: row.w,
+            height: rh,
+          });
+          return;
+        }
 
         const items = lines.map((t) => {
           const mapOf = t.startsWith('MAP OF:');
@@ -581,36 +655,54 @@ export class ExhibitAPdfBuilder {
           : '';
     const opt = (label: string, v: number | null | undefined, d: number) =>
       v != null ? [`${label} ${+v.toFixed(d)}`] : [];
+    const metrics = (() => {
+      const area = opt('AREA (Ha):', h.area_ha, 4);
+      const row = opt('RIGHT OF WAY (m):', h.width_m, 2);
+      const width = opt('WIDTH (m):', h.width_m, 2);
+      const length = opt('LENGTH (km):', h.length_km, 4);
+
+      switch (h.geometry_mode) {
+        case 'linear':
+          return [...row, ...length];
+        case 'polygon':
+          return area;
+        case 'mixed':
+          return [...area, ...row, ...length];
+        default:
+          // Backward compatibility for older callers that do not pass geometry_mode.
+          return [...area, ...width, ...length];
+      }
+    })();
 
     const rows = (
       [
         [[`MAP OF: ${unit} ${h.title ?? ''}`]],
         [
-          ['Submission ID:', h.submission_id || input.submissionId],
           [
             'Natural Resource District:',
             `${h.district_name ?? ''}${districtCode}`,
           ],
           ['Recreation District', `${h.title ?? ''}${regionCode}`],
+          [GEOMETRY_SYMBOL_TEXT],
           ['MAP PROJ:', 'NAD 1983 BC Env Albers'],
         ],
         [
           [
             `At scale page. ${pageDims}`,
             `1:${input.scale.toLocaleString('en-CA')}`,
-            'Map Sheet:',
+            `Map Sheet: ${h.map_sheet ?? ''}`,
           ],
           [
             ...(utmLine ? [utmLine] : []),
             'Project Type:',
             h.project_type ?? h.mgt_unit_type ?? '',
           ],
+          [...metrics],
           [
-            ...opt('AREA (Ha):', h.area_ha, 4),
-            ...opt('WIDTH (m):', h.width_m, 2),
-            ...opt('LENGTH (km):', h.length_km, 4),
+            `Submission ID: ${h.submission_id || input.submissionId}`,
+            `Drawn By: ${h.drawn_by ?? ''}`,
+            ...(date ? [`Date: ${date}`] : []),
           ],
-          [`Drawn By: ${h.drawn_by ?? ''}`, ...(date ? [`Date: ${date}`] : [])],
         ],
       ] as string[][][]
     ).map((row) => {

@@ -522,6 +522,11 @@ describe('SpatialSubmissionSection', () => {
                 [1215000, 480000],
               ],
             },
+            properties: {
+              OBJECTID: 1,
+              DISTRICT: 'DNC',
+              section_id: 'River Way South',
+            },
             sectionId: 'River Way South',
           },
           {
@@ -531,6 +536,11 @@ describe('SpatialSubmissionSection', () => {
                 [1216000, 475000],
                 [1220000, 480000],
               ],
+            },
+            properties: {
+              OBJECTID: 2,
+              DISTRICT: 'DNC',
+              section_id: 'North Loop Renamed',
             },
             sectionId: 'North Loop Renamed',
           },
