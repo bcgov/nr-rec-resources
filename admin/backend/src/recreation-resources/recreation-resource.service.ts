@@ -43,6 +43,23 @@ export class RecreationResourceService {
     private readonly sncscStatusRequestService?: SncscStatusRequestService,
   ) {}
 
+  private get forestClientBaseUrl(): string | null {
+    const value = process.env.FOREST_CLIENT_API_URL?.trim();
+    return value ? value.replace(/\/+$/, '') : null;
+  }
+
+  private get forestClientHeaders(): Record<string, string> | null {
+    const apiKey = process.env.FOREST_CLIENT_API_KEY?.trim();
+    if (!apiKey) {
+      return null;
+    }
+
+    return {
+      'X-API-KEY': apiKey,
+      Accept: 'application/json',
+    };
+  }
+
   /**
    * Retrieves recreation resource suggestions based on a search term.
    * @param searchTerm - Alphanumeric search term (min 3 characters)
@@ -189,11 +206,91 @@ export class RecreationResourceService {
         getRecreationResourceSpatialFeatureGeometry(rec_resource_id),
       );
 
+    const licensee = await this.resolveLicenseeForResource(rec_resource_id);
+
     return formatRecreationResourceDetailResults(
       resource,
       recResourceSpatialGeometryResult,
       naturalresource,
+      licensee,
     );
+  }
+
+  private async resolveLicenseeForResource(
+    rec_resource_id: string,
+  ): Promise<string | null> {
+    const latestApprovedSubmission =
+      await this.prisma.recreation_spatial_submission.findFirst({
+        where: {
+          tenure_id: rec_resource_id,
+          status: 'APP',
+        },
+        orderBy: [{ created_at: 'desc' }, { submission_date: 'desc' }],
+        select: {
+          org_unit_code: true,
+        },
+      });
+
+    const orgUnitCode = latestApprovedSubmission?.org_unit_code?.trim();
+    if (!orgUnitCode) {
+      return null;
+    }
+
+    const client = await this.fetchClientInfoByAcronym(orgUnitCode);
+    if (!client) {
+      return null;
+    }
+
+    return `${client.client_number} ${client.client_name}`.trim();
+  }
+
+  private async fetchClientInfoByAcronym(
+    acronym: string,
+  ): Promise<{ client_number: string; client_name: string } | null> {
+    const baseUrl = this.forestClientBaseUrl;
+    const headers = this.forestClientHeaders;
+    if (!baseUrl || !headers) {
+      return null;
+    }
+
+    const query = new URLSearchParams({ acronym });
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/api/clients/findByAcronym?${query.toString()}`,
+        { headers },
+      );
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const bodyText = await response.text();
+      const records: Array<{
+        acronym?: string;
+        clientName?: string;
+        clientNumber?: string;
+      }> = bodyText ? JSON.parse(bodyText) : [];
+
+      const normalizedAcronym = acronym.trim().toUpperCase();
+      const match = records.find(
+        (record) =>
+          record.acronym?.toUpperCase() === normalizedAcronym &&
+          record.clientNumber?.trim() &&
+          record.clientName?.trim(),
+      );
+
+      if (!match?.clientNumber || !match.clientName) {
+        return null;
+      }
+
+      return {
+        client_number: match.clientNumber,
+        client_name: match.clientName,
+      };
+    } catch {
+      return null;
+    }
   }
 
   /**
