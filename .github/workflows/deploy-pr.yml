@@ -25,7 +25,6 @@ jobs:
     name: Deploys Application to AWS dev
     uses: ./.github/workflows/.deploy-app.yml
     with:
-      app: admin
       app_env: dev
       command: apply
       environment_name: dev
