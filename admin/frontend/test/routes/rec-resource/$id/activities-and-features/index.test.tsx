@@ -1,5 +1,5 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { Route } from '@/routes/rec-resource/$id/activities-features/index';
+import { Route } from '@/routes/rec-resource/$id/activities-and-features/index';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -50,7 +50,7 @@ describe('RecResourceActivitiesRoute', () => {
       expect.objectContaining({
         requireAll: ['rst-developer'],
         requireAny: ['rst-idir-viewer', 'rst-viewer', 'rst-admin'],
-        redirectTo: '/rec-resource/REC123/files',
+        redirectTo: '/rec-resource/REC123/images-and-documents',
         children: expect.anything(),
       }),
     );
@@ -84,8 +84,8 @@ describe('RecResourceActivitiesRoute', () => {
     expect(breadcrumb[0].label).toBe('Home');
     expect(breadcrumb[1].label).toBe('Test Resource');
     expect(breadcrumb[2]).toEqual({
-      label: 'Activities & features',
-      href: '/rec-resource/REC123/activities-features',
+      label: 'Activities and features',
+      href: '/rec-resource/REC123/activities-and-features',
     });
   });
 

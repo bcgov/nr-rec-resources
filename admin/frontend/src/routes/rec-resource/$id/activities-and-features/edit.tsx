@@ -9,7 +9,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { ROUTE_PATHS } from '@/constants/routes';
 
 export const Route = createFileRoute(
-  '/rec-resource/$id/activities-features/edit',
+  '/rec-resource/$id/activities-and-features/edit',
 )({
   component: RecResourceActivitiesFeaturesEditRoute,
   loader: recResourceActivitiesFeaturesLoader,
@@ -25,7 +25,7 @@ export const Route = createFileRoute(
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Activities & features',
+            label: 'Activities and features',
             href: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES.replace(
               '$id',
               params.id,
