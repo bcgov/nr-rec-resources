@@ -20,7 +20,7 @@ export const RecResourceOverviewSection = (
 ) => {
   const navigate = useNavigate();
   const { recResource } = props;
-  const { isSuperAdmin } = useAuthorizations();
+  const { isSuperAdmin, canEdit } = useAuthorizations();
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const isArchived = recResource.rec_status_code === 'AR';
 
@@ -67,35 +67,40 @@ export const RecResourceOverviewSection = (
       <div className="d-flex justify-content-between align-items-center">
         <h2>Overview</h2>
         <Stack direction="horizontal" gap={2}>
-          <Dropdown>
-            <Dropdown.Toggle variant="secondary" id="overview-actions-dropdown">
-              Actions
-            </Dropdown.Toggle>
-            <Dropdown.Menu align="end">
-              <EditableGuard isArchived={isArchived}>
-                <Dropdown.Item
-                  onClick={() =>
-                    navigate({
-                      to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
-                        '$id',
-                        recResource.rec_resource_id,
-                      ),
-                    })
-                  }
-                >
-                  Edit
-                </Dropdown.Item>
-              </EditableGuard>
-              {isSuperAdmin && (
-                <Dropdown.Item
-                  onClick={() => setIsArchiveModalOpen(true)}
-                  disabled={isArchived}
-                >
-                  Archive
-                </Dropdown.Item>
-              )}
-            </Dropdown.Menu>
-          </Dropdown>
+          {canEdit && (
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="secondary"
+                id="overview-actions-dropdown"
+              >
+                Actions
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                <EditableGuard isArchived={isArchived}>
+                  <Dropdown.Item
+                    onClick={() =>
+                      navigate({
+                        to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
+                          '$id',
+                          recResource.rec_resource_id,
+                        ),
+                      })
+                    }
+                  >
+                    Edit
+                  </Dropdown.Item>
+                </EditableGuard>
+                {isSuperAdmin && (
+                  <Dropdown.Item
+                    onClick={() => setIsArchiveModalOpen(true)}
+                    disabled={isArchived}
+                  >
+                    Archive
+                  </Dropdown.Item>
+                )}
+              </Dropdown.Menu>
+            </Dropdown>
+          )}
         </Stack>
       </div>
 

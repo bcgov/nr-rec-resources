@@ -98,7 +98,7 @@ describe('useArchiveRecResource', () => {
     expect(addErrorNotification).toHaveBeenCalledTimes(1);
     expect(addErrorNotification).toHaveBeenCalledWith(
       'Failed to archive resource after multiple attempts. Please try again later.',
-      'updateActivities-error',
+      'archiveResource-error',
     );
   });
 });
