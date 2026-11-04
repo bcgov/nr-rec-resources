@@ -24,8 +24,13 @@ spec:
         spec:
           volumes:
             - name: {{ .Release.Name }}-csv
+              {{- if .Values.scratch.usePersistentVolume }}
               persistentVolumeClaim:
                 claimName: {{ .Release.Name }}-csv
+              {{- else }}
+              emptyDir:
+                sizeLimit: {{ .Values.scratch.emptyDirSizeLimit | quote }}
+              {{- end }}
           containers:
             - name: {{ .Chart.Name }}
               image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"

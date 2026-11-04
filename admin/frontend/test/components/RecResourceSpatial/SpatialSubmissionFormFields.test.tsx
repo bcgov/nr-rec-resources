@@ -260,7 +260,7 @@ describe('SpatialSubmissionFormFields', () => {
 
     expect(
       screen.getByText(
-        'Upload either one .zip shapefile bundle or matching .shp, .dbf, and .shx files (optional .prj/.cpg).',
+        'Upload either one .zip shapefile bundle or matching .shp, .dbf, .shx files (optional .prj/.cpg).',
       ),
     ).toBeDefined();
   });

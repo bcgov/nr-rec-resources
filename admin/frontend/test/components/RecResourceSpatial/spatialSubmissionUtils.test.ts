@@ -280,6 +280,12 @@ describe('spatialSubmissionUtils', () => {
     const validNameFile = new File(['placeholder'], 'invalid-magic.shp', {
       type: 'application/octet-stream',
     });
+    const dbfFile = new File(['placeholder'], 'invalid-magic.dbf', {
+      type: 'application/octet-stream',
+    });
+    const shxFile = new File(['placeholder'], 'invalid-magic.shx', {
+      type: 'application/octet-stream',
+    });
     const buffer = new ArrayBuffer(100);
     const view = new DataView(buffer);
     view.setInt32(0, 1234, false);
@@ -289,9 +295,9 @@ describe('spatialSubmissionUtils', () => {
     view.setFloat64(60, 1100000, true);
     vi.spyOn(validNameFile, 'arrayBuffer').mockResolvedValue(buffer);
 
-    await expect(readSpatialFile(validNameFile)).rejects.toThrow(
-      'Invalid shapefile signature (magic number mismatch).',
-    );
+    await expect(
+      readSpatialFile([validNameFile, dbfFile, shxFile]),
+    ).rejects.toThrow('Invalid shapefile signature (magic number mismatch).');
   });
 
   it('rejects zip uploads that contain a shp without matching dbf', async () => {
