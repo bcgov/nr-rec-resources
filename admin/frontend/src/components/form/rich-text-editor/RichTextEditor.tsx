@@ -1,6 +1,7 @@
 import { Controller } from 'react-hook-form';
 import { Form } from 'react-bootstrap';
 import { QuillEditor } from './QuillEditor';
+import { getPlainTextLength } from './helpers';
 import './RichTextEditor.scss';
 import { HelpIcon } from '@/components';
 
@@ -12,6 +13,10 @@ export interface RichTextEditorProps {
   required?: boolean;
   helpText?: string;
   helperText?: string;
+  /** Pass a module-level constant, not an inline array. */
+  toolbarOptions?: unknown[];
+  /** Shows a counter against the plain text length when set. */
+  maxLength?: number;
 }
 
 export const RichTextEditor = ({
@@ -22,6 +27,8 @@ export const RichTextEditor = ({
   required = false,
   helpText,
   helperText,
+  toolbarOptions,
+  maxLength,
 }: RichTextEditorProps) => {
   return (
     <Form.Group controlId={name}>
@@ -36,19 +43,42 @@ export const RichTextEditor = ({
       <Controller
         name={name}
         control={control}
-        render={({ field }) => (
-          <>
-            <QuillEditor value={field.value || ''} onChange={field.onChange} />
+        render={({ field }) => {
+          const length = getPlainTextLength(field.value || '');
 
-            {errors[name] && (
-              <Form.Control.Feedback type="invalid" className="d-block">
-                {errors[name].message}
-              </Form.Control.Feedback>
-            )}
-          </>
-        )}
+          return (
+            <>
+              <QuillEditor
+                value={field.value || ''}
+                onChange={field.onChange}
+                toolbarOptions={toolbarOptions}
+              />
+
+              {errors[name] && (
+                <Form.Control.Feedback type="invalid" className="d-block">
+                  {errors[name].message}
+                </Form.Control.Feedback>
+              )}
+
+              <div className="d-flex justify-content-between gap-3">
+                {helperText ? (
+                  <Form.Text muted>{helperText}</Form.Text>
+                ) : (
+                  <span />
+                )}
+                {maxLength ? (
+                  <Form.Text
+                    muted={length <= maxLength}
+                    className={length > maxLength ? 'text-danger' : undefined}
+                  >
+                    {length} / {maxLength}
+                  </Form.Text>
+                ) : null}
+              </div>
+            </>
+          );
+        }}
       />
-      {helperText && <Form.Text muted>{helperText}</Form.Text>}
     </Form.Group>
   );
 };

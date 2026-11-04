@@ -53,6 +53,7 @@ describe('rec-resource-page navigation', () => {
         RecResourceNavKey.FILES,
         RecResourceNavKey.ACTIVITIES,
         RecResourceNavKey.FEES,
+        RecResourceNavKey.NOTES,
         RecResourceNavKey.ASSETS,
         RecResourceNavKey.PARTNERS,
         RecResourceNavKey.GEOSPATIAL,
