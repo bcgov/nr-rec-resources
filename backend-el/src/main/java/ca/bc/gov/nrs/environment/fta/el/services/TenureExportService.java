@@ -20,7 +20,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -119,8 +121,6 @@ public class TenureExportService {
   @Value("${ca.bc.gov.nrs.environment.fta.el.file-base-path}")
   private String fileBasePath;
 
-  @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.batch-row-count:5000}")
-  private int tenureImageBatchRowCount;
 
   @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.fetch-size:500}")
   private int tenureFetchSize;
@@ -165,7 +165,7 @@ public class TenureExportService {
         exportTableAsCsv("REC_TENURE_APP_IMAGE.csv", REC_TENURE_APP_IMAGE_SQL);
       }
       if (shouldExportMfImages(imageExportTarget)) {
-        exportTableAsCsvInBatches("REC_TENURE_MF_IMAGE.csv", REC_TENURE_MF_IMAGE_SQL);
+        exportTableAsCsvWithoutBinaryColumns("REC_TENURE_MF_IMAGE.csv", REC_TENURE_MF_IMAGE_SQL);
       }
     }
 
@@ -278,6 +278,14 @@ public class TenureExportService {
   }
 
   private void exportTableAsCsv(String fileName, String sql) {
+    exportTableAsCsv(fileName, sql, true);
+  }
+
+  private void exportTableAsCsvWithoutBinaryColumns(String fileName, String sql) {
+    exportTableAsCsv(fileName, sql, false);
+  }
+
+  private void exportTableAsCsv(String fileName, String sql, boolean includeBinaryColumns) {
     Path outputPath = Path.of(fileBasePath, fileName);
     long rows = 0;
 
@@ -293,11 +301,12 @@ public class TenureExportService {
 
         try (ResultSet resultSet = preparedStatement.executeQuery()) {
           var metadata = resultSet.getMetaData();
-          printHeader(csvPrinter, metadata);
+          List<Integer> columnIndexes = resolveCsvColumnIndexes(metadata, includeBinaryColumns);
+          printHeader(csvPrinter, metadata, columnIndexes);
           csvPrinter.println();
 
           while (resultSet.next()) {
-            printRow(csvPrinter, resultSet, metadata);
+            printRow(csvPrinter, resultSet, metadata, columnIndexes);
             rows++;
           }
         }
@@ -312,83 +321,20 @@ public class TenureExportService {
     }
   }
 
-  private void exportTableAsCsvInBatches(String baseFileName, String sql) {
-    PartWriter currentPart = null;
-    try (
-      Connection connection = dataSource.getConnection();
-      PreparedStatement preparedStatement = connection.prepareStatement(sql)
-    ) {
-      preparedStatement.setFetchSize(tenureFetchSize);
-      bindExportTypeCodes(preparedStatement);
-
-      try (ResultSet resultSet = preparedStatement.executeQuery()) {
-        ResultSetMetaData metadata = resultSet.getMetaData();
-        String baseName = baseFileName.replaceFirst("(?i)\\.csv$", "");
-        int partIndex = 1;
-        long totalRows = 0;
-        int rowsInCurrentPart = 0;
-        currentPart = createPartWriter(baseName, partIndex, metadata);
-
-        while (resultSet.next()) {
-          if (rowsInCurrentPart >= tenureImageBatchRowCount) {
-            closeAndUploadPart(currentPart);
-            logger.info("Uploaded batch file {} with {} rows", currentPart.fileName(), rowsInCurrentPart);
-            partIndex++;
-            rowsInCurrentPart = 0;
-            currentPart = createPartWriter(baseName, partIndex, metadata);
-          }
-
-          printRow(currentPart.csvPrinter(), resultSet, metadata);
-          rowsInCurrentPart++;
-          totalRows++;
-        }
-
-        closeAndUploadPart(currentPart);
-        currentPart = null;
-        logger.info("Exported {} rows to {} batch file(s) for {}", totalRows, partIndex, baseFileName);
-      }
-    } catch (Exception e) {
-      cleanupPartWriter(currentPart);
-      throw new RuntimeException("Failed to export table in batches for file " + baseFileName, e);
-    }
-  }
-
-  private void closeAndUploadPart(PartWriter partWriter) throws IOException {
-    try {
-      partWriter.close();
-      s3UploaderService.uploadFileToS3(partWriter.outputPath().toString(), partWriter.fileName());
-    } finally {
-      deleteLocalFile(partWriter.outputPath());
-    }
-  }
-
-  private void cleanupPartWriter(PartWriter partWriter) {
-    if (partWriter == null) {
-      return;
-    }
-
-    try {
-      partWriter.close();
-    } catch (IOException e) {
-      logger.warn("Failed to close partial export file {}", partWriter.outputPath(), e);
-    } finally {
-      deleteLocalFile(partWriter.outputPath());
-    }
-  }
-
-  private PartWriter createPartWriter(String baseName, int partIndex, ResultSetMetaData metadata)
-      throws IOException, SQLException {
-    String partFileName = String.format(Locale.ROOT, "%s_part%04d.csv", baseName, partIndex);
-    Path outputPath = Path.of(fileBasePath, partFileName);
-    FileWriter fileWriter = new FileWriter(outputPath.toFile());
-    CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.DEFAULT);
-    printHeader(csvPrinter, metadata);
-    csvPrinter.println();
-    return new PartWriter(partFileName, outputPath, fileWriter, csvPrinter);
-  }
-
-  private void printHeader(CSVPrinter csvPrinter, ResultSetMetaData metadata) throws SQLException, IOException {
+  private List<Integer> resolveCsvColumnIndexes(ResultSetMetaData metadata, boolean includeBinaryColumns) throws SQLException {
+    List<Integer> columnIndexes = new ArrayList<>();
     for (int columnIndex = 1; columnIndex <= metadata.getColumnCount(); columnIndex++) {
+      if (!includeBinaryColumns && isBinaryColumn(metadata, columnIndex)) {
+        continue;
+      }
+      columnIndexes.add(columnIndex);
+    }
+    return columnIndexes;
+  }
+
+  private void printHeader(CSVPrinter csvPrinter, ResultSetMetaData metadata, List<Integer> columnIndexes)
+      throws SQLException, IOException {
+    for (int columnIndex : columnIndexes) {
       csvPrinter.print(metadata.getColumnName(columnIndex));
     }
   }
@@ -396,9 +342,10 @@ public class TenureExportService {
   private void printRow(
       CSVPrinter csvPrinter,
       ResultSet resultSet,
-      ResultSetMetaData metadata
+      ResultSetMetaData metadata,
+      List<Integer> columnIndexes
   ) throws SQLException, IOException {
-    for (int columnIndex = 1; columnIndex <= metadata.getColumnCount(); columnIndex++) {
+    for (int columnIndex : columnIndexes) {
       Object value;
       if (metadata.getColumnType(columnIndex) == Types.BLOB) {
         Blob blob = resultSet.getBlob(columnIndex);
@@ -412,6 +359,11 @@ public class TenureExportService {
       csvPrinter.print(serializeValue(value, metadata.getColumnName(columnIndex)));
     }
     csvPrinter.println();
+  }
+
+  private boolean isBinaryColumn(ResultSetMetaData metadata, int columnIndex) throws SQLException {
+    return metadata.getColumnType(columnIndex) == Types.BLOB
+      || "RAW".equalsIgnoreCase(metadata.getColumnTypeName(columnIndex));
   }
 
   private String serializeValue(Object value, String columnName) {
@@ -548,11 +500,4 @@ public class TenureExportService {
     }
   }
 
-  private record PartWriter(String fileName, Path outputPath, FileWriter fileWriter, CSVPrinter csvPrinter) {
-    private void close() throws IOException {
-      csvPrinter.flush();
-      csvPrinter.close();
-      fileWriter.close();
-    }
-  }
 }
