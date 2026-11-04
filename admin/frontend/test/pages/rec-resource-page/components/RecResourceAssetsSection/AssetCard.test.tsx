@@ -67,6 +67,7 @@ describe('AssetCard', () => {
       <AssetCard
         asset={buildAsset({ asset_name: 'Main bridge' })}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
@@ -84,6 +85,7 @@ describe('AssetCard', () => {
           ],
         })}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
@@ -99,6 +101,7 @@ describe('AssetCard', () => {
           ],
         })}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
@@ -131,6 +134,7 @@ describe('AssetCard', () => {
           ],
         })}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
@@ -142,8 +146,9 @@ describe('AssetCard', () => {
       'Length',
       'Width',
       'Value',
-      'Actual Repair Cost',
+      'Actual repair cost',
       'Location',
+      'Campsite',
     ]);
 
     expect(screen.getByText('50')).toBeInTheDocument();
@@ -163,6 +168,7 @@ describe('AssetCard', () => {
         asset={buildAsset()}
         assetCodes={assetCodes}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
@@ -170,9 +176,9 @@ describe('AssetCard', () => {
   });
 
   it('shows a dash for every field with no value', () => {
-    render(<AssetCard asset={buildAsset()} repairCodes={[]} />);
+    render(<AssetCard asset={buildAsset()} repairCodes={[]} campsites={[]} />);
 
-    expect(screen.getAllByText('-')).toHaveLength(6);
+    expect(screen.getAllByText('-')).toHaveLength(7);
   });
 
   it('shows a dash for actual repair cost when there are no repairs', () => {
@@ -180,10 +186,11 @@ describe('AssetCard', () => {
       <AssetCard
         asset={buildAsset({ recreation_asset_repair: [] })}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
-    expect(screen.getAllByText('-')).toHaveLength(6);
+    expect(screen.getAllByText('-')).toHaveLength(7);
   });
 
   it('shows a dash for location when only one of latitude/longitude is set', () => {
@@ -191,12 +198,13 @@ describe('AssetCard', () => {
       <AssetCard
         asset={buildAsset({ latitude: 49.1, longitude: null })}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
     expect(screen.getByText('Location:')).toBeInTheDocument();
     expect(screen.queryByText(/^49\.1/)).not.toBeInTheDocument();
-    expect(screen.getAllByText('-')).toHaveLength(6);
+    expect(screen.getAllByText('-')).toHaveLength(7);
   });
 
   it('includes actual repair costs even when the repair has no completion date', () => {
@@ -211,11 +219,12 @@ describe('AssetCard', () => {
           ],
         })}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
     const repairSpendField = screen
-      .getByText('Actual Repair Cost:')
+      .getByText('Actual repair cost:')
       .closest('.asset-card__field');
     expect(repairSpendField).toHaveTextContent('$100');
   });
@@ -233,6 +242,7 @@ describe('AssetCard', () => {
           ],
         })}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
@@ -258,13 +268,14 @@ describe('AssetCard', () => {
           ],
         })}
         repairCodes={[]}
+        campsites={[]}
       />,
     );
 
     const labels = screen
       .getAllByText(/:$/)
       .map((el) => el.textContent?.replace(':', ''));
-    expect(labels).toEqual(['Actual Repair Cost', 'Location']);
+    expect(labels).toEqual(['Actual repair cost', 'Location']);
 
     expect(screen.queryByText('Area:')).not.toBeInTheDocument();
     expect(screen.queryByText('Length:')).not.toBeInTheDocument();
@@ -278,6 +289,7 @@ describe('AssetCard', () => {
         asset={buildAsset()}
         repairCodes={[]}
         className="asset-card--campsite"
+        campsites={[]}
       />,
     );
 
@@ -298,6 +310,7 @@ describe('AssetCard', () => {
         repairCodes={[
           { recreation_remed_repair_code: 'R1', description: 'Paint touch-up' },
         ]}
+        campsites={[]}
       />,
     );
 
@@ -321,6 +334,7 @@ describe('AssetCard', () => {
         repairCodes={[
           { recreation_remed_repair_code: 'R1', description: 'Paint touch-up' },
         ]}
+        campsites={[]}
       />,
     );
 
@@ -338,6 +352,7 @@ describe('AssetCard', () => {
         repairCodes={[
           { recreation_remed_repair_code: 'R1', description: 'Paint touch-up' },
         ]}
+        campsites={[]}
       />,
     );
 

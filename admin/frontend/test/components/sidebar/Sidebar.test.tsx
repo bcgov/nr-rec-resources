@@ -55,16 +55,16 @@ describe('Sidebar Component', () => {
     // Due to {!isCollapsed && ...}, text should NOT be visible initially
     expect(screen.queryByText('Search')).not.toBeInTheDocument();
     expect(screen.queryByText('Create new')).not.toBeInTheDocument();
-    expect(screen.queryByText('Advisories & Closures')).not.toBeInTheDocument();
+    expect(screen.queryByText('Advisories & closures')).not.toBeInTheDocument();
     expect(screen.queryByText('Onboarding')).not.toBeInTheDocument();
     expect(screen.queryByText('FTA')).not.toBeInTheDocument();
 
-    // Verify "Quick Links" is replaced by an <hr /> separator in collapsed state
-    expect(screen.queryByText(/Quick Links/i)).not.toBeInTheDocument();
+    // Verify "Quick links" is replaced by an <hr /> separator in collapsed state
+    expect(screen.queryByText(/Quick links/i)).not.toBeInTheDocument();
     expect(screen.getByRole('separator')).toBeInTheDocument(); // catches <hr />
 
-    // Check for default Expand Icon (since it's collapsed)
-    const toggleImg = screen.getByAltText('Expand Icon');
+    // Check for default Expand icon (since it's collapsed)
+    const toggleImg = screen.getByAltText('Expand icon');
     expect(toggleImg).toBeInTheDocument();
     expect(toggleImg).toHaveAttribute('src', '/images/sidebar/expand-icon.svg');
   });
@@ -90,16 +90,16 @@ describe('Sidebar Component', () => {
     // Verify text labels are now visible
     expect(screen.getByText('Search')).toBeInTheDocument();
     expect(screen.getByText('Create new')).toBeInTheDocument();
-    expect(screen.getByText('Advisories & Closures')).toBeInTheDocument();
+    expect(screen.getByText('Advisories & closures')).toBeInTheDocument();
     expect(screen.getByText('Onboarding')).toBeInTheDocument();
     expect(screen.getByText('FTA')).toBeInTheDocument();
 
-    // Check for "Quick Links" subtitle and that <hr /> is removed
-    expect(screen.getByText(/Quick Links/i)).toBeInTheDocument();
+    // Check for "Quick links" subtitle and that <hr /> is removed
+    expect(screen.getByText(/Quick links/i)).toBeInTheDocument();
     expect(screen.queryByRole('separator')).not.toBeInTheDocument();
 
-    // Verify the icon switches to the Collapse Icon
-    const toggleImg = screen.getByAltText('Collapse Icon');
+    // Verify the icon switches to the Collapse icon
+    const toggleImg = screen.getByAltText('Collapse icon');
     expect(toggleImg).toBeInTheDocument();
     expect(toggleImg).toHaveAttribute(
       'src',

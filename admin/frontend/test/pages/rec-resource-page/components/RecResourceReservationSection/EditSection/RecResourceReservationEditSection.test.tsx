@@ -80,7 +80,7 @@ describe('RecResourceReservationEditSection', () => {
 
   it('renders correctly', () => {
     renderComponent();
-    expect(screen.getByText('Edit Reservations')).toBeInTheDocument();
+    expect(screen.getByText('Edit reservations')).toBeInTheDocument();
   });
 
   it('handles the "Saving..." button state', () => {

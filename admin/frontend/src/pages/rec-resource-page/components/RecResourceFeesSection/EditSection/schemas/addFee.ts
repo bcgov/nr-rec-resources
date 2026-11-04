@@ -13,7 +13,7 @@ export const DAY_PRESET_OPTIONS = {
 
 export const FEE_APPLIES_DROPDOWN_OPTIONS = [
   { value: FEE_APPLIES_OPTIONS.ALWAYS, label: 'Always' },
-  { value: FEE_APPLIES_OPTIONS.SPECIFIC_DATES, label: 'Specific Dates' },
+  { value: FEE_APPLIES_OPTIONS.SPECIFIC_DATES, label: 'Specific dates' },
 ];
 
 export const addFeeSchemaBase = z.object({

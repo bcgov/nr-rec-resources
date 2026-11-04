@@ -8,6 +8,7 @@ import { CampsiteGroup } from './campsiteGrouping';
 import { useBulkUpdateAssets } from '@/services/hooks/recreation-resource-admin';
 import { AssetCode } from './types';
 import { ACTUAL_VALUE_HELP_TEXT } from './helperTexts';
+import { getEndNumberOrString, showCampsideNumber } from './assetEditShared';
 
 interface BulkAssetEditModalProps {
   show: boolean;
@@ -49,8 +50,6 @@ export function BulkAssetEditModal({
     hasArea: false,
   });
 
-  const END_DIGITS_REGEX = /\d+$/;
-
   const sortedAssetTypes = useMemo(
     () =>
       [...assetTypes].sort((a, b) =>
@@ -68,20 +67,6 @@ export function BulkAssetEditModal({
       }),
     [campsites],
   );
-
-  const getEndNumberOrString = (text: string | null) => {
-    if (!text) return text;
-    const match = END_DIGITS_REGEX.exec(text);
-    return match?.[0] ?? text;
-  };
-
-  const showCampsideNumber = (id: number) => {
-    const campsite = campsites.find((c) => c.campsite.asset_id === id);
-    if (campsite?.campsite.asset_name) {
-      return getEndNumberOrString(campsite?.campsite.asset_name);
-    }
-    return;
-  };
 
   const handleCheckboxChange = (assetId: number) => {
     setSelectedAssetIds((prev) =>
@@ -264,7 +249,7 @@ export function BulkAssetEditModal({
       <div className="bulk-asset-edit-modal__panel px-4 py-3">
         <div className="d-flex justify-content-between align-items-center">
           <h3 className="bulk-asset-edit-modal__subtitle panel-title mb-0">
-            Select Assets ({selectedAssetIds.length} of{' '}
+            Select assets ({selectedAssetIds.length} of{' '}
             {assetTypeGroup?.assets.length})
           </h3>
           <button
@@ -273,8 +258,8 @@ export function BulkAssetEditModal({
             onClick={toggleSelectAll}
           >
             {selectedAssetIds.length === assetTypeGroup?.assets.length
-              ? 'Clear All'
-              : 'Select All'}
+              ? 'Clear all'
+              : 'Select all'}
           </button>
         </div>
         <div className="row g-2 py-2">
@@ -370,7 +355,7 @@ export function BulkAssetEditModal({
             </Form.Group>
           </Col>
 
-          {/* Actual Value */}
+          {/* Actual value */}
           <Col>
             <Form.Group
               controlId="field-value"
@@ -397,7 +382,7 @@ export function BulkAssetEditModal({
             </Form.Group>
           </Col>
 
-          {/* Assign to Campsite */}
+          {/* Assign to campsite */}
           <Col>
             <Form.Group
               controlId="field-campsite"
@@ -495,7 +480,7 @@ export function BulkAssetEditModal({
                     </Col>
                   )}
 
-                  {/* Actual Value */}
+                  {/* Actual value */}
                   {checkChanges(asset.actual_value, editFields.actualValue) && (
                     <Col>
                       <div className="d-flex flex-column h-100">
@@ -515,19 +500,23 @@ export function BulkAssetEditModal({
                     </Col>
                   )}
 
-                  {/* Assign to Campsite */}
+                  {/* Assign to campsite */}
                   {checkChanges(asset.parent_id, editFields.campsiteId) && (
                     <Col>
                       <div className="d-flex flex-column h-100">
-                        <div className="bold-field">Assign to Campsite</div>
+                        <div className="bold-field">Assign to campsite</div>
                         <div className="mt-auto">
                           {asset.parent_id
-                            ? showCampsideNumber(Number(asset.parent_id))
+                            ? showCampsideNumber(
+                                campsites,
+                                Number(asset.parent_id),
+                              )
                             : 'N/A'}{' '}
                           →{' '}
                           <span className="bold-field">
                             {editFields.campsiteId
                               ? showCampsideNumber(
+                                  campsites,
                                   Number(editFields.campsiteId),
                                 )
                               : 'N/A'}

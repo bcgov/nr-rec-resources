@@ -43,7 +43,7 @@ export const RecResourceFeesTable = ({
 
   const columns: any[] = [
     {
-      header: 'Fee Type',
+      header: 'Fee type',
       render: (fee: RecreationFeeUIModel) => (
         <CustomBadge
           label={fee.fee_type_description || fee.recreation_fee_code}
@@ -62,7 +62,7 @@ export const RecResourceFeesTable = ({
           : '--',
     },
     {
-      header: 'Start Date',
+      header: 'Start date',
       render: (fee: RecreationFeeUIModel) => {
         if (fee.recurring_ind)
           return formatRecurringMonthDay(fee.recurring_start_mmdd);
@@ -70,7 +70,7 @@ export const RecResourceFeesTable = ({
       },
     },
     {
-      header: 'End Date',
+      header: 'End date',
       render: (fee: RecreationFeeUIModel) => {
         if (fee.recurring_ind)
           return formatRecurringMonthDay(fee.recurring_end_mmdd);

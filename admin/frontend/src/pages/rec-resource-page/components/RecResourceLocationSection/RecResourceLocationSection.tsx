@@ -41,7 +41,7 @@ export const RecResourceLocationSection = ({
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
   const recResourceName = useMemo(
-    () => recResource?.name || 'Unnamed Resource',
+    () => recResource?.name || 'Unnamed resource',
     [recResource?.name],
   );
 

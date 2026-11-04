@@ -2,11 +2,12 @@ import { Card } from 'react-bootstrap';
 import { CustomBadge } from '@/components';
 import { COLOR_AMBER_DARK, COLOR_AMBER_LIGHT } from '@/styles/colors';
 import { AssetCardRepairs } from './AssetCardRepairs';
-import { CAMPSITE_STRUCTURE_CODE } from './campsiteGrouping';
+import { CAMPSITE_STRUCTURE_CODE, CampsiteGroup } from './campsiteGrouping';
 import { formatCurrency } from './formatCurrency';
 import { isTrailAssetCode } from './trailStations';
 import type { Asset, AssetCode, RepairCode } from './types';
 import './AssetCard.scss';
+import { showCampsideNumber } from './assetEditShared';
 
 interface AssetCardProps {
   asset: Asset;
@@ -15,6 +16,7 @@ interface AssetCardProps {
   className?: string;
   recResourceId?: string;
   isAddRepairDisabled?: boolean;
+  campsites: CampsiteGroup[];
 }
 
 interface AssetField {
@@ -24,9 +26,13 @@ interface AssetField {
 
 // Campsites don't have area/length/width/value fields, so only keep repair and
 // location details in campsite context.
-const CAMPSITE_FIELD_LABELS = new Set(['Actual Repair Cost', 'Location']);
+const CAMPSITE_FIELD_LABELS = new Set(['Actual repair cost', 'Location']);
 
-function getAssetFields(asset: Asset, assetCodes: AssetCode[]): AssetField[] {
+function getAssetFields(
+  asset: Asset,
+  assetCodes: AssetCode[],
+  campsites: CampsiteGroup[],
+): AssetField[] {
   const codeMap = new Map(assetCodes.map((c) => [c.asset_code, c]));
   const repairs = asset.recreation_asset_repair ?? [];
   const hasRepairs = repairs.length > 0;
@@ -53,7 +59,7 @@ function getAssetFields(asset: Asset, assetCodes: AssetCode[]): AssetField[] {
       value: value != null ? formatCurrency(value) : null,
     },
     {
-      label: 'Actual Repair Cost',
+      label: 'Actual repair cost',
       value: repairSpend != null ? formatCurrency(repairSpend) : null,
     },
     {
@@ -61,6 +67,13 @@ function getAssetFields(asset: Asset, assetCodes: AssetCode[]): AssetField[] {
       value:
         asset.latitude != null && asset.longitude != null
           ? `${asset.latitude},${asset.longitude}`
+          : null,
+    },
+    {
+      label: 'Campsite',
+      value:
+        asset.parent_id != null && campsites
+          ? (showCampsideNumber(campsites, Number(asset.parent_id)) ?? null)
           : null,
     },
   ];
@@ -78,8 +91,9 @@ export function AssetCard({
   className = '',
   recResourceId,
   isAddRepairDisabled = false,
+  campsites,
 }: AssetCardProps) {
-  const fields = getAssetFields(asset, assetCodes);
+  const fields = getAssetFields(asset, assetCodes, campsites);
   const repairs = asset.recreation_asset_repair ?? [];
   const outstandingRepairsCount = repairs.filter(
     (repair) => !repair.repair_completed_date,
