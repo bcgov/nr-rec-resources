@@ -5,7 +5,7 @@ import { UpdateRecreationResourceDto } from '@/recreation-resources/dtos/update-
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { RecreationResourceService } from '@/recreation-resources/recreation-resource.service';
 import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
-import { NotFoundException } from '@nestjs/common';
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('RecreationResourceService', () => {
@@ -347,6 +347,18 @@ describe('RecreationResourceService', () => {
     await expect(
       service.getPendingRequestAdjudicationReport('app-guid-123'),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it('should throw InternalServerErrorException when sncsc service is unavailable', async () => {
+    const localService = new RecreationResourceService(repo, prisma);
+    (prisma.recreation_spatial_submission.findUnique as any).mockResolvedValue({
+      adjudication_report_document_uri:
+        'https://sncsc.example.com/documents/abc',
+    });
+
+    await expect(
+      localService.getPendingRequestAdjudicationReport('app-guid-123'),
+    ).rejects.toThrow(InternalServerErrorException);
   });
 
   it('should map admin search results into response DTO shape', async () => {
@@ -817,6 +829,30 @@ describe('RecreationResourceService - findOne', () => {
     service = new RecreationResourceService(repo, prisma);
   });
 
+  const baseFindOneResource = {
+    rec_resource_id: 'id',
+    name: 'Test Name',
+    closest_community: 'Test Community',
+    recreation_site_description: { description: 'desc' },
+    recreation_driving_direction: { description: 'drive' },
+    maintenance_standard_code: 'U',
+    recreation_resource_type_view_admin: [{ description: 'TypeDesc' }],
+    recreation_access: [],
+    recreation_activity: [],
+    recreation_status: null,
+    _count: { recreation_defined_campsite: 0 },
+    recreation_structure: [],
+    recreation_district_code: null,
+    act_advisories_flat: [],
+  };
+
+  const baseGeometryData = [
+    {
+      spatial_feature_geometry: null,
+      site_point_geometry: null,
+    },
+  ];
+
   it('should return null if resource not found', async () => {
     (repo.findOneById as any).mockResolvedValue(null);
     const result = await service.findOne('notfound');
@@ -958,6 +994,125 @@ describe('RecreationResourceService - findOne', () => {
     const result = await service.findOne('id2');
 
     expect(result?.licensee).toBeNull();
+  });
+
+  it('should return null licensee when forest client API key is missing', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
+    delete process.env.FOREST_CLIENT_API_KEY;
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id3',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: 'DSI',
+    });
+    vi.stubGlobal('fetch', vi.fn());
+
+    const result = await service.findOne('id3');
+
+    expect(result?.licensee).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it('should return null licensee when forest client lookup response is not ok', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id4',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: 'DSI',
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        text: vi.fn().mockResolvedValue('[]'),
+      }),
+    );
+
+    const result = await service.findOne('id4');
+
+    expect(result?.licensee).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it('should return null licensee when forest client record has missing required fields', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id5',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: 'DSI',
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify([
+            {
+              acronym: 'DSI',
+              clientNumber: ' ',
+              clientName: 'District South Island',
+            },
+          ]),
+        ),
+      }),
+    );
+
+    const result = await service.findOne('id5');
+
+    expect(result?.licensee).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it('should return null licensee when forest client payload is malformed', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id6',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: 'DSI',
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue('not-json'),
+      }),
+    );
+
+    const result = await service.findOne('id6');
+
+    expect(result?.licensee).toBeNull();
+    vi.unstubAllGlobals();
   });
 });
 
