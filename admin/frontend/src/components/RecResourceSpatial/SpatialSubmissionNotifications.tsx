@@ -71,7 +71,7 @@ export const SpatialSubmissionAlerts = (
         />
         <div className="spatial-submission-section__validation-alert-content">
           <strong className="spatial-submission-section__validation-alert-title">
-            Validation Results
+            Validation results
           </strong>
           <ul className="spatial-submission-section__validation-alert-list">
             {props.issues.map((issue, idx) => (

@@ -26,7 +26,7 @@ interface AssetField {
 
 // Campsites don't have area/length/width/value fields, so only keep repair and
 // location details in campsite context.
-const CAMPSITE_FIELD_LABELS = new Set(['Actual Repair Cost', 'Location']);
+const CAMPSITE_FIELD_LABELS = new Set(['Actual repair cost', 'Location']);
 
 function getAssetFields(
   asset: Asset,
@@ -59,7 +59,7 @@ function getAssetFields(
       value: value != null ? formatCurrency(value) : null,
     },
     {
-      label: 'Actual Repair Cost',
+      label: 'Actual repair cost',
       value: repairSpend != null ? formatCurrency(repairSpend) : null,
     },
     {

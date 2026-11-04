@@ -13,7 +13,7 @@ export class LayoutPOM {
     const header = this.page.locator('header');
     await expect(
       header.getByRole('link', {
-        name: 'Recreation Sites and Trails BC Logo',
+        name: 'Recreation Sites and Trails BC logo',
       }),
     ).toBeVisible();
 

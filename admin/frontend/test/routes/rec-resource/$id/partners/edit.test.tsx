@@ -19,7 +19,7 @@ vi.mock('@/components/auth', () => ({
 
 vi.mock('@/pages/rec-resource-page/RecResourcePartnersEditPage', () => ({
   RecResourcePartnersEditPage: () => (
-    <div data-testid="rec-resource-partners-edit-page">Edit Partners Page</div>
+    <div data-testid="rec-resource-partners-edit-page">Edit partners Page</div>
   ),
 }));
 
@@ -42,7 +42,7 @@ describe('RecResource Partners Edit Route', () => {
     expect(result.tab).toBe(RecResourceNavKey.PARTNERS);
   });
 
-  it('appends an Edit Partners crumb to the parent breadcrumb', () => {
+  it('appends an Edit partners crumb to the parent breadcrumb', () => {
     const beforeLoad = Route.options.beforeLoad as any;
 
     const result = beforeLoad({ params: { id: 'REC123' }, context: {} });
@@ -51,7 +51,7 @@ describe('RecResource Partners Edit Route', () => {
     });
 
     expect(breadcrumb.at(-1)).toEqual({
-      label: 'Edit Partners',
+      label: 'Edit partners',
       href: '/rec-resource/REC123/partners/edit',
     });
   });

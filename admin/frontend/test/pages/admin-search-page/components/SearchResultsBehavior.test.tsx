@@ -86,17 +86,17 @@ describe('SearchResultsPagination', () => {
     expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
     expect(screen.getByRole('button', { name: '1' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '12' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Jump To')).toHaveValue('6');
+    expect(screen.getByLabelText('Jump to')).toHaveValue('6');
 
     await user.click(screen.getByRole('button', { name: 'Previous' }));
     await user.click(screen.getByRole('button', { name: 'Next' }));
     await user.click(screen.getByRole('button', { name: '7' }));
     await user.selectOptions(
-      screen.getByLabelText('Page Size'),
+      screen.getByLabelText('Page size'),
       screen.getByRole('option', { name: '100' }),
     );
     await user.selectOptions(
-      screen.getByLabelText('Jump To'),
+      screen.getByLabelText('Jump to'),
       screen.getByRole('option', { name: '3' }),
     );
 
@@ -531,7 +531,7 @@ describe('FilterAccordion', () => {
 
     expect(
       await screen.findByText(
-        /Public Access Status indicates the current level of public access/i,
+        /Public access status indicates the current level of public access/i,
       ),
     ).toBeInTheDocument();
     expect(

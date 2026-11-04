@@ -150,7 +150,7 @@ describe('RecResourceFeeFormFields (create)', () => {
     expect(screen.getByText('Sunday')).toBeInTheDocument();
   });
 
-  it('renders Fee Type dropdown with options from useFeeOptions', () => {
+  it('renders Fee type dropdown with options from useFeeOptions', () => {
     render(
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
@@ -168,12 +168,12 @@ describe('RecResourceFeeFormFields (create)', () => {
     expect(screen.getByTestId('currency-field-fee_amount')).toBeInTheDocument();
   });
 
-  it('renders Add Fee button', () => {
+  it('renders Add fee button', () => {
     render(
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
-    expect(screen.getByRole('button', { name: 'Add Fee' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add fee' })).toBeInTheDocument();
   });
 
   it('does not render recurring fee checkbox when fee applies always', () => {
@@ -283,7 +283,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
-    expect(screen.getByRole('button', { name: 'Add Fee' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add fee' })).toBeDisabled();
   });
 
   it('disables submit button when mutation is pending', () => {
@@ -302,7 +302,7 @@ describe('RecResourceFeeFormFields (create)', () => {
     );
 
     expect(
-      screen.getByRole('button', { name: 'Adding Fee...' }),
+      screen.getByRole('button', { name: 'Adding fee...' }),
     ).toBeDisabled();
   });
 
@@ -321,7 +321,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
-    expect(screen.getByRole('button', { name: 'Add Fee' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add fee' })).not.toBeDisabled();
   });
 
   it('disables submit button when options are loading', () => {
@@ -335,7 +335,7 @@ describe('RecResourceFeeFormFields (create)', () => {
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
     );
 
-    expect(screen.getByRole('button', { name: 'Add Fee' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add fee' })).toBeDisabled();
   });
 
   it('renders FDL confirmation checkbox', () => {
@@ -433,13 +433,13 @@ describe('RecResourceFeeForm (edit mode)', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows Save Changes button text in edit mode', () => {
+  it('shows Save changes button text in edit mode', () => {
     render(
       <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="edit" />,
     );
 
     expect(
-      screen.getByRole('button', { name: 'Save Changes' }),
+      screen.getByRole('button', { name: 'Save changes' }),
     ).toBeInTheDocument();
   });
 
