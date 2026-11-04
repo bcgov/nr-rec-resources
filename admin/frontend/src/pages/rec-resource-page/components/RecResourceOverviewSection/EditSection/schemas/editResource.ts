@@ -61,6 +61,7 @@ export const createEditResourceSchema = (
     driving_directions: z.string().optional().nullable(),
     closest_community: z.string().max(200).optional().nullable(),
     name: z.string().max(200).optional().nullable(),
+    recreation_user_days_code: z.string().optional().nullable(),
   });
 };
 

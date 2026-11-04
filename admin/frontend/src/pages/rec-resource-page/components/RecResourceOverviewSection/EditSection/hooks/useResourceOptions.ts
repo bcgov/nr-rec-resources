@@ -27,6 +27,7 @@ export const useResourceOptions = (options?: UseResourceOptionsParams) => {
     'recreationStatus',
     'riskRatingCode',
     'district',
+    'recreationUserDays',
   ]);
 
   const [
@@ -36,6 +37,7 @@ export const useResourceOptions = (options?: UseResourceOptionsParams) => {
     recreationStatusOptions,
     riskRatingCodeOptions,
     districtOptions,
+    recreationUserDaysOptions,
   ] = resourceOptions || [];
 
   const groupedAccessOptions = useMemo(() => {
@@ -86,6 +88,12 @@ export const useResourceOptions = (options?: UseResourceOptionsParams) => {
     return [noneOption, ...(riskRatingCodeOptions?.options ?? [])];
   }, [riskRatingCodeOptions]);
 
+  const recreationUserDaysOptionsWithNoneOption = useMemo(() => {
+    const noneOption = { id: null, label: 'None' } as const;
+
+    return [noneOption, ...(recreationUserDaysOptions?.options ?? [])];
+  }, [recreationUserDaysOptions]);
+
   const districtOptionsWithNoneOption = useMemo(() => {
     const noneOption: RecreationResourceOptionUIModel = {
       id: '',
@@ -125,6 +133,7 @@ export const useResourceOptions = (options?: UseResourceOptionsParams) => {
     accessOptions: accessOptions?.options ?? [],
     recreationStatusOptions: recreationStatusOptions?.options ?? [],
     groupedAccessOptions,
+    recreationUserDaysOptions: recreationUserDaysOptionsWithNoneOption,
     isLoading,
   };
 };

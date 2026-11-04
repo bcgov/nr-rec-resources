@@ -48,6 +48,7 @@ export function mapRecreationResourceDetail(
     risk_rating_code: data.risk_rating?.risk_rating_code,
     risk_rating_description: data.risk_rating?.description,
     rec_resource_type_code: data.rec_resource_type_code ?? undefined,
+    user_days_code: data.recreation_user_days_code?.recreation_user_days_code,
   };
 }
 

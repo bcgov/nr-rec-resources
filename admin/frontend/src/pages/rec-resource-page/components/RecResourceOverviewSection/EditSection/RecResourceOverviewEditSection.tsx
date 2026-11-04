@@ -37,6 +37,7 @@ import {
   DRIVING_DIRECTIONS_HELP_TEXT,
   PROJECT_ESTABLISHED_DATE_HELP_TEXT,
   RISK_RATING_HELP_TEXT,
+  USER_DAYS_HELP_TEXT,
 } from '@/utils/helpText';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 
@@ -55,6 +56,7 @@ export const RecResourceOverviewEditSection = () => {
     riskRatingCodeTypeOptions,
     groupedAccessOptions,
     districtOptions,
+    recreationUserDaysOptions,
   } = useResourceOptions({
     currentDistrictCode: recResource.recreation_district?.district_code,
   });
@@ -218,6 +220,18 @@ export const RecResourceOverviewEditSection = () => {
                 errors={errors}
                 helpText={RISK_RATING_HELP_TEXT}
                 helperText={RISK_RATING_TEXT}
+              />
+            </Col>
+
+            <Col xs={12} md={6}>
+              <SelectField<EditResourceFormData>
+                name="recreation_user_days_code"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.recreation_user_days_code}
+                options={recreationUserDaysOptions}
+                placeholder="Select user days..."
+                control={control}
+                errors={errors}
+                helpText={USER_DAYS_HELP_TEXT}
               />
             </Col>
 

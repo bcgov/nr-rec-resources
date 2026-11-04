@@ -60,6 +60,11 @@ export const RecResourceOverviewSection = (
       label: 'Risk rating',
       value: recResource.risk_rating_description,
     },
+    {
+      key: 'recreation-user-days-code',
+      label: 'User Days',
+      value: recResource.recreation_user_days_code?.description ?? '',
+    },
   ];
 
   return (

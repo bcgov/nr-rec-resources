@@ -30,6 +30,7 @@ export const OPTION_TYPES = {
   PHOTOGRAPHER_TYPE: 'photographerType',
   CLOSEST_COMMUNITY: 'closestCommunity',
   REC_STATUS_CODE: 'recStatusCode',
+  RECREATION_USER_DAYS: 'recreationUserDays',
 } as const;
 
 /**
