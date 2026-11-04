@@ -211,6 +211,22 @@ export const SpatialSubmissionSection = ({
     setCreateStatus(null);
   };
 
+  const handleClearSelectedFiles = () => {
+    setSelectedFiles([]);
+    resetSpatialPreviewState();
+    setIssues([]);
+    setCreateStatus(null);
+  };
+
+  const handleRemoveSelectedFile = (fileName: string) => {
+    setSelectedFiles((previousFiles) =>
+      previousFiles.filter((file) => file.name !== fileName),
+    );
+    resetSpatialPreviewState();
+    setIssues([]);
+    setCreateStatus(null);
+  };
+
   const validateFeatureCollection = (featureCollection: any) => {
     const requiresSectionIdsForUpload =
       requiresSectionIdsForFeatureCollection(featureCollection);
@@ -276,7 +292,7 @@ export const SpatialSubmissionSection = ({
           type: 'GEOMETRY',
           severity: 'ERROR',
           message:
-            'Please upload a .zip shapefile bundle or a .shp file (with matching .dbf when available).',
+            'Please upload a .zip shapefile bundle or shapefile parts (.shp, .dbf, .shx with matching filenames).',
         },
       ]);
       setIsProcessing(false);
@@ -514,6 +530,9 @@ export const SpatialSubmissionSection = ({
             isProcessing={isProcessing}
             onSpatialFilesChange={handleSpatialFilesChange}
             onValidateSpatialFile={handleValidateSpatialFile}
+            selectedFiles={selectedFiles}
+            onClearSelectedFiles={handleClearSelectedFiles}
+            onRemoveSelectedFile={handleRemoveSelectedFile}
             variant={useGeospatialCompactForm ? 'geospatial' : 'full'}
             editMode={editMode}
             onCancel={onCancel}

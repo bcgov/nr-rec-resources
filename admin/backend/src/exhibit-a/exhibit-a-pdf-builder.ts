@@ -24,6 +24,7 @@ export type ExhibitAPdfHeader = {
   forest_region: string | null;
   forest_district: string | null;
   district_name: string | null;
+  recreation_district?: string | null;
   mgt_unit_type: string | null;
   mgt_unit_number: string | null;
   drawn_by: string | null;
@@ -663,7 +664,7 @@ export class ExhibitAPdfBuilder {
 
       switch (h.geometry_mode) {
         case 'linear':
-          return [...row, ...length];
+          return [...length, ...row, ...area];
         case 'polygon':
           return area;
         case 'mixed':
@@ -682,7 +683,10 @@ export class ExhibitAPdfBuilder {
             'Natural Resource District:',
             `${h.district_name ?? ''}${districtCode}`,
           ],
-          ['Recreation District', `${h.title ?? ''}${regionCode}`],
+          [
+            'Recreation District',
+            `${h.recreation_district ?? ''}${regionCode}`,
+          ],
           [GEOMETRY_SYMBOL_TEXT],
           ['MAP PROJ:', 'NAD 1983 BC Env Albers'],
         ],

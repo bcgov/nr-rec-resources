@@ -1055,6 +1055,7 @@ export class GeospatialService {
   }
 
   private async dispatchSncscStatusRequest(
+    tx: Prisma.TransactionClient,
     submission: CreatedSpatialSubmission,
     entries: FlatGeometryEntry[],
   ): Promise<void> {
@@ -1066,7 +1067,7 @@ export class GeospatialService {
       submission.org_unit_code,
     );
     const featureRequests = await this.buildFeatureRequestElements(
-      this.prisma,
+      tx,
       submission.tenure_id,
       entries,
     );
@@ -1103,7 +1104,7 @@ export class GeospatialService {
         await this.sncscStatusRequestService.createStatusRequest(payload);
 
       if (statusRequestGuid) {
-        await this.prisma.recreation_spatial_submission.update({
+        await tx.recreation_spatial_submission.update({
           where: { application_guid: submission.application_guid },
           data: {
             status_request_guid: statusRequestGuid,
@@ -1269,10 +1270,7 @@ export class GeospatialService {
     const amendedFeatures = payload.amendedFeatures ?? [];
     const retiredFeatures = payload.retiredFeatures ?? [];
 
-    const pendingStatusRequest: {
-      submission: CreatedSpatialSubmission;
-      entries: FlatGeometryEntry[];
-    } | null = await this.prisma.$transaction(
+    await this.prisma.$transaction(
       async (tx) => {
         await tx.$executeRawUnsafe(
           "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
@@ -1477,27 +1475,19 @@ export class GeospatialService {
           });
 
           if (createdSubmission) {
-            return {
-              submission: createdSubmission,
-              entries: allSubmissionEntries,
-            };
+            await this.dispatchSncscStatusRequest(
+              tx,
+              createdSubmission,
+              allSubmissionEntries,
+            );
           }
         }
-
-        return null;
       },
       {
         timeout: INTERACTIVE_TRANSACTION_TIMEOUT_MS,
         maxWait: INTERACTIVE_TRANSACTION_MAX_WAIT_MS,
       },
     );
-
-    if (pendingStatusRequest) {
-      await this.dispatchSncscStatusRequest(
-        pendingStatusRequest.submission,
-        pendingStatusRequest.entries,
-      );
-    }
   }
 
   /**
@@ -1518,10 +1508,7 @@ export class GeospatialService {
       `Creating ${payload.features.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
     );
 
-    const pendingStatusRequest: {
-      submission: CreatedSpatialSubmission;
-      entries: FlatGeometryEntry[];
-    } | null = await this.prisma.$transaction(
+    await this.prisma.$transaction(
       async (tx) => {
         await tx.$executeRawUnsafe(
           "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
@@ -1673,26 +1660,18 @@ export class GeospatialService {
         });
 
         if (createdSubmission) {
-          return {
-            submission: createdSubmission,
-            entries: flattenedEntries,
-          };
+          await this.dispatchSncscStatusRequest(
+            tx,
+            createdSubmission,
+            flattenedEntries,
+          );
         }
-
-        return null;
       },
       {
         timeout: INTERACTIVE_TRANSACTION_TIMEOUT_MS,
         maxWait: INTERACTIVE_TRANSACTION_MAX_WAIT_MS,
       },
     );
-
-    if (pendingStatusRequest) {
-      await this.dispatchSncscStatusRequest(
-        pendingStatusRequest.submission,
-        pendingStatusRequest.entries,
-      );
-    }
   }
 
   /**

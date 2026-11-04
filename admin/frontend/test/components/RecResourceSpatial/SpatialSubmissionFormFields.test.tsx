@@ -241,14 +241,17 @@ describe('SpatialSubmissionFormFields', () => {
   it('displays file accept attribute correctly', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
-    expect(fileInput).toHaveAttribute('accept', '.zip,.shp,.dbf');
+    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    expect(fileInput).toHaveAttribute(
+      'accept',
+      '.zip,.shp,.dbf,.shx,.prj,.cpg',
+    );
   });
 
   it('displays file multiple attribute', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
     expect(fileInput).toHaveAttribute('multiple');
   });
 
@@ -256,8 +259,27 @@ describe('SpatialSubmissionFormFields', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
     expect(
-      screen.getByText('File must be a Shape file as a single .zip bundle.'),
+      screen.getByText(
+        'Upload either one .zip shapefile bundle or matching .shp, .dbf, and .shx files (optional .prj/.cpg).',
+      ),
     ).toBeDefined();
+  });
+
+  it('displays selected spatial file names when provided', () => {
+    const props = {
+      ...defaultProps,
+      selectedFiles: [
+        new File(['shp'], 'trail.shp', { type: 'application/octet-stream' }),
+        new File(['dbf'], 'trail.dbf', { type: 'application/octet-stream' }),
+        new File(['shx'], 'trail.shx', { type: 'application/octet-stream' }),
+      ],
+    };
+    render(<SpatialSubmissionFormFields {...props} />);
+
+    expect(screen.getByText('trail')).toBeDefined();
+    expect(screen.getByText('trail.shp')).toBeDefined();
+    expect(screen.getByText('trail.dbf')).toBeDefined();
+    expect(screen.getByText('trail.shx')).toBeDefined();
   });
 
   it('displays validation feedback for missing required fields', () => {

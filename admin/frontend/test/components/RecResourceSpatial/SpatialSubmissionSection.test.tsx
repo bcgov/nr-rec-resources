@@ -353,10 +353,12 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByLabelText('Spatial file')).toHaveAttribute('multiple');
     expect(screen.getByLabelText('Spatial file')).toHaveAttribute(
       'accept',
-      '.zip,.shp,.dbf',
+      '.zip,.shp,.dbf,.shx,.prj,.cpg',
     );
     expect(
-      screen.getByText('File must be a Shape file as a single .zip bundle.'),
+      screen.getByText(
+        'Upload either one .zip shapefile bundle or matching .shp, .dbf, and .shx files (optional .prj/.cpg).',
+      ),
     ).toBeDefined();
   });
 
@@ -396,7 +398,7 @@ describe('SpatialSubmissionSection', () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          /Please upload a \.zip shapefile bundle or a \.shp file/i,
+          /Please upload a \.zip shapefile bundle or shapefile parts/i,
         ),
       ).toBeDefined();
     });

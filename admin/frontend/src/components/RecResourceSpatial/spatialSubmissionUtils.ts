@@ -5,6 +5,7 @@ import proj4 from 'proj4';
 import type { SpatialFeature } from './spatialSubmission.types';
 import {
   BC_EXTENT_3005,
+  REQUIRED_SHAPEFILE_PART_EXTENSIONS,
   REQUIRED_SHP_FILE_MESSAGE,
   SHAPEFILE_ALLOWED_EXTENSIONS,
   SHAPEFILE_BASENAME_MISMATCH_MESSAGE,
@@ -143,7 +144,7 @@ const validateSelectedShapefilePart = (file: File): string => {
     normalizedFileName.endsWith('.shp.exe')
   ) {
     throw new Error(
-      'Upload either one .zip shapefile bundle or .shp with an optional matching .dbf.',
+      'Upload either one .zip shapefile bundle or shapefile parts (.shp, .dbf, .shx; optional .prj/.cpg).',
     );
   }
 
@@ -309,7 +310,11 @@ const validateZipSelection = (zipFiles: File[], selectedFiles: File[]) => {
   }
 };
 
-const validateShapefileSelections = (shpFiles: File[], dbfFiles: File[]) => {
+const validateShapefileSelections = (
+  shpFiles: File[],
+  dbfFiles: File[],
+  filesByExtension: Record<string, File[]>,
+) => {
   if (shpFiles.length === 0) {
     throw new Error(REQUIRED_SHP_FILE_MESSAGE);
   }
@@ -318,6 +323,36 @@ const validateShapefileSelections = (shpFiles: File[], dbfFiles: File[]) => {
   }
   if (dbfFiles.length > 1) {
     throw new Error('Please upload only one .dbf file at a time.');
+  }
+
+  const missingRequiredExtensions = REQUIRED_SHAPEFILE_PART_EXTENSIONS.filter(
+    (extension) => (filesByExtension[extension] ?? []).length === 0,
+  );
+  if (missingRequiredExtensions.length > 0) {
+    throw new Error(
+      `Missing required shapefile part(s): ${missingRequiredExtensions.map((extension) => `.${extension}`).join(', ')}. Upload .shp, .dbf, and .shx with the same base filename.`,
+    );
+  }
+
+  for (const extension of REQUIRED_SHAPEFILE_PART_EXTENSIONS) {
+    if ((filesByExtension[extension] ?? []).length > 1) {
+      throw new Error(`Please upload only one .${extension} file at a time.`);
+    }
+  }
+
+  const requiredFiles = [
+    shpFiles[0],
+    ...REQUIRED_SHAPEFILE_PART_EXTENSIONS.map(
+      (extension) => (filesByExtension[extension] ?? [])[0],
+    ),
+  ];
+  const baseNames = new Set(
+    requiredFiles.map((file) => getNormalizedStem(file.name)),
+  );
+  if (baseNames.size > 1) {
+    throw new Error(
+      'All uploaded shapefile parts must have the same base filename (e.g. trail.shp, trail.dbf, trail.shx).',
+    );
   }
 };
 
@@ -523,6 +558,6 @@ export async function readSpatialFile(
     return readZipSpatialFile(zipFiles[0]);
   }
 
-  validateShapefileSelections(shpFiles, dbfFiles);
+  validateShapefileSelections(shpFiles, dbfFiles, filesByExtension);
   return readShapefileSpatialFile(shpFiles[0], dbfFiles[0]);
 }

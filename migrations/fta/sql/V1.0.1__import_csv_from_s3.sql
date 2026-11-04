@@ -549,7 +549,7 @@ select aws_s3.table_import_from_s3(
         update_timestamp
       )
   )',
-  aws_commons.create_s3_uri('${S3_BUCKET}', 'TENURE_APPLICATION.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_APPLICATION.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -565,5 +565,5 @@ select aws_s3.table_import_from_s3(
         update_timestamp
       )
   )',
-  aws_commons.create_s3_uri('${S3_BUCKET}', 'TENURE_APPLICATION_IMAGES.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_APP_IMAGE.csv', 'ca-central-1')
 );

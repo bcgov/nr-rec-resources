@@ -58,7 +58,7 @@ prepared as (
         n.file_name,
         n.extension,
         n.image_file_size as file_size,
-        n.rec_resource_id || '/' || rss.submission_id || '/' || n.file_name_with_ext as s3_key,
+        'Exhibit_A/' || n.rec_resource_id || '/' || rss.submission_id || '/' || n.file_name_with_ext as s3_key,
         n.updated_at,
         n.updated_by,
         n.created_at,

@@ -117,7 +117,7 @@ describe('spatialSubmissionUtils', () => {
     });
 
     await expect(readSpatialFile(badFile)).rejects.toThrow(
-      'Upload either one .zip shapefile bundle or .shp with an optional matching .dbf.',
+      'Upload either one .zip shapefile bundle or shapefile parts (.shp, .dbf, .shx; optional .prj/.cpg).',
     );
   });
 
@@ -141,8 +141,14 @@ describe('spatialSubmissionUtils', () => {
     ).toBeUndefined();
   });
 
-  it('accepts a single .shp upload', async () => {
+  it('accepts a matching .shp/.dbf/.shx upload set', async () => {
     const shpFile = new File(['placeholder'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['placeholder'], 'submission.dbf', {
+      type: 'application/octet-stream',
+    });
+    const shxFile = new File(['placeholder'], 'submission.shx', {
       type: 'application/octet-stream',
     });
 
@@ -155,10 +161,23 @@ describe('spatialSubmissionUtils', () => {
     view.setFloat64(60, 1100000, true);
     vi.spyOn(shpFile, 'arrayBuffer').mockResolvedValue(buffer);
 
-    const result = await readSpatialFile(shpFile);
+    const result = await readSpatialFile([shpFile, dbfFile, shxFile]);
 
     expect(result.type).toBe('FeatureCollection');
     expect(result.features).toHaveLength(1);
+  });
+
+  it('rejects non-zip uploads missing required shapefile parts', async () => {
+    const shpFile = new File(['placeholder'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['placeholder'], 'submission.dbf', {
+      type: 'application/octet-stream',
+    });
+
+    await expect(readSpatialFile([shpFile, dbfFile])).rejects.toThrow(
+      'Missing required shapefile part(s): .shx. Upload .shp, .dbf, and .shx with the same base filename.',
+    );
   });
 
   it('rejects non-.shp files', async () => {
@@ -234,8 +253,12 @@ describe('spatialSubmissionUtils', () => {
       type: 'application/octet-stream',
     });
 
-    await expect(readSpatialFile([shpFile, dbfFile])).rejects.toThrow(
-      'The .dbf filename must match the uploaded .shp filename.',
+    const shxFile = new File(['placeholder'], 'trail-a.shx', {
+      type: 'application/octet-stream',
+    });
+
+    await expect(readSpatialFile([shpFile, dbfFile, shxFile])).rejects.toThrow(
+      'All uploaded shapefile parts must have the same base filename (e.g. trail.shp, trail.dbf, trail.shx).',
     );
   });
 

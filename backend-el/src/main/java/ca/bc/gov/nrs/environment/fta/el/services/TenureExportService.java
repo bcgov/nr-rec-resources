@@ -36,11 +36,39 @@ public class TenureExportService {
       """;
 
   private static final String REC_TENURE_APP_IMAGE_SQL = """
-      SELECT tai.*
+      SELECT ta.TENURE_APP_GUID,
+             ta.SUBMISSION_ID,
+             ta.FOREST_FILE_ID,
+             'Exhibit_A/' || NVL(ta.FOREST_FILE_ID, 'unknown_resource') || '/' || NVL(TO_CHAR(ta.SUBMISSION_ID), 'unknown_submission') || '/' ||
+             'TENURE_APP_IMAGE_' || ROW_NUMBER() OVER (ORDER BY ta.TENURE_APP_ID) || '_' || ta.TENURE_APP_ID ||
+             CASE UPPER(TRIM(ta.IMAGE_MIME_TYPE_CODE))
+               WHEN 'PDF' THEN '.pdf'
+               WHEN 'JPG' THEN '.jpg'
+               WHEN 'JPEG' THEN '.jpg'
+               WHEN 'PNG' THEN '.png'
+               WHEN 'GIF' THEN '.gif'
+               ELSE ''
+             END AS IMAGE_FILE_NAME,
+             CASE UPPER(TRIM(ta.IMAGE_MIME_TYPE_CODE))
+               WHEN 'PDF' THEN 'pdf'
+               WHEN 'JPG' THEN 'jpg'
+               WHEN 'JPEG' THEN 'jpg'
+               WHEN 'PNG' THEN 'png'
+               WHEN 'GIF' THEN 'gif'
+               ELSE NULL
+             END AS IMAGE_EXTENSION,
+             DBMS_LOB.GETLENGTH(tai.EXHIBIT_A_IMAGE) AS IMAGE_FILE_SIZE,
+             ta.IMAGE_MAP_SIZE_CODE,
+             ta.IMAGE_ORIENTATION_CODE,
+             TO_CHAR(ta.IMAGE_SCALE) AS IMAGE_SCALE,
+             tai.ENTRY_TIMESTAMP,
+             tai.UPDATE_TIMESTAMP,
+             tai.ENTRY_USERID,
+             tai.UPDATE_USERID
       FROM TENURE_APPLICATION ta
       JOIN TENURE_APPLICATION_IMAGE tai ON ta.TENURE_APP_ID = tai.TENURE_APP_ID
       WHERE ta.TENURE_APPLICATION_TYPE_CODE IN (?, ?)
-      ORDER BY tai.TENURE_APP_ID
+      ORDER BY ta.TENURE_APP_ID
       """;
 
   private static final String REC_TENURE_APP_IMAGE_UPLOAD_SQL = """
@@ -134,7 +162,7 @@ public class TenureExportService {
 
     if (tenureImageCsvExportEnabled) {
       if (shouldExportAppImages(imageExportTarget)) {
-        exportTableAsCsvInBatches("REC_TENURE_APP_IMAGE.csv", REC_TENURE_APP_IMAGE_SQL);
+        exportTableAsCsv("REC_TENURE_APP_IMAGE.csv", REC_TENURE_APP_IMAGE_SQL);
       }
       if (shouldExportMfImages(imageExportTarget)) {
         exportTableAsCsvInBatches("REC_TENURE_MF_IMAGE.csv", REC_TENURE_MF_IMAGE_SQL);
@@ -222,10 +250,14 @@ public class TenureExportService {
           String recResourceId = sanitizePathSegment(getColumnValue(resultSet, recResourceIdColumnIndex), "");
           String resourceKey = !forestFileId.isBlank() ? forestFileId : (!recResourceId.isBlank() ? recResourceId : "unknown_resource");
           String contentType = getColumnValue(resultSet, contentTypeColumnIndex);
-          String defaultFileName = fallbackFilePrefix + "_" + (uploadedRows + 1) + extensionFromContentType(contentType);
+          String stableId = sanitizePathSegment(getColumnValue(resultSet, imageIdColumnIndex), "");
+          String defaultFileNameBase = fallbackFilePrefix + "_" + (uploadedRows + 1);
+          if (!stableId.isBlank()) {
+            defaultFileNameBase = defaultFileNameBase + "_" + stableId;
+          }
+          String defaultFileName = defaultFileNameBase + extensionFromContentType(contentType);
           String fileName = sanitizeFileName(getColumnValue(resultSet, fileNameColumnIndex), defaultFileName);
 
-          String stableId = sanitizePathSegment(getColumnValue(resultSet, imageIdColumnIndex), "");
           if (!stableId.isBlank() && !fileName.contains(".")) {
             fileName = fileName + "_" + stableId;
           }
