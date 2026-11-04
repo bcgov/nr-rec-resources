@@ -132,6 +132,7 @@ describe('useResourceOptions', () => {
       GetOptionsByTypeTypeEnum.RecreationStatus,
       GetOptionsByTypeTypeEnum.RiskRatingCode,
       GetOptionsByTypeTypeEnum.District,
+      GetOptionsByTypeTypeEnum.RecreationUserDays,
     ]);
   });
 

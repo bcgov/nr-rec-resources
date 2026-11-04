@@ -41,3 +41,6 @@ export const RECREATION_OPERATOR_HELP_TEXT = (
     displayed when a volunteer partner is authorized to collect fees.
   </>
 );
+
+export const USER_DAYS_HELP_TEXT =
+  'An estimate of how much a recreation site, trail, reserve or interpretive forest is used over a year, recorded as an annual usage range.';

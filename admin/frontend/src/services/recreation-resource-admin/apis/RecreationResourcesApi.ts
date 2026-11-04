@@ -2518,7 +2518,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, naturalDistrict, photographerType, closestCommunity, recStatusCode
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, naturalDistrict, photographerType, closestCommunity, recStatusCode, recreationUserDays
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -2567,7 +2567,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, naturalDistrict, photographerType, closestCommunity, recStatusCode
+   * Retrieve all available values for a given option type. Valid types: activities, accessibleActivities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, naturalDistrict, photographerType, closestCommunity, recStatusCode, recreationUserDays
    * List all options for a type
    */
   async getOptionsByType(
@@ -4442,6 +4442,7 @@ export const GetOptionsByTypeTypeEnum = {
   PhotographerType: 'photographerType',
   ClosestCommunity: 'closestCommunity',
   RecStatusCode: 'recStatusCode',
+  RecreationUserDays: 'recreationUserDays',
 } as const;
 export type GetOptionsByTypeTypeEnum =
   (typeof GetOptionsByTypeTypeEnum)[keyof typeof GetOptionsByTypeTypeEnum];
@@ -4466,6 +4467,7 @@ export const GetOptionsByTypesTypesEnum = {
   PhotographerType: 'photographerType',
   ClosestCommunity: 'closestCommunity',
   RecStatusCode: 'recStatusCode',
+  RecreationUserDays: 'recreationUserDays',
 } as const;
 export type GetOptionsByTypesTypesEnum =
   (typeof GetOptionsByTypesTypesEnum)[keyof typeof GetOptionsByTypesTypesEnum];

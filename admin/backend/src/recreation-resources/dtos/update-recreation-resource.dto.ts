@@ -189,4 +189,16 @@ export class UpdateRecreationResourceDto {
   @Type(() => Date)
   @IsDate()
   last_hzrd_tree_assess_date?: Date | null;
+
+  @ApiPropertyOptional({
+    description: 'User days code (recreation user days)',
+    example: '1K',
+    nullable: true,
+    type: String,
+    maxLength: 3,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(3)
+  recreation_user_days_code?: string | null;
 }
