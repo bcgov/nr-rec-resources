@@ -414,6 +414,7 @@ export function RecResourceAssetsEditPage() {
                         assetCodes={assetCodes ?? []}
                         recResourceId={recResourceId}
                         isAddRepairDisabled={!!editGroup}
+                        campsites={campsiteGroups}
                       />
                     ))}
                   </Stack>

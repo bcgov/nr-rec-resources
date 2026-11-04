@@ -324,7 +324,7 @@ export function AssetCardEdit({
                       handleChange('parent_id', e.target.value);
                     }}
                   >
-                    <option value="">--No campsite--</option>
+                    <option value="">None</option>
                     {campsites &&
                       campsites.map((c) => {
                         return (
