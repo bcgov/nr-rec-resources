@@ -1,4 +1,4 @@
-{{- if .Values.tenureImageCronEnabled }}
+{{- if and .Values.tenureImageCronEnabled .Values.tenureCoreCronEnabled }}
 {{/* Manual cronjob to run only TENURE_APPLICATION and TENURE_APPLICATION_MAP_FEATURE exports */}}
 apiVersion: batch/v1
 kind: CronJob

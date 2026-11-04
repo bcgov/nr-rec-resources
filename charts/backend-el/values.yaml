@@ -13,11 +13,7 @@ resources:
     memory: 1500Mi
 schedule: '0 8 * * *' # Daily at midnight PST
 hourlySchedule: '15 * * * *' # Hourly on the 15th minute
-tenureAppImageSchedule: '0 0 1 1 *' # Unused when suspended; keep a valid cron expression
-tenureMfImageSchedule: '5 0 1 1 *' # Unused when suspended; keep a valid cron expression
-tenureCoreSchedule: '10 0 1 1 *' # Unused when suspended; keep a valid cron expression
-tenureImageCronSuspend: true # manual trigger only
-tenureImageCronEnabled: true
+tenureImageCronEnabled: false
 backoffLimit: 3 # retry 3 times before giving up
 successHistoryLimit: 7
 failedHistoryLimit: 7

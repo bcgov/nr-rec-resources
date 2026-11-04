@@ -49,6 +49,8 @@ spec:
                   value: "openshift"
                 - name: JOB_MODE # for backend-el app to run the daily job
                   value: "daily"
+                - name: TENURE_IMAGE_EXPORT_TARGET
+                  value: "all"
               volumeMounts:
                 - name: {{ .Release.Name }}-csv
                   mountPath: /uploads

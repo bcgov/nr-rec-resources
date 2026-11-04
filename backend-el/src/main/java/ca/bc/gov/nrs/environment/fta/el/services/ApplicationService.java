@@ -224,7 +224,9 @@ public class ApplicationService {
     extractAndUploadRecreationTrailSegment();
     extractAndUploadRecreationUserDaysCode();
     extractAndUploadRecreatnEvent();
+    logger.info("Daily export reached tenure workflow (TENURE_APPLICATION and related tenure tables)");
     this.tenureExportService.extractAndUploadTenureDataToS3();
+    logger.info("Daily export completed tenure workflow");
 
     this.flywayTaskRunnerService.runFlywayTasks();
   }
