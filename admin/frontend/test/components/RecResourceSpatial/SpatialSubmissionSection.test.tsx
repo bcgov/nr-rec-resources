@@ -698,6 +698,97 @@ describe('SpatialSubmissionSection', () => {
     expect(fileInput.files?.[0]?.name).toBe('submission-two.shp');
   });
 
+  it('clears and removes selected files from the upload list', () => {
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode="SIT"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
+      />,
+    );
+
+    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['dbf-content'], 'submission.dbf', {
+      type: 'application/octet-stream',
+    });
+
+    fireEvent.change(fileInput, { target: { files: [shpFile, dbfFile] } });
+    expect(screen.getByText('submission.shp')).toBeDefined();
+    expect(screen.getByText('submission.dbf')).toBeDefined();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Remove submission.dbf' }),
+    );
+    expect(screen.queryByText('submission.dbf')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear all' }));
+    expect(screen.queryByText('submission.shp')).toBeNull();
+  });
+
+  it('creates edit payload grouped by NEW, AMEND, and RETIRE actions', async () => {
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode="SIT"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
+        editMode={true}
+        existingSectionIds={['River Way South', 'North Loop 1']}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/recreation type/i), {
+      target: { value: 'RTE' },
+    });
+    fireEvent.change(screen.getByLabelText('Feature type'), {
+      target: { value: 'Polygon' },
+    });
+
+    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    fireEvent.change(fileInput, { target: { files: [shpFile] } });
+
+    fireEvent.click(screen.getByText('Validate'));
+    await waitFor(() => {
+      expect(
+        screen.getByText('Spatial file validated successfully.'),
+      ).toBeDefined();
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /North Loop 1.*Feature #2/i }),
+    );
+    fireEvent.change(
+      screen.getByLabelText('Select action for the selected feature'),
+      {
+        target: { value: 'RETIRE' },
+      },
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+
+    await waitFor(() => {
+      expect(mockUpdateMapFeatures).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recResourceId: 'REC123',
+          newFeatures: [],
+          amendedFeatures: [
+            expect.objectContaining({ sectionId: 'River Way South' }),
+          ],
+          retiredFeatures: [
+            expect.objectContaining({ sectionId: 'North Loop 1' }),
+          ],
+        }),
+      );
+    });
+  });
+
   it('shows feature-type validation message when geometry does not match selection', async () => {
     render(
       <SpatialSubmissionSection
@@ -870,6 +961,69 @@ describe('SpatialSubmissionSection', () => {
         screen.getByText(/Unable to create request: Service unavailable/),
       ).toBeDefined();
     });
+  });
+
+  it('calls onCancel after successful request creation when callback is provided', async () => {
+    const onCancel = vi.fn();
+
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode="RTE"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
+        onCancel={onCancel}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText('Feature type'), {
+      target: { value: 'Polygon' },
+    });
+
+    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    fireEvent.change(fileInput, { target: { files: [shpFile] } });
+
+    fireEvent.click(screen.getByText('Validate'));
+    await waitFor(() => {
+      expect(
+        screen.getByText('Spatial file validated successfully.'),
+      ).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+
+    await waitFor(() => {
+      expect(onCancel).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('dismisses district options warning when loading options fails', () => {
+    mockUseGetRecreationResourceOptions.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: true,
+      error: new Error('failed to fetch'),
+      refetch: vi.fn(),
+    } as any);
+
+    render(<SpatialSubmissionSection recResourceId="REC123" />);
+
+    expect(
+      screen.getByText(
+        'Unable to load district/type options. Please refresh and try again.',
+      ),
+    ).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close alert' }));
+
+    expect(
+      screen.queryByText(
+        'Unable to load district/type options. Please refresh and try again.',
+      ),
+    ).toBeNull();
   });
 
   it('requests only resource type options when using compact geospatial form', () => {

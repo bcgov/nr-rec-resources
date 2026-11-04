@@ -282,6 +282,54 @@ describe('SpatialSubmissionFormFields', () => {
     expect(screen.getByText('trail.shx')).toBeDefined();
   });
 
+  it('formats selected file sizes in KB for larger files', () => {
+    const largerFile = new File(['shp'], 'trail.shp', {
+      type: 'application/octet-stream',
+    });
+    Object.defineProperty(largerFile, 'size', {
+      value: 2048,
+      configurable: true,
+    });
+
+    render(
+      <SpatialSubmissionFormFields
+        {...defaultProps}
+        selectedFiles={[largerFile]}
+      />,
+    );
+
+    expect(screen.getByText('2.0 KB')).toBeDefined();
+  });
+
+  it('falls back to district abbreviation when option label is empty', () => {
+    render(
+      <SpatialSubmissionFormFields
+        {...defaultProps}
+        naturalResourceDistrictOptions={[{ id: 'DCC', label: '   ' }]}
+      />,
+    );
+
+    expect(screen.getByRole('option', { name: 'DCC' })).toBeDefined();
+  });
+
+  it('calls onRemoveSelectedFile when a selected file is removed', () => {
+    const onRemoveSelectedFile = vi.fn();
+    const selectedFile = new File(['shp'], 'trail.shp', {
+      type: 'application/octet-stream',
+    });
+
+    render(
+      <SpatialSubmissionFormFields
+        {...defaultProps}
+        selectedFiles={[selectedFile]}
+        onRemoveSelectedFile={onRemoveSelectedFile}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove trail.shp' }));
+    expect(onRemoveSelectedFile).toHaveBeenCalledWith('trail.shp');
+  });
+
   it('displays validation feedback for missing required fields', () => {
     mockHasMissingField.mockReturnValue(true);
     render(<SpatialSubmissionFormFields {...defaultProps} />);

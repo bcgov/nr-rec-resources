@@ -72,6 +72,7 @@ jobs:
     # Deploy to prod if PR is merged
     environment: openshift-${{ github.event.inputs.environment || (github.event.action == 'closed' && 'prod') || 'dev' }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
       - name: Helm Deploy
         id: deploy
@@ -88,6 +89,8 @@ jobs:
             cd charts/backend-el
             SECRET_PERSIST=true
             PVC_SIZE="2Gi"
+            HELM_TIMEOUT="30m"
+            IMPORT_WAIT_TIMEOUT="1800s"
             # if event is PR then use a different bucket
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               export AWS_LZA_S3_BUCKET="fta-rec-rst-lza-uploads"
@@ -114,13 +117,13 @@ jobs:
               --set-string secrets.flywayTaskConfigs="${FLYWAY_TASK_LZA_CONFIGS}" \
               --set secrets.persist=$SECRET_PERSIST \
               --set-string pvc.size="$PVC_SIZE" \
-              --install --wait \
+              --install --wait --timeout "$HELM_TIMEOUT" \
               --values values.yaml "$RELEASE_NAME"\
               ./backend-el-1.0.0.tgz
 
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               oc create job $RELEASE_NAME-daily-${{github.run_number}} --from=cronjob/$RELEASE_NAME-daily
-              oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-daily-${{github.run_number}}
+              oc wait --for=condition=complete --timeout=$IMPORT_WAIT_TIMEOUT job/$RELEASE_NAME-daily-${{github.run_number}}
             fi
   clean_up:
     name: Clean up
