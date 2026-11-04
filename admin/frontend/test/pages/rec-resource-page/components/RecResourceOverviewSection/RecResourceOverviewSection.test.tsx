@@ -118,6 +118,10 @@ describe('RecResourceOverviewSection', () => {
         description: 'Hiking',
       },
     ],
+    recreation_user_days_code: {
+      description: '1000 - 5000',
+      recreation_user_days_code: '1K',
+    },
   } as any;
 
   const renderWithProvider = (ui: React.ReactNode) => render(ui);
