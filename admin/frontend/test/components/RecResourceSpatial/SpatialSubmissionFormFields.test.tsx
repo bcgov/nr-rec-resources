@@ -241,7 +241,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('displays file accept attribute correctly', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     expect(fileInput).toHaveAttribute(
       'accept',
       '.zip,.shp,.dbf,.shx,.prj,.cpg',
@@ -251,7 +251,7 @@ describe('SpatialSubmissionFormFields', () => {
   it('displays file multiple attribute', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     expect(fileInput).toHaveAttribute('multiple');
   });
 

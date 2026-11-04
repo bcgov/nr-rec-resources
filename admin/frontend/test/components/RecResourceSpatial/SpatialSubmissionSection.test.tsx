@@ -708,7 +708,7 @@ describe('SpatialSubmissionSection', () => {
       />,
     );
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -748,7 +748,7 @@ describe('SpatialSubmissionSection', () => {
       target: { value: 'Polygon' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -980,7 +980,7 @@ describe('SpatialSubmissionSection', () => {
       target: { value: 'Polygon' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
