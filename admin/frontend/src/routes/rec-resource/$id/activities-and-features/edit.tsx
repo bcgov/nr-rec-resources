@@ -20,6 +20,7 @@ export const Route = createFileRoute(
     } as any);
     return {
       tab: RecResourceNavKey.ACTIVITIES,
+      isEditing: true,
       breadcrumb: (loaderData?: any): BreadcrumbItem[] => {
         if (!parentBeforeLoad?.breadcrumb) return [];
         return [
