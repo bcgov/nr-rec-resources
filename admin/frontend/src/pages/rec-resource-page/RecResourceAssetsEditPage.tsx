@@ -370,6 +370,7 @@ export function RecResourceAssetsEditPage() {
                           asset={asset}
                           repairCodes={repairCodes}
                           assetCodes={assetCodes ?? []}
+                          campsites={campsiteGroups}
                           linkedAssetCount={
                             (assets ?? []).filter(
                               (a) => a.parent_id === asset.asset_id,
@@ -413,6 +414,7 @@ export function RecResourceAssetsEditPage() {
                         assetCodes={assetCodes ?? []}
                         recResourceId={recResourceId}
                         isAddRepairDisabled={!!editGroup}
+                        campsites={campsiteGroups}
                       />
                     ))}
                   </Stack>
