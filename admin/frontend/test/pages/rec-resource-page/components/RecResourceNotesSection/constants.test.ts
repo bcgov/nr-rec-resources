@@ -9,6 +9,8 @@ describe('getNoteTypeLabel', () => {
     expect(getNoteTypeLabel('NOTE')).toBe('Note');
     expect(getNoteTypeLabel('REFERENCE')).toBe('Reference');
     expect(getNoteTypeLabel('FILE')).toBe('Associated file');
+    expect(getNoteTypeLabel('FIELD_NOTE')).toBe('Field note');
+    expect(getNoteTypeLabel('OBJECTIVE')).toBe('Objective');
   });
 
   it('falls back to Note for an unknown code', () => {
@@ -21,6 +23,8 @@ describe('getNoteTypeLabel', () => {
       'NOTE',
       'REFERENCE',
       'FILE',
+      'FIELD_NOTE',
+      'OBJECTIVE',
     ]);
   });
 });

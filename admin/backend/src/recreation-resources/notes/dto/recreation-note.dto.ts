@@ -14,7 +14,8 @@ export class RecreationNoteDto {
   rec_resource_id: string;
 
   @ApiProperty({
-    description: 'Kind of note. Only NOTE is currently reachable',
+    description:
+      'Kind of note. Staff can only create NOTE; the other codes come from imports and the FTA sync',
     example: 'NOTE',
   })
   note_type_code: string;

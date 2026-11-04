@@ -22,7 +22,9 @@ insert into rst.recreation_note_type_code (note_type_code, description)
 values
     ('NOTE', 'Note'),
     ('REFERENCE', 'Reference'),
-    ('FILE', 'Associated file')
+    ('FILE', 'Associated file'),
+    ('FIELD_NOTE', 'Field note'),
+    ('OBJECTIVE', 'Objective')
 on conflict (note_type_code) do nothing;
 
 
@@ -89,7 +91,7 @@ comment on column rst.recreation_resource_note.note_id is 'Unique UUID identifie
 
 comment on column rst.recreation_resource_note.rec_resource_id is 'Recreation Resource ID this note belongs to.';
 
-comment on column rst.recreation_resource_note.note_type_code is 'Kind of note. Only NOTE is currently reachable from the admin app.';
+comment on column rst.recreation_resource_note.note_type_code is 'Kind of note. Staff can only create NOTE; the other codes come from imports and the FTA sync.';
 
 comment on column rst.recreation_resource_note.title is 'Short title shown at the top of the note card.';
 

@@ -50,3 +50,40 @@ insert into rst.recreation_resource_note (
     ('REC0019', 'NOTE', 'Overlaps a grazing licence', '<p>Part of the site sits under an active grazing licence. Check with the range officer before approving any work.</p>', '2026-02-02', 'RST', null, 'IDIR\MCHEN'),
     ('REC0108', 'NOTE', 'Bears every fall', '<p>Reports come in every year from August to October. Signs go up in August and come down after the first hard frost.</p>', '2025-11-26', 'RST', null, 'IDIR\SJOHNSON')
 on conflict do nothing;
+
+
+-- Field notes and objectives, as the fta_to_rst sync would write them. The fta
+-- schema is empty locally, so these stand in for it.
+--
+-- A field note's source_key is derived from the resource, so the real shape is
+-- safe to use here. Objective ids are prefixed, since a real objective with the
+-- same id could belong to another resource.
+
+insert into rst.recreation_resource_note (
+    rec_resource_id,
+    note_type_code,
+    title,
+    body,
+    date_logged,
+    source_system,
+    source_key,
+    created_by
+) values
+    -- REC204117 0 K SNOWMOBILE PARKING LOT
+    ('REC204117', 'FIELD_NOTE', 'Field note', '<p>Plowed lot at the 0 km mark, room for about 20 trucks and trailers. Staging area for the groomed trail network to the north.</p>', '2024-11-18', 'FTA', 'FIELD_NOTE|REC204117', 'IDIR\BDOWEDOF'),
+    ('REC204117', 'OBJECTIVE', 'Objective', '<p>Maintain winter access for snowmobile users and keep the staging area clear of stored equipment.</p>', '2019-03-12', 'FTA', 'OBJECTIVE|DEMO-1', 'IDIR\TAMCMILL'),
+    -- REC1222 100 ROAD BRIDGE
+    ('REC1222', 'FIELD_NOTE', 'Field note', '<p>Single lane bridge over the creek at km 4.<br>Deck replaced in 2019, abutments original.</p>', '2023-07-02', 'FTA', 'FIELD_NOTE|REC1222', 'IDIR\EXMURRAY'),
+    -- REC160773 10K CABIN
+    ('REC160773', 'FIELD_NOTE', 'Field note', '<p>One room cabin with a woodstove and sleeping platform for four. No potable water on site.</p>', '2022-09-30', 'FTA', 'FIELD_NOTE|REC160773', 'IDIR\BDOWEDOF'),
+    ('REC160773', 'OBJECTIVE', 'Objective', '<p>Retain the cabin as a backcountry shelter and keep the approach trail passable on foot.</p>', '2015-04-01', 'FTA', 'OBJECTIVE|DEMO-2', 'IDIR\NKEKULA'),
+    -- REC203239 10 K SNOWMOBILE PARKING LOT
+    ('REC203239', 'OBJECTIVE', 'Objective', '<p>Provide parking for winter trail users while limiting the footprint of the cleared area.</p>', '2018-02-20', 'FTA', 'OBJECTIVE|DEMO-3', 'IDIR\EABELS'),
+    -- REC6866 1861 GOLDRUSH PACK TRAIL
+    ('REC6866', 'FIELD_NOTE', 'Field note', '<p>Historic pack trail, roughly 12 km of tread following the original alignment. Several creek crossings are unbridged.</p>', '2021-06-14', 'FTA', 'FIELD_NOTE|REC6866', 'IDIR\EABELS'),
+    ('REC6866', 'OBJECTIVE', 'Objective', '<p>Protect the historic trail alignment and manage recreation use so the tread and remaining structures are not degraded.</p>', '2007-03-03', 'FTA', 'OBJECTIVE|DEMO-4', 'IDIR\TIMBENNE'),
+    -- Real content resources
+    ('REC0019', 'FIELD_NOTE', 'Field note', '<p>Lakeshore site with 8 defined campsites, boat launch and a day use area.</p>', '2021-12-14', 'FTA', 'FIELD_NOTE|REC0019', 'IDIR\BDOWEDOF'),
+    ('REC0019', 'OBJECTIVE', 'Objective', '<p>Maintain the site for family camping and keep the boat launch usable through the summer season.</p>', '2016-05-09', 'FTA', 'OBJECTIVE|DEMO-5', 'IDIR\KEESKELI'),
+    ('REC0108', 'FIELD_NOTE', 'Field note', '<p>Trailhead with a gravel pullout. Road right of way was removed from the site boundary in 2022.</p>', '2022-03-17', 'FTA', 'FIELD_NOTE|REC0108', 'IDIR\BDOWEDOF')
+on conflict do nothing;

@@ -32,7 +32,7 @@ export interface RecreationNoteDto {
    */
   rec_resource_id: string;
   /**
-   * Kind of note. Only NOTE is currently reachable
+   * Kind of note. Staff can only create NOTE; the other codes come from imports and the FTA sync
    * @type {string}
    * @memberof RecreationNoteDto
    */
