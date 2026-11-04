@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockUseRecResource = vi.fn();
@@ -10,6 +16,8 @@ const mockInvalidateQueries = vi.fn();
 const mockPresignExhibitAUpload = vi.fn();
 const mockFinalizeExhibitAUpload = vi.fn();
 const mockCreateOrGetExhibitAByApplicationGuid = vi.fn();
+const mockUseRecreationResourceAdminApiClient = vi.fn();
+const mockGetPendingRequestAdjudicationReportRaw = vi.fn();
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, className }: any) => (
@@ -67,6 +75,14 @@ vi.mock(
 );
 
 vi.mock(
+  '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient',
+  () => ({
+    useRecreationResourceAdminApiClient: () =>
+      mockUseRecreationResourceAdminApiClient(),
+  }),
+);
+
+vi.mock(
   '@/services/hooks/recreation-resource-admin/useExhibitADocsHooks',
   () => ({
     usePresignExhibitAUpload: () => mockPresignExhibitAUpload(),
@@ -91,11 +107,16 @@ vi.mock(
 
 const mockAddSuccessNotification = vi.fn();
 const mockAddErrorNotification = vi.fn();
+const mockAddSpinnerNotification = vi.fn();
+const mockRemoveNotification = vi.fn();
 
 vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: (...args: any[]) => mockAddErrorNotification(...args),
   addSuccessNotification: (...args: any[]) =>
     mockAddSuccessNotification(...args),
+  addSpinnerNotification: (...args: any[]) =>
+    mockAddSpinnerNotification(...args),
+  removeNotification: (...args: any[]) => mockRemoveNotification(...args),
 }));
 
 vi.mock('@/components/file/DocumentUploadModal', () => ({
@@ -168,6 +189,8 @@ describe('RecResourceGeospatialSection', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
     mockAddSuccessNotification.mockClear();
     mockAddErrorNotification.mockClear();
+    mockAddSpinnerNotification.mockClear();
+    mockRemoveNotification.mockClear();
     mockInvalidateQueries.mockClear();
     mockInvalidateQueries.mockResolvedValue(undefined);
 
@@ -176,6 +199,9 @@ describe('RecResourceGeospatialSection', () => {
         email: 'idir.user@gov.bc.ca',
         idir_username: 'IDIR\\idir.user',
         preferred_username: 'idir.user',
+      },
+      authService: {
+        getToken: vi.fn().mockResolvedValue('test-token'),
       },
     });
 
@@ -212,6 +238,19 @@ describe('RecResourceGeospatialSection', () => {
     });
 
     mockUseGetExhibitADocs.mockReturnValue({ data: [] });
+    mockGetPendingRequestAdjudicationReportRaw.mockResolvedValue({
+      raw: {
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8)),
+        text: vi.fn().mockResolvedValue(''),
+      },
+    });
+    mockUseRecreationResourceAdminApiClient.mockReturnValue({
+      getPendingRequestAdjudicationReportRaw:
+        mockGetPendingRequestAdjudicationReportRaw,
+    });
     mockPresignExhibitAUpload.mockReturnValue({
       mutateAsync: vi.fn(),
       isPending: false,
@@ -422,6 +461,7 @@ describe('RecResourceGeospatialSection', () => {
             submission_id: 'SUB-3',
             rec_resource_id: 'REC0001',
             amend_status_code: 'APPROVED_AMEND',
+            purpose_code: 'A',
             feature_count: 1,
             geometry_types: ['Polygon'],
           },
@@ -429,6 +469,7 @@ describe('RecResourceGeospatialSection', () => {
             submission_id: 'SUB-4',
             rec_resource_id: 'REC0001',
             amend_status_code: 'REJECTED_RETIRE',
+            purpose_code: 'R',
             feature_count: 1,
             geometry_types: ['Polygon'],
           },
@@ -441,8 +482,8 @@ describe('RecResourceGeospatialSection', () => {
 
     expect(screen.getByText('APPROVED')).toBeDefined();
     expect(screen.getByText('REJECTED')).toBeDefined();
-    expect(screen.getByText('Amendment')).toBeDefined();
-    expect(screen.getByText('Retire')).toBeDefined();
+    expect(screen.getByText('AMEND')).toBeDefined();
+    expect(screen.getByText('RETIRE')).toBeDefined();
   });
 
   it('shows compact create form after clicking Create new', () => {
@@ -658,6 +699,16 @@ describe('RecResourceGeospatialSection', () => {
     render(<RecResourceGeospatialSection />);
 
     fireEvent.click(screen.getByRole('button', { name: /Regenerate/i }));
+    const modal = screen.getByRole('dialog');
+
+    fireEvent.change(within(modal).getAllByRole('combobox')[0], {
+      target: { value: 'A' },
+    });
+    fireEvent.click(within(modal).getByLabelText('Landscape'));
+    fireEvent.change(within(modal).getAllByRole('combobox')[1], {
+      target: { value: '10000' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'Regenerate' }));
 
     await waitFor(() => {
       expect(mockAddSuccessNotification).toHaveBeenCalledWith(
@@ -669,6 +720,58 @@ describe('RecResourceGeospatialSection', () => {
       applicationGuid: 'app-guid-8',
       userId: 'IDIR\\idir.user',
       generate: true,
+      size: 'A',
+      orientation: 'L',
+      scale: 10000,
+    });
+  });
+
+  it('fetches adjudication report through the admin API client', async () => {
+    const popupStub = {
+      closed: false,
+      location: { replace: vi.fn() },
+      close: vi.fn(),
+    };
+    vi.stubGlobal('open', vi.fn().mockReturnValue(popupStub));
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:report');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-9',
+            application_guid: 'app-guid-9',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            adjudication_report:
+              '/api/v1/recreation-resource/SUB-9/adjudication-report',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Adj.Report/i }));
+
+    await waitFor(() => {
+      expect(mockGetPendingRequestAdjudicationReportRaw).toHaveBeenCalledWith(
+        { applicationGuid: 'app-guid-9' },
+        expect.any(Function),
+      );
+    });
+
+    const requestInitOverride =
+      mockGetPendingRequestAdjudicationReportRaw.mock.calls[0]?.[1];
+    expect(requestInitOverride).toBeTypeOf('function');
+    expect(
+      requestInitOverride({ init: { headers: {} } }).headers,
+    ).toMatchObject({
+      Accept: 'application/pdf, application/octet-stream',
     });
   });
 });

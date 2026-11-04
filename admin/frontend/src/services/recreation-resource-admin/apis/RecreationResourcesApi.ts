@@ -268,6 +268,10 @@ export interface GetOptionsByTypesRequest {
   types: Array<GetOptionsByTypesTypesEnum>;
 }
 
+export interface GetPendingRequestAdjudicationReportRequest {
+  applicationGuid: string;
+}
+
 export interface GetRecreationResourceAdvisoriesRequest {
   recResourceId: string;
 }
@@ -2430,6 +2434,65 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   ): Promise<PendingMapFeatureRequestsResponseDto> {
     const response = await this.getPendingMapFeatureRequestsRaw(initOverrides);
     return await response.value();
+  }
+
+  /**
+   * Get adjudication report PDF for a pending request
+   */
+  async getPendingRequestAdjudicationReportRaw(
+    requestParameters: GetPendingRequestAdjudicationReportRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<void>> {
+    if (requestParameters['applicationGuid'] == null) {
+      throw new runtime.RequiredError(
+        'applicationGuid',
+        'Required parameter "applicationGuid" was null or undefined when calling getPendingRequestAdjudicationReport().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/recreation-resources/pending-requests/{application_guid}/adjudication-report`;
+    urlPath = urlPath.replace(
+      `{${'application_guid'}}`,
+      encodeURIComponent(String(requestParameters['applicationGuid'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * Get adjudication report PDF for a pending request
+   */
+  async getPendingRequestAdjudicationReport(
+    requestParameters: GetPendingRequestAdjudicationReportRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<void> {
+    await this.getPendingRequestAdjudicationReportRaw(
+      requestParameters,
+      initOverrides,
+    );
   }
 
   /**

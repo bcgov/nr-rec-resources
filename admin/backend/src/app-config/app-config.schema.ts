@@ -76,6 +76,14 @@ export class EnvironmentVariables {
   SNCSC_INTEGRATION_CLIENT_SECRET?: string;
 
   @IsOptional()
+  @IsString()
+  SNCSC_DM_CLIENT_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  SNCSC_DM_CLIENT_SECRET?: string;
+
+  @IsOptional()
   @IsUrl({ require_tld: false })
   SNCSC_BASE_URL?: string;
 

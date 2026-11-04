@@ -1216,22 +1216,22 @@ model recreation_exhibit_a_doc {
 }
 
 model recreation_exhibit_a_doc_history {
-  doc_id           String                   @db.Uuid
-  rec_resource_id  String                   @db.VarChar(10)
-  file_name        String                   @db.VarChar
-  extension        String                   @db.VarChar
-  file_size        BigInt?
-  s3_key           String                   @db.VarChar
-  updated_at       DateTime?                @db.Timestamp(6)
-  updated_by       String?
-  created_at       DateTime?                @db.Timestamp(6)
-  created_by       String?
-  sys_period       Unsupported("tstzrange")
-  submission_id    String?                  @db.VarChar(50)
-  page_size        String?                  @db.VarChar(1)
-  page_orientation String?                  @db.VarChar(20)
-  scale            Int?
-  generation_method String?                 @db.VarChar(20)
+  doc_id            String                   @db.Uuid
+  rec_resource_id   String                   @db.VarChar(10)
+  file_name         String                   @db.VarChar
+  extension         String                   @db.VarChar
+  file_size         BigInt?
+  s3_key            String                   @db.VarChar
+  updated_at        DateTime?                @db.Timestamp(6)
+  updated_by        String?
+  created_at        DateTime?                @db.Timestamp(6)
+  created_by        String?
+  sys_period        Unsupported("tstzrange")
+  submission_id     String?                  @db.VarChar(50)
+  page_size         String?                  @db.VarChar(1)
+  page_orientation  String?                  @db.VarChar(20)
+  scale             Int?
+  generation_method String?                  @db.VarChar(20)
 
   @@ignore
   @@schema("rst")
