@@ -249,8 +249,7 @@ export function RecResourceGeospatialSection() {
   };
 
   const buildSncscSubmissionUrl = (statusRequestGuid?: string | null) => {
-    const sncscWebUrl =
-      import.meta.env.VITE_SNCSC_WEB_URL || import.meta.env.SNCSC_WEB_URL || '';
+    const sncscWebUrl = import.meta.env.SNCSC_WEB_URL || '';
     if (!sncscWebUrl || !statusRequestGuid) return null;
     return `${sncscWebUrl.replace(/\/+$/, '')}/${statusRequestGuid}`;
   };

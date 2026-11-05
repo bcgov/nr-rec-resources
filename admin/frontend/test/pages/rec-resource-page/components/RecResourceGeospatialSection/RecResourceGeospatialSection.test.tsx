@@ -404,7 +404,7 @@ describe('RecResourceGeospatialSection', () => {
   });
 
   it('renders SNCSC reference link using status_request_guid when present', () => {
-    vi.stubEnv('VITE_SNCSC_WEB_URL', 'https://example.gov.bc.ca/sncsc-web/');
+    vi.stubEnv('SNCSC_WEB_URL', 'https://example.gov.bc.ca/sncsc-web/');
     mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
       data: {
         data: [
@@ -431,7 +431,7 @@ describe('RecResourceGeospatialSection', () => {
   });
 
   it('renders reference placeholder when status_request_guid is missing', () => {
-    vi.stubEnv('VITE_SNCSC_WEB_URL', 'https://example.gov.bc.ca/sncsc-web');
+    vi.stubEnv('SNCSC_WEB_URL', 'https://example.gov.bc.ca/sncsc-web');
     mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
       data: {
         data: [
