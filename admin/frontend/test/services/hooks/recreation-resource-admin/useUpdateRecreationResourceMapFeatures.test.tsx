@@ -55,7 +55,11 @@ describe('useUpdateRecreationResourceMapFeatures', () => {
     const requestPayload = {
       recResourceId: 'REC123',
       newFeatures: [
-        { geometry: { type: 'Polygon', coordinates: [] }, sectionId: 'Sec-1' },
+        {
+          geometry: { type: 'Polygon', coordinates: [] },
+          sectionId: 'Sec-1',
+          featureAreaHectares: 4.5,
+        },
       ],
       amendedFeatures: [
         { geometry: { type: 'Polygon', coordinates: [] }, sectionId: 'Sec-2' },
@@ -81,18 +85,21 @@ describe('useUpdateRecreationResourceMapFeatures', () => {
           {
             geometry: requestPayload.newFeatures[0].geometry,
             section_id: 'Sec-1',
+            properties: undefined,
           },
         ],
         amendedFeatures: [
           {
             geometry: requestPayload.amendedFeatures[0].geometry,
             section_id: 'Sec-2',
+            properties: undefined,
           },
         ],
         retiredFeatures: [
           {
             geometry: requestPayload.retiredFeatures[0].geometry,
             section_id: 'Sec-3',
+            properties: undefined,
           },
         ],
         recreation_type_code: 'SIT',

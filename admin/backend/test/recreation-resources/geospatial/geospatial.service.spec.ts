@@ -615,6 +615,7 @@ describe('GeospatialService', () => {
       );
 
       await (service as any).dispatchSncscStatusRequest(
+        prismaMock,
         {
           application_guid: 'app-guid-1',
           submission_id: '1234567',

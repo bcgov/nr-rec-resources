@@ -2,8 +2,10 @@ import * as shapefile from 'shapefile';
 import shp from 'shpjs';
 import JSZip from 'jszip';
 import proj4 from 'proj4';
+import type { SpatialFeature } from './spatialSubmission.types';
 import {
   BC_EXTENT_3005,
+  REQUIRED_SHAPEFILE_PART_EXTENSIONS,
   REQUIRED_SHP_FILE_MESSAGE,
   SHAPEFILE_ALLOWED_EXTENSIONS,
   SHAPEFILE_BASENAME_MISMATCH_MESSAGE,
@@ -38,6 +40,78 @@ proj4.defs(
 );
 proj4.defs('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs');
 
+const DBF_AREA_FIELDS_IN_HECTARES = new Set([
+  'areaha',
+  'hectares',
+  'hectare',
+  'featurearea',
+]);
+
+const DBF_AREA_FIELDS_IN_SQUARE_METRES = new Set([
+  'shapearea',
+  'shapestarea',
+  'featureareasqm',
+  'areasqm',
+  'squarem',
+  'squaremetres',
+]);
+
+const normalizeAreaFieldName = (fieldName: string): string =>
+  fieldName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+const toFiniteNumber = (value: unknown): number | null => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number(value.replaceAll(',', '').trim());
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+};
+
+export const getFeatureAreaHectares = (
+  feature: SpatialFeature,
+): number | undefined => {
+  const properties = feature?.properties;
+  if (!properties || typeof properties !== 'object') {
+    return undefined;
+  }
+
+  for (const [fieldName, rawValue] of Object.entries(properties)) {
+    const value = toFiniteNumber(rawValue);
+    if (value === null || value < 0) {
+      continue;
+    }
+
+    const normalized = normalizeAreaFieldName(fieldName);
+
+    if (DBF_AREA_FIELDS_IN_HECTARES.has(normalized)) {
+      return value;
+    }
+
+    if (DBF_AREA_FIELDS_IN_SQUARE_METRES.has(normalized)) {
+      return value / 10000;
+    }
+
+    if (
+      normalized.includes('area') &&
+      (normalized.includes('sqm') || normalized.includes('squarem'))
+    ) {
+      return value / 10000;
+    }
+
+    if (normalized.includes('area')) {
+      // Fallback for datasets that store area in generic AREA-style columns.
+      return value;
+    }
+  }
+
+  return undefined;
+};
+
 type ParsedFeatureCollection = {
   type: 'FeatureCollection';
   crs?: unknown;
@@ -70,7 +144,7 @@ const validateSelectedShapefilePart = (file: File): string => {
     normalizedFileName.endsWith('.shp.exe')
   ) {
     throw new Error(
-      'Upload either one .zip shapefile bundle or .shp with an optional matching .dbf.',
+      'Upload either one .zip shapefile bundle or shapefile parts (.shp, .dbf, .shx; optional .prj/.cpg).',
     );
   }
 
@@ -236,7 +310,11 @@ const validateZipSelection = (zipFiles: File[], selectedFiles: File[]) => {
   }
 };
 
-const validateShapefileSelections = (shpFiles: File[], dbfFiles: File[]) => {
+const validateShapefileSelections = (
+  shpFiles: File[],
+  dbfFiles: File[],
+  filesByExtension: Record<string, File[]>,
+) => {
   if (shpFiles.length === 0) {
     throw new Error(REQUIRED_SHP_FILE_MESSAGE);
   }
@@ -245,6 +323,36 @@ const validateShapefileSelections = (shpFiles: File[], dbfFiles: File[]) => {
   }
   if (dbfFiles.length > 1) {
     throw new Error('Please upload only one .dbf file at a time.');
+  }
+
+  const missingRequiredExtensions = REQUIRED_SHAPEFILE_PART_EXTENSIONS.filter(
+    (extension) => (filesByExtension[extension] ?? []).length === 0,
+  );
+  if (missingRequiredExtensions.length > 0) {
+    throw new Error(
+      `Missing required shapefile part(s): ${missingRequiredExtensions.map((extension) => `.${extension}`).join(', ')}. Upload .shp, .dbf, and .shx with the same base filename.`,
+    );
+  }
+
+  for (const extension of REQUIRED_SHAPEFILE_PART_EXTENSIONS) {
+    if ((filesByExtension[extension] ?? []).length > 1) {
+      throw new Error(`Please upload only one .${extension} file at a time.`);
+    }
+  }
+
+  const requiredFiles = [
+    shpFiles[0],
+    ...REQUIRED_SHAPEFILE_PART_EXTENSIONS.map(
+      (extension) => (filesByExtension[extension] ?? [])[0],
+    ),
+  ];
+  const baseNames = new Set(
+    requiredFiles.map((file) => getNormalizedStem(file.name)),
+  );
+  if (baseNames.size > 1) {
+    throw new Error(
+      'All uploaded shapefile parts must have the same base filename (e.g. trail.shp, trail.dbf, trail.shx).',
+    );
   }
 };
 
@@ -450,6 +558,6 @@ export async function readSpatialFile(
     return readZipSpatialFile(zipFiles[0]);
   }
 
-  validateShapefileSelections(shpFiles, dbfFiles);
+  validateShapefileSelections(shpFiles, dbfFiles, filesByExtension);
   return readShapefileSpatialFile(shpFiles[0], dbfFiles[0]);
 }

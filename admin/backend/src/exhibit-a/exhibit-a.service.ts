@@ -497,9 +497,10 @@ export class ExhibitAService {
         rss.application_guid,
         rss.tenure_id,
         rr.name AS title,
-        nrou.region_code AS forest_region,
-        nrou.district_code AS forest_district,
+        rr.district_code AS forest_region,
+        nrou.org_unit_code AS forest_district,
         nrou.org_unit_name AS district_name,
+        rdc.description AS recreation_district,
         rss.recreation_resource_type AS mgt_unit_type,
         rrtype.description AS project_type,
         rr.rec_resource_id AS mgt_unit_number,
@@ -516,6 +517,8 @@ export class ExhibitAService {
         ON rr.rec_resource_id = rss.tenure_id
       LEFT JOIN rst.natural_resource_org_unit nrou
         ON nrou.rec_resource_id = rr.rec_resource_id
+      LEFT JOIN rst.recreation_district_code rdc
+        ON rdc.district_code = rr.district_code
       LEFT JOIN LATERAL (
         SELECT
           ROUND(

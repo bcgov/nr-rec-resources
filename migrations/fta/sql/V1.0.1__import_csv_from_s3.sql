@@ -533,3 +533,37 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_USER_DAYS_CODE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.tenure_application',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        submission_date,
+        adjudication_date,
+        decision_date,
+        entry_timestamp,
+        update_timestamp
+      )
+  )',
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_APPLICATION.csv', 'ca-central-1')
+);
+
+select aws_s3.table_import_from_s3(
+  'fta.tenure_application_images',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        image_file_size,
+        entry_timestamp,
+        update_timestamp
+      )
+  )',
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_APP_IMAGE.csv', 'ca-central-1')
+);

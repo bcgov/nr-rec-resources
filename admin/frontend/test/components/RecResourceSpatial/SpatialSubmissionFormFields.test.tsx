@@ -242,7 +242,10 @@ describe('SpatialSubmissionFormFields', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
     const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
-    expect(fileInput).toHaveAttribute('accept', '.zip,.shp,.dbf');
+    expect(fileInput).toHaveAttribute(
+      'accept',
+      '.zip,.shp,.dbf,.shx,.prj,.cpg',
+    );
   });
 
   it('displays file multiple attribute', () => {
@@ -256,8 +259,75 @@ describe('SpatialSubmissionFormFields', () => {
     render(<SpatialSubmissionFormFields {...defaultProps} />);
 
     expect(
-      screen.getByText('File must be a Shape file as a single .zip bundle.'),
+      screen.getByText(
+        'Upload either one .zip shapefile bundle or matching .shp, .dbf, .shx files (optional .prj/.cpg).',
+      ),
     ).toBeDefined();
+  });
+
+  it('displays selected spatial file names when provided', () => {
+    const props = {
+      ...defaultProps,
+      selectedFiles: [
+        new File(['shp'], 'trail.shp', { type: 'application/octet-stream' }),
+        new File(['dbf'], 'trail.dbf', { type: 'application/octet-stream' }),
+        new File(['shx'], 'trail.shx', { type: 'application/octet-stream' }),
+      ],
+    };
+    render(<SpatialSubmissionFormFields {...props} />);
+
+    expect(screen.getByText('trail')).toBeDefined();
+    expect(screen.getByText('trail.shp')).toBeDefined();
+    expect(screen.getByText('trail.dbf')).toBeDefined();
+    expect(screen.getByText('trail.shx')).toBeDefined();
+  });
+
+  it('formats selected file sizes in KB for larger files', () => {
+    const largerFile = new File(['shp'], 'trail.shp', {
+      type: 'application/octet-stream',
+    });
+    Object.defineProperty(largerFile, 'size', {
+      value: 2048,
+      configurable: true,
+    });
+
+    render(
+      <SpatialSubmissionFormFields
+        {...defaultProps}
+        selectedFiles={[largerFile]}
+      />,
+    );
+
+    expect(screen.getByText('2.0 KB')).toBeDefined();
+  });
+
+  it('falls back to district abbreviation when option label is empty', () => {
+    render(
+      <SpatialSubmissionFormFields
+        {...defaultProps}
+        naturalResourceDistrictOptions={[{ id: 'DCC', label: '   ' }]}
+      />,
+    );
+
+    expect(screen.getByRole('option', { name: 'DCC' })).toBeDefined();
+  });
+
+  it('calls onRemoveSelectedFile when a selected file is removed', () => {
+    const onRemoveSelectedFile = vi.fn();
+    const selectedFile = new File(['shp'], 'trail.shp', {
+      type: 'application/octet-stream',
+    });
+
+    render(
+      <SpatialSubmissionFormFields
+        {...defaultProps}
+        selectedFiles={[selectedFile]}
+        onRemoveSelectedFile={onRemoveSelectedFile}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove trail.shp' }));
+    expect(onRemoveSelectedFile).toHaveBeenCalledWith('trail.shp');
   });
 
   it('displays validation feedback for missing required fields', () => {
