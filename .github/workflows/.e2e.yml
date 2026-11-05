@@ -21,6 +21,14 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+  pull-requests: write
+  security-events: write
+  attestations: write
+
 jobs:
   # TODO: Remove this job once admin e2e tests are set up for deployed environments.
   playwright-e2e-skip:
