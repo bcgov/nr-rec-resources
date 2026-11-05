@@ -1,5 +1,7 @@
 import { Route } from '@/routes/__root';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
+import { EDIT_MODE_MESSAGE } from '@/components/edit-mode-banner';
+import { useMatches } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
@@ -30,14 +32,21 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   return {
     ...actual,
     Outlet: () => <div data-testid="outlet">Mock Outlet</div>,
+    useMatches: vi.fn(),
   };
 });
 
 const mockUseIsDesktop = useIsDesktop as Mock;
+const mockUseMatches = useMatches as Mock;
+
+const mockMatches = (context: Record<string, unknown>) => {
+  mockUseMatches.mockImplementation(({ select }) => select([{ context }]));
+};
 
 describe('Root Route', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockMatches({});
   });
 
   it('should export a Route with a component', () => {
@@ -95,6 +104,26 @@ describe('Root Route', () => {
       expect(screen.getByTestId('header')).toBeInTheDocument();
       expect(screen.getByTestId('view-only-banner')).toBeInTheDocument();
       expect(screen.getByTestId('notification-bar')).toBeInTheDocument();
+    });
+
+    it.each([true, false])(
+      'renders the edit mode banner when the current route is editing (desktop: %s)',
+      (isDesktop) => {
+        mockUseIsDesktop.mockReturnValue(isDesktop);
+        mockMatches({ isEditing: true });
+
+        render(<RootComponent />);
+
+        expect(screen.getByText(EDIT_MODE_MESSAGE)).toBeInTheDocument();
+      },
+    );
+
+    it('does not render the edit mode banner on non-edit routes', () => {
+      mockUseIsDesktop.mockReturnValue(true);
+
+      render(<RootComponent />);
+
+      expect(screen.queryByText(EDIT_MODE_MESSAGE)).not.toBeInTheDocument();
     });
   });
 });
