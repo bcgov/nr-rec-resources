@@ -49,6 +49,7 @@ jobs:
           VITE_KEYCLOAK_REALM=$KEYCLOAK_REALM
           VITE_KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID
           VITE_STAFF_ADMIN_URL=$STAFF_ADMIN_URL
+          VITE_SNCSC_WEB_URL=$SNCSC_WEB_URL
         secrets: |
           font_awesome_pro_token=${{ secrets.FONT_AWESOME_PRO_TOKEN }}
       env:
@@ -56,3 +57,4 @@ jobs:
         KEYCLOAK_REALM: ${{ matrix.package == 'admin/frontend' && secrets.KEYCLOAK_REALM || '' }}
         KEYCLOAK_CLIENT_ID: ${{ matrix.package == 'admin/frontend' && secrets.KEYCLOAK_CLIENT_ID || '' }}
         STAFF_ADMIN_URL: ${{ matrix.package == 'admin/frontend' && secrets.VITE_STAFF_ADMIN_URL || '' }}
+        SNCSC_WEB_URL: ${{ matrix.package == 'admin/frontend' && secrets.VITE_SNCSC_WEB_URL || '' }}

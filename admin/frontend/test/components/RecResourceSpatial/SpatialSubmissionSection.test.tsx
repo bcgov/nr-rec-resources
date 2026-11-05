@@ -492,7 +492,7 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByTestId('selected-feature-index')).toHaveTextContent('0');
 
     fireEvent.click(
-      screen.getByRole('button', { name: /North Loop 1.*Feature #2/i }),
+      screen.getByRole('button', { name: 'Select feature 2 from map' }),
     );
     expect(screen.getByDisplayValue('North Loop 1')).toBeDefined();
 
@@ -645,7 +645,7 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByTestId('selected-feature-index')).toHaveTextContent('0');
 
     fireEvent.click(
-      screen.getByRole('button', { name: /North Loop 1.*Feature #2/i }),
+      screen.getByRole('button', { name: 'Select feature 2 from map' }),
     );
     expect(screen.getByDisplayValue('North Loop 1')).toBeDefined();
 
@@ -730,6 +730,43 @@ describe('SpatialSubmissionSection', () => {
   });
 
   it('creates edit payload grouped by NEW, AMEND, and RETIRE actions', async () => {
+    mockReadSpatialFile.mockResolvedValueOnce({
+      type: 'FeatureCollection',
+      crs: { type: 'name', properties: { name: 'EPSG:3005' } },
+      features: [
+        {
+          type: 'Feature',
+          properties: {
+            OBJECTID: 1,
+            DISTRICT: 'DNC',
+            section_id: 'River Way South',
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [1210000, 475000],
+              [1215000, 480000],
+            ],
+          },
+        },
+        {
+          type: 'Feature',
+          properties: {
+            OBJECTID: 2,
+            DISTRICT: 'DNC',
+            section_id: 'North Loop 1',
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [1216000, 475000],
+              [1220000, 480000],
+            ],
+          },
+        },
+      ],
+    } as any);
+
     render(
       <SpatialSubmissionSection
         recResourceId="REC123"
@@ -745,7 +782,7 @@ describe('SpatialSubmissionSection', () => {
       target: { value: 'RTE' },
     });
     fireEvent.change(screen.getByLabelText('Feature type'), {
-      target: { value: 'Polygon' },
+      target: { value: 'LineString' },
     });
 
     const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
@@ -762,7 +799,7 @@ describe('SpatialSubmissionSection', () => {
     });
 
     fireEvent.click(
-      screen.getByRole('button', { name: /North Loop 1.*Feature #2/i }),
+      screen.getByRole('button', { name: 'Select feature 2 from map' }),
     );
     fireEvent.change(
       screen.getByLabelText('Select action for the selected feature'),
@@ -771,7 +808,7 @@ describe('SpatialSubmissionSection', () => {
       },
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+    fireEvent.click(screen.getByRole('button', { name: /create request/i }));
 
     await waitFor(() => {
       expect(mockUpdateMapFeatures).toHaveBeenCalledWith(
@@ -993,7 +1030,7 @@ describe('SpatialSubmissionSection', () => {
       ).toBeDefined();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+    fireEvent.click(screen.getByRole('button', { name: /create request/i }));
 
     await waitFor(() => {
       expect(onCancel).toHaveBeenCalledTimes(1);
