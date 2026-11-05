@@ -2,7 +2,7 @@ import { ROUTE_PATHS } from '@/constants/routes';
 import { EditableGuard } from '@/components/auth';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { useNavigate } from '@tanstack/react-router';
-import { Col, Dropdown, Row, Stack } from 'react-bootstrap';
+import { Button, Col, Row, Stack } from 'react-bootstrap';
 import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
 import { RecreationResourceAccessRow, VisibleOnPublicSite } from './components';
@@ -68,38 +68,29 @@ export const RecResourceOverviewSection = (
         <h2>Overview</h2>
         <Stack direction="horizontal" gap={2}>
           {canEdit && (
-            <Dropdown>
-              <Dropdown.Toggle
-                variant="secondary"
-                id="overview-actions-dropdown"
+            <EditableGuard isArchived={isArchived}>
+              <Button
+                variant="outline-primary"
+                onClick={() =>
+                  navigate({
+                    to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
+                      '$id',
+                      recResource.rec_resource_id,
+                    ),
+                  })
+                }
               >
-                Actions
-              </Dropdown.Toggle>
-              <Dropdown.Menu align="end">
-                <EditableGuard isArchived={isArchived}>
-                  <Dropdown.Item
-                    onClick={() =>
-                      navigate({
-                        to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
-                          '$id',
-                          recResource.rec_resource_id,
-                        ),
-                      })
-                    }
-                  >
-                    Edit
-                  </Dropdown.Item>
-                </EditableGuard>
-                {isSuperAdmin && (
-                  <Dropdown.Item
-                    onClick={() => setIsArchiveModalOpen(true)}
-                    disabled={isArchived}
-                  >
-                    Archive
-                  </Dropdown.Item>
-                )}
-              </Dropdown.Menu>
-            </Dropdown>
+                Edit
+              </Button>
+            </EditableGuard>
+          )}
+          {isSuperAdmin && !isArchived && (
+            <Button
+              variant="outline-primary"
+              onClick={() => setIsArchiveModalOpen(true)}
+            >
+              Archive
+            </Button>
           )}
         </Stack>
       </div>
