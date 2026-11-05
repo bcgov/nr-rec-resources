@@ -5,7 +5,10 @@ import { UpdateRecreationResourceDto } from '@/recreation-resources/dtos/update-
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { RecreationResourceService } from '@/recreation-resources/recreation-resource.service';
 import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
-import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('RecreationResourceService', () => {
