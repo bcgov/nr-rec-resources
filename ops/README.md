@@ -6,6 +6,23 @@ scripts per feature in this package).
 
 ## Script groups
 
+### Exhibit A S3 copy
+
+Copy legacy Exhibit A objects from `rst-fta-lza-dataload-oracle` into an
+environment bucket `rst-lza-exhibit-a-docs-{env}` while preserving object keys
+(for example `Exhibit_A/{forest_file_id}/{submission_id}/...`).
+
+```bash
+npm run sync-exhibit-a-docs -- --env dev --dry-run
+npm run sync-exhibit-a-docs -- --env dev
+```
+
+You can also target an explicit destination bucket:
+
+```bash
+npm run sync-exhibit-a-docs -- --target-bucket rst-lza-exhibit-a-docs-test
+```
+
 ### GuardDuty (S3 malware scan)
 
 See **[src/guardduty/README.md](src/guardduty/README.md)** for:

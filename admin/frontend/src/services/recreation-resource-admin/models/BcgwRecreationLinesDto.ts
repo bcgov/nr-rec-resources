@@ -128,6 +128,12 @@ export interface BcgwRecreationLinesDto {
    */
   recreation_feature_code: string | null;
   /**
+   * The code and description of the recreation feature, e.g., B2 - Sand Beach.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
+   */
+  recreation_feature_description: string | null;
+  /**
    * The entire width of the Right of Way for the linear feature.
    * @type {number}
    * @memberof BcgwRecreationLinesDto
@@ -279,6 +285,11 @@ export function instanceOfBcgwRecreationLinesDto(
     value['recreation_feature_code'] === undefined
   )
     return false;
+  if (
+    !('recreation_feature_description' in value) ||
+    value['recreation_feature_description'] === undefined
+  )
+    return false;
   if (!('right_of_way' in value) || value['right_of_way'] === undefined)
     return false;
   if (
@@ -335,6 +346,7 @@ export function BcgwRecreationLinesDtoFromJSONTyped(
     map_label: json['map_label'],
     rec_resource_name: json['rec_resource_name'],
     recreation_feature_code: json['recreation_feature_code'],
+    recreation_feature_description: json['recreation_feature_description'],
     right_of_way: json['right_of_way'],
     recreation_district_code: json['recreation_district_code'],
     district_code: json['district_code'],
@@ -381,6 +393,7 @@ export function BcgwRecreationLinesDtoToJSONTyped(
     map_label: value['map_label'],
     rec_resource_name: value['rec_resource_name'],
     recreation_feature_code: value['recreation_feature_code'],
+    recreation_feature_description: value['recreation_feature_description'],
     right_of_way: value['right_of_way'],
     recreation_district_code: value['recreation_district_code'],
     district_code: value['district_code'],

@@ -8,6 +8,7 @@ import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin
 import {
   DEFAULT_SECTION_ID_FIELD_NAME,
   extractSectionIdDetails,
+  getFeatureAreaHectares,
   prepareFeatureCollectionForSectionEditing,
   readSpatialFile,
   updateFeatureSectionId,
@@ -210,6 +211,22 @@ export const SpatialSubmissionSection = ({
     setCreateStatus(null);
   };
 
+  const handleClearSelectedFiles = () => {
+    setSelectedFiles([]);
+    resetSpatialPreviewState();
+    setIssues([]);
+    setCreateStatus(null);
+  };
+
+  const handleRemoveSelectedFile = (fileName: string) => {
+    setSelectedFiles((previousFiles) =>
+      previousFiles.filter((file) => file.name !== fileName),
+    );
+    resetSpatialPreviewState();
+    setIssues([]);
+    setCreateStatus(null);
+  };
+
   const validateFeatureCollection = (featureCollection: any) => {
     const requiresSectionIdsForUpload =
       requiresSectionIdsForFeatureCollection(featureCollection);
@@ -275,7 +292,7 @@ export const SpatialSubmissionSection = ({
           type: 'GEOMETRY',
           severity: 'ERROR',
           message:
-            'Please upload a .zip shapefile bundle or a .shp file (with matching .dbf when available).',
+            'Please upload a .zip shapefile bundle or shapefile parts (.shp, .dbf, .shx with matching filenames).',
         },
       ]);
       setIsProcessing(false);
@@ -372,6 +389,7 @@ export const SpatialSubmissionSection = ({
             sectionId: requiresSectionIds
               ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
               : undefined,
+            featureAreaHectares: getFeatureAreaHectares(feature),
             editAction: featureSectionIds[index]?.editAction ?? 'NEW',
           }),
         );
@@ -383,6 +401,7 @@ export const SpatialSubmissionSection = ({
               geometry: f.geometry,
               properties: f.properties,
               sectionId: f.sectionId,
+              featureAreaHectares: f.featureAreaHectares,
             })),
           amendedFeatures: mappedFeatures
             .filter((f) => f.editAction === 'AMEND')
@@ -390,6 +409,7 @@ export const SpatialSubmissionSection = ({
               geometry: f.geometry,
               properties: f.properties,
               sectionId: f.sectionId,
+              featureAreaHectares: f.featureAreaHectares,
             })),
           retiredFeatures: mappedFeatures
             .filter((f) => f.editAction === 'RETIRE')
@@ -397,6 +417,7 @@ export const SpatialSubmissionSection = ({
               geometry: f.geometry,
               properties: f.properties,
               sectionId: f.sectionId,
+              featureAreaHectares: f.featureAreaHectares,
             })),
           recreationTypeCode: values.recreationType || undefined,
           submittedBy: submittedBy || undefined,
@@ -413,6 +434,7 @@ export const SpatialSubmissionSection = ({
               sectionId: requiresSectionIds
                 ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
                 : undefined,
+              featureAreaHectares: getFeatureAreaHectares(feature),
             }),
           ),
           recreationTypeCode: values.recreationType || undefined,
@@ -508,6 +530,9 @@ export const SpatialSubmissionSection = ({
             isProcessing={isProcessing}
             onSpatialFilesChange={handleSpatialFilesChange}
             onValidateSpatialFile={handleValidateSpatialFile}
+            selectedFiles={selectedFiles}
+            onClearSelectedFiles={handleClearSelectedFiles}
+            onRemoveSelectedFile={handleRemoveSelectedFile}
             variant={useGeospatialCompactForm ? 'geospatial' : 'full'}
             editMode={editMode}
             onCancel={onCancel}
