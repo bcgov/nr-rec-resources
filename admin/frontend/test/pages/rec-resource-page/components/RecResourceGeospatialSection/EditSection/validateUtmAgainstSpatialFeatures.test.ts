@@ -6,7 +6,7 @@ import {
   validateUtmAgainstSpatialFeatures,
 } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/utils/validateUtmAgainstSpatialFeatures';
 
-// Realistic UTM Zone 10 coordinate inside BC (near Vancouver area)
+// Realistic UTM zone 10 coordinate inside BC (near Vancouver area)
 const ZONE = 10;
 const EASTING = 491000;
 const NORTHING = 5458000;

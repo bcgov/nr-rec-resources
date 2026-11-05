@@ -37,7 +37,7 @@ export const RECREATION_OPERATOR_HELP_TEXT = (
     >
       Forest Recreation Regulation
     </a>{' '}
-    to manage and operate at a recreation resource. "Recreation Operator" is
+    to manage and operate at a recreation resource. "Recreation operator" is
     displayed when a volunteer partner is authorized to collect fees.
   </>
 );

@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const TRAIL_TYPE_OPTIONS = [
-  { id: 'GREEN', label: 'Green (Easy)' },
-  { id: 'BLUE', label: 'Blue (Intermediate)' },
-  { id: 'BLACK', label: 'Black (Advanced)' },
+  { id: 'GREEN', label: 'Green (easy)' },
+  { id: 'BLUE', label: 'Blue (intermediate)' },
+  { id: 'BLACK', label: 'Black (advanced)' },
 ] as const;
 
 export const trailFormSchema = z.object({

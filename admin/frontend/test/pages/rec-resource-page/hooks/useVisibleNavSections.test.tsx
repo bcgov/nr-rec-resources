@@ -39,14 +39,14 @@ describe('useVisibleNavSections', () => {
     expect(result.current).toHaveLength(9);
     expect(result.current.map(([key]) => key)).toEqual([
       RecResourceNavKey.OVERVIEW,
+      RecResourceNavKey.ADVISORIES,
+      RecResourceNavKey.PARTNERS,
       RecResourceNavKey.FILES,
       RecResourceNavKey.ACTIVITIES,
-      RecResourceNavKey.FEES,
       RecResourceNavKey.ASSETS,
-      RecResourceNavKey.PARTNERS,
       RecResourceNavKey.GEOSPATIAL,
       RecResourceNavKey.RESERVATION,
-      RecResourceNavKey.ADVISORIES,
+      RecResourceNavKey.FEES,
     ]);
   });
 
