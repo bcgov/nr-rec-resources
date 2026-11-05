@@ -241,6 +241,18 @@ public class ApplicationService {
     this.flywayTaskRunnerService.runFlywayTasks();
   }
 
+  /**
+   * Extracts and uploads only tenure data (TENURE_APPLICATION and related tables)
+   * and then triggers downstream Flyway tasks.
+   */
+  public void extractAndUploadTenureDataToS3() {
+    logger.info("Tenure-only export started");
+    this.tenureExportService.extractAndUploadTenureDataToS3();
+    logger.info("Tenure-only export completed");
+
+    this.flywayTaskRunnerService.runFlywayTasks();
+  }
+
   private void extractAndUploadRecreationMapFeature() {
     var results = this.recreationMapFeatureRepository.findAll();
     var entityMetadata = getEntityMetadata(RecreationMapFeature.class);

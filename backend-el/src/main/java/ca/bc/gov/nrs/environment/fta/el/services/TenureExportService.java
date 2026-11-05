@@ -134,7 +134,7 @@ public class TenureExportService {
   @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.exhibit-prefix:Exhibit_A}")
   private String exhibitImagePrefix;
 
-  @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.map-prefix:map_images}")
+  @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.map-prefix:tenure_mf_images}")
   private String mapImagePrefix;
 
   @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.export-target:all}")
@@ -226,6 +226,7 @@ public class TenureExportService {
         int recResourceIdColumnIndex = findColumnIndex(metadata, "REC_RESOURCE_ID");
         int fileNameColumnIndex = findColumnIndex(metadata, "FILE_NAME", "IMAGE_FILE_NAME", "ATTACHMENT_FILE_NAME");
         int contentTypeColumnIndex = findColumnIndex(metadata, "CONTENT_TYPE", "MIME_TYPE");
+        int mapFeatureIdColumnIndex = findColumnIndex(metadata, "MAP_FEATURE_ID");
         int imageIdColumnIndex = findColumnIndex(metadata,
           "TENURE_APP_IMAGE_ID",
           "TENURE_MF_IMAGE_ID",
@@ -262,7 +263,13 @@ public class TenureExportService {
             fileName = fileName + "_" + stableId;
           }
 
-          String objectKey = String.format("%s/%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, submissionId, fileName);
+          String objectKey;
+          if (mapFeatureIdColumnIndex > 0) {
+            String mapFeatureId = sanitizePathSegment(getColumnValue(resultSet, mapFeatureIdColumnIndex), "unknown_map_feature");
+            objectKey = String.format("%s/%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, mapFeatureId, fileName);
+          } else {
+            objectKey = String.format("%s/%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, submissionId, fileName);
+          }
           try (InputStream stream = blob.getBinaryStream()) {
             s3UploaderService.uploadStreamToS3(objectKey, stream, contentLength, contentType);
           } finally {

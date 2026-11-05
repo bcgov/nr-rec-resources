@@ -66,7 +66,7 @@ backend-el/
   - `TenureExportService.java`: Exports filtered tenure data and related BLOBs
     to S3.
 
-### Tenure Export (Part of `JOB_MODE=daily`)
+### Tenure Export (`JOB_MODE=daily` or `JOB_MODE=tenure`)
 
 - Daily mode exports tenure data for application types `RL` and `RPO` from:
   - `TENURE_APPLICATION`
@@ -82,8 +82,16 @@ backend-el/
   - `app`: process only `TENURE_APPLICATION_IMAGE`
   - `mf`: process only `TENURE_APPLICATION_MF_IMAGE`
 - In OpenShift helm values, tenure-only cronjobs are disabled by default and
-  daily runs set `TENURE_IMAGE_EXPORT_TARGET=all` so tenure application, map
-  feature, and tenure image exports run with the daily job.
+  daily runs set `TENURE_IMAGE_EXPORT_TARGET=core` so the daily job exports only
+  `TENURE_APPLICATION` and `TENURE_APPLICATION_MAP_FEATURE`.
+- Use the tenure image-specific cronjobs (app/mf) or weekly tenure cron when you
+  want image object exports, so daily pipeline-linked runs stay lightweight.
+- `JOB_MODE=tenure` runs only tenure export workflows and then triggers Flyway
+  tasks (without running the full recreation export list).
+- Helm chart values include a separate weekly cron toggle for this mode:
+  - `tenureWeeklyCronEnabled`
+  - `tenureWeeklyCronSuspend`
+  - `tenureWeeklySchedule` (default `0 3 * * 1`, Sunday evening PT)
 
 ### Flyway ECS Task Runner Configuration
 
