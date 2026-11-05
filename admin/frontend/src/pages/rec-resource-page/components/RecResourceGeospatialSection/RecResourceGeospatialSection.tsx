@@ -54,6 +54,7 @@ import {
   COLOR_YELLOW_ADVISORY_BG,
 } from '@/styles/colors';
 import type { PendingMapFeatureRequestRowDto } from '@/services/recreation-resource-admin/models/PendingMapFeatureRequestRowDto';
+import { buildDownloadFileName, downloadUrlAsFile } from '@shared/utils';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
@@ -513,6 +514,25 @@ export function RecResourceGeospatialSection() {
     await handleRegenerate(row, { size, orientation, scale });
   }, [handleRegenerate, regenerateModalState]);
 
+  const handleExhibitADownload = async (
+    row: PendingMapFeatureRequestRowDto,
+    url: string,
+  ) => {
+    const fileName = buildDownloadFileName({
+      kind: 'docs',
+      recResourceId,
+      parts: ['exhibit-a', row.submission_id],
+      extension: 'pdf',
+    });
+    try {
+      await downloadUrlAsFile(url, fileName);
+    } catch (error) {
+      // fallback url can be outside our bucket and not fetchable, so just open it
+      console.error('Exhibit A download failed:', error);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const handleViewAdjudicationReport = useCallback(
     async (row: PendingMapFeatureRequestRowDto) => {
       if (!row.application_guid) return;
@@ -747,7 +767,10 @@ export function RecResourceGeospatialSection() {
                     {getExhibitAUrl(row) ? (
                       <a
                         href={getExhibitAUrl(row)!}
-                        download
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handleExhibitADownload(row, getExhibitAUrl(row)!);
+                        }}
                         className="geospatial-submissions-action-link"
                       >
                         <FontAwesomeIcon icon={faDownload} /> Download

@@ -198,7 +198,10 @@ describe('PhotoDetailsModal', () => {
 
     const downloadBtn = screen.getByText('Download');
     fireEvent.click(downloadBtn);
-    expect(mockDownloadMutate).toHaveBeenCalledWith({ file: mockImage });
+    expect(mockDownloadMutate).toHaveBeenCalledWith({
+      file: mockImage,
+      recResourceId: 'RES-001',
+    });
   });
 
   it('renders edit button', () => {

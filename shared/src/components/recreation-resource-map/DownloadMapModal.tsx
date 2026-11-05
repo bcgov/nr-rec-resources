@@ -66,7 +66,7 @@ const DownloadMapModal = ({
           name: `${MATOMO_NAME_PREFIX_EXPORT_MAP_GPX}${recName}-${recId}`,
         });
       }
-      downloadGPX(styledFeatures, recResource?.name || 'map');
+      downloadGPX(styledFeatures, recResource);
     }
     if (isKml) {
       if (matomo) {

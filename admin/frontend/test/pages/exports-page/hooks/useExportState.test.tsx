@@ -243,7 +243,9 @@ describe('useExportState', () => {
       await result.current.download.handleDownload();
     });
 
-    expect(anchor.download).toBe('file-details.csv');
+    expect(anchor.download).toMatch(
+      /^exports\.sitesandtrailsbc\.file-details\.\d{4}-\d{2}-\d{2}\.csv$/,
+    );
     expect(createObjectUrlSpy).toHaveBeenCalledWith(blob);
   });
 });

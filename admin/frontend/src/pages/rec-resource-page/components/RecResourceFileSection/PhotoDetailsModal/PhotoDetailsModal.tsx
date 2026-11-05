@@ -46,9 +46,12 @@ export const PhotoDetailsModal: FC = () => {
 
   const handleDownload = useCallback(() => {
     if (image) {
-      downloadMutation.mutate({ file: image });
+      downloadMutation.mutate({
+        file: image,
+        recResourceId: rec_resource_id,
+      });
     }
-  }, [image, downloadMutation]);
+  }, [image, rec_resource_id, downloadMutation]);
 
   const handleViewFullSize = useCallback(() => {
     if (image) {

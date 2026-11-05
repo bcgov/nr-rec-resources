@@ -256,7 +256,10 @@ describe('useGalleryActions', () => {
 
       result.current.handleFileAction('download', testFile);
 
-      expect(mockDownloadMutation).toHaveBeenCalledWith({ file: testFile });
+      expect(mockDownloadMutation).toHaveBeenCalledWith({
+        file: testFile,
+        recResourceId: 'REC0001',
+      });
     });
 
     it('handles retry action by calling upload retry', async () => {

@@ -144,6 +144,28 @@ describe('S3Service', () => {
       );
     });
 
+    it('should set Content-Disposition when a download file name is given', async () => {
+      vi.mocked(getSignedUrl).mockResolvedValueOnce('https://test-url.com');
+      await service.getSignedUrl(
+        'REC0001/doc.pdf',
+        3600,
+        'docs.sitesandtrailsbc.REC0001.consent.lake.pdf',
+      );
+      const command = vi.mocked(getSignedUrl).mock
+        .calls[0]?.[1] as GetObjectCommand;
+      expect(command.input.ResponseContentDisposition).toBe(
+        'attachment; filename="docs.sitesandtrailsbc.REC0001.consent.lake.pdf"',
+      );
+    });
+
+    it('should not set Content-Disposition without a download file name', async () => {
+      vi.mocked(getSignedUrl).mockResolvedValueOnce('https://test-url.com');
+      await service.getSignedUrl('REC0001/doc.pdf');
+      const command = vi.mocked(getSignedUrl).mock
+        .calls[0]?.[1] as GetObjectCommand;
+      expect(command.input.ResponseContentDisposition).toBeUndefined();
+    });
+
     it('should create GetObjectCommand with correct parameters', async () => {
       vi.mocked(getSignedUrl).mockResolvedValueOnce('https://test-url.com');
       await service.getSignedUrl('REC0001/test.pdf');
