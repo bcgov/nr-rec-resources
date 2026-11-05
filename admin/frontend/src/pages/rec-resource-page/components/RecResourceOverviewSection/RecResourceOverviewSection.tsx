@@ -34,6 +34,7 @@ export const RecResourceOverviewSection = (
       label: 'Natural resource district',
       value: recResource.natural_resource_org_unit_name,
     },
+
     {
       key: 'maintenance-type',
       label: 'Maintenance type',
@@ -53,6 +54,11 @@ export const RecResourceOverviewSection = (
       key: 'risk-rating',
       label: 'Risk rating',
       value: recResource.risk_rating_description,
+    },
+    {
+      key: 'licensee',
+      label: 'Licensee',
+      value: recResource.licensee,
     },
   ];
 

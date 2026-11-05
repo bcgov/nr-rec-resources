@@ -163,7 +163,13 @@ describe('RecResourceOverviewSection', () => {
     );
     // With empty accessCodes, should show a dash
     expect(screen.getByText('Access type')).toBeInTheDocument();
-    expect(screen.getByText('-')).toBeInTheDocument();
+    const sections = screen.getAllByRole('region');
+    const accessSection = sections.find(
+      (section) =>
+        section.querySelector('.text-primary')?.textContent === 'Access Type',
+    );
+    expect(accessSection).toBeInTheDocument();
+    expect(accessSection?.textContent).toContain('-');
   });
 
   it('renders project established date when present', () => {
