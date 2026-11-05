@@ -8,7 +8,9 @@ import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { createFileRoute } from '@tanstack/react-router';
 import { ROUTE_PATHS } from '@/constants/routes';
 
-export const Route = createFileRoute('/rec-resource/$id/activities-features/')({
+export const Route = createFileRoute(
+  '/rec-resource/$id/activities-and-features/',
+)({
   component: RecResourceActivitiesFeaturesRoute,
   loader: recResourceActivitiesFeaturesLoader,
   beforeLoad: ({ params, context }) => {
@@ -23,8 +25,8 @@ export const Route = createFileRoute('/rec-resource/$id/activities-features/')({
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Activities & features',
-            href: `/rec-resource/${params.id}/activities-features`,
+            label: 'Activities and features',
+            href: `/rec-resource/${params.id}/activities-and-features`,
           },
         ];
       },
