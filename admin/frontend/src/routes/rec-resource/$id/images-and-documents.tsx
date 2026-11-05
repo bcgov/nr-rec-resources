@@ -5,7 +5,7 @@ import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
 import { recResourceFilesLoader } from '@/services/loaders/recResourceFilesLoader';
 
-export const Route = createFileRoute('/rec-resource/$id/files')({
+export const Route = createFileRoute('/rec-resource/$id/images-and-documents')({
   component: RecResourceFilesRoute,
   loader: recResourceFilesLoader,
   beforeLoad: ({ params, context }) => {
@@ -20,8 +20,8 @@ export const Route = createFileRoute('/rec-resource/$id/files')({
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Files',
-            href: `/rec-resource/${params.id}/files`,
+            label: 'Images and documents',
+            href: `/rec-resource/${params.id}/images-and-documents`,
           },
         ];
       },

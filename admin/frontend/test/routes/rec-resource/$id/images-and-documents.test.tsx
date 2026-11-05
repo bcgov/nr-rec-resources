@@ -1,4 +1,4 @@
-import { Route } from '@/routes/rec-resource/$id/files';
+import { Route } from '@/routes/rec-resource/$id/images-and-documents';
 import { recResourceFilesLoader } from '@/services/loaders/recResourceFilesLoader';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { describe, expect, it } from 'vitest';
@@ -43,8 +43,8 @@ describe('RecResource Files Route', () => {
     expect(breadcrumb[0].label).toBe('Home');
     expect(breadcrumb[1].label).toBe('Test Resource');
     expect(breadcrumb[2]).toEqual({
-      label: 'Files',
-      href: '/rec-resource/REC123/files',
+      label: 'Images and documents',
+      href: '/rec-resource/REC123/images-and-documents',
     });
   });
 });

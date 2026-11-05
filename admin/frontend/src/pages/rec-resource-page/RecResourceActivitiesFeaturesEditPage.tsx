@@ -22,7 +22,7 @@ import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 
 export const RecResourceActivitiesFeaturesEditPage = () => {
   const { activities, features } = useLoaderData({
-    from: '/rec-resource/$id/activities-features/edit',
+    from: '/rec-resource/$id/activities-and-features/edit',
   });
   const { id: rec_resource_id } = useParams({ from: '/rec-resource/$id' });
   const navigate = useNavigate();
