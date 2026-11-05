@@ -47,7 +47,7 @@ describe('useCreateRecreationResourceMapFeatures', () => {
     const { result } = renderHook(() =>
       useCreateRecreationResourceMapFeatures(),
     );
-    const mutationOptions = result.current.options as {
+    const mutationOptions = (result.current as any).options as {
       mutationFn: (variables: any) => Promise<any>;
       onSuccess: (data: any, variables: any) => void;
     };
@@ -59,6 +59,7 @@ describe('useCreateRecreationResourceMapFeatures', () => {
         {
           geometry: { type: 'Point', coordinates: [1, 2] },
           sectionId: 'S1',
+          featureAreaHectares: 9.25,
         },
         {
           geometry: {
@@ -89,6 +90,7 @@ describe('useCreateRecreationResourceMapFeatures', () => {
           {
             geometry: { type: 'Point', coordinates: [1, 2] },
             section_id: 'S1',
+            properties: undefined,
           },
           {
             geometry: {
@@ -99,6 +101,7 @@ describe('useCreateRecreationResourceMapFeatures', () => {
               ],
             },
             section_id: undefined,
+            properties: undefined,
           },
         ],
         recreation_type_code: 'TRAIL',

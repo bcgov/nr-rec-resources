@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  getFeatureAreaHectares,
   readSpatialFile,
   validateGeometry,
 } from '@/components/RecResourceSpatial/spatialSubmissionUtils';
@@ -116,12 +117,38 @@ describe('spatialSubmissionUtils', () => {
     });
 
     await expect(readSpatialFile(badFile)).rejects.toThrow(
-      'Upload either one .zip shapefile bundle or .shp with an optional matching .dbf.',
+      'Upload either one .zip shapefile bundle or shapefile parts (.shp, .dbf, .shx; optional .prj/.cpg).',
     );
   });
 
-  it('accepts a single .shp upload', async () => {
+  it('extracts feature area in hectares from DBF attributes when provided', () => {
+    expect(
+      getFeatureAreaHectares({
+        properties: { AREA_HA: 15.75 },
+      }),
+    ).toBe(15.75);
+
+    expect(
+      getFeatureAreaHectares({
+        properties: { Shape_Area: 250000 },
+      }),
+    ).toBe(25);
+
+    expect(
+      getFeatureAreaHectares({
+        properties: { NAME: 'No area here' },
+      }),
+    ).toBeUndefined();
+  });
+
+  it('accepts a matching .shp/.dbf/.shx upload set', async () => {
     const shpFile = new File(['placeholder'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['placeholder'], 'submission.dbf', {
+      type: 'application/octet-stream',
+    });
+    const shxFile = new File(['placeholder'], 'submission.shx', {
       type: 'application/octet-stream',
     });
 
@@ -134,10 +161,23 @@ describe('spatialSubmissionUtils', () => {
     view.setFloat64(60, 1100000, true);
     vi.spyOn(shpFile, 'arrayBuffer').mockResolvedValue(buffer);
 
-    const result = await readSpatialFile(shpFile);
+    const result = await readSpatialFile([shpFile, dbfFile, shxFile]);
 
     expect(result.type).toBe('FeatureCollection');
     expect(result.features).toHaveLength(1);
+  });
+
+  it('rejects non-zip uploads missing required shapefile parts', async () => {
+    const shpFile = new File(['placeholder'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['placeholder'], 'submission.dbf', {
+      type: 'application/octet-stream',
+    });
+
+    await expect(readSpatialFile([shpFile, dbfFile])).rejects.toThrow(
+      'Missing required shapefile part(s): .shx. Upload .shp, .dbf, and .shx with the same base filename.',
+    );
   });
 
   it('rejects non-.shp files', async () => {
@@ -146,6 +186,12 @@ describe('spatialSubmissionUtils', () => {
     });
 
     await expect(readSpatialFile(dbfFile)).rejects.toThrow(
+      'A .shp file is required.',
+    );
+  });
+
+  it('rejects empty spatial selection', async () => {
+    await expect(readSpatialFile([])).rejects.toThrow(
       'A .shp file is required.',
     );
   });
@@ -205,6 +251,25 @@ describe('spatialSubmissionUtils', () => {
     );
   });
 
+  it('rejects multiple required sidecar files with the same extension', async () => {
+    const shpFile = new File(['shp'], 'trail.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['dbf'], 'trail.dbf', {
+      type: 'application/octet-stream',
+    });
+    const shxFileA = new File(['a'], 'trail.shx', {
+      type: 'application/octet-stream',
+    });
+    const shxFileB = new File(['b'], 'trail-copy.shx', {
+      type: 'application/octet-stream',
+    });
+
+    await expect(
+      readSpatialFile([shpFile, dbfFile, shxFileA, shxFileB]),
+    ).rejects.toThrow('Please upload only one .shx file at a time.');
+  });
+
   it('rejects mismatched shp/dbf basenames', async () => {
     const shpFile = new File(['placeholder'], 'trail-a.shp', {
       type: 'application/octet-stream',
@@ -213,8 +278,12 @@ describe('spatialSubmissionUtils', () => {
       type: 'application/octet-stream',
     });
 
-    await expect(readSpatialFile([shpFile, dbfFile])).rejects.toThrow(
-      'The .dbf filename must match the uploaded .shp filename.',
+    const shxFile = new File(['placeholder'], 'trail-a.shx', {
+      type: 'application/octet-stream',
+    });
+
+    await expect(readSpatialFile([shpFile, dbfFile, shxFile])).rejects.toThrow(
+      'All uploaded shapefile parts must have the same base filename (e.g. trail.shp, trail.dbf, trail.shx).',
     );
   });
 
@@ -236,6 +305,12 @@ describe('spatialSubmissionUtils', () => {
     const validNameFile = new File(['placeholder'], 'invalid-magic.shp', {
       type: 'application/octet-stream',
     });
+    const dbfFile = new File(['placeholder'], 'invalid-magic.dbf', {
+      type: 'application/octet-stream',
+    });
+    const shxFile = new File(['placeholder'], 'invalid-magic.shx', {
+      type: 'application/octet-stream',
+    });
     const buffer = new ArrayBuffer(100);
     const view = new DataView(buffer);
     view.setInt32(0, 1234, false);
@@ -245,9 +320,9 @@ describe('spatialSubmissionUtils', () => {
     view.setFloat64(60, 1100000, true);
     vi.spyOn(validNameFile, 'arrayBuffer').mockResolvedValue(buffer);
 
-    await expect(readSpatialFile(validNameFile)).rejects.toThrow(
-      'Invalid shapefile signature (magic number mismatch).',
-    );
+    await expect(
+      readSpatialFile([validNameFile, dbfFile, shxFile]),
+    ).rejects.toThrow('Invalid shapefile signature (magic number mismatch).');
   });
 
   it('rejects zip uploads that contain a shp without matching dbf', async () => {
@@ -262,6 +337,24 @@ describe('spatialSubmissionUtils', () => {
     });
 
     await expect(readSpatialFile(zipFile)).rejects.toThrow('but no .dbf file');
+  });
+
+  it('rejects zip uploads containing multiple shp layers', async () => {
+    const zipFile = new File(['zip'], 'submission.zip', {
+      type: 'application/zip',
+    });
+    vi.spyOn(zipFile, 'arrayBuffer').mockResolvedValue(new ArrayBuffer(8));
+    mockZipLoadAsync.mockResolvedValue({
+      files: {
+        'trail-a.shp': { dir: false, name: 'trail-a.shp' },
+        'trail-b.shp': { dir: false, name: 'trail-b.shp' },
+        'trail-a.dbf': { dir: false, name: 'trail-a.dbf' },
+      },
+    });
+
+    await expect(readSpatialFile(zipFile)).rejects.toThrow(
+      'contains multiple shapefile layers',
+    );
   });
 
   it('rejects zip uploads with mismatched shp and dbf basenames', async () => {
@@ -411,6 +504,124 @@ describe('spatialSubmissionUtils', () => {
     expect(result.features[0].properties.section_id).toBe('B1');
   });
 
+  it('rejects zip arrays that contain no feature collections', async () => {
+    const zipFile = new File(['zip'], 'submission.zip', {
+      type: 'application/zip',
+    });
+    vi.spyOn(zipFile, 'arrayBuffer').mockResolvedValue(new ArrayBuffer(16));
+    mockZipLoadAsync.mockResolvedValue({
+      files: {
+        'trail.shp': { dir: false, name: 'trail.shp' },
+        'trail.dbf': { dir: false, name: 'trail.dbf' },
+      },
+    });
+    mockShpParse.mockResolvedValue(['invalid-layer']);
+
+    await expect(readSpatialFile(zipFile)).rejects.toThrow(
+      'No shapefile layers were found in the uploaded .zip file.',
+    );
+  });
+
+  it('rejects zip object layers that contain no feature collections', async () => {
+    const zipFile = new File(['zip'], 'submission.zip', {
+      type: 'application/zip',
+    });
+    vi.spyOn(zipFile, 'arrayBuffer').mockResolvedValue(new ArrayBuffer(16));
+    mockZipLoadAsync.mockResolvedValue({
+      files: {
+        'trail.shp': { dir: false, name: 'trail.shp' },
+        'trail.dbf': { dir: false, name: 'trail.dbf' },
+      },
+    });
+    mockShpParse.mockResolvedValue({
+      layerA: { type: 'not-a-feature-collection' },
+    });
+
+    await expect(readSpatialFile(zipFile)).rejects.toThrow(
+      'No shapefile layers were found in the uploaded .zip file.',
+    );
+  });
+
+  it('rejects zip output that is not object/array/feature collection', async () => {
+    const zipFile = new File(['zip'], 'submission.zip', {
+      type: 'application/zip',
+    });
+    vi.spyOn(zipFile, 'arrayBuffer').mockResolvedValue(new ArrayBuffer(16));
+    mockZipLoadAsync.mockResolvedValue({
+      files: {
+        'trail.shp': { dir: false, name: 'trail.shp' },
+        'trail.dbf': { dir: false, name: 'trail.dbf' },
+      },
+    });
+    mockShpParse.mockResolvedValue('unexpected');
+
+    await expect(readSpatialFile(zipFile)).rejects.toThrow(
+      'Unable to parse uploaded .zip shapefile bundle.',
+    );
+  });
+
+  it('rejects zip uploads with no parsed features', async () => {
+    const zipFile = new File(['zip'], 'submission.zip', {
+      type: 'application/zip',
+    });
+    vi.spyOn(zipFile, 'arrayBuffer').mockResolvedValue(new ArrayBuffer(16));
+    mockZipLoadAsync.mockResolvedValue({
+      files: {
+        'trail.shp': { dir: false, name: 'trail.shp' },
+        'trail.dbf': { dir: false, name: 'trail.dbf' },
+      },
+    });
+    mockShpParse.mockResolvedValue({
+      type: 'FeatureCollection',
+      features: [],
+    });
+
+    await expect(readSpatialFile(zipFile)).rejects.toThrow(
+      'No features found in uploaded .zip shapefile bundle.',
+    );
+  });
+
+  it('reprojects nested polygon coordinates from geographic CRS', async () => {
+    const zipFile = new File(['zip'], 'submission.zip', {
+      type: 'application/zip',
+    });
+    vi.spyOn(zipFile, 'arrayBuffer').mockResolvedValue(new ArrayBuffer(16));
+    mockZipLoadAsync.mockResolvedValue({
+      files: {
+        'trail.shp': { dir: false, name: 'trail.shp' },
+        'trail.dbf': { dir: false, name: 'trail.dbf' },
+      },
+    });
+    mockShpParse.mockResolvedValue({
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { section_id: 'P1' },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [-123.3656, 48.4284],
+                [-123.36, 48.4284],
+                [-123.36, 48.43],
+                [-123.3656, 48.43],
+                [-123.3656, 48.4284],
+              ],
+            ],
+          },
+        },
+      ],
+    });
+
+    const result = await readSpatialFile(zipFile);
+
+    expect(result.crs?.properties?.name).toBe('EPSG:3005');
+    expect(result.features[0].geometry.coordinates[0][0][0]).not.toBe(
+      -123.3656,
+    );
+  });
+
   it('rejects zip uploads when parsed output has features without geometry', async () => {
     const zipFile = new File(['zip'], 'submission.zip', {
       type: 'application/zip',
@@ -435,6 +646,100 @@ describe('spatialSubmissionUtils', () => {
 
     await expect(readSpatialFile(zipFile)).rejects.toThrow(
       'features without geometry',
+    );
+  });
+
+  it('rejects shapefiles with incomplete headers', async () => {
+    const shpFile = new File(['placeholder'], 'trail.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['placeholder'], 'trail.dbf', {
+      type: 'application/octet-stream',
+    });
+    const shxFile = new File(['placeholder'], 'trail.shx', {
+      type: 'application/octet-stream',
+    });
+
+    vi.spyOn(shpFile, 'arrayBuffer').mockResolvedValue(new ArrayBuffer(99));
+
+    await expect(readSpatialFile([shpFile, dbfFile, shxFile])).rejects.toThrow(
+      'Invalid shapefile: header is incomplete.',
+    );
+  });
+
+  it('rejects shapefiles with non-finite bbox values', async () => {
+    const shpFile = new File(['placeholder'], 'trail.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['placeholder'], 'trail.dbf', {
+      type: 'application/octet-stream',
+    });
+    const shxFile = new File(['placeholder'], 'trail.shx', {
+      type: 'application/octet-stream',
+    });
+    const buffer = new ArrayBuffer(100);
+    const view = new DataView(buffer);
+    view.setInt32(0, 9994, false);
+    view.setFloat64(36, Number.NaN, true);
+    view.setFloat64(44, 900000, true);
+    view.setFloat64(52, 1100000, true);
+    view.setFloat64(60, 1100000, true);
+    vi.spyOn(shpFile, 'arrayBuffer').mockResolvedValue(buffer);
+
+    await expect(readSpatialFile([shpFile, dbfFile, shxFile])).rejects.toThrow(
+      'Invalid shapefile header bbox: contains NaN or Infinity.',
+    );
+  });
+
+  it('rejects shapefiles whose header extent falls outside BC bounds', async () => {
+    const shpFile = new File(['placeholder'], 'trail.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['placeholder'], 'trail.dbf', {
+      type: 'application/octet-stream',
+    });
+    const shxFile = new File(['placeholder'], 'trail.shx', {
+      type: 'application/octet-stream',
+    });
+    const buffer = new ArrayBuffer(100);
+    const view = new DataView(buffer);
+    view.setInt32(0, 9994, false);
+    view.setFloat64(36, -10, true);
+    view.setFloat64(44, -10, true);
+    view.setFloat64(52, 10, true);
+    view.setFloat64(60, 10, true);
+    vi.spyOn(shpFile, 'arrayBuffer').mockResolvedValue(buffer);
+
+    await expect(readSpatialFile([shpFile, dbfFile, shxFile])).rejects.toThrow(
+      'Shapefile header extent lies outside supported BC bounds (EPSG:3005).',
+    );
+  });
+
+  it('rejects shapefiles when no records are returned', async () => {
+    const shpFile = new File(['placeholder'], 'trail.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['placeholder'], 'trail.dbf', {
+      type: 'application/octet-stream',
+    });
+    const shxFile = new File(['placeholder'], 'trail.shx', {
+      type: 'application/octet-stream',
+    });
+    const buffer = new ArrayBuffer(100);
+    const view = new DataView(buffer);
+    view.setInt32(0, 9994, false);
+    view.setFloat64(36, 900000, true);
+    view.setFloat64(44, 900000, true);
+    view.setFloat64(52, 1100000, true);
+    view.setFloat64(60, 1100000, true);
+    vi.spyOn(shpFile, 'arrayBuffer').mockResolvedValue(buffer);
+
+    mockOpen.mockResolvedValueOnce({
+      read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+    });
+
+    await expect(readSpatialFile([shpFile, dbfFile, shxFile])).rejects.toThrow(
+      'No features found in shapefile.',
     );
   });
 

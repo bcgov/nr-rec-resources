@@ -184,7 +184,7 @@ describe('ExhibitAPdfBuilder', () => {
     expect(lines).toContain('NAD 1983 BC Env Albers');
   });
 
-  it('renders RIGHT OF WAY for linear submissions and omits AREA', async () => {
+  it('renders RIGHT OF WAY and AREA for linear submissions', async () => {
     const builder = new ExhibitAPdfBuilder();
     vi.spyOn(builder as any, 'asset').mockImplementation(() => MINIMAL_PNG);
     const drawTextSpy = vi.spyOn(PDFPage.prototype, 'drawText');
@@ -207,7 +207,8 @@ describe('ExhibitAPdfBuilder', () => {
     expect(lines).toContain('20');
     expect(lines).toContain('LENGTH (km):');
     expect(lines).toContain('12.9876');
-    expect(lines).not.toContain('AREA (Ha):');
+    expect(lines).toContain('AREA (Ha):');
+    expect(lines).toContain('25.1234');
     expect(
       drawLineSpy.mock.calls.some(([options]) => options?.thickness === 3.4),
     ).toBe(true);

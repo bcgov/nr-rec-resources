@@ -11,7 +11,15 @@ export const MAX_TOTAL_VERTEX_COUNT = 200000;
 export const MAX_VERTEX_COUNT_PER_FEATURE = 50000;
 export const MAX_POLYGON_PART_SEPARATION_METRES = 500;
 export const ZERO_METRIC_EPSILON = 0.0001;
-export const SHAPEFILE_ALLOWED_EXTENSIONS = ['shp', 'dbf', 'zip'] as const;
+export const SHAPEFILE_ALLOWED_EXTENSIONS = [
+  'shp',
+  'dbf',
+  'shx',
+  'prj',
+  'cpg',
+  'zip',
+] as const;
+export const REQUIRED_SHAPEFILE_PART_EXTENSIONS = ['dbf', 'shx'] as const;
 export const DEFAULT_SECTION_ID_FIELD_NAME = 'section_id';
 export const REQUIRED_SHP_FILE_MESSAGE = 'A .shp file is required.';
 export const SHAPEFILE_BASENAME_MISMATCH_MESSAGE =

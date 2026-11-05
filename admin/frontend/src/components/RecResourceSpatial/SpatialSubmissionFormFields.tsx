@@ -50,6 +50,9 @@ interface SpatialSubmissionFormFieldsProps {
   isProcessing: boolean;
   onSpatialFilesChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onValidateSpatialFile: () => void;
+  selectedFiles?: File[];
+  onClearSelectedFiles?: () => void;
+  onRemoveSelectedFile?: (fileName: string) => void;
   variant?: 'full' | 'geospatial';
   editMode?: boolean;
   showCreateHeading?: boolean;
@@ -69,6 +72,9 @@ export const SpatialSubmissionFormFields = ({
   isProcessing,
   onSpatialFilesChange,
   onValidateSpatialFile,
+  selectedFiles = [],
+  onClearSelectedFiles,
+  onRemoveSelectedFile,
   variant = 'full',
   editMode = false,
   showCreateHeading = false,
@@ -109,6 +115,18 @@ export const SpatialSubmissionFormFields = ({
   const ungroupedOptions = recreationTypeOptions.filter(
     (option) => !option.id || !groupedOptionLookup.has(option.id),
   );
+  const selectedGroupName =
+    selectedFiles[0]?.name.replace(/\.[^.]+$/, '') ?? 'Selected files';
+  const formatFileSize = (sizeInBytes: number) => {
+    if (sizeInBytes < 1024) {
+      return `${sizeInBytes} B`;
+    }
+    return `${(sizeInBytes / 1024).toFixed(1)} KB`;
+  };
+  const getFileExtension = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    return extension ? `.${extension}` : 'file';
+  };
 
   return (
     <>
@@ -358,14 +376,57 @@ export const SpatialSubmissionFormFields = ({
           <Form.Control
             aria-label="Spatial file"
             type="file"
-            accept=".zip,.shp,.dbf"
+            accept=".zip,.shp,.dbf,.shx,.prj,.cpg"
             multiple
             onChange={onSpatialFilesChange}
             disabled={requestCreated}
           />
           <Form.Text muted>
-            File must be a Shape file as a single .zip bundle.
+            Upload either one .zip shapefile bundle or matching .shp, .dbf, .shx
+            files (optional .prj/.cpg).
           </Form.Text>
+          {selectedFiles.length ? (
+            <div className="spatial-submission-section__file-list mt-2">
+              <div className="spatial-submission-section__file-list-header">
+                <strong>{selectedGroupName}</strong>
+                {onClearSelectedFiles ? (
+                  <button
+                    type="button"
+                    className="spatial-submission-section__file-list-action"
+                    onClick={onClearSelectedFiles}
+                  >
+                    Clear all
+                  </button>
+                ) : null}
+              </div>
+              {selectedFiles.map((file) => (
+                <div
+                  key={`${file.name}-${file.size}`}
+                  className="spatial-submission-section__file-list-row"
+                >
+                  <span className="spatial-submission-section__file-ext">
+                    {getFileExtension(file.name)}
+                  </span>
+                  <span className="spatial-submission-section__file-name">
+                    {file.name}
+                  </span>
+                  <span className="spatial-submission-section__file-size">
+                    {formatFileSize(file.size)}
+                  </span>
+                  {onRemoveSelectedFile ? (
+                    <button
+                      type="button"
+                      className="spatial-submission-section__file-remove"
+                      onClick={() => onRemoveSelectedFile(file.name)}
+                      aria-label={`Remove ${file.name}`}
+                    >
+                      x
+                    </button>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
         </Form.Group>
       </Col>
 
