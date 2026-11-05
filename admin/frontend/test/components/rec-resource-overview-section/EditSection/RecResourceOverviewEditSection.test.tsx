@@ -255,7 +255,7 @@ describe('RecResourceOverviewEditSection', () => {
     it('should render VisibleOnPublicSite component and helper text', () => {
       render(<RecResourceOverviewEditSection />);
 
-      expect(screen.getByText('Displayed on public site')).toBeInTheDocument();
+      expect(screen.getByText('Display on public site')).toBeInTheDocument();
       expect(screen.getByTestId('helper-text')).toHaveTextContent(
         'How visitors reach the site.',
       );
