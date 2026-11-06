@@ -222,6 +222,18 @@ variable "custom_domain" {
   default     = ""
 }
 
+variable "api_custom_domains" {
+  description = "Custom domain aliases for the API CloudFront distribution (e.g. api.dev.sitesandtrailsbc.ca). Not the same as custom_domain, which is the admin frontend domain."
+  type        = list(string)
+  default     = []
+}
+
+variable "use_api_custom_domain_url" {
+  description = "When true, apigw_url (and so the frontend build's VITE_API_BASE_URL) uses the first api_custom_domains entry. Only turn on once DNS for that domain is live."
+  type        = bool
+  default     = false
+}
+
 variable "storage_remote_state" {
   description = "Remote state configuration for the storage module"
   type = object({

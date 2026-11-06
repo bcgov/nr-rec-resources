@@ -1,6 +1,16 @@
 locals {
   cloudfront_hosted_zone_id = "Z2FDTNDATAQYW2"
   zone_name                 = "${var.env}.${var.domain_name}"
+
+  # Older API state only has apigw_url, which was the CloudFront URL before the custom domains
+  public_api_cloudfront_domain = try(
+    data.terraform_remote_state.public_api.outputs.cloudfront_domain_name,
+    trimprefix(data.terraform_remote_state.public_api.outputs.apigw_url, "https://")
+  )
+  admin_api_cloudfront_domain = try(
+    data.terraform_remote_state.admin_api.outputs.cloudfront_domain_name,
+    trimprefix(data.terraform_remote_state.admin_api.outputs.apigw_url, "https://")
+  )
 }
 
 resource "aws_route53_zone" "main" {
@@ -50,6 +60,50 @@ resource "aws_route53_record" "staff" {
 
   alias {
     name                   = data.terraform_remote_state.admin_frontend.outputs.cloudfront.domain_name
+    zone_id                = local.cloudfront_hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+data "terraform_remote_state" "public_api" {
+  backend = "s3"
+  config = {
+    bucket         = var.public_api_remote_state.bucket
+    key            = var.public_api_remote_state.key
+    dynamodb_table = var.public_api_remote_state.dynamodb_table
+    region         = var.public_api_remote_state.region
+  }
+}
+
+data "terraform_remote_state" "admin_api" {
+  backend = "s3"
+  config = {
+    bucket         = var.admin_api_remote_state.bucket
+    key            = var.admin_api_remote_state.key
+    dynamodb_table = var.admin_api_remote_state.dynamodb_table
+    region         = var.admin_api_remote_state.region
+  }
+}
+
+resource "aws_route53_record" "api" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "api.${local.zone_name}"
+  type    = "A"
+
+  alias {
+    name                   = local.public_api_cloudfront_domain
+    zone_id                = local.cloudfront_hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "staff_api" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "staff-api.${local.zone_name}"
+  type    = "A"
+
+  alias {
+    name                   = local.admin_api_cloudfront_domain
     zone_id                = local.cloudfront_hosted_zone_id
     evaluate_target_health = false
   }

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { buildDownloadFileName } from '@shared/utils/downloadFileName';
 import { UserContextService } from '@/common/modules/user-context/user-context.service';
 import { isIdirViewerOnly } from '@/auth/sensitive-fields.interceptor';
 import { ExportDownloadQueryDto } from './dtos/export-download-query.dto';
@@ -118,7 +119,11 @@ export class ExportService {
 
   private buildDownloadFileName(dataset: string): string {
     const dateStamp = new Date().toISOString().slice(0, 10);
-    return `${dataset}-${dateStamp}.csv`;
+    return buildDownloadFileName({
+      kind: 'exports',
+      parts: [dataset, dateStamp],
+      extension: 'csv',
+    });
   }
 
   private escapeCsvCell(value: string | null | undefined): string {

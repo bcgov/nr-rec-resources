@@ -8,7 +8,8 @@ import { getAdminSearchQueryOptions } from '@/services/hooks/recreation-resource
 
 export async function adminSearchLoader({ context, deps }: any) {
   const authService = AuthService.getInstance();
-  const basePath = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+  const basePath =
+    import.meta.env.VITE_API_BASE_URL?.replace(/\/api$/, '') || '';
   const api = new RecreationResourcesApi(
     new Configuration({
       basePath,

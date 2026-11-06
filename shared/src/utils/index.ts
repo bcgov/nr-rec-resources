@@ -1,4 +1,5 @@
 export * from './dateUtils';
+export * from './downloadFileName';
 export * from './feeUtils';
 export * from './fileUtils';
 export * from './fileSizeValidation';

@@ -54,6 +54,18 @@ generate "tfvars" {
     dynamodb_table = "${local.statelock_table_name}"
     region         = "${local.region}"
   }
+  public_api_remote_state = {
+    bucket         = "${local.statefile_bucket_name}"
+    key            = "${local.target_env}/api/terraform.tfstate"
+    dynamodb_table = "${local.statelock_table_name}"
+    region         = "${local.region}"
+  }
+  admin_api_remote_state = {
+    bucket         = "${local.statefile_bucket_name}"
+    key            = "${local.target_env}/api/admin/terraform.tfstate"
+    dynamodb_table = "${local.statelock_table_name}"
+    region         = "${local.region}"
+  }
   google_search_console_verification_txt = "${get_env("google_search_console_verification_txt", "")}"
   dev_zone_name_servers  = ${get_env("dev_zone_name_servers", "[]")}
   test_zone_name_servers = ${get_env("test_zone_name_servers", "[]")}

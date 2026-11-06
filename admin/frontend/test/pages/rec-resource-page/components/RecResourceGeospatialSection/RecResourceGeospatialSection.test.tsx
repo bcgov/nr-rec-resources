@@ -18,6 +18,12 @@ const mockFinalizeExhibitAUpload = vi.fn();
 const mockCreateOrGetExhibitAByApplicationGuid = vi.fn();
 const mockUseRecreationResourceAdminApiClient = vi.fn();
 const mockGetPendingRequestAdjudicationReportRaw = vi.fn();
+const mockDownloadUrlAsFile = vi.fn();
+
+vi.mock('@shared/utils', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@shared/utils')>()),
+  downloadUrlAsFile: (...args: any[]) => mockDownloadUrlAsFile(...args),
+}));
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, className }: any) => (
@@ -428,6 +434,71 @@ describe('RecResourceGeospatialSection', () => {
       'href',
       'https://example.gov.bc.ca/sncsc-web/guid-123',
     );
+  });
+
+  it('downloads the exhibit A PDF with a clean file name', async () => {
+    mockDownloadUrlAsFile.mockResolvedValue(undefined);
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-9',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Point'],
+            exhibit_a_url: 'https://bucket.example.com/exhibit-a.pdf',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('link', { name: /Download/i }));
+
+    await waitFor(() =>
+      expect(mockDownloadUrlAsFile).toHaveBeenCalledWith(
+        'https://bucket.example.com/exhibit-a.pdf',
+        'docs.sitesandtrailsbc.REC0001.exhibit-a.sub-9.pdf',
+      ),
+    );
+  });
+
+  it('opens the exhibit A url when the download fails', async () => {
+    mockDownloadUrlAsFile.mockRejectedValue(new Error('cors'));
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-10',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Point'],
+            exhibit_a_url: 'https://other.example.com/report.pdf',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('link', { name: /Download/i }));
+
+    await waitFor(() =>
+      expect(openSpy).toHaveBeenCalledWith(
+        'https://other.example.com/report.pdf',
+        '_blank',
+        'noopener,noreferrer',
+      ),
+    );
+    openSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 
   it('renders reference placeholder when status_request_guid is missing', () => {

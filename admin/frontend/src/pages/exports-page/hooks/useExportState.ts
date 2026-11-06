@@ -5,18 +5,26 @@ import {
 } from '@/services';
 import { DownloadExportCsvDatasetEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 import { addErrorNotification } from '@/store/notificationStore';
+import { buildDownloadFileName } from '@shared/utils';
 import { type ChangeEvent, useMemo, useState } from 'react';
 import { NOT_IMPLEMENTED_INFO } from '../constants';
 import { useExportFilterOptions } from './useExportFilterOptions';
 
 const isDatasetUnavailable = (info?: string) => info === NOT_IMPLEMENTED_INFO;
 
+const buildFallbackFileName = (dataset: string) =>
+  buildDownloadFileName({
+    kind: 'exports',
+    parts: [dataset, new Date().toISOString().slice(0, 10)],
+    extension: 'csv',
+  });
+
 const getDownloadFileName = (
   contentDisposition: string | null,
   fallbackDataset: string,
 ) => {
   if (!contentDisposition) {
-    return `${fallbackDataset}.csv`;
+    return buildFallbackFileName(fallbackDataset);
   }
 
   const fileNameMatch = /filename="([^"]+)"/i.exec(contentDisposition);
@@ -25,7 +33,7 @@ const getDownloadFileName = (
     return fileNameMatch[1];
   }
 
-  return `${fallbackDataset}.csv`;
+  return buildFallbackFileName(fallbackDataset);
 };
 
 export const useExportState = () => {

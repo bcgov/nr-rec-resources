@@ -104,7 +104,7 @@ describe('DownloadMapModal', () => {
     fireEvent.click(gpxCheckbox);
     fireEvent.click(kmlCheckbox);
     fireEvent.click(screen.getByText('Download'));
-    expect(downloadGPX).toHaveBeenCalledWith(styledFeatures, 'Test Resource');
+    expect(downloadGPX).toHaveBeenCalledWith(styledFeatures, recResource);
     expect(downloadKML).toHaveBeenCalledWith(
       styledFeatures,
       recResource,

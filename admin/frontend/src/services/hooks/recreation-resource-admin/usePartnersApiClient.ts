@@ -6,7 +6,8 @@ import {
 
 export const usePartnersApiClient = () => {
   const { authService } = useAuthContext();
-  const basePath = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+  const basePath =
+    import.meta.env.VITE_API_BASE_URL?.replace(/\/api$/, '') || '';
   return new PartnersApi(
     new Configuration({
       basePath,

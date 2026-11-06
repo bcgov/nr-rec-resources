@@ -56,6 +56,24 @@ The following DNS records are configured in Route 53:
 | ----------- | --------------------------- | ----------------------- | ------------------------ |
 | A (Alias)   | `staff.sitesandtrailsbc.ca` | CloudFront Distribution | Administrative interface |
 
+### API Records
+
+Each API is already served through its own CloudFront distribution
+(`infrastructure/api/waf.tf`), which carries these names as aliases
+(`api_custom_domains` in `terraform/api/*`). Dev and test get the same records
+in their child zones: `api.dev.`, `staff-api.dev.`, `api.test.`,
+`staff-api.test.`.
+
+| Record Type | Domain                          | Target                             | Purpose    |
+| ----------- | ------------------------------- | ---------------------------------- | ---------- |
+| A (Alias)   | `api.sitesandtrailsbc.ca`       | Public API CloudFront Distribution | Public API |
+| A (Alias)   | `staff-api.sitesandtrailsbc.ca` | Admin API CloudFront Distribution  | Admin API  |
+
+With `use_api_custom_domain_url = true` (set per env in `terraform/api/*`),
+`apigw_url` returns these names and the frontends build against them. Setting it
+to `false` points the frontends back at the CloudFront URL. The DNS records need
+to exist before an env deploys with it on.
+
 ### Google Search Console Verification (TXT)
 
 A **TXT record** at the apex domain (`sitesandtrailsbc.ca`) is used for

@@ -139,12 +139,14 @@ describe('ConsentFormsS3Service', () => {
         'REC0001',
         'image-123',
         'doc-456',
+        'docs.sitesandtrailsbc.REC0001.consent.lake.pdf',
       );
 
       expect(result).toBe('https://s3.amazonaws.com/presigned-download');
       expect(mockS3Service.getSignedUrl).toHaveBeenCalledWith(
         'REC0001/image-123/doc-456.pdf',
         3600,
+        'docs.sitesandtrailsbc.REC0001.consent.lake.pdf',
       );
     });
   });

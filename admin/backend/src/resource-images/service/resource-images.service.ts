@@ -17,6 +17,7 @@ import {
   UpdateImageConsentPatchDto,
 } from '../dto/update-image-consent.dto';
 import { RecreationResourceImageSize } from '@shared/constants/images';
+import { buildDownloadFileName } from '@shared/utils/downloadFileName';
 import { ConsentFormsS3Service } from './consent-forms-s3.service';
 
 const REQUIRED_VARIANTS = ['original', 'scr', 'pre', 'thm'] as const;
@@ -565,7 +566,10 @@ export class ResourceImagesService extends BaseStorageFileService {
     const consentForm =
       await this.prisma.recreation_image_consent_form.findUnique({
         where: { image_id },
-        select: { doc_id: true },
+        select: {
+          doc_id: true,
+          recreation_resource_image: { select: { file_name: true } },
+        },
       });
 
     if (!consentForm) {
@@ -579,10 +583,18 @@ export class ResourceImagesService extends BaseStorageFileService {
       );
     }
 
+    const downloadFileName = buildDownloadFileName({
+      kind: 'docs',
+      recResourceId: rec_resource_id,
+      parts: ['consent', consentForm.recreation_resource_image?.file_name],
+      extension: 'pdf',
+    });
+
     return this.consentFormsS3Service.getPresignedDownloadUrl(
       rec_resource_id,
       image_id,
       consentForm.doc_id,
+      downloadFileName,
     );
   }
 

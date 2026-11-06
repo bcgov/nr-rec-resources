@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   downloadGPX,
   downloadKML,
+  downloadKMLMultiple,
 } from '@shared/components/recreation-resource-map/helpers/mapDownloadHandlers';
 import { GPX, KML } from 'ol/format';
 
@@ -85,7 +86,10 @@ describe('downloadGPX', () => {
 
   it('should generate GPX data and trigger download', () => {
     const feature = createFakeFeature('Point');
-    downloadGPX([feature], 'testName');
+    downloadGPX([feature], {
+      rec_resource_id: 'REC1234',
+      name: 'Lake Trail',
+    } as any);
 
     expect(GPX).toHaveBeenCalled();
     expect((GPX as any).mock.results[0].value.writeFeatures).toHaveBeenCalled();
@@ -94,6 +98,9 @@ describe('downloadGPX', () => {
     expect(mockClick).toHaveBeenCalled();
     expect(mockRemoveChild).toHaveBeenCalled();
     expect(mockRevokeObjectURL).toHaveBeenCalled();
+    expect(mockAppendChild.mock.calls[0][0].download).toBe(
+      'maps.sitesandtrailsbc.REC1234.lake-trail.gpx',
+    );
   });
 });
 
@@ -103,8 +110,27 @@ describe('downloadKML', () => {
   });
 
   const recResource = {
-    name: 'ResourceName',
+    rec_resource_id: 'REC1234',
+    name: 'Resource Name',
   } as any;
+
+  it('names the file with the maps prefix', () => {
+    downloadKML([createFakeFeature('Point')], recResource);
+
+    expect(mockAppendChild.mock.calls[0][0].download).toBe(
+      'maps.sitesandtrailsbc.REC1234.resource-name.kml',
+    );
+  });
+
+  it('names search results with the maps prefix', () => {
+    downloadKMLMultiple([
+      { features: [createFakeFeature('Point')], recResource },
+    ]);
+
+    expect(mockAppendChild.mock.calls[0][0].download).toBe(
+      'maps.sitesandtrailsbc.search-results.kml',
+    );
+  });
 
   it('should generate KML data for non-point geometries', () => {
     const feature = createFakeFeature('LineString');

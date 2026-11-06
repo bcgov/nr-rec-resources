@@ -6,7 +6,8 @@ import {
 
 export const useRecreationResourceAdminApiClient = () => {
   const { authService } = useAuthContext();
-  const basePath = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+  const basePath =
+    import.meta.env.VITE_API_BASE_URL?.replace(/\/api$/, '') || '';
   return new RecreationResourcesApi(
     new Configuration({
       basePath,

@@ -9,6 +9,8 @@ generate "prod_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "prod"
+  api_custom_domains = ["api.sitesandtrailsbc.ca"]
+  use_api_custom_domain_url = true
   feature_advisory_status = "false"
   fta_dataload_bucket = "rst-fta-lza-dataload-oracle-prod"
   api_cpu = 512

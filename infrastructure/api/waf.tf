@@ -100,10 +100,20 @@ resource "aws_wafv2_web_acl" "cloudfront_acl" {
   }
 }
 
+# Same cert lookup as the frontend (infrastructure/frontend/cloudfront.tf)
+data "aws_acm_certificate" "primary_cert" {
+  provider    = aws.cloudfront_waf
+  for_each    = length(var.api_custom_domains) > 0 ? { "primary_cert" = "*.sitesandtrailsbc.ca" } : {}
+  domain      = each.value
+  statuses    = ["ISSUED"]
+  most_recent = true
+}
+
 resource "aws_cloudfront_distribution" "api" {
   provider   = aws.cloudfront_waf
   web_acl_id = aws_wafv2_web_acl.cloudfront_acl.arn
   comment    = "Distribution for ${var.app_name} api."
+  aliases    = var.api_custom_domains
 
   origin {
     domain_name = "${aws_apigatewayv2_api.app.id}.execute-api.${var.aws_region}.amazonaws.com"
@@ -149,7 +159,10 @@ resource "aws_cloudfront_distribution" "api" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn            = length(var.api_custom_domains) > 0 ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
+    ssl_support_method             = length(var.api_custom_domains) > 0 ? "sni-only" : null
+    minimum_protocol_version       = length(var.api_custom_domains) > 0 ? "TLSv1.2_2021" : null
+    cloudfront_default_certificate = length(var.api_custom_domains) == 0
   }
 
   logging_config {
