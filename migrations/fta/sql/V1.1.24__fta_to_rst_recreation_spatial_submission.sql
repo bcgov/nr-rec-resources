@@ -79,9 +79,7 @@ prepared as (
         n.update_timestamp as updated_at,
         nullif(btrim(n.update_userid), '') as updated_by,
         n.entry_timestamp as created_at,
-        nullif(btrim(n.entry_userid), '') as created_by,
-        nullif(left(btrim(n.client_number), 10), '') as client_number,
-        nullif(left(btrim(n.client_locn_code), 4), '') as client_locn_code
+        nullif(btrim(n.entry_userid), '') as created_by
     from normalized n
     where n.application_guid_mapped is not null
       and n.status_request_type_code_mapped is not null
@@ -107,9 +105,7 @@ insert into rst.recreation_spatial_submission (
     updated_at,
     updated_by,
     created_at,
-    created_by,
-    client_number,
-    client_locn_code
+    created_by
 )
 select
     p.application_guid,
@@ -129,9 +125,7 @@ select
     p.updated_at,
     p.updated_by,
     p.created_at,
-    p.created_by,
-    p.client_number,
-    p.client_locn_code
+    p.created_by
 from prepared p
 join rst.recreation_resource rr
     on rr.rec_resource_id = p.tenure_id
@@ -151,6 +145,4 @@ set
     adjudication_report_document_uri = excluded.adjudication_report_document_uri,
     decision = excluded.decision,
     updated_at = excluded.updated_at,
-    updated_by = excluded.updated_by,
-    client_number = excluded.client_number,
-    client_locn_code = excluded.client_locn_code;
+    updated_by = excluded.updated_by;
