@@ -18,7 +18,7 @@ insert into rst.recreation_resource (
     arch_impact_assess_ind,
     resource_feature_ind,
     last_rec_inspection_date,
-    last_hzrd_tree_assess_date.
+    last_hzrd_tree_assess_date,
     recreation_user_days_code
 )
 select
