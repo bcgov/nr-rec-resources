@@ -769,7 +769,10 @@ export function RecResourceGeospatialSection() {
                         href={getExhibitAUrl(row)!}
                         onClick={(event) => {
                           event.preventDefault();
-                          handleExhibitADownload(row, getExhibitAUrl(row)!);
+                          void handleExhibitADownload(
+                            row,
+                            getExhibitAUrl(row)!,
+                          );
                         }}
                         className="geospatial-submissions-action-link"
                       >
