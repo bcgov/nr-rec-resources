@@ -9,6 +9,7 @@ export * from './AdjudicationCommentDto';
 export * from './AdminSearchResponseDto';
 export * from './AdminSearchResultRowDto';
 export * from './AgreementHolderClientPublicViewDto';
+export * from './ArchiveRecreationResourceById200Response';
 export * from './BadRequestResponseDto';
 export * from './BcgwClosuresShortDto';
 export * from './BcgwClosuresShortFeatureCollectionDto';

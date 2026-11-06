@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "sync-advisories": "tsx src/advisories/sync-advisories.ts",
-    "export-closed-resources": "tsx src/closures/export-closed-resources.ts"
+    "export-closed-resources": "tsx src/closures/export-closed-resources.ts",
+    "sync-exhibit-a-docs": "tsx src/exhibit-a/sync-exhibit-a-docs.ts"
   },
   "dependencies": {
     "@aws-sdk/client-guardduty": "^3.1136.0",
