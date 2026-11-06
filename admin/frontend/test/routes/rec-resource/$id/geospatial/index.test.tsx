@@ -38,7 +38,7 @@ describe('RecResource Geospatial Index Route', () => {
           'rst-admin',
           'rst-super-admin',
         ],
-        redirectTo: '/rec-resource/REC123/files',
+        redirectTo: '/rec-resource/REC123/images-and-documents',
         children: expect.anything(),
       }),
     );

@@ -1,9 +1,11 @@
-import { Card, Form, Stack } from 'react-bootstrap';
+import { Card, Stack } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import './VisibleOnPublicSite.scss';
 import { HelpIcon } from '@/components';
 import { DISPLAY_ON_PUBLIC_SITE_TEXT } from '@/utils/helperText';
+import { ToggleGroup } from './ToggleGroup';
+import { useState } from 'react';
 
 type VisibleOnPublicSiteProps = {
   isEditMode?: boolean;
@@ -16,8 +18,10 @@ export const VisibleOnPublicSite = ({
   value,
   onChange,
 }: VisibleOnPublicSiteProps) => {
-  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(event.target.checked);
+  const [toggleState, setToggleState] = useState(value);
+  const handleToggle = () => {
+    setToggleState((toggleState) => !toggleState);
+    onChange?.(!toggleState);
   };
 
   return (
@@ -25,38 +29,36 @@ export const VisibleOnPublicSite = ({
       <Card.Body>
         <Stack
           direction="horizontal"
-          gap={2}
-          className="align-items-start justify-content-between"
+          gap={3}
+          className="align-items-center justify-content-between w-100"
           aria-label="Public site visibility control"
         >
-          <Stack direction="vertical" gap={2}>
-            <span className="fw-bold">
+          {/* Left side: Icon, text, and help icon */}
+          <span className="fw-bold d-flex align-items-center">
+            <span>Display on public site</span>
+            <HelpIcon text={DISPLAY_ON_PUBLIC_SITE_TEXT} id={''} />
+          </span>
+
+          {/* Right side: Pill and optional switch grouped together */}
+          <div className="d-flex align-items-center gap-3 mx-3">
+            <span
+              className={`pill pill__${toggleState ? 'visible' : 'hidden'}`}
+            >
               <FontAwesomeIcon
-                icon={value ? faEye : faEyeSlash}
+                icon={toggleState ? faEye : faEyeSlash}
                 className="me-2"
               />
-              Displayed on public site
-              <HelpIcon text={DISPLAY_ON_PUBLIC_SITE_TEXT} id={''} />
+              {toggleState
+                ? `Visible on public site`
+                : `Not visible on public site`}
             </span>
-            <span className={`pill pill__${value ? 'visible' : 'hidden'}`}>
-              {value
-                ? `Yes - visible on public site`
-                : `No - not visible on public site`}
-            </span>
-          </Stack>
-          {isEditMode && (
-            <div>
-              <Form.Check
-                type="switch"
-                id="display-on-public-site-switch"
-                checked={value}
-                onChange={handleToggle}
-                aria-label="Toggle visibility on public site"
-                className="cursor-pointer"
-              />
-            </div>
-          )}
+          </div>
         </Stack>
+        {isEditMode && (
+          <div className="mt-2">
+            <ToggleGroup value={toggleState} onChange={handleToggle} />
+          </div>
+        )}
       </Card.Body>
     </Card>
   );

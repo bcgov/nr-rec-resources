@@ -1268,3 +1268,119 @@ comment on column fta.recreation_user_days_code.effective_date is 'Date the code
 comment on column fta.recreation_user_days_code.expiry_date is 'Date the code expires';
 
 comment on column fta.recreation_user_days_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table fta.tenure_application (
+    tenure_app_id bigint,
+    tenure_appname varchar(250),
+    tenure_app_guid varchar(64) primary key,
+    submission_id varchar(50),
+    forest_file_id varchar(20) not null,
+    cascade_split_code varchar(1),
+    clearance_status_request_uri varchar(2048),
+    tenure_application_type_code varchar(10),
+    tenure_application_state_code varchar(20),
+    tenure_app_purp_code varchar(10),
+    adjudication_requested_ind varchar(1),
+    current_assigned_to varchar(4),
+    image_created_ind varchar(1),
+    map_report_created_ind varchar(1),
+    description varchar(255),
+    min_x integer,
+    min_y integer,
+    max_x integer,
+    max_y integer,
+    management_unit_number varchar(10),
+    management_unit_block varchar(4),
+    management_unit_sub_block varchar(3),
+    completion_date timestamp,
+    finalized_by varchar(30),
+    submission_date timestamp,
+    image_error integer,
+    map_report_error integer,
+    spatial_data_error integer,
+    spatial_ind varchar(1),
+    file_created_ind varchar(1),
+    image_height integer,
+    image_width integer,
+    meters_per_pixel numeric(10,3),
+    image_scale integer,
+    cutting_permit_id varchar(3),
+    image_map_size_code varchar(1),
+    org_unit_no varchar(6),
+    geo_org_unit_no bigint,
+    image_mime_type_code varchar(3),
+    image_orientation_code varchar(20),
+    image_create_in_progress_ind varchar(1),
+    image_create_requested_by varchar(30),
+    image_create_requested_date timestamp,
+    overlay_geo_district_code varchar(6),
+    bcgs_mapsheet_no varchar(32),
+    tsa_number varchar(2),
+    land_district varchar(50),
+    pulpwood_agreement varchar(20),
+    utm_zone integer,
+    revision_count integer,
+    adjudication_ind varchar(1),
+    adjudicated_by varchar(30),
+    adjudication_date timestamp,
+    decision_date timestamp,
+    adjudication_comment text,
+    application_decision_message text,
+    client_number varchar(10),
+    client_locn_code varchar(4),
+    dependent_submission_reference varchar(100),
+    tenure_amendment_id bigint,
+    business_amendment_id bigint,
+    entry_timestamp timestamp,
+    update_timestamp timestamp,
+    entry_userid varchar(30),
+    update_userid varchar(30),
+    constraint chk_fta_tenure_application_adjudication_ind
+        check (adjudication_ind in ('Y', 'N') or adjudication_ind is null)
+);
+
+comment on table fta.tenure_application is 'Staging table for legacy tenure application data used to populate rst.recreation_spatial_submission.';
+
+comment on column fta.tenure_application.tenure_app_guid is 'Legacy tenure application identifier (Oracle RAW(16) or GUID string).';
+comment on column fta.tenure_application.forest_file_id is 'Forest file id linked to rst.recreation_resource.rec_resource_id.';
+comment on column fta.tenure_application.tenure_application_type_code is 'Legacy geometry type code mapped to RL (Linear) or RPO (Polygonal).';
+comment on column fta.tenure_application.tenure_application_state_code is 'Legacy lifecycle status mapped to CLR, APP, REJ, PND, or FAI.';
+comment on column fta.tenure_application.tenure_app_purp_code is 'Legacy purpose code mapped to N (New), A (Amend), or R (Retire).';
+
+create index idx_fta_tenure_application_forest_file_id
+    on fta.tenure_application (forest_file_id);
+
+create index idx_fta_tenure_application_submission_id
+    on fta.tenure_application (submission_id);
+
+create table fta.tenure_application_images (
+    tenure_app_guid varchar(64),
+    submission_id varchar(50),
+    forest_file_id varchar(20) not null,
+    image_file_name varchar(255) not null,
+    image_extension varchar(10),
+    image_file_size bigint,
+    image_map_size_code varchar(1),
+    image_orientation_code varchar(20),
+    image_scale varchar(30),
+    entry_timestamp timestamp,
+    update_timestamp timestamp,
+    entry_userid varchar(30),
+    update_userid varchar(30)
+);
+
+comment on table fta.tenure_application_images is 'Staging table for legacy tenure application Exhibit A image metadata.';
+comment on column fta.tenure_application_images.forest_file_id is 'Forest file id linked to rst.recreation_resource.rec_resource_id.';
+comment on column fta.tenure_application_images.image_file_name is 'Image/document file name as supplied by legacy data source.';
+comment on column fta.tenure_application_images.image_map_size_code is 'Legacy page size code (A-E).';
+comment on column fta.tenure_application_images.image_orientation_code is 'Legacy orientation code mapped to Portrait/Landscape.';
+comment on column fta.tenure_application_images.image_scale is 'Legacy map scale value used for Exhibit A generation.';
+
+create index idx_fta_tenure_application_images_tenure_app_guid
+    on fta.tenure_application_images (tenure_app_guid);
+
+create index idx_fta_tenure_application_images_submission_id
+    on fta.tenure_application_images (submission_id);
+
+create index idx_fta_tenure_application_images_forest_file_id
+    on fta.tenure_application_images (forest_file_id);

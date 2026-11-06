@@ -55,7 +55,7 @@ export const RecResourceReservationEditSection = () => {
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
-        <h2 className="mb-0">Edit Reservations</h2>
+        <h2 className="mb-0">Edit reservations</h2>
         <Stack direction="horizontal" gap={2}>
           <Link
             to={ROUTE_PATHS.REC_RESOURCE_RESERVATION.replace(
