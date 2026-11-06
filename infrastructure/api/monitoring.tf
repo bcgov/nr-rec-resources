@@ -1,7 +1,7 @@
 # CloudWatch Dashboard
 locals {
-  region = "ca-central-1"
-  period = 300
+  region  = "ca-central-1"
+  period  = 300
   is_prod = contains(["prod", "production"], lower(var.app_env))
 
 
@@ -12,18 +12,18 @@ locals {
   }
 
   admin_operations_with_latency = {
-    getRecreationResourceSuggestions     = 1500
-    getRecreationResourceById            = 600
-    getImagesByRecResourceId             = 800
-    getImageResourceById                 = 500
-    createRecreationresourceImage        = 3000
-    updateImageResource                  = 2500
-    deleteImageResource                  = 1000
-    getDocumentsByRecResourceId          = 800
-    getDocumentResourceById              = 500
-    createRecreationresourceDocument     = 4000
-    updateDocumentResource               = 3000
-    deleteDocumentResource               = 1500
+    getRecreationResourceSuggestions = 1500
+    getRecreationResourceById        = 600
+    getImagesByRecResourceId         = 800
+    getImageResourceById             = 500
+    createRecreationresourceImage    = 3000
+    updateImageResource              = 2500
+    deleteImageResource              = 1000
+    getDocumentsByRecResourceId      = 800
+    getDocumentResourceById          = 500
+    createRecreationresourceDocument = 4000
+    updateDocumentResource           = 3000
+    deleteDocumentResource           = 1500
   }
 
   # SNCSC tuning: tighter thresholds and faster alarm cadence in prod.
@@ -31,7 +31,7 @@ locals {
     createRecreationResourceMapFeatures    = local.is_prod ? 3000 : 5000
     createOrGetExhibitAByApplicationGuid   = local.is_prod ? 2500 : 4000
     updateSpatialSubmissionStatusFromSncsc = local.is_prod ? 1500 : 3000
-    getSncscOauthToken                      = local.is_prod ? 1000 : 2000
+    getSncscOauthToken                     = local.is_prod ? 1000 : 2000
   }
 
   sncsc_alarm_period             = local.is_prod ? 60 : 300
@@ -120,6 +120,26 @@ locals {
   # Thresholds for errors
   server_error_threshold = 5
   client_error_threshold = 20
+
+  act_route = "act/advisories"
+
+  # Routes covered by the request failure middleware in the admin backend.
+  # Add a route here and mount the middleware for it in app.ts, nothing else
+  # is needed.
+  integration_routes = {
+    (local.act_route) = "ACT advisories"
+  }
+
+  # ACT endpoints and the method each answers on, for the latency dimension
+  act_operations = {
+    upsertActAdvisory     = "POST"
+    bulkUpsertActAdvisory = "POST"
+    updateActAdvisory     = "PUT"
+    deleteActAdvisory     = "DELETE"
+  }
+
+  # CloudWatch matches dimension values exactly, so these have to be listed
+  act_failure_status_codes = ["400", "401", "403", "404", "500"]
 
   # Period and evaluation period for alarms
   alarm_period       = 60 # 1 minute
@@ -284,11 +304,11 @@ resource "aws_cloudwatch_dashboard" "public_api_dashboard" {
         width  = 24
         height = 6
         properties = {
-          title   = "⏱️ Public API Latency Overview - All Operations (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ Public API Latency Overview - All Operations (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             for op_config in local.all_operations :
             [op_config.namespace, "RequestLatency", "Operation", op_config.operation, "Method", "GET", { stat = "tm99" }]
@@ -305,11 +325,11 @@ resource "aws_cloudwatch_dashboard" "public_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ searchRecreationResources - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ searchRecreationResources - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.public.namespace, "RequestLatency", "Operation", "searchRecreationResources", "Method", "GET", { stat = "tm99" }]
           ]
@@ -331,11 +351,11 @@ resource "aws_cloudwatch_dashboard" "public_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ getRecreationResourceById - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ getRecreationResourceById - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.public.namespace, "RequestLatency", "Operation", "getRecreationResourceById", "Method", "GET", { stat = "tm99" }]
           ]
@@ -357,11 +377,11 @@ resource "aws_cloudwatch_dashboard" "public_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ getSiteOperatorById - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ getSiteOperatorById - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.public.namespace, "RequestLatency", "Operation", "getSiteOperatorById", "Method", "GET", { stat = "tm99" }]
           ]
@@ -409,7 +429,8 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
           alarms = concat(
             [for key, alarm in aws_cloudwatch_metric_alarm.latency_alarms : alarm.arn if startswith(key, "admin-")],
             [for key, alarm in aws_cloudwatch_metric_alarm.server_error_rate_alarm : alarm.arn if startswith(key, "admin-")],
-            [for key, alarm in aws_cloudwatch_metric_alarm.client_error_rate_alarm : alarm.arn if startswith(key, "admin-")]
+            [for key, alarm in aws_cloudwatch_metric_alarm.client_error_rate_alarm : alarm.arn if startswith(key, "admin-")],
+            [for alarm in aws_cloudwatch_metric_alarm.integration_request_failure_alarm : alarm.arn]
           )
         }
       },
@@ -530,11 +551,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 24
         height = 6
         properties = {
-          title   = "⏱️ Admin API Latency Overview - All Operations (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ Admin API Latency Overview - All Operations (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             for op_config in local.all_operations :
             [op_config.namespace, "RequestLatency", "Operation", op_config.operation, "Method", "GET", { stat = "tm99" }]
@@ -551,11 +572,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ getRecreationResourceSuggestions - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ getRecreationResourceSuggestions - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getRecreationResourceSuggestions", "Method", "GET", { stat = "tm99" }]
           ]
@@ -577,11 +598,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ getRecreationResourceById - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ getRecreationResourceById - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getRecreationResourceById", "Method", "GET", { stat = "tm99" }]
           ]
@@ -603,11 +624,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ getImagesByRecResourceId - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ getImagesByRecResourceId - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getImagesByRecResourceId", "Method", "GET", { stat = "tm99" }]
           ]
@@ -631,11 +652,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ getImageResourceById - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ getImageResourceById - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getImageResourceById", "Method", "GET", { stat = "tm99" }]
           ]
@@ -657,11 +678,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ createRecreationresourceImage - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ createRecreationresourceImage - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "createRecreationresourceImage", "Method", "GET", { stat = "tm99" }]
           ]
@@ -683,11 +704,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ updateImageResource - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ updateImageResource - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "updateImageResource", "Method", "GET", { stat = "tm99" }]
           ]
@@ -711,11 +732,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ deleteImageResource - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ deleteImageResource - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "deleteImageResource", "Method", "GET", { stat = "tm99" }]
           ]
@@ -737,11 +758,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ getDocumentsByRecResourceId - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ getDocumentsByRecResourceId - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getDocumentsByRecResourceId", "Method", "GET", { stat = "tm99" }]
           ]
@@ -763,11 +784,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ getDocumentResourceById - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ getDocumentResourceById - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getDocumentResourceById", "Method", "GET", { stat = "tm99" }]
           ]
@@ -791,11 +812,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ createRecreationresourceDocument - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ createRecreationresourceDocument - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "createRecreationresourceDocument", "Method", "GET", { stat = "tm99" }]
           ]
@@ -817,11 +838,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ updateDocumentResource - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ updateDocumentResource - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "updateDocumentResource", "Method", "GET", { stat = "tm99" }]
           ]
@@ -843,11 +864,11 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         width  = 8
         height = 6
         properties = {
-          title   = "⏱️ deleteDocumentResource - Latency (TM99)"
-          region  = local.region
-          period  = local.period
-          view    = "timeSeries"
-          yAxis   = { left = { label = "Milliseconds" } }
+          title  = "⏱️ deleteDocumentResource - Latency (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
           metrics = [
             [local.api_configs.admin.namespace, "RequestLatency", "Operation", "deleteDocumentResource", "Method", "GET", { stat = "tm99" }]
           ]
@@ -1088,6 +1109,202 @@ resource "aws_cloudwatch_dashboard" "sncsc_api_dashboard" {
   })
 }
 
+# ACT Integration Dashboard - admin only, ACT publishes to the admin namespace
+resource "aws_cloudwatch_dashboard" "act_api_dashboard" {
+  count = var.app == "admin" ? 1 : 0
+
+  dashboard_name = "RecreationSitesAndTrailsBC-ActAPI-${var.app_env}"
+
+  dashboard_body = jsonencode({
+    widgets = [
+      # Dashboard Header
+      {
+        type   = "text"
+        x      = 0
+        y      = 0
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "# Recreation Sites & Trails BC - ACT Integration Dashboard (${var.app_env})\nAdvisory changes pushed into RST by the ACT integration, under `/api/v1/act/advisories`.\n_All metrics are shown in 5-minute intervals._"
+        }
+      },
+
+      {
+        type   = "alarm"
+        x      = 0
+        y      = 2
+        width  = 24
+        height = 6
+        properties = {
+          title  = "🔔 Alarm Status - ACT Integration"
+          alarms = [aws_cloudwatch_metric_alarm.integration_request_failure_alarm[local.act_route].arn]
+        }
+      },
+
+      # Section Header for Traffic
+      {
+        type   = "text"
+        x      = 0
+        y      = 8
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "## 📊 Traffic - Requests Reaching Handlers\nPer-endpoint counts from the metrics interceptor. Requests rejected by the auth guards never reach it, so 401s and 403s are **not** counted here - see Failures below for the complete picture."
+        }
+      },
+
+      # Request Count
+      {
+        type   = "metric"
+        x      = 0
+        y      = 10
+        width  = 24
+        height = 6
+        properties = {
+          title   = "📊 [Traffic] ACT Request Volume by Endpoint (5 min)"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            for op in keys(local.act_operations) :
+            [local.api_configs.admin.namespace, "RequestCount", "Operation", op]
+          ]
+        }
+      },
+
+      # Section Header for Failures
+      {
+        type   = "text"
+        x      = 0
+        y      = 16
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "## 🚨 Failures - Every 4xx / 5xx\nRecorded by the route failure middleware on every failed response, including the auth rejections missing from Traffic above. Route-level only, so these cannot be attributed to an individual endpoint. Any failure at all raises the alarm."
+        }
+      },
+
+      # Total failures and the status code breakdown side by side
+      {
+        type   = "metric"
+        x      = 0
+        y      = 18
+        width  = 12
+        height = 6
+        properties = {
+          title   = "🚨 ACT Request Failures - Total"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestFailureCount", "Route", local.act_route, { label = "All failures" }]
+          ]
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 18
+        width  = 12
+        height = 6
+        properties = {
+          title   = "🚨 ACT Request Failures by Status Code"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            for status in local.act_failure_status_codes :
+            [local.api_configs.admin.namespace, "RequestFailureCount", "Route", local.act_route, "StatusCode", status, { label = "HTTP ${status}" }]
+          ]
+        }
+      },
+
+      # Section Header for Per-Endpoint Detail
+      {
+        type   = "text"
+        x      = 0
+        y      = 24
+        width  = 24
+        height = 2
+        properties = {
+          markdown = "## ⚠️ Per-Endpoint Errors & Latency\nBroken down by endpoint, for requests that reached a handler."
+        }
+      },
+
+      # Client & Server Errors side by side
+      {
+        type   = "metric"
+        x      = 0
+        y      = 26
+        width  = 12
+        height = 6
+        properties = {
+          title   = "⚠️ Client Errors by Endpoint"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            for op in keys(local.act_operations) :
+            [local.api_configs.admin.namespace, "ErrorCount", "Operation", op, "ErrorType", "ClientError"]
+          ]
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 26
+        width  = 12
+        height = 6
+        properties = {
+          title   = "🚨 Server Errors by Endpoint"
+          region  = local.region
+          stat    = "Sum"
+          period  = local.period
+          view    = "timeSeries"
+          stacked = false
+          yAxis   = { left = { label = "Count" } }
+          metrics = [
+            for op in keys(local.act_operations) :
+            [local.api_configs.admin.namespace, "ErrorCount", "Operation", op, "ErrorType", "ServerError"]
+          ]
+        }
+      },
+
+      # Latency
+      {
+        type   = "metric"
+        x      = 0
+        y      = 32
+        width  = 24
+        height = 6
+        properties = {
+          title  = "⏱️ ACT Latency by Endpoint (TM99)"
+          region = local.region
+          period = local.period
+          view   = "timeSeries"
+          yAxis  = { left = { label = "Milliseconds" } }
+          metrics = [
+            for op, method in local.act_operations :
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", op, "Method", method, { stat = "tm99" }]
+          ]
+        }
+      }
+    ]
+  })
+}
+
 # CloudWatch Alarms
 
 # Latency alarms for all operations across both APIs
@@ -1255,11 +1472,74 @@ resource "aws_cloudwatch_metric_alarm" "sncsc_client_error_rate_alarm" {
   })
 }
 
+# Alarm for any failed request on an integration route, wherever it failed in
+# the pipeline (auth guard, validation, handler, unmatched subpath). Backed by
+# the request failure middleware, so this also covers the 401 / 403 cases the
+# metrics interceptor never sees.
+resource "aws_cloudwatch_metric_alarm" "integration_request_failure_alarm" {
+  for_each = local.integration_routes
+
+  alarm_name          = "[${var.app_env}] Integration-Request-Failure-Alarm-${each.key}"
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = 0
+  evaluation_periods  = 1
+  datapoints_to_alarm = 1
+  metric_name         = "RequestFailureCount"
+  namespace           = local.api_configs.admin.namespace
+  period              = local.alarm_period
+  statistic           = "Sum"
+  alarm_description   = "At least one request to ${each.value} (${each.key}) failed with a 4xx or 5xx."
+  alarm_actions       = [aws_sns_topic.alarm_topic.arn]
+  ok_actions          = [aws_sns_topic.alarm_topic.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    Route = each.key
+  }
+
+  tags = merge(local.common_resource_tags, {
+    Name = "API Monitoring Alarms - ${var.app_env}"
+  })
+}
+
 # SNS Topic for Alarms
 resource "aws_kms_key" "alarm_topic_sns_key" {
   description             = "KMS key for SNS topic encryption"
   deletion_window_in_days = 7
   enable_key_rotation     = true
+}
+
+# Without this CloudWatch can't use the key, so alarm notifications are
+# rejected at the KMS boundary and dropped without any error anywhere.
+resource "aws_kms_key_policy" "alarm_topic_sns_key" {
+  key_id = aws_kms_key.alarm_topic_sns_key.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "EnableIAMUserPermissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "AllowCloudWatchAlarmsToPublish"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudwatch.amazonaws.com"
+        }
+        Action = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey*",
+        ]
+        Resource = "*"
+      },
+    ]
+  })
 }
 
 resource "aws_sns_topic" "alarm_topic" {
