@@ -13,5 +13,7 @@ generate "test_tfvars" {
   min_capacity      = 1
   max_capacity      = 2
   enable_cors       = true
+  api_custom_domains = ["staff-api.test.sitesandtrailsbc.ca"]
+  use_api_custom_domain_url = true
 EOF
 }

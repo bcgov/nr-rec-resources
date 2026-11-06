@@ -8,7 +8,8 @@ import { mapRecreationFee } from '@/services/hooks/recreation-resource-admin/hel
 
 export async function recResourceFeesLoader({ context, params }: any) {
   const authService = AuthService.getInstance();
-  const basePath = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+  const basePath =
+    import.meta.env.VITE_API_BASE_URL?.replace(/\/api$/, '') || '';
 
   const api = new RecreationResourcesApi(
     new Configuration({

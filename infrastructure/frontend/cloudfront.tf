@@ -34,6 +34,16 @@ locals {
     : data.terraform_remote_state.api[0].outputs.apigw_url
   )
 
+  # Allow both the CloudFront URL and the custom API domains, so switching the build URL
+  # doesn't race this CSP. try() covers API state from before the output existed.
+  api_custom_domain_urls = (
+    can(regex("ephemeral", var.app_env))
+    ? ""
+    : join(" ", [
+      for domain in try(data.terraform_remote_state.api[0].outputs.api_custom_domains, []) : "https://${domain}"
+    ])
+  )
+
   establishment_order_docs_s3_url = var.app == "admin" ? "https://rst-lza-establishment-order-docs-${var.app_env}.s3.ca-central-1.amazonaws.com" : ""
 
   storage_cloudfront_url = (
@@ -186,7 +196,7 @@ resource "aws_cloudfront_response_headers_policy" "csp_policy" {
         "style-src-attr 'self' 'unsafe-inline'",
         "font-src 'self' https://fonts.gstatic.com",
         "img-src 'self' blob: data: https://fonts.googleapis.com https://*.arcgis.com https://www.w3.org https://services.arcgisonline.com ${local.storage_cloudfront_url} ${var.csp_urls.matomo_src}",
-        "connect-src 'self' ${local.api_url} ${local.establishment_order_docs_s3_url} ${local.storage_cloudfront_url} https://*.s3.ca-central-1.amazonaws.com https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca https://services6.arcgis.com https://www.arcgis.com https://services.arcgis.com https://tiles.arcgis.com https://maps.arcgis.com https://basemaps.arcgis.com ${var.csp_urls.connect_src} ${var.csp_urls.matomo_src}",
+        "connect-src 'self' ${local.api_url} ${local.api_custom_domain_urls} ${local.establishment_order_docs_s3_url} ${local.storage_cloudfront_url} https://*.s3.ca-central-1.amazonaws.com https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca https://services6.arcgis.com https://www.arcgis.com https://services.arcgis.com https://tiles.arcgis.com https://maps.arcgis.com https://basemaps.arcgis.com ${var.csp_urls.connect_src} ${var.csp_urls.matomo_src}",
         "media-src 'self'",
         "frame-src 'self' https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca",
         "worker-src 'self' blob: https://js.arcgis.com",

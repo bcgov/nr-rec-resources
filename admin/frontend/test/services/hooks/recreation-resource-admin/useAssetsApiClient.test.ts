@@ -39,6 +39,21 @@ describe('useAssetsApiClient', () => {
     expect(mockGetToken).toHaveBeenCalled();
   });
 
+  it('only strips the trailing /api when the host starts with api', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'https://api.dev.sitesandtrailsbc.ca/api');
+
+    const { useAuthContext } = await import('@/contexts/AuthContext');
+    (useAuthContext as Mock).mockReturnValue({
+      authService: { getToken: vi.fn() },
+    });
+
+    const { result } = renderHook(() => useAssetsApiClient());
+
+    expect(result.current['configuration'].basePath).toBe(
+      'https://api.dev.sitesandtrailsbc.ca',
+    );
+  });
+
   it('falls back to an empty basePath if VITE_API_BASE_URL is not set', async () => {
     vi.stubEnv('VITE_API_BASE_URL', undefined);
 

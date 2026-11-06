@@ -76,7 +76,8 @@ jobs:
     secrets: inherit
   deploy-cloudfront:
     name: Deploys Cloudfront
-    needs: deploy-storage
+    # waits for the api so the CSP reads the same api URL the UI gets built with
+    needs: [deploy-storage, deploy-api]
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
       group: deploy-cloudfront-${{ inputs.app }}-${{ inputs.app_env }}
