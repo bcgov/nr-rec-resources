@@ -51,6 +51,25 @@ vi.mock(
   }),
 );
 
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceArchiveModal',
+  () => {
+    const RecResourceArchiveModal = ({ show, onCancel, onArchive }: any) =>
+      show ? (
+        <div data-testid="delete-modal">
+          <button onClick={onCancel} data-testid="modal-cancel">
+            Cancel
+          </button>
+          <button onClick={onArchive} data-testid="modal-confirm">
+            Archive
+          </button>
+        </div>
+      ) : null;
+
+    return { RecResourceArchiveModal };
+  },
+);
+
 describe('RecResourceOverviewSection', () => {
   const mockLocation = {
     href: '',
