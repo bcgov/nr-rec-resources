@@ -58,6 +58,10 @@ const baseResource = {
     { recreation_structure_code: { description: 'Table' } },
   ],
   act_advisories_flat: [{ access_status_grouplabel: 'Open' }],
+  recreation_user_days_code_rel: {
+    description: '1000 - 5000',
+    recreation_user_days_code: '1K',
+  },
 };
 
 const mockGeometryResult = [

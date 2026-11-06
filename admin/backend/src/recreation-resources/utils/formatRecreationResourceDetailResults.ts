@@ -152,5 +152,13 @@ export function formatRecreationResourceDetailResults(
     natural_resource_org_unit_name: naturalresource?.org_unit_name ?? undefined,
     access_status_grouplabel:
       result.act_advisories_flat?.[0]?.access_status_grouplabel,
+    recreation_user_days_code: result.recreation_user_days_code_rel
+      ? {
+          recreation_user_days_code:
+            result.recreation_user_days_code_rel
+              .recreation_resource_user_days_code ?? '',
+          description: result.recreation_user_days_code_rel.description ?? '',
+        }
+      : undefined,
   };
 }

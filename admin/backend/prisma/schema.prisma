@@ -57,6 +57,8 @@ model recreation_resource {
   recreation_structure                 recreation_structure[]
   recreation_resource_type_view_admin  recreation_resource_type_view_admin[]
   recreation_resource_type_view_public recreation_resource_type_view_public[]
+  recreation_user_days_code            String?                                  @db.VarChar(3)
+  recreation_user_days_code_rel        recreation_resource_user_days_code?      @relation(fields: [recreation_user_days_code], references: [recreation_resource_user_days_code], onDelete: NoAction, onUpdate: NoAction)
   // No FK backs rec_status_code in the database (V1.1.61 adds the column
   // only), so `prisma db pull` strips this relation. It is restored by hand
   // because the admin resource queries select through it.
@@ -94,6 +96,18 @@ model recreation_activity_code {
   recreation_activity_code_trails_recreation_activity_code_trails_recreation_activity_codeTorecreation_activity_code recreation_activity_code_trails[] @relation("recreation_activity_code_trails_recreation_activity_codeTorecreation_activity_code")
 
   @@schema("rst")
+}
+
+model recreation_resource_user_days_code {
+    recreation_resource_user_days_code                    String                                 @id @db.VarChar(3)
+    description                                           String?                                @db.VarChar(120)
+    effective_date                                        DateTime?                              @default(now()) @db.Timestamp(6)
+    expiry_date                                           DateTime?                              @default(now()) @db.Timestamp(6)
+    update_timestamp                                      DateTime?                              @default(now()) @db.Timestamp(6)
+    recreation_resource                                   recreation_resource[]
+
+    @@index([recreation_resource_user_days_code], map: "idx_recreation_resource_user_days_code_rec_resource_id")
+    @@schema("rst")
 }
 
 model recreation_status {
@@ -507,6 +521,7 @@ model recreation_resource_history {
   resource_feature_ind       String?                  @default("N") @db.VarChar(1)
   last_rec_inspection_date   DateTime?                @db.Date
   last_hzrd_tree_assess_date DateTime?                @db.Date
+  recreation_user_days_code  String?                  @db.VarChar(3)
 
   @@ignore
   @@schema("rst")
