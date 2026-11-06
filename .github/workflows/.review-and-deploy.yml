@@ -12,6 +12,14 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+  pull-requests: write
+  security-events: write
+  attestations: write
+
 jobs:
   deploy-to-aws-dev:
     name: Deploy Application to AWS dev

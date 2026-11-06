@@ -1,12 +1,15 @@
 import { ROUTE_PATHS } from '@/constants/routes';
 import { EditableGuard } from '@/components/auth';
 import { RecreationResourceDetailUIModel } from '@/services';
-import { Link } from '@tanstack/react-router';
-import { Col, Row, Stack } from 'react-bootstrap';
+import { useNavigate } from '@tanstack/react-router';
+import { Button, Col, Row, Stack } from 'react-bootstrap';
 import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
 import { RecreationResourceAccessRow, VisibleOnPublicSite } from './components';
 import { FieldItem } from '../shared/FieldItem';
+import { useState } from 'react';
+import { RecResourceArchiveModal } from './RecResourceArchiveModal';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 type RecResourceOverviewSectionProps = {
   recResource: RecreationResourceDetailUIModel;
@@ -15,7 +18,10 @@ type RecResourceOverviewSectionProps = {
 export const RecResourceOverviewSection = (
   props: RecResourceOverviewSectionProps,
 ) => {
+  const navigate = useNavigate();
   const { recResource } = props;
+  const { isSuperAdmin, canEdit } = useAuthorizations();
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const isArchived = recResource.rec_status_code === 'AR';
 
   const overviewItems = [
@@ -60,18 +66,33 @@ export const RecResourceOverviewSection = (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
         <h2>Overview</h2>
-
-        <EditableGuard isArchived={isArchived}>
-          <Link
-            to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
-              '$id',
-              recResource.rec_resource_id,
-            )}
-            className="btn btn-outline-primary"
-          >
-            Edit
-          </Link>
-        </EditableGuard>
+        <Stack direction="horizontal" gap={2}>
+          {canEdit && (
+            <EditableGuard isArchived={isArchived}>
+              <Button
+                variant="outline-primary"
+                onClick={() =>
+                  navigate({
+                    to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
+                      '$id',
+                      recResource.rec_resource_id,
+                    ),
+                  })
+                }
+              >
+                Edit
+              </Button>
+            </EditableGuard>
+          )}
+          {isSuperAdmin && !isArchived && (
+            <Button
+              variant="outline-primary"
+              onClick={() => setIsArchiveModalOpen(true)}
+            >
+              Archive
+            </Button>
+          )}
+        </Stack>
       </div>
 
       <Row>
@@ -125,6 +146,12 @@ export const RecResourceOverviewSection = (
       />
 
       {recResource && <RecResourceLocationSection recResource={recResource} />}
+      <RecResourceArchiveModal
+        show={isArchiveModalOpen}
+        recResourceId={recResource.rec_resource_id}
+        resourceName={recResource.name}
+        onCancel={() => setIsArchiveModalOpen(false)}
+      />
     </Stack>
   );
 };
