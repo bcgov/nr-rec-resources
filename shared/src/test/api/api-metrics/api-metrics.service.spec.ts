@@ -88,4 +88,39 @@ describe('ApiMetricsService', () => {
       ).toBe('ServerError');
     });
   });
+
+  describe('buildRouteFailureDatums', () => {
+    it('should build exactly two RequestFailureCount datums', () => {
+      const result = service.buildRouteFailureDatums('act/advisories', 401);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]!.MetricName).toBe('RequestFailureCount');
+      expect(result[1]!.MetricName).toBe('RequestFailureCount');
+    });
+
+    it('should dimension the first datum on Route only so alarms can query it', () => {
+      const result = service.buildRouteFailureDatums('act/advisories', 500);
+
+      expect(result[0]!.Dimensions).toEqual([
+        { Name: 'Route', Value: 'act/advisories' },
+      ]);
+    });
+
+    it('should dimension the second datum on Route and StatusCode', () => {
+      const result = service.buildRouteFailureDatums('act/advisories', 403);
+
+      expect(result[1]!.Dimensions).toEqual([
+        { Name: 'Route', Value: 'act/advisories' },
+        { Name: 'StatusCode', Value: '403' },
+      ]);
+    });
+
+    it('should count one per datum', () => {
+      const result = service.buildRouteFailureDatums('act/advisories', 404);
+
+      expect(result[0]!.Value).toBe(1);
+      expect(result[1]!.Value).toBe(1);
+      expect(result[0]!.Unit).toBe('Count');
+    });
+  });
 });
