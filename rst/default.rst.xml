@@ -732,7 +732,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="page_size" nullable="true" remarks="Selected Exhibit A page size (A-E)." size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="page_orientation" nullable="true" remarks="Selected Exhibit A orientation (Portrait or Landscape)." size="20" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="scale" nullable="true" remarks="Selected Exhibit A map scale." size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="generation_method" nullable="true" remarks="How Exhibit A was produced: upload or regenerate." size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="generation_method" nullable="true" remarks="How Exhibit A was produced: upload, regenerate, or migrated from FTA." size="20" type="varchar" typeCode="12"/>
          <primaryKey column="doc_id" sequenceNumberInPK="1"/>
          <index name="recreation_exhibit_a_doc_pkey" unique="true">
             <column ascending="true" name="doc_id"/>
@@ -746,7 +746,7 @@
          <index name="recreation_exhibit_a_doc_s3_key_key" unique="true">
             <column ascending="true" name="s3_key"/>
          </index>
-         <checkConstraint constraint="(((generation_method)::text = ANY ((ARRAY['upload'::character varying, 'regenerate'::character varying])::text[])) OR (generation_method IS NULL))" name="chk_recreation_exhibit_a_doc_generation_method"/>
+         <checkConstraint constraint="(((generation_method)::text = ANY ((ARRAY['upload'::character varying, 'regenerate'::character varying, 'migrated from FTA'::character varying])::text[])) OR (generation_method IS NULL))" name="chk_recreation_exhibit_a_doc_generation_method"/>
          <checkConstraint constraint="(((page_orientation)::text = ANY ((ARRAY['Portrait'::character varying, 'Landscape'::character varying])::text[])) OR (page_orientation IS NULL))" name="chk_recreation_exhibit_a_doc_page_orientation"/>
          <checkConstraint constraint="(((page_size)::text = ANY ((ARRAY['A'::character varying, 'B'::character varying, 'C'::character varying, 'D'::character varying, 'E'::character varying])::text[])) OR (page_size IS NULL))" name="chk_recreation_exhibit_a_doc_page_size"/>
       </table>
