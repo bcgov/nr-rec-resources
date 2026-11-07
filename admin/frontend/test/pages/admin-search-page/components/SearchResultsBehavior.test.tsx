@@ -538,7 +538,7 @@ describe('FilterAccordion', () => {
       screen.getByRole('link', { name: /guidance documentation/i }),
     ).toHaveAttribute(
       'href',
-      'https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/Access-status',
+      'https://intranet.gov.bc.ca/intranet/content?id=EA54D3E5200F4A2BA2110C284D72DD31',
     );
   });
 });

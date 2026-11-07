@@ -11,7 +11,7 @@ export function getPublicAccessStatusHelpText(): ReactNode {
       <p className="mb-0 mt-2">
         Refer to the{' '}
         <a
-          href="https://apps.nrs.gov.bc.ca/int/confluence/display/BCPRS/Access-status"
+          href="https://intranet.gov.bc.ca/intranet/content?id=EA54D3E5200F4A2BA2110C284D72DD31"
           target="_blank"
           rel="noreferrer"
         >
