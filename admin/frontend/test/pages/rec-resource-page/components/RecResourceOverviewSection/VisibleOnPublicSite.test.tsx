@@ -1,132 +1,86 @@
-import { VisibleOnPublicSite } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components/VisibleOnPublicSite';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { VisibleOnPublicSite } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components/VisibleOnPublicSite';
 
-describe('VisibleOnPublicSite', () => {
-  const mockOnChange = vi.fn();
+// Mock only helper text and external assets/icons to avoid unneeded external dependencies
+vi.mock('@/components', () => ({
+  HelpIcon: ({ text }: { text: string }) => (
+    <span data-testid="help-icon">{text}</span>
+  ),
+}));
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+vi.mock('@/utils/helperText', () => ({
+  DISPLAY_ON_PUBLIC_SITE_TEXT: 'Helpful text about public visibility',
+}));
 
-  it('renders with visible state', () => {
+describe('VisibleOnPublicSite Component', () => {
+  it('renders correctly in view mode (isEditMode = false) with value = true', () => {
     render(<VisibleOnPublicSite value={true} />);
 
-    expect(screen.getByText('Displayed on public site')).toBeInTheDocument();
-    expect(
-      screen.getByText('Yes - visible on public site'),
-    ).toBeInTheDocument();
+    // Check main title and help icon text
+    expect(screen.getByText('Display on public site')).toBeInTheDocument();
+    expect(screen.getByTestId('help-icon')).toHaveTextContent(
+      'Helpful text about public visibility',
+    );
+
+    // Check pill badge state for visible
+    const pill = screen.getByText('Visible on public site');
+    expect(pill).toBeInTheDocument();
+    expect(pill).toHaveClass('pill__visible');
+
+    // Check edit mode radiogroup is NOT rendered
+    expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
   });
 
-  it('renders with hidden state', () => {
+  it('renders correctly in view mode with value = false', () => {
     render(<VisibleOnPublicSite value={false} />);
 
-    expect(screen.getByText('Displayed on public site')).toBeInTheDocument();
-    expect(
-      screen.getByText(/No - not visible on public site/),
-    ).toBeInTheDocument();
+    // Check pill badge state for hidden
+    const pill = screen.getByText('Not visible on public site');
+    expect(pill).toBeInTheDocument();
+    expect(pill).toHaveClass('pill__hidden');
   });
 
-  it('does not show toggle in read-only mode', () => {
-    render(<VisibleOnPublicSite value={false} isEditMode={false} />);
-
-    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
-  });
-
-  it('shows toggle in edit mode', () => {
-    render(
-      <VisibleOnPublicSite
-        value={false}
-        isEditMode={true}
-        onChange={mockOnChange}
-      />,
-    );
-
-    expect(screen.getByRole('checkbox')).toBeInTheDocument();
-  });
-
-  it('shows checked state when value is true', () => {
-    render(
-      <VisibleOnPublicSite
-        value={true}
-        isEditMode={true}
-        onChange={mockOnChange}
-      />,
-    );
-
-    const switchElement = screen.getByRole('checkbox') as HTMLInputElement;
-    expect(switchElement.checked).toBe(true);
-  });
-
-  it('shows unchecked state when value is false', () => {
-    render(
-      <VisibleOnPublicSite
-        value={false}
-        isEditMode={true}
-        onChange={mockOnChange}
-      />,
-    );
-
-    const switchElement = screen.getByRole('checkbox') as HTMLInputElement;
-    expect(switchElement.checked).toBe(false);
-  });
-
-  it('calls onChange with true when toggled on', async () => {
+  it('renders edit mode when isEditMode = true and handles toggle actions', async () => {
     const user = userEvent.setup();
+    const mockOnChange = vi.fn();
+
     render(
       <VisibleOnPublicSite
-        value={false}
         isEditMode={true}
+        value={true}
         onChange={mockOnChange}
       />,
     );
 
-    const switchElement = screen.getByRole('checkbox');
-    await user.click(switchElement);
+    // Verify ToggleGroup radiogroup is rendered
+    expect(screen.getByRole('radiogroup')).toBeInTheDocument();
 
-    expect(mockOnChange).toHaveBeenCalledWith(true);
+    // Click 'No' button
+    const noButton = screen.getByRole('radio', { name: /no/i });
+    await user.click(noButton);
+
+    // Verify state updates and onChange prop is called with false
+    expect(screen.getByText('Not visible on public site')).toBeInTheDocument();
     expect(mockOnChange).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls onChange with false when toggled off', async () => {
-    const user = userEvent.setup();
-    render(
-      <VisibleOnPublicSite
-        value={true}
-        isEditMode={true}
-        onChange={mockOnChange}
-      />,
-    );
-
-    const switchElement = screen.getByRole('checkbox');
-    await user.click(switchElement);
-
     expect(mockOnChange).toHaveBeenCalledWith(false);
-    expect(mockOnChange).toHaveBeenCalledTimes(1);
   });
 
-  it('does not call onChange when onChange is not provided', async () => {
+  it('handles uncontrolled component updates when onChange is not provided', async () => {
     const user = userEvent.setup();
-    render(<VisibleOnPublicSite value={false} isEditMode={true} />);
 
-    const switchElement = screen.getByRole('checkbox');
-    await user.click(switchElement);
+    // Render without passing onChange to cover optional chaining `onChange?.(!toggleState)`
+    render(<VisibleOnPublicSite isEditMode={true} value={false} />);
 
-    expect(mockOnChange).not.toHaveBeenCalled();
-  });
+    // Initial state is false
+    expect(screen.getByText('Not visible on public site')).toBeInTheDocument();
 
-  it('displays eye icon when visible', () => {
-    const { container } = render(<VisibleOnPublicSite value={true} />);
+    // Click 'Yes' button
+    const yesButton = screen.getByRole('radio', { name: /yes/i });
+    await user.click(yesButton);
 
-    const icon = container.querySelector('.fa-eye');
-    expect(icon).toBeInTheDocument();
-  });
-
-  it('displays eye-slash icon when hidden', () => {
-    const { container } = render(<VisibleOnPublicSite value={false} />);
-
-    const icon = container.querySelector('.fa-eye-slash');
-    expect(icon).toBeInTheDocument();
+    // Verify state toggled locally without throwing error
+    expect(screen.getByText('Visible on public site')).toBeInTheDocument();
   });
 });
