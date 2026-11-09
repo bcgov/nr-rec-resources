@@ -1324,6 +1324,7 @@ create table fta.tenure_application (
     adjudicated_by varchar(30),
     adjudication_date timestamp,
     decision_date timestamp,
+    issuance_date timestamp,
     adjudication_comment text,
     application_decision_message text,
     client_number varchar(10),
