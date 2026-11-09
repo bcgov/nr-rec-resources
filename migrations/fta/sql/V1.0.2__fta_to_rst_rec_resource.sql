@@ -14,8 +14,10 @@ insert into rst.recreation_resource (
     control_access_code,
     risk_rating_code,
     right_of_way,
+    overflow_campsites,
     rec_status_code,
     arch_impact_assess_ind,
+    arch_impact_assess_date,
     resource_feature_ind,
     last_rec_inspection_date,
     last_hzrd_tree_assess_date
@@ -39,8 +41,10 @@ select
     rp.recreation_control_access_code as control_access_code,
     rp.recreation_risk_rating_code as risk_rating_code,
     rp.right_of_way as right_of_way,
+    rp.overflow_campsites,
     ssc.file_status_st as rec_status_code,
     left(rp.arch_impact_assess_ind, 1) as arch_impact_assess_ind,
+    rp.arch_impact_date as arch_impact_assess_date,
     rp.resource_feature_ind,
     rp.last_rec_inspection_date,
     rp.last_hzrd_tree_assess_date
@@ -76,8 +80,10 @@ set
     control_access_code = excluded.control_access_code,
     risk_rating_code = excluded.risk_rating_code,
     right_of_way = excluded.right_of_way,
+    overflow_campsites = excluded.overflow_campsites,
     rec_status_code = excluded.rec_status_code,
     arch_impact_assess_ind = excluded.arch_impact_assess_ind,
+    arch_impact_assess_date = excluded.arch_impact_assess_date,
     resource_feature_ind = excluded.resource_feature_ind,
     last_rec_inspection_date = excluded.last_rec_inspection_date,
     last_hzrd_tree_assess_date = excluded.last_hzrd_tree_assess_date;

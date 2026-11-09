@@ -44,7 +44,7 @@ describe('useExportState', () => {
             id: 'objective-list',
             label: 'Objective list',
             source: 'RST',
-            info: 'not-implemented',
+            info: 'Dataset note',
           },
         ],
       },
@@ -97,7 +97,7 @@ describe('useExportState', () => {
     expect(result.current.filters.includeArchived).toBe(true);
   });
 
-  it('resets filters on dataset change and disables preview for unavailable datasets', () => {
+  it('resets filters on dataset change and keeps preview enabled', () => {
     const { result } = renderHook(() => useExportState());
 
     act(() => {
@@ -117,9 +117,15 @@ describe('useExportState', () => {
 
     expect(result.current.filters.district).toBe('');
     expect(result.current.filters.resourceType).toBe('');
-    expect(result.current.preview.isEnabled).toBe(false);
-    expect(result.current.download.isDisabled).toBe(true);
-    expect(mockUseGetExportPreview).toHaveBeenLastCalledWith(null);
+    expect(result.current.preview.isEnabled).toBe(true);
+    expect(result.current.download.isDisabled).toBe(false);
+    expect(mockUseGetExportPreview).toHaveBeenLastCalledWith({
+      dataset: 'objective-list',
+      district: undefined,
+      resourceType: undefined,
+      includeArchived: true,
+      limit: 50,
+    });
 
     act(() => {
       result.current.filters.handlers.handleDatasetChange(
