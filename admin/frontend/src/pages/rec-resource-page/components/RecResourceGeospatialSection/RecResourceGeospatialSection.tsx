@@ -17,6 +17,7 @@ import {
   faRotate,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { EditableGuard } from '@/components/auth';
 import { Table as DataTable } from '@/components';
 import { CustomBadge } from '@/components/custom-badge';
 import { CopyButton } from '@shared/components/copy-button';
@@ -68,6 +69,7 @@ import {
   COLOR_YELLOW_ADVISORY_BG,
 } from '@/styles/colors';
 import type { PendingMapFeatureRequestRowDto } from '@/services/recreation-resource-admin/models/PendingMapFeatureRequestRowDto';
+import { useUpdateRecreationResource } from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResource';
 
 type ExhibitAPageSize = 'A' | 'B' | 'C' | 'D' | 'E';
 type ExhibitAPageOrientation = 'L' | 'P';
@@ -103,11 +105,12 @@ export function RecResourceGeospatialSection() {
   const params = Route.useParams();
   const recResourceId = params?.id;
   const { recResource } = useRecResource();
-  const { isSuperAdmin, canViewAdjudicationReports } = useAuthorizations();
+  const { isSuperAdmin } = useAuthorizations();
   const { user } = useAuthContext();
   const recreationResourceAdminApiClient =
     useRecreationResourceAdminApiClient();
   const queryClient = useQueryClient();
+  const isArchived = recResource?.rec_status_code === 'AR';
   const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -147,6 +150,7 @@ export function RecResourceGeospatialSection() {
   const presignMutation = usePresignExhibitAUpload();
   const finalizeMutation = useFinalizeExhibitAUpload();
   const regenerateMutation = useCreateOrGetExhibitAByApplicationGuid();
+  const { mutateAsync: updateResource } = useUpdateRecreationResource();
   const downloadMutation = useFileDownload();
 
   const {
@@ -612,23 +616,69 @@ export function RecResourceGeospatialSection() {
   const isPendingRequestsBusy =
     isPendingRequestsLoading || isPendingRequestsFetching;
 
+  const shouldShowUnarchiveBanner = isSuperAdmin && isArchived;
+
+  const archiveAgeHours =
+    recResource?.updated_at != null
+      ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000
+      : null;
+
+  const unarchiveHelperText =
+    archiveAgeHours == null
+      ? 'You can save and restore the current submission directly without submitting a new SNCSC request (unless you modify the spatial data). This also updates the file status from Archived to Issued.'
+      : archiveAgeHours < 24
+        ? 'Recently archived: You can save and restore the current submission directly without submitting a new SNCSC request (unless you modify the spatial data). This also updates the file status from Archived to Issued.'
+        : 'Archived earlier: Because land status or conflicts may have shifted, the existing spatial data will be automatically resubmitted to SNCSC. If your boundaries have changed, please upload updated spatial files before submitting.';
+
+  const handleUnarchive = useCallback(async () => {
+    if (!isSuperAdmin || !recResourceId || !recResource || !isArchived) return;
+
+    const archiveAgeHours =
+      recResource.updated_at != null
+        ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000
+        : null;
+
+    if (archiveAgeHours != null && archiveAgeHours >= 24) {
+      setIsSpatialSubmissionOpen(true);
+      return;
+    }
+
+    try {
+      await updateResource({
+        recResourceId,
+        updateRecreationResourceDto: { rec_status_code: 'HI' } as any,
+      });
+      addSuccessNotification('Resource unarchived and issued successfully.');
+    } catch (error) {
+      console.error('Failed to unarchive resource:', error);
+      addErrorNotification('Failed to unarchive resource. Please try again.');
+    }
+  }, [isArchived, isSuperAdmin, recResource, recResourceId, updateResource]);
+
+  const isWithinArchiveWindow =
+    recResource?.updated_at != null
+      ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000 < 24
+      : false;
+
   return (
     <Stack className="geospatial-section" direction="vertical" gap={4}>
       {/* ── Geospatial fields card ── */}
       <div className="geospatial-section__card">
         <div className="geospatial-section__card-header d-flex justify-content-between align-items-center">
           <h2 className="geospatial-section__card-title">Geospatial</h2>
-          {isSuperAdmin && recResourceId && (
-            <Link
-              to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
-                '$id',
-                recResourceId,
-              )}
-              className="btn btn-outline-primary btn-sm"
-            >
-              Edit
-            </Link>
-          )}
+          <EditableGuard isArchived={isArchived}>
+            {recResourceId && (
+              <Link
+                to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
+                  '$id',
+                  recResourceId,
+                )}
+                className="btn btn-outline-primary btn-sm"
+              >
+                Edit
+              </Link>
+            )}
+          </EditableGuard>
         </div>
 
         <div className="geospatial-section__card-body">
@@ -691,7 +741,7 @@ export function RecResourceGeospatialSection() {
                     const statusRequestGuid = row.status_request_guid;
                     const sncscUrl = buildSncscSubmissionUrl(statusRequestGuid);
                     const canViewAdjudicationReport =
-                      canViewAdjudicationReports && hasAdjudicationReport(row);
+                      hasAdjudicationReport(row);
 
                     if (!sncscUrl && !canViewAdjudicationReport) {
                       return <span className="text-muted">-</span>;
@@ -863,18 +913,26 @@ export function RecResourceGeospatialSection() {
             />
           )}
 
-          {isSuperAdmin && !isSpatialSubmissionOpen ? (
-            <div className="mt-3">
-              <Button
-                size="sm"
-                variant="primary"
-                disabled={isPendingRequestsBusy}
-                onClick={() => setIsSpatialSubmissionOpen(true)}
-              >
-                Create new
-              </Button>
-            </div>
-          ) : null}
+          <EditableGuard isArchived={isArchived}>
+            {!isSpatialSubmissionOpen ? (
+              <div className="mt-3">
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => {
+                    if (isArchived) {
+                      void handleUnarchive();
+                      return;
+                    }
+                    setIsSpatialSubmissionOpen(true);
+                  }}
+                  disabled={isPendingRequestsBusy}
+                >
+                  {isArchived ? 'Unarchive' : 'Create new'}
+                </Button>
+              </div>
+            ) : null}
+          </EditableGuard>
 
           {isSpatialSubmissionOpen ? (
             <div className="mt-4 pt-3 border-top">
@@ -1055,6 +1113,12 @@ export function RecResourceGeospatialSection() {
               </Button>
             </Modal.Footer>
           </Modal>
+
+          {shouldShowUnarchiveBanner ? (
+            <div className="alert alert-warning mt-4">
+              <strong>Unarchive Notice:</strong> {unarchiveHelperText}
+            </div>
+          ) : null}
         </div>
       </div>
     </Stack>
