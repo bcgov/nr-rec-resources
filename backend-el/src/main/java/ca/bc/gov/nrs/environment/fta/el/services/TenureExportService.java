@@ -198,6 +198,9 @@ public class TenureExportService {
   @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.exhibit-prefix:Exhibit_A}")
   private String exhibitImagePrefix;
 
+  @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.exhibit-bucket:}")
+  private String exhibitImageBucket;
+
   @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.map-prefix:tenure_mf_images}")
   private String mapImagePrefix;
 
@@ -235,10 +238,18 @@ public class TenureExportService {
 
     if (tenureImageObjectUploadEnabled) {
       if (shouldExportAppImages(imageExportTarget)) {
-        uploadImageObjectsToS3(REC_TENURE_APP_IMAGE_UPLOAD_SQL, exhibitImagePrefix, "TENURE_APP_IMAGE");
+        String exhibitRootPrefix = (exhibitImageBucket == null || exhibitImageBucket.isBlank())
+          ? exhibitImagePrefix
+          : "";
+        uploadImageObjectsToS3(
+          REC_TENURE_APP_IMAGE_UPLOAD_SQL,
+          exhibitRootPrefix,
+          "TENURE_APP_IMAGE",
+          exhibitImageBucket
+        );
       }
       if (shouldExportMfImages(imageExportTarget)) {
-        uploadImageObjectsToS3(REC_TENURE_MF_IMAGE_UPLOAD_SQL, mapImagePrefix, "TENURE_MF_IMAGE");
+        uploadImageObjectsToS3(REC_TENURE_MF_IMAGE_UPLOAD_SQL, mapImagePrefix, "TENURE_MF_IMAGE", null);
       }
     }
   }
@@ -269,7 +280,7 @@ public class TenureExportService {
     return "all".equals(imageExportTarget) || "mf".equals(imageExportTarget);
   }
 
-  private void uploadImageObjectsToS3(String sql, String rootPrefix, String fallbackFilePrefix) {
+  private void uploadImageObjectsToS3(String sql, String rootPrefix, String fallbackFilePrefix, String targetBucket) {
     try (
       Connection connection = dataSource.getConnection();
       PreparedStatement preparedStatement = connection.prepareStatement(sql)
@@ -328,20 +339,34 @@ public class TenureExportService {
           }
 
           String objectKey;
+          String sanitizedRootPrefix = sanitizePrefix(rootPrefix);
           if (mapFeatureIdColumnIndex > 0) {
             String mapFeatureId = sanitizePathSegment(getColumnValue(resultSet, mapFeatureIdColumnIndex), "unknown_map_feature");
-            objectKey = String.format("%s/%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, mapFeatureId, fileName);
+            if (sanitizedRootPrefix.isBlank()) {
+              objectKey = String.format("%s/%s/%s", resourceKey, mapFeatureId, fileName);
+            } else {
+              objectKey = String.format("%s/%s/%s/%s", sanitizedRootPrefix, resourceKey, mapFeatureId, fileName);
+            }
           } else {
-            objectKey = String.format("%s/%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, submissionId, fileName);
+            if (sanitizedRootPrefix.isBlank()) {
+              objectKey = String.format("%s/%s/%s", resourceKey, submissionId, fileName);
+            } else {
+              objectKey = String.format("%s/%s/%s/%s", sanitizedRootPrefix, resourceKey, submissionId, fileName);
+            }
           }
           try (InputStream stream = blob.getBinaryStream()) {
-            s3UploaderService.uploadStreamToS3(objectKey, stream, contentLength, contentType);
+            s3UploaderService.uploadStreamToS3(targetBucket, objectKey, stream, contentLength, contentType);
           } finally {
             blob.free();
           }
           uploadedRows++;
         }
-        logger.info("Uploaded {} image objects to S3 under prefix {}", uploadedRows, rootPrefix);
+        logger.info(
+          "Uploaded {} image objects to S3 under prefix {}{}",
+          uploadedRows,
+          rootPrefix,
+          (targetBucket == null || targetBucket.isBlank()) ? "" : " in bucket " + targetBucket
+        );
       }
     } catch (Exception e) {
       throw new RuntimeException("Failed image object upload for prefix " + rootPrefix, e);
@@ -501,7 +526,7 @@ public class TenureExportService {
 
   private String sanitizePrefix(String prefix) {
     if (prefix == null || prefix.isBlank()) {
-      return "images";
+      return "";
     }
     return prefix.replaceAll("^/+", "").replaceAll("/+$", "");
   }

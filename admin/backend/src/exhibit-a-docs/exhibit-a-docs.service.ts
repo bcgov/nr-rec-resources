@@ -73,15 +73,15 @@ export class ExhibitADocsService extends BaseStorageFileService {
     this.validateEntityId(body.document_id, 'document_id');
 
     const s3_key = `${rec_resource_id}/${body.document_id}/${body.file_name}.${body.extension}`;
+    const applicationGuid = await this.resolveApplicationGuid(body);
 
     try {
-      if (body.submission_id) {
-        await this.prisma.recreation_exhibit_a_doc.deleteMany({
-          where: {
-            rec_resource_id,
-            submission_id: body.submission_id,
-          },
-        });
+      if (applicationGuid) {
+        await this.prisma.$executeRaw`
+          DELETE FROM rst.recreation_exhibit_a_doc
+          WHERE rec_resource_id = ${rec_resource_id}
+            AND application_guid = ${applicationGuid}::uuid
+        `;
       }
 
       const rows = await this.prisma.$queryRaw<any[]>`
@@ -92,7 +92,7 @@ export class ExhibitADocsService extends BaseStorageFileService {
           extension,
           file_size,
           s3_key,
-          submission_id,
+          application_guid,
           generation_method,
           created_at
         )
@@ -103,7 +103,7 @@ export class ExhibitADocsService extends BaseStorageFileService {
           ${body.extension},
           ${BigInt(body.file_size)},
           ${s3_key},
-          ${body.submission_id ?? null},
+          ${applicationGuid ?? null}::uuid,
           'upload',
           CURRENT_TIMESTAMP
         )
@@ -157,7 +157,8 @@ export class ExhibitADocsService extends BaseStorageFileService {
     return {
       document_id: doc.doc_id,
       rec_resource_id: doc.rec_resource_id,
-      submission_id: doc.submission_id ?? null,
+      application_guid: doc.application_guid ?? null,
+      submission_id: null,
       file_name: doc.file_name,
       extension: doc.extension,
       file_size: doc.file_size ? Number(doc.file_size) : undefined,
@@ -166,5 +167,31 @@ export class ExhibitADocsService extends BaseStorageFileService {
       url,
       created_at: doc.created_at ?? undefined,
     };
+  }
+
+  private async resolveApplicationGuid(
+    body: FinalizeExhibitAUploadRequestDto,
+  ): Promise<string | null> {
+    if (body.application_guid) return body.application_guid;
+    if (!body.submission_id) return null;
+
+    const rows = await this.prisma.$queryRaw<
+      Array<{ application_guid: string }>
+    >`
+      SELECT application_guid::text AS application_guid
+      FROM rst.recreation_spatial_submission
+      WHERE submission_id = ${body.submission_id}
+      LIMIT 1
+    `;
+
+    const applicationGuid = rows[0]?.application_guid ?? null;
+    if (!applicationGuid) {
+      throw new HttpException(
+        `Spatial submission not found for submission_id: ${body.submission_id}`,
+        404,
+      );
+    }
+
+    return applicationGuid;
   }
 }

@@ -63,9 +63,15 @@ public class S3UploaderService {
 
   @Retryable(maxAttempts = 5, backoff = @Backoff(multiplier = 2, delay = 2000))
   public void uploadStreamToS3(String key, InputStream fileContent, long contentLength, String contentType) {
+    uploadStreamToS3(bucket, key, fileContent, contentLength, contentType);
+  }
+
+  @Retryable(maxAttempts = 5, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public void uploadStreamToS3(String bucketName, String key, InputStream fileContent, long contentLength, String contentType) {
     try {
+      var targetBucket = (bucketName == null || bucketName.isBlank()) ? bucket : bucketName;
       var putObjectRequestBuilder = PutObjectRequest.builder()
-          .bucket(bucket)
+          .bucket(targetBucket)
           .key(key);
 
       if (contentType != null && !contentType.isBlank()) {
