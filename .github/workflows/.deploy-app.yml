@@ -118,6 +118,7 @@ jobs:
           VITE_MATOMO_URL: ${{ secrets.VITE_MATOMO_URL }}
           VITE_MATOMO_SITE_ID: ${{ secrets.VITE_MATOMO_SITE_ID }}
           VITE_SEARCH_CITIES_API_URL: ${{ secrets.VITE_SEARCH_CITIES_API_URL }}
+          VITE_ALERT_BANNER_MESSAGE: ${{ vars.VITE_ALERT_BANNER_MESSAGE }}
           S3_BUCKET_ARN: ${{ needs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
           CF_DISTRIBUTION_ID: ${{ needs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
           VITE_KEYCLOAK_AUTH_SERVER_URL: ${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
