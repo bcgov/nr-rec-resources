@@ -54,7 +54,7 @@ normalized as (
 prepared as (
     select
         n.rec_resource_id,
-        rss.submission_id,
+        rss.application_guid,
         n.file_name,
         n.extension,
         n.image_file_size as file_size,
@@ -88,7 +88,7 @@ deduped as (
 )
 insert into rst.recreation_exhibit_a_doc (
     rec_resource_id,
-    submission_id,
+    application_guid,
     file_name,
     extension,
     file_size,
@@ -104,7 +104,7 @@ insert into rst.recreation_exhibit_a_doc (
 )
 select
     d.rec_resource_id,
-    d.submission_id,
+    d.application_guid,
     d.file_name,
     d.extension,
     d.file_size,
@@ -122,7 +122,7 @@ where d.rn = 1
 on conflict (s3_key) do update
 set
     rec_resource_id = excluded.rec_resource_id,
-    submission_id = excluded.submission_id,
+    application_guid = excluded.application_guid,
     file_name = excluded.file_name,
     extension = excluded.extension,
     file_size = excluded.file_size,
