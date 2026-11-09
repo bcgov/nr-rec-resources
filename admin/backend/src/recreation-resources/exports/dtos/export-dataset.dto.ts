@@ -18,13 +18,12 @@ export class ExportDatasetDto {
   @ApiProperty({
     description: 'Dataset source system for this export variant',
     example: 'RST',
-    enum: ['RST', 'FTA'],
+    enum: ['RST'],
   })
   source: string;
 
   @ApiPropertyOptional({
-    description:
-      "Dataset note or sentinel value such as 'not-implemented' for unavailable datasets",
+    description: 'Optional dataset note shown in the admin UI',
     example:
       'ROLLUP_REGION_NO, ROLLUP_REGION_CODE, and FOREST_REGION are currently blank.',
   })

@@ -72,7 +72,7 @@ select
     rst.fta_note_to_html(ro.objective_description) as body,
     coalesce(ro.objective_established_date, ro.entry_timestamp::date) as date_logged,
     'FTA' as source_system,
-    'OBJECTIVE|' || ro.objective_id as source_key,
+    'OBJECTIVE|' || ro.forest_file_id || '|' || ro.objective_id as source_key,
     ro.update_timestamp as updated_at,
     ro.update_userid as updated_by,
     ro.entry_timestamp as created_at,
@@ -116,7 +116,7 @@ where n.source_system = 'FTA'
   and not exists (
       select 1
       from fta.recreation_objective ro
-      where 'OBJECTIVE|' || ro.objective_id = n.source_key
+      where 'OBJECTIVE|' || ro.forest_file_id || '|' || ro.objective_id = n.source_key
         and ro.objective_cancelled_date is null
         and btrim(coalesce(ro.objective_description, '')) <> ''
   );
