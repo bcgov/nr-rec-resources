@@ -22,7 +22,7 @@ export type SubmissionLookupRow = {
 };
 
 export type ExhibitADocLookupRow = {
-  submission_id: string;
+  application_guid: string;
   s3_key: string;
   page_size: string | null;
   page_orientation: string | null;

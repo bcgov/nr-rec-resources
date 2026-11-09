@@ -86,6 +86,11 @@ backend-el/
   `TENURE_APPLICATION` and `TENURE_APPLICATION_MAP_FEATURE`.
 - Use the tenure image-specific cronjobs (app/mf) or weekly tenure cron when you
   want image object exports, so daily pipeline-linked runs stay lightweight.
+- Optional: set `TENURE_EXHIBIT_BUCKET` to upload `Exhibit_A` image objects to a
+  dedicated S3 bucket. When set, Exhibit A objects are written without the
+  `Exhibit_A` prefix (directly under that bucket path structure). When not set,
+  Exhibit A uploads continue using the main `AWS_LZA_S3_BUCKET` bucket with the
+  `TENURE_EXHIBIT_PREFIX` (default `Exhibit_A`).
 - `JOB_MODE=tenure` runs only tenure export workflows and then triggers Flyway
   tasks (without running the full recreation export list).
 - Helm chart values include a separate weekly cron toggle for this mode:
