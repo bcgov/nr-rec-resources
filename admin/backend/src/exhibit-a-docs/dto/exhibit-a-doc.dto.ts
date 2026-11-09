@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class ExhibitADocDto {
   @ApiProperty({
@@ -12,7 +18,16 @@ export class ExhibitADocDto {
   rec_resource_id: string;
 
   @ApiProperty({
-    description: 'Spatial submission ID linked to the Exhibit A document',
+    description: 'Spatial submission application GUID linked to the document',
+    example: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+    required: false,
+    nullable: true,
+  })
+  application_guid?: string | null;
+
+  @ApiProperty({
+    description:
+      'Spatial submission ID linked to the Exhibit A document (deprecated; use application_guid)',
     example: '12345',
     required: false,
     nullable: true,
@@ -66,7 +81,19 @@ export class ExhibitADocDto {
 
 export class FinalizeExhibitAUploadRequestDto {
   @ApiProperty({
-    description: 'Spatial submission ID to associate this document with',
+    description:
+      'Spatial submission application GUID to associate this document with',
+    example: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsUUID()
+  application_guid?: string;
+
+  @ApiProperty({
+    description:
+      'Spatial submission ID to associate this document with (deprecated; use application_guid)',
     example: '12345',
     required: false,
     nullable: true,
