@@ -102,8 +102,9 @@
 }
 
 .search-map-controls {
-  position: fixed;
-  top: 70px;
+  // positioned within the map area so it follows the header and alert banner
+  position: absolute;
+  top: 6px;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -116,13 +117,8 @@
   border-radius: 4px;
   transform: none;
 
-  @include media-breakpoint-up(sm) {
-    top: 102px;
-  }
-
   // Collapse and center on larger screens
   @include media-breakpoint-up(md) {
-    top: 142px;
     left: 50%;
     transform: translateX(-50%);
     flex-direction: row;
