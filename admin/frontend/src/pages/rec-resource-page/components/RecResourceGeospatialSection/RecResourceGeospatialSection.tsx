@@ -54,6 +54,7 @@ import {
   COLOR_YELLOW_ADVISORY_BG,
 } from '@/styles/colors';
 import type { PendingMapFeatureRequestRowDto } from '@/services/recreation-resource-admin/models/PendingMapFeatureRequestRowDto';
+import { useUpdateRecreationResource } from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResource';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
@@ -132,6 +133,7 @@ export function RecResourceGeospatialSection() {
   const presignMutation = usePresignExhibitAUpload();
   const finalizeMutation = useFinalizeExhibitAUpload();
   const regenerateMutation = useCreateOrGetExhibitAByApplicationGuid();
+  const { mutateAsync: updateResource } = useUpdateRecreationResource();
 
   const {
     latitude,
@@ -577,6 +579,50 @@ export function RecResourceGeospatialSection() {
       return bTime - aTime;
     });
 
+  const shouldShowUnarchiveBanner = isSuperAdmin && isArchived;
+
+  const archiveAgeHours =
+    recResource?.updated_at != null
+      ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000
+      : null;
+
+  const unarchiveHelperText =
+    archiveAgeHours == null
+      ? 'You can save and restore the current submission directly without submitting a new SNCSC request (unless you modify the spatial data). This also updates the file status from Archived to Issued.'
+      : archiveAgeHours < 24
+        ? 'Recently archived: You can save and restore the current submission directly without submitting a new SNCSC request (unless you modify the spatial data). This also updates the file status from Archived to Issued.'
+        : 'Archived earlier: Because land status or conflicts may have shifted, the existing spatial data will be automatically resubmitted to SNCSC. If your boundaries have changed, please upload updated spatial files before submitting.';
+
+  const handleUnarchive = useCallback(async () => {
+    if (!isSuperAdmin || !recResourceId || !recResource || !isArchived) return;
+
+    const archiveAgeHours =
+      recResource.updated_at != null
+        ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000
+        : null;
+
+    if (archiveAgeHours != null && archiveAgeHours >= 24) {
+      setIsSpatialSubmissionOpen(true);
+      return;
+    }
+
+    try {
+      await updateResource({
+        recResourceId,
+        updateRecreationResourceDto: { rec_status_code: 'HI' } as any,
+      });
+      addSuccessNotification('Resource unarchived and issued successfully.');
+    } catch (error) {
+      console.error('Failed to unarchive resource:', error);
+      addErrorNotification('Failed to unarchive resource. Please try again.');
+    }
+  }, [isArchived, isSuperAdmin, recResource, recResourceId, updateResource]);
+
+  const isWithinArchiveWindow =
+    recResource?.updated_at != null
+      ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000 < 24
+      : false;
+
   return (
     <Stack className="geospatial-section" direction="vertical" gap={4}>
       {/* ── Geospatial fields card ── */}
@@ -804,9 +850,15 @@ export function RecResourceGeospatialSection() {
                 <Button
                   size="sm"
                   variant="primary"
-                  onClick={() => setIsSpatialSubmissionOpen(true)}
+                  onClick={() => {
+                    if (isArchived) {
+                      void handleUnarchive();
+                      return;
+                    }
+                    setIsSpatialSubmissionOpen(true);
+                  }}
                 >
-                  Create new
+                  {isArchived ? 'Unarchive' : 'Create new'}
                 </Button>
               </div>
             ) : null}
@@ -991,6 +1043,12 @@ export function RecResourceGeospatialSection() {
               </Button>
             </Modal.Footer>
           </Modal>
+
+          {shouldShowUnarchiveBanner ? (
+            <div className="alert alert-warning mt-4">
+              <strong>Unarchive Notice:</strong> {unarchiveHelperText}
+            </div>
+          ) : null}
         </div>
       </div>
     </Stack>

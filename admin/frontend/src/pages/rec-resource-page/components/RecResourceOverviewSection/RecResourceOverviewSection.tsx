@@ -92,6 +92,21 @@ export const RecResourceOverviewSection = (
               Archive
             </Button>
           )}
+          {isSuperAdmin && isArchived && (
+            <Button
+              variant="outline-primary"
+              onClick={() =>
+                navigate({
+                  to: ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL.replace(
+                    '$id',
+                    recResource.rec_resource_id,
+                  ),
+                })
+              }
+            >
+              Unarchive
+            </Button>
+          )}
         </Stack>
       </div>
 
