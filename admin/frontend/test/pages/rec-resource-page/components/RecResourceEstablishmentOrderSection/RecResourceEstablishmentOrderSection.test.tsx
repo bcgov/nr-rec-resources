@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import * as services from '@/services';
 import * as fileUtils from '@shared/utils';
+import { buildDownloadFileName } from '@shared/utils/downloadFileName';
 import * as notificationStore from '@/store/notificationStore';
 import { handleApiError } from '@/services/utils/errorHandler';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
@@ -105,6 +106,9 @@ const setupMocks = (docs = mockDocs, isLoading = false) => {
   vi.mocked(fileUtils.buildFileNameWithExtension).mockImplementation(
     (name, ext) => `${name}.${ext}`,
   );
+  vi.mocked(fileUtils.buildDownloadFileName).mockImplementation(
+    buildDownloadFileName,
+  );
   vi.mocked(fileUtils.downloadUrlAsFile).mockResolvedValue(undefined);
 
   vi.mocked(handleApiError).mockResolvedValue({
@@ -175,7 +179,7 @@ describe('RecResourceEstablishmentOrderSection', () => {
     );
     expect(fileUtils.downloadUrlAsFile).toHaveBeenCalledWith(
       'https://example.com/doc.pdf',
-      'Test Document.pdf',
+      'docs.sitesandtrailsbc.123.establishment-order.test-document.pdf',
     );
   });
 

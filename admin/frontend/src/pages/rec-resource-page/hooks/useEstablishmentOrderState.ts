@@ -10,6 +10,7 @@ import {
 import { useCallback, useMemo, useState } from 'react';
 import { GalleryFile } from '@/pages/rec-resource-page/types';
 import {
+  buildDownloadFileName,
   buildFileNameWithExtension,
   downloadUrlAsFile,
   getFileNameWithoutExtension,
@@ -267,7 +268,14 @@ export function useEstablishmentOrderState(recResourceId: string) {
         );
 
         addSuccessNotification(`Downloading "${fileName}"...`);
-        return downloadUrlAsFile(doc.url, fileName)
+        const downloadFileName = buildDownloadFileName({
+          kind: 'docs',
+          recResourceId,
+          parts: ['establishment-order', doc.title],
+          extension: doc.extension ?? 'pdf',
+        });
+
+        return downloadUrlAsFile(doc.url, downloadFileName)
           .catch((error) => {
             console.error('Download failed:', error);
             addErrorNotification(
@@ -286,7 +294,7 @@ export function useEstablishmentOrderState(recResourceId: string) {
         setShowDeleteModal(true);
       }
     },
-    [docs],
+    [docs, recResourceId],
   );
 
   return {

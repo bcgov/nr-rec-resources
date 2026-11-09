@@ -9,6 +9,8 @@ generate "test_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "test"
+  api_custom_domains = ["api.test.sitesandtrailsbc.ca"]
+  use_api_custom_domain_url = true
   fargate_base_capacity = 1
   min_capacity = 1
   max_capacity = 2

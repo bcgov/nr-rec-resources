@@ -9,5 +9,7 @@ generate "dev_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "dev"
+  api_custom_domains = ["api.dev.sitesandtrailsbc.ca"]
+  use_api_custom_domain_url = true
 EOF
 }

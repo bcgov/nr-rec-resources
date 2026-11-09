@@ -513,7 +513,7 @@ describe('useEstablishmentOrderState', () => {
 
       expect(fileUtils.downloadUrlAsFile).toHaveBeenCalledWith(
         'https://example.com/doc1.pdf',
-        'Test Document 1.pdf',
+        'docs.sitesandtrailsbc.test-resource-id.establishment-order.test-document-1.pdf',
       );
       expect(notificationStore.addSuccessNotification).toHaveBeenCalledWith(
         'Downloading "Test Document 1.pdf"...',

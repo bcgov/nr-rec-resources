@@ -155,7 +155,9 @@ describe('ExportService', () => {
         district: 'D01',
         resourceType: 'CABIN',
       });
-      expect(result.fileName).toBe('fee-list-fta-2026-03-03.csv');
+      expect(result.fileName).toBe(
+        'exports.sitesandtrailsbc.fee-list-fta.2026-03-03.csv',
+      );
       expect(result.csv).toBe(
         [
           'REC_RESOURCE_ID,NAME,NOTES,FORMULA,MULTILINE',
@@ -177,7 +179,9 @@ describe('ExportService', () => {
       });
 
       expect(result.csv).toBe('');
-      expect(result.fileName).toMatch(/^file-details-\d{4}-\d{2}-\d{2}\.csv$/);
+      expect(result.fileName).toMatch(
+        /^exports\.sitesandtrailsbc\.file-details\.\d{4}-\d{2}-\d{2}\.csv$/,
+      );
     });
   });
 });

@@ -9,7 +9,8 @@ import { recResourceLoader } from './recResourceLoader';
 export async function recResourcePartnersLoader(args: any) {
   const parentData = await recResourceLoader(args);
   const authService = AuthService.getInstance();
-  const basePath = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+  const basePath =
+    import.meta.env.VITE_API_BASE_URL?.replace(/\/api$/, '') || '';
 
   const api = new PartnersApi(
     new Configuration({

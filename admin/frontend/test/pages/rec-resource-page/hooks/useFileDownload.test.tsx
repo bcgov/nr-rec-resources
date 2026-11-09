@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 
-vi.mock('@shared/utils', () => ({ downloadUrlAsFile: vi.fn() }));
+vi.mock('@shared/utils', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@shared/utils')>()),
+  downloadUrlAsFile: vi.fn(),
+}));
 vi.mock('@/store/notificationStore', () => ({
   addSuccessNotification: vi.fn(),
   addErrorNotification: vi.fn(),
@@ -49,11 +52,11 @@ describe('useDownloadFileMutation', () => {
       type: 'document',
     };
     await act(async () => {
-      await mutation.mutateAsync({ file });
+      await mutation.mutateAsync({ file, recResourceId: 'REC1234' });
     });
     expect(fileUtils.downloadUrlAsFile).toHaveBeenCalledWith(
       'test-url',
-      'file.pdf',
+      'docs.sitesandtrailsbc.REC1234.file.pdf',
     );
     expect(notificationStore.addSuccessNotification).toHaveBeenCalledWith(
       'File "file.pdf" downloaded successfully.',
@@ -79,11 +82,55 @@ describe('useDownloadFileMutation', () => {
     });
     expect(fileUtils.downloadUrlAsFile).toHaveBeenCalledWith(
       'bad-url',
-      'bad.pdf',
+      'docs.sitesandtrailsbc.bad.pdf',
     );
     expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
       'Failed to download file "bad.pdf".',
     );
     expect(notificationStore.addSuccessNotification).not.toHaveBeenCalled();
+  });
+
+  it('names images with the images prefix and the doc type', async () => {
+    (fileUtils.downloadUrlAsFile as any).mockResolvedValueOnce(undefined);
+    const mutation = getMutation();
+    const file: GalleryFile = {
+      id: '3',
+      name: 'Lake View',
+      url: 'img-url',
+      date: '2025-07-15',
+      extension: 'webp',
+      type: 'image',
+    };
+    await act(async () => {
+      await mutation.mutateAsync({ file, recResourceId: 'REC1234' });
+    });
+    expect(fileUtils.downloadUrlAsFile).toHaveBeenCalledWith(
+      'img-url',
+      'images.sitesandtrailsbc.REC1234.lake-view.webp',
+    );
+  });
+
+  it('adds the doc type between the rec id and the name', async () => {
+    (fileUtils.downloadUrlAsFile as any).mockResolvedValueOnce(undefined);
+    const mutation = getMutation();
+    const file: GalleryFile = {
+      id: '4',
+      name: 'Survey plan',
+      url: 'doc-url',
+      date: '2025-07-15',
+      extension: 'pdf',
+      type: 'document',
+    };
+    await act(async () => {
+      await mutation.mutateAsync({
+        file,
+        recResourceId: 'REC1234',
+        docType: 'exhibit-a',
+      });
+    });
+    expect(fileUtils.downloadUrlAsFile).toHaveBeenCalledWith(
+      'doc-url',
+      'docs.sitesandtrailsbc.REC1234.exhibit-a.survey-plan.pdf',
+    );
   });
 });

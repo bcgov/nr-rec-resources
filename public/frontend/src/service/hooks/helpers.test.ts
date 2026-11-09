@@ -6,6 +6,11 @@ describe('getBasePath', () => {
     expect(getBasePath()).toBe('https://example.com');
   });
 
+  it('only strips the trailing /api when the host starts with api', () => {
+    process.env.VITE_API_BASE_URL = 'https://api.dev.sitesandtrailsbc.ca/api';
+    expect(getBasePath()).toBe('https://api.dev.sitesandtrailsbc.ca');
+  });
+
   it('should return an empty string when VITE_API_BASE_URL is not set', () => {
     delete process.env.VITE_API_BASE_URL;
     expect(getBasePath()).toBe('');

@@ -7,7 +7,7 @@ import {
 import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
 import { RecResourceHTMLExportDescription } from '@shared/components/recreation-resource-map/RecResourceHTMLExportDescription';
 import { renderToString } from 'react-dom/server';
-import { triggerFileDownload } from '@shared/utils';
+import { buildDownloadFileName, triggerFileDownload } from '@shared/utils';
 import { Geometry } from 'ol/geom';
 
 interface KmlProps {
@@ -19,15 +19,27 @@ interface KmlProps {
 /**
  * Downloads features as a GPX file.
  * @param features Array of OpenLayers Features
- * @param fileName Name for the downloaded file (without extension)
+ * @param recResource RecreationResourceMapData used to name the file
  */
-export function downloadGPX(features: Feature[], fileName: string) {
+export function downloadGPX(
+  features: Feature[],
+  recResource: RecreationResourceMapData,
+) {
   const gpxFormat = new GPX();
   const gpxXml = gpxFormat.writeFeatures(features, {
     featureProjection: MAP_PROJECTION_WEB_MERCATOR,
     dataProjection: MAP_PROJECTION_WGS84,
   });
-  triggerFileDownload(gpxXml, `${fileName}.gpx`, 'application/gpx+xml');
+  triggerFileDownload(
+    gpxXml,
+    buildDownloadFileName({
+      kind: 'maps',
+      recResourceId: recResource.rec_resource_id,
+      parts: [recResource.name],
+      extension: 'gpx',
+    }),
+    'application/gpx+xml',
+  );
 }
 
 /**
@@ -64,7 +76,12 @@ export function downloadKML(
   });
   triggerFileDownload(
     kmlXml,
-    `${recResource.name}.kml`,
+    buildDownloadFileName({
+      kind: 'maps',
+      recResourceId: recResource.rec_resource_id,
+      parts: [recResource.name],
+      extension: 'kml',
+    }),
     'application/vnd.google-earth.kml+xml',
   );
 }
@@ -100,7 +117,11 @@ export function downloadKMLMultiple(props: KmlProps[]) {
   });
   triggerFileDownload(
     kmlXml,
-    `search_results.kml`,
+    buildDownloadFileName({
+      kind: 'maps',
+      parts: ['search-results'],
+      extension: 'kml',
+    }),
     'application/vnd.google-earth.kml+xml',
   );
 }

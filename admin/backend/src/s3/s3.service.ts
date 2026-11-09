@@ -135,6 +135,7 @@ export class S3Service {
    * Generate a presigned URL for downloading an object from S3
    * @param key - The S3 object key
    * @param expiresIn - URL expiration time in seconds (default: 3600 = 1 hour)
+   * @param downloadFileName - Optional name the browser saves the file as (ignored by LocalStack direct URLs)
    * @returns Presigned URL or direct LocalStack URL
    * @throws BadRequestException if key is invalid
    * @throws InternalServerErrorException if URL generation fails
@@ -142,6 +143,7 @@ export class S3Service {
   async getSignedUrl(
     key: string,
     expiresIn: number = DEFAULT_PRESIGNED_URL_EXPIRY,
+    downloadFileName?: string,
   ): Promise<string> {
     if (!key?.trim()) {
       throw new BadRequestException('S3 key is required');
@@ -165,6 +167,9 @@ export class S3Service {
       const command = new GetObjectCommand({
         Bucket: this.bucketName,
         Key: key.trim(),
+        ...(downloadFileName && {
+          ResponseContentDisposition: `attachment; filename="${downloadFileName.replace(/"/g, '')}"`,
+        }),
       });
 
       return await getSignedUrl(this.s3Client, command, { expiresIn });

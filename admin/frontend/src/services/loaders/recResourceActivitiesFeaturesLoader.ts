@@ -12,7 +12,8 @@ export async function recResourceActivitiesFeaturesLoader(args: any) {
   const parentData = await recResourceLoader(args);
 
   const authService = AuthService.getInstance();
-  const basePath = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+  const basePath =
+    import.meta.env.VITE_API_BASE_URL?.replace(/\/api$/, '') || '';
 
   const api = new RecreationResourcesApi(
     new Configuration({

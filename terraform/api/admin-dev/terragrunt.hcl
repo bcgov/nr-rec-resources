@@ -10,5 +10,7 @@ generate "dev_tfvars" {
   contents          = <<-EOF
   target_env        = "dev"
   enable_cors       = true
+  api_custom_domains = ["staff-api.dev.sitesandtrailsbc.ca"]
+  use_api_custom_domain_url = true
 EOF
 }

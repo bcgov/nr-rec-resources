@@ -1134,7 +1134,10 @@ describe('ResourceImagesDocsService', () => {
     it('should return presigned URL when consent form exists', async () => {
       vi.mocked(
         prismaService.recreation_image_consent_form.findUnique,
-      ).mockResolvedValue({ doc_id: 'doc-456' } as any);
+      ).mockResolvedValue({
+        doc_id: 'doc-456',
+        recreation_resource_image: { file_name: 'Lake View' },
+      } as any);
       mockConsentFormsS3Service.getPresignedDownloadUrl.mockResolvedValue(
         'https://s3.amazonaws.com/presigned-consent-url',
       );
@@ -1144,7 +1147,12 @@ describe('ResourceImagesDocsService', () => {
       expect(result).toBe('https://s3.amazonaws.com/presigned-consent-url');
       expect(
         mockConsentFormsS3Service.getPresignedDownloadUrl,
-      ).toHaveBeenCalledWith('REC0001', 'img-123', 'doc-456');
+      ).toHaveBeenCalledWith(
+        'REC0001',
+        'img-123',
+        'doc-456',
+        'docs.sitesandtrailsbc.REC0001.consent.lake-view.pdf',
+      );
     });
 
     it('should throw 404 when no consent form found', async () => {

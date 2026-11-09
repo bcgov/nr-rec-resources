@@ -69,7 +69,7 @@ export function useGalleryActions() {
           break;
 
         case 'download':
-          downloadMutation.mutate({ file });
+          downloadMutation.mutate({ file, recResourceId: rec_resource_id });
           break;
         case 'downloadConsent':
           if (rec_resource_id && file.type === 'image') {

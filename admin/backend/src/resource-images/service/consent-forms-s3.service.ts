@@ -103,6 +103,7 @@ export class ConsentFormsS3Service {
    * @param recResourceId - Recreation resource ID
    * @param imageId - Image UUID this consent form belongs to
    * @param docId - Document UUID for the consent form
+   * @param downloadFileName - Optional name the browser saves the file as
    * @param expiresIn - URL expiration time in seconds (default: 1 hour)
    * @returns Presigned download URL
    */
@@ -110,6 +111,7 @@ export class ConsentFormsS3Service {
     recResourceId: string,
     imageId: string,
     docId: string,
+    downloadFileName?: string,
     expiresIn: number = 3600,
   ): Promise<string> {
     const key = this.getConsentFormKey(recResourceId, imageId, docId);
@@ -118,6 +120,6 @@ export class ConsentFormsS3Service {
       `Generating presigned download URL for consent form - Key: ${key}`,
     );
 
-    return this.s3Service.getSignedUrl(key, expiresIn);
+    return this.s3Service.getSignedUrl(key, expiresIn, downloadFileName);
   }
 }

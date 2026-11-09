@@ -292,6 +292,8 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
                               date: doc.created_at || '',
                               type: 'document',
                             },
+                            recResourceId,
+                            docType: 'exhibit-a',
                           })
                         }
                       >
