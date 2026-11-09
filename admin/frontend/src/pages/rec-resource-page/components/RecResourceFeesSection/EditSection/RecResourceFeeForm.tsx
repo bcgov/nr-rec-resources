@@ -58,11 +58,11 @@ export const RecResourceFeeForm = ({
   const submitLabel =
     mode === 'create'
       ? mutation.isPending
-        ? 'Adding Fee...'
-        : 'Add Fee'
+        ? 'Adding fee...'
+        : 'Add fee'
       : mutation.isPending
         ? 'Saving...'
-        : 'Save Changes';
+        : 'Save changes';
 
   const isSpecificDates = feeApplies === FEE_APPLIES_OPTIONS.SPECIFIC_DATES;
 
@@ -127,7 +127,7 @@ export const RecResourceFeeForm = ({
                 <Col xs={12} md={6}>
                   <MonthDayPicker
                     name="recurring_start_mmdd"
-                    label="Start Date (Month / Day)"
+                    label="Start date (month / day)"
                     control={control}
                     errors={errors}
                     required
@@ -136,7 +136,7 @@ export const RecResourceFeeForm = ({
                 <Col xs={12} md={6}>
                   <MonthDayPicker
                     name="recurring_end_mmdd"
-                    label="End Date (Month / Day)"
+                    label="End date (month / day)"
                     control={control}
                     errors={errors}
                     required
@@ -148,7 +148,7 @@ export const RecResourceFeeForm = ({
                 <Col xs={12} md={6}>
                   <DateInputField
                     name="fee_start_date"
-                    label="Start Date"
+                    label="Start date"
                     control={control}
                     errors={errors}
                   />
@@ -156,7 +156,7 @@ export const RecResourceFeeForm = ({
                 <Col xs={12} md={6}>
                   <DateInputField
                     name="fee_end_date"
-                    label="End Date"
+                    label="End date"
                     control={control}
                     errors={errors}
                   />
@@ -176,7 +176,7 @@ export const RecResourceFeeForm = ({
         />
 
         <Form.Group>
-          <Form.Label>Select Days</Form.Label>
+          <Form.Label>Select days</Form.Label>
           <div className="d-flex flex-wrap gap-3">
             {DAYS.map(({ key, label }) => (
               <Controller<AddFeeFormData>
@@ -206,7 +206,7 @@ export const RecResourceFeeForm = ({
           <Col xs={12} md={6}>
             <GroupedMultiSelectField<AddFeeFormData>
               name="fee_type_sub_type"
-              label="Fee Type"
+              label="Fee type"
               options={groupedFeeOptions}
               placeholder="Select fee type..."
               control={control}

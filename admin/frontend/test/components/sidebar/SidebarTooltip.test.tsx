@@ -36,7 +36,7 @@ describe('SidebarTooltip Component', () => {
   };
 
   const TestChild = () => (
-    <button data-testid="child-element">Search Icon</button>
+    <button data-testid="child-element">Search icon</button>
   );
 
   // Branch 1: !isCollapsed (Should only render children, skipping the overlay completely)

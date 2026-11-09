@@ -15,6 +15,7 @@ const PRESIGNED_URL =
 const mockDoc = {
   doc_id: DOC_ID,
   rec_resource_id: REC_RESOURCE_ID,
+  application_guid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
   file_name: 'exhibit-a',
   extension: 'pdf',
   file_size: BigInt(1024),
@@ -26,6 +27,7 @@ const mockDoc = {
 
 const mockPrisma = {
   $queryRaw: vi.fn(),
+  $executeRaw: vi.fn(),
   recreation_resource: {
     findUnique: vi.fn(),
   },
@@ -33,7 +35,6 @@ const mockPrisma = {
     findMany: vi.fn(),
     findUnique: vi.fn(),
     delete: vi.fn(),
-    deleteMany: vi.fn(),
   },
 };
 
@@ -82,6 +83,9 @@ describe('ExhibitADocsService', () => {
       expect(result).toHaveLength(1);
       expect(first.document_id).toBe(DOC_ID);
       expect(first.rec_resource_id).toBe(REC_RESOURCE_ID);
+      expect(first.application_guid).toBe(
+        '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+      );
       expect(first.file_name).toBe('exhibit-a');
       expect(first.generation_method).toBe('upload');
       expect(first.url).toBe(PRESIGNED_URL);
@@ -215,14 +219,31 @@ describe('ExhibitADocsService', () => {
       ).rejects.toThrow(HttpException);
     });
 
-    it('deletes existing docs for a submission before insert when submission_id is provided', async () => {
+    it('deletes existing docs for an application before insert when application_guid is provided', async () => {
       mockPrisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: REC_RESOURCE_ID,
       });
-      mockPrisma.recreation_exhibit_a_doc.deleteMany.mockResolvedValue({
-        count: 1,
-      });
+      mockPrisma.$executeRaw.mockResolvedValue(1);
       mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
+      mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
+
+      await service.finalizeUpload(REC_RESOURCE_ID, {
+        ...finalizeBody,
+        application_guid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+      });
+
+      expect(mockPrisma.$executeRaw).toHaveBeenCalledTimes(1);
+    });
+
+    it('resolves deprecated submission_id to application_guid before insert', async () => {
+      mockPrisma.recreation_resource.findUnique.mockResolvedValue({
+        rec_resource_id: REC_RESOURCE_ID,
+      });
+      mockPrisma.$queryRaw
+        .mockResolvedValueOnce([
+          { application_guid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8' },
+        ])
+        .mockResolvedValueOnce([mockDoc]);
       mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
 
       await service.finalizeUpload(REC_RESOURCE_ID, {
@@ -230,14 +251,7 @@ describe('ExhibitADocsService', () => {
         submission_id: '1234567',
       });
 
-      expect(
-        mockPrisma.recreation_exhibit_a_doc.deleteMany,
-      ).toHaveBeenCalledWith({
-        where: {
-          rec_resource_id: REC_RESOURCE_ID,
-          submission_id: '1234567',
-        },
-      });
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
     });
   });
 

@@ -47,7 +47,7 @@ export async function handleApiError(error: unknown): Promise<ApiErrorInfo> {
           .join('; ');
 
         if (validationMessages) {
-          message = `Validation Error: ${validationMessages}`;
+          message = `Validation error: ${validationMessages}`;
         }
       }
     } catch {
@@ -105,17 +105,17 @@ export async function handleApiError(error: unknown): Promise<ApiErrorInfo> {
 function getDefaultErrorMessage(statusCode: number): string {
   switch (statusCode) {
     case 400:
-      return 'Bad Request - Invalid input provided';
+      return 'Bad request - invalid input provided';
     case 401:
-      return 'Unauthorized - Please log in again';
+      return 'Unauthorized - please log in again';
     case 403:
-      return "Forbidden - You don't have permission to perform this action";
+      return "Forbidden - you don't have permission to perform this action";
     case 404:
-      return 'Not Found - The requested resource was not found';
+      return 'Not found - the requested resource was not found';
     case 415:
-      return 'Unsupported Media Type - File type not allowed';
+      return 'Unsupported media type - file type not allowed';
     case 500:
-      return 'Internal Server Error - Please try again later';
+      return 'Internal server error - please try again later';
     default:
       return `HTTP ${statusCode} Error`;
   }

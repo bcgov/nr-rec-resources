@@ -8,10 +8,10 @@ export const ROUTE_PATHS = {
   REC_RESOURCE_PAGE: '/rec-resource/$id',
   REC_RESOURCE_OVERVIEW: '/rec-resource/$id/overview',
   REC_RESOURCE_OVERVIEW_EDIT: '/rec-resource/$id/overview/edit',
-  REC_RESOURCE_FILES: '/rec-resource/$id/files',
-  REC_RESOURCE_ACTIVITIES_FEATURES: '/rec-resource/$id/activities-features',
+  REC_RESOURCE_FILES: '/rec-resource/$id/images-and-documents',
+  REC_RESOURCE_ACTIVITIES_FEATURES: '/rec-resource/$id/activities-and-features',
   REC_RESOURCE_ACTIVITIES_FEATURES_EDIT:
-    '/rec-resource/$id/activities-features/edit',
+    '/rec-resource/$id/activities-and-features/edit',
   REC_RESOURCE_FEES: '/rec-resource/$id/fees',
   REC_RESOURCE_PARTNERS: '/rec-resource/$id/partners',
   REC_RESOURCE_PARTNERS_EDIT: '/rec-resource/$id/partners/edit',

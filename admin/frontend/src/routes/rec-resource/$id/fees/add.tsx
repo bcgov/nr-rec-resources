@@ -1,50 +1,24 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { RecResourceFeesAddSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeesAddSection';
-import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
-import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { RoleRouteGuard } from '@/components/auth';
-import { ROLES } from '@/hooks/useAuthorizations';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { FeeFormRouteGuard, feeFormBeforeLoad } from './-feeFormRoute';
 
 export const Route = createFileRoute('/rec-resource/$id/fees/add')({
-  component: RecResourceFeesEditRoute,
+  component: RecResourceFeesAddRoute,
   loader: recResourceFeesLoader,
-  beforeLoad: ({ params, context }) => {
-    const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
-      params,
-      context,
-    } as any);
-
-    return {
-      tab: RecResourceNavKey.FEES,
-      breadcrumb: (loaderData?: any) => {
-        if (!parentBeforeLoad?.breadcrumb) return [];
-        return [
-          ...parentBeforeLoad.breadcrumb(loaderData),
-          {
-            label: 'Fees',
-            href: ROUTE_PATHS.REC_RESOURCE_FEES.replace('$id', params.id),
-          },
-          {
-            label: 'Add Fee',
-            href: ROUTE_PATHS.REC_RESOURCE_FEES_ADD.replace('$id', params.id),
-          },
-        ];
-      },
-    };
-  },
+  beforeLoad: feeFormBeforeLoad((params) => ({
+    label: 'Add fee',
+    href: ROUTE_PATHS.REC_RESOURCE_FEES_ADD.replace('$id', params.id),
+  })),
 });
 
-function RecResourceFeesEditRoute() {
+function RecResourceFeesAddRoute() {
   const { id } = Route.useParams();
 
   return (
-    <RoleRouteGuard
-      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
-      redirectTo={ROUTE_PATHS.REC_RESOURCE_FEES.replace('$id', id)}
-    >
+    <FeeFormRouteGuard id={id}>
       <RecResourceFeesAddSection />
-    </RoleRouteGuard>
+    </FeeFormRouteGuard>
   );
 }

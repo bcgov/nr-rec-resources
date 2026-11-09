@@ -38,15 +38,15 @@ describe('rec-resource-page constants', () => {
     it('has all expected tab keys', () => {
       expect(Object.values(RecResourceNavKey)).toEqual([
         'overview',
+        'advisories',
+        'partners',
         'files',
         'activities',
-        'fees',
-        'notes',
         'assets',
-        'partners',
         'geospatial',
         'reservation',
-        'advisories',
+        'fees',
+        'notes',
       ]);
     });
   });

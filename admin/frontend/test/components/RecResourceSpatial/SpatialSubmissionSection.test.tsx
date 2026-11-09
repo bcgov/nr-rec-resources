@@ -11,6 +11,7 @@ const {
   mockReadSpatialFile,
   mockCreateMapFeatures,
   mockUpdateMapFeatures,
+  mockGetFeatureAreaHectares,
   mockExtractSectionIdDetails,
   mockPrepareFeatureCollectionForSectionEditing,
   mockUpdateFeatureSectionId,
@@ -51,6 +52,10 @@ const {
     latitude: null,
     longitude: null,
   })),
+  mockGetFeatureAreaHectares: vi.fn((feature: any) => {
+    const objectId = feature?.properties?.OBJECTID;
+    return objectId === 1 ? 1.1 : objectId === 2 ? 2.2 : undefined;
+  }),
   mockReadSpatialFile: vi.fn(async (input: File | File[] | FileList) => {
     const files = input instanceof File ? [input] : Array.from(input);
     const hasShpUpload = files.some((file) =>
@@ -210,6 +215,7 @@ vi.mock('@/components/RecResourceSpatial/spatialSubmissionUtils', () => ({
   extractSectionIdDetails: mockExtractSectionIdDetails,
   prepareFeatureCollectionForSectionEditing:
     mockPrepareFeatureCollectionForSectionEditing,
+  getFeatureAreaHectares: mockGetFeatureAreaHectares,
   validateGeometry: mockValidateGeometry,
   readSpatialFile: mockReadSpatialFile,
   updateFeatureSectionId: mockUpdateFeatureSectionId,
@@ -335,22 +341,24 @@ describe('SpatialSubmissionSection', () => {
         name: 'Chilliwack Recreation District (RDCC)',
       }),
     ).toBeDefined();
-    expect(screen.getByLabelText('Natural Resource District')).toHaveValue(
+    expect(screen.getByLabelText('Natural resource district')).toHaveValue(
       'DCC',
     );
-    expect(screen.getByLabelText('Recreation District')).toHaveValue('RDCC');
+    expect(screen.getByLabelText('Recreation district')).toHaveValue('RDCC');
     expect(
       screen.queryByRole('option', { name: 'Archived Recreation District' }),
     ).toBeNull();
     expect(screen.getByRole('option', { name: 'Site' })).toBeDefined();
     expect(screen.getByLabelText('REC#')).toHaveAttribute('readonly');
-    expect(screen.getByLabelText('Spatial File')).toHaveAttribute('multiple');
-    expect(screen.getByLabelText('Spatial File')).toHaveAttribute(
+    expect(screen.getByLabelText('Spatial file')).toHaveAttribute('multiple');
+    expect(screen.getByLabelText('Spatial file')).toHaveAttribute(
       'accept',
-      '.zip,.shp,.dbf',
+      '.zip,.shp,.dbf,.shx,.prj,.cpg',
     );
     expect(
-      screen.getByText('File must be a Shape file as a single .zip bundle.'),
+      screen.getByText(
+        'Upload either one .zip shapefile bundle or matching .shp, .dbf, .shx files (optional .prj/.cpg).',
+      ),
     ).toBeDefined();
   });
 
@@ -365,10 +373,10 @@ describe('SpatialSubmissionSection', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Email Address')).toHaveValue(
+      expect(screen.getByLabelText('Email address')).toHaveValue(
         'idir.user@gov.bc.ca',
       );
-      expect(screen.getByLabelText('Submitter Name')).toHaveValue('Idir User');
+      expect(screen.getByLabelText('Submitter name')).toHaveValue('Idir User');
     });
   });
 
@@ -390,7 +398,7 @@ describe('SpatialSubmissionSection', () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          /Please upload a \.zip shapefile bundle or a \.shp file/i,
+          /Please upload a \.zip shapefile bundle or shapefile parts/i,
         ),
       ).toBeDefined();
     });
@@ -449,23 +457,23 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Feature type'), {
       target: { value: 'LineString' },
     });
-    fireEvent.change(screen.getByLabelText('Recreation Name'), {
+    fireEvent.change(screen.getByLabelText('Recreation name'), {
       target: { value: 'Sample Recreation Name' },
     });
-    fireEvent.change(screen.getByLabelText('Email Address'), {
+    fireEvent.change(screen.getByLabelText('Email address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Submitter Name'), {
+    fireEvent.change(screen.getByLabelText('Submitter name'), {
       target: { value: 'Valid User' },
     });
-    fireEvent.change(screen.getByLabelText('Natural Resource District'), {
+    fireEvent.change(screen.getByLabelText('Natural resource district'), {
       target: { value: 'DCC' },
     });
-    fireEvent.change(screen.getByLabelText('Recreation District'), {
+    fireEvent.change(screen.getByLabelText('Recreation district'), {
       target: { value: 'RDCC' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -484,7 +492,7 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByTestId('selected-feature-index')).toHaveTextContent('0');
 
     fireEvent.click(
-      screen.getByRole('button', { name: /North Loop 1.*Feature #2/i }),
+      screen.getByRole('button', { name: 'Select feature 2 from map' }),
     );
     expect(screen.getByDisplayValue('North Loop 1')).toBeDefined();
 
@@ -500,10 +508,10 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByDisplayValue('North Loop Renamed')).toBeDefined();
 
     expect(
-      screen.getByRole('button', { name: 'Create Request' }),
+      screen.getByRole('button', { name: 'Create request' }),
     ).toBeDefined();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create request' }));
 
     await waitFor(() => {
       expect(mockCreateMapFeatures).toHaveBeenCalledWith({
@@ -528,6 +536,7 @@ describe('SpatialSubmissionSection', () => {
               section_id: 'River Way South',
             },
             sectionId: 'River Way South',
+            featureAreaHectares: 1.1,
           },
           {
             geometry: {
@@ -543,14 +552,15 @@ describe('SpatialSubmissionSection', () => {
               section_id: 'North Loop Renamed',
             },
             sectionId: 'North Loop Renamed',
+            featureAreaHectares: 2.2,
           },
         ],
       });
     });
 
-    expect(screen.getByLabelText('Spatial File')).toBeDisabled();
+    expect(screen.getByLabelText('Spatial file')).toBeDisabled();
     expect(screen.getByText('Validate')).toBeDisabled();
-    expect(screen.getByText('Create Request')).toBeDisabled();
+    expect(screen.getByText('Create request')).toBeDisabled();
 
     expect(screen.getByTestId('spatial-editor-map')).toBeDefined();
   });
@@ -610,14 +620,14 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Feature type'), {
       target: { value: 'LineString' },
     });
-    fireEvent.change(screen.getByLabelText('Email Address'), {
+    fireEvent.change(screen.getByLabelText('Email address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Submitter Name'), {
+    fireEvent.change(screen.getByLabelText('Submitter name'), {
       target: { value: 'Valid User' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -635,7 +645,7 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByTestId('selected-feature-index')).toHaveTextContent('0');
 
     fireEvent.click(
-      screen.getByRole('button', { name: /North Loop 1.*Feature #2/i }),
+      screen.getByRole('button', { name: 'Select feature 2 from map' }),
     );
     expect(screen.getByDisplayValue('North Loop 1')).toBeDefined();
 
@@ -651,10 +661,10 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByDisplayValue('North Loop Renamed')).toBeDefined();
 
     expect(
-      screen.getByRole('button', { name: 'Create Request' }),
+      screen.getByRole('button', { name: 'Create request' }),
     ).toBeDefined();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create request' }));
 
     await waitFor(() => {
       expect(mockUpdateMapFeatures).toHaveBeenCalled();
@@ -673,7 +683,7 @@ describe('SpatialSubmissionSection', () => {
       />,
     );
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission-one.shp', {
       type: 'application/octet-stream',
     });
@@ -686,6 +696,134 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(fileInput, { target: { files: [replacementShpFile] } });
 
     expect(fileInput.files?.[0]?.name).toBe('submission-two.shp');
+  });
+
+  it('clears and removes selected files from the upload list', () => {
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode="SIT"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
+      />,
+    );
+
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    const dbfFile = new File(['dbf-content'], 'submission.dbf', {
+      type: 'application/octet-stream',
+    });
+
+    fireEvent.change(fileInput, { target: { files: [shpFile, dbfFile] } });
+    expect(screen.getByText('submission.shp')).toBeDefined();
+    expect(screen.getByText('submission.dbf')).toBeDefined();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Remove submission.dbf' }),
+    );
+    expect(screen.queryByText('submission.dbf')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear all' }));
+    expect(screen.queryByText('submission.shp')).toBeNull();
+  });
+
+  it('creates edit payload grouped by NEW, AMEND, and RETIRE actions', async () => {
+    mockReadSpatialFile.mockResolvedValueOnce({
+      type: 'FeatureCollection',
+      crs: { type: 'name', properties: { name: 'EPSG:3005' } },
+      features: [
+        {
+          type: 'Feature',
+          properties: {
+            OBJECTID: 1,
+            DISTRICT: 'DNC',
+            section_id: 'River Way South',
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [1210000, 475000],
+              [1215000, 480000],
+            ],
+          },
+        },
+        {
+          type: 'Feature',
+          properties: {
+            OBJECTID: 2,
+            DISTRICT: 'DNC',
+            section_id: 'North Loop 1',
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [1216000, 475000],
+              [1220000, 480000],
+            ],
+          },
+        },
+      ],
+    } as any);
+
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode="SIT"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
+        editMode={true}
+        existingSectionIds={['River Way South', 'North Loop 1']}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/recreation type/i), {
+      target: { value: 'RTE' },
+    });
+    fireEvent.change(screen.getByLabelText('Feature type'), {
+      target: { value: 'LineString' },
+    });
+
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    fireEvent.change(fileInput, { target: { files: [shpFile] } });
+
+    fireEvent.click(screen.getByText('Validate'));
+    await waitFor(() => {
+      expect(
+        screen.getByText('Spatial file validated successfully.'),
+      ).toBeDefined();
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Select feature 2 from map' }),
+    );
+    fireEvent.change(
+      screen.getByLabelText('Select action for the selected feature'),
+      {
+        target: { value: 'RETIRE' },
+      },
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /create request/i }));
+
+    await waitFor(() => {
+      expect(mockUpdateMapFeatures).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recResourceId: 'REC123',
+          newFeatures: [],
+          amendedFeatures: [
+            expect.objectContaining({ sectionId: 'River Way South' }),
+          ],
+          retiredFeatures: [
+            expect.objectContaining({ sectionId: 'North Loop 1' }),
+          ],
+        }),
+      );
+    });
   });
 
   it('shows feature-type validation message when geometry does not match selection', async () => {
@@ -701,14 +839,14 @@ describe('SpatialSubmissionSection', () => {
     fireEvent.change(screen.getByLabelText('Feature type'), {
       target: { value: 'LineString' },
     });
-    fireEvent.change(screen.getByLabelText('Email Address'), {
+    fireEvent.change(screen.getByLabelText('Email address'), {
       target: { value: 'valid@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Submitter Name'), {
+    fireEvent.change(screen.getByLabelText('Submitter name'), {
       target: { value: 'Valid User' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const file = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -735,7 +873,7 @@ describe('SpatialSubmissionSection', () => {
       />,
     );
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -750,7 +888,7 @@ describe('SpatialSubmissionSection', () => {
     });
 
     const createRequestButton = screen.getByRole('button', {
-      name: 'Create Request',
+      name: 'Create request',
     });
     expect(createRequestButton).toBeDisabled();
 
@@ -773,7 +911,7 @@ describe('SpatialSubmissionSection', () => {
       />,
     );
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const dbfFile = new File(['dbf-content'], 'submission.dbf', {
       type: 'application/octet-stream',
     });
@@ -804,7 +942,7 @@ describe('SpatialSubmissionSection', () => {
       target: { value: 'Polygon' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -840,7 +978,7 @@ describe('SpatialSubmissionSection', () => {
       target: { value: 'Polygon' },
     });
 
-    const fileInput = screen.getByLabelText('Spatial File') as HTMLInputElement;
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
     const shpFile = new File(['shp-content'], 'submission.shp', {
       type: 'application/octet-stream',
     });
@@ -853,13 +991,76 @@ describe('SpatialSubmissionSection', () => {
       ).toBeDefined();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create request' }));
 
     await waitFor(() => {
       expect(
         screen.getByText(/Unable to create request: Service unavailable/),
       ).toBeDefined();
     });
+  });
+
+  it('calls onCancel after successful request creation when callback is provided', async () => {
+    const onCancel = vi.fn();
+
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode="RTE"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
+        onCancel={onCancel}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText('Feature type'), {
+      target: { value: 'Polygon' },
+    });
+
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    fireEvent.change(fileInput, { target: { files: [shpFile] } });
+
+    fireEvent.click(screen.getByText('Validate'));
+    await waitFor(() => {
+      expect(
+        screen.getByText('Spatial file validated successfully.'),
+      ).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /create request/i }));
+
+    await waitFor(() => {
+      expect(onCancel).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('dismisses district options warning when loading options fails', () => {
+    mockUseGetRecreationResourceOptions.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: true,
+      error: new Error('failed to fetch'),
+      refetch: vi.fn(),
+    } as any);
+
+    render(<SpatialSubmissionSection recResourceId="REC123" />);
+
+    expect(
+      screen.getByText(
+        'Unable to load district/type options. Please refresh and try again.',
+      ),
+    ).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close alert' }));
+
+    expect(
+      screen.queryByText(
+        'Unable to load district/type options. Please refresh and try again.',
+      ),
+    ).toBeNull();
   });
 
   it('requests only resource type options when using compact geospatial form', () => {
@@ -873,8 +1074,8 @@ describe('SpatialSubmissionSection', () => {
     expect(mockUseGetRecreationResourceOptions).toHaveBeenCalledWith([
       GetOptionsByTypesTypesEnum.ResourceType,
     ]);
-    expect(screen.queryByLabelText('Natural Resource District')).toBeNull();
-    expect(screen.queryByLabelText('Recreation District')).toBeNull();
+    expect(screen.queryByLabelText('Natural resource district')).toBeNull();
+    expect(screen.queryByLabelText('Recreation district')).toBeNull();
   });
 
   it('renders embedded heading and cancel handler when provided', () => {

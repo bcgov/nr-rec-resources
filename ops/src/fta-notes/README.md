@@ -5,7 +5,7 @@ One-time import of historical notes from the FTA CSV extracts.
 ## Prerequisites
 
 - Node.js v18+
-- A database migrated to at least `V1.1.98`
+- A database migrated to at least `V1.1.101`
 - The two CSV extracts. They are not committed to this repo
 
 ```bash
@@ -82,7 +82,7 @@ be partly populated.
 Source descriptions come from `rst.recreation_file_source_code`.
 
 Escaping and date conversion happen in the database, through
-`rst.fta_note_to_html` and `rst.fta_note_pivot_date` from migration `V1.1.98`.
+`rst.fta_note_to_html` and `rst.fta_note_pivot_date` from migration `V1.1.101`.
 
 ### A note on date formats
 

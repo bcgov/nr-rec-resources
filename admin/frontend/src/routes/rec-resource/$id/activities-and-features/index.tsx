@@ -1,17 +1,17 @@
 import { RoleRouteGuard } from '@/components/auth';
+import { ROLES } from '@/hooks/useAuthorizations';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { RecResourceActivitiesFeaturesEditPage } from '@/pages/rec-resource-page/RecResourceActivitiesFeaturesEditPage';
+import { RecResourceActivitiesFeaturesPage } from '@/pages/rec-resource-page/RecResourceActivitiesFeaturesPage';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
 import { recResourceActivitiesFeaturesLoader } from '@/services/loaders/recResourceActivitiesFeaturesLoader';
-import { ROLES } from '@/hooks/useAuthorizations';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { createFileRoute } from '@tanstack/react-router';
 import { ROUTE_PATHS } from '@/constants/routes';
 
 export const Route = createFileRoute(
-  '/rec-resource/$id/activities-features/edit',
+  '/rec-resource/$id/activities-and-features/',
 )({
-  component: RecResourceActivitiesFeaturesEditRoute,
+  component: RecResourceActivitiesFeaturesRoute,
   loader: recResourceActivitiesFeaturesLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
@@ -25,18 +25,8 @@ export const Route = createFileRoute(
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Activities & features',
-            href: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES.replace(
-              '$id',
-              params.id,
-            ),
-          },
-          {
-            label: 'Edit',
-            href: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES_EDIT.replace(
-              '$id',
-              params.id,
-            ),
+            label: 'Activities and features',
+            href: `/rec-resource/${params.id}/activities-and-features`,
           },
         ];
       },
@@ -44,18 +34,16 @@ export const Route = createFileRoute(
   },
 });
 
-function RecResourceActivitiesFeaturesEditRoute() {
+function RecResourceActivitiesFeaturesRoute() {
   const { id } = Route.useParams();
 
   return (
     <RoleRouteGuard
-      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
-      redirectTo={ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES.replace(
-        '$id',
-        id,
-      )}
+      requireAll={[ROLES.DEVELOPER]}
+      requireAny={[ROLES.IDIR_VIEWER, ROLES.VIEWER, ROLES.ADMIN]}
+      redirectTo={ROUTE_PATHS.REC_RESOURCE_FILES.replace('$id', id)}
     >
-      <RecResourceActivitiesFeaturesEditPage />
+      <RecResourceActivitiesFeaturesPage />
     </RoleRouteGuard>
   );
 }

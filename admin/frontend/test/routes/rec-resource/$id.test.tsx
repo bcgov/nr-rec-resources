@@ -58,7 +58,7 @@ describe('RecResource $id Route', () => {
 
     expect(breadcrumb).toHaveLength(2);
     expect(breadcrumb[1]).toEqual({
-      label: 'Resource Details',
+      label: 'Resource details',
       href: '/rec-resource/REC123',
     });
   });

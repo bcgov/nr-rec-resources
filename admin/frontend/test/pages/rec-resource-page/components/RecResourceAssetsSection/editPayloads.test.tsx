@@ -24,6 +24,7 @@ describe('Asset DTO Builders', () => {
         longitude: '-123.1',
         latitude: '49.2',
         actual_value: '5000',
+        parent_id: '',
       };
 
       const result = buildAssetUpdateDto(input);
@@ -37,6 +38,7 @@ describe('Asset DTO Builders', () => {
         latitude: 49.2,
         longitude: -123.1,
         geometry_type_code: 'PT',
+        parent_id: null,
       });
     });
 
@@ -51,6 +53,7 @@ describe('Asset DTO Builders', () => {
         longitude: '',
         latitude: '',
         actual_value: '',
+        parent_id: '',
       };
 
       const result = buildAssetUpdateDto(input);
@@ -69,6 +72,7 @@ describe('Asset DTO Builders', () => {
         longitude: 'invalid',
         latitude: 'invalid',
         actual_value: 'invalid',
+        parent_id: '',
       };
 
       const resultNull = buildAssetUpdateDto(inputNull);
@@ -82,6 +86,7 @@ describe('Asset DTO Builders', () => {
         latitude: null,
         longitude: null,
         geometry_type_code: null,
+        parent_id: null,
       });
     });
   });

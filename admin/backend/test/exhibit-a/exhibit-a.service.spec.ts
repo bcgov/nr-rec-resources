@@ -439,7 +439,7 @@ describe('ExhibitAService', () => {
       ])
       .mockResolvedValueOnce([
         {
-          submission_id: 'S1234567',
+          application_guid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
           s3_key: 'REC0001/exhibit-a-S1234567-123.pdf',
           page_size: 'C',
           page_orientation: 'Portrait',
@@ -524,6 +524,7 @@ describe('ExhibitAService', () => {
       raw?: string[];
     };
     expect(metadataSqlFragments.raw?.join(' ')).toContain('regenerate');
+    expect(metadataSqlFragments.raw?.join(' ')).toContain('application_guid');
     expect(metadataSqlFragments.raw?.join(' ')).toContain(
       'DELETE FROM rst.recreation_exhibit_a_doc',
     );

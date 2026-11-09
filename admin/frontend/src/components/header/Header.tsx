@@ -100,13 +100,13 @@ export const Header = () => {
           <>
             <Image
               src="/images/rst-mobile.svg"
-              alt="Recreation Sites and Trails BC Logo"
+              alt="Recreation Sites and Trails BC logo"
               className="d-lg-none d-sm-block header__logo header__logo--mobile"
             />
 
             <Image
               src="/images/RST_nav_logo.svg"
-              alt="Recreation Sites and Trails BC Logo"
+              alt="Recreation Sites and Trails BC logo"
               className="d-none d-lg-block header__logo"
             />
           </>

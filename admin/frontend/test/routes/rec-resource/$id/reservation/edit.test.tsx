@@ -93,7 +93,7 @@ describe('RecResource Reservation Edit Route', () => {
     expect(breadcrumb[0].label).toBe('Home');
     expect(breadcrumb[1].label).toBe('Test Resource');
     expect(breadcrumb[2]).toEqual({
-      label: 'Edit Reservations',
+      label: 'Edit reservations',
       href: '/rec-resource/REC123/reservation/edit',
     });
   });

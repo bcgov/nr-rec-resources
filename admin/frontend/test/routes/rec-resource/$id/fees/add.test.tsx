@@ -20,7 +20,7 @@ vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeesAddSection',
   () => ({
     RecResourceFeesAddSection: () => (
-      <div data-testid="rec-resource-fees-add-section">Add Fee Page</div>
+      <div data-testid="rec-resource-fees-add-section">Add fee Page</div>
     ),
   }),
 );
@@ -50,7 +50,7 @@ describe('RecResource Fees Add Route', () => {
     expect(result.tab).toBe(RecResourceNavKey.FEES);
   });
 
-  it('should generate breadcrumb with Fees and Add Fee labels', () => {
+  it('should generate breadcrumb with Fees and Add fee labels', () => {
     const beforeLoad = Route.options.beforeLoad as any;
     const params = { id: 'REC123' };
     const context = {};
@@ -70,7 +70,7 @@ describe('RecResource Fees Add Route', () => {
       href: '/rec-resource/REC123/fees',
     });
     expect(breadcrumb[3]).toEqual({
-      label: 'Add Fee',
+      label: 'Add fee',
       href: '/rec-resource/REC123/fees/add',
     });
   });

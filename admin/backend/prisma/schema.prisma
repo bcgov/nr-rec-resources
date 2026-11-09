@@ -1203,16 +1203,16 @@ model recreation_exhibit_a_doc {
   created_at                    DateTime?                      @default(now()) @db.Timestamp(6)
   created_by                    String?
   sys_period                    Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  submission_id                 String?                        @db.VarChar(50)
+  application_guid              String?                        @db.Uuid
   page_size                     String?                        @db.VarChar(1)
   page_orientation              String?                        @db.VarChar(20)
   scale                         Int?
   generation_method             String?                        @db.VarChar(20)
-  recreation_spatial_submission recreation_spatial_submission? @relation(fields: [submission_id], references: [submission_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_recreation_exhibit_a_doc_submission_id")
+  recreation_spatial_submission recreation_spatial_submission? @relation(fields: [application_guid], references: [application_guid], onDelete: NoAction, onUpdate: NoAction, map: "fk_recreation_exhibit_a_doc_application_guid")
   recreation_resource           recreation_resource            @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([rec_resource_id], map: "idx_recreation_exhibit_a_doc_rec_resource_id")
-  @@index([submission_id], map: "idx_recreation_exhibit_a_doc_submission_id")
+  @@index([application_guid], map: "idx_recreation_exhibit_a_doc_application_guid")
   @@schema("rst")
 }
 
@@ -1228,7 +1228,7 @@ model recreation_exhibit_a_doc_history {
   created_at        DateTime?                @db.Timestamp(6)
   created_by        String?
   sys_period        Unsupported("tstzrange")
-  submission_id     String?                  @db.VarChar(50)
+  application_guid  String?                  @db.Uuid
   page_size         String?                  @db.VarChar(1)
   page_orientation  String?                  @db.VarChar(20)
   scale             Int?
@@ -1667,7 +1667,7 @@ model recreation_asset_code_history {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_spatial_submission {
   application_guid                 String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  submission_id                    String                         @unique @default(dbgenerated("(nextval('recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)")) @db.VarChar(50)
+  submission_id                    String                         @default(dbgenerated("(nextval('recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)")) @db.VarChar(50)
   tenure_id                        String                         @db.VarChar(20)
   status_request_guid              String?                        @unique @db.VarChar(50)
   status_request_type_code         String                         @db.VarChar(3)

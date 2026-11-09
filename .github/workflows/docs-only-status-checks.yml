@@ -23,6 +23,9 @@ on:
     paths:
       - docs/**
 
+permissions:
+  contents: read
+
 jobs:
   check-docs-only:
     name: Check docs-only

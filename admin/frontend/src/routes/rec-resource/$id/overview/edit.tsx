@@ -18,12 +18,13 @@ export const Route = createFileRoute('/rec-resource/$id/overview/edit')({
     } as any);
     return {
       tab: RecResourceNavKey.OVERVIEW,
+      isEditing: true,
       breadcrumb: (loaderData?: any): BreadcrumbItem[] => {
         if (!parentBeforeLoad?.breadcrumb) return [];
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Edit Overview',
+            label: 'Edit overview',
             href: ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
               '$id',
               params.id,

@@ -5,6 +5,23 @@ import {
 } from '@/utils/coordinateValidation';
 import type { AssetEditFormValues, AssetDeleteMode } from './AssetCardEdit';
 import type { Asset } from './types';
+import { CampsiteGroup } from './campsiteGrouping';
+
+const END_DIGITS_REGEX = /\d+$/;
+
+export const getEndNumberOrString = (text: string | null) => {
+  if (!text) return text;
+  const match = END_DIGITS_REGEX.exec(text);
+  return match?.[0] ?? text;
+};
+
+export const showCampsideNumber = (campsites: CampsiteGroup[], id: number) => {
+  const campsite = campsites.find((c) => c.campsite.asset_id === id);
+  if (campsite?.campsite.asset_name) {
+    return getEndNumberOrString(campsite?.campsite.asset_name);
+  }
+  return;
+};
 
 export function getCoordinateValidationError(values: AssetEditFormValues): {
   message: string;

@@ -35,7 +35,7 @@ vi.mock('@/routes/rec-resource/$id', () => ({
   },
 }));
 
-import { Route } from '@/routes/rec-resource/$id/activities-features/edit';
+import { Route } from '@/routes/rec-resource/$id/activities-and-features/edit';
 import { recResourceActivitiesFeaturesLoader } from '@/services/loaders/recResourceActivitiesFeaturesLoader';
 
 describe('RecResourceActivitiesEditRoute', () => {
@@ -44,7 +44,7 @@ describe('RecResourceActivitiesEditRoute', () => {
   }) => [
     { label: 'Home', href: '/' },
     {
-      label: loaderData?.recResource?.name || 'Resource Details',
+      label: loaderData?.recResource?.name || 'Resource details',
       href: '/rec-resource/test-123',
     },
   ];
@@ -84,7 +84,7 @@ describe('RecResourceActivitiesEditRoute', () => {
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
         requireAll: ['rst-developer', 'rst-admin'],
-        redirectTo: '/rec-resource/test-123/activities-features',
+        redirectTo: '/rec-resource/test-123/activities-and-features',
         children: expect.anything(),
       }),
     );
@@ -119,7 +119,7 @@ describe('RecResourceActivitiesEditRoute', () => {
     }
   });
 
-  it('should generate complete breadcrumb with parent items and append Activities & features/Edit', () => {
+  it('should generate complete breadcrumb with parent items and append Activities and features/Edit', () => {
     const breadcrumb = callBeforeLoad().breadcrumb({
       recResource: { name: 'Test Resource' },
     });
@@ -128,16 +128,16 @@ describe('RecResourceActivitiesEditRoute', () => {
       { label: 'Home', href: '/' },
       { label: 'Test Resource', href: '/rec-resource/test-123' },
       {
-        label: 'Activities & features',
-        href: '/rec-resource/test-123/activities-features',
+        label: 'Activities and features',
+        href: '/rec-resource/test-123/activities-and-features',
       },
       {
         label: 'Edit',
-        href: '/rec-resource/test-123/activities-features/edit',
+        href: '/rec-resource/test-123/activities-and-features/edit',
       },
     ]);
     expect(breadcrumb.slice(-2).map((b: { label: string }) => b.label)).toEqual(
-      ['Activities & features', 'Edit'],
+      ['Activities and features', 'Edit'],
     );
   });
 
@@ -149,7 +149,7 @@ describe('RecResourceActivitiesEditRoute', () => {
   ])('should handle breadcrumb with %s loaderData', (_, loaderData) => {
     const breadcrumb = callBeforeLoad().breadcrumb(loaderData);
     expect(breadcrumb).toHaveLength(4);
-    expect(breadcrumb[1]!.label).toBe('Resource Details');
+    expect(breadcrumb[1]!.label).toBe('Resource details');
   });
 
   it('should use params.id from beforeLoad and handle multiple calls', () => {
@@ -179,10 +179,10 @@ describe('RecResourceActivitiesEditRoute', () => {
     expect(breadcrumb1[1]!.label).toBe('Resource 1');
     expect(breadcrumb2[1]!.label).toBe('Resource 2');
     expect(breadcrumb1[2]!.href).toBe(
-      '/rec-resource/REC0001/activities-features',
+      '/rec-resource/REC0001/activities-and-features',
     );
     expect(breadcrumb2[3]!.href).toBe(
-      '/rec-resource/REC0001/activities-features/edit',
+      '/rec-resource/REC0001/activities-and-features/edit',
     );
   });
 });

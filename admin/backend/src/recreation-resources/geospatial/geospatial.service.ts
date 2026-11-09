@@ -73,6 +73,10 @@ type FeatureRequestElement = {
   featureRecordGuid: string;
   featureGeometryTypeCode: 'polygon' | 'line';
   mapFeatureTypeCode: string;
+  featureName?: string | null;
+  featureBusinessIdentifier?: string | null;
+  featurePurposeCode?: 'N' | 'A' | 'R' | null;
+  sourceSectionId?: string;
 } & (
   | { featureGeometryTypeCode: 'polygon'; polygon: Record<string, unknown> }
   | { featureGeometryTypeCode: 'line'; line: Record<string, unknown> }
@@ -690,6 +694,7 @@ export class GeospatialService {
         amendment_id =  ${(amendment_id ?? 0) + 1},
         amend_status_date = now(),
         recreation_resource_type = ${recreation_type_code || null},
+        recreation_map_feature_guid = ${randomUUID()},
         retirement_date = null,
         updated_by = ${submitted_by || null},
         amend_status_code = ${'PND'}
@@ -760,6 +765,7 @@ export class GeospatialService {
       UPDATE rst.recreation_map_feature
       SET
         retirement_date = now(),
+        recreation_map_feature_guid = ${randomUUID()},
         updated_by = ${submitted_by || null},
         amend_status_code = ${'PND'}
       WHERE rmf_skey = ${rmfSkey}
@@ -946,6 +952,7 @@ export class GeospatialService {
         section_id: string | null;
         recreation_map_feature_guid: string | null;
         recreation_resource_type: string | null;
+        recreation_resource_type_description: string | null;
         geometry_type_code: string | null;
         geometry_json: string | null;
       }[]
@@ -954,6 +961,7 @@ export class GeospatialService {
         rmf.section_id,
         rmf.recreation_map_feature_guid,
         rmf.recreation_resource_type,
+        rrtc.description AS recreation_resource_type_description,
         rmfg.geometry_type_code,
         public.ST_AsGeoJSON(
           CASE
@@ -965,6 +973,8 @@ export class GeospatialService {
       FROM rst.recreation_map_feature rmf
       INNER JOIN rst.recreation_map_feature_geom rmfg
         ON rmfg.rmf_skey = rmf.rmf_skey
+      LEFT JOIN rst.recreation_resource_type_code rrtc
+        ON rrtc.rec_resource_type_code = rmf.recreation_resource_type
       WHERE rmf.rec_resource_id = ${recResourceId}
         AND rmf.section_id IN (${Prisma.join(sectionIds)})
     `);
@@ -1028,6 +1038,9 @@ export class GeospatialService {
           featureRecordGuid,
           featureGeometryTypeCode: 'polygon',
           mapFeatureTypeCode: row?.recreation_resource_type || '',
+          featureName:
+            row?.recreation_resource_type_description?.trim() || null,
+          sourceSectionId: entry.sectionId,
           polygon: geometryPayload,
         });
       } else {
@@ -1045,6 +1058,9 @@ export class GeospatialService {
             featureRecordGuid: randomUUID(),
             featureGeometryTypeCode: 'line',
             mapFeatureTypeCode: row?.recreation_resource_type || '',
+            featureName:
+              row?.recreation_resource_type_description?.trim() || null,
+            sourceSectionId: entry.sectionId,
             line: this.buildFeatureGeoJson(lineString),
           });
         });
@@ -1055,6 +1071,7 @@ export class GeospatialService {
   }
 
   private async dispatchSncscStatusRequest(
+    tx: Prisma.TransactionClient,
     submission: CreatedSpatialSubmission,
     entries: FlatGeometryEntry[],
   ): Promise<void> {
@@ -1066,7 +1083,7 @@ export class GeospatialService {
       submission.org_unit_code,
     );
     const featureRequests = await this.buildFeatureRequestElements(
-      this.prisma,
+      tx,
       submission.tenure_id,
       entries,
     );
@@ -1074,6 +1091,21 @@ export class GeospatialService {
     this.logger.log(
       `Prepared ${featureRequests.length} SNCSC feature request element(s) for submission_id: ${submission.submission_id}`,
     );
+
+    const featureRequestsPayload = featureRequests.map((featureRequest) => {
+      const { sourceSectionId, ...baseElement } = featureRequest;
+
+      if (submission.purpose_code !== 'N') {
+        return baseElement;
+      }
+
+      return {
+        ...baseElement,
+        featureBusinessIdentifier:
+          `${submission.tenure_id} SEC ${sourceSectionId?.trim() || ''}`.trim(),
+        featurePurposeCode: 'N' as const,
+      };
+    });
 
     const payload: Record<string, unknown> = {
       '@type': 'StatusRequestResource',
@@ -1092,7 +1124,7 @@ export class GeospatialService {
       bctsSubmissionInd: 'N',
       featureRequests: {
         '@type': 'FeatureRequestResources',
-        elements: featureRequests,
+        elements: featureRequestsPayload,
       },
     };
 
@@ -1103,7 +1135,7 @@ export class GeospatialService {
         await this.sncscStatusRequestService.createStatusRequest(payload);
 
       if (statusRequestGuid) {
-        await this.prisma.recreation_spatial_submission.update({
+        await tx.recreation_spatial_submission.update({
           where: { application_guid: submission.application_guid },
           data: {
             status_request_guid: statusRequestGuid,
@@ -1242,11 +1274,11 @@ export class GeospatialService {
           },
         });
       } catch (error) {
-        if (
-          this.isSubmissionIdUniqueConflict(error) &&
-          attempt < maxAttempts - 1
-        ) {
-          continue;
+        if (this.isSubmissionIdUniqueConflict(error)) {
+          if (attempt < maxAttempts - 1) {
+            continue;
+          }
+          break;
         }
         throw error;
       }
@@ -1269,10 +1301,7 @@ export class GeospatialService {
     const amendedFeatures = payload.amendedFeatures ?? [];
     const retiredFeatures = payload.retiredFeatures ?? [];
 
-    const pendingStatusRequest: {
-      submission: CreatedSpatialSubmission;
-      entries: FlatGeometryEntry[];
-    } | null = await this.prisma.$transaction(
+    await this.prisma.$transaction(
       async (tx) => {
         await tx.$executeRawUnsafe(
           "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
@@ -1477,27 +1506,19 @@ export class GeospatialService {
           });
 
           if (createdSubmission) {
-            return {
-              submission: createdSubmission,
-              entries: allSubmissionEntries,
-            };
+            await this.dispatchSncscStatusRequest(
+              tx,
+              createdSubmission,
+              allSubmissionEntries,
+            );
           }
         }
-
-        return null;
       },
       {
         timeout: INTERACTIVE_TRANSACTION_TIMEOUT_MS,
         maxWait: INTERACTIVE_TRANSACTION_MAX_WAIT_MS,
       },
     );
-
-    if (pendingStatusRequest) {
-      await this.dispatchSncscStatusRequest(
-        pendingStatusRequest.submission,
-        pendingStatusRequest.entries,
-      );
-    }
   }
 
   /**
@@ -1518,10 +1539,7 @@ export class GeospatialService {
       `Creating ${payload.features.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
     );
 
-    const pendingStatusRequest: {
-      submission: CreatedSpatialSubmission;
-      entries: FlatGeometryEntry[];
-    } | null = await this.prisma.$transaction(
+    await this.prisma.$transaction(
       async (tx) => {
         await tx.$executeRawUnsafe(
           "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
@@ -1673,26 +1691,18 @@ export class GeospatialService {
         });
 
         if (createdSubmission) {
-          return {
-            submission: createdSubmission,
-            entries: flattenedEntries,
-          };
+          await this.dispatchSncscStatusRequest(
+            tx,
+            createdSubmission,
+            flattenedEntries,
+          );
         }
-
-        return null;
       },
       {
         timeout: INTERACTIVE_TRANSACTION_TIMEOUT_MS,
         maxWait: INTERACTIVE_TRANSACTION_MAX_WAIT_MS,
       },
     );
-
-    if (pendingStatusRequest) {
-      await this.dispatchSncscStatusRequest(
-        pendingStatusRequest.submission,
-        pendingStatusRequest.entries,
-      );
-    }
   }
 
   /**

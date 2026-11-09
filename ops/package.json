@@ -5,6 +5,7 @@
   "scripts": {
     "sync-advisories": "tsx src/advisories/sync-advisories.ts",
     "export-closed-resources": "tsx src/closures/export-closed-resources.ts",
+    "sync-exhibit-a-docs": "tsx src/exhibit-a/sync-exhibit-a-docs.ts",
     "import-fta-notes": "tsx src/fta-notes/import-fta-notes.ts"
   },
   "dependencies": {

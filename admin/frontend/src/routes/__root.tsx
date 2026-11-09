@@ -1,6 +1,7 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { createRootRoute, Outlet, useMatches } from '@tanstack/react-router';
 import { Header, NotificationBar } from '@/components';
 import { ViewOnlyBanner } from '@/components/auth';
+import { EditModeBanner } from '@/components/edit-mode-banner';
 import { Sidebar } from '@/components/sidebar/Sidebar';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
 
@@ -15,11 +16,17 @@ function RootComponent() {
   // twice simultaneously, which breaks components relying on a single
   // DOM identity, like the recreation resource map.
   const isDesktop = useIsDesktop();
+  // edit routes set isEditing in their beforeLoad context
+  const isEditing = useMatches({
+    select: (matches) =>
+      Boolean((matches[matches.length - 1]?.context as any)?.isEditing),
+  });
 
   if (isDesktop) {
     return (
       <div className="d-none d-md-flex flex-column vh-100 overflow-hidden bg-light">
         <Header />
+        {isEditing && <EditModeBanner />}
         <ViewOnlyBanner />
         <NotificationBar />
         <div className="d-flex flex-grow-1 overflow-hidden">
@@ -35,6 +42,7 @@ function RootComponent() {
   return (
     <div className="d-block d-md-none">
       <Header />
+      {isEditing && <EditModeBanner />}
       <ViewOnlyBanner />
       <NotificationBar />
       <main id="main-content">
