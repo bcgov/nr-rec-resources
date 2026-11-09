@@ -5,6 +5,7 @@ import OLMap from 'ol/Map';
 import Cookies from 'js-cookie';
 import { useStore } from '@tanstack/react-store';
 import { VectorFeatureMap } from '@bcgov/prp-map';
+import AlertBanner from '@/components/layout/AlertBanner';
 import Header from '@/components/layout/Header';
 import { SearchViewControls } from '@/components/search';
 import {
@@ -409,6 +410,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
         isOpen={isDisclaimerModalOpen}
         setIsOpen={setIsDisclaimerModalOpen}
       />
+      <AlertBanner />
       <Header />
       <div className="w-100 flex-fill position-relative">
         <LoadingOverlay
@@ -468,78 +470,78 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             </button>
           </div>
         )}
-      </div>
-      <div className="search-map-controls">
-        <div className="map-search-form">
-          <RecreationSuggestionForm
-            disableNavigation={true}
-            searchBtnVariant="secondary"
-            trackingContext={MATOMO_SEARCH_CONTEXT_MAP}
+        <div className="search-map-controls">
+          <div className="map-search-form">
+            <RecreationSuggestionForm
+              disableNavigation={true}
+              searchBtnVariant="secondary"
+              trackingContext={MATOMO_SEARCH_CONTEXT_MAP}
+            />
+            <Button
+              variant={isFilterMenuOpen ? 'primary' : 'secondary'}
+              className="filter-btn d-sm-none d-md-block"
+              onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+              aria-label="Toggle filter menu desktop"
+            >
+              <FilterButtonLabel selectedFilterCount={selectedFilterCount} />
+            </Button>
+          </div>
+          <div className="d-flex flex-col flex-lg-row align-items-center gap-2">
+            <Button
+              variant={isFilterMenuOpen ? 'primary' : 'secondary'}
+              className="search-chip d-sm-block d-md-none"
+              onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+              aria-label="Toggle filter menu mobile"
+            >
+              <FontAwesomeIcon icon={faSliders} className="me-2" />
+              <FilterButtonLabel selectedFilterCount={selectedFilterCount} />
+            </Button>
+            <SearchViewControls variant="list" />
+            <MapLayersPanel
+              layers={[
+                {
+                  id: 'fire-evacuation',
+                  label: 'Evacuation Orders & Alerts',
+                  legendItems: [
+                    { colour: EVACUATION_ORDER_COLOUR, label: 'Order' },
+                    {
+                      colour: EVACUATION_TACTICAL_COLOUR,
+                      label: 'Tactical Evacuation',
+                    },
+                    { colour: EVACUATION_ALERT_COLOUR, label: 'Alert' },
+                  ],
+                  enabled: isFireEvacuationEnabled,
+                  onToggle: setIsFireEvacuationEnabled,
+                },
+                {
+                  id: 'wildfire-area-restrictions',
+                  label: 'BC Area Restrictions',
+                  legendHatch: true,
+                  enabled: isWildfireAreaRestrictionEnabled,
+                  onToggle: setIsWildfireAreaRestrictionEnabled,
+                },
+                {
+                  id: 'wildfire-perimeters',
+                  label: 'BC Wildfire Perimeters',
+                  legendOutlineColour: WILDFIRE_PERIMETER_COLOUR,
+                  enabled: isWildfirePerimeterEnabled,
+                  onToggle: setIsWildfirePerimeterEnabled,
+                },
+                {
+                  id: 'wildfire-locations',
+                  label: 'BC Wildfire Locations',
+                  legendColour: WILDFIRE_LOCATION_COLOUR,
+                  enabled: isWildfireLocationEnabled,
+                  onToggle: setIsWildfireLocationEnabled,
+                },
+              ]}
+            />
+          </div>
+          <FilterMenuSearchMap
+            isOpen={isFilterMenuOpen}
+            setIsOpen={setIsFilterMenuOpen}
           />
-          <Button
-            variant={isFilterMenuOpen ? 'primary' : 'secondary'}
-            className="filter-btn d-sm-none d-md-block"
-            onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-            aria-label="Toggle filter menu desktop"
-          >
-            <FilterButtonLabel selectedFilterCount={selectedFilterCount} />
-          </Button>
         </div>
-        <div className="d-flex flex-col flex-lg-row align-items-center gap-2">
-          <Button
-            variant={isFilterMenuOpen ? 'primary' : 'secondary'}
-            className="search-chip d-sm-block d-md-none"
-            onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-            aria-label="Toggle filter menu mobile"
-          >
-            <FontAwesomeIcon icon={faSliders} className="me-2" />
-            <FilterButtonLabel selectedFilterCount={selectedFilterCount} />
-          </Button>
-          <SearchViewControls variant="list" />
-          <MapLayersPanel
-            layers={[
-              {
-                id: 'fire-evacuation',
-                label: 'Evacuation Orders & Alerts',
-                legendItems: [
-                  { colour: EVACUATION_ORDER_COLOUR, label: 'Order' },
-                  {
-                    colour: EVACUATION_TACTICAL_COLOUR,
-                    label: 'Tactical Evacuation',
-                  },
-                  { colour: EVACUATION_ALERT_COLOUR, label: 'Alert' },
-                ],
-                enabled: isFireEvacuationEnabled,
-                onToggle: setIsFireEvacuationEnabled,
-              },
-              {
-                id: 'wildfire-area-restrictions',
-                label: 'BC Area Restrictions',
-                legendHatch: true,
-                enabled: isWildfireAreaRestrictionEnabled,
-                onToggle: setIsWildfireAreaRestrictionEnabled,
-              },
-              {
-                id: 'wildfire-perimeters',
-                label: 'BC Wildfire Perimeters',
-                legendOutlineColour: WILDFIRE_PERIMETER_COLOUR,
-                enabled: isWildfirePerimeterEnabled,
-                onToggle: setIsWildfirePerimeterEnabled,
-              },
-              {
-                id: 'wildfire-locations',
-                label: 'BC Wildfire Locations',
-                legendColour: WILDFIRE_LOCATION_COLOUR,
-                enabled: isWildfireLocationEnabled,
-                onToggle: setIsWildfireLocationEnabled,
-              },
-            ]}
-          />
-        </div>
-        <FilterMenuSearchMap
-          isOpen={isFilterMenuOpen}
-          setIsOpen={setIsFilterMenuOpen}
-        />
       </div>
       <div
         ref={popupRef}
