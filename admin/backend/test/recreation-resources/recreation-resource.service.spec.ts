@@ -5,7 +5,10 @@ import { UpdateRecreationResourceDto } from '@/recreation-resources/dtos/update-
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { RecreationResourceService } from '@/recreation-resources/recreation-resource.service';
 import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
-import { NotFoundException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('RecreationResourceService', () => {
@@ -20,6 +23,7 @@ describe('RecreationResourceService', () => {
       findSuggestions: vi.fn(),
       getNextRecResourceId: vi.fn(),
       findPendingMapFeatureRequests: vi.fn(),
+      findMapFeatureRequestsByRecResourceId: vi.fn(),
     } as unknown as RecreationResourceRepository;
     prisma = {
       recreation_resource: {
@@ -326,6 +330,47 @@ describe('RecreationResourceService', () => {
     expect(result.data[0]).not.toHaveProperty('adjudication_report');
   });
 
+  it('should return map feature requests for a specific recreation resource id', async () => {
+    (repo.findMapFeatureRequestsByRecResourceId as any).mockResolvedValue([
+      {
+        rec_resource_id: 'REC500005',
+        name: 'Pending Site 2',
+        district_description: 'Test District',
+        recreation_district: 'Test District',
+        natural_resource_district: 'Natural District',
+        recreation_type: 'Trail',
+        amend_status_code: 'PND',
+        feature_count: 1,
+        requested_at: new Date('2026-09-24T12:00:00.000Z'),
+        geometry_types: ['LineString'],
+      },
+    ]);
+
+    const result =
+      await service.getMapFeatureRequestsByRecResourceId('REC500005');
+
+    expect(repo.findMapFeatureRequestsByRecResourceId).toHaveBeenCalledWith(
+      'REC500005',
+    );
+    expect(result).toEqual({
+      data: [
+        {
+          rec_resource_id: 'REC500005',
+          name: 'Pending Site 2',
+          district_description: 'Test District',
+          recreation_district: 'Test District',
+          natural_resource_district: 'Natural District',
+          recreation_type: 'Trail',
+          amend_status_code: 'PND',
+          feature_count: 1,
+          requested_at: '2026-09-24T12:00:00.000Z',
+          geometry_types: ['LineString'],
+        },
+      ],
+      total: 1,
+    });
+  });
+
   it('should fetch adjudication report content for an application guid', async () => {
     (prisma.recreation_spatial_submission.findUnique as any).mockResolvedValue({
       adjudication_report_document_uri:
@@ -366,6 +411,19 @@ describe('RecreationResourceService', () => {
     await expect(
       service.getPendingRequestAdjudicationReport('app-guid-123'),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it('should throw InternalServerErrorException when SNCSC service is unavailable', async () => {
+    (prisma.recreation_spatial_submission.findUnique as any).mockResolvedValue({
+      adjudication_report_document_uri:
+        'https://sncsc.example.com/documents/abc',
+    });
+
+    const serviceWithoutSncsc = new RecreationResourceService(repo, prisma);
+
+    await expect(
+      serviceWithoutSncsc.getPendingRequestAdjudicationReport('app-guid-123'),
+    ).rejects.toThrow(InternalServerErrorException);
   });
 
   it('should map admin search results into response DTO shape', async () => {
