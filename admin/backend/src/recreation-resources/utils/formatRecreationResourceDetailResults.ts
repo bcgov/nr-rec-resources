@@ -46,6 +46,7 @@ export function formatRecreationResourceDetailResults(
   return {
     rec_resource_id: result.rec_resource_id,
     name: result.name ?? '',
+    updated_at: result.updated_at ?? undefined,
     closest_community: result.closest_community ?? '',
     description: result.recreation_site_description?.description ?? undefined,
     driving_directions:

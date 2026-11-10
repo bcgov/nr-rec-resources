@@ -139,6 +139,7 @@ export const RecResourceOverviewSection = (
                     '$id',
                     recResource.rec_resource_id,
                   ),
+                  hash: 'spatial-submissions',
                 })
               }
             >
