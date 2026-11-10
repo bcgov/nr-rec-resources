@@ -10,6 +10,7 @@ export const fileDetailsDataset: ExportDatasetBuilder = {
         Prisma.sql`rrtva.rec_resource_type_code`,
         Prisma.sql`rrtva.description`,
       )} AS "RESOURCE_TYPE",
+      usr.description AS "USER_DAYS",
       COALESCE(geometry_totals.total_area, '0') AS "TOTAL_AREA",
       CASE
         WHEN rr.right_of_way IS NOT NULL
@@ -34,6 +35,7 @@ export const fileDetailsDataset: ExportDatasetBuilder = {
       ${sql.formatTimestamp(Prisma.sql`rr.updated_at`)} AS "UPDATED_AT"
     FROM recreation_resource rr
     ${sql.sharedJoins}
+    LEFT JOIN recreation_resource_user_days_code usr ON usr.recreation_resource_user_days_code = rr.recreation_user_days_code
     WHERE ${sql.rstFilters}
     ORDER BY rr.rec_resource_id
   `,

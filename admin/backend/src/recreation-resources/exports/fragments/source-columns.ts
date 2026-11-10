@@ -20,7 +20,6 @@ export function rstPrimaryColumns(): Prisma.Sql {
       Prisma.sql`rr.district_code`,
       Prisma.sql`rdc_rst.description`,
     )} AS "DISTRICT",
-    rr.recreation_user_days_code AS "USER_DAYS",
     ${describeCode(
       Prisma.sql`rr.rec_status_code`,
       Prisma.sql`rrsc_rst.description`,
