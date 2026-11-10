@@ -46,6 +46,7 @@ describe('rec-resource-page constants', () => {
         'geospatial',
         'reservation',
         'fees',
+        'notes',
       ]);
     });
   });
