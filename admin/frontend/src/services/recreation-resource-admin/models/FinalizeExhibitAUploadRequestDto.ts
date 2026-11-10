@@ -20,7 +20,13 @@ import { mapValues } from '../runtime';
  */
 export interface FinalizeExhibitAUploadRequestDto {
   /**
-   * Spatial submission ID to associate this document with
+   * Spatial submission application GUID to associate this document with
+   * @type {string}
+   * @memberof FinalizeExhibitAUploadRequestDto
+   */
+  application_guid?: string | null;
+  /**
+   * Spatial submission ID to associate this document with (deprecated; use application_guid)
    * @type {string}
    * @memberof FinalizeExhibitAUploadRequestDto
    */
@@ -79,6 +85,8 @@ export function FinalizeExhibitAUploadRequestDtoFromJSONTyped(
     return json;
   }
   return {
+    application_guid:
+      json['application_guid'] == null ? undefined : json['application_guid'],
     submission_id:
       json['submission_id'] == null ? undefined : json['submission_id'],
     document_id: json['document_id'],
@@ -103,6 +111,7 @@ export function FinalizeExhibitAUploadRequestDtoToJSONTyped(
   }
 
   return {
+    application_guid: value['application_guid'],
     submission_id: value['submission_id'],
     document_id: value['document_id'],
     file_name: value['file_name'],
