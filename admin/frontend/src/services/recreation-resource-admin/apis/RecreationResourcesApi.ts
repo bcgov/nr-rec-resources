@@ -279,6 +279,10 @@ export interface GetPendingRequestAdjudicationReportRequest {
   applicationGuid: string;
 }
 
+export interface GetMapFeatureRequestsByRecResourceIdRequest {
+  recResourceId: string;
+}
+
 export interface GetRecreationResourceAdvisoriesRequest {
   recResourceId: string;
 }
@@ -2504,6 +2508,68 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<PendingMapFeatureRequestsResponseDto> {
     const response = await this.getPendingMapFeatureRequestsRaw(initOverrides);
+    return await response.value();
+  }
+
+  /**
+   * Get spatial submissions for a recreation resource
+   */
+  async getMapFeatureRequestsByRecResourceIdRaw(
+    requestParameters: GetMapFeatureRequestsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<PendingMapFeatureRequestsResponseDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getMapFeatureRequestsByRecResourceId().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/recreation-resources/{rec_resource_id}/spatial-submissions`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      PendingMapFeatureRequestsResponseDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Get spatial submissions for a recreation resource
+   */
+  async getMapFeatureRequestsByRecResourceId(
+    requestParameters: GetMapFeatureRequestsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<PendingMapFeatureRequestsResponseDto> {
+    const response = await this.getMapFeatureRequestsByRecResourceIdRaw(
+      requestParameters,
+      initOverrides,
+    );
     return await response.value();
   }
 

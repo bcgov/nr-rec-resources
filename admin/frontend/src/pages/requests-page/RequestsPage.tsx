@@ -8,6 +8,8 @@ import { Alert, Form, Pagination, Spinner, Stack } from 'react-bootstrap';
 import { Link } from '@tanstack/react-router';
 import './RequestsPage.scss';
 
+type RowDto = PendingMapFeatureRequestRowDto;
+
 type SortKey =
   | 'rec_resource_id'
   | 'name'
@@ -22,47 +24,29 @@ type PageItem = number | 'ellipsis';
 
 type SortValue = string | number;
 
-type SortableColumnConfig = {
+type ColumnConfig = {
   label: string;
   key: SortKey;
-  render: (row: PendingMapFeatureRequestRowDto) => ReactNode;
+  getSortValue: (row: RowDto) => SortValue;
+  render: (row: RowDto) => ReactNode;
 };
 
 const DASH_PLACEHOLDER = '-';
-
-const getRecreationDistrictSortValue = (row: PendingMapFeatureRequestRowDto) =>
-  row.recreation_district ?? row.district_description ?? '';
-
-const getRecreationDistrictDisplayText = (
-  row: PendingMapFeatureRequestRowDto,
-) => row.recreation_district || row.district_description || '';
-
-const getGeometryTypeText = (row: PendingMapFeatureRequestRowDto) =>
-  row.geometry_types.join(', ');
-
-const getRequestedAtSortValue = (row: PendingMapFeatureRequestRowDto) =>
-  row.requested_at ? Date.parse(row.requested_at) : 0;
+const PAGE_SIZE_OPTIONS = [10, 25, 50];
+const PAGE_SIZE_SELECT_ID = 'requests-pagination-page-size';
+const PAGE_SELECT_ID = 'requests-pagination-page';
 
 const getDisplayValue = (value?: string | number | null) =>
   value === undefined || value === null || value === ''
     ? DASH_PLACEHOLDER
     : value;
 
-const sortValueGetters: Record<
-  SortKey,
-  (row: PendingMapFeatureRequestRowDto) => SortValue
-> = {
-  rec_resource_id: (row) => row.rec_resource_id ?? '',
-  name: (row) => row.name ?? '',
-  recreation_district: getRecreationDistrictSortValue,
-  natural_resource_district: (row) => row.natural_resource_district ?? '',
-  recreation_type: (row) => row.recreation_type ?? '',
-  geometry_type: getGeometryTypeText,
-  feature_count: (row) => row.feature_count ?? 0,
-  requested_at: getRequestedAtSortValue,
-};
+const getRecreationDistrict = (row: RowDto) =>
+  row.recreation_district || row.district_description;
 
-const formatRequestedAt = (row: PendingMapFeatureRequestRowDto) =>
+const getGeometryTypeText = (row: RowDto) => row.geometry_types.join(', ');
+
+const formatRequestedAt = (row: RowDto) =>
   row.requested_at
     ? new Date(row.requested_at).toLocaleString('en-CA', {
         year: 'numeric',
@@ -72,6 +56,63 @@ const formatRequestedAt = (row: PendingMapFeatureRequestRowDto) =>
         minute: '2-digit',
       })
     : DASH_PLACEHOLDER;
+
+const textColumn = (
+  label: string,
+  key: SortKey,
+  getValue: (row: RowDto) => string | null | undefined,
+): ColumnConfig => ({
+  label,
+  key,
+  getSortValue: (row) => getValue(row) ?? '',
+  render: (row) => getDisplayValue(getValue(row)),
+});
+
+const COLUMNS: ColumnConfig[] = [
+  {
+    label: 'Rec #',
+    key: 'rec_resource_id',
+    getSortValue: (row) => row.rec_resource_id ?? '',
+    render: (row) => (
+      <Link
+        to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL}
+        params={{ id: row.rec_resource_id }}
+      >
+        {row.rec_resource_id}
+      </Link>
+    ),
+  },
+  textColumn('Name', 'name', (row) => row.name),
+  textColumn(
+    'Recreation district',
+    'recreation_district',
+    getRecreationDistrict,
+  ),
+  textColumn(
+    'Natural resource district',
+    'natural_resource_district',
+    (row) => row.natural_resource_district,
+  ),
+  textColumn(
+    'Recreation type',
+    'recreation_type',
+    (row) => row.recreation_type,
+  ),
+  textColumn('Geometry type', 'geometry_type', getGeometryTypeText),
+  {
+    label: 'Features',
+    key: 'feature_count',
+    getSortValue: (row) => row.feature_count ?? 0,
+    render: (row) => row.feature_count,
+  },
+  {
+    label: 'Requested at',
+    key: 'requested_at',
+    getSortValue: (row) =>
+      row.requested_at ? Date.parse(row.requested_at) : 0,
+    render: formatRequestedAt,
+  },
+];
 
 const buildPageRange = (start: number, end: number) =>
   Array.from(
@@ -155,6 +196,29 @@ const PaginationSelect = ({
   </>
 );
 
+type PaginationStepProps = {
+  direction: 'prev' | 'next';
+  disabled: boolean;
+  onClick: () => void;
+};
+
+const PaginationStep = ({
+  direction,
+  disabled,
+  onClick,
+}: PaginationStepProps) => {
+  const isPrev = direction === 'prev';
+  const Component = isPrev ? Pagination.Prev : Pagination.Next;
+  const label = isPrev ? 'Previous page' : 'Next page';
+
+  return (
+    <Component aria-label={label} disabled={disabled} onClick={onClick}>
+      <span aria-hidden="true">{isPrev ? '‹' : '›'}</span>
+      <span className="visually-hidden">{label}</span>
+    </Component>
+  );
+};
+
 export const RequestsPage = () => {
   const { data, isLoading, isError } = useGetPendingMapFeatureRequests();
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
@@ -162,20 +226,18 @@ export const RequestsPage = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
 
-  const pendingRows = (data?.data ?? []).filter(
-    (row) => row.amend_status_code === 'PND',
-  );
+  const rows = useMemo(() => data?.data ?? [], [data]);
 
   const sortedRows = useMemo(() => {
-    if (!sortKey) {
-      return [...pendingRows];
+    const column = COLUMNS.find((c) => c.key === sortKey);
+
+    if (!column) {
+      return [...rows];
     }
 
-    const getSortValue = sortValueGetters[sortKey];
-
-    return [...pendingRows].sort((a, b) => {
-      const aValue = getSortValue(a);
-      const bValue = getSortValue(b);
+    return [...rows].sort((a, b) => {
+      const aValue = column.getSortValue(a);
+      const bValue = column.getSortValue(b);
 
       const result =
         typeof aValue === 'number' && typeof bValue === 'number'
@@ -187,16 +249,13 @@ export const RequestsPage = () => {
 
       return sortDirection === 'asc' ? result : -result;
     });
-  }, [pendingRows, sortDirection, sortKey]);
+  }, [rows, sortDirection, sortKey]);
 
   const totalRows = sortedRows.length;
   const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
   const currentPageIndex = Math.min(pageIndex, totalPages - 1);
   const pageItems = buildPageItems(currentPageIndex, totalPages);
   const pageNumbers = buildPageRange(1, totalPages);
-  const pageSizeOptions = [10, 25, 50];
-  const pageSizeSelectId = 'requests-pagination-page-size';
-  const pageSelectId = 'requests-pagination-page';
 
   const pagedRows = useMemo(
     () =>
@@ -236,56 +295,6 @@ export const RequestsPage = () => {
     );
   };
 
-  const sortableColumns: SortableColumnConfig[] = [
-    {
-      label: 'Rec #',
-      key: 'rec_resource_id',
-      render: (row) => (
-        <Link
-          to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL}
-          params={{ id: row.rec_resource_id }}
-        >
-          {row.rec_resource_id}
-        </Link>
-      ),
-    },
-    {
-      label: 'Name',
-      key: 'name',
-      render: (row) => getDisplayValue(row.name),
-    },
-    {
-      label: 'Recreation district',
-      key: 'recreation_district',
-      render: (row) => getDisplayValue(getRecreationDistrictDisplayText(row)),
-    },
-    {
-      label: 'Natural resource district',
-      key: 'natural_resource_district',
-      render: (row) => getDisplayValue(row.natural_resource_district),
-    },
-    {
-      label: 'Recreation type',
-      key: 'recreation_type',
-      render: (row) => getDisplayValue(row.recreation_type),
-    },
-    {
-      label: 'Geometry type',
-      key: 'geometry_type',
-      render: (row) => getDisplayValue(getGeometryTypeText(row)),
-    },
-    {
-      label: 'Features',
-      key: 'feature_count',
-      render: (row) => row.feature_count,
-    },
-    {
-      label: 'Requested at',
-      key: 'requested_at',
-      render: formatRequestedAt,
-    },
-  ];
-
   return (
     <PageLayout>
       <div className="d-flex flex-column gap-4">
@@ -314,9 +323,9 @@ export const RequestsPage = () => {
           </Alert>
         ) : null}
 
-        <DataTable<PendingMapFeatureRequestRowDto>
+        <DataTable<RowDto>
           className="mb-0"
-          columns={sortableColumns.map(({ label, key, render }) => ({
+          columns={COLUMNS.map(({ label, key, render }) => ({
             header: renderSortableHeader(label, key),
             render,
           }))}
@@ -334,16 +343,13 @@ export const RequestsPage = () => {
               className="justify-content-between align-items-center flex-wrap gap-3"
             >
               <Pagination className="pagination-bar__pages mb-0">
-                <Pagination.Prev
-                  aria-label="Previous page"
+                <PaginationStep
+                  direction="prev"
                   disabled={currentPageIndex === 0}
                   onClick={() =>
                     setPageIndex((current) => Math.max(0, current - 1))
                   }
-                >
-                  <span aria-hidden="true">‹</span>
-                  <span className="visually-hidden">Previous page</span>
-                </Pagination.Prev>
+                />
 
                 {pageItems.map((item, index) =>
                   item === 'ellipsis' ? (
@@ -363,18 +369,15 @@ export const RequestsPage = () => {
                   ),
                 )}
 
-                <Pagination.Next
-                  aria-label="Next page"
+                <PaginationStep
+                  direction="next"
                   disabled={currentPageIndex >= totalPages - 1}
                   onClick={() =>
                     setPageIndex((current) =>
                       Math.min(totalPages - 1, current + 1),
                     )
                   }
-                >
-                  <span aria-hidden="true">›</span>
-                  <span className="visually-hidden">Next page</span>
-                </Pagination.Next>
+                />
               </Pagination>
 
               <Stack
@@ -384,9 +387,9 @@ export const RequestsPage = () => {
               >
                 <PaginationSelect
                   label="Page size"
-                  id={pageSizeSelectId}
+                  id={PAGE_SIZE_SELECT_ID}
                   value={pageSize}
-                  options={pageSizeOptions}
+                  options={PAGE_SIZE_OPTIONS}
                   onChange={(value) => {
                     setPageSize(value);
                     setPageIndex(0);
@@ -395,7 +398,7 @@ export const RequestsPage = () => {
 
                 <PaginationSelect
                   label="Jump to"
-                  id={pageSelectId}
+                  id={PAGE_SELECT_ID}
                   value={currentPageIndex + 1}
                   options={pageNumbers}
                   onChange={(value) => setPageIndex(value - 1)}

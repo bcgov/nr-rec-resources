@@ -61,9 +61,9 @@ vi.mock(
 );
 
 vi.mock(
-  '@/services/hooks/recreation-resource-admin/useGetPendingMapFeatureRequests',
+  '@/services/hooks/recreation-resource-admin/useGetMapFeatureRequestsByRecResourceId',
   () => ({
-    useGetPendingMapFeatureRequests: (...args: any[]) =>
+    useGetMapFeatureRequestsByRecResourceId: (...args: any[]) =>
       mockUseGetPendingMapFeatureRequests(...args),
   }),
 );

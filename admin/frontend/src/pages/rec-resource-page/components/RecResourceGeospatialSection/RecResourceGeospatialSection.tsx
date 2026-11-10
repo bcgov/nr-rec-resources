@@ -33,7 +33,7 @@ import { IMAP_URL } from '@/constants/urls';
 import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
 import './RecResourceGeospatialSection.scss';
 import { SpatialSubmissionSection } from '@/components/RecResourceSpatial/SpatialSubmissionSection';
-import { useGetPendingMapFeatureRequests } from '@/services/hooks/recreation-resource-admin/useGetPendingMapFeatureRequests';
+import { useGetMapFeatureRequestsByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetMapFeatureRequestsByRecResourceId';
 import { useGetExhibitADocs } from '@/services/hooks/recreation-resource-admin/useGetExhibitADocs';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -141,10 +141,10 @@ export function RecResourceGeospatialSection() {
   const { data: geospatialData } =
     useGetRecreationResourceGeospatial(recResourceId);
   const {
-    data: pendingMapFeatureRequests,
+    data: mapFeatureRequests,
     isLoading: isPendingRequestsLoading,
     isFetching: isPendingRequestsFetching,
-  } = useGetPendingMapFeatureRequests();
+  } = useGetMapFeatureRequestsByRecResourceId(recResourceId);
   const { data: exhibitADocs = [] } = useGetExhibitADocs(recResourceId);
   const presignMutation = usePresignExhibitAUpload();
   const finalizeMutation = useFinalizeExhibitAUpload();
@@ -606,13 +606,11 @@ export function RecResourceGeospatialSection() {
     [fetchAdjudicationReportBytes],
   );
 
-  const submissionRows = (pendingMapFeatureRequests?.data ?? [])
-    .filter((row) => row.rec_resource_id === recResourceId)
-    .sort((a, b) => {
-      const aTime = a.requested_at ? Date.parse(a.requested_at) : 0;
-      const bTime = b.requested_at ? Date.parse(b.requested_at) : 0;
-      return bTime - aTime;
-    });
+  const submissionRows = [...(mapFeatureRequests?.data ?? [])].sort((a, b) => {
+    const aTime = a.requested_at ? Date.parse(a.requested_at) : 0;
+    const bTime = b.requested_at ? Date.parse(b.requested_at) : 0;
+    return bTime - aTime;
+  });
   const isPendingRequestsBusy =
     isPendingRequestsLoading || isPendingRequestsFetching;
 

@@ -177,6 +177,30 @@ export class RecreationResourceController {
     return await this.recreationResourceService.getPendingMapFeatureRequests();
   }
 
+  @Get(':rec_resource_id/spatial-submissions')
+  @ApiOkResponse({
+    type: PendingMapFeatureRequestsResponseDto,
+    description:
+      'Successfully retrieved spatial submissions for a recreation resource',
+  })
+  @ApiOperation({
+    operationId: 'getMapFeatureRequestsByRecResourceId',
+    summary: 'Get spatial submissions for a recreation resource',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    required: true,
+    description: 'Resource identifier',
+    type: String,
+  })
+  async getMapFeatureRequestsByRecResourceId(
+    @Param('rec_resource_id') rec_resource_id: string,
+  ): Promise<PendingMapFeatureRequestsResponseDto> {
+    return await this.recreationResourceService.getMapFeatureRequestsByRecResourceId(
+      rec_resource_id,
+    );
+  }
+
   @Get('pending-requests/:application_guid/adjudication-report')
   @ApiOperation({
     operationId: 'getPendingRequestAdjudicationReport',

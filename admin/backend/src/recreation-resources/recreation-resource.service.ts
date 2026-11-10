@@ -323,10 +323,25 @@ export class RecreationResourceService {
     return resource.recreation_resource_status_code_rel?.description ?? null;
   }
 
-  async getPendingMapFeatureRequests(): Promise<PendingMapFeatureRequestsResponseDto> {
-    const rows =
-      await this.recreationResourceRepository.findPendingMapFeatureRequests();
-
+  private buildPendingMapFeatureRequestsResponse(
+    rows: Array<{
+      submission_id: string | null;
+      application_guid: string | null;
+      status_request_guid: string | null;
+      rec_resource_id: string;
+      name: string | null;
+      district_description: string | null;
+      recreation_district: string | null;
+      natural_resource_district: string | null;
+      recreation_type: string | null;
+      purpose_code: string | null;
+      amend_status_code: string;
+      feature_count: number;
+      requested_at: Date | null;
+      geometry_types: string[];
+      exhibit_a_url: string | null;
+    }>,
+  ): PendingMapFeatureRequestsResponseDto {
     const data: PendingMapFeatureRequestRowDto[] = rows.map((row) => {
       const dto: PendingMapFeatureRequestRowDto = {
         rec_resource_id: row.rec_resource_id,
@@ -367,6 +382,24 @@ export class RecreationResourceService {
       data,
       total: data.length,
     };
+  }
+
+  async getPendingMapFeatureRequests(): Promise<PendingMapFeatureRequestsResponseDto> {
+    const rows =
+      await this.recreationResourceRepository.findPendingMapFeatureRequests();
+
+    return this.buildPendingMapFeatureRequestsResponse(rows);
+  }
+
+  async getMapFeatureRequestsByRecResourceId(
+    rec_resource_id: string,
+  ): Promise<PendingMapFeatureRequestsResponseDto> {
+    const rows =
+      await this.recreationResourceRepository.findMapFeatureRequestsByRecResourceId(
+        rec_resource_id,
+      );
+
+    return this.buildPendingMapFeatureRequestsResponse(rows);
   }
 
   async getPendingRequestAdjudicationReport(
