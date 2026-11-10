@@ -486,7 +486,14 @@ describe('RequestsPage', () => {
       render(<RequestsPage />);
 
       expect(screen.queryByLabelText('More')).not.toBeInTheDocument();
-      ['1', '2', '3', '4'].forEach((name) => {
+
+      const activePageItem =
+        screen
+          .getAllByRole('listitem')
+          .find((item) => item.classList.contains('active')) ?? null;
+      expect(activePageItem).not.toBeNull();
+      expect(activePageItem).toHaveTextContent('1');
+      ['2', '3', '4'].forEach((name) => {
         expect(screen.getByRole('button', { name })).toBeInTheDocument();
       });
     });
@@ -524,10 +531,9 @@ describe('RequestsPage', () => {
 
       expect(screen.getByTestId('row-REC0176')).toBeInTheDocument();
       expect(screen.getAllByLabelText('More')).toHaveLength(1);
-      expect(screen.getByLabelText('Next page')).toHaveAttribute(
-        'aria-disabled',
-        'true',
-      );
+
+      const next = screen.getByLabelText('Next page');
+      expect(next.closest('.page-item')).toHaveClass('disabled');
     });
 
     it('can jump to a page item and navigate back with previous', () => {
@@ -548,7 +554,7 @@ describe('RequestsPage', () => {
       render(<RequestsPage />);
 
       const previous = screen.getByLabelText('Previous page');
-      expect(previous).toHaveAttribute('aria-disabled', 'true');
+      expect(previous.closest('.page-item')).toHaveClass('disabled');
 
       fireEvent.click(previous);
       expect(screen.getByTestId('row-REC0001')).toBeInTheDocument();

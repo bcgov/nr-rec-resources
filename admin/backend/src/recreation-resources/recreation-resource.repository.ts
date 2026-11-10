@@ -651,7 +651,7 @@ export class RecreationResourceRepository {
     }>
   > {
     return this.findMapFeatureRequests(
-      Prisma.sql`rss.tenure_id = ${rec_resource_id}`,
+      Prisma.sql`rss.tenure_id = ${rec_resource_id} AND rss.status IS DISTINCT FROM 'FAI'`,
     );
   }
 }

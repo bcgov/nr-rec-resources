@@ -67,6 +67,25 @@ describe('ExhibitADocsService', () => {
     await module?.close();
   });
 
+  it('should omit cloudfrontUrl when awsEndpointUrl is not configured', () => {
+    const serviceWithoutEndpoint = new ExhibitADocsService(
+      mockPrisma as any,
+      {
+        ...mockAppConfig,
+        awsEndpointUrl: undefined,
+      } as any,
+      mockS3Service as any,
+    );
+
+    const config = (serviceWithoutEndpoint as any).getStorageConfig();
+
+    expect(config).toEqual({
+      bucketName: 'rst-lza-exhibit-a-docs-dev',
+      cloudfrontUrl: undefined,
+      endpointUrl: undefined,
+    });
+  });
+
   describe('getAll', () => {
     it('should return all exhibit-a docs with presigned URLs', async () => {
       mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
