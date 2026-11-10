@@ -18,7 +18,8 @@ insert into rst.recreation_resource (
     arch_impact_assess_ind,
     resource_feature_ind,
     last_rec_inspection_date,
-    last_hzrd_tree_assess_date
+    last_hzrd_tree_assess_date,
+    recreation_user_days_code
 )
 select
     rp.forest_file_id as rec_resource_id,
@@ -43,7 +44,8 @@ select
     left(rp.arch_impact_assess_ind, 1) as arch_impact_assess_ind,
     rp.resource_feature_ind,
     rp.last_rec_inspection_date,
-    rp.last_hzrd_tree_assess_date
+    rp.last_hzrd_tree_assess_date,
+    rp.recreation_user_days_code
 from
     fta.recreation_project rp
 left join
@@ -80,4 +82,5 @@ set
     arch_impact_assess_ind = excluded.arch_impact_assess_ind,
     resource_feature_ind = excluded.resource_feature_ind,
     last_rec_inspection_date = excluded.last_rec_inspection_date,
-    last_hzrd_tree_assess_date = excluded.last_hzrd_tree_assess_date;
+    last_hzrd_tree_assess_date = excluded.last_hzrd_tree_assess_date,
+    recreation_user_days_code = excluded.recreation_user_days_code;

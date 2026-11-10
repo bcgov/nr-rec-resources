@@ -94,6 +94,7 @@ models/RecreationStatusDto.ts
 models/RecreationStructureDto.ts
 models/RecreationSubAccessCodeDto.ts
 models/RecreationTrailDto.ts
+models/RecreationUserDaysDto.ts
 models/RepairChange.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts

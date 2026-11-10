@@ -70,6 +70,9 @@ export const useEditResourceForm = (
       site_description: recResource.description || '',
       driving_directions: recResource.driving_directions || '',
       name: recResource.name || '',
+      recreation_user_days_code:
+        recResource.recreation_user_days_code?.recreation_user_days_code ||
+        null,
     };
   }, [recResource]);
 
@@ -133,6 +136,7 @@ export const useEditResourceForm = (
       site_description: data.site_description?.trim() ?? null,
       driving_directions: data.driving_directions?.trim() ?? null,
       name: data.name?.trim() ?? null,
+      recreation_user_days_code: data.recreation_user_days_code ?? null,
     };
 
     // Submit the update using mutateAsync for cleaner async handling
