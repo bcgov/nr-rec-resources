@@ -17,6 +17,7 @@ export const Route = createFileRoute('/rec-resource/$id/notes/edit')({
 
     return {
       tab: RecResourceNavKey.NOTES,
+      isEditing: true,
       breadcrumb: (loaderData?: any): BreadcrumbItem[] => {
         if (!parentBeforeLoad?.breadcrumb) return [];
         return [

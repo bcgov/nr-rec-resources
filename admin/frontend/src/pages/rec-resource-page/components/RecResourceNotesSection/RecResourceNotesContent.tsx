@@ -38,15 +38,21 @@ export const RecResourceNotesContent = ({
               >
                 Add note
               </Button>
-              <Link
-                to={ROUTE_PATHS.REC_RESOURCE_NOTES_EDIT.replace(
-                  '$id',
-                  recResourceId,
-                )}
-                className="btn btn-outline-primary"
-              >
-                Edit
-              </Link>
+              {notes.length > 0 ? (
+                <Link
+                  to={ROUTE_PATHS.REC_RESOURCE_NOTES_EDIT.replace(
+                    '$id',
+                    recResourceId,
+                  )}
+                  className="btn btn-outline-primary"
+                >
+                  Edit
+                </Link>
+              ) : (
+                <Button variant="outline-primary" disabled>
+                  Edit
+                </Button>
+              )}
             </Stack>
           ) : null}
         </EditableGuard>

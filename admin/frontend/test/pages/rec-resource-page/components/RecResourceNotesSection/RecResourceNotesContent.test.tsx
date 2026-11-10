@@ -95,12 +95,27 @@ describe('RecResourceNotesContent', () => {
   });
 
   it('links to the edit page for the resource', () => {
-    render(<RecResourceNotesContent notes={[]} recResourceId="REC0019" />);
+    render(
+      <RecResourceNotesContent
+        notes={[makeNote('n1')]}
+        recResourceId="REC0019"
+      />,
+    );
 
     expect(screen.getByRole('link', { name: 'Edit' })).toHaveAttribute(
       'href',
       '/rec-resource/REC0019/notes/edit',
     );
+  });
+
+  it('disables Edit with no notes, leaving Add note usable', () => {
+    render(<RecResourceNotesContent notes={[]} recResourceId="REC0019" />);
+
+    expect(
+      screen.queryByRole('link', { name: 'Edit' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add note' })).toBeEnabled();
   });
 
   it('hides the actions when the user cannot edit', () => {
