@@ -23,7 +23,7 @@ vi.mock('@/components', () => ({
   PageLayout: ({ children }: { children: ReactNode }) => (
     <div data-testid="page-layout">{children}</div>
   ),
-  Table: ({ columns, rows, emptyMessage }: any) => (
+  Table: ({ columns, rows, emptyMessage, getRowKey }: any) => (
     <div data-testid="data-table">
       {rows.length ? (
         <table>
@@ -35,9 +35,12 @@ vi.mock('@/components', () => ({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row: any) => (
+            {rows.map((row: any, rowIndex: number) => (
               <tr
-                key={row.rec_resource_id}
+                key={
+                  getRowKey?.(row, rowIndex) ??
+                  `${row.rec_resource_id}-${rowIndex}`
+                }
                 data-testid={`row-${row.rec_resource_id}`}
               >
                 {columns.map((column: any, index: number) => (
@@ -257,5 +260,107 @@ describe('RequestsPage', () => {
     render(<RequestsPage />);
 
     expect(screen.getAllByLabelText('More').length).toBeGreaterThan(0);
+  });
+
+  it('can jump to a page item and navigate back with previous', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: Array.from({ length: 120 }, (_, index) =>
+          buildPendingRow(index + 1),
+        ),
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<RequestsPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: '3' }));
+    expect(screen.getByTestId('row-REC0051')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('Previous page'));
+    expect(screen.getByTestId('row-REC0026')).toBeInTheDocument();
+  });
+
+  it('sorts by requested date descending on first click, then ascending', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          buildPendingRow(1, {
+            rec_resource_id: 'REC_A',
+            requested_at: '2026-10-01T00:00:00Z',
+          }),
+          buildPendingRow(2, {
+            rec_resource_id: 'REC_B',
+            requested_at: '2026-10-03T00:00:00Z',
+          }),
+          buildPendingRow(3, {
+            rec_resource_id: 'REC_C',
+            requested_at: '2026-10-02T00:00:00Z',
+          }),
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<RequestsPage />);
+
+    const getRenderedIds = () =>
+      screen
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) => within(row).getByRole('link').textContent);
+
+    const sortByRequestedAt = screen.getByRole('button', {
+      name: /Sort by Requested at/i,
+    });
+
+    fireEvent.click(sortByRequestedAt);
+    expect(getRenderedIds()).toEqual(['REC_B', 'REC_C', 'REC_A']);
+
+    fireEvent.click(sortByRequestedAt);
+    expect(getRenderedIds()).toEqual(['REC_A', 'REC_C', 'REC_B']);
+  });
+
+  it('sorts by fallback district and geometry type values', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          buildPendingRow(1, {
+            rec_resource_id: 'REC_G1',
+            recreation_district: undefined,
+            district_description: 'District Z',
+            geometry_types: ['Polygon'],
+          }),
+          buildPendingRow(2, {
+            rec_resource_id: 'REC_G2',
+            recreation_district: undefined,
+            district_description: 'District A',
+            geometry_types: ['LineString'],
+          }),
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<RequestsPage />);
+
+    const getRenderedIds = () =>
+      screen
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) => within(row).getByRole('link').textContent);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Sort by Recreation district/i }),
+    );
+    expect(getRenderedIds()).toEqual(['REC_G2', 'REC_G1']);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Sort by Geometry type/i }),
+    );
+    expect(getRenderedIds()).toEqual(['REC_G2', 'REC_G1']);
   });
 });
