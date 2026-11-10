@@ -33,18 +33,24 @@ with source_rows as (
 normalized as (
     select
         sr.*,
+        -- Keep only the filename portion (drop any embedded folder path from legacy values).
+        regexp_replace(sr.source_file_name, '^.*[\\/]', '') as source_file_name_base,
+        -- Collapse repeated trailing extensions like `.pdf.pdf` -> `.pdf`.
+        regexp_replace(regexp_replace(sr.source_file_name, '^.*[\\/]', ''), '(\\.[^.]+)\\1+$', '\\1', 'i') as source_file_name_clean,
         case
-            when sr.source_file_name ~ '\\.' then regexp_replace(sr.source_file_name, '\\.[^.]+$', '')
-            else sr.source_file_name
+            when regexp_replace(regexp_replace(sr.source_file_name, '^.*[\\/]', ''), '(\\.[^.]+)\\1+$', '\\1', 'i') ~ '\\.'
+                then regexp_replace(regexp_replace(regexp_replace(sr.source_file_name, '^.*[\\/]', ''), '(\\.[^.]+)\\1+$', '\\1', 'i'), '\\.[^.]+$', '')
+            else regexp_replace(regexp_replace(sr.source_file_name, '^.*[\\/]', ''), '(\\.[^.]+)\\1+$', '\\1', 'i')
         end as file_name,
         coalesce(
             sr.source_extension,
-            nullif(lower(split_part(sr.source_file_name, '.', array_length(regexp_split_to_array(sr.source_file_name, '\\.'), 1))), ''),
+            nullif(lower(split_part(regexp_replace(regexp_replace(sr.source_file_name, '^.*[\\/]', ''), '(\\.[^.]+)\\1+$', '\\1', 'i'), '.', array_length(regexp_split_to_array(regexp_replace(regexp_replace(sr.source_file_name, '^.*[\\/]', ''), '(\\.[^.]+)\\1+$', '\\1', 'i'), '\\.'), 1))), ''),
             'pdf'
         ) as extension,
         case
-            when sr.source_file_name ~ '\\.' then sr.source_file_name
-            else sr.source_file_name || '.' || coalesce(sr.source_extension, 'pdf')
+            when regexp_replace(regexp_replace(sr.source_file_name, '^.*[\\/]', ''), '(\\.[^.]+)\\1+$', '\\1', 'i') ~ '\\.'
+                then regexp_replace(regexp_replace(sr.source_file_name, '^.*[\\/]', ''), '(\\.[^.]+)\\1+$', '\\1', 'i')
+            else regexp_replace(regexp_replace(sr.source_file_name, '^.*[\\/]', ''), '(\\.[^.]+)\\1+$', '\\1', 'i') || '.' || coalesce(sr.source_extension, 'pdf')
         end as file_name_with_ext
     from source_rows sr
     where sr.rec_resource_id is not null
@@ -58,7 +64,7 @@ prepared as (
         n.file_name,
         n.extension,
         n.image_file_size as file_size,
-        'Exhibit_A/' || n.rec_resource_id || '/' || rss.submission_id || '/' || n.file_name_with_ext as s3_key,
+        n.rec_resource_id || '/' || rss.submission_id || '/' || n.file_name as s3_key,
         n.updated_at,
         n.updated_by,
         n.created_at,

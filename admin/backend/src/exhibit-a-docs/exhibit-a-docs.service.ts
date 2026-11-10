@@ -34,10 +34,23 @@ export class ExhibitADocsService extends BaseStorageFileService {
   }
 
   async getAll(rec_resource_id: string): Promise<ExhibitADocDto[]> {
-    const docs = await this.prisma.recreation_exhibit_a_doc.findMany({
-      where: { rec_resource_id },
-      orderBy: [{ updated_at: 'desc' }, { created_at: 'desc' }],
-    });
+    // Use explicit projection so runtime does not depend on stale generated Prisma model fields.
+    const docs = await this.prisma.$queryRaw<any[]>`
+      SELECT
+        doc_id,
+        rec_resource_id,
+        application_guid,
+        file_name,
+        extension,
+        file_size,
+        s3_key,
+        generation_method,
+        created_at,
+        updated_at
+      FROM rst.recreation_exhibit_a_doc
+      WHERE rec_resource_id = ${rec_resource_id}
+      ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+    `;
 
     return Promise.all(
       docs.map(async (doc) => {
@@ -49,12 +62,12 @@ export class ExhibitADocsService extends BaseStorageFileService {
 
   async presignUpload(
     rec_resource_id: string,
-    file_name: string,
+    _file_name: string,
   ): Promise<PresignExhibitAUploadResponseDto> {
     await this.validateResourceExists(rec_resource_id);
 
     const document_id = randomUUID();
-    const key = `${rec_resource_id}/${document_id}/${file_name}`;
+    const key = this.buildCanonicalS3Key(rec_resource_id, document_id);
 
     const url = await this.generatePresignedUrl(key, 'application/pdf', 900);
 
@@ -72,7 +85,9 @@ export class ExhibitADocsService extends BaseStorageFileService {
     await this.validateResourceExists(rec_resource_id);
     this.validateEntityId(body.document_id, 'document_id');
 
-    const s3_key = `${rec_resource_id}/${body.document_id}/${body.file_name}.${body.extension}`;
+    const normalizedFileName = this.normalizeStem(body.file_name);
+    const normalizedExtension = this.normalizeExtension(body.extension);
+    const s3_key = this.buildCanonicalS3Key(rec_resource_id, body.document_id);
     const applicationGuid = await this.resolveApplicationGuid(body);
 
     try {
@@ -99,8 +114,8 @@ export class ExhibitADocsService extends BaseStorageFileService {
         VALUES (
           ${body.document_id}::uuid,
           ${rec_resource_id},
-          ${body.file_name},
-          ${body.extension},
+          ${normalizedFileName},
+          ${normalizedExtension},
           ${BigInt(body.file_size)},
           ${s3_key},
           ${applicationGuid ?? null}::uuid,
@@ -132,17 +147,32 @@ export class ExhibitADocsService extends BaseStorageFileService {
     rec_resource_id: string,
     document_id: string,
   ): Promise<ExhibitADocDto> {
-    const doc = await this.prisma.recreation_exhibit_a_doc.findUnique({
-      where: { doc_id: document_id },
-    });
+    const rows = await this.prisma.$queryRaw<any[]>`
+      SELECT
+        doc_id,
+        rec_resource_id,
+        application_guid,
+        file_name,
+        extension,
+        file_size,
+        s3_key,
+        generation_method,
+        created_at,
+        updated_at
+      FROM rst.recreation_exhibit_a_doc
+      WHERE doc_id = ${document_id}::uuid
+      LIMIT 1
+    `;
+    const doc = rows[0];
 
     if (!doc || doc.rec_resource_id !== rec_resource_id) {
       throw new HttpException('Exhibit A document not found', 404);
     }
 
-    await this.prisma.recreation_exhibit_a_doc.delete({
-      where: { doc_id: document_id },
-    });
+    await this.prisma.$executeRaw`
+      DELETE FROM rst.recreation_exhibit_a_doc
+      WHERE doc_id = ${document_id}::uuid
+    `;
 
     await this.deleteS3FileSafely(doc.s3_key);
 

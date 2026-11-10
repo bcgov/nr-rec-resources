@@ -74,7 +74,7 @@ describe('ExhibitADocsService', () => {
 
   describe('getAll', () => {
     it('should return all exhibit-a docs with presigned URLs', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findMany.mockResolvedValue([mockDoc]);
+      mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
       mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
 
       const result = await service.getAll(REC_RESOURCE_ID);
@@ -89,16 +89,11 @@ describe('ExhibitADocsService', () => {
       expect(first.file_name).toBe('exhibit-a');
       expect(first.generation_method).toBe('upload');
       expect(first.url).toBe(PRESIGNED_URL);
-      expect(mockPrisma.recreation_exhibit_a_doc.findMany).toHaveBeenCalledWith(
-        {
-          where: { rec_resource_id: REC_RESOURCE_ID },
-          orderBy: [{ updated_at: 'desc' }, { created_at: 'desc' }],
-        },
-      );
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
     });
 
     it('should return empty array when no docs exist', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findMany.mockResolvedValue([]);
+      mockPrisma.$queryRaw.mockResolvedValue([]);
 
       const result = await service.getAll(REC_RESOURCE_ID);
 
@@ -106,7 +101,7 @@ describe('ExhibitADocsService', () => {
     });
 
     it('maps nullable db values safely', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findMany.mockResolvedValue([
+      mockPrisma.$queryRaw.mockResolvedValue([
         {
           ...mockDoc,
           file_size: null,
@@ -140,7 +135,8 @@ describe('ExhibitADocsService', () => {
 
       expect(result.document_id).toBeDefined();
       expect(result.key).toContain(REC_RESOURCE_ID);
-      expect(result.key).toContain('exhibit-a.pdf');
+      expect(result.key).toContain(`/${result.document_id}/`);
+      expect(result.key).toContain(`exhibit-a-${result.document_id}.pdf`);
       expect(result.url).toBe(PRESIGNED_URL);
     });
 
@@ -257,38 +253,38 @@ describe('ExhibitADocsService', () => {
 
   describe('delete', () => {
     it('should delete doc from db and S3', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findUnique.mockResolvedValue(mockDoc);
-      mockPrisma.recreation_exhibit_a_doc.delete.mockResolvedValue(mockDoc);
+      mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
+      mockPrisma.$executeRaw.mockResolvedValue(1);
       mockS3Service.deleteFile.mockResolvedValue(undefined);
 
       const result = await service.delete(REC_RESOURCE_ID, DOC_ID);
 
       expect(result.document_id).toBe(DOC_ID);
-      expect(mockPrisma.recreation_exhibit_a_doc.delete).toHaveBeenCalledWith({
-        where: { doc_id: DOC_ID },
-      });
+      expect(mockPrisma.$executeRaw).toHaveBeenCalledTimes(1);
       expect(mockS3Service.deleteFile).toHaveBeenCalledWith(S3_KEY);
     });
 
     it('should throw 404 when doc not found', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findUnique.mockResolvedValue(null);
+      mockPrisma.$queryRaw.mockResolvedValue([]);
 
       await expect(service.delete(REC_RESOURCE_ID, DOC_ID)).rejects.toThrow(
         new HttpException('Exhibit A document not found', 404),
       );
-      expect(mockPrisma.recreation_exhibit_a_doc.delete).not.toHaveBeenCalled();
+      expect(mockPrisma.$executeRaw).not.toHaveBeenCalled();
     });
 
     it('should throw 404 when doc belongs to different resource', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findUnique.mockResolvedValue({
+      mockPrisma.$queryRaw.mockResolvedValue([
+        {
         ...mockDoc,
         rec_resource_id: 'REC9999',
-      });
+        },
+      ]);
 
       await expect(service.delete(REC_RESOURCE_ID, DOC_ID)).rejects.toThrow(
         new HttpException('Exhibit A document not found', 404),
       );
-      expect(mockPrisma.recreation_exhibit_a_doc.delete).not.toHaveBeenCalled();
+      expect(mockPrisma.$executeRaw).not.toHaveBeenCalled();
     });
   });
 });
