@@ -1,8 +1,23 @@
-import { RequestsPage } from '@/pages/requests-page/RequestsPage';
 import { useGetPendingMapFeatureRequests } from '@/services/hooks/recreation-resource-admin/useGetPendingMapFeatureRequests';
-import { render, screen } from '@testing-library/react';
-import type { ReactNode } from 'react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { isValidElement, type ReactNode } from 'react';
 import { Mock, describe, expect, it, vi } from 'vitest';
+import { RequestsPage } from '@/pages/requests-page/RequestsPage';
+
+const getHeaderLabel = (header: unknown, fallbackIndex: number) => {
+  if (typeof header === 'string') {
+    return header;
+  }
+
+  if (isValidElement(header)) {
+    const children = header.props?.children;
+    if (Array.isArray(children) && typeof children[0] === 'string') {
+      return children[0];
+    }
+  }
+
+  return `col-${fallbackIndex}`;
+};
 
 vi.mock('@/components', () => ({
   PageLayout: ({ children }: { children: ReactNode }) => (
@@ -12,6 +27,13 @@ vi.mock('@/components', () => ({
     <div data-testid="data-table">
       {rows.length ? (
         <table>
+          <thead>
+            <tr>
+              {columns.map((column: any, index: number) => (
+                <th key={`header-${index}`}>{column.header}</th>
+              ))}
+            </tr>
+          </thead>
           <tbody>
             {rows.map((row: any) => (
               <tr
@@ -19,7 +41,10 @@ vi.mock('@/components', () => ({
                 data-testid={`row-${row.rec_resource_id}`}
               >
                 {columns.map((column: any, index: number) => (
-                  <td key={index} data-testid={`cell-${column.header}`}>
+                  <td
+                    key={index}
+                    data-testid={`cell-${getHeaderLabel(column.header, index)}`}
+                  >
                     {column.render(row)}
                   </td>
                 ))}
@@ -70,6 +95,23 @@ describe('RequestsPage', () => {
     requested_at: '2026-10-07T10:30:00Z',
   };
 
+  const buildPendingRow = (
+    index: number,
+    overrides: Record<string, any> = {},
+  ) => ({
+    rec_resource_id: `REC${String(index).padStart(4, '0')}`,
+    name: `Resource ${index}`,
+    recreation_district: 'District A',
+    district_description: 'District A',
+    natural_resource_district: 'NRD',
+    recreation_type: 'Site',
+    amend_status_code: 'PND',
+    geometry_types: ['Point'],
+    feature_count: index,
+    requested_at: `2026-10-${String((index % 28) + 1).padStart(2, '0')}T10:00:00Z`,
+    ...overrides,
+  });
+
   it('shows loading and error states when the pending requests query is not ready', () => {
     mockUseGetPendingMapFeatureRequests.mockReturnValue({
       data: undefined,
@@ -97,28 +139,23 @@ describe('RequestsPage', () => {
     render(<RequestsPage />);
 
     expect(screen.getByTestId('data-table')).toBeInTheDocument();
-    expect(screen.getByTestId('cell-Rec #').querySelector('a')).toHaveAttribute(
-      'href',
-      '/rec-resource/$id/geospatial',
-    );
-    expect(screen.getByTestId('cell-Rec #').querySelector('a')).toHaveAttribute(
+    const row = screen.getByTestId('row-REC001');
+    const link = within(row).getByRole('link', { name: 'REC001' });
+
+    expect(link).toHaveAttribute('href', '/rec-resource/$id/geospatial');
+    expect(link).toHaveAttribute(
       'data-params',
       JSON.stringify({ id: 'REC001' }),
     );
-    expect(screen.getByTestId('cell-Name')).toHaveTextContent('-');
-    expect(screen.getByTestId('cell-Recreation district')).toHaveTextContent(
-      'District description',
-    );
-    expect(
-      screen.getByTestId('cell-Natural resource district'),
-    ).toHaveTextContent('-');
-    expect(screen.getByTestId('cell-Recreation type')).toHaveTextContent('-');
-    expect(screen.getByTestId('cell-Status')).toHaveTextContent('PND');
-    expect(screen.getByTestId('cell-Geometry type')).toHaveTextContent('-');
-    expect(screen.getByTestId('cell-Features')).toHaveTextContent('2');
-    expect(screen.getByTestId('cell-Requested at')).toHaveTextContent(
-      '2026-10-07',
-    );
+
+    const cells = within(row).getAllByRole('cell');
+    expect(cells[1]).toHaveTextContent('-');
+    expect(cells[2]).toHaveTextContent('District description');
+    expect(cells[3]).toHaveTextContent('-');
+    expect(cells[4]).toHaveTextContent('-');
+    expect(cells[5]).toHaveTextContent('-');
+    expect(cells[6]).toHaveTextContent('2');
+    expect(cells[7]).toHaveTextContent('2026-10-07');
   });
 
   it('shows only pending rows when API includes non-pending statuses', () => {
@@ -141,5 +178,84 @@ describe('RequestsPage', () => {
 
     expect(screen.getByTestId('row-REC001')).toBeInTheDocument();
     expect(screen.queryByTestId('row-REC002')).not.toBeInTheDocument();
+  });
+
+  it('sorts rows when sortable headers are clicked', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          buildPendingRow(1, { rec_resource_id: 'REC0100' }),
+          buildPendingRow(2, { rec_resource_id: 'REC0002' }),
+          buildPendingRow(3, { rec_resource_id: 'REC0020' }),
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<RequestsPage />);
+
+    const getRenderedIds = () =>
+      screen
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) => within(row).getByRole('link').textContent);
+
+    const sortByRecNumber = screen.getByRole('button', {
+      name: /Sort by Rec #/i,
+    });
+
+    fireEvent.click(sortByRecNumber);
+    expect(getRenderedIds()).toEqual(['REC0002', 'REC0020', 'REC0100']);
+
+    fireEvent.click(sortByRecNumber);
+    expect(getRenderedIds()).toEqual(['REC0100', 'REC0020', 'REC0002']);
+  });
+
+  it('renders pagination controls and can page, resize, and jump', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: Array.from({ length: 80 }, (_, index) =>
+          buildPendingRow(index + 1),
+        ),
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<RequestsPage />);
+
+    expect(screen.getByTestId('row-REC0001')).toBeInTheDocument();
+    expect(screen.queryByTestId('row-REC0026')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('Next page'));
+    expect(screen.getByTestId('row-REC0026')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Page size' }), {
+      target: { value: '10' },
+    });
+    expect(screen.getByTestId('row-REC0001')).toBeInTheDocument();
+    expect(screen.queryByTestId('row-REC0011')).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Jump to' }), {
+      target: { value: '4' },
+    });
+    expect(screen.getByTestId('row-REC0031')).toBeInTheDocument();
+  });
+
+  it('shows ellipsis pagination for high page counts', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: Array.from({ length: 176 }, (_, index) =>
+          buildPendingRow(index + 1),
+        ),
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<RequestsPage />);
+
+    expect(screen.getAllByLabelText('More').length).toBeGreaterThan(0);
   });
 });

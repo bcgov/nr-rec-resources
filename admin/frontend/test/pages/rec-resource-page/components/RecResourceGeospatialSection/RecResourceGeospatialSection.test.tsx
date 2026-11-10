@@ -18,6 +18,7 @@ const mockFinalizeExhibitAUpload = vi.fn();
 const mockCreateOrGetExhibitAByApplicationGuid = vi.fn();
 const mockUseRecreationResourceAdminApiClient = vi.fn();
 const mockGetPendingRequestAdjudicationReportRaw = vi.fn();
+const mockUseFileDownload = vi.fn();
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, className }: any) => (
@@ -91,6 +92,10 @@ vi.mock(
       mockCreateOrGetExhibitAByApplicationGuid(),
   }),
 );
+
+vi.mock('@/pages/rec-resource-page/hooks/useFileDownload', () => ({
+  useFileDownload: () => mockUseFileDownload(),
+}));
 
 vi.mock('@/components/auth', () => ({
   EditableGuard: ({ children }: any) => <>{children}</>,
@@ -263,6 +268,10 @@ describe('RecResourceGeospatialSection', () => {
       mutateAsync: vi.fn(),
       isPending: false,
     });
+    mockUseFileDownload.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    });
   });
 
   it('renders header and edit link', () => {
@@ -324,6 +333,18 @@ describe('RecResourceGeospatialSection', () => {
     render(<RecResourceGeospatialSection />);
     expect(screen.getByText('Spatial submissions')).toBeDefined();
     expect(screen.getByText('No spatial submissions found.')).toBeDefined();
+  });
+
+  it('shows loading alert while pending submissions are loading', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: { data: [], total: 0 },
+      isLoading: true,
+      isFetching: false,
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.getByText('Loading spatial submissions...')).toBeDefined();
   });
 
   it('does not render RecResourceLocationSection when recResource is null', () => {
@@ -427,6 +448,34 @@ describe('RecResourceGeospatialSection', () => {
     expect(sncscLink).toHaveAttribute(
       'href',
       'https://example.gov.bc.ca/sncsc-web/guid-123',
+    );
+  });
+
+  it('uses SNCSC_WEB_URL fallback when VITE_SNCSC_WEB_URL is not set', () => {
+    vi.stubEnv('VITE_SNCSC_WEB_URL', '');
+    vi.stubEnv('SNCSC_WEB_URL', 'https://fallback.gov.bc.ca/sncsc/');
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-FALLBACK',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Point'],
+            status_request_guid: 'guid-fallback',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const sncscLink = screen.getByRole('link', { name: /SNCSC Link/i });
+    expect(sncscLink).toHaveAttribute(
+      'href',
+      'https://fallback.gov.bc.ca/sncsc/guid-fallback',
     );
   });
 
@@ -768,10 +817,60 @@ describe('RecResourceGeospatialSection', () => {
     const requestInitOverride =
       mockGetPendingRequestAdjudicationReportRaw.mock.calls[0]?.[1];
     expect(requestInitOverride).toBeTypeOf('function');
-    expect(
-      requestInitOverride({ init: { headers: {} } }).headers,
-    ).toMatchObject({
+    const overriddenRequest = await requestInitOverride({
+      init: { headers: {} },
+    });
+    expect(overriddenRequest.headers).toMatchObject({
       Accept: 'application/pdf, application/octet-stream',
+    });
+  });
+
+  it('prefers exhibit doc URL over non-absolute row URL and supports download', () => {
+    const downloadMutate = vi.fn();
+    mockUseFileDownload.mockReturnValue({
+      mutate: downloadMutate,
+      isPending: false,
+    });
+    mockUseGetExhibitADocs.mockReturnValueOnce({
+      data: [
+        {
+          submission_id: 'SUB-URL',
+          application_guid: 'app-guid-url',
+          url: 'https://example.com/exhibit-a-doc.pdf',
+        },
+      ],
+    });
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-URL',
+            application_guid: 'app-guid-url',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            exhibit_a_url: '/relative-only.pdf',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const viewLink = screen.getByRole('link', { name: /View/i });
+    expect(viewLink).toHaveAttribute(
+      'href',
+      'https://example.com/exhibit-a-doc.pdf',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Download/i }));
+    expect(downloadMutate).toHaveBeenCalledWith({
+      file: expect.objectContaining({
+        url: 'https://example.com/exhibit-a-doc.pdf',
+        extension: 'pdf',
+      }),
     });
   });
 });

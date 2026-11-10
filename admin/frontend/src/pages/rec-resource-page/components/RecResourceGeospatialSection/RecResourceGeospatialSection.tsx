@@ -1,5 +1,14 @@
 import { useCallback, useRef, useState } from 'react';
-import { Button, Col, Form, Modal, Row, Stack } from 'react-bootstrap';
+import {
+  Alert,
+  Button,
+  Col,
+  Form,
+  Modal,
+  Row,
+  Spinner,
+  Stack,
+} from 'react-bootstrap';
 import {
   faArrowUpFromBracket,
   faArrowUpRightFromSquare,
@@ -17,6 +26,7 @@ import { RecResourceLocationSection } from '@/pages/rec-resource-page/components
 import { Route } from '@/routes/rec-resource/$id/geospatial';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useFileDownload } from '@/pages/rec-resource-page/hooks/useFileDownload';
 import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
 import { Link } from '@tanstack/react-router';
 import { IMAP_URL } from '@/constants/urls';
@@ -87,6 +97,9 @@ const EXHIBIT_A_SCALE_OPTIONS: ExhibitAScale[] = [
   5000, 10000, 15000, 20000, 30000, 50000, 75000, 100000,
 ];
 
+const isAbsoluteUrl = (value?: string | null): value is string =>
+  !!value && /^https?:\/\//i.test(value.trim());
+
 export function RecResourceGeospatialSection() {
   const params = Route.useParams();
   const recResourceId = params?.id;
@@ -127,11 +140,16 @@ export function RecResourceGeospatialSection() {
 
   const { data: geospatialData } =
     useGetRecreationResourceGeospatial(recResourceId);
-  const { data: pendingMapFeatureRequests } = useGetPendingMapFeatureRequests();
+  const {
+    data: pendingMapFeatureRequests,
+    isLoading: isPendingRequestsLoading,
+    isFetching: isPendingRequestsFetching,
+  } = useGetPendingMapFeatureRequests();
   const { data: exhibitADocs = [] } = useGetExhibitADocs(recResourceId);
   const presignMutation = usePresignExhibitAUpload();
   const finalizeMutation = useFinalizeExhibitAUpload();
   const regenerateMutation = useCreateOrGetExhibitAByApplicationGuid();
+  const downloadMutation = useFileDownload();
 
   const {
     latitude,
@@ -318,18 +336,30 @@ export function RecResourceGeospatialSection() {
   };
 
   const getExhibitAUrl = (row: PendingMapFeatureRequestRowDto) => {
-    if (row.submission_id && exhibitAUrlBySubmission[row.submission_id]) {
-      return exhibitAUrlBySubmission[row.submission_id];
-    }
+    const fromState = row.submission_id
+      ? exhibitAUrlBySubmission[row.submission_id]
+      : null;
 
-    const docUrl = exhibitADocs.find(
-      (doc) => doc.submission_id === row.submission_id,
-    )?.url;
-    if (docUrl) {
-      return docUrl;
-    }
+    // exact submission match first, application guid only as a fallback
+    const fromDocs =
+      exhibitADocs.find((d) => {
+        const submissionId =
+          typeof d.submission_id === 'string' ? d.submission_id : null;
+        return row.submission_id != null && submissionId === row.submission_id;
+      })?.url ??
+      exhibitADocs.find((d) => {
+        const applicationGuid =
+          typeof d.application_guid === 'string' ? d.application_guid : null;
+        return (
+          row.application_guid != null &&
+          applicationGuid === row.application_guid
+        );
+      })?.url;
 
-    return row.exhibit_a_url ?? null;
+    return (
+      [fromState, fromDocs, row.exhibit_a_url?.trim()].find(isAbsoluteUrl) ??
+      null
+    );
   };
 
   const hasAdjudicationReport = (row: PendingMapFeatureRequestRowDto) =>
@@ -513,37 +543,44 @@ export function RecResourceGeospatialSection() {
     await handleRegenerate(row, { size, orientation, scale });
   }, [handleRegenerate, regenerateModalState]);
 
+  const fetchAdjudicationReportBytes = useCallback(
+    async (applicationGuid: string) => {
+      const response =
+        await recreationResourceAdminApiClient.getPendingRequestAdjudicationReportRaw(
+          { applicationGuid },
+          async ({ init }) => ({
+            ...init,
+            headers: {
+              ...(init.headers as Record<string, string> | undefined),
+              Accept: 'application/pdf, application/octet-stream',
+            },
+          }),
+        );
+
+      if (!response.raw.ok) {
+        const errorText = await response.raw.text();
+        throw new Error(
+          `Adjudication report fetch failed: ${response.raw.status} ${response.raw.statusText} ${errorText}`,
+        );
+      }
+
+      const bytes = await response.raw.arrayBuffer();
+      if (bytes.byteLength === 0) {
+        throw new Error('Adjudication report response was empty.');
+      }
+
+      return bytes;
+    },
+    [recreationResourceAdminApiClient],
+  );
+
   const handleViewAdjudicationReport = useCallback(
     async (row: PendingMapFeatureRequestRowDto) => {
       if (!row.application_guid) return;
 
       const popup = window.open('about:blank', '_blank');
       try {
-        const response =
-          await recreationResourceAdminApiClient.getPendingRequestAdjudicationReportRaw(
-            {
-              applicationGuid: row.application_guid,
-            },
-            ({ init }) => ({
-              ...init,
-              headers: {
-                ...(init.headers as Record<string, string> | undefined),
-                Accept: 'application/pdf, application/octet-stream',
-              },
-            }),
-          );
-
-        if (!response.raw.ok) {
-          const errorText = await response.raw.text();
-          throw new Error(
-            `Adjudication report fetch failed: ${response.raw.status} ${response.raw.statusText} ${errorText}`,
-          );
-        }
-
-        const bytes = await response.raw.arrayBuffer();
-        if (bytes.byteLength === 0) {
-          throw new Error('Adjudication report response was empty.');
-        }
+        const bytes = await fetchAdjudicationReportBytes(row.application_guid);
 
         // Upstream may return octet-stream/attachment; force PDF for browser viewer.
         const pdfBlob = new Blob([bytes], { type: 'application/pdf' });
@@ -566,7 +603,7 @@ export function RecResourceGeospatialSection() {
         );
       }
     },
-    [recreationResourceAdminApiClient],
+    [fetchAdjudicationReportBytes],
   );
 
   const submissionRows = (pendingMapFeatureRequests?.data ?? [])
@@ -576,6 +613,8 @@ export function RecResourceGeospatialSection() {
       const bTime = b.requested_at ? Date.parse(b.requested_at) : 0;
       return bTime - aTime;
     });
+  const isPendingRequestsBusy =
+    isPendingRequestsLoading || isPendingRequestsFetching;
 
   return (
     <Stack className="geospatial-section" direction="vertical" gap={4}>
@@ -632,171 +671,203 @@ export function RecResourceGeospatialSection() {
           </h2>
         </div>
         <div className="geospatial-section__card-body">
-          <DataTable<PendingMapFeatureRequestRowDto>
-            className="geospatial-submissions-table"
-            columns={[
-              {
-                header: 'Submission ID',
-                render: (row) => row.submission_id || '-',
-              },
-              {
-                header: 'Date',
-                render: (row) => formatSubmissionDate(row.requested_at),
-              },
-              {
-                header: 'Reference',
-                render: (row) => {
-                  const statusRequestGuid = row.status_request_guid;
-                  const sncscUrl = buildSncscSubmissionUrl(statusRequestGuid);
-                  const canViewAdjudicationReport = hasAdjudicationReport(row);
+          {isPendingRequestsBusy ? (
+            <Alert
+              variant="light"
+              className="mb-0 d-flex align-items-center gap-2"
+            >
+              <Spinner animation="border" size="sm" aria-hidden="true" />
+              <span>Loading spatial submissions...</span>
+            </Alert>
+          ) : (
+            <DataTable<PendingMapFeatureRequestRowDto>
+              className="geospatial-submissions-table"
+              columns={[
+                {
+                  header: 'Submission ID',
+                  render: (row) => row.submission_id || '-',
+                },
+                {
+                  header: 'Date',
+                  render: (row) => formatSubmissionDate(row.requested_at),
+                },
+                {
+                  header: 'Reference',
+                  render: (row) => {
+                    const statusRequestGuid = row.status_request_guid;
+                    const sncscUrl = buildSncscSubmissionUrl(statusRequestGuid);
+                    const canViewAdjudicationReport =
+                      hasAdjudicationReport(row);
 
-                  if (!sncscUrl && !canViewAdjudicationReport) {
-                    return <span className="text-muted">-</span>;
-                  }
+                    if (!sncscUrl && !canViewAdjudicationReport) {
+                      return <span className="text-muted">-</span>;
+                    }
 
-                  return (
-                    <div className="d-flex align-items-center justify-content-center gap-3 w-100">
-                      {sncscUrl ? (
-                        <a
-                          href={sncscUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="geospatial-submissions-reference"
+                    return (
+                      <div className="d-flex align-items-center justify-content-center gap-3 w-100">
+                        {sncscUrl ? (
+                          <a
+                            href={sncscUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="geospatial-submissions-reference"
+                          >
+                            SNCSC Link{' '}
+                            <FontAwesomeIcon
+                              icon={faArrowUpRightFromSquare}
+                              className="ms-1"
+                            />
+                          </a>
+                        ) : null}
+                        {canViewAdjudicationReport ? (
+                          <button
+                            type="button"
+                            className="geospatial-submissions-reference btn btn-link p-0"
+                            onClick={() => {
+                              void handleViewAdjudicationReport(row);
+                            }}
+                          >
+                            Adj.Report{' '}
+                            <FontAwesomeIcon
+                              icon={faArrowUpRightFromSquare}
+                              className="ms-1"
+                            />
+                          </button>
+                        ) : null}
+                      </div>
+                    );
+                  },
+                },
+                {
+                  header: 'Status',
+                  render: (row) => {
+                    const status = getStatusDisplay(row.amend_status_code);
+                    if (status.label === '-') {
+                      return '-';
+                    }
+
+                    return (
+                      <CustomBadge
+                        label={status.label}
+                        bgColor={status.bgColor}
+                        textColor={status.textColor}
+                      />
+                    );
+                  },
+                },
+                {
+                  header: 'Purpose',
+                  render: (row) => {
+                    const purposeCode = (
+                      row as unknown as Record<string, unknown>
+                    )['purpose_code'] as string | null | undefined;
+                    const purpose = getPurposeDisplay(purposeCode);
+                    if (purpose.label === '-') {
+                      return '-';
+                    }
+
+                    return (
+                      <CustomBadge
+                        label={purpose.label}
+                        bgColor={purpose.bgColor}
+                        textColor={purpose.textColor}
+                      />
+                    );
+                  },
+                },
+                {
+                  header: 'Exhibit A',
+                  render: (row) => {
+                    const exhibitAUrl = getExhibitAUrl(row);
+
+                    return (
+                      <div className="geospatial-submissions-actions">
+                        {exhibitAUrl ? (
+                          <a
+                            href={exhibitAUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="geospatial-submissions-action-link"
+                          >
+                            <FontAwesomeIcon icon={faEye} /> View
+                          </a>
+                        ) : (
+                          <span className="geospatial-submissions-action-link geospatial-submissions-action-link--disabled">
+                            <FontAwesomeIcon icon={faEye} /> View
+                          </span>
+                        )}
+
+                        {exhibitAUrl ? (
+                          <Button
+                            size="sm"
+                            variant="link"
+                            className="geospatial-submissions-action-button"
+                            disabled={downloadMutation.isPending}
+                            onClick={() =>
+                              downloadMutation.mutate({
+                                file: {
+                                  id:
+                                    row.submission_id ??
+                                    row.application_guid ??
+                                    'exhibit-a',
+                                  name: `exhibit-a-${row.submission_id ?? row.application_guid}`,
+                                  url: exhibitAUrl,
+                                  extension: 'pdf',
+                                  date: '',
+                                  type: 'document',
+                                },
+                              })
+                            }
+                          >
+                            <FontAwesomeIcon icon={faDownload} /> Download
+                          </Button>
+                        ) : (
+                          <span className="geospatial-submissions-action-link geospatial-submissions-action-link--disabled">
+                            <FontAwesomeIcon icon={faDownload} /> Download
+                          </span>
+                        )}
+
+                        <Button
+                          size="sm"
+                          variant="link"
+                          className="geospatial-submissions-action-button"
+                          disabled={
+                            !isSuperAdmin ||
+                            !row.submission_id ||
+                            presignMutation.isPending ||
+                            finalizeMutation.isPending
+                          }
+                          onClick={() => handleUploadStart(row)}
+                          aria-label="Upload Exhibit A"
                         >
-                          SNCSC Link{' '}
-                          <FontAwesomeIcon
-                            icon={faArrowUpRightFromSquare}
-                            className="ms-1"
-                          />
-                        </a>
-                      ) : null}
-                      {canViewAdjudicationReport ? (
-                        <button
-                          type="button"
-                          className="geospatial-submissions-reference btn btn-link p-0"
-                          onClick={() => {
-                            void handleViewAdjudicationReport(row);
-                          }}
+                          <FontAwesomeIcon icon={faArrowUpFromBracket} /> Upload
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="link"
+                          className="geospatial-submissions-action-button"
+                          disabled={
+                            !isSuperAdmin ||
+                            !row.application_guid ||
+                            regenerateMutation.isPending
+                          }
+                          onClick={() => handleRegenerateStart(row)}
                         >
-                          Adj.Report{' '}
-                          <FontAwesomeIcon
-                            icon={faArrowUpRightFromSquare}
-                            className="ms-1"
-                          />
-                        </button>
-                      ) : null}
-                    </div>
-                  );
+                          <FontAwesomeIcon icon={faRotate} /> Regenerate
+                        </Button>
+                      </div>
+                    );
+                  },
                 },
-              },
-              {
-                header: 'Status',
-                render: (row) => {
-                  const status = getStatusDisplay(row.amend_status_code);
-                  if (status.label === '-') {
-                    return '-';
-                  }
-
-                  return (
-                    <CustomBadge
-                      label={status.label}
-                      bgColor={status.bgColor}
-                      textColor={status.textColor}
-                    />
-                  );
-                },
-              },
-              {
-                header: 'Purpose',
-                render: (row) => {
-                  const purposeCode = (
-                    row as unknown as Record<string, unknown>
-                  )['purpose_code'] as string | null | undefined;
-                  const purpose = getPurposeDisplay(purposeCode);
-                  if (purpose.label === '-') {
-                    return '-';
-                  }
-
-                  return (
-                    <CustomBadge
-                      label={purpose.label}
-                      bgColor={purpose.bgColor}
-                      textColor={purpose.textColor}
-                    />
-                  );
-                },
-              },
-              {
-                header: 'Exhibit A',
-                render: (row) => (
-                  <div className="geospatial-submissions-actions">
-                    {getExhibitAUrl(row) ? (
-                      <a
-                        href={getExhibitAUrl(row)!}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="geospatial-submissions-action-link"
-                      >
-                        <FontAwesomeIcon icon={faEye} /> View
-                      </a>
-                    ) : (
-                      <span className="geospatial-submissions-action-link geospatial-submissions-action-link--disabled">
-                        <FontAwesomeIcon icon={faEye} /> View
-                      </span>
-                    )}
-                    {getExhibitAUrl(row) ? (
-                      <a
-                        href={getExhibitAUrl(row)!}
-                        download
-                        className="geospatial-submissions-action-link"
-                      >
-                        <FontAwesomeIcon icon={faDownload} /> Download
-                      </a>
-                    ) : (
-                      <span className="geospatial-submissions-action-link geospatial-submissions-action-link--disabled">
-                        <FontAwesomeIcon icon={faDownload} /> Download
-                      </span>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="link"
-                      className="geospatial-submissions-action-button"
-                      disabled={
-                        !isSuperAdmin ||
-                        !row.submission_id ||
-                        presignMutation.isPending ||
-                        finalizeMutation.isPending
-                      }
-                      onClick={() => handleUploadStart(row)}
-                      aria-label="Upload Exhibit A"
-                    >
-                      <FontAwesomeIcon icon={faArrowUpFromBracket} /> Upload
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="link"
-                      className="geospatial-submissions-action-button"
-                      disabled={
-                        !isSuperAdmin ||
-                        !row.application_guid ||
-                        regenerateMutation.isPending
-                      }
-                      onClick={() => {
-                        handleRegenerateStart(row);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faRotate} /> Regenerate
-                    </Button>
-                  </div>
-                ),
-              },
-            ]}
-            rows={submissionRows}
-            emptyMessage="No spatial submissions found."
-            getRowKey={(row, index) =>
-              `${row.rec_resource_id}-${row.requested_at ?? 'na'}-${index}`
-            }
-          />
+              ]}
+              rows={submissionRows}
+              emptyMessage="No spatial submissions found."
+              getRowKey={(row, index) =>
+                `${row.rec_resource_id}-${row.requested_at ?? 'na'}-${index}`
+              }
+            />
+          )}
 
           <EditableGuard isArchived={isArchived}>
             {!isSpatialSubmissionOpen ? (
@@ -804,6 +875,7 @@ export function RecResourceGeospatialSection() {
                 <Button
                   size="sm"
                   variant="primary"
+                  disabled={isPendingRequestsBusy}
                   onClick={() => setIsSpatialSubmissionOpen(true)}
                 >
                   Create new
