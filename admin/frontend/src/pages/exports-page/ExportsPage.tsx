@@ -1,10 +1,7 @@
 import { PageLayout, Table as DataTable } from '@/components';
 import { Breadcrumbs } from '@shared/index';
 import { Alert, Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
-import { NOT_IMPLEMENTED_INFO } from './constants';
 import { useExportState } from './hooks/useExportState';
-
-const isDatasetUnavailable = (info?: string) => info === NOT_IMPLEMENTED_INFO;
 
 export const ExportsPage = () => {
   const { datasets, filters, preview, download } = useExportState();
@@ -16,9 +13,6 @@ export const ExportsPage = () => {
   } = filters.handlers;
 
   const hasSelectedDataset = Boolean(datasets.selected);
-  const isSelectedDatasetUnavailable = isDatasetUnavailable(
-    datasets.selected?.info,
-  );
   const areFilterSelectsDisabled = !hasSelectedDataset || filters.isLoading;
   const showPreviewTable =
     preview.isEnabled && preview.data && !preview.isLoading;
@@ -41,26 +35,13 @@ export const ExportsPage = () => {
             <h2 className="h5">Choose a dataset</h2>
             <p className="text-muted">
               To preview its current rows and download the live CSV from the
-              admin API. Disabled options represent features planned for future
-              development.
+              admin API.
             </p>
             {datasets.selected?.info ? (
               <Alert variant="warning" className="mb-3">
                 {datasets.selected.info}
               </Alert>
-            ) : (
-              <Alert variant="light" className="mb-3">
-                <div>
-                  <strong>FTA</strong> is the legacy export data shape from the
-                  previous system.
-                </div>
-                <div>
-                  <strong>RST</strong> is the new database schema and long-term
-                  target, but some exports are still incomplete while migration
-                  work continues.
-                </div>
-              </Alert>
-            )}
+            ) : null}
 
             <Row className="g-3 align-items-end">
               <Col md={6} xl={3}>
@@ -76,21 +57,10 @@ export const ExportsPage = () => {
                         ? 'Loading datasets...'
                         : 'Select a dataset'}
                     </option>
-                    {datasets.grouped.map((group) => (
-                      <optgroup key={group.source} label={group.source}>
-                        {group.datasets.map((dataset) => (
-                          <option
-                            key={dataset.id}
-                            value={dataset.id}
-                            disabled={isDatasetUnavailable(dataset.info)}
-                          >
-                            {dataset.label}
-                            {isDatasetUnavailable(dataset.info)
-                              ? ' (Not implemented)'
-                              : ''}
-                          </option>
-                        ))}
-                      </optgroup>
+                    {datasets.all.map((dataset) => (
+                      <option key={dataset.id} value={dataset.id}>
+                        {dataset.label}
+                      </option>
                     ))}
                   </Form.Select>
                 </Form.Group>
@@ -175,12 +145,6 @@ export const ExportsPage = () => {
                 )}
               </Button>
             </div>
-
-            {hasSelectedDataset && isSelectedDatasetUnavailable ? (
-              <p className="mt-3 mb-0 text-muted">
-                This dataset is planned but not implemented yet.
-              </p>
-            ) : null}
           </Card.Body>
         </Card>
 
@@ -215,14 +179,14 @@ export const ExportsPage = () => {
             {showPreviewTable ? (
               <DataTable
                 className="mb-0"
-                columns={preview.data.columns.map((column) => ({
+                columns={preview.data!.columns.map((column) => ({
                   header: column,
                   render: (row: Record<string, string | null>) =>
                     row[column] ?? '-',
                 }))}
                 emptyMessage="No rows matched the selected dataset and filters."
                 getRowKey={(_, rowIndex) => `row-${rowIndex}`}
-                rows={preview.data.rows}
+                rows={preview.data!.rows}
               />
             ) : null}
           </Card.Body>

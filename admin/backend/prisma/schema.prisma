@@ -26,8 +26,10 @@ model recreation_resource {
   control_access_code                  String?                                @db.VarChar(1)
   risk_rating_code                     String?                                @db.VarChar(2)
   right_of_way                         Decimal?                               @db.Decimal(7, 1)
+  overflow_campsites                   Int?
   rec_status_code                      String?                                @db.VarChar(50)
   arch_impact_assess_ind               String?                                @db.VarChar(1)
+  arch_impact_assess_date              DateTime?                              @db.Date
   resource_feature_ind                 String?                                @default("N") @db.VarChar(1)
   last_rec_inspection_date             DateTime?                              @db.Date
   last_hzrd_tree_assess_date           DateTime?                              @db.Date
@@ -44,6 +46,7 @@ model recreation_resource {
   recreation_feature                   recreation_feature[]
   recreation_fee                       recreation_fee[]
   recreation_map_feature               recreation_map_feature[]
+  recreation_objective                 recreation_objective[]
   recreation_control_access_code       recreation_control_access_code?        @relation(fields: [control_access_code], references: [recreation_control_access_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_district_code             recreation_district_code?              @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_maintenance_standard_code recreation_maintenance_standard_code?  @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
@@ -62,6 +65,30 @@ model recreation_resource {
   // because the admin resource queries select through it.
   recreation_resource_status_code_rel  recreation_resource_status_code?       @relation(fields: [rec_status_code], references: [recreation_resource_status_code], onDelete: NoAction, onUpdate: NoAction)
 
+  @@schema("rst")
+}
+
+model recreation_objective {
+  rec_resource_id            String                   @db.VarChar(20)
+  objective_id               Int
+  objective_description      String?                  @db.VarChar(2000)
+  objective_established_date DateTime?                @db.Date
+  objective_amended_date     DateTime?                @db.Date
+  objective_cancelled_date   DateTime?                @db.Date
+  revision_count             Int?
+  entry_userid               String?                  @db.VarChar(30)
+  entry_timestamp            DateTime?                @db.Timestamp(6)
+  update_userid              String?                  @db.VarChar(30)
+  update_timestamp           DateTime?                @db.Timestamp(6)
+  updated_at                 DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by                 String?                  @db.VarChar(30)
+  created_at                 DateTime?                @default(now()) @db.Timestamp(6)
+  created_by                 String?                  @db.VarChar(30)
+  sys_period                 Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource        recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([rec_resource_id, objective_id])
+  @@index([rec_resource_id], map: "idx_recreation_objective_rec_resource_id")
   @@schema("rst")
 }
 

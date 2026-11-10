@@ -17,27 +17,22 @@ describe('ExportsPage', () => {
     vi.clearAllMocks();
   });
 
-  it('renders unavailable datasets as disabled options and shows the warning state', () => {
+  it('renders dataset info and empty preview guidance', () => {
     mockUseExportState.mockReturnValue({
       datasets: {
-        grouped: [
+        all: [
           {
+            id: 'objective-list',
+            label: 'Objective list',
             source: 'RST',
-            datasets: [
-              {
-                id: 'objective-list',
-                label: 'Objective list',
-                source: 'RST',
-                info: 'not-implemented',
-              },
-            ],
+            info: 'Dataset note',
           },
         ],
         selected: {
           id: 'objective-list',
           label: 'Objective list',
           source: 'RST',
-          info: 'not-implemented',
+          info: 'Dataset note',
         },
         isLoading: false,
         error: null,
@@ -64,19 +59,16 @@ describe('ExportsPage', () => {
       download: {
         isDownloading: false,
         handleDownload: vi.fn(),
-        isDisabled: true,
+        isDisabled: false,
       },
     });
 
     render(<ExportsPage />);
 
     expect(
-      screen.getByRole('option', { name: 'Objective list (Not implemented)' }),
-    ).toBeDisabled();
-    expect(screen.getByText('not-implemented')).toBeInTheDocument();
-    expect(
-      screen.getByText('This dataset is planned but not implemented yet.'),
-    ).toBeInTheDocument();
+      screen.getByRole('option', { name: 'Objective list' }),
+    ).toBeEnabled();
+    expect(screen.getByText('Dataset note')).toBeInTheDocument();
     expect(
       screen.getByText(
         'Choose a dataset to automatically load up to 50 rows from the backend.',
@@ -87,16 +79,11 @@ describe('ExportsPage', () => {
   it('renders the default guidance and preview values, including null fallbacks', () => {
     mockUseExportState.mockReturnValue({
       datasets: {
-        grouped: [
+        all: [
           {
+            id: 'file-details',
+            label: 'File details',
             source: 'RST',
-            datasets: [
-              {
-                id: 'file-details',
-                label: 'File details',
-                source: 'RST',
-              },
-            ],
           },
         ],
         selected: {
@@ -138,12 +125,6 @@ describe('ExportsPage', () => {
 
     render(<ExportsPage />);
 
-    expect(
-      screen.getByText(/legacy export data shape from the previous system/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/new database schema and long-term target/i),
-    ).toBeInTheDocument();
     expect(screen.getByText('Alpha')).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();
   });
@@ -151,7 +132,7 @@ describe('ExportsPage', () => {
   it('renders loading and error states for datasets and preview', () => {
     mockUseExportState.mockReturnValue({
       datasets: {
-        grouped: [],
+        all: [],
         selected: null,
         isLoading: true,
         error: new Error('datasets failed'),
@@ -218,16 +199,11 @@ describe('ExportsPage', () => {
 
     mockUseExportState.mockReturnValue({
       datasets: {
-        grouped: [
+        all: [
           {
+            id: 'file-details',
+            label: 'File details',
             source: 'RST',
-            datasets: [
-              {
-                id: 'file-details',
-                label: 'File details',
-                source: 'RST',
-              },
-            ],
           },
         ],
         selected: {
