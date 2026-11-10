@@ -3,6 +3,7 @@ import { PageLayout, Table as DataTable } from '@/components';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useGetPendingMapFeatureRequests } from '@/services/hooks/recreation-resource-admin/useGetPendingMapFeatureRequests';
 import { PendingMapFeatureRequestRowDto } from '@/services/recreation-resource-admin';
+import { buildPageItems, buildPageRange } from '@/utils/pagination';
 import { Breadcrumbs } from '@shared/index';
 import { Alert, Form, Pagination, Spinner, Stack } from 'react-bootstrap';
 import { Link } from '@tanstack/react-router';
@@ -19,8 +20,6 @@ type SortKey =
   | 'geometry_type'
   | 'feature_count'
   | 'requested_at';
-
-type PageItem = number | 'ellipsis';
 
 type SortValue = string | number;
 
@@ -113,43 +112,6 @@ const COLUMNS: ColumnConfig[] = [
     render: formatRequestedAt,
   },
 ];
-
-const buildPageRange = (start: number, end: number) =>
-  Array.from(
-    { length: Math.max(end - start + 1, 0) },
-    (_, index) => start + index,
-  );
-
-const buildPageItems = (pageIndex: number, pageCount: number): PageItem[] => {
-  if (pageCount <= 7) {
-    return buildPageRange(0, pageCount - 1);
-  }
-
-  let middlePages = buildPageRange(pageIndex - 1, pageIndex + 1);
-
-  if (pageIndex <= 2) {
-    middlePages = buildPageRange(1, 3);
-  } else if (pageIndex >= pageCount - 3) {
-    middlePages = buildPageRange(pageCount - 4, pageCount - 2);
-  }
-
-  return [0, ...middlePages, pageCount - 1].reduce<PageItem[]>(
-    (items, currentIndex) => {
-      const previousIndex = items.at(-1);
-
-      if (
-        typeof previousIndex === 'number' &&
-        currentIndex - previousIndex > 1
-      ) {
-        items.push('ellipsis');
-      }
-
-      items.push(currentIndex);
-      return items;
-    },
-    [],
-  );
-};
 
 function getSortPresentation(direction?: 'asc' | 'desc') {
   switch (direction) {
