@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { PageLayout, Table as DataTable } from '@/components';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useGetPendingMapFeatureRequests } from '@/services/hooks/recreation-resource-admin/useGetPendingMapFeatureRequests';
@@ -19,6 +19,59 @@ type SortKey =
   | 'requested_at';
 
 type PageItem = number | 'ellipsis';
+
+type SortValue = string | number;
+
+type SortableColumnConfig = {
+  label: string;
+  key: SortKey;
+  render: (row: PendingMapFeatureRequestRowDto) => ReactNode;
+};
+
+const DASH_PLACEHOLDER = '-';
+
+const getRecreationDistrictSortValue = (row: PendingMapFeatureRequestRowDto) =>
+  row.recreation_district ?? row.district_description ?? '';
+
+const getRecreationDistrictDisplayText = (
+  row: PendingMapFeatureRequestRowDto,
+) => row.recreation_district || row.district_description || '';
+
+const getGeometryTypeText = (row: PendingMapFeatureRequestRowDto) =>
+  row.geometry_types.join(', ');
+
+const getRequestedAtSortValue = (row: PendingMapFeatureRequestRowDto) =>
+  row.requested_at ? Date.parse(row.requested_at) : 0;
+
+const getDisplayValue = (value?: string | number | null) =>
+  value === undefined || value === null || value === ''
+    ? DASH_PLACEHOLDER
+    : value;
+
+const sortValueGetters: Record<
+  SortKey,
+  (row: PendingMapFeatureRequestRowDto) => SortValue
+> = {
+  rec_resource_id: (row) => row.rec_resource_id ?? '',
+  name: (row) => row.name ?? '',
+  recreation_district: getRecreationDistrictSortValue,
+  natural_resource_district: (row) => row.natural_resource_district ?? '',
+  recreation_type: (row) => row.recreation_type ?? '',
+  geometry_type: getGeometryTypeText,
+  feature_count: (row) => row.feature_count ?? 0,
+  requested_at: getRequestedAtSortValue,
+};
+
+const formatRequestedAt = (row: PendingMapFeatureRequestRowDto) =>
+  row.requested_at
+    ? new Date(row.requested_at).toLocaleString('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : DASH_PLACEHOLDER;
 
 const buildPageRange = (start: number, end: number) =>
   Array.from(
@@ -118,28 +171,7 @@ export const RequestsPage = () => {
       return [...pendingRows];
     }
 
-    const getSortValue = (row: PendingMapFeatureRequestRowDto) => {
-      switch (sortKey) {
-        case 'rec_resource_id':
-          return row.rec_resource_id ?? '';
-        case 'name':
-          return row.name ?? '';
-        case 'recreation_district':
-          return row.recreation_district ?? row.district_description ?? '';
-        case 'natural_resource_district':
-          return row.natural_resource_district ?? '';
-        case 'recreation_type':
-          return row.recreation_type ?? '';
-        case 'geometry_type':
-          return row.geometry_types.join(', ');
-        case 'feature_count':
-          return row.feature_count ?? 0;
-        case 'requested_at':
-          return row.requested_at ? Date.parse(row.requested_at) : 0;
-        default:
-          return row.rec_resource_id ?? '';
-      }
-    };
+    const getSortValue = sortValueGetters[sortKey];
 
     return [...pendingRows].sort((a, b) => {
       const aValue = getSortValue(a);
@@ -204,6 +236,56 @@ export const RequestsPage = () => {
     );
   };
 
+  const sortableColumns: SortableColumnConfig[] = [
+    {
+      label: 'Rec #',
+      key: 'rec_resource_id',
+      render: (row) => (
+        <Link
+          to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL}
+          params={{ id: row.rec_resource_id }}
+        >
+          {row.rec_resource_id}
+        </Link>
+      ),
+    },
+    {
+      label: 'Name',
+      key: 'name',
+      render: (row) => getDisplayValue(row.name),
+    },
+    {
+      label: 'Recreation district',
+      key: 'recreation_district',
+      render: (row) => getDisplayValue(getRecreationDistrictDisplayText(row)),
+    },
+    {
+      label: 'Natural resource district',
+      key: 'natural_resource_district',
+      render: (row) => getDisplayValue(row.natural_resource_district),
+    },
+    {
+      label: 'Recreation type',
+      key: 'recreation_type',
+      render: (row) => getDisplayValue(row.recreation_type),
+    },
+    {
+      label: 'Geometry type',
+      key: 'geometry_type',
+      render: (row) => getDisplayValue(getGeometryTypeText(row)),
+    },
+    {
+      label: 'Features',
+      key: 'feature_count',
+      render: (row) => row.feature_count,
+    },
+    {
+      label: 'Requested at',
+      key: 'requested_at',
+      render: formatRequestedAt,
+    },
+  ];
+
   return (
     <PageLayout>
       <div className="d-flex flex-column gap-4">
@@ -234,67 +316,10 @@ export const RequestsPage = () => {
 
         <DataTable<PendingMapFeatureRequestRowDto>
           className="mb-0"
-          columns={[
-            {
-              header: renderSortableHeader('Rec #', 'rec_resource_id'),
-              render: (row) => (
-                <Link
-                  to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL}
-                  params={{ id: row.rec_resource_id }}
-                >
-                  {row.rec_resource_id}
-                </Link>
-              ),
-            },
-            {
-              header: renderSortableHeader('Name', 'name'),
-              render: (row) => row.name || '-',
-            },
-            {
-              header: renderSortableHeader(
-                'Recreation district',
-                'recreation_district',
-              ),
-              render: (row) =>
-                row.recreation_district || row.district_description || '-',
-            },
-            {
-              header: renderSortableHeader(
-                'Natural resource district',
-                'natural_resource_district',
-              ),
-              render: (row) => row.natural_resource_district || '-',
-            },
-            {
-              header: renderSortableHeader(
-                'Recreation type',
-                'recreation_type',
-              ),
-              render: (row) => row.recreation_type || '-',
-            },
-            {
-              header: renderSortableHeader('Geometry type', 'geometry_type'),
-              render: (row) =>
-                row.geometry_types.length ? row.geometry_types.join(', ') : '-',
-            },
-            {
-              header: renderSortableHeader('Features', 'feature_count'),
-              render: (row) => row.feature_count,
-            },
-            {
-              header: renderSortableHeader('Requested at', 'requested_at'),
-              render: (row) =>
-                row.requested_at
-                  ? new Date(row.requested_at).toLocaleString('en-CA', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })
-                  : '-',
-            },
-          ]}
+          columns={sortableColumns.map(({ label, key, render }) => ({
+            header: renderSortableHeader(label, key),
+            render,
+          }))}
           rows={pagedRows}
           emptyMessage="No pending requests found."
           getRowKey={(row, index) =>
