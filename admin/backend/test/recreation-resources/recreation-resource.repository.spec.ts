@@ -831,5 +831,44 @@ describe('RecreationResourceRepository', () => {
         },
       ]);
     });
+
+    it('should return map feature requests filtered by recreation resource id', async () => {
+      prisma.$queryRaw.mockResolvedValue([
+        {
+          rec_resource_id: 'REC000999',
+          name: 'Filtered Lake',
+          district_description: 'Filtered District',
+          recreation_district: 'Filtered District',
+          natural_resource_district: 'Filtered NRD',
+          recreation_type: 'Trail',
+          amend_status_code: 'PND',
+          feature_count: 2n,
+          requested_at: null,
+          geometry_types: ['LineString'],
+        },
+      ]);
+
+      const result =
+        await repo.findMapFeatureRequestsByRecResourceId('REC000999');
+
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+      const query = prisma.$queryRaw.mock.calls[0]?.[0] as Prisma.Sql;
+      expect(query.values).toContain('REC000999');
+      expect(query.sql).toContain("rss.status IS DISTINCT FROM 'FAI'");
+      expect(result).toEqual([
+        {
+          rec_resource_id: 'REC000999',
+          name: 'Filtered Lake',
+          district_description: 'Filtered District',
+          recreation_district: 'Filtered District',
+          natural_resource_district: 'Filtered NRD',
+          recreation_type: 'Trail',
+          amend_status_code: 'PND',
+          feature_count: 2,
+          requested_at: null,
+          geometry_types: ['LineString'],
+        },
+      ]);
+    });
   });
 });

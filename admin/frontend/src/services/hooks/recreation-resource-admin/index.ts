@@ -18,6 +18,7 @@ export * from './useGetImagesByRecResourceId';
 export * from './useGetRecreationResourceById';
 export * from './useGetNextRecResourceId';
 export * from './useGetPendingMapFeatureRequests';
+export * from './useGetMapFeatureRequestsByRecResourceId';
 export * from './useGetRecreationResourceOptions';
 export { default as useGetRecreationResourceSearch } from './useGetRecreationResourceSearch';
 export * from './useGetRecreationResourceSuggestions';

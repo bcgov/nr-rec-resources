@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
 import { Table as BootstrapTable } from 'react-bootstrap';
 import './Table.scss';
 
 export interface TableColumn<T> {
-  header: string;
-  render: (row: T, index: number) => React.ReactNode;
+  header: ReactNode;
+  render: (row: T, index: number) => ReactNode;
 }
 
 export interface TableProps<T> {
