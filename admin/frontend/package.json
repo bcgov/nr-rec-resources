@@ -39,7 +39,7 @@
     "@turf/turf": "^7.4.0",
     "@types/quill": "^2.0.14",
     "bootstrap": "^5.3.6",
-    "dompurify": "^3.3.1",
+    "dompurify": "^3.4.17",
     "dotenv": "^17.2.1",
     "html-react-parser": "^5.2.2",
     "jszip": "^3.10.2",
