@@ -1117,4 +1117,32 @@ describe('RecResourceGeospatialSection', () => {
       }),
     });
   });
+
+  it('uses row exhibit_a_url when it is absolute and no exhibit doc match exists', () => {
+    mockUseGetExhibitADocs.mockReturnValueOnce({ data: [] });
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-ABS',
+            application_guid: 'app-guid-abs',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            exhibit_a_url: 'https://example.com/from-row.pdf',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const viewLink = screen.getByRole('link', { name: /View/i });
+    expect(viewLink).toHaveAttribute(
+      'href',
+      'https://example.com/from-row.pdf',
+    );
+  });
 });

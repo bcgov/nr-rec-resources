@@ -332,4 +332,31 @@ describe('ExhibitADocsService', () => {
       expect(mockS3Service.deleteFile).not.toHaveBeenCalled();
     });
   });
+
+  describe('path and filename normalization helpers', () => {
+    it('sanitizes unsafe application guid and file segments in buildS3Key', () => {
+      const key = (service as any).buildS3Key(
+        REC_RESOURCE_ID,
+        '  app guid/with unsafe chars  ',
+        'exhibit a?.pdf',
+      );
+
+      expect(key).toBe('REC0001/app_guid_with_unsafe_chars/exhibit_a_.pdf');
+    });
+
+    it('falls back when sanitizePathSegment receives blank input', () => {
+      expect(
+        (service as any).sanitizePathSegment('   ', 'fallback-value'),
+      ).toBe('fallback-value');
+    });
+
+    it('normalizes stem and extension defaults', () => {
+      expect((service as any).normalizeStem('  My Exhibit.A.PDF  ')).toBe(
+        'my-exhibit-a',
+      );
+      expect((service as any).normalizeStem('...')).toBe('exhibit-a');
+      expect((service as any).normalizeExtension('  .PDF  ')).toBe('pdf');
+      expect((service as any).normalizeExtension('  ')).toBe('pdf');
+    });
+  });
 });
