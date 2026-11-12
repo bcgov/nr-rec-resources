@@ -114,19 +114,34 @@ describe('ExhibitASection', () => {
   });
 
   it('renders the Exhibit A heading', () => {
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
     expect(screen.getByText('Exhibit A')).toBeDefined();
   });
 
   it('shows empty state message when no documents', () => {
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
     expect(
       screen.getByText('No Exhibit A documents uploaded yet.'),
     ).toBeDefined();
   });
 
   it('shows upload button when user is superAdmin', () => {
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
     expect(screen.getByText('Upload')).toBeDefined();
   });
 
@@ -312,7 +327,12 @@ describe('ExhibitASection', () => {
     });
     mockFinalizeMutateAsync.mockResolvedValue(undefined);
 
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
 
     const fileInput = screen.getByLabelText(
       'Upload Exhibit A document',
@@ -337,11 +357,13 @@ describe('ExhibitASection', () => {
       expect(mockPresignMutateAsync).toHaveBeenCalledWith({
         recResourceId: 'REC123',
         fileName: 'final-name.pdf',
+        applicationGuid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
       });
     });
 
     expect(mockFinalizeMutateAsync).toHaveBeenCalledWith({
       recResourceId: 'REC123',
+      application_guid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
       document_id: 'doc-upload-1',
       file_name: 'final-name',
       extension: 'pdf',
@@ -364,7 +386,12 @@ describe('ExhibitASection', () => {
       statusText: 'Server Error',
     } as Response);
 
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
 
     const fileInput = screen.getByLabelText(
       'Upload Exhibit A document',

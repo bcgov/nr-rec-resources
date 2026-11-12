@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const REC_RESOURCE_ID = 'REC0001';
 const DOC_ID = 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9';
 const APPLICATION_GUID = '6444f5ab-cc12-4129-b66f-2deec3f26ec8';
-const S3_KEY = `${REC_RESOURCE_ID}/${DOC_ID}/exhibit-a-${DOC_ID}.pdf`;
+const S3_KEY = `${REC_RESOURCE_ID}/${APPLICATION_GUID}/exhibit-a-${DOC_ID}.pdf`;
 const PRESIGNED_URL =
   'http://localhost:4566/rst-lza-exhibit-a-docs-dev/' + S3_KEY;
 
@@ -143,11 +143,12 @@ describe('ExhibitADocsService', () => {
       const result = await service.presignUpload(
         REC_RESOURCE_ID,
         'exhibit-a.pdf',
+        APPLICATION_GUID,
       );
 
       expect(result.document_id).toBeDefined();
       expect(result.key).toContain(REC_RESOURCE_ID);
-      expect(result.key).toContain(`/${result.document_id}/`);
+      expect(result.key).toContain(`/${APPLICATION_GUID}/`);
       expect(result.key).toContain(`exhibit-a-${result.document_id}.pdf`);
       expect(result.url).toBe(PRESIGNED_URL);
     });
@@ -156,7 +157,11 @@ describe('ExhibitADocsService', () => {
       mockPrisma.recreation_resource.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.presignUpload(REC_RESOURCE_ID, 'exhibit-a.pdf'),
+        service.presignUpload(
+          REC_RESOURCE_ID,
+          'exhibit-a.pdf',
+          APPLICATION_GUID,
+        ),
       ).rejects.toThrow(
         new HttpException('Recreation Resource not found', 404),
       );
@@ -169,6 +174,10 @@ describe('ExhibitADocsService', () => {
       file_name: 'exhibit-a',
       extension: 'pdf',
       file_size: 1024,
+    };
+    const finalizeBodyWithGuid = {
+      ...finalizeBody,
+      application_guid: APPLICATION_GUID,
     };
 
     beforeEach(() => {
@@ -183,7 +192,7 @@ describe('ExhibitADocsService', () => {
 
       const result = await service.finalizeUpload(
         REC_RESOURCE_ID,
-        finalizeBody,
+        finalizeBodyWithGuid,
       );
 
       expect(result.document_id).toBe(DOC_ID);
@@ -200,7 +209,7 @@ describe('ExhibitADocsService', () => {
       mockPrisma.recreation_resource.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
+        service.finalizeUpload(REC_RESOURCE_ID, finalizeBodyWithGuid),
       ).rejects.toThrow(
         new HttpException('Recreation Resource not found', 404),
       );
@@ -210,7 +219,7 @@ describe('ExhibitADocsService', () => {
     it('should throw 400 for invalid document_id', async () => {
       await expect(
         service.finalizeUpload(REC_RESOURCE_ID, {
-          ...finalizeBody,
+          ...finalizeBodyWithGuid,
           document_id: '',
         }),
       ).rejects.toThrow(HttpException);
@@ -221,7 +230,7 @@ describe('ExhibitADocsService', () => {
       mockPrisma.$queryRaw.mockRejectedValue(new Error('DB error'));
 
       await expect(
-        service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
+        service.finalizeUpload(REC_RESOURCE_ID, finalizeBodyWithGuid),
       ).rejects.toThrow(HttpException);
     });
 
@@ -229,7 +238,7 @@ describe('ExhibitADocsService', () => {
       mockPrisma.$queryRaw.mockResolvedValue([]);
 
       await expect(
-        service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
+        service.finalizeUpload(REC_RESOURCE_ID, finalizeBodyWithGuid),
       ).rejects.toThrow(HttpException);
       expect(mockS3Service.getSignedUrl).not.toHaveBeenCalled();
     });
@@ -261,6 +270,13 @@ describe('ExhibitADocsService', () => {
       expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
       const [, ...insertValues] = mockPrisma.$queryRaw.mock.calls[1]!;
       expect(insertValues).toContain(APPLICATION_GUID);
+    });
+
+    it('should throw 400 when application_guid and submission_id are both missing', async () => {
+      await expect(
+        service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
+      ).rejects.toThrow(new HttpException('application_guid is required', 400));
+      expect(mockPrisma.$queryRaw).not.toHaveBeenCalled();
     });
 
     it('should throw 404 when submission_id cannot be resolved', async () => {

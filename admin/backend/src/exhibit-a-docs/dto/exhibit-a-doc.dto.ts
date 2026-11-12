@@ -62,7 +62,7 @@ export class ExhibitADocDto {
 
   @ApiProperty({
     description: 'S3 object key',
-    example: 'REC0001/exhibit-a-2024.pdf',
+    example: 'REC0001/6444f5ab-cc12-4129-b66f-2deec3f26ec8/exhibit-a-2024.pdf',
   })
   s3_key: string;
 
@@ -138,7 +138,8 @@ export class PresignExhibitAUploadResponseDto {
 
   @ApiProperty({
     description: 'S3 object key',
-    example: 'REC0001/a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9/exhibit-a.pdf',
+    example:
+      'REC0001/6444f5ab-cc12-4129-b66f-2deec3f26ec8/exhibit-a-a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9.pdf',
   })
   key: string;
 

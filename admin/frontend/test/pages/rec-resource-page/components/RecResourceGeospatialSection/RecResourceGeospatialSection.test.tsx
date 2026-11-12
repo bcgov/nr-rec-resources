@@ -659,6 +659,7 @@ describe('RecResourceGeospatialSection', () => {
     expect(presignMutate).toHaveBeenCalledWith({
       recResourceId: 'REC0001',
       fileName: 'report.pdf',
+      applicationGuid: 'app-guid-6',
     });
     expect(global.fetch).toHaveBeenCalledWith(
       'https://example.com/presign',
@@ -669,6 +670,7 @@ describe('RecResourceGeospatialSection', () => {
     );
     expect(finalizeMutate).toHaveBeenCalledWith({
       recResourceId: 'REC0001',
+      application_guid: 'app-guid-6',
       submission_id: 'SUB-6',
       document_id: 'doc-1',
       file_name: 'report',
@@ -746,6 +748,7 @@ describe('RecResourceGeospatialSection', () => {
         data: [
           {
             submission_id: 'SUB-7',
+            application_guid: 'app-guid-7',
             rec_resource_id: 'REC0001',
             amend_status_code: 'PND',
             feature_count: 1,

@@ -34,13 +34,18 @@ with source_rows as (
              rss.application_guid,
              case
                  when s.derived_extension is null then s.clean_name
-                 else regexp_replace(s.clean_name, '\\.[^.]+$', '')
+                  else regexp_replace(s.clean_name, '\.[^.]+$', '')
              end as file_name,
              coalesce(s.derived_extension, '')                                 as extension,
              s.file_size,
              coalesce(nullif(regexp_replace(s.rec_resource_id, '[^A-Za-z0-9._-]', '_', 'g'), ''), 'unknown_resource') || '/'
-                 || coalesce(nullif(regexp_replace(s.submission_id, '[^A-Za-z0-9._-]', '_', 'g'), ''), 'unknown_submission') || '/'
-                 || regexp_replace(s.clean_name, '[^A-Za-z0-9._-]', '_', 'g') as s3_key,
+                  || regexp_replace(rss.application_guid::text, '[^A-Za-z0-9._-]', '_', 'g') || '/'
+                  || regexp_replace(
+                         regexp_replace(s.clean_name, '\.[^.]+$', ''),
+                         '[^A-Za-z0-9._-]',
+                         '_',
+                         'g'
+                     ) as s3_key,
              s.updated_at, s.updated_by, s.created_at, s.created_by,
              case when s.page_size in ('A','B','C','D','E') then s.page_size end as page_size,
              s.page_orientation,
@@ -50,7 +55,7 @@ with source_rows as (
              select
                  source_rows.*,
                  coalesce(source_rows.source_extension,
-                          nullif(lower(substring(source_rows.clean_name from '\\.([^.]+)$')), '')) as derived_extension
+                           nullif(lower(substring(source_rows.clean_name from '\.([^.]+)$')), '')) as derived_extension
              from source_rows
          ) s
                   join rst.recreation_resource rr
