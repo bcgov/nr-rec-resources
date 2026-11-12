@@ -105,7 +105,6 @@ public class TenureExportService {
       SELECT ta.TENURE_APP_GUID,
              ta.SUBMISSION_ID,
              ta.FOREST_FILE_ID,
-             'Exhibit_A/' || NVL(ta.FOREST_FILE_ID, 'unknown_resource') || '/' || NVL(TO_CHAR(ta.SUBMISSION_ID), 'unknown_submission') || '/' ||
              'TENURE_APP_IMAGE_' || ROW_NUMBER() OVER (ORDER BY ta.TENURE_APP_ID) || '_' || ta.TENURE_APP_ID ||
              CASE UPPER(TRIM(ta.IMAGE_MIME_TYPE_CODE))
                WHEN 'PDF' THEN '.pdf'
@@ -141,6 +140,15 @@ public class TenureExportService {
       SELECT ta.FOREST_FILE_ID,
              ta.SUBMISSION_ID,
              ta.TENURE_APP_ID,
+             'TENURE_APP_IMAGE_' || ROW_NUMBER() OVER (ORDER BY tai.TENURE_APP_ID) || '_' || ta.TENURE_APP_ID ||
+             CASE UPPER(TRIM(ta.IMAGE_MIME_TYPE_CODE))
+               WHEN 'PDF' THEN '.pdf'
+               WHEN 'JPG' THEN '.jpg'
+               WHEN 'JPEG' THEN '.jpg'
+               WHEN 'PNG' THEN '.png'
+               WHEN 'GIF' THEN '.gif'
+               ELSE ''
+             END AS IMAGE_FILE_NAME,
              tai.*
       FROM TENURE_APPLICATION ta
       JOIN TENURE_APPLICATION_IMAGE tai ON ta.TENURE_APP_ID = tai.TENURE_APP_ID
@@ -238,12 +246,9 @@ public class TenureExportService {
 
     if (tenureImageObjectUploadEnabled) {
       if (shouldExportAppImages(imageExportTarget)) {
-        String exhibitRootPrefix = (exhibitImageBucket == null || exhibitImageBucket.isBlank())
-          ? exhibitImagePrefix
-          : "";
         uploadImageObjectsToS3(
           REC_TENURE_APP_IMAGE_UPLOAD_SQL,
-          exhibitRootPrefix,
+          exhibitImagePrefix,
           "TENURE_APP_IMAGE",
           exhibitImageBucket
         );
@@ -334,7 +339,7 @@ public class TenureExportService {
           String defaultFileName = defaultFileNameBase + extensionFromContentType(contentType);
           String fileName = sanitizeFileName(getColumnValue(resultSet, fileNameColumnIndex), defaultFileName);
 
-          if (!stableId.isBlank() && !fileName.contains(".")) {
+          if (!stableId.isBlank() && !fileName.contains(".") && !fileName.endsWith("_" + stableId)) {
             fileName = fileName + "_" + stableId;
           }
 
