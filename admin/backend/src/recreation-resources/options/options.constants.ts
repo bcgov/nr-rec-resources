@@ -103,6 +103,11 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     labelField: 'description',
     prismaModel: 'recreation_resource_status_code',
   },
+  [OPTION_TYPES.RECREATION_USER_DAYS]: {
+    idField: 'recreation_resource_user_days_code',
+    labelField: 'description',
+    prismaModel: 'recreation_resource_user_days_code',
+  },
 };
 
 export const VALID_OPTION_TYPES = Object.values(OPTION_TYPES);

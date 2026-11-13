@@ -535,7 +535,7 @@ select aws_s3.table_import_from_s3(
 );
 select aws_s3.table_import_from_s3(
                'fta.tenure_application',
-               'tenure_app_id,tenure_appname,submission_id,forest_file_id,client_number,client_locn_code,tenure_application_type_code,cascade_split_code,tenure_application_state_code,tenure_app_purp_code,adjudication_ind,adjudicated_by,adjudication_date,adjudication_requested_ind,current_assigned_to,image_created_ind,map_report_created_ind,description,min_x,min_y,max_x,max_y,management_unit_number,management_unit_block,management_unit_sub_block,completion_date,finalized_by,submission_date,image_error,map_report_error,spatial_data_error,spatial_ind,file_created_ind,image_height,image_width,meters_per_pixel,image_scale,adjudication_comment,cutting_permit_id,image_map_size_code,org_unit_no,geo_org_unit_no,image_mime_type_code,image_orientation_code,image_create_in_progress_ind,image_create_requested_by,image_create_requested_date,overlay_geo_district_code,bcgs_mapsheet_no,tsa_number,land_district,pulpwood_agreement,utm_zone,revision_count,entry_userid,entry_timestamp,update_userid,update_timestamp,tenure_app_guid,application_decision_message,clearance_status_request_uri,dependent_submission_reference,tenure_amendment_id,business_amendment_id,decision_date,issuance_date',
+               'tenure_app_id,tenure_appname,submission_id,forest_file_id,client_number,client_locn_code,tenure_application_type_code,cascade_split_code,tenure_application_state_code,tenure_app_purp_code,adjudication_ind,adjudicated_by,adjudication_date,decision_date,adjudication_requested_ind,current_assigned_to,image_created_ind,map_report_created_ind,description,min_x,min_y,max_x,max_y,management_unit_number,management_unit_block,management_unit_sub_block,completion_date,finalized_by,submission_date,image_error,map_report_error,spatial_data_error,spatial_ind,file_created_ind,image_height,image_width,meters_per_pixel,image_scale,adjudication_comment,cutting_permit_id,image_map_size_code,org_unit_no,geo_org_unit_no,image_mime_type_code,image_orientation_code,image_create_in_progress_ind,image_create_requested_by,image_create_requested_date,overlay_geo_district_code,bcgs_mapsheet_no,tsa_number,land_district,pulpwood_agreement,utm_zone,revision_count,entry_userid,entry_timestamp,update_userid,update_timestamp,tenure_app_guid,application_decision_message,clearance_status_request_uri,dependent_submission_reference,tenure_amendment_id,business_amendment_id',
                '(
                  FORMAT csv,
                  HEADER true,
@@ -545,7 +545,6 @@ select aws_s3.table_import_from_s3(
                      submission_date,
                      adjudication_date,
                      decision_date,
-                     issuance_date,
                      completion_date,
                      image_error,
                      map_report_error,

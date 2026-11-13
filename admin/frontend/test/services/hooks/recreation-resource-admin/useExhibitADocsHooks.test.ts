@@ -90,7 +90,11 @@ describe('useExhibitADocsHooks', () => {
         wrapper: TestQueryClientProvider,
       });
 
-      const params = { recResourceId: 'REC123', fileName: 'exhibit-a.pdf' };
+      const params = {
+        recResourceId: 'REC123',
+        fileName: 'exhibit-a.pdf',
+        applicationGuid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+      };
       await waitFor(async () => {
         const response = await result.current.mutateAsync(params);
         expect(response).toEqual(mockResponse);
@@ -112,6 +116,7 @@ describe('useExhibitADocsHooks', () => {
         result.current.mutateAsync({
           recResourceId: 'REC123',
           fileName: 'a.pdf',
+          applicationGuid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
         }),
       ).rejects.toThrow('presign failed');
     });

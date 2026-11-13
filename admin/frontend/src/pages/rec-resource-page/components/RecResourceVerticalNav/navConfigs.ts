@@ -11,6 +11,7 @@ export enum RecResourceNavKey {
   GEOSPATIAL = 'geospatial',
   RESERVATION = 'reservation',
   FEES = 'fees',
+  NOTES = 'notes',
 }
 
 export type NavSectionConfig = {
@@ -95,6 +96,14 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
     isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_FEES,
+      params: { id },
+    }),
+  },
+  [RecResourceNavKey.NOTES]: {
+    title: 'Notes and references',
+    isFeatureFlagged: true,
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_NOTES,
       params: { id },
     }),
   },

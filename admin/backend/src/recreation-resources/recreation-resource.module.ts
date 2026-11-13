@@ -13,6 +13,7 @@ import { UserContextModule } from '../common/modules/user-context/user-context.m
 import { ActivitiesModule } from './activities/activities.module';
 import { FeaturesModule } from './features/features.module';
 import { FeesModule } from './fees/fees.module';
+import { NotesModule } from './notes/notes.module';
 import { GeospatialModule } from './geospatial/geospatial.module';
 import { ExportsModule } from './exports/exports.module';
 import { ReservationModule } from './reservation/reservation.module';
@@ -29,6 +30,7 @@ import { SncscModule } from '@/sncsc/sncsc.module';
     EstablishmentOrderDocsModule,
     ExhibitADocsModule,
     FeesModule,
+    NotesModule,
     GeospatialModule,
     OptionsModule,
     UserContextModule,

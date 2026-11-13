@@ -18,6 +18,7 @@ const mockFinalizeExhibitAUpload = vi.fn();
 const mockCreateOrGetExhibitAByApplicationGuid = vi.fn();
 const mockUseRecreationResourceAdminApiClient = vi.fn();
 const mockGetPendingRequestAdjudicationReportRaw = vi.fn();
+const mockUseFileDownload = vi.fn();
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, className }: any) => (
@@ -60,9 +61,9 @@ vi.mock(
 );
 
 vi.mock(
-  '@/services/hooks/recreation-resource-admin/useGetPendingMapFeatureRequests',
+  '@/services/hooks/recreation-resource-admin/useGetMapFeatureRequestsByRecResourceId',
   () => ({
-    useGetPendingMapFeatureRequests: (...args: any[]) =>
+    useGetMapFeatureRequestsByRecResourceId: (...args: any[]) =>
       mockUseGetPendingMapFeatureRequests(...args),
   }),
 );
@@ -91,6 +92,10 @@ vi.mock(
       mockCreateOrGetExhibitAByApplicationGuid(),
   }),
 );
+
+vi.mock('@/pages/rec-resource-page/hooks/useFileDownload', () => ({
+  useFileDownload: () => mockUseFileDownload(),
+}));
 
 vi.mock('@/components/auth', () => ({
   EditableGuard: ({ children }: any) => <>{children}</>,
@@ -263,6 +268,10 @@ describe('RecResourceGeospatialSection', () => {
       mutateAsync: vi.fn(),
       isPending: false,
     });
+    mockUseFileDownload.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    });
   });
 
   it('renders header and edit link', () => {
@@ -324,6 +333,18 @@ describe('RecResourceGeospatialSection', () => {
     render(<RecResourceGeospatialSection />);
     expect(screen.getByText('Spatial submissions')).toBeDefined();
     expect(screen.getByText('No spatial submissions found.')).toBeDefined();
+  });
+
+  it('shows loading alert while pending submissions are loading', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: { data: [], total: 0 },
+      isLoading: true,
+      isFetching: false,
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.getByText('Loading spatial submissions...')).toBeDefined();
   });
 
   it('does not render RecResourceLocationSection when recResource is null', () => {
@@ -430,6 +451,34 @@ describe('RecResourceGeospatialSection', () => {
     );
   });
 
+  it('uses SNCSC_WEB_URL fallback when VITE_SNCSC_WEB_URL is not set', () => {
+    vi.stubEnv('VITE_SNCSC_WEB_URL', '');
+    vi.stubEnv('SNCSC_WEB_URL', 'https://fallback.gov.bc.ca/sncsc/');
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-FALLBACK',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Point'],
+            status_request_guid: 'guid-fallback',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const sncscLink = screen.getByRole('link', { name: /SNCSC Link/i });
+    expect(sncscLink).toHaveAttribute(
+      'href',
+      'https://fallback.gov.bc.ca/sncsc/guid-fallback',
+    );
+  });
+
   it('renders reference placeholder when status_request_guid is missing', () => {
     vi.stubEnv('VITE_SNCSC_WEB_URL', 'https://example.gov.bc.ca/sncsc-web');
     mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
@@ -484,6 +533,30 @@ describe('RecResourceGeospatialSection', () => {
     expect(screen.getByText('REJECTED')).toBeDefined();
     expect(screen.getByText('AMEND')).toBeDefined();
     expect(screen.getByText('RETIRE')).toBeDefined();
+  });
+
+  it('renders fallback dashes for unknown status and purpose', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-UNKNOWN',
+            rec_resource_id: 'REC0001',
+            amend_status_code: null,
+            purpose_code: null,
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const row = screen.getByText('SUB-UNKNOWN').closest('tr');
+    expect(row).toBeTruthy();
+    expect(within(row!).getAllByText('-').length).toBeGreaterThan(1);
   });
 
   it('shows compact create form after clicking Create new', () => {
@@ -586,6 +659,7 @@ describe('RecResourceGeospatialSection', () => {
     expect(presignMutate).toHaveBeenCalledWith({
       recResourceId: 'REC0001',
       fileName: 'report.pdf',
+      applicationGuid: 'app-guid-6',
     });
     expect(global.fetch).toHaveBeenCalledWith(
       'https://example.com/presign',
@@ -596,12 +670,52 @@ describe('RecResourceGeospatialSection', () => {
     );
     expect(finalizeMutate).toHaveBeenCalledWith({
       recResourceId: 'REC0001',
+      application_guid: 'app-guid-6',
       submission_id: 'SUB-6',
       document_id: 'doc-1',
       file_name: 'report',
       extension: 'pdf',
       file_size: expect.any(Number),
     });
+  });
+
+  it('supports upload modal filename editing and cancel action', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-CANCEL',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Point'],
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Upload Exhibit A/i }));
+    fireEvent.change(screen.getByLabelText('Upload Exhibit A document'), {
+      target: {
+        files: [new File(['x'], 'cancel.pdf', { type: 'application/pdf' })],
+      },
+    });
+
+    fireEvent.change(screen.getByLabelText('document-file-name-input'), {
+      target: { value: 'renamed-exhibit-a' },
+    });
+    expect(
+      (screen.getByLabelText('document-file-name-input') as HTMLInputElement)
+        .value,
+    ).toBe('renamed-exhibit-a');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel upload' }));
+    expect(
+      screen.queryByTestId('mock-document-upload-modal'),
+    ).not.toBeInTheDocument();
   });
 
   it('notifies when exhibit A upload fails', async () => {
@@ -634,6 +748,7 @@ describe('RecResourceGeospatialSection', () => {
         data: [
           {
             submission_id: 'SUB-7',
+            application_guid: 'app-guid-7',
             rec_resource_id: 'REC0001',
             amend_status_code: 'PND',
             feature_count: 1,
@@ -726,6 +841,184 @@ describe('RecResourceGeospatialSection', () => {
     });
   });
 
+  it('supports portrait orientation selection when regenerating', async () => {
+    const regenerateMutate = vi.fn().mockResolvedValue({
+      pdfUrl: 'https://example.com/regenerated-portrait.pdf',
+    });
+
+    mockCreateOrGetExhibitAByApplicationGuid.mockReturnValue({
+      mutateAsync: regenerateMutate,
+      isPending: false,
+    });
+
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-PORTRAIT',
+            application_guid: 'app-guid-portrait',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            requested_at: '2026-11-02T12:00:00Z',
+          },
+        ],
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Regenerate/i }));
+    const modal = screen.getByRole('dialog');
+
+    fireEvent.change(within(modal).getAllByRole('combobox')[0], {
+      target: { value: 'B' },
+    });
+    fireEvent.click(within(modal).getByLabelText('Portrait'));
+    fireEvent.change(within(modal).getAllByRole('combobox')[1], {
+      target: { value: '15000' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'Regenerate' }));
+
+    await waitFor(() => {
+      expect(regenerateMutate).toHaveBeenCalledWith(
+        expect.objectContaining({ orientation: 'P', scale: 15000 }),
+      );
+    });
+  });
+
+  it('keeps regenerate modal open when pending and cancel is clicked', () => {
+    const regenerateMutationState = {
+      mutateAsync: vi.fn(),
+      isPending: false,
+    };
+    mockCreateOrGetExhibitAByApplicationGuid.mockImplementation(
+      () => regenerateMutationState,
+    );
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-PENDING',
+            application_guid: 'app-guid-pending',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+          },
+        ],
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Regenerate/i }));
+    const modal = screen.getByRole('dialog');
+
+    regenerateMutationState.isPending = true;
+    fireEvent.change(within(modal).getAllByRole('combobox')[0], {
+      target: { value: 'A' },
+    });
+
+    const updatedModal = screen.getByRole('dialog');
+    fireEvent.click(
+      within(updatedModal).getByRole('button', { name: 'Cancel' }),
+    );
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('falls back to opening a new tab when popup was blocked/closed', async () => {
+    const windowOpenMock = vi
+      .spyOn(window, 'open')
+      .mockReturnValueOnce({ closed: true } as Window)
+      .mockReturnValueOnce(null);
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:report-fallback');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-FALLBACK-POPUP',
+            application_guid: 'app-guid-fallback-popup',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            adjudication_report: 'available',
+          },
+        ],
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Adj.Report/i }));
+
+    await waitFor(() => {
+      expect(windowOpenMock).toHaveBeenNthCalledWith(
+        2,
+        'blob:report-fallback',
+        '_blank',
+        'noopener,noreferrer',
+      );
+    });
+
+    windowOpenMock.mockRestore();
+  });
+
+  it('shows notification when adjudication report fetch fails', async () => {
+    const popupStub = {
+      closed: false,
+      location: { replace: vi.fn() },
+      close: vi.fn(),
+    };
+    vi.spyOn(window, 'open').mockReturnValue(popupStub as unknown as Window);
+    mockGetPendingRequestAdjudicationReportRaw.mockResolvedValueOnce({
+      raw: {
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
+        text: vi.fn().mockResolvedValue(''),
+      },
+    });
+
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-EMPTY-PDF',
+            application_guid: 'app-guid-empty-pdf',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            adjudication_report: 'available',
+          },
+        ],
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+    fireEvent.click(screen.getByRole('button', { name: /Adj.Report/i }));
+
+    await waitFor(() => {
+      expect(mockAddErrorNotification).toHaveBeenCalledWith(
+        'Unable to open adjudication report. Please try again.',
+      );
+    });
+    expect(popupStub.close).toHaveBeenCalled();
+
+    consoleErrorSpy.mockRestore();
+  });
+
   it('fetches adjudication report through the admin API client', async () => {
     const popupStub = {
       closed: false,
@@ -768,10 +1061,88 @@ describe('RecResourceGeospatialSection', () => {
     const requestInitOverride =
       mockGetPendingRequestAdjudicationReportRaw.mock.calls[0]?.[1];
     expect(requestInitOverride).toBeTypeOf('function');
-    expect(
-      requestInitOverride({ init: { headers: {} } }).headers,
-    ).toMatchObject({
+    const overriddenRequest = await requestInitOverride({
+      init: { headers: {} },
+    });
+    expect(overriddenRequest.headers).toMatchObject({
       Accept: 'application/pdf, application/octet-stream',
     });
+  });
+
+  it('prefers exhibit doc URL over non-absolute row URL and supports download', () => {
+    const downloadMutate = vi.fn();
+    mockUseFileDownload.mockReturnValue({
+      mutate: downloadMutate,
+      isPending: false,
+    });
+    mockUseGetExhibitADocs.mockReturnValueOnce({
+      data: [
+        {
+          submission_id: 'SUB-URL',
+          application_guid: 'app-guid-url',
+          url: 'https://example.com/exhibit-a-doc.pdf',
+        },
+      ],
+    });
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-URL',
+            application_guid: 'app-guid-url',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            exhibit_a_url: '/relative-only.pdf',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const viewLink = screen.getByRole('link', { name: /View/i });
+    expect(viewLink).toHaveAttribute(
+      'href',
+      'https://example.com/exhibit-a-doc.pdf',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Download/i }));
+    expect(downloadMutate).toHaveBeenCalledWith({
+      file: expect.objectContaining({
+        url: 'https://example.com/exhibit-a-doc.pdf',
+        extension: 'pdf',
+      }),
+    });
+  });
+
+  it('uses row exhibit_a_url when it is absolute and no exhibit doc match exists', () => {
+    mockUseGetExhibitADocs.mockReturnValueOnce({ data: [] });
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-ABS',
+            application_guid: 'app-guid-abs',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            exhibit_a_url: 'https://example.com/from-row.pdf',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const viewLink = screen.getByRole('link', { name: /View/i });
+    expect(viewLink).toHaveAttribute(
+      'href',
+      'https://example.com/from-row.pdf',
+    );
   });
 });

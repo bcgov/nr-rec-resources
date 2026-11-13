@@ -1,0 +1,21 @@
+@import '@/styles/variables';
+
+$noteFormModalGap: 1rem;
+
+.note-form-modal {
+  .modal-dialog {
+    margin-top: calc(#{$headerHeight} + #{$noteFormModalGap});
+    margin-bottom: $noteFormModalGap;
+  }
+
+  .modal-dialog-scrollable {
+    height: calc(100% - #{$headerHeight} - #{$noteFormModalGap} * 2);
+  }
+}
+
+.note-form-modal__callout {
+  border: 1px solid #003366;
+  border-radius: 4px;
+  background-color: #f7f9fc;
+  margin-bottom: 1.5rem;
+}

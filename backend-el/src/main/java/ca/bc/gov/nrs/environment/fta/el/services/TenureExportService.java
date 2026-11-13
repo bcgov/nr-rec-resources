@@ -31,7 +31,71 @@ public class TenureExportService {
   private static final HexFormat HEX_FORMAT = HexFormat.of();
 
   private static final String REC_TENURE_APPLICATION_SQL = """
-      SELECT ta.*
+      SELECT ta.TENURE_APP_ID,
+             ta.TENURE_APPNAME,
+             ta.SUBMISSION_ID,
+             ta.FOREST_FILE_ID,
+             ta.CLIENT_NUMBER,
+             ta.CLIENT_LOCN_CODE,
+             ta.TENURE_APPLICATION_TYPE_CODE,
+             ta.CASCADE_SPLIT_CODE,
+             ta.TENURE_APPLICATION_STATE_CODE,
+             ta.TENURE_APP_PURP_CODE,
+             ta.ADJUDICATION_IND,
+             ta.ADJUDICATED_BY,
+             ta.ADJUDICATION_DATE,
+             CAST(NULL AS TIMESTAMP) AS DECISION_DATE,
+             ta.ADJUDICATION_REQUESTED_IND,
+             ta.CURRENT_ASSIGNED_TO,
+             ta.IMAGE_CREATED_IND,
+             ta.MAP_REPORT_CREATED_IND,
+             ta.DESCRIPTION,
+             ta.MIN_X,
+             ta.MIN_Y,
+             ta.MAX_X,
+             ta.MAX_Y,
+             ta.MANAGEMENT_UNIT_NUMBER,
+             ta.MANAGEMENT_UNIT_BLOCK,
+             ta.MANAGEMENT_UNIT_SUB_BLOCK,
+             ta.COMPLETION_DATE,
+             ta.FINALIZED_BY,
+             ta.SUBMISSION_DATE,
+             ta.IMAGE_ERROR,
+             ta.MAP_REPORT_ERROR,
+             ta.SPATIAL_DATA_ERROR,
+             ta.SPATIAL_IND,
+             ta.FILE_CREATED_IND,
+             ta.IMAGE_HEIGHT,
+             ta.IMAGE_WIDTH,
+             ta.METERS_PER_PIXEL,
+             ta.IMAGE_SCALE,
+             ta.ADJUDICATION_COMMENT,
+             ta.CUTTING_PERMIT_ID,
+             ta.IMAGE_MAP_SIZE_CODE,
+             ta.ORG_UNIT_NO,
+             ta.GEO_ORG_UNIT_NO,
+             ta.IMAGE_MIME_TYPE_CODE,
+             ta.IMAGE_ORIENTATION_CODE,
+             ta.IMAGE_CREATE_IN_PROGRESS_IND,
+             ta.IMAGE_CREATE_REQUESTED_BY,
+             ta.IMAGE_CREATE_REQUESTED_DATE,
+             ta.OVERLAY_GEO_DISTRICT_CODE,
+             ta.BCGS_MAPSHEET_NO,
+             ta.TSA_NUMBER,
+             ta.LAND_DISTRICT,
+             ta.PULPWOOD_AGREEMENT,
+             ta.UTM_ZONE,
+             ta.REVISION_COUNT,
+             ta.ENTRY_USERID,
+             ta.ENTRY_TIMESTAMP,
+             ta.UPDATE_USERID,
+             ta.UPDATE_TIMESTAMP,
+             ta.TENURE_APP_GUID,
+             ta.APPLICATION_DECISION_MESSAGE,
+             ta.CLEARANCE_STATUS_REQUEST_URI,
+             ta.DEPENDENT_SUBMISSION_REFERENCE,
+             ta.TENURE_AMENDMENT_ID,
+             ta.BUSINESS_AMENDMENT_ID
       FROM TENURE_APPLICATION ta
       WHERE ta.TENURE_APPLICATION_TYPE_CODE IN (?, ?)
       ORDER BY ta.TENURE_APP_ID
@@ -41,7 +105,6 @@ public class TenureExportService {
       SELECT ta.TENURE_APP_GUID,
              ta.SUBMISSION_ID,
              ta.FOREST_FILE_ID,
-             'Exhibit_A/' || NVL(ta.FOREST_FILE_ID, 'unknown_resource') || '/' || NVL(TO_CHAR(ta.SUBMISSION_ID), 'unknown_submission') || '/' ||
              'TENURE_APP_IMAGE_' || ROW_NUMBER() OVER (ORDER BY ta.TENURE_APP_ID) || '_' || ta.TENURE_APP_ID ||
              CASE UPPER(TRIM(ta.IMAGE_MIME_TYPE_CODE))
                WHEN 'PDF' THEN '.pdf'
@@ -76,7 +139,19 @@ public class TenureExportService {
   private static final String REC_TENURE_APP_IMAGE_UPLOAD_SQL = """
       SELECT ta.FOREST_FILE_ID,
              ta.SUBMISSION_ID,
+             LOWER(REGEXP_REPLACE(RAWTOHEX(ta.TENURE_APP_GUID),
+               '(.{8})(.{4})(.{4})(.{4})(.{12})',
+               '\\1-\\2-\\3-\\4-\\5')) AS APPLICATION_GUID,
              ta.TENURE_APP_ID,
+             'TENURE_APP_IMAGE_' || ROW_NUMBER() OVER (ORDER BY tai.TENURE_APP_ID) || '_' || ta.TENURE_APP_ID ||
+             CASE UPPER(TRIM(ta.IMAGE_MIME_TYPE_CODE))
+               WHEN 'PDF' THEN '.pdf'
+               WHEN 'JPG' THEN '.jpg'
+               WHEN 'JPEG' THEN '.jpg'
+               WHEN 'PNG' THEN '.png'
+               WHEN 'GIF' THEN '.gif'
+               ELSE ''
+             END AS IMAGE_FILE_NAME,
              tai.*
       FROM TENURE_APPLICATION ta
       JOIN TENURE_APPLICATION_IMAGE tai ON ta.TENURE_APP_ID = tai.TENURE_APP_ID
@@ -134,6 +209,9 @@ public class TenureExportService {
   @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.exhibit-prefix:Exhibit_A}")
   private String exhibitImagePrefix;
 
+  @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.exhibit-bucket:}")
+  private String exhibitImageBucket;
+
   @Value("${ca.bc.gov.nrs.environment.fta.el.tenure.image.map-prefix:tenure_mf_images}")
   private String mapImagePrefix;
 
@@ -171,10 +249,15 @@ public class TenureExportService {
 
     if (tenureImageObjectUploadEnabled) {
       if (shouldExportAppImages(imageExportTarget)) {
-        uploadImageObjectsToS3(REC_TENURE_APP_IMAGE_UPLOAD_SQL, exhibitImagePrefix, "TENURE_APP_IMAGE");
+        uploadImageObjectsToS3(
+          REC_TENURE_APP_IMAGE_UPLOAD_SQL,
+          exhibitImagePrefix,
+          "TENURE_APP_IMAGE",
+          exhibitImageBucket
+        );
       }
       if (shouldExportMfImages(imageExportTarget)) {
-        uploadImageObjectsToS3(REC_TENURE_MF_IMAGE_UPLOAD_SQL, mapImagePrefix, "TENURE_MF_IMAGE");
+        uploadImageObjectsToS3(REC_TENURE_MF_IMAGE_UPLOAD_SQL, mapImagePrefix, "TENURE_MF_IMAGE", null);
       }
     }
   }
@@ -205,7 +288,7 @@ public class TenureExportService {
     return "all".equals(imageExportTarget) || "mf".equals(imageExportTarget);
   }
 
-  private void uploadImageObjectsToS3(String sql, String rootPrefix, String fallbackFilePrefix) {
+  private void uploadImageObjectsToS3(String sql, String rootPrefix, String fallbackFilePrefix, String targetBucket) {
     try (
       Connection connection = dataSource.getConnection();
       PreparedStatement preparedStatement = connection.prepareStatement(sql)
@@ -223,6 +306,7 @@ public class TenureExportService {
 
         int forestFileIdColumnIndex = findColumnIndex(metadata, "FOREST_FILE_ID");
         int submissionIdColumnIndex = findColumnIndex(metadata, "SUBMISSION_ID");
+        int applicationGuidColumnIndex = findColumnIndex(metadata, "APPLICATION_GUID", "TENURE_APP_GUID");
         int recResourceIdColumnIndex = findColumnIndex(metadata, "REC_RESOURCE_ID");
         int fileNameColumnIndex = findColumnIndex(metadata, "FILE_NAME", "IMAGE_FILE_NAME", "ATTACHMENT_FILE_NAME");
         int contentTypeColumnIndex = findColumnIndex(metadata, "CONTENT_TYPE", "MIME_TYPE");
@@ -248,6 +332,7 @@ public class TenureExportService {
           long contentLength = blob.length();
           String forestFileId = sanitizePathSegment(getColumnValue(resultSet, forestFileIdColumnIndex), "");
           String submissionId = sanitizePathSegment(getColumnValue(resultSet, submissionIdColumnIndex), "unknown_submission");
+          String applicationGuid = sanitizePathSegment(getColumnValue(resultSet, applicationGuidColumnIndex), "");
           String recResourceId = sanitizePathSegment(getColumnValue(resultSet, recResourceIdColumnIndex), "");
           String resourceKey = !forestFileId.isBlank() ? forestFileId : (!recResourceId.isBlank() ? recResourceId : "unknown_resource");
           String contentType = getColumnValue(resultSet, contentTypeColumnIndex);
@@ -259,25 +344,40 @@ public class TenureExportService {
           String defaultFileName = defaultFileNameBase + extensionFromContentType(contentType);
           String fileName = sanitizeFileName(getColumnValue(resultSet, fileNameColumnIndex), defaultFileName);
 
-          if (!stableId.isBlank() && !fileName.contains(".")) {
+          if (!stableId.isBlank() && !fileName.contains(".") && !fileName.endsWith("_" + stableId)) {
             fileName = fileName + "_" + stableId;
           }
 
           String objectKey;
+          String sanitizedRootPrefix = sanitizePrefix(rootPrefix);
           if (mapFeatureIdColumnIndex > 0) {
             String mapFeatureId = sanitizePathSegment(getColumnValue(resultSet, mapFeatureIdColumnIndex), "unknown_map_feature");
-            objectKey = String.format("%s/%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, mapFeatureId, fileName);
+            if (sanitizedRootPrefix.isBlank()) {
+              objectKey = String.format("%s/%s/%s", resourceKey, mapFeatureId, fileName);
+            } else {
+              objectKey = String.format("%s/%s/%s/%s", sanitizedRootPrefix, resourceKey, mapFeatureId, fileName);
+            }
           } else {
-            objectKey = String.format("%s/%s/%s/%s", sanitizePrefix(rootPrefix), resourceKey, submissionId, fileName);
+            String submissionFolder = !applicationGuid.isBlank() ? applicationGuid : submissionId;
+            if (sanitizedRootPrefix.isBlank()) {
+              objectKey = String.format("%s/%s/%s", resourceKey, submissionFolder, fileName);
+            } else {
+              objectKey = String.format("%s/%s/%s/%s", sanitizedRootPrefix, resourceKey, submissionFolder, fileName);
+            }
           }
           try (InputStream stream = blob.getBinaryStream()) {
-            s3UploaderService.uploadStreamToS3(objectKey, stream, contentLength, contentType);
+            s3UploaderService.uploadStreamToS3(targetBucket, objectKey, stream, contentLength, contentType);
           } finally {
             blob.free();
           }
           uploadedRows++;
         }
-        logger.info("Uploaded {} image objects to S3 under prefix {}", uploadedRows, rootPrefix);
+        logger.info(
+          "Uploaded {} image objects to S3 under prefix {}{}",
+          uploadedRows,
+          rootPrefix,
+          (targetBucket == null || targetBucket.isBlank()) ? "" : " in bucket " + targetBucket
+        );
       }
     } catch (Exception e) {
       throw new RuntimeException("Failed image object upload for prefix " + rootPrefix, e);
@@ -437,7 +537,7 @@ public class TenureExportService {
 
   private String sanitizePrefix(String prefix) {
     if (prefix == null || prefix.isBlank()) {
-      return "images";
+      return "";
     }
     return prefix.replaceAll("^/+", "").replaceAll("/+$", "");
   }

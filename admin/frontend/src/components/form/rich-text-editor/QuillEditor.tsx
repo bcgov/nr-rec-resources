@@ -11,9 +11,15 @@ const normalize = (html: string) => {
 interface QuillEditorProps {
   value: string;
   onChange: (html: string) => void;
+  /** Pass a module-level constant; a new array rebuilds the editor. */
+  toolbarOptions?: unknown[];
 }
 
-export const QuillEditor = ({ value, onChange }: QuillEditorProps) => {
+export const QuillEditor = ({
+  value,
+  onChange,
+  toolbarOptions = QUILL_TOOLBAR_OPTIONS,
+}: QuillEditorProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
 
@@ -26,7 +32,7 @@ export const QuillEditor = ({ value, onChange }: QuillEditorProps) => {
 
     const quill = new Quill(el, {
       theme: 'snow',
-      modules: { toolbar: QUILL_TOOLBAR_OPTIONS },
+      modules: { toolbar: toolbarOptions },
     });
 
     quillRef.current = quill;
@@ -46,7 +52,7 @@ export const QuillEditor = ({ value, onChange }: QuillEditorProps) => {
       container.innerHTML = '';
       quillRef.current = null;
     };
-  }, [onChange]);
+  }, [onChange, toolbarOptions]);
 
   useEffect(() => {
     const quill = quillRef.current;

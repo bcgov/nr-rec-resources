@@ -50,6 +50,7 @@ model recreation_resource {
   recreation_risk_rating_code          recreation_risk_rating_code?           @relation(fields: [risk_rating_code], references: [risk_rating_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_document         recreation_resource_document[]
   recreation_resource_image            recreation_resource_image[]
+  recreation_resource_note             recreation_resource_note[]
   recreation_resource_reservation_info recreation_resource_reservation_info?
   recreation_site_description          recreation_site_description?
   recreation_spatial_submission        recreation_spatial_submission[]
@@ -57,6 +58,8 @@ model recreation_resource {
   recreation_structure                 recreation_structure[]
   recreation_resource_type_view_admin  recreation_resource_type_view_admin[]
   recreation_resource_type_view_public recreation_resource_type_view_public[]
+  recreation_user_days_code            String?                                  @db.VarChar(3)
+  recreation_user_days_code_rel        recreation_resource_user_days_code?      @relation(fields: [recreation_user_days_code], references: [recreation_resource_user_days_code], onDelete: NoAction, onUpdate: NoAction)
   // No FK backs rec_status_code in the database (V1.1.61 adds the column
   // only), so `prisma db pull` strips this relation. It is restored by hand
   // because the admin resource queries select through it.
@@ -94,6 +97,18 @@ model recreation_activity_code {
   recreation_activity_code_trails_recreation_activity_code_trails_recreation_activity_codeTorecreation_activity_code recreation_activity_code_trails[] @relation("recreation_activity_code_trails_recreation_activity_codeTorecreation_activity_code")
 
   @@schema("rst")
+}
+
+model recreation_resource_user_days_code {
+    recreation_resource_user_days_code                    String                                 @id @db.VarChar(3)
+    description                                           String?                                @db.VarChar(120)
+    effective_date                                        DateTime?                              @default(now()) @db.Timestamp(6)
+    expiry_date                                           DateTime?                              @default(now()) @db.Timestamp(6)
+    update_timestamp                                      DateTime?                              @default(now()) @db.Timestamp(6)
+    recreation_resource                                   recreation_resource[]
+
+    @@index([recreation_resource_user_days_code], map: "idx_recreation_resource_user_days_code_rec_resource_id")
+    @@schema("rst")
 }
 
 model recreation_status {
@@ -507,6 +522,7 @@ model recreation_resource_history {
   resource_feature_ind       String?                  @default("N") @db.VarChar(1)
   last_rec_inspection_date   DateTime?                @db.Date
   last_hzrd_tree_assess_date DateTime?                @db.Date
+  recreation_user_days_code  String?                  @db.VarChar(3)
 
   @@ignore
   @@schema("rst")
@@ -1202,16 +1218,16 @@ model recreation_exhibit_a_doc {
   created_at                    DateTime?                      @default(now()) @db.Timestamp(6)
   created_by                    String?
   sys_period                    Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  submission_id                 String?                        @db.VarChar(50)
+  application_guid              String?                        @db.Uuid
   page_size                     String?                        @db.VarChar(1)
   page_orientation              String?                        @db.VarChar(20)
   scale                         Int?
   generation_method             String?                        @db.VarChar(20)
-  recreation_spatial_submission recreation_spatial_submission? @relation(fields: [submission_id], references: [submission_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_recreation_exhibit_a_doc_submission_id")
+  recreation_spatial_submission recreation_spatial_submission? @relation(fields: [application_guid], references: [application_guid], onDelete: NoAction, onUpdate: NoAction, map: "fk_recreation_exhibit_a_doc_application_guid")
   recreation_resource           recreation_resource            @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([rec_resource_id], map: "idx_recreation_exhibit_a_doc_rec_resource_id")
-  @@index([submission_id], map: "idx_recreation_exhibit_a_doc_submission_id")
+  @@index([application_guid], map: "idx_recreation_exhibit_a_doc_application_guid")
   @@schema("rst")
 }
 
@@ -1227,7 +1243,7 @@ model recreation_exhibit_a_doc_history {
   created_at        DateTime?                @db.Timestamp(6)
   created_by        String?
   sys_period        Unsupported("tstzrange")
-  submission_id     String?                  @db.VarChar(50)
+  application_guid  String?                  @db.Uuid
   page_size         String?                  @db.VarChar(1)
   page_orientation  String?                  @db.VarChar(20)
   scale             Int?
@@ -1666,7 +1682,7 @@ model recreation_asset_code_history {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_spatial_submission {
   application_guid                 String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  submission_id                    String                         @unique @default(dbgenerated("(nextval('recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)")) @db.VarChar(50)
+  submission_id                    String                         @default(dbgenerated("(nextval('recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)")) @db.VarChar(50)
   tenure_id                        String                         @db.VarChar(20)
   status_request_guid              String?                        @unique @db.VarChar(50)
   status_request_type_code         String                         @db.VarChar(3)
@@ -1720,6 +1736,92 @@ model recreation_spatial_submission_history {
   created_at                       DateTime?                @db.Timestamp(6)
   created_by                       String?
   sys_period                       Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_file_source_code {
+  file_source_code String                   @id @db.VarChar(1)
+  description      String                   @db.VarChar(120)
+  updated_at       DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period       Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_file_source_code_history {
+  file_source_code String                   @db.VarChar(1)
+  description      String                   @db.VarChar(120)
+  updated_at       DateTime?                @db.Timestamp(6)
+  sys_period       Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_note_type_code {
+  note_type_code           String                     @id @db.VarChar(20)
+  description              String                     @db.VarChar(120)
+  updated_at               DateTime?                  @default(now()) @db.Timestamp(6)
+  sys_period               Unsupported("tstzrange")   @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource_note recreation_resource_note[]
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_note_type_code_history {
+  note_type_code String                   @db.VarChar(20)
+  description    String                   @db.VarChar(120)
+  updated_at     DateTime?                @db.Timestamp(6)
+  sys_period     Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_resource_note {
+  note_id                   String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rec_resource_id           String                    @db.VarChar(10)
+  note_type_code            String                    @default("NOTE") @db.VarChar(20)
+  title                     String                    @db.VarChar(100)
+  body                      String
+  date_logged               DateTime                  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  source_system             String                    @default("RST") @db.VarChar(10)
+  source_key                String?                   @db.VarChar(60)
+  updated_at                DateTime?                 @default(now()) @db.Timestamp(6)
+  updated_by                String?
+  created_at                DateTime?                 @default(now()) @db.Timestamp(6)
+  created_by                String?
+  sys_period                Unsupported("tstzrange")  @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_note_type_code recreation_note_type_code @relation(fields: [note_type_code], references: [note_type_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource       recreation_resource       @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([source_system, source_key], map: "uq_recreation_resource_note_source", where: raw("(source_key IS NOT NULL)"))
+  @@index([rec_resource_id], map: "idx_recreation_resource_note_rec_resource_id")
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_resource_note_history {
+  note_id         String                   @db.Uuid
+  rec_resource_id String                   @db.VarChar(10)
+  note_type_code  String                   @db.VarChar(20)
+  title           String                   @db.VarChar(100)
+  body            String
+  date_logged     DateTime                 @db.Date
+  source_system   String                   @db.VarChar(10)
+  source_key      String?                  @db.VarChar(60)
+  updated_at      DateTime?                @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")

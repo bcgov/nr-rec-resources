@@ -46,6 +46,7 @@ models/CreateRecreationAssetRepairDto.ts
 models/CreateRecreationFeeDto.ts
 models/CreateRecreationMapFeatureGeometryDto.ts
 models/CreateRecreationMapFeaturesDto.ts
+models/CreateRecreationNoteDto.ts
 models/CreateTrailDto.ts
 models/EstablishmentOrderDocDto.ts
 models/ExhibitADocDto.ts
@@ -78,6 +79,7 @@ models/RecreationAssetRepairDto.ts
 models/RecreationControlAccessDto.ts
 models/RecreationFeatureDto.ts
 models/RecreationFeeDto.ts
+models/RecreationNoteDto.ts
 models/RecreationRepairCodeDto.ts
 models/RecreationResourceAdvisoryDto.ts
 models/RecreationResourceDetailDto.ts
@@ -92,6 +94,7 @@ models/RecreationStatusDto.ts
 models/RecreationStructureDto.ts
 models/RecreationSubAccessCodeDto.ts
 models/RecreationTrailDto.ts
+models/RecreationUserDaysDto.ts
 models/RepairChange.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts
@@ -105,6 +108,7 @@ models/UpdateRecreationAssetDto.ts
 models/UpdateRecreationAssetRepairDto.ts
 models/UpdateRecreationFeeDto.ts
 models/UpdateRecreationMapFeatureGeometryDto.ts
+models/UpdateRecreationNoteDto.ts
 models/UpdateRecreationResourceDto.ts
 models/UpdateRecreationResourceGeospatialDto.ts
 models/UpdateRecreationResourceReservationDto.ts

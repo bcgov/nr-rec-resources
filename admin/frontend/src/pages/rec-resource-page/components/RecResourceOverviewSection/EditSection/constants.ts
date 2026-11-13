@@ -22,4 +22,5 @@ export const EDIT_RESOURCE_FIELD_LABEL_MAP: Record<
   display_on_public_site: 'Displayed on public site',
   site_description: 'Site description',
   driving_directions: 'Driving directions',
+  recreation_user_days_code: 'User days',
 } as const;

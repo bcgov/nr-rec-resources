@@ -14,6 +14,8 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
     ['recreation-resource-admin', 'next-rec-resource-id'] as const,
   pendingRequests: () =>
     ['recreation-resource-admin', 'pending-requests'] as const,
+  spatialSubmissions: (id: string) =>
+    ['recreation-resource-admin', 'spatial-submissions', id] as const,
   exportDatasets: () =>
     ['recreation-resource-admin', 'exports', 'datasets'] as const,
   exportPreview: (
@@ -48,6 +50,7 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
   features: (id: string) =>
     ['recreation-resource-admin', 'features', id] as const,
   fees: (id: string) => ['recreation-resource-admin', 'fees', id] as const,
+  notes: (id: string) => ['recreation-resource-admin', 'notes', id] as const,
   geospatial: (id: string) =>
     ['recreation-resource-admin', 'geospatial', id] as const,
   options: (types: string[]) =>

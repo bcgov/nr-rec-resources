@@ -62,6 +62,13 @@ import {
   RecreationActivityDtoToJSON,
   RecreationActivityDtoToJSONTyped,
 } from './RecreationActivityDto';
+import type { RecreationUserDaysDto } from './RecreationUserDaysDto';
+import {
+  RecreationUserDaysDtoFromJSON,
+  RecreationUserDaysDtoFromJSONTyped,
+  RecreationUserDaysDtoToJSON,
+  RecreationUserDaysDtoToJSONTyped,
+} from './RecreationUserDaysDto';
 
 /**
  *
@@ -111,6 +118,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   rec_resource_type_code?: object | null;
+  /**
+   * Code representing the user days for the recreation resource
+   * @type {RecreationUserDaysDto}
+   * @memberof RecreationResourceDetailDto
+   */
+  recreation_user_days_code: RecreationUserDaysDto;
   /**
    * Detailed description of the Recreation Resource
    * @type {string}
@@ -226,6 +239,12 @@ export interface RecreationResourceDetailDto {
    */
   natural_resource_org_unit_name: string | null;
   /**
+   * Licensee display value resolved from the latest approved spatial submission org unit code
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
+   */
+  licensee?: string | null;
+  /**
    * Public access status group label from ACT advisories
    * @type {string}
    * @memberof RecreationResourceDetailDto
@@ -270,6 +289,11 @@ export function instanceOfRecreationResourceDetailDto(
   if (
     !('rec_resource_type' in value) ||
     value['rec_resource_type'] === undefined
+  )
+    return false;
+  if (
+    !('recreation_user_days_code' in value) ||
+    value['recreation_user_days_code'] === undefined
   )
     return false;
   if (!('description' in value) || value['description'] === undefined)
@@ -334,6 +358,9 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['rec_resource_type_code'] == null
         ? undefined
         : json['rec_resource_type_code'],
+    recreation_user_days_code: RecreationUserDaysDtoFromJSON(
+      json['recreation_user_days_code'],
+    ),
     description: json['description'],
     driving_directions: json['driving_directions'],
     maintenance_standard: json['maintenance_standard'],
@@ -387,6 +414,7 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     rec_status_code: json['rec_status_code'],
     rec_status_description: json['rec_status_description'],
     natural_resource_org_unit_name: json['natural_resource_org_unit_name'],
+    licensee: json['licensee'] == null ? undefined : json['licensee'],
     access_status_grouplabel:
       json['access_status_grouplabel'] == null
         ? undefined
@@ -418,6 +446,9 @@ export function RecreationResourceDetailDtoToJSONTyped(
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
     rec_resource_type_code: value['rec_resource_type_code'],
+    recreation_user_days_code: RecreationUserDaysDtoToJSON(
+      value['recreation_user_days_code'],
+    ),
     description: value['description'],
     driving_directions: value['driving_directions'],
     maintenance_standard: value['maintenance_standard'],
@@ -454,6 +485,7 @@ export function RecreationResourceDetailDtoToJSONTyped(
     rec_status_code: value['rec_status_code'],
     rec_status_description: value['rec_status_description'],
     natural_resource_org_unit_name: value['natural_resource_org_unit_name'],
+    licensee: value['licensee'],
     access_status_grouplabel: value['access_status_grouplabel'],
   };
 }

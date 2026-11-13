@@ -111,6 +111,12 @@ export interface UpdateRecreationResourceDto {
    * @memberof UpdateRecreationResourceDto
    */
   last_hzrd_tree_assess_date?: string | null;
+  /**
+   * User days code (recreation user days)
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  recreation_user_days_code?: string | null;
 }
 
 /**
@@ -180,6 +186,10 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
       json['last_hzrd_tree_assess_date'] == null
         ? undefined
         : json['last_hzrd_tree_assess_date'],
+    recreation_user_days_code:
+      json['recreation_user_days_code'] == null
+        ? undefined
+        : json['recreation_user_days_code'],
   };
 }
 
@@ -217,5 +227,6 @@ export function UpdateRecreationResourceDtoToJSONTyped(
     name: value['name'],
     last_rec_inspection_date: value['last_rec_inspection_date'],
     last_hzrd_tree_assess_date: value['last_hzrd_tree_assess_date'],
+    recreation_user_days_code: value['recreation_user_days_code'],
   };
 }

@@ -505,7 +505,7 @@ export class RecreationResourceRepository {
     }
   }
 
-  async findPendingMapFeatureRequests(): Promise<
+  private async findMapFeatureRequests(whereClause: Prisma.Sql): Promise<
     Array<{
       submission_id: string | null;
       application_guid: string | null;
@@ -542,7 +542,7 @@ export class RecreationResourceRepository {
         geometry_types: string[];
         exhibit_a_url: string | null;
       }>
-    >`
+    >(Prisma.sql`
       SELECT
         rss.submission_id,
         rss.application_guid::text AS application_guid,
@@ -586,8 +586,7 @@ export class RecreationResourceRepository {
         ON nru.rec_resource_id = rss.tenure_id
       LEFT JOIN rst.recreation_resource_type_view_admin rrtva
         ON rrtva.rec_resource_id = rss.tenure_id
-      WHERE rss.status IN ('PND', 'APP')
-        AND rss.tenure_id IS NOT NULL
+      WHERE ${whereClause}
       GROUP BY
         rss.submission_id,
         rss.application_guid,
@@ -600,11 +599,59 @@ export class RecreationResourceRepository {
         rss.created_at,
         rss.submission_date
       ORDER BY COALESCE(rss.created_at, rss.submission_date::timestamp) DESC NULLS LAST, rss.tenure_id ASC
-    `;
+    `);
 
     return rows.map((row) => ({
       ...row,
       feature_count: Number(row.feature_count),
     }));
+  }
+
+  async findPendingMapFeatureRequests(): Promise<
+    Array<{
+      submission_id: string | null;
+      application_guid: string | null;
+      status_request_guid: string | null;
+      rec_resource_id: string;
+      name: string | null;
+      district_description: string | null;
+      recreation_district: string | null;
+      natural_resource_district: string | null;
+      recreation_type: string | null;
+      purpose_code: string | null;
+      amend_status_code: string;
+      feature_count: number;
+      requested_at: Date | null;
+      geometry_types: string[];
+      exhibit_a_url: string | null;
+    }>
+  > {
+    return this.findMapFeatureRequests(
+      Prisma.sql`rss.status = 'PND' AND rss.tenure_id IS NOT NULL`,
+    );
+  }
+
+  async findMapFeatureRequestsByRecResourceId(rec_resource_id: string): Promise<
+    Array<{
+      submission_id: string | null;
+      application_guid: string | null;
+      status_request_guid: string | null;
+      rec_resource_id: string;
+      name: string | null;
+      district_description: string | null;
+      recreation_district: string | null;
+      natural_resource_district: string | null;
+      recreation_type: string | null;
+      purpose_code: string | null;
+      amend_status_code: string;
+      feature_count: number;
+      requested_at: Date | null;
+      geometry_types: string[];
+      exhibit_a_url: string | null;
+    }>
+  > {
+    return this.findMapFeatureRequests(
+      Prisma.sql`rss.tenure_id = ${rec_resource_id} AND rss.status IS DISTINCT FROM 'FAI'`,
+    );
   }
 }

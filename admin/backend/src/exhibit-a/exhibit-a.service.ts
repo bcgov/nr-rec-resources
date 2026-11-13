@@ -231,6 +231,7 @@ export class ExhibitAService {
     });
     const upload = await this.uploadPdfToS3(
       header.tenure_id,
+      header.application_guid,
       submissionId,
       pdfBuffer,
     );
@@ -270,17 +271,17 @@ export class ExhibitAService {
     `;
 
     if (!payload.generate) {
-      const existing = await this.loadLatestExhibitAForSubmission(
-        submission.submission_id,
+      const existing = await this.loadLatestExhibitAForApplicationGuid(
+        submission.application_guid,
       );
       if (!existing) {
         throw new NotFoundException(
-          `No Exhibit A found for submission_id: ${submission.submission_id}`,
+          `No Exhibit A found for application_guid: ${submission.application_guid}`,
         );
       }
 
       return {
-        submissionId: existing.submission_id,
+        submissionId: submission.submission_id,
         pdfUrl: await this.s3Service.getSignedUrl(existing.s3_key),
         size: toEnum(ExhibitAPageSize, existing.page_size),
         orientation: this.toOrientation(existing.page_orientation),
@@ -302,7 +303,7 @@ export class ExhibitAService {
 
     await this.saveGeneratedExhibitAMetadata({
       recResourceId: submission.tenure_id,
-      submissionId: submission.submission_id,
+      applicationGuid: submission.application_guid,
       s3Key: generated.pdfKey,
       size: generated.pageSize,
       orientation: this.toDbOrientation(generated.pageOrientation),
@@ -614,13 +615,13 @@ export class ExhibitAService {
     );
   }
 
-  private async loadLatestExhibitAForSubmission(
-    submissionId: string,
+  private async loadLatestExhibitAForApplicationGuid(
+    applicationGuid: string,
   ): Promise<ExhibitADocLookupRow | null> {
     const rows = await this.prisma.$queryRaw<ExhibitADocLookupRow[]>`
-      SELECT submission_id, s3_key, page_size, page_orientation, scale
+      SELECT application_guid::text AS application_guid, s3_key, page_size, page_orientation, scale
       FROM rst.recreation_exhibit_a_doc
-      WHERE submission_id = ${submissionId}
+      WHERE application_guid = ${applicationGuid}::uuid
       ORDER BY created_at DESC NULLS LAST, updated_at DESC NULLS LAST
       LIMIT 1
     `;
@@ -629,7 +630,7 @@ export class ExhibitAService {
 
   private async saveGeneratedExhibitAMetadata(input: {
     recResourceId: string;
-    submissionId: string;
+    applicationGuid: string;
     s3Key: string;
     size: ExhibitAPageSize;
     orientation: string;
@@ -645,7 +646,7 @@ export class ExhibitAService {
         WITH archived AS (
           DELETE FROM rst.recreation_exhibit_a_doc
           WHERE rec_resource_id = ${input.recResourceId}
-            AND submission_id = ${input.submissionId}
+            AND application_guid = ${input.applicationGuid}::uuid
         )
         INSERT INTO rst.recreation_exhibit_a_doc (
           rec_resource_id,
@@ -653,7 +654,7 @@ export class ExhibitAService {
           extension,
           file_size,
           s3_key,
-          submission_id,
+          application_guid,
           page_size,
           page_orientation,
           scale,
@@ -667,7 +668,7 @@ export class ExhibitAService {
           'pdf',
           ${input.fileSize},
           ${input.s3Key},
-          ${input.submissionId},
+          ${input.applicationGuid}::uuid,
           ${input.size},
           ${input.orientation},
           ${input.scale},
@@ -685,7 +686,7 @@ export class ExhibitAService {
         WITH archived AS (
           DELETE FROM rst.recreation_exhibit_a_doc
           WHERE rec_resource_id = ${input.recResourceId}
-            AND submission_id = ${input.submissionId}
+            AND application_guid = ${input.applicationGuid}::uuid
         )
         INSERT INTO rst.recreation_exhibit_a_doc (
           rec_resource_id,
@@ -693,7 +694,7 @@ export class ExhibitAService {
           extension,
           file_size,
           s3_key,
-          submission_id,
+          application_guid,
           page_size,
           page_orientation,
           scale,
@@ -706,7 +707,7 @@ export class ExhibitAService {
           'pdf',
           ${input.fileSize},
           ${input.s3Key},
-          ${input.submissionId},
+          ${input.applicationGuid}::uuid,
           ${input.size},
           ${input.orientation},
           ${input.scale},
@@ -957,16 +958,15 @@ export class ExhibitAService {
 
   private async uploadPdfToS3(
     recResourceId: string,
+    applicationGuid: string,
     submissionId: string,
     pdfBuffer: Buffer,
   ): Promise<{ key: string; url: string }> {
+    const safeApplicationGuid = applicationGuid.replace(/[^a-zA-Z0-9_-]/g, '_');
     const safeSubmissionId = submissionId.replace(/[^a-zA-Z0-9_-]/g, '_');
     const filename = `exhibit-a-${safeSubmissionId}-${Date.now()}.pdf`;
-    const key = await this.s3Service.uploadFile(
-      recResourceId,
-      pdfBuffer,
-      filename,
-    );
+    const key = `${recResourceId}/${safeApplicationGuid}/${filename}`;
+    await this.s3Service.uploadFileToKey(key, pdfBuffer, 'application/pdf');
     return { key, url: await this.s3Service.getSignedUrl(key) };
   }
 }
