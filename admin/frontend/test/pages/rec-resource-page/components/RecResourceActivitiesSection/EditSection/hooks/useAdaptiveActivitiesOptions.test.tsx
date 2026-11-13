@@ -67,7 +67,7 @@ describe('useAdaptiveActivitiesOptions', () => {
   it('returns options from the first item in data', () => {
     const mockOptions = [
       { id: 34, label: 'Adaptive Mountain Biking' },
-      { id: 35, label: 'Adaptive Hiking' },
+      { id: 36, label: 'Adaptive Hiking' },
     ];
 
     vi.mocked(useGetRecreationResourceOptions).mockReturnValue({
@@ -85,6 +85,28 @@ describe('useAdaptiveActivitiesOptions', () => {
     });
 
     expect(result.current.options).toEqual(mockOptions);
+  });
+
+  it('splits low mobility codes into lowMobilityOptions', () => {
+    const adaptive = { id: '34', label: 'Adaptive mountain biking' };
+    const lowMobility = { id: '35', label: 'Low mobility camping' };
+
+    vi.mocked(useGetRecreationResourceOptions).mockReturnValue({
+      data: [
+        {
+          type: GetOptionsByTypesTypesEnum.AccessibleActivities,
+          options: [adaptive, lowMobility],
+        },
+      ],
+      isLoading: false,
+    } as any);
+
+    const { result } = renderHook(() => useAdaptiveActivitiesOptions(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current.options).toEqual([adaptive]);
+    expect(result.current.lowMobilityOptions).toEqual([lowMobility]);
   });
 
   it('returns empty options when options field is undefined in first item', () => {

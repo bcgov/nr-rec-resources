@@ -27,3 +27,12 @@ export const FILE_TYPE_CONFIGS: Record<
     maxFiles: 20,
   },
 } as const;
+
+/**
+ * Accessible activity codes that show under "Low mobility access"
+ * instead of "Accessible activities".
+ */
+export const LOW_MOBILITY_ACTIVITY_CODES = [35];
+
+export const isLowMobilityActivity = (code: number) =>
+  LOW_MOBILITY_ACTIVITY_CODES.includes(code);
