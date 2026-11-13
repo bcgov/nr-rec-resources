@@ -19,7 +19,7 @@ describe('rec-resource-page navigation', () => {
 
     it('has correct files tab configuration', () => {
       const filesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FILES];
-      expect(filesTab.title).toBe('Images & Sitemaps');
+      expect(filesTab.title).toBe('Images and documents');
       expect(filesTab.getNavigateOptions('123')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_FILES,
         params: { id: '123' },
@@ -29,7 +29,7 @@ describe('rec-resource-page navigation', () => {
     it('has correct activities tab configuration (lines 37-39)', () => {
       const activitiesTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.ACTIVITIES];
-      expect(activitiesTab.title).toBe('Activities & features');
+      expect(activitiesTab.title).toBe('Activities and features');
       expect(activitiesTab.getNavigateOptions('123')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES,
         params: { id: '123' },
@@ -50,14 +50,15 @@ describe('rec-resource-page navigation', () => {
     it('has tabs for all tab keys', () => {
       expect(Object.keys(REC_RESOURCE_PAGE_NAV_SECTIONS)).toEqual([
         RecResourceNavKey.OVERVIEW,
+        RecResourceNavKey.ADVISORIES,
+        RecResourceNavKey.PARTNERS,
         RecResourceNavKey.FILES,
         RecResourceNavKey.ACTIVITIES,
-        RecResourceNavKey.FEES,
         RecResourceNavKey.ASSETS,
-        RecResourceNavKey.PARTNERS,
         RecResourceNavKey.GEOSPATIAL,
         RecResourceNavKey.RESERVATION,
-        RecResourceNavKey.ADVISORIES,
+        RecResourceNavKey.FEES,
+        RecResourceNavKey.NOTES,
       ]);
     });
 

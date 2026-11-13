@@ -25,9 +25,11 @@ describe('RecreationResourceController', () => {
             getSuggestions: vi.fn(),
             getNextRecResourceId: vi.fn(),
             getPendingMapFeatureRequests: vi.fn(),
+            getMapFeatureRequestsByRecResourceId: vi.fn(),
             getPendingRequestAdjudicationReport: vi.fn(),
             findOne: vi.fn(),
             update: vi.fn(),
+            archive: vi.fn(),
           },
         },
         {
@@ -302,6 +304,41 @@ describe('RecreationResourceController', () => {
     });
   });
 
+  describe('archive', () => {
+    it('should call service.archive and return success message', async () => {
+      (service.archive as any).mockResolvedValue(undefined);
+
+      const result = await controller.archive('REC123');
+
+      expect(service.archive).toHaveBeenCalledWith('REC123');
+      expect(result).toEqual({
+        message: 'Resource REC123 archived successfully',
+      });
+    });
+
+    it('should propagate NotFoundException from service', async () => {
+      const error = new Error(
+        "Recreation resource with ID 'NOT_FOUND' not found",
+      );
+      error.name = 'NotFoundException';
+      (service.archive as any).mockRejectedValue(error);
+
+      await expect(controller.archive('NOT_FOUND')).rejects.toThrow(
+        "Recreation resource with ID 'NOT_FOUND' not found",
+      );
+    });
+
+    it('should propagate BadRequestException from service', async () => {
+      const error = new Error('Invalid resource state for archiving');
+      error.name = 'BadRequestException';
+      (service.archive as any).mockRejectedValue(error);
+
+      await expect(controller.archive('REC123')).rejects.toThrow(
+        'Invalid resource state for archiving',
+      );
+    });
+  });
+
   it('should return pending map feature requests', async () => {
     (service.getPendingMapFeatureRequests as any).mockResolvedValue({
       data: [
@@ -324,6 +361,31 @@ describe('RecreationResourceController', () => {
     expect(service.getPendingMapFeatureRequests).toHaveBeenCalledTimes(1);
     expect(result.total).toBe(1);
     expect(result.data[0]?.amend_status_code).toBe('PND');
+  });
+
+  it('should return map feature requests for a specific recreation resource id', async () => {
+    (service.getMapFeatureRequestsByRecResourceId as any).mockResolvedValue({
+      data: [
+        {
+          rec_resource_id: 'REC123',
+          name: 'Test Resource',
+          amend_status_code: 'PND',
+          feature_count: 1,
+          requested_at: '2026-09-23T21:27:08.826Z',
+          geometry_types: ['Polygon'],
+        },
+      ],
+      total: 1,
+    });
+
+    const result =
+      await controller.getMapFeatureRequestsByRecResourceId('REC123');
+
+    expect(service.getMapFeatureRequestsByRecResourceId).toHaveBeenCalledWith(
+      'REC123',
+    );
+    expect(result.total).toBe(1);
+    expect(result.data[0]?.rec_resource_id).toBe('REC123');
   });
 
   it('should stream adjudication report content with PDF headers', async () => {

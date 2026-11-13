@@ -179,6 +179,12 @@ const _recreationResourceSelect = {
       description: true,
     },
   },
+  recreation_user_days_code_rel: {
+    select: {
+      recreation_resource_user_days_code: true,
+      description: true,
+    },
+  },
 } as const;
 
 export const recreationResourceSelect =

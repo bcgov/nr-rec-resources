@@ -18,12 +18,13 @@ export const Route = createFileRoute('/rec-resource/$id/reservation/edit')({
 
     return {
       tab: RecResourceNavKey.RESERVATION,
+      isEditing: true,
       breadcrumb: (loaderData?: any) => {
         if (!parentBeforeLoad?.breadcrumb) return [];
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Edit Reservations',
+            label: 'Edit reservations',
             href: ROUTE_PATHS.REC_RESOURCE_RESERVATION_EDIT.replace(
               '$id',
               params.id,

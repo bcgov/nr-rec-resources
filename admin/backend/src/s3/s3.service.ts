@@ -322,6 +322,52 @@ export class S3Service {
   }
 
   /**
+   * Upload a file buffer to an explicit S3 object key.
+   * Use this when the caller controls the full storage path.
+   */
+  async uploadFileToKey(
+    key: string,
+    file: Buffer,
+    contentType: string = 'application/pdf',
+  ): Promise<string> {
+    if (!key?.trim()) {
+      throw new BadRequestException('S3 key is required');
+    }
+    if (!file || file.length === 0) {
+      throw FileValidationException.fileBufferEmpty();
+    }
+    if (!contentType?.trim()) {
+      throw new BadRequestException('Content type is required');
+    }
+
+    const normalizedKey = key.trim();
+
+    try {
+      this.logger.debug(
+        `Uploading file to S3 - Key: ${normalizedKey}, Size: ${file.length} bytes`,
+      );
+
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: normalizedKey,
+          Body: file,
+          ContentType: contentType.trim(),
+        }),
+      );
+
+      this.logger.log(
+        `File uploaded successfully to S3 - Key: ${normalizedKey}`,
+      );
+      return normalizedKey;
+    } catch (error) {
+      const errorMessage = `Failed to upload file to key "${normalizedKey}" in bucket "${this.bucketName}"`;
+      this.logger.error(`${errorMessage}: ${error.message}`, error.stack);
+      throw new InternalServerErrorException(errorMessage);
+    }
+  }
+
+  /**
    * Write a JSON document to S3, overwriting any existing object at the key.
    * @param key - The S3 object key
    * @param value - Value to serialize as the object body

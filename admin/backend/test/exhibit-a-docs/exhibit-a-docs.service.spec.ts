@@ -8,13 +8,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const REC_RESOURCE_ID = 'REC0001';
 const DOC_ID = 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9';
-const S3_KEY = `${REC_RESOURCE_ID}/${DOC_ID}/exhibit-a.pdf`;
+const APPLICATION_GUID = '6444f5ab-cc12-4129-b66f-2deec3f26ec8';
+const S3_KEY = `${REC_RESOURCE_ID}/${APPLICATION_GUID}/exhibit-a-${DOC_ID}.pdf`;
 const PRESIGNED_URL =
   'http://localhost:4566/rst-lza-exhibit-a-docs-dev/' + S3_KEY;
 
 const mockDoc = {
   doc_id: DOC_ID,
   rec_resource_id: REC_RESOURCE_ID,
+  application_guid: APPLICATION_GUID,
   file_name: 'exhibit-a',
   extension: 'pdf',
   file_size: BigInt(1024),
@@ -28,12 +30,6 @@ const mockPrisma = {
   $queryRaw: vi.fn(),
   recreation_resource: {
     findUnique: vi.fn(),
-  },
-  recreation_exhibit_a_doc: {
-    findMany: vi.fn(),
-    findUnique: vi.fn(),
-    delete: vi.fn(),
-    deleteMany: vi.fn(),
   },
 };
 
@@ -71,9 +67,28 @@ describe('ExhibitADocsService', () => {
     await module?.close();
   });
 
+  it('should omit cloudfrontUrl when awsEndpointUrl is not configured', () => {
+    const serviceWithoutEndpoint = new ExhibitADocsService(
+      mockPrisma as any,
+      {
+        ...mockAppConfig,
+        awsEndpointUrl: undefined,
+      } as any,
+      mockS3Service as any,
+    );
+
+    const config = (serviceWithoutEndpoint as any).getStorageConfig();
+
+    expect(config).toEqual({
+      bucketName: 'rst-lza-exhibit-a-docs-dev',
+      cloudfrontUrl: undefined,
+      endpointUrl: undefined,
+    });
+  });
+
   describe('getAll', () => {
     it('should return all exhibit-a docs with presigned URLs', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findMany.mockResolvedValue([mockDoc]);
+      mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
       mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
 
       const result = await service.getAll(REC_RESOURCE_ID);
@@ -82,19 +97,15 @@ describe('ExhibitADocsService', () => {
       expect(result).toHaveLength(1);
       expect(first.document_id).toBe(DOC_ID);
       expect(first.rec_resource_id).toBe(REC_RESOURCE_ID);
+      expect(first.application_guid).toBe(APPLICATION_GUID);
       expect(first.file_name).toBe('exhibit-a');
       expect(first.generation_method).toBe('upload');
       expect(first.url).toBe(PRESIGNED_URL);
-      expect(mockPrisma.recreation_exhibit_a_doc.findMany).toHaveBeenCalledWith(
-        {
-          where: { rec_resource_id: REC_RESOURCE_ID },
-          orderBy: [{ updated_at: 'desc' }, { created_at: 'desc' }],
-        },
-      );
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
     });
 
     it('should return empty array when no docs exist', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findMany.mockResolvedValue([]);
+      mockPrisma.$queryRaw.mockResolvedValue([]);
 
       const result = await service.getAll(REC_RESOURCE_ID);
 
@@ -102,7 +113,7 @@ describe('ExhibitADocsService', () => {
     });
 
     it('maps nullable db values safely', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findMany.mockResolvedValue([
+      mockPrisma.$queryRaw.mockResolvedValue([
         {
           ...mockDoc,
           file_size: null,
@@ -132,11 +143,13 @@ describe('ExhibitADocsService', () => {
       const result = await service.presignUpload(
         REC_RESOURCE_ID,
         'exhibit-a.pdf',
+        APPLICATION_GUID,
       );
 
       expect(result.document_id).toBeDefined();
       expect(result.key).toContain(REC_RESOURCE_ID);
-      expect(result.key).toContain('exhibit-a.pdf');
+      expect(result.key).toContain(`/${APPLICATION_GUID}/`);
+      expect(result.key).toContain(`exhibit-a-${result.document_id}.pdf`);
       expect(result.url).toBe(PRESIGNED_URL);
     });
 
@@ -144,7 +157,11 @@ describe('ExhibitADocsService', () => {
       mockPrisma.recreation_resource.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.presignUpload(REC_RESOURCE_ID, 'exhibit-a.pdf'),
+        service.presignUpload(
+          REC_RESOURCE_ID,
+          'exhibit-a.pdf',
+          APPLICATION_GUID,
+        ),
       ).rejects.toThrow(
         new HttpException('Recreation Resource not found', 404),
       );
@@ -158,17 +175,24 @@ describe('ExhibitADocsService', () => {
       extension: 'pdf',
       file_size: 1024,
     };
+    const finalizeBodyWithGuid = {
+      ...finalizeBody,
+      application_guid: APPLICATION_GUID,
+    };
 
-    it('should create db record and return doc with presigned URL', async () => {
+    beforeEach(() => {
       mockPrisma.recreation_resource.findUnique.mockResolvedValue({
         rec_resource_id: REC_RESOURCE_ID,
       });
+    });
+
+    it('should create db record and return doc with presigned URL', async () => {
       mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
       mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
 
       const result = await service.finalizeUpload(
         REC_RESOURCE_ID,
-        finalizeBody,
+        finalizeBodyWithGuid,
       );
 
       expect(result.document_id).toBe(DOC_ID);
@@ -185,96 +209,154 @@ describe('ExhibitADocsService', () => {
       mockPrisma.recreation_resource.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
+        service.finalizeUpload(REC_RESOURCE_ID, finalizeBodyWithGuid),
       ).rejects.toThrow(
         new HttpException('Recreation Resource not found', 404),
       );
+      expect(mockPrisma.$queryRaw).not.toHaveBeenCalled();
     });
 
     it('should throw 400 for invalid document_id', async () => {
-      mockPrisma.recreation_resource.findUnique.mockResolvedValue({
-        rec_resource_id: REC_RESOURCE_ID,
-      });
-
       await expect(
         service.finalizeUpload(REC_RESOURCE_ID, {
-          ...finalizeBody,
+          ...finalizeBodyWithGuid,
           document_id: '',
         }),
       ).rejects.toThrow(HttpException);
+      expect(mockPrisma.$queryRaw).not.toHaveBeenCalled();
     });
 
     it('should propagate db errors as 500', async () => {
-      mockPrisma.recreation_resource.findUnique.mockResolvedValue({
-        rec_resource_id: REC_RESOURCE_ID,
-      });
       mockPrisma.$queryRaw.mockRejectedValue(new Error('DB error'));
 
       await expect(
-        service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
+        service.finalizeUpload(REC_RESOURCE_ID, finalizeBodyWithGuid),
       ).rejects.toThrow(HttpException);
     });
 
-    it('deletes existing docs for a submission before insert when submission_id is provided', async () => {
-      mockPrisma.recreation_resource.findUnique.mockResolvedValue({
-        rec_resource_id: REC_RESOURCE_ID,
-      });
-      mockPrisma.recreation_exhibit_a_doc.deleteMany.mockResolvedValue({
-        count: 1,
-      });
+    it('should throw 500 when insert returns no row', async () => {
+      mockPrisma.$queryRaw.mockResolvedValue([]);
+
+      await expect(
+        service.finalizeUpload(REC_RESOURCE_ID, finalizeBodyWithGuid),
+      ).rejects.toThrow(HttpException);
+      expect(mockS3Service.getSignedUrl).not.toHaveBeenCalled();
+    });
+
+    it('passes application_guid to the insert when provided', async () => {
       mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
+      mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
+
+      await service.finalizeUpload(REC_RESOURCE_ID, {
+        ...finalizeBody,
+        application_guid: APPLICATION_GUID,
+      });
+
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+      const [, ...values] = mockPrisma.$queryRaw.mock.calls[0]!;
+      expect(values).toContain(APPLICATION_GUID);
+    });
+
+    it('resolves deprecated submission_id to application_guid before insert', async () => {
+      mockPrisma.$queryRaw
+        .mockResolvedValueOnce([{ application_guid: APPLICATION_GUID }])
+        .mockResolvedValueOnce([mockDoc]);
       mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
 
       await service.finalizeUpload(REC_RESOURCE_ID, {
         ...finalizeBody,
         submission_id: '1234567',
       });
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
+      const [, ...insertValues] = mockPrisma.$queryRaw.mock.calls[1]!;
+      expect(insertValues).toContain(APPLICATION_GUID);
+    });
 
-      expect(
-        mockPrisma.recreation_exhibit_a_doc.deleteMany,
-      ).toHaveBeenCalledWith({
-        where: {
-          rec_resource_id: REC_RESOURCE_ID,
+    it('should throw 400 when application_guid and submission_id are both missing', async () => {
+      await expect(
+        service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
+      ).rejects.toThrow(new HttpException('application_guid is required', 400));
+      expect(mockPrisma.$queryRaw).not.toHaveBeenCalled();
+    });
+
+    it('should throw 404 when submission_id cannot be resolved', async () => {
+      mockPrisma.$queryRaw.mockResolvedValueOnce([]);
+
+      await expect(
+        service.finalizeUpload(REC_RESOURCE_ID, {
+          ...finalizeBody,
           submission_id: '1234567',
-        },
-      });
+        }),
+      ).rejects.toThrow(HttpException);
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('delete', () => {
     it('should delete doc from db and S3', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findUnique.mockResolvedValue(mockDoc);
-      mockPrisma.recreation_exhibit_a_doc.delete.mockResolvedValue(mockDoc);
+      mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
       mockS3Service.deleteFile.mockResolvedValue(undefined);
 
       const result = await service.delete(REC_RESOURCE_ID, DOC_ID);
 
       expect(result.document_id).toBe(DOC_ID);
-      expect(mockPrisma.recreation_exhibit_a_doc.delete).toHaveBeenCalledWith({
-        where: { doc_id: DOC_ID },
-      });
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
       expect(mockS3Service.deleteFile).toHaveBeenCalledWith(S3_KEY);
     });
 
+    it('scopes the delete by both doc_id and rec_resource_id', async () => {
+      mockPrisma.$queryRaw.mockResolvedValue([mockDoc]);
+      mockS3Service.deleteFile.mockResolvedValue(undefined);
+
+      await service.delete(REC_RESOURCE_ID, DOC_ID);
+      const [, ...values] = mockPrisma.$queryRaw.mock.calls[0]!;
+      expect(values).toContain(DOC_ID);
+      expect(values).toContain(REC_RESOURCE_ID);
+    });
+
     it('should throw 404 when doc not found', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findUnique.mockResolvedValue(null);
+      mockPrisma.$queryRaw.mockResolvedValue([]);
 
       await expect(service.delete(REC_RESOURCE_ID, DOC_ID)).rejects.toThrow(
         new HttpException('Exhibit A document not found', 404),
       );
-      expect(mockPrisma.recreation_exhibit_a_doc.delete).not.toHaveBeenCalled();
+      expect(mockS3Service.deleteFile).not.toHaveBeenCalled();
     });
 
     it('should throw 404 when doc belongs to different resource', async () => {
-      mockPrisma.recreation_exhibit_a_doc.findUnique.mockResolvedValue({
-        ...mockDoc,
-        rec_resource_id: 'REC9999',
-      });
+      mockPrisma.$queryRaw.mockResolvedValue([]);
 
       await expect(service.delete(REC_RESOURCE_ID, DOC_ID)).rejects.toThrow(
         new HttpException('Exhibit A document not found', 404),
       );
-      expect(mockPrisma.recreation_exhibit_a_doc.delete).not.toHaveBeenCalled();
+      expect(mockS3Service.deleteFile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('path and filename normalization helpers', () => {
+    it('sanitizes unsafe application guid and file segments in buildS3Key', () => {
+      const key = (service as any).buildS3Key(
+        REC_RESOURCE_ID,
+        '  app guid/with unsafe chars  ',
+        'exhibit a?.pdf',
+      );
+
+      expect(key).toBe('REC0001/app_guid_with_unsafe_chars/exhibit_a_.pdf');
+    });
+
+    it('falls back when sanitizePathSegment receives blank input', () => {
+      expect(
+        (service as any).sanitizePathSegment('   ', 'fallback-value'),
+      ).toBe('fallback-value');
+    });
+
+    it('normalizes stem and extension defaults', () => {
+      expect((service as any).normalizeStem('  My Exhibit.A.PDF  ')).toBe(
+        'my-exhibit-a',
+      );
+      expect((service as any).normalizeStem('...')).toBe('exhibit-a');
+      expect((service as any).normalizeExtension('  .PDF  ')).toBe('pdf');
+      expect((service as any).normalizeExtension('  ')).toBe('pdf');
     });
   });
 });

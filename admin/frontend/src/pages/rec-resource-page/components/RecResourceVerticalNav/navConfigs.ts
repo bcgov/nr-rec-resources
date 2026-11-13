@@ -3,14 +3,15 @@ import { NavigateOptions } from '@tanstack/react-router';
 
 export enum RecResourceNavKey {
   OVERVIEW = 'overview',
+  ADVISORIES = 'advisories',
+  PARTNERS = 'partners',
   FILES = 'files',
   ACTIVITIES = 'activities',
-  FEES = 'fees',
   ASSETS = 'assets',
-  PARTNERS = 'partners',
   GEOSPATIAL = 'geospatial',
   RESERVATION = 'reservation',
-  ADVISORIES = 'advisories',
+  FEES = 'fees',
+  NOTES = 'notes',
 }
 
 export type NavSectionConfig = {
@@ -37,26 +38,33 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
       params: { id },
     }),
   },
+  [RecResourceNavKey.ADVISORIES]: {
+    title: 'Advisories and closures',
+    isFeatureFlagged: true,
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_ADVISORIES,
+      params: { id },
+    }),
+  },
+  [RecResourceNavKey.PARTNERS]: {
+    title: 'Partners',
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_PARTNERS,
+      params: { id },
+    }),
+  },
   [RecResourceNavKey.FILES]: {
-    title: 'Images & Sitemaps',
+    title: 'Images and documents',
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_FILES,
       params: { id },
     }),
   },
   [RecResourceNavKey.ACTIVITIES]: {
-    title: 'Activities & features',
+    title: 'Activities and features',
     isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES,
-      params: { id },
-    }),
-  },
-  [RecResourceNavKey.FEES]: {
-    title: 'Fees',
-    isFeatureFlagged: true,
-    getNavigateOptions: (id: string) => ({
-      to: ROUTE_PATHS.REC_RESOURCE_FEES,
       params: { id },
     }),
   },
@@ -65,13 +73,6 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
     isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
-      params: { id },
-    }),
-  },
-  [RecResourceNavKey.PARTNERS]: {
-    title: 'Partners',
-    getNavigateOptions: (id: string) => ({
-      to: ROUTE_PATHS.REC_RESOURCE_PARTNERS,
       params: { id },
     }),
   },
@@ -90,11 +91,19 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
       params: { id },
     }),
   },
-  [RecResourceNavKey.ADVISORIES]: {
-    title: 'Advisories and closures',
+  [RecResourceNavKey.FEES]: {
+    title: 'Fees',
     isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
-      to: ROUTE_PATHS.REC_RESOURCE_ADVISORIES,
+      to: ROUTE_PATHS.REC_RESOURCE_FEES,
+      params: { id },
+    }),
+  },
+  [RecResourceNavKey.NOTES]: {
+    title: 'Notes and references',
+    isFeatureFlagged: true,
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_NOTES,
       params: { id },
     }),
   },

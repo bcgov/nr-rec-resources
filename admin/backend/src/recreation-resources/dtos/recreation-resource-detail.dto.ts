@@ -226,6 +226,20 @@ export class RecreationRiskRatingDto {
   description: string;
 }
 
+export class RecreationUserDaysDto {
+  @ApiProperty({
+    description: 'User days code',
+    example: '0K',
+  })
+  recreation_user_days_code: string;
+
+  @ApiProperty({
+    description: 'Description of the user days code',
+    example: '< 1000',
+  })
+  description: string;
+}
+
 export class RecreationResourceMaintenanceStandardDto {
   @ApiProperty({
     description: 'Unique identifier for the maintenance standard',
@@ -293,6 +307,13 @@ export abstract class BaseRecreationResourceDto {
     nullable: true,
   })
   rec_resource_type_code?: string | null;
+
+  @ApiProperty({
+    description: 'Code representing the user days for the recreation resource',
+    example: '0K',
+    type: RecreationUserDaysDto,
+  })
+  recreation_user_days_code?: RecreationUserDaysDto;
 }
 
 export class RecreationControlAccessDto {
@@ -461,6 +482,16 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     nullable: true,
   })
   natural_resource_org_unit_name?: string | null;
+
+  @ApiProperty({
+    description:
+      'Licensee display value resolved from the latest approved spatial submission org unit code',
+    example: '000105202 00 District Manager South Island (DSI)',
+    type: String,
+    nullable: true,
+    required: false,
+  })
+  licensee?: string | null;
 
   @ApiProperty({
     description: 'Public access status group label from ACT advisories',

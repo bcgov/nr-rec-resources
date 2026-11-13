@@ -165,10 +165,10 @@ describe('RecResourceFeesSection', () => {
   it('renders fees table with correct data', () => {
     render(<RecResourceFeesSection />);
 
-    expect(screen.getByText('Fee Type')).toBeInTheDocument();
+    expect(screen.getByText('Fee type')).toBeInTheDocument();
     expect(screen.getByText('Amount')).toBeInTheDocument();
-    expect(screen.getByText('Start Date')).toBeInTheDocument();
-    expect(screen.getByText('End Date')).toBeInTheDocument();
+    expect(screen.getByText('Start date')).toBeInTheDocument();
+    expect(screen.getByText('End date')).toBeInTheDocument();
     expect(screen.getByText('Days')).toBeInTheDocument();
 
     expect(screen.getByText('Day use')).toBeInTheDocument();
@@ -311,13 +311,13 @@ describe('RecResourceFeesSection', () => {
     expect(row).toHaveTextContent('--');
   });
 
-  it('renders Add Fee button for admin users', () => {
+  it('renders Add fee button for admin users', () => {
     render(<RecResourceFeesSection />);
 
     expect(screen.getByRole('link', { name: /add fee/i })).toBeInTheDocument();
   });
 
-  it('hides Add Fee button for non-admin users', () => {
+  it('hides Add fee button for non-admin users', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: false,

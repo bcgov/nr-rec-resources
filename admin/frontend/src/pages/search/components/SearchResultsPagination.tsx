@@ -1,48 +1,10 @@
 import { Form, Pagination, Stack } from 'react-bootstrap';
 import type { SearchResultsPaginationModel } from '@/pages/search/hooks/useAdminSearchController';
+import { buildPageItems, buildPageRange } from '@/utils/pagination';
 import './SearchResultsPagination.scss';
 
 interface SearchResultsPaginationProps {
   pagination: SearchResultsPaginationModel;
-}
-
-type PageItem = number | 'ellipsis';
-
-const buildPageRange = (start: number, end: number) =>
-  Array.from(
-    { length: Math.max(end - start + 1, 0) },
-    (_, index) => start + index,
-  );
-
-function buildPageItems(pageIndex: number, pageCount: number): PageItem[] {
-  if (pageCount <= 7) {
-    return buildPageRange(0, pageCount - 1);
-  }
-
-  let middlePages = buildPageRange(pageIndex - 1, pageIndex + 1);
-
-  if (pageIndex <= 2) {
-    middlePages = buildPageRange(1, 3);
-  } else if (pageIndex >= pageCount - 3) {
-    middlePages = buildPageRange(pageCount - 4, pageCount - 2);
-  }
-
-  return [0, ...middlePages, pageCount - 1].reduce<PageItem[]>(
-    (items, currentIndex) => {
-      const previousIndex = items.at(-1);
-
-      if (
-        typeof previousIndex === 'number' &&
-        currentIndex - previousIndex > 1
-      ) {
-        items.push('ellipsis');
-      }
-
-      items.push(currentIndex);
-      return items;
-    },
-    [],
-  );
 }
 
 export function SearchResultsPagination({
@@ -113,7 +75,7 @@ export function SearchResultsPagination({
             htmlFor={pageSizeSelectId}
             className="pagination-bar__label mb-0"
           >
-            Page Size
+            Page size
           </Form.Label>
           <Form.Select
             id={pageSizeSelectId}
@@ -132,7 +94,7 @@ export function SearchResultsPagination({
             htmlFor={pageSelectId}
             className="pagination-bar__label mb-0"
           >
-            Jump To
+            Jump to
           </Form.Label>
           <Form.Select
             id={pageSelectId}

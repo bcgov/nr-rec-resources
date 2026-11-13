@@ -1,6 +1,6 @@
 import { RecResourceOverviewSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewSection';
 import { useLocation } from '@tanstack/react-router';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockUseAuthorizations = vi.fn();
@@ -51,6 +51,25 @@ vi.mock(
   }),
 );
 
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceArchiveModal',
+  () => {
+    const RecResourceArchiveModal = ({ show, onCancel, onArchive }: any) =>
+      show ? (
+        <div data-testid="delete-modal">
+          <button onClick={onCancel} data-testid="modal-cancel">
+            Cancel
+          </button>
+          <button onClick={onArchive} data-testid="modal-confirm">
+            Archive
+          </button>
+        </div>
+      ) : null;
+
+    return { RecResourceArchiveModal };
+  },
+);
+
 describe('RecResourceOverviewSection', () => {
   const mockLocation = {
     href: '',
@@ -99,6 +118,10 @@ describe('RecResourceOverviewSection', () => {
         description: 'Hiking',
       },
     ],
+    recreation_user_days_code: {
+      description: '1000 - 5000',
+      recreation_user_days_code: '1K',
+    },
   } as any;
 
   const renderWithProvider = (ui: React.ReactNode) => render(ui);
@@ -109,13 +132,13 @@ describe('RecResourceOverviewSection', () => {
     );
     expect(screen.getByText('Overview')).toBeInTheDocument();
     expect(screen.getByText('Description')).toBeInTheDocument();
-    expect(screen.getByText('Closest Community')).toBeInTheDocument();
-    expect(screen.getByText('Recreation District')).toBeInTheDocument();
-    expect(screen.getByText('Access Type')).toBeInTheDocument();
-    expect(screen.getByText('Maintenance Type')).toBeInTheDocument();
-    expect(screen.getByText('Driving Directions')).toBeInTheDocument();
-    expect(screen.getByText('Project Established Date')).toBeInTheDocument();
-    expect(screen.getByText('Risk Rating')).toBeInTheDocument();
+    expect(screen.getByText('Closest community')).toBeInTheDocument();
+    expect(screen.getByText('Recreation district')).toBeInTheDocument();
+    expect(screen.getByText('Access type')).toBeInTheDocument();
+    expect(screen.getByText('Maintenance type')).toBeInTheDocument();
+    expect(screen.getByText('Driving directions')).toBeInTheDocument();
+    expect(screen.getByText('Project established date')).toBeInTheDocument();
+    expect(screen.getByText('Risk rating')).toBeInTheDocument();
     expect(screen.getByText('Test Community')).toBeInTheDocument();
     expect(
       screen.getByText('Test Natural Resource District'),
@@ -161,9 +184,30 @@ describe('RecResourceOverviewSection', () => {
     renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceNoAccess} />,
     );
-    // With empty accessCodes, should show a dash
-    expect(screen.getByText('Access Type')).toBeInTheDocument();
-    expect(screen.getByText('-')).toBeInTheDocument();
+    const accessLabel = screen.getByText('Access type');
+    const accessSection = accessLabel.closest('section');
+    expect(accessSection).not.toBeNull();
+    expect(
+      within(accessSection as HTMLElement).getByText('-'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders dash for access type when access_codes is undefined', () => {
+    const recResourceNoAccessField = {
+      ...recResource,
+      access_codes: undefined,
+    } as any;
+
+    renderWithProvider(
+      <RecResourceOverviewSection recResource={recResourceNoAccessField} />,
+    );
+
+    const accessLabel = screen.getByText('Access type');
+    const accessSection = accessLabel.closest('section');
+    expect(accessSection).not.toBeNull();
+    expect(
+      within(accessSection as HTMLElement).getByText('-'),
+    ).toBeInTheDocument();
   });
 
   it('renders project established date when present', () => {
@@ -175,7 +219,7 @@ describe('RecResourceOverviewSection', () => {
     renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceWithDate} />,
     );
-    expect(screen.getByText('Project Established Date')).toBeInTheDocument();
+    expect(screen.getByText('Project established date')).toBeInTheDocument();
     expect(screen.getByText('January 10, 2020')).toBeInTheDocument();
   });
 
@@ -188,13 +232,13 @@ describe('RecResourceOverviewSection', () => {
     renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceWithNullDate} />,
     );
-    expect(screen.getByText('Project Established Date')).toBeInTheDocument();
+    expect(screen.getByText('Project established date')).toBeInTheDocument();
     // RecResourceOverviewItem shows dash for falsy values
     const sections = screen.getAllByRole('region');
     const dateSection = sections.find(
       (section) =>
         section.querySelector('.text-primary')?.textContent ===
-        'Project Established Date',
+        'Project established date',
     );
     expect(dateSection).toBeInTheDocument();
     expect(dateSection?.textContent).toContain('-');
@@ -209,7 +253,7 @@ describe('RecResourceOverviewSection', () => {
     renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceWithUndefinedDate} />,
     );
-    expect(screen.getByText('Project Established Date')).toBeInTheDocument();
+    expect(screen.getByText('Project established date')).toBeInTheDocument();
   });
 
   it('renders project established date label with dash when value is empty string', () => {
@@ -221,7 +265,7 @@ describe('RecResourceOverviewSection', () => {
     renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceWithEmptyDate} />,
     );
-    expect(screen.getByText('Project Established Date')).toBeInTheDocument();
+    expect(screen.getByText('Project established date')).toBeInTheDocument();
   });
 
   it('renders project established date even when whitespace only', () => {
@@ -236,14 +280,14 @@ describe('RecResourceOverviewSection', () => {
       />,
     );
     // The component checks for truthy value, so whitespace string should still render the label
-    expect(screen.getByText('Project Established Date')).toBeInTheDocument();
+    expect(screen.getByText('Project established date')).toBeInTheDocument();
 
     // Verify that the section is rendered (even with whitespace content)
     const sections = screen.getAllByRole('region');
     const dateSection = sections.find(
       (section) =>
         section.querySelector('.text-primary')?.textContent ===
-        'Project Established Date',
+        'Project established date',
     );
     expect(dateSection).toBeInTheDocument();
   });
@@ -265,7 +309,7 @@ describe('RecResourceOverviewSection', () => {
       const { unmount } = renderWithProvider(
         <RecResourceOverviewSection recResource={recResourceWithCustomDate} />,
       );
-      expect(screen.getByText('Project Established Date')).toBeInTheDocument();
+      expect(screen.getByText('Project established date')).toBeInTheDocument();
       expect(screen.getByText(dateValue)).toBeInTheDocument();
       unmount();
     });
@@ -294,8 +338,8 @@ describe('RecResourceOverviewSection', () => {
 
     // These fields are always rendered but may show empty or default values
     // The RecResourceOverviewItem component doesn't render if value is falsy
-    // But Access Type always renders because it has a component that returns '-'
-    expect(screen.getByText('Access Type')).toBeInTheDocument();
+    // But Access type always renders because it has a component that returns '-'
+    expect(screen.getByText('Access type')).toBeInTheDocument();
   });
 
   it('renders all fields when all have values', () => {
@@ -324,13 +368,13 @@ describe('RecResourceOverviewSection', () => {
     // All sections should be rendered
     expect(screen.getByText('Overview')).toBeInTheDocument();
     expect(screen.getByText('Description')).toBeInTheDocument();
-    expect(screen.getByText('Closest Community')).toBeInTheDocument();
-    expect(screen.getByText('Recreation District')).toBeInTheDocument();
-    expect(screen.getByText('Access Type')).toBeInTheDocument();
-    expect(screen.getByText('Maintenance Type')).toBeInTheDocument();
-    expect(screen.getByText('Driving Directions')).toBeInTheDocument();
-    expect(screen.getByText('Project Established Date')).toBeInTheDocument();
-    expect(screen.getByText('Risk Rating')).toBeInTheDocument();
+    expect(screen.getByText('Closest community')).toBeInTheDocument();
+    expect(screen.getByText('Recreation district')).toBeInTheDocument();
+    expect(screen.getByText('Access type')).toBeInTheDocument();
+    expect(screen.getByText('Maintenance type')).toBeInTheDocument();
+    expect(screen.getByText('Driving directions')).toBeInTheDocument();
+    expect(screen.getByText('Project established date')).toBeInTheDocument();
+    expect(screen.getByText('Risk rating')).toBeInTheDocument();
 
     // All values should be rendered
     expect(screen.getByText('Complete Description')).toBeInTheDocument();

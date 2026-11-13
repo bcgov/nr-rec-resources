@@ -10,7 +10,7 @@ import { Stack } from 'react-bootstrap';
 
 export const RecResourceActivitiesFeaturesPage = () => {
   const { activities, features } = useLoaderData({
-    from: '/rec-resource/$id/activities-features/',
+    from: '/rec-resource/$id/activities-and-features/',
   });
   const { id: rec_resource_id } = useParams({ from: '/rec-resource/$id' });
 

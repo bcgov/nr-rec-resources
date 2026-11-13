@@ -62,6 +62,7 @@ export const OptionsByTypeDtoTypeEnum = {
   PhotographerType: 'photographerType',
   ClosestCommunity: 'closestCommunity',
   RecStatusCode: 'recStatusCode',
+  RecreationUserDays: 'recreationUserDays',
 } as const;
 export type OptionsByTypeDtoTypeEnum =
   (typeof OptionsByTypeDtoTypeEnum)[keyof typeof OptionsByTypeDtoTypeEnum];

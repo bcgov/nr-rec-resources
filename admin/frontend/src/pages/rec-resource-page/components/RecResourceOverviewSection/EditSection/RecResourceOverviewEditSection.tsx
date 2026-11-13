@@ -37,6 +37,7 @@ import {
   DRIVING_DIRECTIONS_HELP_TEXT,
   PROJECT_ESTABLISHED_DATE_HELP_TEXT,
   RISK_RATING_HELP_TEXT,
+  USER_DAYS_HELP_TEXT,
 } from '@/utils/helpText';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
 
@@ -55,6 +56,7 @@ export const RecResourceOverviewEditSection = () => {
     riskRatingCodeTypeOptions,
     groupedAccessOptions,
     districtOptions,
+    recreationUserDaysOptions,
   } = useResourceOptions({
     currentDistrictCode: recResource.recreation_district?.district_code,
   });
@@ -101,7 +103,7 @@ export const RecResourceOverviewEditSection = () => {
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
-        <h2>Edit Overview</h2>
+        <h2>Edit overview</h2>
         <Stack direction="horizontal" gap={2}>
           <RecResourceOverviewLink
             rec_resource_id={recResource.rec_resource_id}
@@ -156,7 +158,7 @@ export const RecResourceOverviewEditSection = () => {
               </Col>
             )}
 
-            {/* Closest Community */}
+            {/* Closest community */}
             <Col xs={12} md={6}>
               <TextField
                 name="closest_community"
@@ -170,7 +172,7 @@ export const RecResourceOverviewEditSection = () => {
               />
             </Col>
 
-            {/* Maintenance Standard & Control Access */}
+            {/* Maintenance standard & control access */}
             <Col xs={12} md={6}>
               <SelectField<EditResourceFormData>
                 name="maintenance_standard_code"
@@ -222,6 +224,18 @@ export const RecResourceOverviewEditSection = () => {
             </Col>
 
             <Col xs={12} md={6}>
+              <SelectField<EditResourceFormData>
+                name="recreation_user_days_code"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.recreation_user_days_code}
+                options={recreationUserDaysOptions}
+                placeholder="Select user days..."
+                control={control}
+                errors={errors}
+                helpText={USER_DAYS_HELP_TEXT}
+              />
+            </Col>
+
+            <Col xs={12} md={6}>
               <DateInputField
                 name="project_established_date"
                 label={EDIT_RESOURCE_FIELD_LABEL_MAP.project_established_date}
@@ -254,7 +268,7 @@ export const RecResourceOverviewEditSection = () => {
           <Col xs={12}>
             <RichTextEditor
               name="site_description"
-              label="Site Description"
+              label="Site description"
               control={control}
               errors={errors}
               helpText={DESCRIPTION_HELP_TEXT}
@@ -267,7 +281,7 @@ export const RecResourceOverviewEditSection = () => {
           <Col xs={12}>
             <RichTextEditor
               name="driving_directions"
-              label="Driving Directions"
+              label="Driving directions"
               control={control}
               errors={errors}
               helpText={DRIVING_DIRECTIONS_HELP_TEXT}

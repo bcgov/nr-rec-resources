@@ -37,7 +37,7 @@ export const RECREATION_OPERATOR_HELP_TEXT = (
     >
       Forest Recreation Regulation
     </a>{' '}
-    to manage and operate at a recreation resource. "Recreation Operator" is
+    to manage and operate at a recreation resource. "Recreation operator" is
     displayed when a volunteer partner is authorized to collect fees.
   </>
 );
@@ -85,3 +85,6 @@ export const BETA_FEATURES_BANNER_TITLE =
 
 export const BETA_FEATURES_BANNER_TEXT =
   'These features are in beta and not visible on the public website. Information and functionality may change as we learn from staff use and feedback. If something doesn’t look right, please let us know.';
+
+export const USER_DAYS_HELP_TEXT =
+  'An estimate of how much a recreation site, trail, reserve or interpretive forest is used over a year, recorded as an annual usage range.';

@@ -55,7 +55,7 @@ export const LoginPage = () => {
         <div className="login-info__contact d-flex flex-column shadow-sm rounded">
           <div className="login-info__contact-header d-flex align-items-center px-3 rounded-top">
             <h2 className="fs-5 fw-semibold text-dark mb-0">
-              Contact Information
+              Contact information
             </h2>
           </div>
           <div className="login-info__contact-content d-flex flex-column bg-white p-4 rounded-bottom">

@@ -63,6 +63,40 @@ backend-el/
   - `FlywayTaskRunnerService.java`: Runs Flyway migrations via ECS tasks using
     `FLYWAY_TASK_LZA_CONFIGS`.
   - `S3UploaderService.java`: Handles S3 uploads.
+  - `TenureExportService.java`: Exports filtered tenure data and related BLOBs
+    to S3.
+
+### Tenure Export (`JOB_MODE=daily` or `JOB_MODE=tenure`)
+
+- Daily mode exports tenure data for application types `RL` and `RPO` from:
+  - `TENURE_APPLICATION`
+  - `TENURE_APPLICATION_IMAGE`
+  - `TENURE_APPLICATION_MAP_FEATURE`
+  - `TENURE_APPLICATION_MF_IMAGE`
+- Optional: set `TENURE_IMAGE_EXPORT_TARGET` to control image table processing:
+  - `all` (default): process `TENURE_APPLICATION`,
+    `TENURE_APPLICATION_MAP_FEATURE`, `TENURE_APPLICATION_IMAGE`, and
+    `TENURE_APPLICATION_MF_IMAGE`
+  - `core`: process only `TENURE_APPLICATION` and
+    `TENURE_APPLICATION_MAP_FEATURE`
+  - `app`: process only `TENURE_APPLICATION_IMAGE`
+  - `mf`: process only `TENURE_APPLICATION_MF_IMAGE`
+- In OpenShift helm values, tenure-only cronjobs are disabled by default and
+  daily runs set `TENURE_IMAGE_EXPORT_TARGET=core` so the daily job exports only
+  `TENURE_APPLICATION` and `TENURE_APPLICATION_MAP_FEATURE`.
+- Use the tenure image-specific cronjobs (app/mf) or weekly tenure cron when you
+  want image object exports, so daily pipeline-linked runs stay lightweight.
+- Optional: set `TENURE_EXHIBIT_BUCKET` to upload `Exhibit_A` image objects to a
+  dedicated S3 bucket. When set, Exhibit A objects are written without the
+  `Exhibit_A` prefix (directly under that bucket path structure). When not set,
+  Exhibit A uploads continue using the main `AWS_LZA_S3_BUCKET` bucket with the
+  `TENURE_EXHIBIT_PREFIX` (default `Exhibit_A`).
+- `JOB_MODE=tenure` runs only tenure export workflows and then triggers Flyway
+  tasks (without running the full recreation export list).
+- Helm chart values include a separate weekly cron toggle for this mode:
+  - `tenureWeeklyCronEnabled`
+  - `tenureWeeklyCronSuspend`
+  - `tenureWeeklySchedule` (default `0 3 * * 1`, Sunday evening PT)
 
 ### Flyway ECS Task Runner Configuration
 
