@@ -51,6 +51,9 @@
   },
   "overrides": {
     "@xhmikosr/decompress": "10.2.2",
-    "@fortawesome/fontawesome-common-types": "7.2.0"
+    "@fortawesome/fontawesome-common-types": "7.2.0",
+    "react-use-scrollspy": {
+      "lodash": "^4.18.1"
+    }
   }
 }
