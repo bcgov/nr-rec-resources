@@ -239,6 +239,12 @@ export interface RecreationResourceDetailDto {
    */
   natural_resource_org_unit_name: string | null;
   /**
+   * Licensee display value resolved from the latest approved spatial submission org unit code
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
+   */
+  licensee?: string | null;
+  /**
    * Public access status group label from ACT advisories
    * @type {string}
    * @memberof RecreationResourceDetailDto
@@ -408,6 +414,7 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     rec_status_code: json['rec_status_code'],
     rec_status_description: json['rec_status_description'],
     natural_resource_org_unit_name: json['natural_resource_org_unit_name'],
+    licensee: json['licensee'] == null ? undefined : json['licensee'],
     access_status_grouplabel:
       json['access_status_grouplabel'] == null
         ? undefined
@@ -478,6 +485,7 @@ export function RecreationResourceDetailDtoToJSONTyped(
     rec_status_code: value['rec_status_code'],
     rec_status_description: value['rec_status_description'],
     natural_resource_org_unit_name: value['natural_resource_org_unit_name'],
+    licensee: value['licensee'],
     access_status_grouplabel: value['access_status_grouplabel'],
   };
 }
