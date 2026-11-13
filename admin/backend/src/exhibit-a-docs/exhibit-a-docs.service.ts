@@ -75,11 +75,17 @@ export class ExhibitADocsService extends BaseStorageFileService {
   async presignUpload(
     rec_resource_id: string,
     _file_name: string,
+    application_guid: string,
   ): Promise<PresignExhibitAUploadResponseDto> {
     await this.validateResourceExists(rec_resource_id);
+    this.validateRequiredApplicationGuid(application_guid);
 
     const document_id = randomUUID();
-    const key = this.buildS3Key(rec_resource_id, document_id);
+    const key = this.buildS3Key(
+      rec_resource_id,
+      application_guid,
+      `exhibit-a-${document_id}.pdf`,
+    );
     const url = await this.generatePresignedUrl(
       key,
       'application/pdf',
@@ -101,7 +107,11 @@ export class ExhibitADocsService extends BaseStorageFileService {
     this.validateEntityId(body.document_id, 'document_id');
 
     const applicationGuid = await this.resolveApplicationGuid(body);
-    const s3_key = this.buildS3Key(rec_resource_id, body.document_id);
+    const s3_key = this.buildS3Key(
+      rec_resource_id,
+      applicationGuid,
+      `exhibit-a-${body.document_id}.pdf`,
+    );
 
     let doc: ExhibitADocRow | undefined;
     try {
@@ -169,8 +179,25 @@ export class ExhibitADocsService extends BaseStorageFileService {
     return this.mapResponse(doc, '');
   }
 
-  private buildS3Key(rec_resource_id: string, document_id: string): string {
-    return `${rec_resource_id}/${document_id}/exhibit-a-${document_id}.pdf`;
+  private buildS3Key(
+    rec_resource_id: string,
+    application_guid: string,
+    fileName: string,
+  ): string {
+    const appGuidFolder = this.sanitizePathSegment(
+      application_guid,
+      'invalid_application_guid',
+    );
+    const safeFileName = this.sanitizePathSegment(fileName, 'exhibit-a.pdf');
+    return `${rec_resource_id}/${appGuidFolder}/${safeFileName}`;
+  }
+
+  private sanitizePathSegment(
+    value: string | undefined,
+    fallback: string,
+  ): string {
+    if (!value || !value.trim()) return fallback;
+    return value.trim().replace(/[^A-Za-z0-9._-]/g, '_');
   }
 
   /** Lowercases, drops the extension, and reduces to [a-z0-9_-] with single dashes. */
@@ -194,9 +221,14 @@ export class ExhibitADocsService extends BaseStorageFileService {
 
   private async resolveApplicationGuid(
     body: FinalizeExhibitAUploadRequestDto,
-  ): Promise<string | null> {
-    if (body.application_guid) return body.application_guid;
-    if (!body.submission_id) return null;
+  ): Promise<string> {
+    if (body.application_guid) {
+      this.validateRequiredApplicationGuid(body.application_guid);
+      return body.application_guid;
+    }
+    if (!body.submission_id) {
+      throw new HttpException('application_guid is required', 400);
+    }
 
     const [row] = await this.prisma.$queryRaw<{ application_guid: string }[]>`
       SELECT application_guid::text AS application_guid
@@ -213,6 +245,12 @@ export class ExhibitADocsService extends BaseStorageFileService {
     }
 
     return row.application_guid;
+  }
+
+  private validateRequiredApplicationGuid(application_guid?: string): void {
+    if (!application_guid?.trim()) {
+      throw new HttpException('application_guid is required', 400);
+    }
   }
 
   private mapResponse(doc: ExhibitADocRow, url: string): ExhibitADocDto {

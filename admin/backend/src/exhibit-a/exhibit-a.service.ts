@@ -231,6 +231,7 @@ export class ExhibitAService {
     });
     const upload = await this.uploadPdfToS3(
       header.tenure_id,
+      header.application_guid,
       submissionId,
       pdfBuffer,
     );
@@ -957,16 +958,15 @@ export class ExhibitAService {
 
   private async uploadPdfToS3(
     recResourceId: string,
+    applicationGuid: string,
     submissionId: string,
     pdfBuffer: Buffer,
   ): Promise<{ key: string; url: string }> {
+    const safeApplicationGuid = applicationGuid.replace(/[^a-zA-Z0-9_-]/g, '_');
     const safeSubmissionId = submissionId.replace(/[^a-zA-Z0-9_-]/g, '_');
     const filename = `exhibit-a-${safeSubmissionId}-${Date.now()}.pdf`;
-    const key = await this.s3Service.uploadFile(
-      recResourceId,
-      pdfBuffer,
-      filename,
-    );
+    const key = `${recResourceId}/${safeApplicationGuid}/${filename}`;
+    await this.s3Service.uploadFileToKey(key, pdfBuffer, 'application/pdf');
     return { key, url: await this.s3Service.getSignedUrl(key) };
   }
 }

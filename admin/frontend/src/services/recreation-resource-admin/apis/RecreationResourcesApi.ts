@@ -342,6 +342,7 @@ export interface PresignDocUploadRequest {
 export interface PresignExhibitAUploadRequest {
   recResourceId: string;
   fileName: string;
+  applicationGuid: string;
 }
 
 export interface PresignImageUploadRequest {
@@ -1772,6 +1773,13 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       throw new runtime.RequiredError(
         'fileName',
         'Required parameter "fileName" was null or undefined when calling finalizeImageUpload().',
+      );
+    }
+
+    if (requestParameters['applicationGuid'] == null) {
+      throw new runtime.RequiredError(
+        'applicationGuid',
+        'Required parameter "applicationGuid" was null or undefined when calling presignExhibitAUpload().',
       );
     }
 
@@ -3344,6 +3352,11 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     if (requestParameters['fileName'] != null) {
       queryParameters['fileName'] = requestParameters['fileName'];
+    }
+
+    if (requestParameters['applicationGuid'] != null) {
+      queryParameters['application_guid'] =
+        requestParameters['applicationGuid'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};

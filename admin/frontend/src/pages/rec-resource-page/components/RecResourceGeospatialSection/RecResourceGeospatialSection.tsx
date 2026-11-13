@@ -405,7 +405,14 @@ export function RecResourceGeospatialSection() {
   const handleUploadConfirm = useCallback(async () => {
     const selected = selectedSubmissionRow;
     const { file, fileName } = uploadModalState;
-    if (!selected?.submission_id || !file?.pendingFile || !fileName) return;
+    if (
+      !selected?.submission_id ||
+      !selected?.application_guid ||
+      !file?.pendingFile ||
+      !fileName
+    ) {
+      return;
+    }
 
     const rawName = `${fileName}.${file.extension}`;
 
@@ -415,6 +422,7 @@ export function RecResourceGeospatialSection() {
       const presigned = await presignMutation.mutateAsync({
         recResourceId,
         fileName: rawName,
+        applicationGuid: selected.application_guid,
       });
 
       const s3Response = await fetch(presigned.url, {
@@ -430,6 +438,7 @@ export function RecResourceGeospatialSection() {
 
       const finalized = await finalizeMutation.mutateAsync({
         recResourceId,
+        application_guid: selected.application_guid,
         submission_id: selected.submission_id,
         document_id: presigned.document_id,
         file_name: fileName,

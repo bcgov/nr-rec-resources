@@ -139,6 +139,9 @@ public class TenureExportService {
   private static final String REC_TENURE_APP_IMAGE_UPLOAD_SQL = """
       SELECT ta.FOREST_FILE_ID,
              ta.SUBMISSION_ID,
+             LOWER(REGEXP_REPLACE(RAWTOHEX(ta.TENURE_APP_GUID),
+               '(.{8})(.{4})(.{4})(.{4})(.{12})',
+               '\\1-\\2-\\3-\\4-\\5')) AS APPLICATION_GUID,
              ta.TENURE_APP_ID,
              'TENURE_APP_IMAGE_' || ROW_NUMBER() OVER (ORDER BY tai.TENURE_APP_ID) || '_' || ta.TENURE_APP_ID ||
              CASE UPPER(TRIM(ta.IMAGE_MIME_TYPE_CODE))
@@ -303,6 +306,7 @@ public class TenureExportService {
 
         int forestFileIdColumnIndex = findColumnIndex(metadata, "FOREST_FILE_ID");
         int submissionIdColumnIndex = findColumnIndex(metadata, "SUBMISSION_ID");
+        int applicationGuidColumnIndex = findColumnIndex(metadata, "APPLICATION_GUID", "TENURE_APP_GUID");
         int recResourceIdColumnIndex = findColumnIndex(metadata, "REC_RESOURCE_ID");
         int fileNameColumnIndex = findColumnIndex(metadata, "FILE_NAME", "IMAGE_FILE_NAME", "ATTACHMENT_FILE_NAME");
         int contentTypeColumnIndex = findColumnIndex(metadata, "CONTENT_TYPE", "MIME_TYPE");
@@ -328,6 +332,7 @@ public class TenureExportService {
           long contentLength = blob.length();
           String forestFileId = sanitizePathSegment(getColumnValue(resultSet, forestFileIdColumnIndex), "");
           String submissionId = sanitizePathSegment(getColumnValue(resultSet, submissionIdColumnIndex), "unknown_submission");
+          String applicationGuid = sanitizePathSegment(getColumnValue(resultSet, applicationGuidColumnIndex), "");
           String recResourceId = sanitizePathSegment(getColumnValue(resultSet, recResourceIdColumnIndex), "");
           String resourceKey = !forestFileId.isBlank() ? forestFileId : (!recResourceId.isBlank() ? recResourceId : "unknown_resource");
           String contentType = getColumnValue(resultSet, contentTypeColumnIndex);
@@ -353,10 +358,11 @@ public class TenureExportService {
               objectKey = String.format("%s/%s/%s/%s", sanitizedRootPrefix, resourceKey, mapFeatureId, fileName);
             }
           } else {
+            String submissionFolder = !applicationGuid.isBlank() ? applicationGuid : submissionId;
             if (sanitizedRootPrefix.isBlank()) {
-              objectKey = String.format("%s/%s/%s", resourceKey, submissionId, fileName);
+              objectKey = String.format("%s/%s/%s", resourceKey, submissionFolder, fileName);
             } else {
-              objectKey = String.format("%s/%s/%s/%s", sanitizedRootPrefix, resourceKey, submissionId, fileName);
+              objectKey = String.format("%s/%s/%s/%s", sanitizedRootPrefix, resourceKey, submissionFolder, fileName);
             }
           }
           try (InputStream stream = blob.getBinaryStream()) {
