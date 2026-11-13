@@ -1,0 +1,56 @@
+@import '@/styles/variables.scss';
+@import '@/styles/global.scss';
+
+.alert-banner {
+  background-color: $colorAmber;
+  color: $colorBlack;
+
+  &__content {
+    @extend .page;
+    display: flex;
+    // keeps icon and X on the first line when the text wraps on mobile
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    // nudge to sit on the first line of text
+    margin-top: 0.25rem;
+  }
+
+  &__message {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    // big tap target without making the banner taller
+    margin: -0.625rem -0.75rem -0.625rem 0;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $colorBlack;
+      outline-offset: -2px;
+    }
+  }
+}

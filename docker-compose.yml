@@ -115,6 +115,8 @@ services:
     container_name: frontend
     build:
       context: ./frontend
+      args:
+        VITE_ALERT_BANNER_MESSAGE: ${VITE_ALERT_BANNER_MESSAGE:-}
     environment:
       BACKEND_URL: http://backend:8000
       PORT: ${FRONTEND_PORT:-3000}
