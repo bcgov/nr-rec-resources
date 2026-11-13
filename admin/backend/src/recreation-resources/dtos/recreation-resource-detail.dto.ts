@@ -484,6 +484,16 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   natural_resource_org_unit_name?: string | null;
 
   @ApiProperty({
+    description:
+      'Licensee display value resolved from the latest approved spatial submission org unit code',
+    example: '000105202 00 District Manager South Island (DSI)',
+    type: String,
+    nullable: true,
+    required: false,
+  })
+  licensee?: string | null;
+
+  @ApiProperty({
     description: 'Public access status group label from ACT advisories',
     example: 'Open',
     required: false,

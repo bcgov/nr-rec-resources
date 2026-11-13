@@ -11,7 +11,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const REC_RESOURCE_ID = 'REC0001';
 const DOC_ID = 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9';
-const S3_KEY = `${REC_RESOURCE_ID}/${DOC_ID}/exhibit-a.pdf`;
+const APPLICATION_GUID = '6444f5ab-cc12-4129-b66f-2deec3f26ec8';
+const S3_KEY = `${REC_RESOURCE_ID}/${APPLICATION_GUID}/exhibit-a-${DOC_ID}.pdf`;
 
 const mockDoc: ExhibitADocDto = {
   document_id: DOC_ID,
@@ -91,12 +92,14 @@ describe('ExhibitADocsController', () => {
       const result = await controller.presignUpload(
         REC_RESOURCE_ID,
         'exhibit-a.pdf',
+        APPLICATION_GUID,
       );
 
       expect(result).toEqual(mockPresignResponse);
       expect(service.presignUpload).toHaveBeenCalledWith(
         REC_RESOURCE_ID,
         'exhibit-a.pdf',
+        APPLICATION_GUID,
       );
     });
 
@@ -106,7 +109,11 @@ describe('ExhibitADocsController', () => {
       );
 
       await expect(
-        controller.presignUpload(REC_RESOURCE_ID, 'exhibit-a.pdf'),
+        controller.presignUpload(
+          REC_RESOURCE_ID,
+          'exhibit-a.pdf',
+          APPLICATION_GUID,
+        ),
       ).rejects.toThrow(
         new HttpException('Recreation Resource not found', 404),
       );

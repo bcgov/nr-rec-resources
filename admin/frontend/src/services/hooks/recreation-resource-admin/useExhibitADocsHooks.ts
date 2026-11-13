@@ -14,8 +14,11 @@ export function usePresignExhibitAUpload() {
     useRecreationResourceAdminApiClient() as unknown as RecreationResourcesApi;
 
   return useMutation({
-    mutationFn: (params: { recResourceId: string; fileName: string }) =>
-      api.presignExhibitAUpload(params),
+    mutationFn: (params: {
+      recResourceId: string;
+      fileName: string;
+      applicationGuid: string;
+    }) => api.presignExhibitAUpload(params),
     retry: createRetryHandler(),
   });
 }
@@ -27,6 +30,7 @@ export function useFinalizeExhibitAUpload() {
   return useMutation({
     mutationFn: (params: {
       recResourceId: string;
+      application_guid?: string;
       submission_id?: string;
       document_id: string;
       file_name: string;

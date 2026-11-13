@@ -20,6 +20,7 @@ export function formatRecreationResourceDetailResults(
   }: RecreationResourceGetPayload,
   recreationResourceSpatialFeatureGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[] = [],
   naturalresource: RecreationNaturalResourceDto | null = null,
+  licensee: string | null = null,
 ): RecreationResourceDetailDto {
   const spatialFeatures = recreationResourceSpatialFeatureGeometryResult?.[0];
   const recreationDistrict = recreation_district_code
@@ -150,6 +151,7 @@ export function formatRecreationResourceDetailResults(
     rec_status_description:
       result.recreation_resource_status_code_rel?.description ?? null,
     natural_resource_org_unit_name: naturalresource?.org_unit_name ?? undefined,
+    licensee,
     access_status_grouplabel:
       result.act_advisories_flat?.[0]?.access_status_grouplabel,
     recreation_user_days_code: result.recreation_user_days_code_rel

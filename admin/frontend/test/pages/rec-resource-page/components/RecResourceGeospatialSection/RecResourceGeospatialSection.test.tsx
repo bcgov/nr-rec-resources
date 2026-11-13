@@ -659,6 +659,7 @@ describe('RecResourceGeospatialSection', () => {
     expect(presignMutate).toHaveBeenCalledWith({
       recResourceId: 'REC0001',
       fileName: 'report.pdf',
+      applicationGuid: 'app-guid-6',
     });
     expect(global.fetch).toHaveBeenCalledWith(
       'https://example.com/presign',
@@ -669,6 +670,7 @@ describe('RecResourceGeospatialSection', () => {
     );
     expect(finalizeMutate).toHaveBeenCalledWith({
       recResourceId: 'REC0001',
+      application_guid: 'app-guid-6',
       submission_id: 'SUB-6',
       document_id: 'doc-1',
       file_name: 'report',
@@ -746,6 +748,7 @@ describe('RecResourceGeospatialSection', () => {
         data: [
           {
             submission_id: 'SUB-7',
+            application_guid: 'app-guid-7',
             rec_resource_id: 'REC0001',
             amend_status_code: 'PND',
             feature_count: 1,
@@ -1113,5 +1116,33 @@ describe('RecResourceGeospatialSection', () => {
         extension: 'pdf',
       }),
     });
+  });
+
+  it('uses row exhibit_a_url when it is absolute and no exhibit doc match exists', () => {
+    mockUseGetExhibitADocs.mockReturnValueOnce({ data: [] });
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-ABS',
+            application_guid: 'app-guid-abs',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            exhibit_a_url: 'https://example.com/from-row.pdf',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const viewLink = screen.getByRole('link', { name: /View/i });
+    expect(viewLink).toHaveAttribute(
+      'href',
+      'https://example.com/from-row.pdf',
+    );
   });
 });

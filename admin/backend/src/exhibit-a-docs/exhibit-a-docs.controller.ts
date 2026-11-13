@@ -97,6 +97,13 @@ export class ExhibitADocsController {
     description: 'File name with extension',
     example: 'exhibit-a.pdf',
   })
+  @ApiQuery({
+    name: 'application_guid',
+    required: true,
+    description:
+      'Spatial submission application GUID for canonical Exhibit A key path',
+    example: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+  })
   @ApiResponse({
     status: 200,
     description: 'Presigned URL generated',
@@ -106,8 +113,13 @@ export class ExhibitADocsController {
   async presignUpload(
     @Param('rec_resource_id') rec_resource_id: string,
     @Query('fileName') fileName: string,
+    @Query('application_guid') application_guid: string,
   ): Promise<PresignExhibitAUploadResponseDto> {
-    return this.exhibitADocsService.presignUpload(rec_resource_id, fileName);
+    return this.exhibitADocsService.presignUpload(
+      rec_resource_id,
+      fileName,
+      application_guid,
+    );
   }
 
   @UseGuards(SuperAdminGuard)

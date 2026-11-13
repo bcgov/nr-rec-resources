@@ -31,6 +31,7 @@ import './ExhibitASection.scss';
 
 interface ExhibitASectionProps {
   recResourceId: string;
+  applicationGuid?: string;
 }
 
 interface PendingUpload {
@@ -43,7 +44,10 @@ interface PendingUpload {
 const MAX_EXHIBIT_A_FILES = 50;
 const ACCEPTED_FILE_TYPES = 'application/pdf';
 
-export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
+export const ExhibitASection = ({
+  recResourceId,
+  applicationGuid,
+}: ExhibitASectionProps) => {
   const { isSuperAdmin } = useAuthorizations();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,6 +73,14 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
 
   const isMaxReached =
     exhibitADocs.length + pendingUploads.length >= MAX_EXHIBIT_A_FILES;
+  const toOptionalString = (value: unknown): string | undefined =>
+    typeof value === 'string' && value.trim().length > 0 ? value : undefined;
+  const resolvedApplicationGuid =
+    toOptionalString(applicationGuid) ??
+    toOptionalString(
+      exhibitADocs.find((doc) => typeof doc.application_guid === 'string')
+        ?.application_guid,
+    );
 
   const handleFileSelected = useCallback((file: File) => {
     const tempId = crypto.randomUUID();
@@ -103,6 +115,12 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
   const handleUploadConfirm = useCallback(async () => {
     const { file, fileName } = uploadModalState;
     if (!file?.pendingFile || !fileName) return;
+    if (!resolvedApplicationGuid) {
+      addErrorNotification(
+        'Cannot upload Exhibit A without an application GUID.',
+      );
+      return;
+    }
 
     const pendingId = file.id;
     setUploadModalState((prev) => ({ ...prev, show: false }));
@@ -119,6 +137,7 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
       const presigned = await presignMutation.mutateAsync({
         recResourceId,
         fileName: rawName,
+        applicationGuid: resolvedApplicationGuid,
       });
 
       // Step 2: Upload to S3
@@ -136,6 +155,7 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
       // Step 3: Finalize
       await finalizeMutation.mutateAsync({
         recResourceId,
+        application_guid: resolvedApplicationGuid,
         document_id: presigned.document_id,
         file_name: fileName,
         extension: file.extension,
@@ -161,6 +181,7 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
   }, [
     uploadModalState,
     recResourceId,
+    resolvedApplicationGuid,
     presignMutation,
     finalizeMutation,
     queryClient,
@@ -191,7 +212,7 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
         name: docToDelete.file_name,
         url: docToDelete.url,
         extension: docToDelete.extension,
-        date: docToDelete.created_at || '',
+        date: docToDelete.created_at ? String(docToDelete.created_at) : '',
         type: 'document',
       }
     : null;
@@ -289,7 +310,9 @@ export const ExhibitASection = ({ recResourceId }: ExhibitASectionProps) => {
                               name: doc.file_name,
                               url: doc.url,
                               extension: doc.extension,
-                              date: doc.created_at || '',
+                              date: doc.created_at
+                                ? String(doc.created_at)
+                                : '',
                               type: 'document',
                             },
                           })

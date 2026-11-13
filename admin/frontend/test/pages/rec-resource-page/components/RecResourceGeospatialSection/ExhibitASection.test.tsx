@@ -114,19 +114,34 @@ describe('ExhibitASection', () => {
   });
 
   it('renders the Exhibit A heading', () => {
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
     expect(screen.getByText('Exhibit A')).toBeDefined();
   });
 
   it('shows empty state message when no documents', () => {
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
     expect(
       screen.getByText('No Exhibit A documents uploaded yet.'),
     ).toBeDefined();
   });
 
   it('shows upload button when user is superAdmin', () => {
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
     expect(screen.getByText('Upload')).toBeDefined();
   });
 
@@ -312,7 +327,12 @@ describe('ExhibitASection', () => {
     });
     mockFinalizeMutateAsync.mockResolvedValue(undefined);
 
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
 
     const fileInput = screen.getByLabelText(
       'Upload Exhibit A document',
@@ -337,11 +357,13 @@ describe('ExhibitASection', () => {
       expect(mockPresignMutateAsync).toHaveBeenCalledWith({
         recResourceId: 'REC123',
         fileName: 'final-name.pdf',
+        applicationGuid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
       });
     });
 
     expect(mockFinalizeMutateAsync).toHaveBeenCalledWith({
       recResourceId: 'REC123',
+      application_guid: '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
       document_id: 'doc-upload-1',
       file_name: 'final-name',
       extension: 'pdf',
@@ -350,6 +372,76 @@ describe('ExhibitASection', () => {
     expect(mockInvalidateQueries).toHaveBeenCalled();
     expect(mockAddSuccessNotification).toHaveBeenCalledWith(
       'File "final-name" uploaded successfully.',
+    );
+  });
+
+  it('shows an error and blocks upload when no application guid can be resolved', async () => {
+    render(<ExhibitASection recResourceId="REC123" />);
+
+    const fileInput = screen.getByLabelText(
+      'Upload Exhibit A document',
+    ) as HTMLInputElement;
+
+    const file = new File(['content'], 'no-guid.pdf', {
+      type: 'application/pdf',
+    });
+    Object.defineProperty(fileInput, 'files', { value: [file] });
+    fireEvent.change(fileInput);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('upload-modal')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByText('Confirm Upload'));
+
+    await waitFor(() => {
+      expect(mockAddErrorNotification).toHaveBeenCalledWith(
+        'Cannot upload Exhibit A without an application GUID.',
+      );
+    });
+    expect(mockPresignMutateAsync).not.toHaveBeenCalled();
+    expect(mockFinalizeMutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('uses application guid from existing docs when prop is not provided', async () => {
+    mockUseGetExhibitADocs.mockReturnValue({
+      data: [
+        {
+          ...mockDoc,
+          application_guid: 'doc-guid-123',
+        },
+      ],
+      isFetching: false,
+    });
+    mockPresignMutateAsync.mockResolvedValue({
+      url: 'https://upload.example.com/signed-url',
+      document_id: 'doc-upload-from-doc-guid',
+    });
+    mockFinalizeMutateAsync.mockResolvedValue(undefined);
+
+    render(<ExhibitASection recResourceId="REC123" />);
+
+    const fileInput = screen.getByLabelText(
+      'Upload Exhibit A document',
+    ) as HTMLInputElement;
+    const file = new File(['content'], 'from-doc-guid.pdf', {
+      type: 'application/pdf',
+    });
+    Object.defineProperty(fileInput, 'files', { value: [file] });
+    fireEvent.change(fileInput);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('upload-modal')).toBeDefined();
+    });
+    fireEvent.click(screen.getByText('Confirm Upload'));
+
+    await waitFor(() => {
+      expect(mockPresignMutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({ applicationGuid: 'doc-guid-123' }),
+      );
+    });
+    expect(mockFinalizeMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ application_guid: 'doc-guid-123' }),
     );
   });
 
@@ -364,7 +456,12 @@ describe('ExhibitASection', () => {
       statusText: 'Server Error',
     } as Response);
 
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
 
     const fileInput = screen.getByLabelText(
       'Upload Exhibit A document',

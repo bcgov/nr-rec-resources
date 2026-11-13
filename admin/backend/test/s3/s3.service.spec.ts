@@ -295,6 +295,29 @@ describe('S3Service', () => {
         { key: 'REC0002/file2.pdf', size: 1500, lastModified: date2 },
       ]);
     });
+
+    it('should drop entries without keys and default missing size/lastModified', async () => {
+      const now = new Date('2026-11-12T00:00:00Z');
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+      mockS3Client.send.mockResolvedValueOnce({
+        Contents: [
+          { Key: undefined, Size: 5, LastModified: new Date('2024-01-01') },
+          { Key: 'REC0003/file.pdf' },
+        ],
+      } as any);
+
+      const result = await service.listObjectsByPrefix('REC0003/');
+
+      expect(result).toEqual([
+        {
+          key: 'REC0003/file.pdf',
+          size: 0,
+          lastModified: now,
+        },
+      ]);
+      vi.useRealTimers();
+    });
   });
 
   describe('uploadFile', () => {
@@ -466,6 +489,79 @@ describe('S3Service', () => {
       );
 
       expect(result).toBe('REC0001/test document #2024.pdf');
+    });
+  });
+
+  describe('uploadFileToKey', () => {
+    const file = Buffer.from('pdf-bytes');
+
+    it.each([
+      ['empty', ''],
+      ['null', null],
+      ['whitespace only', '   '],
+    ])('should throw BadRequestException when key is %s', async (_, key) => {
+      const promise = service.uploadFileToKey(key as any, file);
+      await expect(promise).rejects.toThrow(BadRequestException);
+      await expect(promise).rejects.toThrow('S3 key is required');
+    });
+
+    it.each([
+      ['empty', Buffer.from('')],
+      ['null', null],
+    ])(
+      'should throw FileValidationException when file buffer is %s',
+      async (_, invalidFile) => {
+        await expect(
+          service.uploadFileToKey('folder/doc.pdf', invalidFile as any),
+        ).rejects.toThrow('File buffer cannot be empty');
+      },
+    );
+
+    it.each([
+      ['empty', ''],
+      ['null', null],
+      ['whitespace only', '   '],
+    ])(
+      'should throw BadRequestException when contentType is %s',
+      async (_, contentType) => {
+        const promise = service.uploadFileToKey(
+          'folder/doc.pdf',
+          file,
+          contentType as any,
+        );
+        await expect(promise).rejects.toThrow(BadRequestException);
+        await expect(promise).rejects.toThrow('Content type is required');
+      },
+    );
+
+    it('should upload file to a trimmed key and return normalized key', async () => {
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      const result = await service.uploadFileToKey(
+        '  folder/my.pdf  ',
+        file,
+        '  application/pdf  ',
+      );
+
+      expect(result).toBe('folder/my.pdf');
+      expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+      expect(mockS3Client.send.mock.calls[0]?.[0]).toBeInstanceOf(
+        PutObjectCommand,
+      );
+      expect(vi.mocked(PutObjectCommand).mock.calls[0]?.[0]).toEqual({
+        Bucket: bucketName,
+        Key: 'folder/my.pdf',
+        Body: file,
+        ContentType: 'application/pdf',
+      });
+    });
+
+    it('should throw InternalServerErrorException when upload fails', async () => {
+      mockS3Client.send.mockRejectedValueOnce(new Error('Access Denied'));
+
+      const promise = service.uploadFileToKey('folder/my.pdf', file);
+      await expect(promise).rejects.toThrow(InternalServerErrorException);
+      await expect(promise).rejects.toThrow('Failed to upload file to key');
     });
   });
 

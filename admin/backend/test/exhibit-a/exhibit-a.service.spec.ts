@@ -22,7 +22,7 @@ describe('ExhibitAService', () => {
     $executeRaw: ReturnType<typeof vi.fn>;
   };
   let s3: {
-    uploadFile: ReturnType<typeof vi.fn>;
+    uploadFileToKey: ReturnType<typeof vi.fn>;
     getSignedUrl: ReturnType<typeof vi.fn>;
   };
 
@@ -40,7 +40,9 @@ describe('ExhibitAService', () => {
     };
 
     s3 = {
-      uploadFile: vi.fn().mockResolvedValue('REC0001/exhibit-a-123.pdf'),
+      uploadFileToKey: vi
+        .fn()
+        .mockResolvedValue('REC0001/app-guid-1/exhibit-a-123.pdf'),
       getSignedUrl: vi
         .fn()
         .mockResolvedValue('https://example.com/s3/exhibit-a-123.pdf'),
