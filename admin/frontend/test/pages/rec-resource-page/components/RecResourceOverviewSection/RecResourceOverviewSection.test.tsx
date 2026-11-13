@@ -1,6 +1,6 @@
 import { RecResourceOverviewSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewSection';
 import { useLocation } from '@tanstack/react-router';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockUseAuthorizations = vi.fn();
@@ -184,15 +184,30 @@ describe('RecResourceOverviewSection', () => {
     renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceNoAccess} />,
     );
-    // With empty accessCodes, should show a dash
-    expect(screen.getByText('Access type')).toBeInTheDocument();
-    const sections = screen.getAllByRole('region');
-    const accessSection = sections.find(
-      (section) =>
-        section.querySelector('.text-primary')?.textContent === 'Access Type',
+    const accessLabel = screen.getByText('Access type');
+    const accessSection = accessLabel.closest('section');
+    expect(accessSection).not.toBeNull();
+    expect(
+      within(accessSection as HTMLElement).getByText('-'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders dash for access type when access_codes is undefined', () => {
+    const recResourceNoAccessField = {
+      ...recResource,
+      access_codes: undefined,
+    } as any;
+
+    renderWithProvider(
+      <RecResourceOverviewSection recResource={recResourceNoAccessField} />,
     );
-    expect(accessSection).toBeInTheDocument();
-    expect(accessSection?.textContent).toContain('-');
+
+    const accessLabel = screen.getByText('Access type');
+    const accessSection = accessLabel.closest('section');
+    expect(accessSection).not.toBeNull();
+    expect(
+      within(accessSection as HTMLElement).getByText('-'),
+    ).toBeInTheDocument();
   });
 
   it('renders project established date when present', () => {
