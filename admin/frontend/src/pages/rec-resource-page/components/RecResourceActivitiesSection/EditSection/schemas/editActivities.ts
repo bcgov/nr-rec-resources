@@ -6,6 +6,7 @@ import { z } from 'zod';
 export const editActivitiesSchema = z.object({
   activity_codes: z.array(z.number()).default([]),
   adaptive_activity_codes: z.array(z.number()).default([]),
+  low_mobility_activity_codes: z.array(z.number()).default([]),
 });
 
 /**

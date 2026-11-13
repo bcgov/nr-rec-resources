@@ -1,3 +1,5 @@
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './CustomBadge.scss';
 
 export interface CustomBadgeProps {
@@ -6,6 +8,7 @@ export interface CustomBadgeProps {
   textColor: string;
   borderColor?: string;
   fontWeight?: string | number;
+  icon?: IconDefinition;
 }
 
 export const CustomBadge: React.FC<CustomBadgeProps> = ({
@@ -14,6 +17,7 @@ export const CustomBadge: React.FC<CustomBadgeProps> = ({
   textColor,
   borderColor,
   fontWeight,
+  icon,
 }) => (
   <span
     className="custom-badge"
@@ -28,6 +32,7 @@ export const CustomBadge: React.FC<CustomBadgeProps> = ({
       }),
     }}
   >
+    {icon && <FontAwesomeIcon icon={icon} className="me-2" />}
     {label}
   </span>
 );

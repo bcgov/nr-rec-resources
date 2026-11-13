@@ -2,7 +2,12 @@ import { useMemo } from 'react';
 import { Controller, useWatch } from 'react-hook-form';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { ROUTE_PATHS } from '@/constants/routes';
-import { UTM_HELP } from '@/constants/geospatial';
+import {
+  GEOMETRY_NUMBER_FORMAT,
+  SITE_TYPE_CODES,
+  UTM_HELP,
+} from '@/constants/geospatial';
+import { TOTAL_AREA_TEXT } from '@/utils/helperText';
 import { Route } from '@/routes/rec-resource/$id/geospatial/edit';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { useEditGeospatialForm } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/hooks';
@@ -103,6 +108,15 @@ export const RecResourceGeospatialEditSection = () => {
     previewLatLon?.longitude?.toFixed(COORD_DECIMALS) ??
     geospatialData?.longitude?.toFixed(COORD_DECIMALS) ??
     '';
+
+  const isSite = SITE_TYPE_CODES.includes(
+    recResource?.rec_resource_type_code ?? '',
+  );
+  const displayTotalArea =
+    geospatialData?.total_area_hectares?.toLocaleString(
+      'en-CA',
+      GEOMETRY_NUMBER_FORMAT,
+    ) ?? '';
 
   return (
     <Stack direction="vertical" gap={4}>
@@ -257,6 +271,16 @@ export const RecResourceGeospatialEditSection = () => {
               </Form.Text>
             </Form.Group>
           </Col>
+
+          {isSite && (
+            <Col xs={12} md={6}>
+              <Form.Group controlId="total_area_hectares">
+                <Form.Label>Total area (ha)</Form.Label>
+                <Form.Control type="text" value={displayTotalArea} disabled />
+                <Form.Text className="text-muted">{TOTAL_AREA_TEXT}</Form.Text>
+              </Form.Group>
+            </Col>
+          )}
         </Row>
       </Form>
 
