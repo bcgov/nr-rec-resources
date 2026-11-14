@@ -15,9 +15,10 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "recreation_driving_direction":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "recreation_establishment_order_docs":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_establishment_order_docs_history":"elipses":w -> "recreation_establishment_order_docs":"s3_key":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "recreation_exhibit_a_doc":"application_guid":w -> "recreation_spatial_submission":"application_guid":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_exhibit_a_doc":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_exhibit_a_doc":"s3_key":w -> "recreation_establishment_order_docs":"s3_key":e [arrowhead=none dir=back arrowtail=teeodot style=dashed];
-  "recreation_exhibit_a_doc":"submission_id":w -> "recreation_spatial_submission":"submission_id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "recreation_exhibit_a_doc_history":"elipses":w -> "recreation_spatial_submission":"application_guid":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_exhibit_a_doc_history":"elipses":w -> "recreation_establishment_order_docs":"s3_key":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_feature":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_feature_history":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
@@ -28,6 +29,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "recreation_resource":"control_access_code":w -> "recreation_control_access_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource":"district_code":w -> "recreation_district_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource":"maintenance_standard_code":w -> "recreation_maintenance_standard_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "recreation_resource":"recreation_user_days_code":w -> "recreation_resource_user_days_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource":"risk_rating_code":w -> "recreation_risk_rating_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_document":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_history":"elipses":w -> "recreation_district_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
@@ -35,6 +37,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "recreation_resource_history":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_history":"elipses":w -> "recreation_risk_rating_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_image":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "recreation_resource_note":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_reservation_info":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "recreation_resource_search_view":"elipses":w -> "recreation_district_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_search_view":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
@@ -238,11 +241,11 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
       <TR><TD PORT="created_at" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16">created_at</TD></TR></TABLE></TD><TD PORT="created_at.type" ALIGN="LEFT">timestamp[29,6]</TD></TR>
       <TR><TD PORT="created_by" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16">created_by</TD></TR></TABLE></TD><TD PORT="created_by.type" ALIGN="LEFT">text[2147483647]</TD></TR>
       <TR><TD PORT="sys_period" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16">sys_period</TD></TR></TABLE></TD><TD PORT="sys_period.type" ALIGN="LEFT">tstzrange[2147483647]</TD></TR>
-      <TR><TD PORT="submission_id" COLSPAN="2" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16">submission_id</TD></TR></TABLE></TD><TD PORT="submission_id.type" ALIGN="LEFT">varchar[50]</TD></TR>
       <TR><TD PORT="page_size" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16">page_size</TD></TR></TABLE></TD><TD PORT="page_size.type" ALIGN="LEFT">varchar[1]</TD></TR>
       <TR><TD PORT="page_orientation" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16">page_orientation</TD></TR></TABLE></TD><TD PORT="page_orientation.type" ALIGN="LEFT">varchar[20]</TD></TR>
       <TR><TD PORT="scale" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16">scale</TD></TR></TABLE></TD><TD PORT="scale.type" ALIGN="LEFT">int4[10]</TD></TR>
       <TR><TD PORT="generation_method" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16">generation_method</TD></TR></TABLE></TD><TD PORT="generation_method.type" ALIGN="LEFT">varchar[20]</TD></TR>
+      <TR><TD PORT="application_guid" COLSPAN="2" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16">application_guid</TD></TR></TABLE></TD><TD PORT="application_guid.type" ALIGN="LEFT">uuid[2147483647]</TD></TR>
       <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">0 &gt;</TD></TR>
     </TABLE>>
     URL="recreation_exhibit_a_doc.html"
@@ -254,7 +257,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="195" HEIGHT="16"><B>recreation_exhibit_a_doc_history</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="recreation_exhibit_a_doc_history.html"
     target="_top"
@@ -320,7 +323,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="120" HEIGHT="16"><B>recreation_resource</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">30 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">31 &gt;</TD></TR>
     </TABLE>>
     URL="recreation_resource.html"
     target="_top"
@@ -358,6 +361,17 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     URL="recreation_resource_image.html"
     target="_top"
     tooltip="recreation_resource_image"
+  ];
+  "recreation_resource_note" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16"><B>recreation_resource_note</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="recreation_resource_note.html"
+    target="_top"
+    tooltip="recreation_resource_note"
   ];
   "recreation_resource_reservation_info" [
    label=<
@@ -411,6 +425,17 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     target="_top"
     tooltip="recreation_resource_type_view_public"
   ];
+  "recreation_resource_user_days_code" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="217" HEIGHT="16"><B>recreation_resource_user_days_code</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="recreation_resource_user_days_code.html"
+    target="_top"
+    tooltip="recreation_resource_user_days_code"
+  ];
   "recreation_risk_rating_code" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -438,7 +463,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="180" HEIGHT="16"><B>recreation_spatial_submission</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">3 &gt;</TD></TR>
     </TABLE>>
     URL="recreation_spatial_submission.html"
     target="_top"

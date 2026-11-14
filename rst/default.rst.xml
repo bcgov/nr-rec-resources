@@ -726,22 +726,22 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="8" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="10" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="submission_id" nullable="true" remarks="Spatial submission identifier linked to this Exhibit A output." size="50" type="varchar" typeCode="12">
-            <parent column="submission_id" foreignKey="fk_recreation_exhibit_a_doc_submission_id" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="page_size" nullable="true" remarks="Selected Exhibit A page size (A-E)." size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="page_orientation" nullable="true" remarks="Selected Exhibit A orientation (Portrait or Landscape)." size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="scale" nullable="true" remarks="Selected Exhibit A map scale." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="generation_method" nullable="true" remarks="How Exhibit A was produced: upload, regenerate, or migrated from FTA." size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="application_guid" nullable="true" remarks="Spatial submission application GUID linked to this Exhibit A output." size="2147483647" type="uuid" typeCode="1111">
+            <parent column="application_guid" foreignKey="fk_recreation_exhibit_a_doc_application_guid" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="page_size" nullable="true" remarks="Selected Exhibit A page size (A-E)." size="1" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="page_orientation" nullable="true" remarks="Selected Exhibit A orientation (Portrait or Landscape)." size="20" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="scale" nullable="true" remarks="Selected Exhibit A map scale." size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="generation_method" nullable="true" remarks="How Exhibit A was produced: upload, regenerate, or migrated from FTA." size="20" type="varchar" typeCode="12"/>
          <primaryKey column="doc_id" sequenceNumberInPK="1"/>
          <index name="recreation_exhibit_a_doc_pkey" unique="true">
             <column ascending="true" name="doc_id"/>
          </index>
+         <index name="idx_recreation_exhibit_a_doc_application_guid" unique="false">
+            <column ascending="true" name="application_guid"/>
+         </index>
          <index name="idx_recreation_exhibit_a_doc_rec_resource_id" unique="false">
             <column ascending="true" name="rec_resource_id"/>
-         </index>
-         <index name="idx_recreation_exhibit_a_doc_submission_id" unique="false">
-            <column ascending="true" name="submission_id"/>
          </index>
          <index name="recreation_exhibit_a_doc_s3_key_key" unique="true">
             <column ascending="true" name="s3_key"/>
@@ -764,11 +764,13 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="8" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="submission_id" nullable="true" remarks="" size="50" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="page_size" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="page_orientation" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="scale" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="generation_method" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="page_size" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="page_orientation" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="scale" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="generation_method" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="application_guid" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
+         </column>
       </table>
       <table name="recreation_feature" remarks="Associates recreation resources with one or more recreation feature codes." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="Identification assigned to a Recreation Resource." size="20" type="varchar" typeCode="12">
@@ -972,6 +974,26 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="3" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
+      <table name="recreation_file_source_code" remarks="Codes identifying the system or authority an associated file reference originates from, imported from FTA ASSOCIATED_USE." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="file_source_code" nullable="false" remarks="Single character code identifying the file source." size="1" type="varchar" typeCode="12">
+            <child column="file_source_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_file_source_code_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="Description of the file source." size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="3" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="file_source_code" sequenceNumberInPK="1"/>
+         <index name="recreation_file_source_code_pkey" unique="true">
+            <column ascending="true" name="file_source_code"/>
+         </index>
+      </table>
+      <table name="recreation_file_source_code_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="file_source_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12">
+            <parent column="file_source_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_file_source_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="" size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
       <table name="recreation_image_consent_form" remarks="Links recreation resource images to their consent forms" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="consent_id" nullable="false" remarks="Unique UUID identifier for the consent record" size="2147483647" type="uuid" typeCode="1111">
             <child column="consent_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_image_consent_form_history"/>
@@ -1156,6 +1178,28 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
+      <table name="recreation_note_type_code" remarks="Codes describing the kind of note held against a recreation resource. Not FTA-synced; managed internally." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="note_type_code" nullable="false" remarks="Code identifying the note type." size="20" type="varchar" typeCode="12">
+            <child column="note_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_note_type_code_history"/>
+            <child column="note_type_code" foreignKey="recreation_resource_note_note_type_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_note"/>
+            <child column="note_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_note_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="Description of the note type." size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="3" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="note_type_code" sequenceNumberInPK="1"/>
+         <index name="recreation_note_type_code_pkey" unique="true">
+            <column ascending="true" name="note_type_code"/>
+         </index>
+      </table>
+      <table name="recreation_note_type_code_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="note_type_code" nullable="false" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="note_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_note_type_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="" size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
       <table name="recreation_partner_relationship_type_code" remarks="Codes describing the type of relationship a partner holds with a recreation resource (e.g. Site Operator). Not FTA-synced; managed internally." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="partner_relationship_type_code" nullable="false" remarks="Code identifying the partner relationship type." size="20" type="varchar" typeCode="12">
             <child column="partner_relationship_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_partner_relationship_type_code_history"/>
@@ -1251,6 +1295,7 @@
             <child column="rec_resource_id" foreignKey="recreation_resource_document_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_document"/>
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_history"/>
             <child column="rec_resource_id" foreignKey="recreation_resource_image_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_image"/>
+            <child column="rec_resource_id" foreignKey="recreation_resource_note_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_note"/>
             <child column="rec_resource_id" foreignKey="recreation_resource_reservation_info_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_reservation_info"/>
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_search_view"/>
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_type_view_admin"/>
@@ -1289,6 +1334,9 @@
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="18" name="resource_feature_ind" nullable="true" remarks="Indicates whether this is a resource feature established under the Government Action Regulation." size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="last_rec_inspection_date" nullable="true" remarks="The last date of inspection for the recreation resource. Sourced from fta.recreation_project.last_rec_inspection_date." size="13" type="date" typeCode="91"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="last_hzrd_tree_assess_date" nullable="true" remarks="The date of the last hazard tree assessment for the recreation resource. Sourced from fta.recreation_project.last_hzrd_tree_assess_date." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="recreation_user_days_code" nullable="true" remarks="Code describing the Recreation User Days." size="3" type="varchar" typeCode="12">
+            <parent column="recreation_resource_user_days_code" foreignKey="recreation_resource_recreation_user_days_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_user_days_code"/>
+         </column>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_resource_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
@@ -1423,6 +1471,7 @@
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="18" name="resource_feature_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="last_rec_inspection_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="last_hzrd_tree_assess_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="recreation_user_days_code" nullable="true" remarks="" size="3" type="varchar" typeCode="12"/>
       </table>
       <table name="recreation_resource_image" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="image_id" nullable="false" remarks="Unique UUID identifier for the image" size="2147483647" type="uuid" typeCode="1111">
@@ -1485,6 +1534,57 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
+      <table name="recreation_resource_note" remarks="Notes and references held against a recreation resource. Staff-authored rows have source_system RST; rows imported from FTA have source_system FTA and are read-only." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="note_id" nullable="false" remarks="Unique UUID identifier for the note." size="2147483647" type="uuid" typeCode="1111">
+            <child column="note_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_note_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="false" remarks="Recreation Resource ID this note belongs to." size="10" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="recreation_resource_note_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="'NOTE'::character varying" digits="0" id="2" name="note_type_code" nullable="false" remarks="Kind of note. Staff can only create NOTE; the other codes come from imports and the FTA sync." size="20" type="varchar" typeCode="12">
+            <parent column="note_type_code" foreignKey="recreation_resource_note_note_type_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_note_type_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="title" nullable="false" remarks="Short title shown at the top of the note card." size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="body" nullable="false" remarks="Note body as sanitised HTML." size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_DATE" digits="0" id="5" name="date_logged" nullable="false" remarks="Date the note was logged. For imported rows this is the FTA entry date, which predates the import." size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="'RST'::character varying" digits="0" id="6" name="source_system" nullable="false" remarks="System the note originated in: RST for staff-authored, FTA for imported." size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="source_key" nullable="true" remarks="Natural key of the row in the source system, used to make re-import idempotent. Null for staff-authored notes." size="60" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="8" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="10" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="12" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="note_id" sequenceNumberInPK="1"/>
+         <index name="recreation_resource_note_pkey" unique="true">
+            <column ascending="true" name="note_id"/>
+         </index>
+         <index name="idx_recreation_resource_note_rec_resource_id" unique="false">
+            <column ascending="true" name="rec_resource_id"/>
+         </index>
+         <index name="uq_recreation_resource_note_source" unique="true">
+            <column ascending="true" name="source_system"/>
+            <column ascending="true" name="source_key"/>
+         </index>
+      </table>
+      <table name="recreation_resource_note_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="note_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="note_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_note"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="false" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="note_type_code" nullable="false" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="note_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_note_type_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="title" nullable="false" remarks="" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="body" nullable="false" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="date_logged" nullable="false" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="source_system" nullable="false" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="source_key" nullable="true" remarks="" size="60" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="8" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="10" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_resource_reservation_info" remarks="Identifies the reservation information on the specific recreation resource." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number." size="10" type="varchar" typeCode="12">
@@ -1610,6 +1710,19 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_type_code" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="true" remarks="" size="200" type="varchar" typeCode="12"/>
       </table>
+      <table name="recreation_resource_user_days_code" remarks="Codes describing the Recreation Resource User Days associated with a project." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="recreation_resource_user_days_code" nullable="false" remarks="Code describing the Recreation Resource User Days." size="3" type="varchar" typeCode="12">
+            <child column="recreation_user_days_code" foreignKey="recreation_resource_recreation_user_days_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="true" remarks="Description of the code value" size="120" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="effective_date" nullable="true" remarks="Date the code becomes effective" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="expiry_date" nullable="true" remarks="Date the code expires" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="4" name="update_timestamp" nullable="true" remarks="The date and time the value was last modified." size="29" type="timestamp" typeCode="93"/>
+         <primaryKey column="recreation_resource_user_days_code" sequenceNumberInPK="1"/>
+         <index name="recreation_resource_user_days_code_pkey" unique="true">
+            <column ascending="true" name="recreation_resource_user_days_code"/>
+         </index>
+      </table>
       <table name="recreation_risk_rating_code" remarks="Codes describing the Recreation Risk Rating for a project." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="risk_rating_code" nullable="false" remarks="Code describing the Recreation Risk Rating." size="2" type="varchar" typeCode="12">
             <child column="risk_rating_code" foreignKey="recreation_resource_risk_rating_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
@@ -1683,11 +1796,11 @@
       </table>
       <table name="recreation_spatial_submission" remarks="Tracks spatial submission requests sent to SNCSC and their adjudication outcomes." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="application_guid" nullable="false" remarks="Primary GUID for the submission record in RST." size="2147483647" type="uuid" typeCode="1111">
+            <child column="application_guid" foreignKey="fk_recreation_exhibit_a_doc_application_guid" implied="false" onDeleteCascade="false" schema="rst" table="recreation_exhibit_a_doc"/>
+            <child column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_exhibit_a_doc_history"/>
             <child column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_history"/>
          </column>
-         <column autoUpdated="true" defaultValue="(nextval('rst.recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)" digits="0" id="1" name="submission_id" nullable="false" remarks="Client-facing submission identifier (auto-generated incremental value when omitted)." size="50" type="varchar" typeCode="12">
-            <child column="submission_id" foreignKey="fk_recreation_exhibit_a_doc_submission_id" implied="false" onDeleteCascade="false" schema="rst" table="recreation_exhibit_a_doc"/>
-         </column>
+         <column autoUpdated="true" defaultValue="(nextval('rst.recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)" digits="0" id="1" name="submission_id" nullable="false" remarks="Client-facing submission identifier (auto-generated incremental value when omitted)." size="50" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="tenure_id" nullable="false" remarks="Tenure identifier (FK to rst.recreation_resource.rec_resource_id)." size="20" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="recreation_spatial_submission_tenure_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
          </column>
@@ -1724,14 +1837,14 @@
          <index name="idx_recreation_spatial_submission_submission_date" unique="false">
             <column ascending="true" name="submission_date"/>
          </index>
+         <index name="idx_recreation_spatial_submission_submission_id" unique="false">
+            <column ascending="true" name="submission_id"/>
+         </index>
          <index name="idx_recreation_spatial_submission_tenure_id" unique="false">
             <column ascending="true" name="tenure_id"/>
          </index>
          <index name="recreation_spatial_submission_status_request_guid_key" unique="true">
             <column ascending="true" name="status_request_guid"/>
-         </index>
-         <index name="recreation_spatial_submission_submission_id_key" unique="true">
-            <column ascending="true" name="submission_id"/>
          </index>
          <checkConstraint constraint="(((adjudication_ind = true) AND ((status)::text = ANY ((ARRAY['APP'::character varying, 'REJ'::character varying])::text[])) AND (adjudicated_by IS NOT NULL) AND (adjudication_date IS NOT NULL)) OR ((adjudication_ind = false) AND ((status)::text = ANY ((ARRAY['PND'::character varying, 'CLR'::character varying, 'FAI'::character varying])::text[])) AND (adjudicated_by IS NULL) AND (adjudication_date IS NULL)))" name="chk_spatial_submission_adjudication"/>
          <checkConstraint constraint="(((decision)::text = ANY ((ARRAY['APPROVE'::character varying, 'REJECT'::character varying])::text[])) OR (decision IS NULL))" name="chk_spatial_submission_decision"/>
@@ -1902,6 +2015,42 @@
       </table>
    </tables>
    <routines>
+      <routine dataAccess="MODIFIES" deterministic="true" name="fta_note_pivot_date(yymmdd text)" returnType="date" securityType="INVOKER" type="FUNCTION">
+         <comment><![CDATA[Converts an FTA YY-MM-DD string to a date, pivoting two-digit years at 50.]]></comment>
+         <definition language="sql"><![CDATA[select case
+        when yymmdd is null or btrim(yymmdd) = '' then null
+        else make_date(
+            case
+                when split_part(yymmdd, '-', 1)::int <= 49
+                    then 2000 + split_part(yymmdd, '-', 1)::int
+                else 1900 + split_part(yymmdd, '-', 1)::int
+            end,
+            split_part(yymmdd, '-', 2)::int,
+            split_part(yymmdd, '-', 3)::int
+        )
+    end;]]></definition>
+         <parameters>
+            <parameter mode="IN" name="yymmdd" type="text"/>
+         </parameters>
+      </routine>
+      <routine dataAccess="MODIFIES" deterministic="true" name="fta_note_to_html(src text)" returnType="text" securityType="INVOKER" type="FUNCTION">
+         <comment><![CDATA[Escapes FTA plain text and converts its line breaks to <br>, wrapped in a single paragraph.]]></comment>
+         <definition language="sql"><![CDATA[select '<p>' ||
+        regexp_replace(
+            replace(
+                replace(
+                    replace(coalesce(src, ''), '&', '&amp;'),
+                    '<', '&lt;'
+                ),
+                '>', '&gt;'
+            ),
+            E'\r\n|\r|\n', '<br>', 'g'
+        )
+    || '</p>';]]></definition>
+         <parameters>
+            <parameter mode="IN" name="src" type="text"/>
+         </parameters>
+      </routine>
       <routine dataAccess="MODIFIES" deterministic="true" name="gin_extract_query_trgm(text, internal, smallint, internal, internal, internal, internal)" returnType="internal" securityType="INVOKER" type="FUNCTION">
          <comment/>
          <definition language="c"><![CDATA[gin_extract_query_trgm]]></definition>

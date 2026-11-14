@@ -78,7 +78,7 @@
                         <div class="col-md-12">
                             <div class="callout callout-info">
                                 <h4>SchemaSpy Analysis of default.rst</h4>
-                                <p>Generated on Sat Nov 07 11:03 GMT 2026</p>
+                                <p>Generated on Sat Nov 14 11:03 GMT 2026</p>
                             </div>
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                                 <span class="info-box-icon bg-aqua"><i class="fa fa-table"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">TABLES</span>
-                                    <span class="info-box-number">99</span>
+                                    <span class="info-box-number">106</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -118,7 +118,7 @@
                                 <span class="info-box-icon bg-green"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">COLUMNS</span>
-                                    <span class="info-box-number">973</span>
+                                    <span class="info-box-number">1022</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -130,7 +130,7 @@
                                 <span class="info-box-icon bg-yellow"><i class="ion ion-key"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Constraints</span>
-                                    <span class="info-box-number">49</span>
+                                    <span class="info-box-number">52</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -142,7 +142,7 @@
                                 <span class="info-box-icon bg-red-active"><i class="fa fa-question" aria-hidden="true"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Anomalies</span>
-                                    <span class="info-box-number">108</span>
+                                    <span class="info-box-number">116</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -154,7 +154,7 @@
                                 <span class="info-box-icon bg-navy"><i class="fa fa-file-code-o" aria-hidden="true"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Routines</span>
-                                    <span class="info-box-number">38</span>
+                                    <span class="info-box-number">40</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -278,6 +278,15 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/recreation_resource_note.html">recreation_resource_note</a></td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">13</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Notes and references held against a recreation resource. Staff-authored rows have source_system RST; rows imported from FTA have source_system FTA and are read-only.</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/recreation_map_feature_history.html">recreation_map_feature_history</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
@@ -342,12 +351,21 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/recreation_spatial_submission.html">recreation_spatial_submission</a></td>
-                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">3</td>
                                         <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">21</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
                                         <td class="comment detail" style="display: table-cell;"><p>Tracks spatial submission requests sent to SNCSC and their adjudication outcomes.</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/recreation_file_source_code.html">recreation_file_source_code</a></td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Codes identifying the system or authority an associated file reference originates from, imported from FTA ASSOCIATED_USE.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/recreation_photographer_type_code.html">recreation_photographer_type_code</a></td>
@@ -387,9 +405,9 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/recreation_resource.html">recreation_resource</a></td>
-                                        <td class="detail" align="right">30</td>
-                                        <td class="detail" align="right">4</td>
-                                        <td class="detail" align="right">21</td>
+                                        <td class="detail" align="right">31</td>
+                                        <td class="detail" align="right">5</td>
+                                        <td class="detail" align="right">22</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
                                         <td class="comment detail" style="display: table-cell;"><p>Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest.</p></td>
@@ -492,6 +510,15 @@
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
                                         <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/recreation_note_type_code.html">recreation_note_type_code</a></td>
+                                        <td class="detail" align="right">3</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Codes describing the kind of note held against a recreation resource. Not FTA-synced; managed internally.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/natural_resource_org_unit.html">natural_resource_org_unit</a></td>
@@ -827,6 +854,15 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/recreation_resource_note_history.html">recreation_resource_note_history</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">13</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/recreation_driving_direction.html">recreation_driving_direction</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
@@ -881,6 +917,15 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/recreation_note_type_code_history.html">recreation_note_type_code_history</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/recreation_sub_access_code_history.html">recreation_sub_access_code_history</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">0</td>
@@ -917,6 +962,15 @@
                                         <td class="comment detail" style="display: table-cell;"><p>Links recreation resource images to their consent forms</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/recreation_resource_user_days_code.html">recreation_resource_user_days_code</a></td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">5</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Codes describing the Recreation Resource User Days associated with a project.</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/recreation_establishment_order_docs.html">recreation_establishment_order_docs</a></td>
                                         <td class="detail" align="right">3</td>
                                         <td class="detail" align="right">1</td>
@@ -935,10 +989,19 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/recreation_file_source_code_history.html">recreation_file_source_code_history</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">-1</td>
+                                        <td class="detail" align="right">Table</td>
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/recreation_resource_history.html">recreation_resource_history</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">4</td>
-                                        <td class="detail" align="right">21</td>
+                                        <td class="detail" align="right">22</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
                                         <td class="comment detail" style="display: table-cell;"></td>
@@ -1072,7 +1135,7 @@
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/recreation_exhibit_a_doc_history.html">recreation_exhibit_a_doc_history</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">16</td>
                                         <td class="detail" align="right">-1</td>
                                         <td class="detail" align="right">Table</td>
