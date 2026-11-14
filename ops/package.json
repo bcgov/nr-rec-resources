@@ -12,7 +12,7 @@
     "@aws-sdk/client-guardduty": "^3.1136.0",
     "@aws-sdk/client-s3": "^3.1136.0",
     "axios": "^1.9.0",
-    "csv-parse": "^5.6.0",
+    "csv-parse": "^7.0.0",
     "pg": "^8.11.0",
     "winston": "^3.17.0",
     "yargs": "^17.7.2"
