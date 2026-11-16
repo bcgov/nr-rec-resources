@@ -286,6 +286,10 @@ export interface GetImagesByRecResourceIdRequest {
   recResourceId: string;
 }
 
+export interface GetMapFeatureRequestsByRecResourceIdRequest {
+  recResourceId: string;
+}
+
 export interface GetOptionsByTypeRequest {
   type: GetOptionsByTypeTypeEnum;
 }
@@ -296,10 +300,6 @@ export interface GetOptionsByTypesRequest {
 
 export interface GetPendingRequestAdjudicationReportRequest {
   applicationGuid: string;
-}
-
-export interface GetMapFeatureRequestsByRecResourceIdRequest {
-  recResourceId: string;
 }
 
 export interface GetRecreationResourceAdvisoriesRequest {
@@ -1382,7 +1382,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Removes a staff-authored note. The previous row is retained in the note history table. Notes imported from FTA cannot be removed
+   * Removes a staff-authored note. The previous row is retained in the note history table. Notes imported from FTA cannot be removed, and only the note author or a super admin may remove one
    * Delete a note for a recreation resource
    */
   async deleteRecreationResourceNoteRaw(
@@ -1442,7 +1442,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Removes a staff-authored note. The previous row is retained in the note history table. Notes imported from FTA cannot be removed
+   * Removes a staff-authored note. The previous row is retained in the note history table. Notes imported from FTA cannot be removed, and only the note author or a super admin may remove one
    * Delete a note for a recreation resource
    */
   async deleteRecreationResourceNote(
@@ -1773,13 +1773,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       throw new runtime.RequiredError(
         'fileName',
         'Required parameter "fileName" was null or undefined when calling finalizeImageUpload().',
-      );
-    }
-
-    if (requestParameters['applicationGuid'] == null) {
-      throw new runtime.RequiredError(
-        'applicationGuid',
-        'Required parameter "applicationGuid" was null or undefined when calling presignExhibitAUpload().',
       );
     }
 
@@ -2480,6 +2473,68 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Get spatial submissions for a recreation resource
+   */
+  async getMapFeatureRequestsByRecResourceIdRaw(
+    requestParameters: GetMapFeatureRequestsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<PendingMapFeatureRequestsResponseDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getMapFeatureRequestsByRecResourceId().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/recreation-resources/{rec_resource_id}/spatial-submissions`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      PendingMapFeatureRequestsResponseDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Get spatial submissions for a recreation resource
+   */
+  async getMapFeatureRequestsByRecResourceId(
+    requestParameters: GetMapFeatureRequestsByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<PendingMapFeatureRequestsResponseDto> {
+    const response = await this.getMapFeatureRequestsByRecResourceIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Get next recreation resource identifier
    */
   async getNextRecResourceIdRaw(
@@ -2696,68 +2751,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<PendingMapFeatureRequestsResponseDto> {
     const response = await this.getPendingMapFeatureRequestsRaw(initOverrides);
-    return await response.value();
-  }
-
-  /**
-   * Get spatial submissions for a recreation resource
-   */
-  async getMapFeatureRequestsByRecResourceIdRaw(
-    requestParameters: GetMapFeatureRequestsByRecResourceIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<PendingMapFeatureRequestsResponseDto>> {
-    if (requestParameters['recResourceId'] == null) {
-      throw new runtime.RequiredError(
-        'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling getMapFeatureRequestsByRecResourceId().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-
-    let urlPath = `/api/recreation-resources/{rec_resource_id}/spatial-submissions`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      PendingMapFeatureRequestsResponseDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Get spatial submissions for a recreation resource
-   */
-  async getMapFeatureRequestsByRecResourceId(
-    requestParameters: GetMapFeatureRequestsByRecResourceIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<PendingMapFeatureRequestsResponseDto> {
-    const response = await this.getMapFeatureRequestsByRecResourceIdRaw(
-      requestParameters,
-      initOverrides,
-    );
     return await response.value();
   }
 
@@ -3354,11 +3347,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       queryParameters['fileName'] = requestParameters['fileName'];
     }
 
-    if (requestParameters['applicationGuid'] != null) {
-      queryParameters['application_guid'] =
-        requestParameters['applicationGuid'];
-    }
-
     const headerParameters: runtime.HTTPHeaders = {};
 
     if (this.configuration && this.configuration.accessToken) {
@@ -3427,10 +3415,22 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
+    if (requestParameters['applicationGuid'] == null) {
+      throw new runtime.RequiredError(
+        'applicationGuid',
+        'Required parameter "applicationGuid" was null or undefined when calling presignExhibitAUpload().',
+      );
+    }
+
     const queryParameters: any = {};
 
     if (requestParameters['fileName'] != null) {
       queryParameters['fileName'] = requestParameters['fileName'];
+    }
+
+    if (requestParameters['applicationGuid'] != null) {
+      queryParameters['application_guid'] =
+        requestParameters['applicationGuid'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -4140,7 +4140,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates a staff-authored note. Notes imported from FTA are read-only
+   * Updates a staff-authored note. Notes imported from FTA are read-only, and only the note author or a super admin may change one
    * Update a note for a recreation resource
    */
   async updateRecreationResourceNoteRaw(
@@ -4212,7 +4212,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates a staff-authored note. Notes imported from FTA are read-only
+   * Updates a staff-authored note. Notes imported from FTA are read-only, and only the note author or a super admin may change one
    * Update a note for a recreation resource
    */
   async updateRecreationResourceNote(
