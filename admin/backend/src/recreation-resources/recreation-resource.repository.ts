@@ -170,10 +170,57 @@ export class RecreationResourceRepository {
   async findOneById(
     rec_resource_id: string,
   ): Promise<RecreationResourceGetPayload | null> {
-    return this.prisma.recreation_resource.findUnique({
-      where: { rec_resource_id },
-      select: recreationResourceSelect,
-    });
+    return this.findResourceByIdWithUserDaysFallback(rec_resource_id);
+  }
+
+  private async findResourceByIdWithUserDaysFallback(
+    rec_resource_id: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<RecreationResourceGetPayload | null> {
+    const client = tx ?? this.prisma;
+    const select = recreationResourceSelect as Record<string, unknown>;
+    const {
+      recreation_user_days_code_rel: _recreation_user_days_code_rel,
+      ...selectWithoutUserDays
+    } = select;
+
+    try {
+      return await client.recreation_resource.findUnique({
+        where: { rec_resource_id },
+        select: recreationResourceSelect,
+      });
+    } catch (error) {
+      if (!this.isMissingColumnError(error, 'recreation_user_days_code')) {
+        throw error;
+      }
+
+      this.logger.warn(
+        `Database is missing recreation_user_days_code for resource ${rec_resource_id}; retrying without the user-days relation.`,
+      );
+
+      return await client.recreation_resource.findUnique({
+        where: { rec_resource_id },
+        select: selectWithoutUserDays as typeof recreationResourceSelect,
+      });
+    }
+  }
+
+  private isMissingColumnError(error: unknown, columnName: string): boolean {
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === 'string'
+          ? error
+          : '';
+
+    return (
+      (message.includes(`column \`${columnName}\``) ||
+        message.includes(`column "${columnName}"`) ||
+        message.includes(`Column \`${columnName}\``) ||
+        message.includes(`Column "${columnName}"`)) ||
+      (message.includes('does not exist in the current database') &&
+        message.includes(`recreation_resource.${columnName}`))
+    );
   }
 
   private parseIntegerCodes(values?: string[]): number[] {
@@ -481,10 +528,10 @@ export class RecreationResourceRepository {
         }
 
         // Fetch the complete updated resource
-        const updatedResource = await tx.recreation_resource.findUnique({
-          where: { rec_resource_id },
-          select: recreationResourceSelect,
-        });
+        const updatedResource = await this.findResourceByIdWithUserDaysFallback(
+          rec_resource_id,
+          tx,
+        );
 
         if (!updatedResource) {
           throw new Error('Resource not found after update');

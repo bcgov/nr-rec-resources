@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Button,
@@ -70,6 +70,7 @@ import {
 } from '@/styles/colors';
 import type { PendingMapFeatureRequestRowDto } from '@/services/recreation-resource-admin/models/PendingMapFeatureRequestRowDto';
 import { useUpdateRecreationResource } from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResource';
+import { useUpdateRecreationResourceMapFeatures } from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceMapFeatures';
 
 type ExhibitAPageSize = 'A' | 'B' | 'C' | 'D' | 'E';
 type ExhibitAPageOrientation = 'L' | 'P';
@@ -112,6 +113,7 @@ export function RecResourceGeospatialSection() {
   const queryClient = useQueryClient();
   const isArchived = recResource?.rec_status_code === 'AR';
   const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
+  const [showExistingVsNewModal, setShowExistingVsNewModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedSubmissionRow, setSelectedSubmissionRow] =
@@ -151,6 +153,8 @@ export function RecResourceGeospatialSection() {
   const finalizeMutation = useFinalizeExhibitAUpload();
   const regenerateMutation = useCreateOrGetExhibitAByApplicationGuid();
   const { mutateAsync: updateResource } = useUpdateRecreationResource();
+  const { mutateAsync: updateMapFeatures } =
+    useUpdateRecreationResourceMapFeatures();
   const downloadMutation = useFileDownload();
 
   const {
@@ -232,17 +236,24 @@ export function RecResourceGeospatialSection() {
       : []),
   ];
 
-  const recResourceWithGeometry = recResource
-    ? {
-        ...recResource,
-        site_point_geometry:
-          geospatialData?.site_point_geometry ??
-          recResource.site_point_geometry,
-        spatial_feature_geometry:
-          geospatialData?.spatial_feature_geometry ??
-          recResource.spatial_feature_geometry,
-      }
-    : undefined;
+  const recResourceWithGeometry = useMemo(
+    () =>
+      recResource
+        ? {
+            ...recResource,
+            site_point_geometry:
+              geospatialData?.site_point_geometry ?? recResource.site_point_geometry,
+            spatial_feature_geometry:
+              geospatialData?.spatial_feature_geometry ??
+              recResource.spatial_feature_geometry,
+          }
+        : undefined,
+    [
+      geospatialData?.site_point_geometry,
+      geospatialData?.spatial_feature_geometry,
+      recResource,
+    ],
+  );
 
   const imapUrl =
     latitude != null && longitude != null
@@ -618,10 +629,14 @@ export function RecResourceGeospatialSection() {
 
   const shouldShowUnarchiveBanner = isSuperAdmin && isArchived;
 
-  const archiveAgeHours =
-    recResource?.updated_at != null
-      ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000
-      : null;
+  const archiveAgeHours = useMemo(
+    () =>
+      recResource?.updated_at != null
+        ? (Date.now() - new Date(recResource.updated_at).getTime()) /
+          3_600_000
+        : null,
+    [recResource?.updated_at],
+  );
 
   const unarchiveHelperText =
     archiveAgeHours == null
@@ -633,32 +648,111 @@ export function RecResourceGeospatialSection() {
   const handleUnarchive = useCallback(async () => {
     if (!isSuperAdmin || !recResourceId || !recResource || !isArchived) return;
 
-    const archiveAgeHours =
-      recResource.updated_at != null
-        ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000
-        : null;
+    setShowExistingVsNewModal(true);
+  }, [isArchived, isSuperAdmin, recResource, recResourceId]);
 
-    if (archiveAgeHours != null && archiveAgeHours >= 24) {
-      setIsSpatialSubmissionOpen(true);
+
+  const buildExistingSpatialAmendFeatures = useCallback(() => {
+    const sectionIds = geospatialData?.section_ids ?? [];
+    const featureGeometries =
+      geospatialData?.spatial_feature_geometry ??
+      recResourceWithGeometry?.spatial_feature_geometry ??
+      [];
+    const features: Array<{
+      geometry: Record<string, unknown>;
+      sectionId?: string;
+      properties: Record<string, unknown>;
+    }> = [];
+
+    featureGeometries.forEach((featureGeometry, index) => {
+      if (typeof featureGeometry !== 'string' || !featureGeometry.trim()) {
+        return;
+      }
+
+      try {
+        const geometry = JSON.parse(featureGeometry) as Record<string, unknown>;
+        features.push({
+          geometry,
+          sectionId: sectionIds[index] || undefined,
+          properties: {},
+        });
+      } catch (error) {
+        console.error(
+          'Failed to parse stored spatial feature geometry:',
+          error,
+        );
+      }
+    });
+
+    return features;
+  }, [
+    geospatialData?.section_ids,
+    geospatialData?.spatial_feature_geometry,
+    recResourceWithGeometry?.spatial_feature_geometry,
+  ]);
+
+  const handleExistingSpatialSubmission = useCallback(async () => {
+    if (!recResourceId || !recResource) return;
+
+    const existingFeatures = buildExistingSpatialAmendFeatures();
+    if (!existingFeatures.length) {
+      addErrorNotification(
+        'No existing spatial data is available to resubmit to SNCSC.',
+      );
       return;
     }
 
+    setShowExistingVsNewModal(false);
+    addSpinnerNotification(
+      'Submitting existing spatial data...',
+      'submit-existing-spatial',
+    );
+
     try {
+      await updateMapFeatures({
+        recResourceId,
+        newFeatures: [],
+        amendedFeatures: existingFeatures,
+        retiredFeatures: [],
+        recreationTypeCode: recResource?.rec_resource_type_code || undefined,
+        submittedBy:
+          user?.email ||
+          user?.preferred_username ||
+          user?.idir_username ||
+          undefined,
+      });
+
       await updateResource({
         recResourceId,
         updateRecreationResourceDto: { rec_status_code: 'HI' } as any,
       });
-      addSuccessNotification('Resource unarchived and issued successfully.');
-    } catch (error) {
-      console.error('Failed to unarchive resource:', error);
-      addErrorNotification('Failed to unarchive resource. Please try again.');
-    }
-  }, [isArchived, isSuperAdmin, recResource, recResourceId, updateResource]);
 
-  const isWithinArchiveWindow =
-    recResource?.updated_at != null
-      ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000 < 24
-      : false;
+      addSuccessNotification(
+        'Existing spatial data submitted for amendment and the resource has been restored.',
+      );
+      await queryClient.invalidateQueries({
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.pendingRequests(),
+      });
+    } catch (error) {
+      console.error(
+        'Failed to submit existing spatial data as amendment:',
+        error,
+      );
+      addErrorNotification(
+        'Failed to submit the existing spatial data. Please try again.',
+      );
+    } finally {
+      removeNotification('submit-existing-spatial');
+    }
+  }, [
+    buildExistingSpatialAmendFeatures,
+    queryClient,
+    recResource,
+    recResourceId,
+    updateMapFeatures,
+    updateResource,
+    user,
+  ]);
 
   return (
     <Stack className="geospatial-section" direction="vertical" gap={4}>
@@ -1119,6 +1213,59 @@ export function RecResourceGeospatialSection() {
               <strong>Unarchive Notice:</strong> {unarchiveHelperText}
             </div>
           ) : null}
+
+          <Modal
+            show={showExistingVsNewModal}
+            onHide={() => setShowExistingVsNewModal(false)}
+            centered
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>Submission options</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {recResourceWithGeometry ? (
+                <div className="mb-3">
+                  <div className="mb-2 small text-muted fw-semibold">
+                    Current spatial map
+                  </div>
+                  <div style={{ maxHeight: 220, overflow: 'hidden' }}>
+                    <RecResourceLocationSection
+                      recResource={recResourceWithGeometry}
+                      showHeading={false}
+                      imapUrl={imapUrl}
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              <p className="mb-4">
+                The current spatial data was archived. You can either reuse the
+                existing spatial data or upload a new submission.
+              </p>
+
+              <div className="d-flex gap-3">
+                <Button
+                  variant="primary"
+                  onClick={async () => {
+                    if (!recResourceId || !recResource) return;
+                    await handleExistingSpatialSubmission();
+                  }}
+                >
+                  Reuse existing spatial data
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowExistingVsNewModal(false);
+                    setIsSpatialSubmissionOpen(true);
+                  }}
+                >
+                  Upload new submission
+                </Button>
+              </div>
+            </Modal.Body>
+          </Modal>
         </div>
       </div>
     </Stack>
