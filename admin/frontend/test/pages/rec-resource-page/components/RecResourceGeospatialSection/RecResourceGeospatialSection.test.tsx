@@ -19,6 +19,8 @@ const mockCreateOrGetExhibitAByApplicationGuid = vi.fn();
 const mockUseRecreationResourceAdminApiClient = vi.fn();
 const mockGetPendingRequestAdjudicationReportRaw = vi.fn();
 const mockUseFileDownload = vi.fn();
+const mockUseUpdateRecreationResource = vi.fn();
+const mockUseUpdateRecreationResourceMapFeatures = vi.fn();
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, className }: any) => (
@@ -96,6 +98,21 @@ vi.mock(
 vi.mock('@/pages/rec-resource-page/hooks/useFileDownload', () => ({
   useFileDownload: () => mockUseFileDownload(),
 }));
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useUpdateRecreationResource',
+  () => ({
+    useUpdateRecreationResource: () => mockUseUpdateRecreationResource(),
+  }),
+);
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceMapFeatures',
+  () => ({
+    useUpdateRecreationResourceMapFeatures: () =>
+      mockUseUpdateRecreationResourceMapFeatures(),
+  }),
+);
 
 vi.mock('@/components/auth', () => ({
   EditableGuard: ({ children }: any) => <>{children}</>,
@@ -273,6 +290,14 @@ describe('RecResourceGeospatialSection', () => {
     });
     mockUseFileDownload.mockReturnValue({
       mutate: vi.fn(),
+      isPending: false,
+    });
+    mockUseUpdateRecreationResource.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+    mockUseUpdateRecreationResourceMapFeatures.mockReturnValue({
+      mutateAsync: vi.fn(),
       isPending: false,
     });
   });

@@ -214,10 +214,10 @@ export class RecreationResourceRepository {
           : '';
 
     return (
-      (message.includes(`column \`${columnName}\``) ||
-        message.includes(`column "${columnName}"`) ||
-        message.includes(`Column \`${columnName}\``) ||
-        message.includes(`Column "${columnName}"`)) ||
+      message.includes(`column \`${columnName}\``) ||
+      message.includes(`column "${columnName}"`) ||
+      message.includes(`Column \`${columnName}\``) ||
+      message.includes(`Column "${columnName}"`) ||
       (message.includes('does not exist in the current database') &&
         message.includes(`recreation_resource.${columnName}`))
     );
@@ -486,6 +486,8 @@ export class RecreationResourceRepository {
           await tx.recreation_resource.update({
             where: { rec_resource_id },
             data: mainResourceUpdateData as Prisma.recreation_resourceUpdateInput,
+            // Avoid selecting all columns on update response in drifted DBs.
+            select: { rec_resource_id: true },
           });
         }
 

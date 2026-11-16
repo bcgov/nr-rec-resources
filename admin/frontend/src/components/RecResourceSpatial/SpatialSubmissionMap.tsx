@@ -33,6 +33,7 @@ interface SpatialSubmissionEditorMapProps {
   features: any[];
   selectedFeatureIndex?: number | null;
   onFeatureSelect?: (featureIndex: number) => void;
+  compact?: boolean;
 }
 
 type BaseLayerId = 'default' | 'topographic' | 'hillshade' | 'satellite';
@@ -111,6 +112,7 @@ export const SpatialSubmissionMap = ({
   features,
   selectedFeatureIndex = null,
   onFeatureSelect,
+  compact = false,
 }: SpatialSubmissionEditorMapProps) => {
   const mapRef = useRef<{ getMap: () => OLMap } | null>(null);
   const mapHostRef = useRef<HTMLDivElement | null>(null);
@@ -363,26 +365,46 @@ export const SpatialSubmissionMap = ({
         firstFeature: features[0],
       });
     }
-  }, [features, fitToSourceExtent, vectorSource]);
+  }, [features, fitToSourceExtent, selectedFeatureIndex, vectorSource]);
 
   useEffect(() => {
     fitToSelectedFeature();
   }, [fitToSelectedFeature]);
 
   useEffect(() => {
-    const map = mapRef.current?.getMap();
-    const host = mapHostRef.current;
-    const scopedMapContainer = host?.querySelector(
-      '[data-testid="map-container"]',
-    );
+    const timer = window.setTimeout(() => {
+      const map = mapRef.current?.getMap();
+      const host = mapHostRef.current;
+      const scopedMapContainer = host?.querySelector(
+        '[data-testid="map-container"]',
+      );
 
-    if (!map || !(scopedMapContainer instanceof HTMLElement)) {
-      return;
-    }
+      if (!map || !(scopedMapContainer instanceof HTMLElement)) {
+        return;
+      }
 
-    // prp-map uses a shared #map-container id internally; retarget to this instance.
-    map.setTarget(scopedMapContainer);
-  }, []);
+      // prp-map uses a shared #map-container id internally; retarget to this instance.
+      map.setTarget(scopedMapContainer);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [selectedBaseLayerId]);
+
+  const mapStyle = compact
+    ? {
+        position: 'relative' as const,
+        height: '320px',
+        minHeight: '320px',
+        maxHeight: '320px',
+      }
+    : {
+        position: 'relative' as const,
+        height: '48vh',
+        minHeight: '420px',
+        maxHeight: '560px',
+      };
 
   return (
     <div className="spatial-submission-map" ref={mapHostRef}>
@@ -456,12 +478,7 @@ export const SpatialSubmissionMap = ({
         <VectorFeatureMap
           key={`base-layer-${selectedBaseLayerId}`}
           ref={mapRef}
-          style={{
-            position: 'relative',
-            height: '48vh',
-            minHeight: '420px',
-            maxHeight: '560px',
-          }}
+          style={mapStyle}
           layers={layers}
           baseLayers={selectedBaseLayers}
           defaultZoom={15}

@@ -516,6 +516,7 @@ describe('RecreationResourceRepository', () => {
       expect(capturedTx!.recreation_resource.update).toHaveBeenCalledWith({
         where: { rec_resource_id: recId },
         data: { control_access_code: null },
+        select: { rec_resource_id: true },
       });
     });
 

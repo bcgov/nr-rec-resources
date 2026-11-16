@@ -57,6 +57,7 @@ describe('RecreationResourceService', () => {
     expect(prisma.recreation_resource.update).toHaveBeenCalledWith({
       where: { rec_resource_id: recResourceId },
       data: { rec_status_code: 'AR' },
+      select: { rec_resource_id: true },
     });
   });
 

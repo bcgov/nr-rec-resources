@@ -38,6 +38,7 @@ import { IMAP_URL } from '@/constants/urls';
 import { buildImapUrlFromLatLng, buildImapUrlFromUtm } from '@/utils/imap';
 import './RecResourceGeospatialSection.scss';
 import { SpatialSubmissionSection } from '@/components/RecResourceSpatial/SpatialSubmissionSection';
+import { SpatialSubmissionMap } from '@/components/RecResourceSpatial/SpatialSubmissionMap';
 import { useGetMapFeatureRequestsByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetMapFeatureRequestsByRecResourceId';
 import { useGetExhibitADocs } from '@/services/hooks/recreation-resource-admin/useGetExhibitADocs';
 import { useAuthorizations } from '@/hooks/useAuthorizations';
@@ -242,7 +243,8 @@ export function RecResourceGeospatialSection() {
         ? {
             ...recResource,
             site_point_geometry:
-              geospatialData?.site_point_geometry ?? recResource.site_point_geometry,
+              geospatialData?.site_point_geometry ??
+              recResource.site_point_geometry,
             spatial_feature_geometry:
               geospatialData?.spatial_feature_geometry ??
               recResource.spatial_feature_geometry,
@@ -632,8 +634,7 @@ export function RecResourceGeospatialSection() {
   const archiveAgeHours = useMemo(
     () =>
       recResource?.updated_at != null
-        ? (Date.now() - new Date(recResource.updated_at).getTime()) /
-          3_600_000
+        ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000
         : null,
     [recResource?.updated_at],
   );
@@ -650,7 +651,6 @@ export function RecResourceGeospatialSection() {
 
     setShowExistingVsNewModal(true);
   }, [isArchived, isSuperAdmin, recResource, recResourceId]);
-
 
   const buildExistingSpatialAmendFeatures = useCallback(() => {
     const sectionIds = geospatialData?.section_ids ?? [];
@@ -753,6 +753,16 @@ export function RecResourceGeospatialSection() {
     updateResource,
     user,
   ]);
+
+  const existingSpatialPreviewFeatures = useMemo(
+    () =>
+      buildExistingSpatialAmendFeatures().map((feature) => ({
+        type: 'Feature' as const,
+        geometry: feature.geometry,
+        properties: feature.properties ?? {},
+      })),
+    [buildExistingSpatialAmendFeatures],
+  );
 
   return (
     <Stack className="geospatial-section" direction="vertical" gap={4}>
@@ -1223,19 +1233,23 @@ export function RecResourceGeospatialSection() {
               <Modal.Title>Submission options</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              {recResourceWithGeometry ? (
+              {existingSpatialPreviewFeatures.length > 0 ? (
                 <div className="mb-3">
                   <div className="mb-2 small text-muted fw-semibold">
                     Current spatial map
                   </div>
-                  <div style={{ maxHeight: 220, overflow: 'hidden' }}>
-                    <RecResourceLocationSection
-                      recResource={recResourceWithGeometry}
-                      showHeading={false}
-                      imapUrl={imapUrl}
+                  <div className="geospatial-section__modal-map-preview">
+                    <SpatialSubmissionMap
+                      features={existingSpatialPreviewFeatures}
+                      selectedFeatureIndex={null}
+                      compact={true}
                     />
                   </div>
                 </div>
+              ) : recResourceWithGeometry ? (
+                <Alert variant="light" className="mb-3">
+                  No existing spatial features are available to preview.
+                </Alert>
               ) : null}
 
               <p className="mb-4">
