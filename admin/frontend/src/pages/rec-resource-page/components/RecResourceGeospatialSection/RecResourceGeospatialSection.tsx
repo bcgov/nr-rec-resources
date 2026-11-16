@@ -17,7 +17,6 @@ import {
   faRotate,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { EditableGuard } from '@/components/auth';
 import { Table as DataTable } from '@/components';
 import { CustomBadge } from '@/components/custom-badge';
 import { CopyButton } from '@shared/components/copy-button';
@@ -104,12 +103,11 @@ export function RecResourceGeospatialSection() {
   const params = Route.useParams();
   const recResourceId = params?.id;
   const { recResource } = useRecResource();
-  const { isSuperAdmin } = useAuthorizations();
+  const { isSuperAdmin, canViewAdjudicationReports } = useAuthorizations();
   const { user } = useAuthContext();
   const recreationResourceAdminApiClient =
     useRecreationResourceAdminApiClient();
   const queryClient = useQueryClient();
-  const isArchived = recResource?.rec_status_code === 'AR';
   const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -629,19 +627,17 @@ export function RecResourceGeospatialSection() {
       <div className="geospatial-section__card">
         <div className="geospatial-section__card-header d-flex justify-content-between align-items-center">
           <h2 className="geospatial-section__card-title">Geospatial</h2>
-          <EditableGuard isArchived={isArchived}>
-            {hasGeometryData && (
-              <Link
-                to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
-                  '$id',
-                  recResourceId,
-                )}
-                className="btn btn-outline-primary btn-sm"
-              >
-                Edit
-              </Link>
-            )}
-          </EditableGuard>
+          {isSuperAdmin && hasGeometryData && (
+            <Link
+              to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
+                '$id',
+                recResourceId,
+              )}
+              className="btn btn-outline-primary btn-sm"
+            >
+              Edit
+            </Link>
+          )}
         </div>
 
         <div className="geospatial-section__card-body">
@@ -704,7 +700,7 @@ export function RecResourceGeospatialSection() {
                     const statusRequestGuid = row.status_request_guid;
                     const sncscUrl = buildSncscSubmissionUrl(statusRequestGuid);
                     const canViewAdjudicationReport =
-                      hasAdjudicationReport(row);
+                      canViewAdjudicationReports && hasAdjudicationReport(row);
 
                     if (!sncscUrl && !canViewAdjudicationReport) {
                       return <span className="text-muted">-</span>;
@@ -876,20 +872,18 @@ export function RecResourceGeospatialSection() {
             />
           )}
 
-          <EditableGuard isArchived={isArchived}>
-            {!isSpatialSubmissionOpen ? (
-              <div className="mt-3">
-                <Button
-                  size="sm"
-                  variant="primary"
-                  disabled={isPendingRequestsBusy}
-                  onClick={() => setIsSpatialSubmissionOpen(true)}
-                >
-                  Create new
-                </Button>
-              </div>
-            ) : null}
-          </EditableGuard>
+          {isSuperAdmin && !isSpatialSubmissionOpen ? (
+            <div className="mt-3">
+              <Button
+                size="sm"
+                variant="primary"
+                disabled={isPendingRequestsBusy}
+                onClick={() => setIsSpatialSubmissionOpen(true)}
+              >
+                Create new
+              </Button>
+            </div>
+          ) : null}
 
           {isSpatialSubmissionOpen ? (
             <div className="mt-4 pt-3 border-top">

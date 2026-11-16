@@ -166,7 +166,6 @@ export class AuthService {
     'rst-viewer',
     'rst-admin',
     'rst-super-admin',
-    'rst-developer',
   ] as const;
 
   getUserRoles(): string[] {
