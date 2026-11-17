@@ -308,14 +308,14 @@ describe('RecResourceGeospatialSection', () => {
     );
   });
 
-  it('does not render edit button when geometry data is missing', () => {
+  it('renders edit button when geometry data is missing', () => {
     mockUseGetRecreationResourceGeospatial.mockReturnValueOnce({
       data: {},
     });
 
     render(<RecResourceGeospatialSection />);
 
-    expect(screen.queryByText('Edit')).toBeNull();
+    expect(screen.getByText('Edit')).toBeDefined();
   });
 
   it('renders section with empty fallback when geospatial data is undefined', () => {
@@ -326,7 +326,7 @@ describe('RecResourceGeospatialSection', () => {
     render(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Geospatial')).toBeDefined();
-    expect(screen.queryByText('Edit')).toBeNull();
+    expect(screen.getByText('Edit')).toBeDefined();
   });
 
   it('renders spatial submissions section', () => {
@@ -671,11 +671,10 @@ describe('RecResourceGeospatialSection', () => {
     expect(finalizeMutate).toHaveBeenCalledWith({
       recResourceId: 'REC0001',
       application_guid: 'app-guid-6',
-      submission_id: 'SUB-6',
       document_id: 'doc-1',
       file_name: 'report',
       extension: 'pdf',
-      file_size: expect.any(Number),
+      file_size: 7,
     });
   });
 
@@ -686,6 +685,7 @@ describe('RecResourceGeospatialSection', () => {
           {
             submission_id: 'SUB-CANCEL',
             rec_resource_id: 'REC0001',
+            application_guid: 'app-guid-cancel',
             amend_status_code: 'PND',
             feature_count: 1,
             geometry_types: ['Point'],

@@ -31,7 +31,6 @@ export function useFinalizeExhibitAUpload() {
     mutationFn: (params: {
       recResourceId: string;
       application_guid?: string;
-      submission_id?: string;
       document_id: string;
       file_name: string;
       extension: string;

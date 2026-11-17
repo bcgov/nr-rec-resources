@@ -5,6 +5,7 @@ import { ROUTE_PATHS } from '@/constants/routes';
 import {
   GEOMETRY_NUMBER_FORMAT,
   SITE_TYPE_CODES,
+  TRAIL_TYPE_CODES,
   UTM_HELP,
 } from '@/constants/geospatial';
 import { TOTAL_AREA_TEXT } from '@/utils/helperText';
@@ -110,6 +111,9 @@ export const RecResourceGeospatialEditSection = () => {
     '';
 
   const isSite = SITE_TYPE_CODES.includes(
+    recResource?.rec_resource_type_code ?? '',
+  );
+  const isTrail = TRAIL_TYPE_CODES.includes(
     recResource?.rec_resource_type_code ?? '',
   );
   const displayTotalArea =
@@ -278,6 +282,32 @@ export const RecResourceGeospatialEditSection = () => {
                 <Form.Label>Total area (ha)</Form.Label>
                 <Form.Control type="text" value={displayTotalArea} disabled />
                 <Form.Text className="text-muted">{TOTAL_AREA_TEXT}</Form.Text>
+              </Form.Group>
+            </Col>
+          )}
+
+          {isTrail && (
+            <Col xs={12} md={6}>
+              <Form.Group controlId="right_of_way_m">
+                <Form.Label>Right-of-way width (m)</Form.Label>
+                <Controller
+                  name="right_of_way_m"
+                  control={control}
+                  render={({ field }) => (
+                    <Form.Control
+                      {...field}
+                      type="number"
+                      placeholder="e.g. 15"
+                      value={field.value ?? ''}
+                      onChange={onNumberChange(field.onChange)}
+                      onBlur={field.onBlur}
+                      isInvalid={!!errors.right_of_way_m}
+                    />
+                  )}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.right_of_way_m?.message as any}
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           )}
