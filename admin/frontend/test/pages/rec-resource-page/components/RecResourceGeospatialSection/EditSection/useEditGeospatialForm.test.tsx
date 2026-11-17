@@ -160,4 +160,33 @@ describe('useEditGeospatialForm', () => {
     expect(result).toBeUndefined();
     expect(mockMutateAsync).not.toHaveBeenCalled();
   });
+
+  it('submits only valid numeric fields and skips spatial validation when UTM is incomplete', async () => {
+    mockMutateAsync.mockResolvedValue({ ok: true });
+
+    const { result: hookResult } = renderHook(() =>
+      useEditGeospatialForm(undefined, 'REC123'),
+    );
+
+    await act(async () => {
+      await hookResult.current.onSubmit({
+        utm_zone: undefined,
+        utm_easting: Number.NaN,
+        utm_northing: 5480000,
+        right_of_way_m: 25,
+      });
+    });
+
+    expect(mockValidateUtm).not.toHaveBeenCalled();
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      updateRecreationResourceGeospatialDto: {
+        newFeatures: [],
+        amendedFeatures: [],
+        retiredFeatures: [],
+        utm_northing: 5480000,
+        right_of_way_m: 25,
+      },
+    });
+  });
 });
