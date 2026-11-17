@@ -350,14 +350,14 @@ describe('RecResourceGeospatialSection', () => {
     );
   });
 
-  it('renders edit button when geometry data is missing', () => {
+  it('does not render edit button when geometry data is missing', () => {
     mockUseGetRecreationResourceGeospatial.mockReturnValueOnce({
       data: {},
     });
 
     render(<RecResourceGeospatialSection />);
 
-    expect(screen.getByText('Edit')).toBeDefined();
+    expect(screen.queryByText('Edit')).toBeNull();
   });
 
   it('renders section with empty fallback when geospatial data is undefined', () => {
@@ -368,7 +368,7 @@ describe('RecResourceGeospatialSection', () => {
     render(<RecResourceGeospatialSection />);
 
     expect(screen.getByText('Geospatial')).toBeDefined();
-    expect(screen.getByText('Edit')).toBeDefined();
+    expect(screen.queryByText('Edit')).toBeNull();
   });
 
   it('renders spatial submissions section', () => {
@@ -776,6 +776,7 @@ describe('RecResourceGeospatialSection', () => {
     expect(finalizeMutate).toHaveBeenCalledWith({
       recResourceId: 'REC0001',
       application_guid: 'app-guid-6',
+      submission_id: 'SUB-6',
       document_id: 'doc-1',
       file_name: 'report',
       extension: 'pdf',

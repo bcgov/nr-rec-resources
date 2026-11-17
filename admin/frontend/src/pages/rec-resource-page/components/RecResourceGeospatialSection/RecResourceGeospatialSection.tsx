@@ -60,6 +60,16 @@ export function RecResourceGeospatialSection() {
     recResourceId,
     onUploaded: handleExhibitAUrl,
   });
+  const {
+    fileInputRef,
+    modalState,
+    setModalFileName,
+    hideModal,
+    isUploading,
+    startUpload,
+    handleFileInputChange,
+    confirmUpload,
+  } = upload;
   const regenerate = useRegenerateExhibitA({ onGenerated: handleExhibitAUrl });
   const { viewAdjudicationReport } = useAdjudicationReport();
 
@@ -67,14 +77,14 @@ export function RecResourceGeospatialSection() {
     () =>
       recResource
         ? {
-          ...recResource,
-          site_point_geometry:
-            geospatialData?.site_point_geometry ??
-            recResource.site_point_geometry,
-          spatial_feature_geometry:
-            geospatialData?.spatial_feature_geometry ??
-            recResource.spatial_feature_geometry,
-        }
+            ...recResource,
+            site_point_geometry:
+              geospatialData?.site_point_geometry ??
+              recResource.site_point_geometry,
+            spatial_feature_geometry:
+              geospatialData?.spatial_feature_geometry ??
+              recResource.spatial_feature_geometry,
+          }
         : undefined,
     [
       geospatialData?.site_point_geometry,
@@ -84,7 +94,7 @@ export function RecResourceGeospatialSection() {
   );
 
   const { latitude, longitude, utm_zone, utm_easting, utm_northing } =
-  geospatialData || {};
+    geospatialData || {};
   const imapUrl =
     latitude != null && longitude != null
       ? buildImapUrlFromLatLng(latitude, longitude)
@@ -137,7 +147,7 @@ export function RecResourceGeospatialSection() {
         </div>
       )}
 
-      <div className="geospatial-section__card">
+      <div className="geospatial-section__card" id="spatial-submissions">
         <div className="geospatial-section__card-header">
           <h2 className="geospatial-section__card-title">
             Spatial submissions
@@ -159,10 +169,10 @@ export function RecResourceGeospatialSection() {
               rows={submissionRows}
               exhibitADocs={exhibitADocs}
               exhibitAUrlOverrides={exhibitAUrlBySubmission}
-              isUploading={upload.isUploading}
+              isUploading={isUploading}
               isRegenerating={regenerate.isPending}
               onViewAdjudicationReport={viewAdjudicationReport}
-              onUpload={upload.startUpload}
+              onUpload={startUpload}
               onRegenerate={regenerate.start}
             />
           )}
@@ -223,23 +233,23 @@ export function RecResourceGeospatialSection() {
           ) : null}
 
           <input
-            ref={upload.fileInputRef}
+            ref={fileInputRef}
             type="file"
             accept="application/pdf"
             className="d-none"
-            onChange={upload.handleFileInputChange}
+            onChange={handleFileInputChange}
             aria-label="Upload Exhibit A document"
           />
 
           <DocumentUploadModal
-            show={upload.modal.state.show}
-            file={upload.modal.state.file}
-            fileName={upload.modal.state.fileName}
+            show={modalState.show}
+            file={modalState.file}
+            fileName={modalState.fileName}
             showAlert={false}
-            fileNameError={upload.modal.state.fileNameError}
-            onFileNameChange={upload.modal.setFileName}
-            onCancel={upload.modal.hide}
-            onConfirm={upload.confirmUpload}
+            fileNameError={modalState.fileNameError}
+            onFileNameChange={setModalFileName}
+            onCancel={hideModal}
+            onConfirm={confirmUpload}
             title="Upload Exhibit A document"
           />
 

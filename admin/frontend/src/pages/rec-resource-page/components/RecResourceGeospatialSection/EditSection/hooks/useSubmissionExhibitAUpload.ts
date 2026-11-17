@@ -87,7 +87,9 @@ export const useSubmissionExhibitAUpload = ({
 
   return {
     fileInputRef,
-    modal,
+    modalState: modal.state,
+    setModalFileName: modal.setFileName,
+    hideModal: modal.hide,
     isUploading: isPending,
     startUpload,
     handleFileInputChange,
