@@ -49,7 +49,7 @@ describe('RecResourceArchiveModal', () => {
 
     // Check submit button specifically
     expect(
-      screen.getByRole('button', { name: /^Archive Resource$/i }),
+      screen.getByRole('button', { name: /^Archive resource$/i }),
     ).toBeInTheDocument();
   });
 
