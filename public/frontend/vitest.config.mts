@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
+// @ts-ignore -- This package subpath requires bundler-style module resolution.
 import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 

@@ -3,7 +3,6 @@ export * from './file-status-badge';
 export * from './public-access-status-badge';
 export * from './auth';
 export * from './avatar';
-export * from './buttons';
 export * from './clamp-lines';
 export * from './custom-badge';
 export * from './visible-on-website';

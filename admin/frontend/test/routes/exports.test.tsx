@@ -6,6 +6,7 @@ vi.mock('@/pages/exports-page/ExportsPage', () => ({
 }));
 
 import { Route } from '@/routes/exports';
+import { JSX } from 'react/jsx-runtime';
 
 describe('Exports Route', () => {
   it('exports a route with a component and beforeLoad handler', () => {

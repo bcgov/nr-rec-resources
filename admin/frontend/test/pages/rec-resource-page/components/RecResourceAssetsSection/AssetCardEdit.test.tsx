@@ -104,6 +104,9 @@ describe('AssetCardEdit', () => {
       canDelete: true,
       isSuperAdmin: true,
       canViewSensitiveInfo: true,
+      canViewPartners: false,
+      canViewPartnerSensitiveInfo: false,
+      canManagePartners: false,
     });
     vi.mocked(useUpdateAssetRepairModule.useUpdateAssetRepair).mockReturnValue({
       mutate: vi.fn(),
@@ -380,6 +383,9 @@ describe('AssetCardEdit', () => {
       canDelete: true,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
+      canViewPartners: false,
+      canViewPartnerSensitiveInfo: false,
+      canManagePartners: false,
     });
 
     render(<AssetCardEdit {...defaultProps} onDelete={vi.fn()} />);
@@ -394,6 +400,9 @@ describe('AssetCardEdit', () => {
       canDelete: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
+      canViewPartners: false,
+      canViewPartnerSensitiveInfo: false,
+      canManagePartners: false,
     });
 
     render(<AssetCardEdit {...defaultProps} onDelete={vi.fn()} />);

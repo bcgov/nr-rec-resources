@@ -169,6 +169,7 @@ const mockResourceOptions = {
     { id: 'RDVAN', label: 'Vancouver' },
   ],
   accessOptions: [],
+  recreationUserDaysOptions: [],
   isLoading: false,
 };
 

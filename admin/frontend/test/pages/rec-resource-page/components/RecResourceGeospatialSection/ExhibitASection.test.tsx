@@ -110,7 +110,9 @@ describe('ExhibitASection', () => {
     mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
     mockUseGetExhibitADocs.mockReturnValue({ data: [], isFetching: false });
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true } as Response);
-    vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue('pending-uuid');
+    vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(
+      '00000000-0000-4000-8000-000000000000',
+    );
   });
 
   it('renders the Exhibit A heading', () => {

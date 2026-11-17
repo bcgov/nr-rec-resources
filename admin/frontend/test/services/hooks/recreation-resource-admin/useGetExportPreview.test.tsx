@@ -103,7 +103,14 @@ describe('useGetExportPreview', () => {
       queryKey: RECREATION_RESOURCE_QUERY_KEYS.exportPreview({ dataset: '' }),
     });
 
-    await expect(query?.options.queryFn?.({} as never)).rejects.toThrow(
+    const queryFn = query?.options.queryFn;
+    if (typeof queryFn !== 'function') {
+      throw new Error(
+        'Expected the export preview query function to be defined.',
+      );
+    }
+
+    await expect(queryFn({} as never)).rejects.toThrow(
       'A dataset is required to load an export preview.',
     );
   });

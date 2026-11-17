@@ -89,7 +89,9 @@ describe('RecResourceOverviewPage', () => {
   it('renders overview section when recResource is loaded', () => {
     vi.mocked(useRecResource).mockReturnValue({
       rec_resource_id: 'abc123',
-      recResource: baseResource,
+      recResource: baseResource as unknown as NonNullable<
+        ReturnType<typeof useRecResource>['recResource']
+      >,
       isLoading: false,
       error: null,
     });

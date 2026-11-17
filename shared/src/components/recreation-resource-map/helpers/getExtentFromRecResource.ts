@@ -1,6 +1,6 @@
 import { GeoJSON } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
-import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
+import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
 export const getExtentFromRecResource = (
   recResource?: RecreationResourceMapData,
 ) => {

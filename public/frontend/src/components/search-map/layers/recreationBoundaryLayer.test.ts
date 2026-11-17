@@ -16,17 +16,17 @@ describe('createRecreationBoundaryStyle', () => {
 
   it('stroke has the correct color', () => {
     const style = createRecreationBoundaryStyle();
-    expect(style.getStroke().getColor()).toBe('#42814A');
+    expect(style.getStroke()?.getColor()).toBe('#42814A');
   });
 
   it('stroke has width 3', () => {
     const style = createRecreationBoundaryStyle();
-    expect(style.getStroke().getWidth()).toBe(3);
+    expect(style.getStroke()?.getWidth()).toBe(3);
   });
 
   it('fill has the correct semi-transparent color', () => {
     const style = createRecreationBoundaryStyle();
-    expect(style.getFill().getColor()).toBe('#42814A66');
+    expect(style.getFill()?.getColor()).toBe('#42814A66');
   });
 });
 

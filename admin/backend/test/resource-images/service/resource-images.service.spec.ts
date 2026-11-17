@@ -364,20 +364,20 @@ describe('ResourceImagesDocsService', () => {
       ];
 
       vi.mocked(s3Service.getSignedUploadUrl)
-        .mockResolvedValueOnce(mockUrls[0])
-        .mockResolvedValueOnce(mockUrls[1])
-        .mockResolvedValueOnce(mockUrls[2])
-        .mockResolvedValueOnce(mockUrls[3]);
+        .mockResolvedValueOnce(mockUrls[0]!)
+        .mockResolvedValueOnce(mockUrls[1]!)
+        .mockResolvedValueOnce(mockUrls[2]!)
+        .mockResolvedValueOnce(mockUrls[3]!);
 
       const result = await service.presignUpload('REC0001', 'my-image');
 
       expect(result).toBeDefined();
       expect(result.image_id).toBeDefined();
       expect(result.presigned_urls).toHaveLength(4);
-      expect(result.presigned_urls[0].size_code).toBe('original');
-      expect(result.presigned_urls[1].size_code).toBe('scr');
-      expect(result.presigned_urls[2].size_code).toBe('pre');
-      expect(result.presigned_urls[3].size_code).toBe('thm');
+      expect(result.presigned_urls[0]!.size_code).toBe('original');
+      expect(result.presigned_urls[1]!.size_code).toBe('scr');
+      expect(result.presigned_urls[2]!.size_code).toBe('pre');
+      expect(result.presigned_urls[3]!.size_code).toBe('thm');
 
       // Verify all variants are called without tags
       expect(s3Service.getSignedUploadUrl).toHaveBeenCalledWith(
@@ -403,10 +403,10 @@ describe('ResourceImagesDocsService', () => {
       ];
 
       vi.mocked(s3Service.getSignedUploadUrl)
-        .mockResolvedValueOnce(mockUrls[0])
-        .mockResolvedValueOnce(mockUrls[1])
-        .mockResolvedValueOnce(mockUrls[2])
-        .mockResolvedValueOnce(mockUrls[3]);
+        .mockResolvedValueOnce(mockUrls[0]!)
+        .mockResolvedValueOnce(mockUrls[1]!)
+        .mockResolvedValueOnce(mockUrls[2]!)
+        .mockResolvedValueOnce(mockUrls[3]!);
 
       const result = await service.presignUpload('REC0001', '');
 

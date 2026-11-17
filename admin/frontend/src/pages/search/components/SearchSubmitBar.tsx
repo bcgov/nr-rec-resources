@@ -105,7 +105,10 @@ export function SearchSubmitBar({
             RecreationResourceSuggestion | CommunitySuggestion
           >
             key={committedQuery}
-            suggestions={suggestions}
+            suggestions={suggestions.map((suggestion) => ({
+              ...suggestion,
+              rec_status_code: suggestion.rec_status_code ?? undefined,
+            }))}
             isLoading={isLoading}
             error={error}
             onSearch={updateInputValue}

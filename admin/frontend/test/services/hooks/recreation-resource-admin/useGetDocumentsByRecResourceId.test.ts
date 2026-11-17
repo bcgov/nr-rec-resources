@@ -41,10 +41,16 @@ describe('useGetDocumentsByRecResourceId', () => {
 
   it('calls addErrorNotification when retries are exhausted (onFail)', async () => {
     // Mock createRetryHandler to immediately call onFail
-    const mockRetryHandler = vi.fn();
+    const mockRetryHandler = vi.fn(
+      (_retryCount: number, _error: unknown) => false,
+    );
     vi.spyOn(helpers, 'createRetryHandler').mockImplementation(
-      (options?: { maxRetries?: number; onFail?: () => void }) => {
-        if (options && options.onFail) options.onFail();
+      (options?: {
+        maxRetries?: number;
+        onFail?: (error: unknown) => void;
+      }) => {
+        if (options && options.onFail)
+          options.onFail(new Error('Request failed'));
         return mockRetryHandler;
       },
     );

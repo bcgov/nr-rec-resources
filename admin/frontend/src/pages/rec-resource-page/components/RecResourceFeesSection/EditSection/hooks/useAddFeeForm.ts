@@ -26,7 +26,8 @@ const prepareFeeData = (data: AddFeeFormData, recResourceId: string) => {
 
   const baseData = {
     recResourceId,
-    recreation_fee_code: data.recreation_fee_code,
+    recreation_fee_code: data.fee_type_sub_type,
+    recreation_fee_sub_code: data.fee_type_sub_type,
     fee_amount: data.fee_amount ?? undefined,
     ...dayIndicators,
   };
@@ -47,7 +48,7 @@ export const useAddFeeForm = (recResourceId: string) => {
   const navigate = useNavigate();
 
   const defaultValues: AddFeeFormData = {
-    recreation_fee_code: '',
+    fee_type_sub_type: '',
     fee_amount: undefined,
     fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
     fee_start_date: undefined,

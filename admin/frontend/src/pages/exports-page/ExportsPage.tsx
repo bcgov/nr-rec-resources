@@ -14,8 +14,6 @@ export const ExportsPage = () => {
 
   const hasSelectedDataset = Boolean(datasets.selected);
   const areFilterSelectsDisabled = !hasSelectedDataset || filters.isLoading;
-  const showPreviewTable =
-    preview.isEnabled && preview.data && !preview.isLoading;
 
   return (
     <PageLayout>
@@ -176,7 +174,7 @@ export const ExportsPage = () => {
               </p>
             ) : null}
 
-            {showPreviewTable ? (
+            {preview.isEnabled && preview.data && !preview.isLoading ? (
               <DataTable
                 className="mb-0"
                 columns={preview.data!.columns.map((column) => ({

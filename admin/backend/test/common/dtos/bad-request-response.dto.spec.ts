@@ -41,8 +41,8 @@ describe('BadRequestResponseDto', () => {
 
     expect(badRequestResponseDto.statusCode).toBe(400);
     expect(badRequestResponseDto.message).toBe('Bad Request');
-    expect(badRequestResponseDto.details[0].field).toBe('email');
-    expect(badRequestResponseDto.details[0].messages[0]).toBe(
+    expect(badRequestResponseDto.details[0]!.field).toBe('email');
+    expect(badRequestResponseDto.details[0]!.messages[0]).toBe(
       'email must be an email',
     );
     expect(badRequestResponseDto.path).toBe('/api/v1/users');

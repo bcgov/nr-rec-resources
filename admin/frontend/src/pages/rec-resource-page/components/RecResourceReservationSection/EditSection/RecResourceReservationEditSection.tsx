@@ -49,8 +49,9 @@ export const RecResourceReservationEditSection = () => {
     name: 'reservation_method',
   });
 
-  const reservationContactConfig =
-    getReservationContactConfig(reservationMethod);
+  const reservationContactConfig = getReservationContactConfig(
+    reservationMethod as ReservationMethod | undefined,
+  );
 
   return (
     <Stack direction="vertical" gap={4}>
@@ -150,7 +151,7 @@ export const RecResourceReservationEditSection = () => {
                     <Form.Group controlId="reservation_contact">
                       <FormLabel className="reservation-form-label" required>
                         {EDIT_RESERVATION_FIELD_LABEL_MAP.reservation_contact}
-                        {` (${RESERVATION_METHOD_LABEL_MAP[reservationMethod]})`}
+                        {` (${RESERVATION_METHOD_LABEL_MAP[reservationMethod as ReservationMethod]})`}
                       </FormLabel>
                       <Form.Control
                         type={reservationContactConfig.type}

@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build": "vite build",
+    "build": "tsc --noEmit && vite build",
     "build:analyze": "vite build --mode analyze",
     "build:clean": "rimraf dist",
     "clean": "rimraf ./node_modules/.vite",

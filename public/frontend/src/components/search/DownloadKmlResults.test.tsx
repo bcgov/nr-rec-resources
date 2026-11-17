@@ -5,6 +5,11 @@ import { Style } from 'ol/style';
 import * as recreationHooks from '@/service/queries/recreation-resource';
 import * as recreationMapUtils from '@shared/components/recreation-resource-map';
 import DownloadKmlResults from './DownloadKmlResults';
+import {
+  RecResourcesIdsDto,
+  RecreationResourceDetailDto,
+} from '@/service/recreation-resource';
+import { MutateOptions } from '@tanstack/react-query';
 
 // ─── Safe, Hoistable Mocks ────────────────────────────────────────────────
 
@@ -41,7 +46,7 @@ vi.mock('@/service/queries/recreation-resource', () => ({
     data: undefined,
     isSuccess: false,
     isError: false,
-    isLoading: false,
+    isPending: false,
     status: 'idle',
   })),
 }));
@@ -51,7 +56,7 @@ vi.mock('@/utils/recreationResourceUtils', () => ({
   getRecResourceDetailPageUrl: vi.fn((id: string) => `/details/${id}`),
 }));
 
-const mockData = [
+const mockData: any[] = [
   {
     rec_resource_id: 'r1',
     name: 'Trail 1',
@@ -91,15 +96,39 @@ describe('DownloadKmlResults', () => {
 
   it('calls mutateAsync when download clicked', () => {
     const mutateAsyncMock = vi.fn();
-    (
-      recreationHooks.useRecreationResourcesWithGeometryMutation as vi.Mock
+    vi.mocked(
+      recreationHooks.useRecreationResourcesWithGeometryMutation,
     ).mockReturnValueOnce({
       data: undefined,
       mutateAsync: mutateAsyncMock,
       isSuccess: false,
       isError: false,
-      isLoading: false,
+      isPending: false,
       status: 'idle',
+      variables: undefined,
+      error: null,
+      isIdle: true,
+      mutate: function (
+        _variables: RecResourcesIdsDto,
+        _options?:
+          | MutateOptions<
+              RecreationResourceDetailDto[],
+              Error,
+              RecResourcesIdsDto,
+              unknown
+            >
+          | undefined,
+      ): void {
+        throw new Error('Function not implemented.');
+      },
+      reset: function (): void {
+        throw new Error('Function not implemented.');
+      },
+      context: undefined,
+      failureCount: 0,
+      failureReason: null,
+      isPaused: false,
+      submittedAt: 0,
     });
 
     render(
@@ -119,8 +148,8 @@ describe('DownloadKmlResults', () => {
   });
 
   it('shows a spinner while download is pending', () => {
-    (
-      recreationHooks.useRecreationResourcesWithGeometryMutation as vi.Mock
+    vi.mocked(
+      recreationHooks.useRecreationResourcesWithGeometryMutation,
     ).mockReturnValueOnce({
       data: undefined,
       mutateAsync: vi.fn(),
@@ -128,6 +157,30 @@ describe('DownloadKmlResults', () => {
       isError: false,
       isPending: true,
       status: 'pending',
+      variables: undefined as unknown as RecResourcesIdsDto,
+      error: null,
+      isIdle: false,
+      mutate: function (
+        _variables: RecResourcesIdsDto,
+        _options?:
+          | MutateOptions<
+              RecreationResourceDetailDto[],
+              Error,
+              RecResourcesIdsDto,
+              unknown
+            >
+          | undefined,
+      ): void {
+        throw new Error('Function not implemented.');
+      },
+      reset: function (): void {
+        throw new Error('Function not implemented.');
+      },
+      context: undefined,
+      failureCount: 0,
+      failureReason: null,
+      isPaused: false,
+      submittedAt: 0,
     });
 
     render(
@@ -149,15 +202,39 @@ describe('DownloadKmlResults', () => {
   });
 
   it('runs downloadKMLMultiple when data exists', async () => {
-    (
-      recreationHooks.useRecreationResourcesWithGeometryMutation as vi.Mock
+    vi.mocked(
+      recreationHooks.useRecreationResourcesWithGeometryMutation,
     ).mockReturnValueOnce({
       data: mockData,
       mutateAsync: vi.fn().mockResolvedValue(mockData),
       isSuccess: true,
       isError: false,
-      isLoading: false,
+      isPending: false,
       status: 'success',
+      variables: undefined as unknown as RecResourcesIdsDto,
+      error: null,
+      isIdle: false,
+      mutate: function (
+        _variables: RecResourcesIdsDto,
+        _options?:
+          | MutateOptions<
+              RecreationResourceDetailDto[],
+              Error,
+              RecResourcesIdsDto,
+              unknown
+            >
+          | undefined,
+      ): void {
+        throw new Error('Function not implemented.');
+      },
+      reset: function (): void {
+        throw new Error('Function not implemented.');
+      },
+      context: undefined,
+      failureCount: 0,
+      failureReason: null,
+      isPaused: false,
+      submittedAt: 0,
     });
 
     render(

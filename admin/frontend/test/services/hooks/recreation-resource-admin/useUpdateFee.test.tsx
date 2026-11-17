@@ -64,6 +64,7 @@ describe('useUpdateFee', () => {
       fee_id: feeId,
       recreation_fee_code: 'D',
       fee_amount: 10,
+      recreation_fee_sub_code: '',
     });
 
     const { result } = renderHook(() => useUpdateFee(), { wrapper: Wrapper });
@@ -73,6 +74,8 @@ describe('useUpdateFee', () => {
         recResourceId,
         feeId,
         fee_amount: 10,
+        recreation_fee_code: 'D',
+        recreation_fee_sub_code: '',
       });
     });
 
@@ -81,6 +84,8 @@ describe('useUpdateFee', () => {
       feeId,
       updateRecreationFeeDto: {
         fee_amount: 10,
+        recreation_fee_code: 'D',
+        recreation_fee_sub_code: '',
       },
     });
   });
@@ -108,6 +113,8 @@ describe('useUpdateFee', () => {
         recResourceId,
         feeId,
         fee_amount: 10,
+        recreation_fee_code: '',
+        recreation_fee_sub_code: '',
       });
     });
 
@@ -141,6 +148,8 @@ describe('useUpdateFee', () => {
         recResourceId,
         feeId,
         fee_amount: 7,
+        recreation_fee_code: '',
+        recreation_fee_sub_code: '',
       });
     });
 
@@ -163,6 +172,8 @@ describe('useUpdateFee', () => {
           recResourceId: 'REC123',
           feeId: 1,
           fee_amount: 10,
+          recreation_fee_code: '',
+          recreation_fee_sub_code: '',
         }),
       ).rejects.toBeDefined();
     });
@@ -186,6 +197,8 @@ describe('useUpdateFee', () => {
           recResourceId: 'REC123',
           feeId: 1,
           fee_amount: 10,
+          recreation_fee_code: '',
+          recreation_fee_sub_code: '',
         }),
       ).rejects.toBeDefined();
     });

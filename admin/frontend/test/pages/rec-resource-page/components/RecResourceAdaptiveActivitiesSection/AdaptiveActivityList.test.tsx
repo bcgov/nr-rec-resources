@@ -182,7 +182,7 @@ describe('AdaptiveActivityList', () => {
   });
 
   it('hides "+ Add trail" button when RoleGuard renders nothing (viewer)', () => {
-    vi.mocked(RoleGuard).mockImplementation(() => null);
+    vi.mocked(RoleGuard).mockImplementation(() => <></>);
 
     render(
       <AdaptiveActivityList

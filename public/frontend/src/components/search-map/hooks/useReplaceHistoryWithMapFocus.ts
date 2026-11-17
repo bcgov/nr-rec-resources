@@ -26,7 +26,7 @@ export function useReplaceHistoryWithMapFocus(recResourceId?: string) {
   const replaceHistoryWithFocusedMap = useCallback(() => {
     if (!mainMapUrl) return;
     const isOnSearchPath = location.pathname === ROUTE_PATHS.SEARCH;
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(location.search as never);
     const isMapView = params.get('view') === 'map';
     if (isOnSearchPath && isMapView) {
       navigate({

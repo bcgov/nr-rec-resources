@@ -101,8 +101,8 @@ describe('AdvisoriesController', () => {
       const result = await controller.getAdvisories(REC_RESOURCE_ID);
 
       expect(result).toHaveLength(2);
-      expect(result[0].advisory_number).toBe(1001);
-      expect(result[1].advisory_number).toBe(1002);
+      expect(result[0]!.advisory_number).toBe(1001);
+      expect(result[1]!.advisory_number).toBe(1002);
     });
 
     it('propagates errors thrown by the service', async () => {

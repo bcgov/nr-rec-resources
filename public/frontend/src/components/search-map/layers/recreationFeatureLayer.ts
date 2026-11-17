@@ -239,6 +239,7 @@ export const createFilteredClusterSource = (
   source.setLoader(async () => {
     const features = await getFilteredFeatures(filteredIds);
     source.addFeatures(features);
+    return features;
   });
 
   // Create a clustered source from the filtered source

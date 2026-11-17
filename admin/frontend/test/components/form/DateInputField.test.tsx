@@ -1,9 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Form } from 'react-bootstrap';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, type UseFormRegister } from 'react-hook-form';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DateInputField, DateInputFieldProps } from '@/components/form';
+import {
+  DateInputField,
+  DateInputFieldProps,
+} from '@/components/form/DateInputField';
 
 // Mock react-hook-form
 vi.mock('react-hook-form', async () => {
@@ -18,10 +21,15 @@ vi.mock('react-hook-form', async () => {
 });
 
 describe('DateInputField', () => {
-  const mockRegister = vi.fn(() => ({}));
+  const mockRegister = vi.fn(() => ({
+    onChange: vi.fn(),
+    onBlur: vi.fn(),
+    ref: vi.fn(),
+    name: 'project_established_date',
+  })) as unknown as UseFormRegister<Record<string, unknown>>;
   const mockErrors = {};
 
-  const defaultProps: DateInputFieldProps = {
+  const defaultProps: DateInputFieldProps<Record<string, unknown>> = {
     name: 'project_established_date',
     label: 'Established Date',
     register: mockRegister,
@@ -154,7 +162,7 @@ describe('DateInputField', () => {
     const user = userEvent.setup();
 
     const WrapperControlled = () => {
-      const methods = useForm({
+      const methods = useForm<Record<string, unknown>>({
         defaultValues: { establishedDate: '' },
       });
       return (

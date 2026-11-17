@@ -224,6 +224,7 @@ describe('RecreationAssetController', () => {
       const dto: RecreationAssetBulkUpdateDto = {
         asset_ids: [1, 2, 3],
         update_fields: { asset_name: 'Updated Bulk Name' },
+        rec_resource_id: '',
       };
 
       const expectedResponse = {

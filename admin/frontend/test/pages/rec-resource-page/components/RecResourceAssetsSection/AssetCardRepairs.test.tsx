@@ -64,6 +64,10 @@ describe('AssetCardRepairs', () => {
       canEdit: true,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
+      canDelete: false,
+      canViewPartners: false,
+      canViewPartnerSensitiveInfo: false,
+      canManagePartners: false,
     });
   });
 
@@ -375,6 +379,10 @@ describe('AssetCardRepairs', () => {
         canEdit: true,
         isSuperAdmin: false,
         canViewSensitiveInfo: false,
+        canDelete: false,
+        canViewPartners: false,
+        canViewPartnerSensitiveInfo: false,
+        canManagePartners: false,
       });
 
       render(

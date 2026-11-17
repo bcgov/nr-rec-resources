@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
+// @ts-ignore -- This package requires bundler-style module resolution.
 import happoPlaywright from 'happo-playwright';
 import {
   analyzeAccessibility,

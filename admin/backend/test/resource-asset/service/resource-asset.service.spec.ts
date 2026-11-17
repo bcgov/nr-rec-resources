@@ -1236,11 +1236,19 @@ describe('RecreationAssetService', () => {
   describe('bulkUpdateAssets', () => {
     it('should throw BadRequestException if asset_ids is missing or empty', async () => {
       await expect(
-        service.bulkUpdateAssets({ asset_ids: [], update_fields: {} }),
+        service.bulkUpdateAssets({
+          asset_ids: [],
+          update_fields: {},
+          rec_resource_id: '',
+        }),
       ).rejects.toThrow(BadRequestException);
 
       await expect(
-        service.bulkUpdateAssets({ asset_ids: null as any, update_fields: {} }),
+        service.bulkUpdateAssets({
+          asset_ids: null as any,
+          update_fields: {},
+          rec_resource_id: '',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -1249,6 +1257,7 @@ describe('RecreationAssetService', () => {
         service.bulkUpdateAssets({
           asset_ids: [1],
           update_fields: { rec_resource_id: null as any },
+          rec_resource_id: '',
         }),
       ).rejects.toThrow(BadRequestException);
     });
@@ -1260,6 +1269,7 @@ describe('RecreationAssetService', () => {
         service.bulkUpdateAssets({
           asset_ids: [1, 2],
           update_fields: { asset_name: 'Bulk' },
+          rec_resource_id: '',
         }),
       ).rejects.toThrow(NotFoundException);
     });
@@ -1270,6 +1280,7 @@ describe('RecreationAssetService', () => {
 
       const dto = {
         asset_ids: [1, 2, 1], // includes duplicates to test Set deduplication
+        rec_resource_id: 'REC-1',
         update_fields: {
           parent_id: 10,
           asset_tag: 'TAG',
@@ -1312,6 +1323,7 @@ describe('RecreationAssetService', () => {
       });
 
       expect(result).toEqual({
+        rec_resource_id: 'REC-1',
         status: 'success',
         updated_count: 2,
         updated_asset_ids: [1, 2],
@@ -1328,6 +1340,7 @@ describe('RecreationAssetService', () => {
           parent_id: null,
           installation_date: null,
         },
+        rec_resource_id: '',
       });
 
       expect(prismaMock.recreation_asset.updateMany).toHaveBeenCalledWith({
@@ -1471,7 +1484,7 @@ describe('RecreationAssetService', () => {
 
       const result = await service.findRepairsByAssetId(1);
 
-      expect(result[0].repair_id).toBe(1);
+      expect(result[0]?.repair_id).toBe(1);
     });
   });
 

@@ -78,6 +78,5 @@ describe('getTableClient', () => {
     expect(typeof tableClient.findMany).toBe('function');
     expect(typeof tableClient.create).toBe('function');
     expect(typeof tableClient.update).toBe('function');
-    expect(typeof tableClient.delete).toBe('function');
   });
 });

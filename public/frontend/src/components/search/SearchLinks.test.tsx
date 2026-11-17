@@ -8,12 +8,24 @@ import {
 
 describe('SearchLinks', () => {
   it('renders the title', async () => {
-    await renderWithRouter(<SearchLinks />);
+    await renderWithRouter(
+      <SearchLinks
+        downloadKMLModalFunction={function (): void {
+          throw new Error('Function not implemented.');
+        }}
+      />,
+    );
     expect(screen.getByText(SEARCH_LINKS_TITLE)).toBeInTheDocument();
   });
 
   it('renders all search links', async () => {
-    await renderWithRouter(<SearchLinks />);
+    await renderWithRouter(
+      <SearchLinks
+        downloadKMLModalFunction={function (): void {
+          throw new Error('Function not implemented.');
+        }}
+      />,
+    );
 
     SEARCH_LINKS.forEach((link) => {
       expect(screen.getByText(link.label)).toBeInTheDocument();
@@ -21,7 +33,13 @@ describe('SearchLinks', () => {
   });
 
   it('has correct href attributes for links', async () => {
-    await renderWithRouter(<SearchLinks />);
+    await renderWithRouter(
+      <SearchLinks
+        downloadKMLModalFunction={function (): void {
+          throw new Error('Function not implemented.');
+        }}
+      />,
+    );
 
     SEARCH_LINKS.forEach((link) => {
       const linkElement = screen.getByText(link.label);
@@ -33,7 +51,13 @@ describe('SearchLinks', () => {
   });
 
   it('has the correct CSS class', async () => {
-    await renderWithRouter(<SearchLinks />);
+    await renderWithRouter(
+      <SearchLinks
+        downloadKMLModalFunction={function (): void {
+          throw new Error('Function not implemented.');
+        }}
+      />,
+    );
     const container = screen.getByText(SEARCH_LINKS_TITLE).parentElement;
     expect(container).toHaveClass('search-links-desktop');
   });

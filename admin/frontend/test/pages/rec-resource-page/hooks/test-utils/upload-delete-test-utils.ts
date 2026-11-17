@@ -156,8 +156,8 @@ export function setupUploadMocks(options: SetupUploadMocksOptions = {}) {
       : null;
 
   vi.mocked(useRecResource).mockReturnValue({
-    rec_resource_id: recResourceId || undefined,
-    recResource: mockRecResource,
+    rec_resource_id: recResourceId ?? '',
+    recResource: (mockRecResource ?? undefined) as any,
     isLoading: false,
     error: null,
   });
@@ -177,7 +177,11 @@ export function setupUploadMocks(options: SetupUploadMocksOptions = {}) {
 
   const mockHandleApiError = vi.mocked(handleApiError);
   if (handleApiErrorReturn) {
-    mockHandleApiError.mockResolvedValue(handleApiErrorReturn);
+    mockHandleApiError.mockResolvedValue({
+      ...handleApiErrorReturn,
+      isResponseError: handleApiErrorReturn.isResponseError ?? false,
+      isAuthError: handleApiErrorReturn.isAuthError ?? false,
+    });
   } else {
     mockHandleApiError.mockResolvedValue({
       statusCode: 500,
@@ -216,8 +220,8 @@ export function setupDeleteMocks(options: SetupDeleteMocksOptions = {}) {
         : null;
 
   vi.mocked(useRecResource).mockReturnValue({
-    rec_resource_id: recResourceId || undefined,
-    recResource: mockRecResourceValue,
+    rec_resource_id: recResourceId ?? '',
+    recResource: (mockRecResourceValue ?? undefined) as any,
     isLoading: false,
     error: null,
   });
@@ -238,8 +242,8 @@ export function setupRecResourceMock(
       : null);
 
   vi.mocked(useRecResource).mockReturnValue({
-    rec_resource_id: recResourceId || undefined,
-    recResource: mockRecResourceValue,
+    rec_resource_id: recResourceId ?? '',
+    recResource: (mockRecResourceValue ?? undefined) as any,
     isLoading: false,
     error: null,
   });

@@ -4,7 +4,9 @@ import { QuillEditor } from '@/components/form/rich-text-editor/QuillEditor';
 
 let textChangeCallback: (() => void) | null = null;
 let rootHTML: string = '<p>Hello world</p>';
-let querySelectorAllMock = vi.fn(() => []);
+let querySelectorAllMock = vi.fn<
+  () => { href: string; getAttribute: (name: string) => string | null }[]
+>(() => []);
 
 vi.mock('quill', () => {
   class QuillMock {
@@ -15,8 +17,8 @@ vi.mock('quill', () => {
       set innerHTML(value: string) {
         rootHTML = value;
       },
-      querySelectorAll: (...args: Parameters<Element['querySelectorAll']>) =>
-        querySelectorAllMock(...args),
+      querySelectorAll: (..._args: Parameters<Element['querySelectorAll']>) =>
+        querySelectorAllMock(),
     };
 
     on = vi.fn((event: string, cb: () => void) => {

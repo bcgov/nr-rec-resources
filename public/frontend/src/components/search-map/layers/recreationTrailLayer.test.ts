@@ -20,17 +20,17 @@ describe('createRecreationTrailStyle', () => {
 
   it('stroke has the correct color', () => {
     const style = createRecreationTrailStyle();
-    expect(style.getStroke().getColor()).toBe('#42814A');
+    expect(style.getStroke()?.getColor()).toBe('#42814A');
   });
 
   it('stroke has width 3', () => {
     const style = createRecreationTrailStyle();
-    expect(style.getStroke().getWidth()).toBe(3);
+    expect(style.getStroke()?.getWidth()).toBe(3);
   });
 
   it('stroke is dashed', () => {
     const style = createRecreationTrailStyle();
-    expect(style.getStroke().getLineDash()).toEqual([6, 6]);
+    expect(style.getStroke()?.getLineDash()).toEqual([6, 6]);
   });
 });
 

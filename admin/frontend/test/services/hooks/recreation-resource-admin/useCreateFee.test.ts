@@ -53,6 +53,7 @@ describe('useCreateFee', () => {
     const feeData = {
       recResourceId,
       recreation_fee_code: 'TYPE_A',
+      recreation_fee_sub_code: 'SUBTYPE_A',
       fee_amount: 100,
     };
 
@@ -75,6 +76,7 @@ describe('useCreateFee', () => {
       recResourceId,
       createRecreationFeeDto: {
         recreation_fee_code: feeData.recreation_fee_code,
+        recreation_fee_sub_code: feeData.recreation_fee_sub_code,
         fee_amount: feeData.fee_amount,
       },
     });

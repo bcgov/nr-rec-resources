@@ -212,7 +212,9 @@ export const ExhibitASection = ({
         name: docToDelete.file_name,
         url: docToDelete.url,
         extension: docToDelete.extension,
-        date: docToDelete.created_at ? String(docToDelete.created_at) : '',
+        date: docToDelete.created_at
+          ? new Date(docToDelete.created_at).toISOString()
+          : '',
         type: 'document',
       }
     : null;
@@ -310,9 +312,10 @@ export const ExhibitASection = ({
                               name: doc.file_name,
                               url: doc.url,
                               extension: doc.extension,
-                              date: doc.created_at
-                                ? String(doc.created_at)
-                                : '',
+                              date:
+                                doc.created_at instanceof Date
+                                  ? doc.created_at.toISOString()
+                                  : doc.created_at || '',
                               type: 'document',
                             },
                           })

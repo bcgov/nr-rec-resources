@@ -1,5 +1,5 @@
 import { CSSProperties, FC } from 'react';
-import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
+import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
 import { activityIconMap } from '@shared/data/activityIconMap';
 import {
   formatFeeDate,
@@ -181,7 +181,7 @@ export const RecResourceHTMLExportDescription: FC<
           {recreation_fee.map((fee, index) => (
             <div key={index} style={feeCardStyle}>
               <div style={feeLabelStyle}>
-                {getFeeTypeLabel(fee.recreation_fee_code)} Fee
+                {getFeeTypeLabel(fee.recreation_fee_code ?? '')} Fee
               </div>
               <div style={feeAmountStyle}>
                 ${Number(fee.fee_amount).toFixed(2)}
@@ -205,7 +205,8 @@ export const RecResourceHTMLExportDescription: FC<
           <ul style={thingsToDoListStyle}>
             {recreation_activity.map((activity) => {
               const { description, recreation_activity_code } = activity;
-              const activityIcon = activityIconMap?.[recreation_activity_code];
+              const activityIcon =
+                activityIconMap?.[recreation_activity_code ?? ''];
               return (
                 <li key={description} style={thingsToDoItemStyle}>
                   <span style={thingsToDoItemCellStyle}>

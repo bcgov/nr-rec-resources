@@ -4,7 +4,7 @@ import {
   MAP_PROJECTION_WEB_MERCATOR,
   MAP_PROJECTION_WGS84,
 } from '@shared/components/recreation-resource-map/constants';
-import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
+import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
 import { RecResourceHTMLExportDescription } from '@shared/components/recreation-resource-map/RecResourceHTMLExportDescription';
 import { renderToString } from 'react-dom/server';
 import { triggerFileDownload } from '@shared/utils';

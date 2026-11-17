@@ -309,7 +309,7 @@ describe('ResourceDocsService', () => {
 
       await service.presignUpload(REC_RESOURCE_ID, 'test-document.pdf');
 
-      const call = vi.mocked(s3Service.getSignedUploadUrl).mock.calls[0];
+      const call = vi.mocked(s3Service.getSignedUploadUrl).mock.calls[0]!;
       const key = call[0];
 
       expect(key).toContain(`documents/${REC_RESOURCE_ID}/test-document-id/`);

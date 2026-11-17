@@ -108,8 +108,9 @@ export const useEditReservationForm = (
     };
 
     if (data.has_reservation && data.reservation_method) {
-      updateData[data.reservation_method] =
-        data.reservation_contact || undefined;
+      updateData[
+        data.reservation_method as keyof UpdateRecreationResourceReservationDto
+      ] = data.reservation_contact || undefined;
     }
 
     // Submit the update using mutateAsync for cleaner async handling

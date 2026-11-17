@@ -22,10 +22,12 @@ vi.mock('react-hook-form', () => ({
 }));
 
 describe('TrailForm', () => {
-  const mockHandleSubmit = vi.fn((fn) => async (e: any) => {
-    e?.preventDefault?.();
-    fn({});
-  });
+  const mockHandleSubmit: any = vi.fn(
+    (fn: (data: any) => any) => async (e: any) => {
+      e?.preventDefault?.();
+      fn({});
+    },
+  );
   const mockOnSubmit = vi.fn();
   const mockOnDone = vi.fn();
 

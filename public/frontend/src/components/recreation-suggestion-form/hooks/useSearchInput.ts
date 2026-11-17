@@ -39,7 +39,7 @@ export const useSearchInput = () => {
     (inputValue: string) => {
       const trimmedValue = (inputValue ?? state.searchInputValue).trim();
 
-      const newParams: Record<string, string> = { ...search };
+      const newParams = { ...search };
 
       // Clear city-related params when performing a text search
       delete newParams[LAT_PARAM_KEY];
@@ -107,7 +107,7 @@ export const useSearchInput = () => {
     (city: City) => {
       if (!city) return;
 
-      const newParams: Record<string, string> = {
+      const newParams = {
         ...search,
         [LAT_PARAM_KEY]: String(city.latitude),
         [LON_PARAM_KEY]: String(city.longitude),

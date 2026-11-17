@@ -18,6 +18,7 @@ function makeGetValues(
     latitude: '',
     actual_value: '',
     ...overrides,
+    parent_id: overrides.parent_id ?? '',
   };
   return vi.fn((field?: keyof AssetEditFormValues) =>
     field ? defaults[field] : defaults,

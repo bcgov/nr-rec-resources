@@ -184,7 +184,7 @@ describe('RecResourceFeesTable', () => {
     {
       fee_id: 3,
       recreation_fee_code: 'TYPE_C',
-      fee_type_description: null,
+      fee_type_description: '',
       fee_amount: undefined,
       fee_start_date: undefined,
       fee_end_date: undefined,

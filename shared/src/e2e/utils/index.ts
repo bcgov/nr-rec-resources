@@ -1,6 +1,7 @@
 import { expect, Page, test } from '@playwright/test';
 
 import AxeBuilder from '@axe-core/playwright';
+// @ts-ignore -- This package requires bundler-style module resolution.
 import happoPlaywright from 'happo-playwright';
 
 export const initHappo = async () => {
