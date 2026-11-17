@@ -61,7 +61,7 @@ export function RecResourceArchiveModal({
               </>
             ) : (
               <>
-                It will:
+                Once archived, the resource will:
                 <ul>
                   <li>
                     no longer appear as an active resource on the public website
@@ -69,7 +69,7 @@ export function RecResourceArchiveModal({
                   <li>be excluded from default active-resource reporting</li>
                   <li>remain available in RecSpace for historical reference</li>
                 </ul>
-                <span className="archive-resource-modal__subtitle">
+                <span className="fw-bold">
                   No resource information will be deleted.
                 </span>
               </>
@@ -82,7 +82,7 @@ export function RecResourceArchiveModal({
           {isErrorState ? 'Dismiss' : 'Cancel'}
         </CustomButton>
         <CustomButton variant="primary" onClick={handleArchive}>
-          {isErrorState ? 'Try again' : 'Archive Resource'}
+          {isErrorState ? 'Try again' : 'Archive resource'}
         </CustomButton>
       </Modal.Footer>
     </Modal>

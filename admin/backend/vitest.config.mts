@@ -1,9 +1,14 @@
 import swc from 'unplugin-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const backendRoot = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  root: backendRoot,
   test: {
     include: ['test/**/*.e2e-spec.ts', 'test/**/*.spec.ts'],
     exclude: ['**/node_modules/**'],
@@ -46,5 +51,10 @@ export default defineConfig({
       ],
     },
   },
-  plugins: [swc.vite(), tsconfigPaths()],
+  plugins: [
+    swc.vite(),
+    tsconfigPaths({
+      projects: [path.resolve(backendRoot, 'tsconfig.json')],
+    }),
+  ],
 });

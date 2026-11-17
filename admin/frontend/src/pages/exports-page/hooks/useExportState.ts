@@ -6,10 +6,7 @@ import {
 import { DownloadExportCsvDatasetEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 import { addErrorNotification } from '@/store/notificationStore';
 import { type ChangeEvent, useMemo, useState } from 'react';
-import { NOT_IMPLEMENTED_INFO } from '../constants';
 import { useExportFilterOptions } from './useExportFilterOptions';
-
-const isDatasetUnavailable = (info?: string) => info === NOT_IMPLEMENTED_INFO;
 
 const getDownloadFileName = (
   contentDisposition: string | null,
@@ -53,29 +50,12 @@ export const useExportState = () => {
     [datasetsResponse?.datasets],
   );
 
-  const groupedDatasets = useMemo(
-    () =>
-      [
-        {
-          source: 'FTA',
-          datasets: datasets.filter((dataset) => dataset.source === 'FTA'),
-        },
-        {
-          source: 'RST',
-          datasets: datasets.filter((dataset) => dataset.source === 'RST'),
-        },
-      ].filter((group) => group.datasets.length > 0),
-    [datasets],
-  );
-
   const selectedDatasetDefinition = datasets.find(
     (dataset) => dataset.id === selectedDataset,
   );
 
   const previewRequest =
-    selectedDatasetDefinition &&
-    !isDatasetUnavailable(selectedDatasetDefinition.info) &&
-    selectedDataset
+    selectedDatasetDefinition && selectedDataset
       ? {
           dataset: selectedDataset,
           district: selectedDistrict || undefined,
@@ -157,7 +137,7 @@ export const useExportState = () => {
 
   return {
     datasets: {
-      grouped: groupedDatasets,
+      all: datasets,
       selected: selectedDatasetDefinition,
       isLoading: isLoadingDatasets,
       error: datasetsError,
@@ -185,10 +165,7 @@ export const useExportState = () => {
       isDownloading,
       handleDownload,
       isDisabled:
-        !selectedDataset ||
-        !selectedDatasetDefinition ||
-        isDatasetUnavailable(selectedDatasetDefinition.info) ||
-        isDownloading,
+        !selectedDataset || !selectedDatasetDefinition || isDownloading,
     },
   };
 };
