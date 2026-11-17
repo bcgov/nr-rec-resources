@@ -124,4 +124,37 @@ describe('editResourceGeospatial schema', () => {
       expect(err).toBeDefined();
     }
   });
+
+  it('accepts payload when all UTM fields are omitted', () => {
+    const parsed = schema.safeParse({ right_of_way_m: 12 });
+    expect(parsed.success).toBe(true);
+  });
+
+  it('rejects payload when only part of UTM is provided', () => {
+    const parsed = schema.safeParse({
+      utm_zone: 10,
+      utm_easting: 500000,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      const err = parsed.error.issues.find((e) => e.path[0] === 'utm_zone');
+      expect(err?.message).toContain('provided together');
+    }
+  });
+
+  it('rejects negative right_of_way_m', () => {
+    const parsed = schema.safeParse({
+      utm_zone: 10,
+      utm_easting: 500000,
+      utm_northing: 5480000,
+      right_of_way_m: -1,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      const err = parsed.error.issues.find(
+        (e) => e.path[0] === 'right_of_way_m',
+      );
+      expect(err).toBeDefined();
+    }
+  });
 });

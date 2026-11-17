@@ -57,6 +57,30 @@ export interface UpdateRecreationResourceGeospatialDto {
    * @memberof UpdateRecreationResourceGeospatialDto
    */
   submitted_by?: object | null;
+  /**
+   * UTM zone for site point updates. Must be provided together with utm_easting and utm_northing.
+   * @type {object}
+   * @memberof UpdateRecreationResourceGeospatialDto
+   */
+  utm_zone?: object | null;
+  /**
+   * UTM easting for site point updates. Must be provided together with utm_zone and utm_northing.
+   * @type {object}
+   * @memberof UpdateRecreationResourceGeospatialDto
+   */
+  utm_easting?: object | null;
+  /**
+   * UTM northing for site point updates. Must be provided together with utm_zone and utm_easting.
+   * @type {object}
+   * @memberof UpdateRecreationResourceGeospatialDto
+   */
+  utm_northing?: object | null;
+  /**
+   * Trail right-of-way width in metres. Used when calculating derived trail area.
+   * @type {object}
+   * @memberof UpdateRecreationResourceGeospatialDto
+   */
+  right_of_way_m?: object | null;
 }
 
 /**
@@ -103,6 +127,12 @@ export function UpdateRecreationResourceGeospatialDtoFromJSONTyped(
         : json['recreation_type_code'],
     submitted_by:
       json['submitted_by'] == null ? undefined : json['submitted_by'],
+    utm_zone: json['utm_zone'] == null ? undefined : json['utm_zone'],
+    utm_easting: json['utm_easting'] == null ? undefined : json['utm_easting'],
+    utm_northing:
+      json['utm_northing'] == null ? undefined : json['utm_northing'],
+    right_of_way_m:
+      json['right_of_way_m'] == null ? undefined : json['right_of_way_m'],
   };
 }
 
@@ -132,5 +162,9 @@ export function UpdateRecreationResourceGeospatialDtoToJSONTyped(
     ),
     recreation_type_code: value['recreation_type_code'],
     submitted_by: value['submitted_by'],
+    utm_zone: value['utm_zone'],
+    utm_easting: value['utm_easting'],
+    utm_northing: value['utm_northing'],
+    right_of_way_m: value['right_of_way_m'],
   };
 }
