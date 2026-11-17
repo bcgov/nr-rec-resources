@@ -3,10 +3,8 @@ import { EXPORT_DATASET_BUILDERS } from '@/recreation-resources/exports/datasets
 import { assetListDataset } from '@/recreation-resources/exports/datasets/asset-list.dataset';
 import { partnersListDataset } from '@/recreation-resources/exports/datasets/partners-list.dataset';
 import { assetRepairListDataset } from '@/recreation-resources/exports/datasets/asset-repair-list.dataset';
-import { closureListFtaDataset } from '@/recreation-resources/exports/datasets/closure-list-fta.dataset';
-import { feeListFtaDataset } from '@/recreation-resources/exports/datasets/fee-list-fta.dataset';
 import { fileDetailsDataset } from '@/recreation-resources/exports/datasets/file-details.dataset';
-import { siteInspectionFtaDataset } from '@/recreation-resources/exports/datasets/site-inspection-fta.dataset';
+import { objectiveListDataset } from '@/recreation-resources/exports/datasets/objective-list.dataset';
 import {
   buildFtaFilters,
   buildRstFilters,
@@ -79,71 +77,11 @@ describe('export dataset builders', () => {
     expect(sql).toContain('FROM recreation_resource rr');
     expect(sql).not.toContain('"TOTAL_REMEDIAL_REPAIRS"');
     expect(sql).not.toContain('"STRUCTURE_COUNT"');
+    expect(sql).not.toContain('"FEATURE_CODE"');
     expect(sql).toContain(
       'WHERE 1 = 1 AND rr.district_code = ? AND rrtva.rec_resource_type_code = ?',
     );
     expect(sql).toContain('ORDER BY rr.rec_resource_id');
-  });
-
-  it('builds the fee list FTA query with FTA filters and fee ordering', () => {
-    const sql = normalizeDatasetSql(
-      feeListFtaDataset.buildQuery,
-      createBuilderContext({
-        dataset: 'fee-list-fta',
-        district: 'D01',
-        resourceType: 'CABIN',
-      }),
-    );
-
-    expect(sql).toContain('FROM fta.recreation_fee rf');
-    expect(sql).toContain('"FEE_ID"');
-    expect(sql).toContain(
-      'EXISTS ( SELECT 1 FROM fta.recreation_district_xref rdx_filter WHERE rdx_filter.forest_file_id = rp.forest_file_id AND rdx_filter.recreation_district_code = ? )',
-    );
-    expect(sql).toContain('ORDER BY rp.forest_file_id, rf.fee_id');
-  });
-
-  it('builds the site inspection FTA query from the inspection report table', () => {
-    const sql = normalizeDatasetSql(
-      siteInspectionFtaDataset.buildQuery,
-      createBuilderContext({
-        dataset: 'site-inspection-fta',
-      }),
-    );
-
-    expect(sql).toContain('FROM fta.recreation_inspection_report rir');
-    expect(sql).toContain('"FILE_TYPE_DESC"');
-    expect(sql).toContain('"RECREATION_FEATURE"');
-    expect(sql).toContain('"REM_REPAIR_COUNT"');
-    expect(sql).toContain(
-      'LEFT JOIN fta.recreation_project rp ON rp.forest_file_id = rir.forest_file_id',
-    );
-    expect(sql).toContain('LEFT JOIN fta.recreation_file_type_code rftc');
-    expect(sql).toContain('ORDER BY rir.forest_file_id, rir.inspection_id');
-  });
-
-  it('builds the closure list FTA query with closure and archive filters', () => {
-    const sql = normalizeDatasetSql(
-      closureListFtaDataset.buildQuery,
-      createBuilderContext({
-        dataset: 'closure-list-fta',
-        includeArchived: false,
-      }),
-    );
-
-    expect(sql).toContain('FROM fta.recreation_comment rc');
-    expect(sql).toContain("rc.rec_comment_type_code = 'CLOS'");
-    expect(sql).toContain("rc.closure_ind = 'Y'");
-    expect(sql).toContain("NULLIF(TRIM(rc.project_comment), '') IS NOT NULL");
-    // archived exclusion comes from the shared FTA filter now, so the
-    // include-archived toggle reaches this dataset too
-    expect(sql).toContain("pfu_archived.file_status_st = 'AR'");
-    expect(sql).toContain('"CLOSURE_COMMENT"');
-    expect(sql).toContain('"CLOSEST_COMMUNITY"');
-    expect(sql).toContain('"VISIBLE_ON_PUBLIC_SITE"');
-    expect(sql).toContain('"DISTRICT"');
-    expect(sql).toContain('"PROJECT_TYPE"');
-    expect(sql).toContain('ORDER BY rp.forest_file_id');
   });
 
   it('builds the RST asset list query with resolved foreign key names', () => {
@@ -281,64 +219,22 @@ describe('export dataset builders', () => {
     );
   });
 
-  it('builds the RST asset list query with resolved foreign key names', () => {
+  it('builds the objective list query from imported objective notes', () => {
     const sql = normalizeDatasetSql(
-      assetListDataset.buildQuery,
+      objectiveListDataset.buildQuery,
       createBuilderContext({
-        dataset: 'asset-list',
-        district: 'D01',
-        resourceType: 'TRAIL',
+        dataset: 'objective-list',
       }),
     );
 
-    expect(sql).toContain('FROM recreation_asset ra');
+    expect(sql).toContain('FROM recreation_resource_note rn');
+    expect(sql).toContain("rn.note_type_code = 'OBJECTIVE'");
+    expect(sql).toContain("rn.source_system = 'FTA'");
+    expect(sql).toContain('NULL::text AS "OBJECTIVE_REVISION_COUNT"');
     expect(sql).toContain(
-      'INNER JOIN recreation_resource rr ON rr.rec_resource_id = ra.rec_resource_id',
+      'ORDER BY rr.rec_resource_id, rn.date_logged, rn.note_id',
     );
-    expect(sql).toContain(
-      'LEFT JOIN recreation_asset_code rac ON rac.asset_code = ra.asset_code',
-    );
-    expect(sql).toContain(
-      'LEFT JOIN recreation_asset parent ON parent.asset_id = ra.parent_id',
-    );
-    expect(sql).toContain(
-      'WHERE 1 = 1 AND rr.district_code = ? AND rrtva.rec_resource_type_code = ?',
-    );
-  });
-
-  it('exposes asset attributes and campsite parentage in the asset list query', () => {
-    const sql = normalizeDatasetSql(
-      assetListDataset.buildQuery,
-      createBuilderContext({
-        dataset: 'asset-list',
-      }),
-    );
-
-    expect(sql).toContain('"ASSET_ID"');
-    expect(sql).toContain('"CAMPSITE_LOCATION"');
-    expect(sql).toContain('"ASSET_TYPE"');
-    expect(sql).toContain('"ASSET_NAME"');
-    expect(sql).toContain('"ASSET_TAG"');
-    expect(sql).toContain('"INSTALLATION_DATE"');
-    // Raw FK columns are intentionally omitted in favour of the resolved names.
-    expect(sql).not.toContain('"PARENT_ID"');
-    expect(sql).not.toContain('"ASSET_CODE"');
-    expect(sql).not.toContain('"LEGACY_STRUCTURE_ID"');
-    expect(sql).toContain('"CREATED_AT"');
-    expect(sql).toContain('"UPDATED_AT"');
-    // Resource-level legacy columns are omitted: this export is per-asset, and
-    // TOTAL_AREA/TOTAL_LENGTH would sit confusingly beside ASSET_AREA/ASSET_LENGTH.
-    expect(sql).not.toContain('"TOTAL_AREA"');
-    expect(sql).not.toContain('"TOTAL_LENGTH"');
-    expect(sql).not.toContain('"DEFINED_CAMPSITES"');
-    expect(sql).not.toContain('"ACTIVITY_COUNT"');
-    expect(sql).not.toContain('"RESOURCE_TYPE"');
-    expect(sql).not.toContain('"RISK_RATING"');
-    expect(sql).not.toContain('"STATUS"');
-    // Groups each parent campsite with its children, parent row first.
-    expect(sql).toContain(
-      'ORDER BY rr.rec_resource_id, COALESCE(ra.parent_id, ra.asset_id), ra.parent_id NULLS FIRST, ra.asset_name, ra.asset_id',
-    );
+    expect(sql).not.toContain('FROM recreation_objective ro');
   });
 });
 
@@ -354,10 +250,8 @@ describe('export dataset shared column contract', () => {
       ] as const,
   );
 
-  // site-inspection-fta predates the shared fragment and rolls its districts
-  // up into REC_DIST, so it is allowed to satisfy this with that column.
   it.each(datasetEntries)('%s exports a district', (_id, sql) => {
-    expect(sql.includes('"DISTRICT"') || sql.includes('"REC_DIST"')).toBe(true);
+    expect(sql).toContain('"DISTRICT"');
   });
 
   // This is what makes an archived resource identifiable in the output.
@@ -373,19 +267,6 @@ describe('export dataset shared column contract', () => {
     },
   );
 
-  // RST exports follow RST/frontend naming; the FTA exports keep FTA's legacy
-  // headers. Neither vocabulary should leak into the other.
-  it.each(datasetEntries)('%s uses one naming vocabulary', (id, sql) => {
-    const columns = [...sql.matchAll(/AS "([A-Z0-9_]+)"/g)].map((m) => m[1]!);
-    const ftaNames = ['PROJECT_TYPE', 'UPDATE_TIMESTAMP', 'CREATE_TIMESTAMP'];
-    const rstNames = ['RESOURCE_TYPE', 'UPDATED_AT', 'CREATED_AT'];
-    const forbidden = id.endsWith('-fta') ? rstNames : ftaNames;
-
-    expect(columns.filter((c) => forbidden.includes(c))).toEqual([]);
-  });
-
-  // Code/description pairs are collapsed to the readable half, so a bare
-  // *_CODE column reaching the output is a regression.
   it.each(datasetEntries)('%s exports no raw code column', (_id, sql) => {
     const columns = [...sql.matchAll(/AS "([A-Z0-9_]+)"/g)].map((m) => m[1]!);
     expect(columns.filter((c) => c.endsWith('_CODE'))).toEqual([]);

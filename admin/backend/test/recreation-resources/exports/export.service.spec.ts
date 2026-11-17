@@ -21,6 +21,34 @@ describe('ExportService', () => {
     service = new ExportService(exportRepository, userContext as any);
   });
 
+  describe('listDatasets', () => {
+    it('returns datasets sorted alphabetically by label', () => {
+      const result = service.listDatasets();
+      const labels = result.datasets.map((dataset) => dataset.label);
+
+      expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)));
+    });
+
+    it('does not include the old STRUCTURE_COUNT warning on RST datasets', () => {
+      const result = service.listDatasets();
+      const idsWithoutWarning = new Set([
+        'fee-list',
+        'campsite-list',
+        'access-list',
+        'activities-list',
+      ]);
+
+      const impacted = result.datasets.filter((dataset) =>
+        idsWithoutWarning.has(dataset.id as ExportDatasetId),
+      );
+
+      expect(impacted).toHaveLength(idsWithoutWarning.size);
+      expect(impacted.every((dataset) => dataset.info === undefined)).toBe(
+        true,
+      );
+    });
+  });
+
   describe('getPreview', () => {
     it('returns columns from the first row and preserves rows', async () => {
       const rows = [
@@ -145,17 +173,17 @@ describe('ExportService', () => {
       ]);
 
       const result = await service.getDownload({
-        dataset: 'fee-list-fta',
+        dataset: 'fee-list',
         district: 'D01',
         resourceType: 'CABIN',
       });
 
       expect(exportRepository.getDownloadRows).toHaveBeenCalledWith({
-        dataset: 'fee-list-fta',
+        dataset: 'fee-list',
         district: 'D01',
         resourceType: 'CABIN',
       });
-      expect(result.fileName).toBe('fee-list-fta-2026-03-03.csv');
+      expect(result.fileName).toBe('fee-list-2026-03-03.csv');
       expect(result.csv).toBe(
         [
           'REC_RESOURCE_ID,NAME,NOTES,FORMULA,MULTILINE',

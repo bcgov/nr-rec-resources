@@ -37,7 +37,9 @@ export class ExportService {
 
   listDatasets(): ListExportDatasetsResponseDto {
     return {
-      datasets: ALL_EXPORT_DATASETS,
+      datasets: [...ALL_EXPORT_DATASETS].sort((a, b) =>
+        a.label.localeCompare(b.label),
+      ),
     };
   }
 
