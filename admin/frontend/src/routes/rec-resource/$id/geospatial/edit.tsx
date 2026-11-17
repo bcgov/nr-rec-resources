@@ -41,7 +41,7 @@ function RecResourceGeospatialEditRoute() {
 
   return (
     <RoleRouteGuard
-      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
+      requireAny={[ROLES.SUPER_ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL.replace('$id', id)}
     >
       <RecResourceGeospatialEditSection />

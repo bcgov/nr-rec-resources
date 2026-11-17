@@ -83,7 +83,7 @@ describe('RecResourceActivitiesEditRoute', () => {
 
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        requireAll: ['rst-developer', 'rst-admin'],
+        requireAll: ['rst-admin'],
         redirectTo: '/rec-resource/test-123/activities-and-features',
         children: expect.anything(),
       }),

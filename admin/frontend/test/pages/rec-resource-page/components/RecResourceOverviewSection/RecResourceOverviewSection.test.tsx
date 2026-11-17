@@ -8,9 +8,8 @@ vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
-    DEVELOPER: 'rst-developer',
   },
-  useUserRoles: () => ['rst-viewer', 'rst-admin', 'rst-developer'],
+  useUserRoles: () => ['rst-viewer', 'rst-admin'],
   useAuthorizations: () => mockUseAuthorizations(),
 }));
 
@@ -82,8 +81,6 @@ describe('RecResourceOverviewSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: false,
-      canEditFeatureFlag: false,
     });
 
     vi.mocked(useLocation).mockReturnValue({
@@ -413,8 +410,6 @@ describe('RecResourceOverviewSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
     });
     renderWithProvider(
       <RecResourceOverviewSection recResource={recResource} />,
