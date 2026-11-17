@@ -60,6 +60,8 @@ describe('ExhibitADocsService', () => {
     }).compile();
 
     service = module.get<ExhibitADocsService>(ExhibitADocsService);
+    // Keep unit tests focused on method behavior, not schema-capability probing.
+    (service as any).hasExhibitAApplicationGuidColumn = true;
   });
 
   afterEach(async () => {

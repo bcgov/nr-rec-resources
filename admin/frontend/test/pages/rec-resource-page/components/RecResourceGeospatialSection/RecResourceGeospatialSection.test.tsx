@@ -374,7 +374,7 @@ describe('RecResourceGeospatialSection', () => {
   it('renders spatial submissions section', () => {
     render(<RecResourceGeospatialSection />);
     expect(screen.getByText('Spatial submissions')).toBeDefined();
-    expect(screen.getByText('No spatial submissions found.')).toBeDefined();
+    expect(screen.getByText('No spatial submissions yet.')).toBeDefined();
   });
 
   it('shows loading alert while pending submissions are loading', () => {
@@ -1439,5 +1439,90 @@ describe('RecResourceGeospatialSection', () => {
       'href',
       'https://example.com/by-application-guid.pdf',
     );
+  });
+
+  it('sorts spatial submissions by requested_at descending', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-OLD',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            requested_at: '2026-11-14T10:00:00.000Z',
+          },
+          {
+            submission_id: 'SUB-NEW',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+            requested_at: '2026-11-16T10:00:00.000Z',
+          },
+        ],
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const rows = screen
+      .getAllByRole('row')
+      .filter((row) => row.textContent?.includes('SUB-'));
+    expect(rows[0]).toHaveTextContent('SUB-NEW');
+    expect(rows[1]).toHaveTextContent('SUB-OLD');
+  });
+
+  it('disables create action while submissions are loading or fetching', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: { data: [], total: 0 },
+      isLoading: false,
+      isFetching: true,
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.getByRole('button', { name: 'Create new' })).toBeDisabled();
+  });
+
+  it('opens unarchive options for archived resources and can continue to upload flow', () => {
+    mockUseRecResource.mockReturnValueOnce({
+      rec_resource_id: 'REC0001',
+      recResource: {
+        rec_status_code: 'AR',
+        rec_resource_type_code: 'RTE',
+        updated_at: '2026-11-15T12:00:00.000Z',
+      },
+      isLoading: false,
+      error: undefined,
+    });
+    mockUseGetRecreationResourceGeospatial.mockReturnValueOnce({
+      data: {
+        spatial_feature_geometry: [
+          JSON.stringify({
+            type: 'LineString',
+            coordinates: [
+              [1000000, 475000],
+              [1005000, 480000],
+            ],
+          }),
+        ],
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Unarchive' }));
+    expect(
+      screen.getByText('How do you want to restore this file?'),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to upload' }));
+
+    expect(screen.getByTestId('mock-spatial-submission')).toBeInTheDocument();
+    expect(
+      screen.queryByText('How do you want to restore this file?'),
+    ).not.toBeInTheDocument();
   });
 });

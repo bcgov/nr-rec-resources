@@ -64,6 +64,7 @@ describe('RecreationResourceRepository', () => {
     } as unknown as MockedPrismaService;
     repo = new RecreationResourceRepository(prisma);
     vi.clearAllMocks();
+    prisma.$queryRaw.mockResolvedValue([{ exists: true }]);
   });
 
   describe('findSuggestions', () => {
@@ -101,6 +102,45 @@ describe('RecreationResourceRepository', () => {
       prisma.recreation_resource.findUnique.mockResolvedValue(null);
       const result = await repo.findOneById('notfound');
       expect(result).toBeNull();
+    });
+
+    it('should retry without user-days relation when recreation_user_days_code column is missing and cache fallback mode', async () => {
+      prisma.$queryRaw.mockResolvedValueOnce([{ exists: true }]);
+      prisma.recreation_resource.findUnique
+        .mockRejectedValueOnce(
+          new Error(
+            'Column "recreation_user_days_code" does not exist in the current database',
+          ),
+        )
+        .mockResolvedValueOnce({ rec_resource_id: 'abc' })
+        .mockResolvedValueOnce({ rec_resource_id: 'def' });
+
+      const warnSpy = vi.spyOn((repo as any).logger, 'warn');
+
+      const first = await repo.findOneById('abc');
+      const second = await repo.findOneById('def');
+
+      expect(first).toEqual({ rec_resource_id: 'abc' });
+      expect(second).toEqual({ rec_resource_id: 'def' });
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(prisma.recreation_resource.findUnique).toHaveBeenCalledTimes(3);
+
+      const firstSelect = prisma.recreation_resource.findUnique.mock
+        .calls[0]?.[0]?.select as Record<string, unknown>;
+      const fallbackSelect = prisma.recreation_resource.findUnique.mock
+        .calls[1]?.[0]?.select as Record<string, unknown>;
+      const cachedFallbackSelect = prisma.recreation_resource.findUnique.mock
+        .calls[2]?.[0]?.select as Record<string, unknown>;
+
+      expect(firstSelect).toHaveProperty('recreation_user_days_code_rel');
+      expect(fallbackSelect).not.toHaveProperty(
+        'recreation_user_days_code_rel',
+      );
+      expect(cachedFallbackSelect).not.toHaveProperty(
+        'recreation_user_days_code_rel',
+      );
     });
   });
 
@@ -801,34 +841,57 @@ describe('RecreationResourceRepository', () => {
     it('should return pending map feature request rows with numeric feature_count', async () => {
       prisma.$queryRaw.mockResolvedValue([
         {
+          submission_id: 'SUB-1',
+          application_guid: 'app-guid-1',
+          status_request_guid: 'status-guid-1',
           rec_resource_id: 'REC000123',
           name: 'Test Lake',
           district_description: 'Test District',
           recreation_district: 'Test District',
           natural_resource_district: 'Natural Test District',
           recreation_type: 'Recreation Site',
+          purpose_code: 'A',
           amend_status_code: 'PND',
           feature_count: 3n,
           requested_at: new Date('2026-09-23T21:27:08.826Z'),
           geometry_types: ['Polygon'],
+          exhibit_a_url: 'https://example.com/exhibit-a.pdf',
         },
       ]);
 
       const result = await repo.findPendingMapFeatureRequests();
 
       expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+      const query = prisma.$queryRaw.mock.calls[0]?.[0] as Prisma.Sql;
+      const normalizedSql = query.sql.replace(/\s+/g, ' ').trim();
+      expect(normalizedSql).toContain('rss.submission_id');
+      expect(normalizedSql).toContain(
+        'rss.application_guid::text AS application_guid',
+      );
+      expect(normalizedSql).toContain(
+        'rss.status_request_guid::text AS status_request_guid',
+      );
+      expect(normalizedSql).toContain(
+        'MAX(rss.adjudication_report_document_uri) AS exhibit_a_url',
+      );
+
       expect(result).toEqual([
         {
+          submission_id: 'SUB-1',
+          application_guid: 'app-guid-1',
+          status_request_guid: 'status-guid-1',
           rec_resource_id: 'REC000123',
           name: 'Test Lake',
           district_description: 'Test District',
           recreation_district: 'Test District',
           natural_resource_district: 'Natural Test District',
           recreation_type: 'Recreation Site',
+          purpose_code: 'A',
           amend_status_code: 'PND',
           feature_count: 3,
           requested_at: new Date('2026-09-23T21:27:08.826Z'),
           geometry_types: ['Polygon'],
+          exhibit_a_url: 'https://example.com/exhibit-a.pdf',
         },
       ]);
     });

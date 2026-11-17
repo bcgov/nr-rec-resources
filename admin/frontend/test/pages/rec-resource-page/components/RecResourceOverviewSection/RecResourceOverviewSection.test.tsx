@@ -1,15 +1,18 @@
 import { RecResourceOverviewSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewSection';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { useLocation } from '@tanstack/react-router';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockUseAuthorizations = vi.fn();
+const mockNavigate = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
   },
-  useUserRoles: () => ['rst-viewer', 'rst-admin'],
+  useUserRoles: () => ['rst-viewer', 'rst-admin', 'rst-developer'],
   useAuthorizations: () => mockUseAuthorizations(),
 }));
 
@@ -19,6 +22,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   return {
     ...actual,
     useLocation: vi.fn(),
+    useNavigate: () => mockNavigate,
     Link: ({ to, children, className, ...props }: any) => (
       <a href={to} className={className} {...props}>
         {children}
@@ -78,9 +82,13 @@ describe('RecResourceOverviewSection', () => {
   };
 
   beforeEach(() => {
+    mockNavigate.mockReset();
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
+      isSuperAdmin: false,
     });
 
     vi.mocked(useLocation).mockReturnValue({
@@ -406,10 +414,86 @@ describe('RecResourceOverviewSection', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('navigates to overview edit route when Edit is clicked', () => {
+    renderWithProvider(
+      <RecResourceOverviewSection recResource={recResource} />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
+        '$id',
+        recResource.rec_resource_id,
+      ),
+    });
+  });
+
+  it('shows archive button for super-admin on active resources and supports cancel', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
+      isSuperAdmin: true,
+    });
+
+    renderWithProvider(
+      <RecResourceOverviewSection recResource={recResource} />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Archive' }));
+    expect(screen.getByTestId('delete-modal')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('modal-cancel'));
+    expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument();
+  });
+
+  it('shows unarchive action for super-admin on archived resources and navigates to geospatial hash', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
+      isSuperAdmin: true,
+    });
+
+    renderWithProvider(
+      <RecResourceOverviewSection
+        recResource={{ ...recResource, rec_status_code: 'AR' }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Unarchive' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL.replace(
+        '$id',
+        recResource.rec_resource_id,
+      ),
+      hash: 'spatial-submissions',
+    });
+  });
+
+  it('hides archive and unarchive actions for non-super-admin users', () => {
+    renderWithProvider(
+      <RecResourceOverviewSection recResource={recResource} />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Archive' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Unarchive' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('renders the Establishment Order section regardless of flagged-content access', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
     });
     renderWithProvider(
       <RecResourceOverviewSection recResource={recResource} />,
