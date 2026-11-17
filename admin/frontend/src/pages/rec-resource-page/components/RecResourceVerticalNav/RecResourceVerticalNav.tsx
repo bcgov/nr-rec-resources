@@ -3,7 +3,6 @@ import {
   REC_RESOURCE_PAGE_NAV_SECTIONS,
   RecResourceNavKey,
 } from '@/pages/rec-resource-page';
-import { useVisibleNavSections } from '@/pages/rec-resource-page/hooks/useVisibleNavSections';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate } from '@tanstack/react-router';
@@ -20,7 +19,7 @@ export const RecResourceVerticalNav = ({
   resourceId,
 }: RecResourceVerticalNavProps) => {
   const navigate = useNavigate();
-  const visibleNavSections = useVisibleNavSections();
+  const navSections = Object.entries(REC_RESOURCE_PAGE_NAV_SECTIONS);
 
   const handleNavSelect = (eventKey: string | null) => {
     if (eventKey) {
@@ -47,7 +46,7 @@ export const RecResourceVerticalNav = ({
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            {visibleNavSections.map(([key, { title }]) => (
+            {navSections.map(([key, { title }]) => (
               <Dropdown.Item eventKey={key} key={key}>
                 {title}
               </Dropdown.Item>
@@ -63,7 +62,7 @@ export const RecResourceVerticalNav = ({
         activeKey={activeTab}
         onSelect={handleNavSelect}
       >
-        {visibleNavSections.map(([key, { title }]) => (
+        {navSections.map(([key, { title }]) => (
           <Nav.Item key={key}>
             <Nav.Link eventKey={key}>{title}</Nav.Link>
           </Nav.Item>

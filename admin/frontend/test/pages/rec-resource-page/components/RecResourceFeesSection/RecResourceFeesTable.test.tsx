@@ -57,7 +57,6 @@ vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
-    DEVELOPER: 'rst-developer',
   },
   useAuthorizations: () => mockUseAuthorizations(),
 }));
@@ -209,8 +208,6 @@ describe('RecResourceFeesTable', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: false,
     });
   });
 
@@ -273,8 +270,6 @@ describe('RecResourceFeesTable', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
     });
 
     render(
@@ -296,8 +291,6 @@ describe('RecResourceFeesTable', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: false,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: false,
     });
 
     render(
@@ -356,8 +349,6 @@ describe('RecResourceFeesTable', () => {
       {
         canView: true,
         canEdit: true,
-        canViewFeatureFlag: true,
-        canEditFeatureFlag: true,
       },
       true,
     ],
@@ -366,8 +357,6 @@ describe('RecResourceFeesTable', () => {
       {
         canView: true,
         canEdit: false,
-        canViewFeatureFlag: true,
-        canEditFeatureFlag: false,
       },
       false,
     ],

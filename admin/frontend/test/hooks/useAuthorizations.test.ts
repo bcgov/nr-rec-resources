@@ -13,11 +13,9 @@ describe('useAuthorizations', () => {
       canView: true,
       canEdit: false,
       canDelete: false,
-      canViewFeatureFlag: false,
-      canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
-      canViewPartners: false,
+      canViewAdjudicationReports: true,
       canViewPartnerSensitiveInfo: true,
       canManagePartners: false,
     });
@@ -32,11 +30,9 @@ describe('useAuthorizations', () => {
       canView: true,
       canEdit: false,
       canDelete: false,
-      canViewFeatureFlag: false,
-      canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: false,
-      canViewPartners: false,
+      canViewAdjudicationReports: false,
       canViewPartnerSensitiveInfo: false,
       canManagePartners: false,
     });
@@ -51,11 +47,9 @@ describe('useAuthorizations', () => {
       canView: true,
       canEdit: true,
       canDelete: true,
-      canViewFeatureFlag: false,
-      canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
-      canViewPartners: false,
+      canViewAdjudicationReports: true,
       canViewPartnerSensitiveInfo: true,
       canManagePartners: false,
     });
@@ -70,87 +64,9 @@ describe('useAuthorizations', () => {
       canView: true,
       canEdit: true,
       canDelete: true,
-      canViewFeatureFlag: false,
-      canEditFeatureFlag: false,
       isSuperAdmin: true,
       canViewSensitiveInfo: true,
-      canViewPartners: false,
-      canViewPartnerSensitiveInfo: true,
-      canManagePartners: true,
-    });
-  });
-
-  it('developer role only', () => {
-    const { result } = renderHook(() => useAuthorizations(), {
-      wrapper: createAuthWrapper(['rst-developer']),
-    });
-
-    expect(result.current).toEqual({
-      canView: false,
-      canEdit: false,
-      canDelete: true,
-      canViewFeatureFlag: false,
-      canEditFeatureFlag: false,
-      isSuperAdmin: false,
-      canViewSensitiveInfo: false,
-      canViewPartners: false,
-      canViewPartnerSensitiveInfo: false,
-      canManagePartners: false,
-    });
-  });
-
-  it('viewer + developer roles', () => {
-    const { result } = renderHook(() => useAuthorizations(), {
-      wrapper: createAuthWrapper(['rst-viewer', 'rst-developer']),
-    });
-
-    expect(result.current).toEqual({
-      canView: true,
-      canEdit: false,
-      canDelete: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: false,
-      isSuperAdmin: false,
-      canViewSensitiveInfo: true,
-      canViewPartners: true,
-      canViewPartnerSensitiveInfo: true,
-      canManagePartners: false,
-    });
-  });
-
-  it('admin + developer roles', () => {
-    const { result } = renderHook(() => useAuthorizations(), {
-      wrapper: createAuthWrapper(['rst-admin', 'rst-developer']),
-    });
-
-    expect(result.current).toEqual({
-      canView: true,
-      canEdit: true,
-      canDelete: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
-      isSuperAdmin: false,
-      canViewSensitiveInfo: true,
-      canViewPartners: true,
-      canViewPartnerSensitiveInfo: true,
-      canManagePartners: false,
-    });
-  });
-
-  it('super-admin + developer roles', () => {
-    const { result } = renderHook(() => useAuthorizations(), {
-      wrapper: createAuthWrapper(['rst-super-admin', 'rst-developer']),
-    });
-
-    expect(result.current).toEqual({
-      canView: true,
-      canEdit: true,
-      canDelete: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
-      isSuperAdmin: true,
-      canViewSensitiveInfo: true,
-      canViewPartners: true,
+      canViewAdjudicationReports: true,
       canViewPartnerSensitiveInfo: true,
       canManagePartners: true,
     });

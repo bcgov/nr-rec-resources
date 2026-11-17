@@ -11,7 +11,7 @@ const mockRoleRouteGuard = vi.fn(
 vi.mock('@/components/auth', () => ({
   RoleRouteGuard: (props: {
     children: React.ReactNode;
-    requireAll: string[];
+    requireAny: string[];
     redirectTo: string;
   }) => mockRoleRouteGuard(props),
 }));
@@ -41,13 +41,13 @@ describe('RecResource Geospatial Edit Route', () => {
     ).toBeInTheDocument();
   });
 
-  it('wraps the route in an admin RoleRouteGuard with the geospatial redirect', () => {
+  it('wraps the route in a super admin RoleRouteGuard with the geospatial redirect', () => {
     const Component = EditRoute.options.component!;
     render(<Component />);
 
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        requireAll: ['rst-developer', 'rst-admin'],
+        requireAny: ['rst-super-admin'],
         redirectTo: '/rec-resource/REC123/geospatial',
         children: expect.anything(),
       }),

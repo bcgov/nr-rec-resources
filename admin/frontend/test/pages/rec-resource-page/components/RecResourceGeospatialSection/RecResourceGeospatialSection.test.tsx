@@ -160,7 +160,6 @@ vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
-    DEVELOPER: 'rst-developer',
   },
   useAuthorizations: () => mockUseAuthorizations(),
 }));
@@ -218,9 +217,8 @@ describe('RecResourceGeospatialSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
       isSuperAdmin: true,
+      canViewAdjudicationReports: true,
     });
 
     mockUseRecResource.mockReturnValue({
@@ -284,6 +282,20 @@ describe('RecResourceGeospatialSection', () => {
 
     expect(screen.getByText('Geospatial')).toBeDefined();
     expect(screen.getByText('Edit')).toBeDefined();
+  });
+
+  it('hides the edit link and Create new from users who are not super admins', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      isSuperAdmin: false,
+      canViewAdjudicationReports: true,
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.queryByText('Edit')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Create new' })).toBeNull();
   });
 
   it('renders geospatial overview items with formatted coordinates', () => {
@@ -456,6 +468,38 @@ describe('RecResourceGeospatialSection', () => {
     );
   });
 
+  it('shows only the SNCSC link to users who cannot view adjudication reports', () => {
+    vi.stubEnv('VITE_SNCSC_WEB_URL', 'https://example.gov.bc.ca/sncsc-web/');
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: false,
+      isSuperAdmin: false,
+      canViewAdjudicationReports: false,
+    });
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-1',
+            application_guid: 'app-guid-1',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Point'],
+            status_request_guid: 'guid-123',
+            adjudication_report: 'available',
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.getByRole('link', { name: /SNCSC Link/i })).toBeDefined();
+    expect(screen.queryByRole('button', { name: /Adj.Report/i })).toBeNull();
+  });
+
   it('uses SNCSC_WEB_URL fallback when VITE_SNCSC_WEB_URL is not set', () => {
     vi.stubEnv('VITE_SNCSC_WEB_URL', '');
     vi.stubEnv('SNCSC_WEB_URL', 'https://fallback.gov.bc.ca/sncsc/');
@@ -609,8 +653,6 @@ describe('RecResourceGeospatialSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
       isSuperAdmin: false,
     });
     mockUseGetPendingMapFeatureRequests.mockReturnValue({
