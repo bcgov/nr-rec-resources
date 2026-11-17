@@ -6,7 +6,11 @@ const mockUseGetRecreationResourceGeospatial = vi.fn();
 const mockUtmToWgs84 = vi.fn();
 const mockUtmToSitePointGeometry = vi.fn();
 const mockLocationSection = vi.fn();
-const mockUseWatch = vi.fn(() => [undefined, undefined, undefined]);
+const mockUseWatch = vi.fn<
+  (
+    ...args: any[]
+  ) => [number | undefined, number | undefined, number | undefined]
+>(() => [undefined, undefined, undefined]);
 const controllerOnChangeByName: Record<string, ReturnType<typeof vi.fn>> = {};
 let mockRecResource: Record<string, unknown> = {
   rec_resource_type_code: 'SIT',
@@ -35,7 +39,8 @@ vi.mock('react-hook-form', async () => {
       };
       return render({ field });
     },
-    useWatch: (...args: any[]) => mockUseWatch(...args),
+    useWatch: (...args: any[]) =>
+      (mockUseWatch as (...args: any[]) => any)(...args),
   };
 });
 
