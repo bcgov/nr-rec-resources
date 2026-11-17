@@ -61,7 +61,7 @@ export function RecResourceArchiveModal({
               </>
             ) : (
               <>
-                It will:
+                Once archived, the resource will:
                 <ul>
                   <li>
                     no longer appear as an active resource on the public website
