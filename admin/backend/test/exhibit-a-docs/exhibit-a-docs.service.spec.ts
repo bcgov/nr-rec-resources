@@ -257,38 +257,21 @@ describe('ExhibitADocsService', () => {
       expect(values).toContain(APPLICATION_GUID);
     });
 
-    it('resolves deprecated submission_id to application_guid before insert', async () => {
-      mockPrisma.$queryRaw
-        .mockResolvedValueOnce([{ application_guid: APPLICATION_GUID }])
-        .mockResolvedValueOnce([mockDoc]);
-      mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
-
-      await service.finalizeUpload(REC_RESOURCE_ID, {
-        ...finalizeBody,
-        submission_id: '1234567',
-      });
-      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
-      const [, ...insertValues] = mockPrisma.$queryRaw.mock.calls[1]!;
-      expect(insertValues).toContain(APPLICATION_GUID);
-    });
-
-    it('should throw 400 when application_guid and submission_id are both missing', async () => {
+    it('should throw 400 when application_guid is missing', async () => {
       await expect(
         service.finalizeUpload(REC_RESOURCE_ID, finalizeBody),
       ).rejects.toThrow(new HttpException('application_guid is required', 400));
       expect(mockPrisma.$queryRaw).not.toHaveBeenCalled();
     });
 
-    it('should throw 404 when submission_id cannot be resolved', async () => {
-      mockPrisma.$queryRaw.mockResolvedValueOnce([]);
-
+    it('should throw 400 when only submission_id is provided', async () => {
       await expect(
         service.finalizeUpload(REC_RESOURCE_ID, {
           ...finalizeBody,
           submission_id: '1234567',
         }),
-      ).rejects.toThrow(HttpException);
-      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+      ).rejects.toThrow(new HttpException('application_guid is required', 400));
+      expect(mockPrisma.$queryRaw).not.toHaveBeenCalled();
     });
   });
 

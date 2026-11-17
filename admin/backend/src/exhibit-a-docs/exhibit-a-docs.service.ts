@@ -106,7 +106,7 @@ export class ExhibitADocsService extends BaseStorageFileService {
     await this.validateResourceExists(rec_resource_id);
     this.validateEntityId(body.document_id, 'document_id');
 
-    const applicationGuid = await this.resolveApplicationGuid(body);
+    const applicationGuid = this.resolveApplicationGuid(body);
     const s3_key = this.buildS3Key(
       rec_resource_id,
       applicationGuid,
@@ -219,32 +219,11 @@ export class ExhibitADocsService extends BaseStorageFileService {
     );
   }
 
-  private async resolveApplicationGuid(
+  private resolveApplicationGuid(
     body: FinalizeExhibitAUploadRequestDto,
-  ): Promise<string> {
-    if (body.application_guid) {
-      this.validateRequiredApplicationGuid(body.application_guid);
-      return body.application_guid;
-    }
-    if (!body.submission_id) {
-      throw new HttpException('application_guid is required', 400);
-    }
-
-    const [row] = await this.prisma.$queryRaw<{ application_guid: string }[]>`
-      SELECT application_guid::text AS application_guid
-      FROM rst.recreation_spatial_submission
-      WHERE submission_id = ${body.submission_id}
-        LIMIT 1
-    `;
-
-    if (!row?.application_guid) {
-      throw new HttpException(
-        `Spatial submission not found for submission_id: ${body.submission_id}`,
-        404,
-      );
-    }
-
-    return row.application_guid;
+  ): string {
+    this.validateRequiredApplicationGuid(body.application_guid);
+    return body.application_guid!;
   }
 
   private validateRequiredApplicationGuid(application_guid?: string): void {

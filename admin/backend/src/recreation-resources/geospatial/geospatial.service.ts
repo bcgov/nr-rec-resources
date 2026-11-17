@@ -577,9 +577,52 @@ export class GeospatialService {
 
     await this.updateMapFeaturesFromValidatedFile(rec_resource_id, updateDto);
 
-    this.logger.warn(
-      `No UTM payload provided for rec_resource_id: ${rec_resource_id} - nothing updated.`,
+    const hasUtmZone = updateDto.utm_zone != null;
+    const hasUtmEasting = updateDto.utm_easting != null;
+    const hasUtmNorthing = updateDto.utm_northing != null;
+    const hasAnyUtm = hasUtmZone || hasUtmEasting || hasUtmNorthing;
+    const hasCompleteUtm = hasUtmZone && hasUtmEasting && hasUtmNorthing;
+
+    if (hasAnyUtm && !hasCompleteUtm) {
+      throw new BadRequestException(
+        'utm_zone, utm_easting, and utm_northing must be provided together.',
+      );
+    }
+
+    if (hasCompleteUtm) {
+      await this.validateUtmAgainstFeatureGeometry(
+        rec_resource_id,
+        updateDto.utm_zone!,
+        updateDto.utm_easting!,
+        updateDto.utm_northing!,
+      );
+
+      await this.upsertSitePointFromUtm(
+        rec_resource_id,
+        updateDto.utm_zone!,
+        updateDto.utm_easting!,
+        updateDto.utm_northing!,
+      );
+    }
+
+    const hasRightOfWay = Object.prototype.hasOwnProperty.call(
+      updateDto,
+      'right_of_way_m',
     );
+
+    if (hasRightOfWay) {
+      await this.prisma.$executeRaw(Prisma.sql`
+        UPDATE rst.recreation_resource
+        SET right_of_way = ${updateDto.right_of_way_m}::numeric
+        WHERE rec_resource_id = ${rec_resource_id}
+      `);
+    }
+
+    if (!hasCompleteUtm && !hasRightOfWay) {
+      this.logger.warn(
+        `No UTM or right_of_way payload provided for rec_resource_id: ${rec_resource_id} - nothing updated.`,
+      );
+    }
   }
 
   private async insertMapFeatureAndGeometry(
