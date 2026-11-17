@@ -1348,6 +1348,62 @@ describe('GeospatialService', () => {
         service.updateGeospatialData('REC123', payload),
       ).resolves.toBeUndefined();
     });
+
+    it('throws when only part of the UTM triplet is provided', async () => {
+      vi.spyOn(
+        service as any,
+        'updateMapFeaturesFromValidatedFile',
+      ).mockResolvedValue(undefined);
+
+      await expect(
+        service.updateGeospatialData('REC123', {
+          utm_zone: 10,
+          utm_easting: 500000,
+        } as any),
+      ).rejects.toThrow(
+        /utm_zone, utm_easting, and utm_northing must be provided together/i,
+      );
+    });
+
+    it('validates and upserts site point when complete UTM payload is provided', async () => {
+      vi.spyOn(
+        service as any,
+        'updateMapFeaturesFromValidatedFile',
+      ).mockResolvedValue(undefined);
+      const validateSpy = vi
+        .spyOn(service as any, 'validateUtmAgainstFeatureGeometry')
+        .mockResolvedValue(undefined);
+      const upsertSpy = vi
+        .spyOn(service as any, 'upsertSitePointFromUtm')
+        .mockResolvedValue(undefined);
+
+      await expect(
+        service.updateGeospatialData('REC123', {
+          utm_zone: 10,
+          utm_easting: 500000,
+          utm_northing: 5450000,
+        } as any),
+      ).resolves.toBeUndefined();
+
+      expect(validateSpy).toHaveBeenCalledWith('REC123', 10, 500000, 5450000);
+      expect(upsertSpy).toHaveBeenCalledWith('REC123', 10, 500000, 5450000);
+    });
+
+    it('updates right_of_way when payload includes right_of_way_m', async () => {
+      vi.spyOn(
+        service as any,
+        'updateMapFeaturesFromValidatedFile',
+      ).mockResolvedValue(undefined);
+      prismaMock.$executeRaw.mockResolvedValueOnce(1);
+
+      await expect(
+        service.updateGeospatialData('REC123', {
+          right_of_way_m: 12,
+        } as any),
+      ).resolves.toBeUndefined();
+
+      expect(prismaMock.$executeRaw).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('normalizeGeometryEntry (via createMapFeaturesFromValidatedFile)', () => {

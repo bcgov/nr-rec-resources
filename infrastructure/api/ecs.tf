@@ -204,6 +204,26 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = var.act_css_client_id
         },
         {
+          name  = "SNCSC_BASE_URL"
+          value = var.sncsc_base_url
+        },
+        {
+          name  = "SNCSC_INTEGRATION_CLIENT_ID"
+          value = var.sncsc_integration_client_id
+        },
+        {
+          name  = "SNCSC_INTEGRATION_CLIENT_SECRET"
+          value = var.sncsc_integration_client_secret
+        },
+        {
+          name  = "SNCSC_DM_CLIENT_ID"
+          value = var.sncsc_dm_client_id
+        },
+        {
+          name  = "SNCSC_DM_CLIENT_SECRET"
+          value = var.sncsc_dm_client_secret
+        },
+        {
           name  = "ESTABLISHMENT_ORDER_DOCS_BUCKET"
           value = var.app == "admin" ? aws_s3_bucket.establishment_order_docs[0].id : ""
         },

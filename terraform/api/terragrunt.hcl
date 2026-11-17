@@ -33,6 +33,11 @@ locals {
   forest_client_api_key        = get_env("forest_client_api_key")
   forest_client_api_url        = get_env("forest_client_api_url")
   act_css_client_id            = get_env("act_css_client_id", "")
+  sncsc_base_url               = get_env("sncsc_base_url", "")
+  sncsc_integration_client_id  = get_env("sncsc_integration_client_id", "")
+  sncsc_integration_client_secret = get_env("sncsc_integration_client_secret", "")
+  sncsc_dm_client_id           = get_env("sncsc_dm_client_id", "")
+  sncsc_dm_client_secret       = get_env("sncsc_dm_client_secret", "")
   alarm_alert_email_recipients = get_env("alarm_alert_email_recipients")
   app_name = local.app == "public" ? "node-api-${local.app_env}" : "node-api-${local.app}-${local.app_env}"
   keycloak_config = jsonencode({
@@ -69,6 +74,11 @@ generate "tfvars" {
   forest_client_api_key="${local.forest_client_api_key}"
   forest_client_api_url="${local.forest_client_api_url}"
   act_css_client_id="${local.act_css_client_id}"
+  sncsc_base_url="${local.sncsc_base_url}"
+  sncsc_integration_client_id="${local.sncsc_integration_client_id}"
+  sncsc_integration_client_secret="${local.sncsc_integration_client_secret}"
+  sncsc_dm_client_id="${local.sncsc_dm_client_id}"
+  sncsc_dm_client_secret="${local.sncsc_dm_client_secret}"
   alarm_alert_email_recipients="${local.alarm_alert_email_recipients}"
   app_env="${local.app_env}"
   app="${local.app}"
