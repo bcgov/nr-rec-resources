@@ -104,7 +104,7 @@ describe('AssetCardEdit', () => {
       canDelete: true,
       isSuperAdmin: true,
       canViewSensitiveInfo: true,
-      canViewPartners: false,
+      canViewAdjudicationReports: false,
       canViewPartnerSensitiveInfo: false,
       canManagePartners: false,
     });
@@ -383,7 +383,7 @@ describe('AssetCardEdit', () => {
       canDelete: true,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
-      canViewPartners: false,
+      canViewAdjudicationReports: false,
       canViewPartnerSensitiveInfo: false,
       canManagePartners: false,
     });
@@ -400,7 +400,7 @@ describe('AssetCardEdit', () => {
       canDelete: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
-      canViewPartners: false,
+      canViewAdjudicationReports: false,
       canViewPartnerSensitiveInfo: false,
       canManagePartners: false,
     });

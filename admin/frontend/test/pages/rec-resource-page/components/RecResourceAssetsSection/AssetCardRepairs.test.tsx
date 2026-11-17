@@ -64,8 +64,8 @@ describe('AssetCardRepairs', () => {
       canEdit: true,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
+      canViewAdjudicationReports: false,
       canDelete: false,
-      canViewPartners: false,
       canViewPartnerSensitiveInfo: false,
       canManagePartners: false,
     });
@@ -380,7 +380,7 @@ describe('AssetCardRepairs', () => {
         isSuperAdmin: false,
         canViewSensitiveInfo: false,
         canDelete: false,
-        canViewPartners: false,
+        canViewAdjudicationReports: false,
         canViewPartnerSensitiveInfo: false,
         canManagePartners: false,
       });
