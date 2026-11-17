@@ -133,17 +133,20 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         project_established_date,
         recreation_view_ind               AS display_on_public_site_ind,
         recreation_district_code,
+        rdc.description                   AS recreation_district_name,
         defined_campsites::int            AS defined_campsites,
         life_cycle_status_code,
         file_status_code                  AS rec_status_code,
-        district_code,
-        district_name,
+        l.district_code,
+        l.district_name,
         feature_length::float8            AS feature_length,
         feature_length_m::float8          AS feature_length_m,
         geometry
       FROM bcgw.recreation_lines l
       LEFT JOIN rst.recreation_feature_code rfc
-        ON l.recreation_feature_code = rfc.recreation_feature_code`,
+        ON l.recreation_feature_code = rfc.recreation_feature_code
+      LEFT JOIN rst.recreation_district_code rdc
+        ON l.recreation_district_code = rdc.district_code`,
     orderBy: 'rmf_skey',
     // Long trail geometries, so a page is far heavier per feature here.
     pageSize: 250,
@@ -169,11 +172,11 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         project_established_date,
         recreation_view_ind               AS display_on_public_site_ind,
         recreation_district_code,
+        rdc.description                   AS recreation_district_name,
         defined_campsites::int            AS defined_campsites,
         life_cycle_status_code,
         file_status_code                  AS rec_status_code,
         geographic_district_code          AS district_code,
-        geographic_district_name          AS org_unit_name,
         geographic_district_name          AS district_name,
         feature_area::float8              AS feature_area,
         feature_perimeter::float8         AS feature_perimeter,
@@ -182,7 +185,9 @@ export const BCGW_LAYERS: readonly BcgwLayer[] = [
         geometry
       FROM bcgw.recreation_polygons p
       LEFT JOIN rst.recreation_feature_code rfc
-        ON p.recreation_feature_code = rfc.recreation_feature_code`,
+        ON p.recreation_feature_code = rfc.recreation_feature_code
+      LEFT JOIN rst.recreation_district_code rdc
+        ON p.recreation_district_code = rdc.district_code`,
     orderBy: 'rmf_skey',
     pageSize: 500,
   },

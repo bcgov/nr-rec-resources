@@ -6,10 +6,11 @@ import {
 
 /**
  * Properties shared identically by BCGW recreation line and polygon features.
- * Feature-specific properties (geometry-dependent measurements, district
- * fields, examples that differ between lines and polygons, etc.) are declared
- * on the concrete {@link BcgwRecreationLinesDto} / {@link BcgwRecreationPolygonsDto}
- * subclasses.
+ * Feature-specific properties (geometry-dependent measurements, examples that
+ * differ between lines and polygons, etc.) are declared on the concrete
+ * {@link BcgwRecreationLinesDto} / {@link BcgwRecreationPolygonsDto} subclasses.
+ *
+ * The four district fields live here so the two layers cannot drift apart again.
  */
 export class BcgwRecreationFeatureBaseDto {
   @ApiProperty(
@@ -90,4 +91,36 @@ export class BcgwRecreationFeatureBaseDto {
     nullable: true,
   })
   rec_status_code: string | null;
+
+  @ApiProperty(
+    nullableStringProperty(
+      'The code of the recreation district the feature belongs to, e.g., RDCO.',
+      'RDCO',
+    ),
+  )
+  recreation_district_code: string | null;
+
+  @ApiProperty(
+    nullableStringProperty(
+      'The name of the recreation district the feature belongs to. Corresponds to recreation_district_code.',
+      'Columbia-Shuswap',
+    ),
+  )
+  recreation_district_name: string | null;
+
+  @ApiProperty(
+    nullableStringProperty(
+      'The code of the natural resource district associated with this feature.',
+      'DCC',
+    ),
+  )
+  district_code: string | null;
+
+  @ApiProperty(
+    nullableStringProperty(
+      'The name of the natural resource district associated with this feature. Corresponds to district_code.',
+      'Cariboo-Chilcotin Natural Resource District',
+    ),
+  )
+  district_name: string | null;
 }
