@@ -108,6 +108,11 @@ export function RecResourceGeospatialSection() {
     unarchive.openOptions();
   };
 
+  const createButtonLabel = isArchived ? 'Unarchive' : 'Create new';
+  const handleCreateOrUnarchive = isArchived
+    ? handleStartUnarchive
+    : () => setIsSpatialSubmissionOpen(true);
+
   return (
     <Stack className="geospatial-section" direction="vertical" gap={4}>
       <GeospatialFieldsCard
@@ -168,14 +173,10 @@ export function RecResourceGeospatialSection() {
                 <Button
                   size="sm"
                   variant="primary"
-                  onClick={
-                    isArchived
-                      ? handleStartUnarchive
-                      : () => setIsSpatialSubmissionOpen(true)
-                  }
+                  onClick={handleCreateOrUnarchive}
                   disabled={isRequestsBusy}
                 >
-                  {isArchived ? 'Unarchive' : 'Create new'}
+                  {createButtonLabel}
                 </Button>
               </div>
             ) : null}

@@ -15,7 +15,7 @@ import type {
   ExhibitAPageOrientation,
   ExhibitAPageSize,
   ExhibitAScale,
-} from '../utils/exhibitA';
+} from '../../exhibitA';
 
 export interface RegenerateModalState {
   show: boolean;

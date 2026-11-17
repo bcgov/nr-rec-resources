@@ -10,7 +10,7 @@ export const useAdjudicationReport = () => {
     async (applicationGuid: string) => {
       const response = await apiClient.getPendingRequestAdjudicationReportRaw(
         { applicationGuid },
-        async ({ init }) => ({
+        ({ init }) => ({
           ...init,
           headers: {
             ...(init.headers as Record<string, string> | undefined),

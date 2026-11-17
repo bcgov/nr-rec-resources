@@ -21,7 +21,7 @@ import {
 } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/components/submissionDisplay';
 import { resolveExhibitAUrl } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/exhibitA';
 
-interface Props {
+type Props = Readonly<{
   rows: PendingMapFeatureRequestRowDto[];
   exhibitADocs: ExhibitADocDto[];
   exhibitAUrlOverrides: Record<string, string>;
@@ -30,7 +30,7 @@ interface Props {
   onViewAdjudicationReport: (applicationGuid?: string | null) => void;
   onUpload: (row: PendingMapFeatureRequestRowDto) => void;
   onRegenerate: (row: PendingMapFeatureRequestRowDto) => void;
-}
+}>;
 
 const DISABLED_LINK_CLASS =
   'geospatial-submissions-action-link geospatial-submissions-action-link--disabled';

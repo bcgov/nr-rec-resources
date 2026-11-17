@@ -142,6 +142,43 @@ describe('RecreationResourceRepository', () => {
         'recreation_user_days_code_rel',
       );
     });
+
+    it('should rethrow non-missing-column errors from findUnique', async () => {
+      prisma.$queryRaw.mockResolvedValueOnce([{ exists: true }]);
+      prisma.recreation_resource.findUnique.mockRejectedValueOnce(
+        new Error('connection reset by peer'),
+      );
+
+      await expect(repo.findOneById('abc')).rejects.toThrow(
+        'connection reset by peer',
+      );
+    });
+  });
+
+  describe('isMissingColumnError', () => {
+    it.each([
+      'column `recreation_user_days_code`',
+      'column "recreation_user_days_code"',
+      'Column `recreation_user_days_code`',
+      'Column "recreation_user_days_code"',
+      'This column does not exist in the current database: recreation_resource.recreation_user_days_code',
+    ])('should match expected missing-column format: %s', (message) => {
+      expect(
+        (repo as any).isMissingColumnError(
+          message,
+          'recreation_user_days_code',
+        ),
+      ).toBe(true);
+    });
+
+    it('should return false for unrelated errors', () => {
+      expect(
+        (repo as any).isMissingColumnError(
+          'timeout while executing query',
+          'recreation_user_days_code',
+        ),
+      ).toBe(false);
+    });
   });
 
   describe('getNextRecResourceId', () => {

@@ -168,6 +168,16 @@ describe('ExhibitADocsService', () => {
         new HttpException('Recreation Resource not found', 404),
       );
     });
+
+    it('should throw 400 when application_guid is blank', async () => {
+      mockPrisma.recreation_resource.findUnique.mockResolvedValue({
+        rec_resource_id: REC_RESOURCE_ID,
+      });
+
+      await expect(
+        service.presignUpload(REC_RESOURCE_ID, 'exhibit-a.pdf', '   '),
+      ).rejects.toThrow(new HttpException('application_guid is required', 400));
+    });
   });
 
   describe('finalizeUpload', () => {
@@ -342,6 +352,69 @@ describe('ExhibitADocsService', () => {
       expect((service as any).normalizeStem('...')).toBe('exhibit-a');
       expect((service as any).normalizeExtension('  .PDF  ')).toBe('pdf');
       expect((service as any).normalizeExtension('  ')).toBe('pdf');
+    });
+  });
+
+  describe('schema compatibility fallbacks', () => {
+    it('uses SELECT fallback without application_guid when the column is unavailable', async () => {
+      (service as any).hasExhibitAApplicationGuidColumn = false;
+      mockPrisma.$queryRaw.mockResolvedValue([
+        { ...mockDoc, application_guid: null },
+      ]);
+      mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
+
+      const result = await service.getAll(REC_RESOURCE_ID);
+
+      expect(result[0]?.application_guid).toBeNull();
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses INSERT fallback without application_guid when the column is unavailable', async () => {
+      (service as any).hasExhibitAApplicationGuidColumn = false;
+      mockPrisma.recreation_resource.findUnique.mockResolvedValue({
+        rec_resource_id: REC_RESOURCE_ID,
+      });
+      mockPrisma.$queryRaw.mockResolvedValue([
+        { ...mockDoc, application_guid: null },
+      ]);
+      mockS3Service.getSignedUrl.mockResolvedValue(PRESIGNED_URL);
+
+      const result = await service.finalizeUpload(REC_RESOURCE_ID, {
+        document_id: DOC_ID,
+        file_name: 'exhibit-a',
+        extension: 'pdf',
+        file_size: 1024,
+        application_guid: APPLICATION_GUID,
+      });
+
+      expect(result.application_guid).toBeNull();
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+    });
+
+    it('caches application_guid column support check', async () => {
+      (service as any).hasExhibitAApplicationGuidColumn = null;
+      mockPrisma.$queryRaw.mockResolvedValueOnce([{ exists: false }]);
+
+      const first = await (
+        service as any
+      ).supportsExhibitAApplicationGuidColumn();
+      const second = await (
+        service as any
+      ).supportsExhibitAApplicationGuidColumn();
+
+      expect(first).toBe(false);
+      expect(second).toBe(false);
+      expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns 404 on delete when fallback mode is active and row is missing', async () => {
+      (service as any).hasExhibitAApplicationGuidColumn = false;
+      mockPrisma.$queryRaw.mockResolvedValue([]);
+
+      await expect(service.delete(REC_RESOURCE_ID, DOC_ID)).rejects.toThrow(
+        new HttpException('Exhibit A document not found', 404),
+      );
+      expect(mockS3Service.deleteFile).not.toHaveBeenCalled();
     });
   });
 });

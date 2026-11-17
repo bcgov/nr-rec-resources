@@ -10,13 +10,13 @@ import {
   ExhibitAScale,
 } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/exhibitA';
 
-interface Props {
+type Props = Readonly<{
   state: RegenerateModalState;
   isPending: boolean;
   onChange: (patch: RegenerateOptionsPatch) => void;
   onCancel: () => void;
   onConfirm: () => void;
-}
+}>;
 
 export function RegenerateExhibitAModal({
   state,

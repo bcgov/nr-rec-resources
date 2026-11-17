@@ -87,9 +87,17 @@ export const formatSubmissionDate = (value?: string | null) => {
       });
 };
 
+const trimTrailingSlashes = (value: string) => {
+  let end = value.length;
+  while (end > 0 && value.charCodeAt(end - 1) === 47) {
+    end -= 1;
+  }
+  return value.slice(0, end);
+};
+
 export const buildSncscSubmissionUrl = (statusRequestGuid?: string | null) => {
   const sncscWebUrl =
     import.meta.env.VITE_SNCSC_WEB_URL || import.meta.env.SNCSC_WEB_URL || '';
   if (!sncscWebUrl || !statusRequestGuid) return null;
-  return `${sncscWebUrl.replace(/\/+$/, '')}/${statusRequestGuid}`;
+  return `${trimTrailingSlashes(sncscWebUrl)}/${statusRequestGuid}`;
 };

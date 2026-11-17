@@ -11,12 +11,12 @@ import {
 import type { RecreationResourceGeospatialDto } from '@/services/recreation-resource-admin';
 import { FieldItem } from '../../shared/FieldItem';
 
-interface Props {
+type Props = Readonly<{
   recResourceId: string;
   resourceTypeCode?: string | null;
   isArchived: boolean;
   geospatialData?: RecreationResourceGeospatialDto | null;
-}
+}>;
 
 const formatNumber = (value?: number | null) =>
   value != null ? value.toLocaleString('en-CA', GEOMETRY_NUMBER_FORMAT) : null;

@@ -15,7 +15,6 @@ import './UnarchiveOptionsPanel.scss';
 type MapFeatures = ComponentProps<typeof SpatialSubmissionMap>['features'];
 type RestoreChoice = 'reuse' | 'upload';
 
-// TODO: replace with the official expansion of SNCSC used by your team.
 const SNCSC_DESCRIPTION =
   'The spatial review service that checks boundaries before a file is Issued.';
 
@@ -24,15 +23,83 @@ const Sncsc = () => (
     placement="top"
     overlay={<Tooltip id="sncsc-tooltip">{SNCSC_DESCRIPTION}</Tooltip>}
   >
-    <abbr
-      tabIndex={0}
-      title={SNCSC_DESCRIPTION}
-      className="unarchive-panel__abbr"
-    >
+    <abbr title={SNCSC_DESCRIPTION} className="unarchive-panel__abbr">
       SNCSC
     </abbr>
   </OverlayTrigger>
 );
+
+const getFeatureCountLabel = (
+  isTrailResource: boolean,
+  hasLineFeatures: boolean,
+) => {
+  if (isTrailResource) return 'Segments';
+  if (hasLineFeatures) return 'Lines';
+  return 'Polygons';
+};
+
+const getPrimaryLabel = (choice: RestoreChoice, needsResubmit: boolean) => {
+  if (choice === 'upload') return 'Continue to upload';
+  if (needsResubmit) return 'Resubmit and restore';
+  return 'Restore';
+};
+
+const getOptionClassName = (isSelected: boolean, isDisabled = false) => {
+  const classes = ['unarchive-option'];
+  if (isSelected) classes.push('unarchive-option--selected');
+  if (isDisabled) classes.push('unarchive-option--disabled');
+  return classes.join(' ');
+};
+
+const renderReuseDescription = (needsResubmit: boolean) => {
+  if (needsResubmit) {
+    return (
+      <>
+        Land status or conflicts may have changed since this was archived.
+        Existing boundaries will be resubmitted to <Sncsc /> before the file is
+        restored.
+      </>
+    );
+  }
+
+  return (
+    <>
+      Returns the file to <strong>Issued</strong> right away. No new <Sncsc />{' '}
+      request is needed.
+    </>
+  );
+};
+
+const buildDetails = ({
+  archivedDate,
+  age,
+  featureCountLabel,
+  featureCount,
+  totalAreaHectares,
+  totalLengthKm,
+}: {
+  archivedDate: string | null;
+  age: string | null;
+  featureCountLabel: string;
+  featureCount: number;
+  totalAreaHectares?: number | null;
+  totalLengthKm?: number | null;
+}): Array<[string, string]> => {
+  const details: Array<[string, string]> = [
+    ['Archived', [archivedDate, age].filter(Boolean).join(' · ') || '-'],
+    [featureCountLabel, String(featureCount)],
+  ];
+
+  if (totalAreaHectares != null) {
+    details.push(['Area', `${totalAreaHectares.toLocaleString('en-CA')} ha`]);
+  }
+
+  if (totalLengthKm != null) {
+    details.push(['Length', `${totalLengthKm.toLocaleString('en-CA')} km`]);
+  }
+
+  return details;
+};
 
 const formatArchivedAge = (hours: number | null) => {
   if (hours == null) return null;
@@ -44,7 +111,7 @@ const formatArchivedAge = (hours: number | null) => {
   return `${Math.floor(hours / 24)} days ago`;
 };
 
-interface Props {
+type Props = Readonly<{
   features: MapFeatures;
   resourceTypeCode?: string | null;
   /** ISO date the file was archived (best available). */
@@ -57,7 +124,7 @@ interface Props {
   onReuse: () => void;
   onUploadNew: () => void;
   onCancel: () => void;
-}
+}>;
 
 export function UnarchiveOptionsPanel({
   features,
@@ -78,11 +145,10 @@ export function UnarchiveOptionsPanel({
     const geometryType = feature.geometry?.type;
     return geometryType === 'LineString' || geometryType === 'MultiLineString';
   });
-  const featureCountLabel = isTrailResource
-    ? 'Segments'
-    : hasLineFeatures
-      ? 'Lines'
-      : 'Polygons';
+  const featureCountLabel = getFeatureCountLabel(
+    isTrailResource,
+    hasLineFeatures,
+  );
   const [choice, setChoice] = useState<RestoreChoice>(
     hasExistingSpatial ? 'reuse' : 'upload',
   );
@@ -92,29 +158,18 @@ export function UnarchiveOptionsPanel({
     : null;
   const age = formatArchivedAge(archiveAgeHours);
 
-  const primaryLabel =
-    choice === 'upload'
-      ? 'Continue to upload'
-      : needsResubmit
-        ? 'Resubmit and restore'
-        : 'Restore';
+  const primaryLabel = getPrimaryLabel(choice, needsResubmit);
 
   const handlePrimary = () => (choice === 'upload' ? onUploadNew() : onReuse());
 
-  const details: Array<[string, string]> = [
-    ['Archived', [archivedDate, age].filter(Boolean).join(' · ') || '-'],
-    [featureCountLabel, String(features.length)],
-    ...(totalAreaHectares != null
-      ? ([['Area', `${totalAreaHectares.toLocaleString('en-CA')} ha`]] as Array<
-          [string, string]
-        >)
-      : []),
-    ...(totalLengthKm != null
-      ? ([['Length', `${totalLengthKm.toLocaleString('en-CA')} km`]] as Array<
-          [string, string]
-        >)
-      : []),
-  ];
+  const details = buildDetails({
+    archivedDate,
+    age,
+    featureCountLabel,
+    featureCount: features.length,
+    totalAreaHectares,
+    totalLengthKm,
+  });
 
   return (
     <section
@@ -168,65 +223,61 @@ export function UnarchiveOptionsPanel({
           How do you want to restore this file?
         </legend>
 
-        <label
-          htmlFor="unarchive-choice-reuse"
-          className={`unarchive-option ${choice === 'reuse' ? 'unarchive-option--selected' : ''} ${!hasExistingSpatial ? 'unarchive-option--disabled' : ''}`}
+        <div
+          className={getOptionClassName(
+            choice === 'reuse',
+            !hasExistingSpatial,
+          )}
         >
           <input
             id="unarchive-choice-reuse"
             type="radio"
             name="unarchive-choice"
             className="form-check-input"
+            aria-label="Reuse existing data"
             checked={choice === 'reuse'}
             disabled={!hasExistingSpatial}
             onChange={() => setChoice('reuse')}
           />
           <span>
-            <span className="unarchive-option__title">
+            <label
+              htmlFor="unarchive-choice-reuse"
+              className="unarchive-option__title"
+            >
               Reuse existing data
               {hasExistingSpatial && !needsResubmit ? (
                 <span className="badge text-bg-primary ms-2">Recommended</span>
               ) : null}
-            </span>
+            </label>
             <span className="unarchive-option__body">
-              {needsResubmit ? (
-                <>
-                  Land status or conflicts may have changed since this was
-                  archived. Existing boundaries will be resubmitted to <Sncsc />{' '}
-                  before the file is restored.
-                </>
-              ) : (
-                <>
-                  Returns the file to <strong>Issued</strong> right away. No new{' '}
-                  <Sncsc /> request is needed.
-                </>
-              )}
+              {renderReuseDescription(needsResubmit)}
             </span>
           </span>
-        </label>
+        </div>
 
-        <label
-          htmlFor="unarchive-choice-upload"
-          className={`unarchive-option ${choice === 'upload' ? 'unarchive-option--selected' : ''}`}
-        >
+        <div className={getOptionClassName(choice === 'upload')}>
           <input
             id="unarchive-choice-upload"
             type="radio"
             name="unarchive-choice"
             className="form-check-input"
+            aria-label="Upload a new submission"
             checked={choice === 'upload'}
             onChange={() => setChoice('upload')}
           />
           <span>
-            <span className="unarchive-option__title">
+            <label
+              htmlFor="unarchive-choice-upload"
+              className="unarchive-option__title"
+            >
               Upload a new submission
-            </span>
+            </label>
             <span className="unarchive-option__body">
               Use this when boundaries have changed. New spatial files are
               submitted to <Sncsc /> for review.
             </span>
           </span>
-        </label>
+        </div>
       </fieldset>
 
       <div className="d-flex justify-content-between align-items-center mt-4">
