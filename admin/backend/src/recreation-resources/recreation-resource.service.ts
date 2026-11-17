@@ -231,7 +231,10 @@ export class RecreationResourceService {
         },
       });
 
-    const orgUnitCode = latestApprovedSubmission?.org_unit_code?.trim();
+    const orgUnitCode = await this.resolveOrgUnitAcronymForLicensee(
+      rec_resource_id,
+      latestApprovedSubmission?.org_unit_code,
+    );
     if (!orgUnitCode) {
       return null;
     }
@@ -242,6 +245,29 @@ export class RecreationResourceService {
     }
 
     return `${client.client_number} ${client.client_name}`.trim();
+  }
+
+  private async resolveOrgUnitAcronymForLicensee(
+    rec_resource_id: string,
+    rawOrgUnitCode: string | null | undefined,
+  ): Promise<string | null> {
+    const normalizedRawValue = rawOrgUnitCode?.trim();
+    if (!normalizedRawValue) {
+      return null;
+    }
+
+    // Some migrated submissions store org unit numbers; map those to acronym.
+    if (/^\d+$/.test(normalizedRawValue)) {
+      const orgUnit = await this.prisma.natural_resource_org_unit.findUnique({
+        where: { rec_resource_id },
+        select: { org_unit_code: true },
+      });
+
+      const mappedOrgUnitCode = orgUnit?.org_unit_code?.trim();
+      return mappedOrgUnitCode ? mappedOrgUnitCode.toUpperCase() : null;
+    }
+
+    return normalizedRawValue.toUpperCase();
   }
 
   private async fetchClientInfoByAcronym(

@@ -79,38 +79,6 @@ export class BcgwRecreationPolygonsDto extends BcgwRecreationFeatureBaseDto {
   recreation_feature_description: string | null;
 
   @ApiProperty(
-    nullableStringProperty(
-      'A comma-separated list of codes relating to the recreation districts that the feature is within, e.g., RDCC,RDCS.',
-      'RDCC',
-    ),
-  )
-  recreation_district_code: string | null;
-
-  @ApiProperty(
-    nullableStringProperty(
-      'The code of the natural resource district associated with this feature.',
-      'DCC',
-    ),
-  )
-  district_code: string | null;
-
-  @ApiProperty(
-    nullableStringProperty(
-      'The name of the natural resource district associated with this feature.',
-      'Chilliwack Natural Resource District',
-    ),
-  )
-  org_unit_name: string | null;
-
-  @ApiProperty(
-    nullableStringProperty(
-      'The name of the natural resource district associated with this feature. Same value as org_unit_name, exposed under the BCGW DISTRICT_NAME column name.',
-      'Chilliwack Natural Resource District',
-    ),
-  )
-  district_name: string | null;
-
-  @ApiProperty(
     nullableNumberProperty(
       'Spatial feature area in hectares. Calculated in the source system.',
       2.9634,

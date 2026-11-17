@@ -1,3 +1,4 @@
+import { isLowMobilityActivity } from '@/pages/rec-resource-page/constants';
 import { RecreationActivityDto, useUpdateActivities } from '@/services';
 import { handleApiError } from '@/services/utils/errorHandler';
 import {
@@ -22,16 +23,21 @@ export const useEditActivitiesForm = (
   const updateMutation = useUpdateActivities();
 
   // Get default values from activities data, split by is_accessible flag
+  // and low mobility codes
   const defaultValues: EditActivitiesFormData = useMemo(() => {
+    const codesWhere = (predicate: (a: RecreationActivityDto) => boolean) =>
+      activities?.filter(predicate).map((a) => a.recreation_activity_code) ||
+      [];
     return {
-      activity_codes:
-        activities
-          ?.filter((a) => !a.is_accessible)
-          .map((a) => a.recreation_activity_code) || [],
-      adaptive_activity_codes:
-        activities
-          ?.filter((a) => a.is_accessible)
-          .map((a) => a.recreation_activity_code) || [],
+      activity_codes: codesWhere((a) => !a.is_accessible),
+      adaptive_activity_codes: codesWhere(
+        (a) =>
+          !!a.is_accessible &&
+          !isLowMobilityActivity(a.recreation_activity_code),
+      ),
+      low_mobility_activity_codes: codesWhere((a) =>
+        isLowMobilityActivity(a.recreation_activity_code),
+      ),
     };
   }, [activities]);
 
@@ -61,6 +67,7 @@ export const useEditActivitiesForm = (
         activity_codes: [
           ...data.activity_codes,
           ...data.adaptive_activity_codes,
+          ...data.low_mobility_activity_codes,
         ],
       });
       addSuccessNotification('Activities updated successfully.');

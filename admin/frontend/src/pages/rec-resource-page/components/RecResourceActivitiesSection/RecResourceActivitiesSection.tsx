@@ -1,5 +1,7 @@
 import { ROUTE_PATHS } from '@/constants/routes';
+import { HelpIcon } from '@/components';
 import { EditableGuard } from '@/components/auth';
+import { ACTIVITIES_HELP_TEXT } from '@/utils/helpText';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { RecreationActivityDto } from '@/services/recreation-resource-admin/models';
 import { Link, useParams } from '@tanstack/react-router';
@@ -20,7 +22,10 @@ export const RecResourceActivitiesSection = ({
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
-        <h2>Activities</h2>
+        <div className="d-flex align-items-center gap-2">
+          <h2 className="mb-0">Activities</h2>
+          <HelpIcon id="activities-help" text={ACTIVITIES_HELP_TEXT} />
+        </div>
 
         <EditableGuard isArchived={isArchived}>
           <Link

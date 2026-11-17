@@ -82,6 +82,7 @@ describe('useEditActivitiesForm', () => {
       defaultValues: {
         activity_codes: [1, 2],
         adaptive_activity_codes: [],
+        low_mobility_activity_codes: [],
       },
       mode: 'onChange',
     });
@@ -97,6 +98,7 @@ describe('useEditActivitiesForm', () => {
         defaultValues: {
           activity_codes: [1, 2],
           adaptive_activity_codes: [34],
+          low_mobility_activity_codes: [],
         },
       }),
     );
@@ -114,6 +116,7 @@ describe('useEditActivitiesForm', () => {
     expect(mockReset).toHaveBeenCalledWith({
       activity_codes: [1, 2],
       adaptive_activity_codes: [],
+      low_mobility_activity_codes: [],
     });
 
     // Update activities
@@ -130,15 +133,20 @@ describe('useEditActivitiesForm', () => {
     expect(mockReset).toHaveBeenCalledWith({
       activity_codes: [3],
       adaptive_activity_codes: [],
+      low_mobility_activity_codes: [],
     });
   });
 
-  it('handles successful submission by merging regular and adaptive codes', async () => {
+  it('handles successful submission by merging regular, adaptive and low mobility codes', async () => {
     const { result } = renderHook(() =>
       useEditActivitiesForm(mockActivities, mockRecResourceId),
     );
 
-    const formData = { activity_codes: [1, 3], adaptive_activity_codes: [34] };
+    const formData = {
+      activity_codes: [1, 3],
+      adaptive_activity_codes: [34],
+      low_mobility_activity_codes: [35],
+    };
     mockMutateAsync.mockResolvedValue(undefined);
 
     const submitResult = await result.current.onSubmit(formData);
@@ -146,7 +154,7 @@ describe('useEditActivitiesForm', () => {
     expect(submitResult).toBe(true);
     expect(mockMutateAsync).toHaveBeenCalledWith({
       recResourceId: mockRecResourceId,
-      activity_codes: [1, 3, 34],
+      activity_codes: [1, 3, 34, 35],
     });
   });
 
@@ -164,7 +172,11 @@ describe('useEditActivitiesForm', () => {
       isAuthError: false,
     });
 
-    const formData = { activity_codes: [1, 3], adaptive_activity_codes: [] };
+    const formData = {
+      activity_codes: [1, 3],
+      adaptive_activity_codes: [],
+      low_mobility_activity_codes: [],
+    };
     const submitResult = await result.current.onSubmit(formData);
 
     expect(submitResult).toBe(false);
@@ -190,6 +202,7 @@ describe('useEditActivitiesForm', () => {
         defaultValues: {
           activity_codes: [],
           adaptive_activity_codes: [],
+          low_mobility_activity_codes: [],
         },
       }),
     );
@@ -205,6 +218,7 @@ describe('useEditActivitiesForm', () => {
         defaultValues: {
           activity_codes: [],
           adaptive_activity_codes: [],
+          low_mobility_activity_codes: [],
         },
       }),
     );

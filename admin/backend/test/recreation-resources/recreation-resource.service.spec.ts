@@ -1061,6 +1061,59 @@ describe('RecreationResourceService - findOne', () => {
     expect(result?.licensee).toBeNull();
   });
 
+  it('should map numeric submission org unit values to org_unit_code before client lookup', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue({
+        org_unit_code: 'dsi',
+      }),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id-numeric-org-unit',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: '15',
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify([
+            {
+              acronym: 'DSI',
+              clientNumber: '000105202',
+              clientName: '00 District Manager South Island (DSI)',
+            },
+          ]),
+        ),
+      }),
+    );
+
+    const result = await service.findOne('id-numeric-org-unit');
+
+    expect(
+      (prisma as any).natural_resource_org_unit.findUnique,
+    ).toHaveBeenCalledWith({
+      where: { rec_resource_id: 'id-numeric-org-unit' },
+      select: { org_unit_code: true },
+    });
+    expect(fetch).toHaveBeenCalledWith(
+      'https://forest-client.example.com/api/clients/findByAcronym?acronym=DSI',
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'X-API-KEY': 'test-key' }),
+      }),
+    );
+    expect(result?.licensee).toBe(
+      '000105202 00 District Manager South Island (DSI)',
+    );
+    vi.unstubAllGlobals();
+  });
+
   it('should return null licensee when forest client API key is missing', async () => {
     process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
     delete process.env.FOREST_CLIENT_API_KEY;

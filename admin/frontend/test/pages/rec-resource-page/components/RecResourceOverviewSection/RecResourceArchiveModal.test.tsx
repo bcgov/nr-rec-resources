@@ -42,12 +42,14 @@ describe('RecResourceArchiveModal', () => {
     expect(
       screen.getByText('Capitalized(tennis court) (res-123) will be archived.'),
     ).toBeInTheDocument();
-    expect(screen.getByText('It will:')).toBeInTheDocument();
+    expect(
+      screen.getByText('Once archived, the resource will:'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
 
     // Check submit button specifically
     expect(
-      screen.getByRole('button', { name: /^Archive Resource$/i }),
+      screen.getByRole('button', { name: /^Archive resource$/i }),
     ).toBeInTheDocument();
   });
 
@@ -140,6 +142,8 @@ describe('RecResourceArchiveModal', () => {
     expect(
       screen.queryByText("Resource couldn't be archived"),
     ).not.toBeInTheDocument();
-    expect(screen.getByText('It will:')).toBeInTheDocument();
+    expect(
+      screen.getByText('Once archived, the resource will:'),
+    ).toBeInTheDocument();
   });
 });

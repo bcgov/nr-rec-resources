@@ -1,4 +1,6 @@
 import { RecreationFeatureDto } from '@/services/recreation-resource-admin/models';
+import { HelpIcon } from '@/components';
+import { FEATURES_HELP_TEXT } from '@/utils/helpText';
 import { Stack } from 'react-bootstrap';
 
 type RecResourceFeatureSectionProps = {
@@ -14,7 +16,10 @@ export const RecResourceFeatureSection = ({
 
   return (
     <Stack direction="vertical" gap={4}>
-      <h2>Significant resource features</h2>
+      <div className="d-flex align-items-center gap-2">
+        <h2 className="mb-0">Significant resource features</h2>
+        <HelpIcon id="features-help" text={FEATURES_HELP_TEXT} />
+      </div>
 
       {sortedFeatures.length === 0 ? (
         <div>No significant resource features assigned.</div>

@@ -38,7 +38,7 @@ export interface ExportDatasetDto {
    */
   source: ExportDatasetDtoSourceEnum;
   /**
-   * Dataset note or sentinel value such as 'not-implemented' for unavailable datasets
+   * Optional dataset note shown in the admin UI
    * @type {string}
    * @memberof ExportDatasetDto
    */
@@ -50,22 +50,12 @@ export interface ExportDatasetDto {
  */
 export const ExportDatasetDtoIdEnum = {
   FileDetails: 'file-details',
-  FileDetailsFta: 'file-details-fta',
   FeeList: 'fee-list',
-  FeeListFta: 'fee-list-fta',
   CampsiteList: 'campsite-list',
-  CampsiteListFta: 'campsite-list-fta',
   ObjectiveList: 'objective-list',
-  ObjectiveListFta: 'objective-list-fta',
   AssetList: 'asset-list',
-  StructureListFta: 'structure-list-fta',
   AccessList: 'access-list',
-  AccessListFta: 'access-list-fta',
   ActivitiesList: 'activities-list',
-  ActivitiesListFta: 'activities-list-fta',
-  SiteInspection: 'site-inspection',
-  SiteInspectionFta: 'site-inspection-fta',
-  ClosureListFta: 'closure-list-fta',
   AssetRepairList: 'asset-repair-list',
   PartnersList: 'partners-list',
 } as const;
@@ -77,7 +67,6 @@ export type ExportDatasetDtoIdEnum =
  */
 export const ExportDatasetDtoSourceEnum = {
   Rst: 'RST',
-  Fta: 'FTA',
 } as const;
 export type ExportDatasetDtoSourceEnum =
   (typeof ExportDatasetDtoSourceEnum)[keyof typeof ExportDatasetDtoSourceEnum];

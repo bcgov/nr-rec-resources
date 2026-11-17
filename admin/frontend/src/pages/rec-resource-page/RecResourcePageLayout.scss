@@ -35,6 +35,26 @@
       color: $colorGrey;
       font-size: 1rem;
     }
+
+    &--beta {
+      background-color: $colorWhite;
+      border: 1px solid $colorBlueMed;
+
+      .rec-resource-page__info-banner-icon {
+        color: $colorBlueMed;
+        margin-top: 0.25rem;
+      }
+
+      .rec-resource-page__info-banner-title {
+        font-weight: 700;
+        color: $colorBlack;
+      }
+
+      .rec-resource-page__info-banner-text {
+        font-weight: normal;
+        color: $colorBlack;
+      }
+    }
   }
 
   aside {

@@ -2,6 +2,8 @@ with source_rows as (
     select
         coalesce(nullif(btrim(tai.forest_file_id), ''), nullif(btrim(ta.forest_file_id), '')) as rec_resource_id,
         coalesce(nullif(btrim(tai.submission_id), ''), nullif(btrim(ta.submission_id), '')) as submission_id,
+        -- keep original path/file name, but drop leading Exhibit_A/ when present
+        regexp_replace(btrim(tai.image_file_name), '^exhibit_a[\\/]+', '', 'i') as migrated_file_name,
         -- strip any folder path, then collapse repeated extensions (.pdf.pdf -> .pdf)
         regexp_replace(
                 regexp_replace(btrim(tai.image_file_name), '^.*[\\/]', ''),
@@ -32,32 +34,25 @@ with source_rows as (
          select
              s.rec_resource_id,
              rss.application_guid,
-             case
-                 when s.derived_extension is null then s.clean_name
-                  else regexp_replace(s.clean_name, '\.[^.]+$', '')
-             end as file_name,
+             s.migrated_file_name as file_name,
              coalesce(s.derived_extension, '')                                 as extension,
              s.file_size,
+             -- Canonical key: rec_resource_id/application_guid/file.ext (no submission_id folder).
              coalesce(nullif(regexp_replace(s.rec_resource_id, '[^A-Za-z0-9._-]', '_', 'g'), ''), 'unknown_resource') || '/'
-                  || regexp_replace(rss.application_guid::text, '[^A-Za-z0-9._-]', '_', 'g') || '/'
-                  || regexp_replace(
-                         regexp_replace(s.clean_name, '\.[^.]+$', ''),
-                         '[^A-Za-z0-9._-]',
-                         '_',
-                         'g'
-                     ) as s3_key,
+                 || regexp_replace(rss.application_guid::text, '[^A-Za-z0-9._-]', '_', 'g') || '/'
+                 || regexp_replace(s.clean_name, '[^A-Za-z0-9._-]', '_', 'g') as s3_key,
              s.updated_at, s.updated_by, s.created_at, s.created_by,
              case when s.page_size in ('A','B','C','D','E') then s.page_size end as page_size,
              s.page_orientation,
              s.scale,
              'migrated from FTA'::varchar(20)                                  as generation_method
          from (
-             select
-                 source_rows.*,
-                 coalesce(source_rows.source_extension,
-                           nullif(lower(substring(source_rows.clean_name from '\.([^.]+)$')), '')) as derived_extension
-             from source_rows
-         ) s
+                  select
+                      source_rows.*,
+                      coalesce(source_rows.source_extension,
+                               nullif(lower(substring(source_rows.clean_name from '\.([^.]+)$')), '')) as derived_extension
+                  from source_rows
+              ) s
                   join rst.recreation_resource rr
                        on rr.rec_resource_id = s.rec_resource_id
                   join rst.recreation_spatial_submission rss

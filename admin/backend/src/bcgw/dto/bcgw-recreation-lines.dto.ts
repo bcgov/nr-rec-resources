@@ -87,30 +87,6 @@ export class BcgwRecreationLinesDto extends BcgwRecreationFeatureBaseDto {
   right_of_way: number | null;
 
   @ApiProperty(
-    nullableStringProperty(
-      'A comma-separated list of codes relating to the recreation districts that the feature is within, e.g., RDCO,RDKB,RDOS.',
-      'RDCO',
-    ),
-  )
-  recreation_district_code: string | null;
-
-  @ApiProperty(
-    nullableStringProperty(
-      'The code of the natural resource district associated with this feature.',
-      'DCC',
-    ),
-  )
-  district_code: string | null;
-
-  @ApiProperty(
-    nullableStringProperty(
-      'The code of the natural resource district associated with this feature (VARCHAR2(6) in BCGW; holds the district code, not the full name).',
-      'DCC',
-    ),
-  )
-  district_name: string | null;
-
-  @ApiProperty(
     nullableNumberProperty(
       'Spatial length in kilometres. Calculated in the source system.',
       0.3338,

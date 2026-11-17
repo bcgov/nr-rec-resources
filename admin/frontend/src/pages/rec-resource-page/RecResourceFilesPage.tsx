@@ -3,31 +3,12 @@ import { EditableGuard } from '@/components/auth';
 import { RecResourceFileSection } from '@/pages/rec-resource-page/components/RecResourceFileSection';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
-import {
-  faEllipsisH,
-  faInfoCircle,
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons';
+import { InfoBanner } from '@/pages/rec-resource-page/components/shared/InfoBanner';
+import { faEllipsisH, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FC } from 'react';
-import { Alert, Dropdown, Stack } from 'react-bootstrap';
+import { Dropdown, Stack } from 'react-bootstrap';
 import './RecResourceFilesPage.scss';
-
-const InfoBanner = () => (
-  <Alert variant="warning" className="rec-resource-page__info-banner">
-    <Stack direction="horizontal" gap={2}>
-      <FontAwesomeIcon
-        className="rec-resource-page__info-banner-icon"
-        icon={faInfoCircle}
-        aria-label="Information"
-      />
-      <span className="rec-resource-page__info-banner-text">
-        All images and documents will be published to the website within 15
-        minutes.
-      </span>
-    </Stack>
-  </Alert>
-);
 
 interface ActionButtonProps {
   label: string;
@@ -145,7 +126,10 @@ export const RecResourceFilesPage = () => {
     <Stack direction="vertical" gap={4}>
       <ActionButtonsSection isArchived={isArchived} />
       <EditableGuard isArchived={isArchived}>
-        <InfoBanner />
+        <InfoBanner>
+          All images and documents will be published to the website within 15
+          minutes.
+        </InfoBanner>
       </EditableGuard>
       <RecResourceFileSection isArchived={isArchived} />
     </Stack>
