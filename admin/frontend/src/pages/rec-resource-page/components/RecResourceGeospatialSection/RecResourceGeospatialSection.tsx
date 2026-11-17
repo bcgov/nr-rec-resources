@@ -114,7 +114,9 @@ export function RecResourceGeospatialSection() {
   const queryClient = useQueryClient();
   const isArchived = recResource?.rec_status_code === 'AR';
   const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
-  const [showExistingVsNewModal, setShowExistingVsNewModal] = useState(false);
+  const [showInlineUnarchiveOptions, setShowInlineUnarchiveOptions] =
+    useState(false);
+  const [currentTimeMs] = useState(() => Date.now());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedSubmissionRow, setSelectedSubmissionRow] =
@@ -631,13 +633,10 @@ export function RecResourceGeospatialSection() {
 
   const shouldShowUnarchiveBanner = isSuperAdmin && isArchived;
 
-  const archiveAgeHours = useMemo(
-    () =>
-      recResource?.updated_at != null
-        ? (Date.now() - new Date(recResource.updated_at).getTime()) / 3_600_000
-        : null,
-    [recResource?.updated_at],
-  );
+  const archiveAgeHours =
+    recResource?.updated_at != null && currentTimeMs > 0
+      ? (currentTimeMs - new Date(recResource.updated_at).getTime()) / 3_600_000
+      : null;
 
   const unarchiveHelperText =
     archiveAgeHours == null
@@ -646,10 +645,14 @@ export function RecResourceGeospatialSection() {
         ? 'Recently archived: You can save and restore the current submission directly without submitting a new SNCSC request (unless you modify the spatial data). This also updates the file status from Archived to Issued.'
         : 'Archived earlier: Because land status or conflicts may have shifted, the existing spatial data will be automatically resubmitted to SNCSC. If your boundaries have changed, please upload updated spatial files before submitting.';
 
+  const isArchivedOlderThan24Hours =
+    archiveAgeHours != null && archiveAgeHours >= 24;
+
   const handleUnarchive = useCallback(async () => {
     if (!isSuperAdmin || !recResourceId || !recResource || !isArchived) return;
 
-    setShowExistingVsNewModal(true);
+    setShowInlineUnarchiveOptions(true);
+    setIsSpatialSubmissionOpen(false);
   }, [isArchived, isSuperAdmin, recResource, recResourceId]);
 
   const buildExistingSpatialAmendFeatures = useCallback(() => {
@@ -694,58 +697,68 @@ export function RecResourceGeospatialSection() {
   const handleExistingSpatialSubmission = useCallback(async () => {
     if (!recResourceId || !recResource) return;
 
-    const existingFeatures = buildExistingSpatialAmendFeatures();
-    if (!existingFeatures.length) {
-      addErrorNotification(
-        'No existing spatial data is available to resubmit to SNCSC.',
-      );
-      return;
-    }
-
-    setShowExistingVsNewModal(false);
-    addSpinnerNotification(
-      'Submitting existing spatial data...',
-      'submit-existing-spatial',
-    );
+    setShowInlineUnarchiveOptions(false);
+    addSpinnerNotification('Restoring archived resource...', 'unarchive-resource');
 
     try {
-      await updateMapFeatures({
-        recResourceId,
-        newFeatures: [],
-        amendedFeatures: existingFeatures,
-        retiredFeatures: [],
-        recreationTypeCode: recResource?.rec_resource_type_code || undefined,
-        submittedBy:
-          user?.email ||
-          user?.preferred_username ||
-          user?.idir_username ||
-          undefined,
-      });
+      if (isArchivedOlderThan24Hours) {
+        const existingFeatures = buildExistingSpatialAmendFeatures();
+        if (!existingFeatures.length) {
+          addErrorNotification(
+            'No existing spatial data is available to resubmit to SNCSC.',
+          );
+          return;
+        }
+
+        await updateMapFeatures({
+          recResourceId,
+          newFeatures: [],
+          amendedFeatures: existingFeatures,
+          retiredFeatures: [],
+          recreationTypeCode: recResource?.rec_resource_type_code || undefined,
+          submittedBy:
+            user?.email ||
+            user?.preferred_username ||
+            user?.idir_username ||
+            undefined,
+        });
+      }
 
       await updateResource({
         recResourceId,
         updateRecreationResourceDto: { rec_status_code: 'HI' } as any,
       });
 
-      addSuccessNotification(
-        'Existing spatial data submitted for amendment and the resource has been restored.',
-      );
+      if (isArchivedOlderThan24Hours) {
+        addSuccessNotification(
+          'Existing spatial data submitted for amendment and the resource has been restored.',
+        );
+      } else {
+        addSuccessNotification('Resource restored from Archived to Issued.');
+      }
+
       await queryClient.invalidateQueries({
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.pendingRequests(),
       });
     } catch (error) {
-      console.error(
-        'Failed to submit existing spatial data as amendment:',
-        error,
-      );
-      addErrorNotification(
-        'Failed to submit the existing spatial data. Please try again.',
-      );
+      if (isArchivedOlderThan24Hours) {
+        console.error(
+          'Failed to submit existing spatial data as amendment:',
+          error,
+        );
+        addErrorNotification(
+          'Failed to submit the existing spatial data. Please try again.',
+        );
+      } else {
+        console.error('Failed to restore archived resource:', error);
+        addErrorNotification('Failed to restore the resource. Please try again.');
+      }
     } finally {
-      removeNotification('submit-existing-spatial');
+      removeNotification('unarchive-resource');
     }
   }, [
     buildExistingSpatialAmendFeatures,
+    isArchivedOlderThan24Hours,
     queryClient,
     recResource,
     recResourceId,
@@ -1018,7 +1031,7 @@ export function RecResourceGeospatialSection() {
           )}
 
           <EditableGuard isArchived={isArchived}>
-            {!isSpatialSubmissionOpen ? (
+            {!isSpatialSubmissionOpen && !showInlineUnarchiveOptions ? (
               <div className="mt-3">
                 <Button
                   size="sm"
@@ -1037,6 +1050,66 @@ export function RecResourceGeospatialSection() {
               </div>
             ) : null}
           </EditableGuard>
+
+          {showInlineUnarchiveOptions ? (
+            <div className="mt-4 pt-3 border-top">
+              {existingSpatialPreviewFeatures.length > 0 ? (
+                <div className="mb-3">
+                  <div className="mb-2 small text-muted fw-semibold">
+                    Current spatial map
+                  </div>
+                  <div className="geospatial-section__modal-map-preview">
+                    <SpatialSubmissionMap
+                      features={existingSpatialPreviewFeatures}
+                      selectedFeatureIndex={null}
+                      compact={true}
+                    />
+                  </div>
+                </div>
+              ) : recResourceWithGeometry ? (
+                <Alert variant="light" className="mb-3">
+                  No existing spatial features are available to preview.
+                </Alert>
+              ) : null}
+
+              <p className="mb-4">
+                The current spatial data was archived. You can either reuse the
+                existing spatial data or upload a new submission. Reusing
+                existing data will restore file status directly when archived
+                within 24 hours, and will resubmit to SNCSC when archived
+                longer than 24 hours.
+              </p>
+
+              <div className="d-flex gap-3">
+                <Button
+                  variant="primary"
+                  onClick={async () => {
+                    if (!recResourceId || !recResource) return;
+                    await handleExistingSpatialSubmission();
+                  }}
+                >
+                  Reuse existing spatial data
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowInlineUnarchiveOptions(false);
+                    setIsSpatialSubmissionOpen(true);
+                  }}
+                >
+                  Upload new submission
+                </Button>
+
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => setShowInlineUnarchiveOptions(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : null}
 
           {isSpatialSubmissionOpen ? (
             <div className="mt-4 pt-3 border-top">
@@ -1224,62 +1297,7 @@ export function RecResourceGeospatialSection() {
             </div>
           ) : null}
 
-          <Modal
-            show={showExistingVsNewModal}
-            onHide={() => setShowExistingVsNewModal(false)}
-            centered
-          >
-            <Modal.Header closeButton>
-              <Modal.Title>Submission options</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              {existingSpatialPreviewFeatures.length > 0 ? (
-                <div className="mb-3">
-                  <div className="mb-2 small text-muted fw-semibold">
-                    Current spatial map
-                  </div>
-                  <div className="geospatial-section__modal-map-preview">
-                    <SpatialSubmissionMap
-                      features={existingSpatialPreviewFeatures}
-                      selectedFeatureIndex={null}
-                      compact={true}
-                    />
-                  </div>
-                </div>
-              ) : recResourceWithGeometry ? (
-                <Alert variant="light" className="mb-3">
-                  No existing spatial features are available to preview.
-                </Alert>
-              ) : null}
-
-              <p className="mb-4">
-                The current spatial data was archived. You can either reuse the
-                existing spatial data or upload a new submission.
-              </p>
-
-              <div className="d-flex gap-3">
-                <Button
-                  variant="primary"
-                  onClick={async () => {
-                    if (!recResourceId || !recResource) return;
-                    await handleExistingSpatialSubmission();
-                  }}
-                >
-                  Reuse existing spatial data
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setShowExistingVsNewModal(false);
-                    setIsSpatialSubmissionOpen(true);
-                  }}
-                >
-                  Upload new submission
-                </Button>
-              </div>
-            </Modal.Body>
-          </Modal>
+          {/* Modal flow removed: unarchive options now always render inline. */}
         </div>
       </div>
     </Stack>

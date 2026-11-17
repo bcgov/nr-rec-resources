@@ -33,6 +33,7 @@ import { upsert } from './utils/upsertUtils';
 @Injectable()
 export class RecreationResourceRepository {
   private readonly logger = new Logger(RecreationResourceRepository.name);
+  private hasRecreationUserDaysCodeColumn: boolean | null = null;
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -184,6 +185,16 @@ export class RecreationResourceRepository {
       ...selectWithoutUserDays
     } = select;
 
+    const includeUserDaysRelation =
+      await this.supportsRecreationUserDaysCodeColumn();
+
+    if (!includeUserDaysRelation) {
+      return await client.recreation_resource.findUnique({
+        where: { rec_resource_id },
+        select: selectWithoutUserDays as typeof recreationResourceSelect,
+      });
+    }
+
     try {
       return await client.recreation_resource.findUnique({
         where: { rec_resource_id },
@@ -198,11 +209,32 @@ export class RecreationResourceRepository {
         `Database is missing recreation_user_days_code for resource ${rec_resource_id}; retrying without the user-days relation.`,
       );
 
+      this.hasRecreationUserDaysCodeColumn = false;
+
       return await client.recreation_resource.findUnique({
         where: { rec_resource_id },
         select: selectWithoutUserDays as typeof recreationResourceSelect,
       });
     }
+  }
+
+  private async supportsRecreationUserDaysCodeColumn(): Promise<boolean> {
+    if (this.hasRecreationUserDaysCodeColumn != null) {
+      return this.hasRecreationUserDaysCodeColumn;
+    }
+
+    const rows = await this.prisma.$queryRaw<Array<{ exists: boolean }>>`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'rst'
+          AND table_name = 'recreation_resource'
+          AND column_name = 'recreation_user_days_code'
+      ) AS exists
+    `;
+
+    this.hasRecreationUserDaysCodeColumn = Boolean(rows[0]?.exists);
+    return this.hasRecreationUserDaysCodeColumn;
   }
 
   private isMissingColumnError(error: unknown, columnName: string): boolean {
