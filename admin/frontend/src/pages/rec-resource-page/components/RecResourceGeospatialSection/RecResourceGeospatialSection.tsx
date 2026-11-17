@@ -161,8 +161,6 @@ export function RecResourceGeospatialSection() {
     section_ids,
   } = geospatialData || {};
 
-  const hasGeometryData = utm_zone && utm_easting && utm_northing;
-
   const isTrail = TRAIL_TYPE_CODES.includes(
     recResource?.rec_resource_type_code ?? '',
   );
@@ -362,7 +360,7 @@ export function RecResourceGeospatialSection() {
 
   const handleUploadStart = useCallback(
     (row: PendingMapFeatureRequestRowDto) => {
-      if (!isSuperAdmin || !row.submission_id) return;
+      if (!isSuperAdmin || !row.application_guid) return;
       setSelectedSubmissionRow(row);
       fileInputRef.current?.click();
     },
@@ -373,7 +371,7 @@ export function RecResourceGeospatialSection() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       e.target.value = '';
-      if (!file || !selectedSubmissionRow?.submission_id) return;
+      if (!file || !selectedSubmissionRow?.application_guid) return;
 
       const tempId = crypto.randomUUID();
       const extension = file.name.split('.').pop() || 'pdf';
@@ -400,12 +398,7 @@ export function RecResourceGeospatialSection() {
   const handleUploadConfirm = useCallback(async () => {
     const selected = selectedSubmissionRow;
     const { file, fileName } = uploadModalState;
-    if (
-      !selected?.submission_id ||
-      !selected?.application_guid ||
-      !file?.pendingFile ||
-      !fileName
-    ) {
+    if (!selected?.application_guid || !file?.pendingFile || !fileName) {
       return;
     }
 
@@ -434,16 +427,17 @@ export function RecResourceGeospatialSection() {
       const finalized = await finalizeMutation.mutateAsync({
         recResourceId,
         application_guid: selected.application_guid,
-        submission_id: selected.submission_id,
         document_id: presigned.document_id,
         file_name: fileName,
         extension: file.extension,
         file_size: file.pendingFile.size,
       });
 
+      const exhibitAStateKey =
+        selected.submission_id ?? selected.application_guid;
       setExhibitAUrlBySubmission((prev) => ({
         ...prev,
-        [selected.submission_id!]: finalized.url,
+        [exhibitAStateKey]: finalized.url,
       }));
 
       await queryClient.invalidateQueries({
@@ -624,7 +618,7 @@ export function RecResourceGeospatialSection() {
       <div className="geospatial-section__card">
         <div className="geospatial-section__card-header d-flex justify-content-between align-items-center">
           <h2 className="geospatial-section__card-title">Geospatial</h2>
-          {isSuperAdmin && hasGeometryData && (
+          {isSuperAdmin && recResourceId && (
             <Link
               to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
                 '$id',
@@ -833,7 +827,7 @@ export function RecResourceGeospatialSection() {
                           className="geospatial-submissions-action-button"
                           disabled={
                             !isSuperAdmin ||
-                            !row.submission_id ||
+                            !row.application_guid ||
                             presignMutation.isPending ||
                             finalizeMutation.isPending
                           }

@@ -174,6 +174,40 @@ variable "act_css_client_id" {
   default     = ""
 }
 
+variable "sncsc_base_url" {
+  description = "SNCSC base URL used by admin backend integrations"
+  type        = string
+  default     = ""
+}
+
+variable "sncsc_integration_client_id" {
+  description = "SNCSC integration client ID"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "sncsc_integration_client_secret" {
+  description = "SNCSC integration client secret"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "sncsc_dm_client_id" {
+  description = "SNCSC DM client ID used for adjudication report fetch"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "sncsc_dm_client_secret" {
+  description = "SNCSC DM client secret used for adjudication report fetch"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "alarm_alert_email_recipients" {
   description = "List of emails to notify for CloudWatch alarms"
   type        = string

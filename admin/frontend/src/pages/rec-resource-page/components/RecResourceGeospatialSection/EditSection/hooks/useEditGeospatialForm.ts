@@ -35,6 +35,13 @@ export const useEditGeospatialForm = (
   const navigate = useNavigate();
   const updateGeospatial = useUpdateRecreationResourceGeospatial();
 
+  type GeospatialEditUpdateDto = UpdateRecreationResourceGeospatialDto & {
+    utm_zone?: number;
+    utm_easting?: number;
+    utm_northing?: number;
+    right_of_way_m?: number;
+  };
+
   const defaultValues = useMemo<EditResourceGeospatialFormData>(() => {
     const source: Partial<RecreationResourceGeospatialDto> =
       geospatialData ?? {};
@@ -43,6 +50,7 @@ export const useEditGeospatialForm = (
       utm_zone: source.utm_zone,
       utm_easting: source.utm_easting,
       utm_northing: source.utm_northing,
+      right_of_way_m: source.right_of_way_m,
     } as EditResourceGeospatialFormData;
   }, [geospatialData]);
 
@@ -77,7 +85,11 @@ export const useEditGeospatialForm = (
       return undefined;
     }
 
-    const dto: Partial<UpdateRecreationResourceGeospatialDto> = {};
+    const dto: GeospatialEditUpdateDto = {
+      newFeatures: [],
+      amendedFeatures: [],
+      retiredFeatures: [],
+    };
 
     const toNumberOrUndefined = (n?: number) =>
       typeof n === 'number' && !Number.isNaN(n) ? n : undefined;
@@ -85,6 +97,7 @@ export const useEditGeospatialForm = (
     const zone = toNumberOrUndefined(data.utm_zone);
     const easting = toNumberOrUndefined(data.utm_easting);
     const northing = toNumberOrUndefined(data.utm_northing);
+    const rightOfWay = toNumberOrUndefined(data.right_of_way_m);
 
     // ── Front-end spatial validation ─────────────────────────────────────────
     if (zone !== undefined && easting !== undefined && northing !== undefined) {
@@ -109,12 +122,12 @@ export const useEditGeospatialForm = (
     if (zone !== undefined) dto.utm_zone = zone;
     if (easting !== undefined) dto.utm_easting = easting;
     if (northing !== undefined) dto.utm_northing = northing;
+    if (rightOfWay !== undefined) dto.right_of_way_m = rightOfWay;
 
     try {
       const returned = await updateGeospatial.mutateAsync({
         recResourceId,
-        updateRecreationResourceGeospatialDto:
-          dto as UpdateRecreationResourceGeospatialDto,
+        updateRecreationResourceGeospatialDto: dto,
       });
 
       addSuccessNotification('Geospatial data updated successfully.');

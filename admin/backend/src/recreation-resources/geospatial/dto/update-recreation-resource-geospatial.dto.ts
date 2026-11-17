@@ -6,6 +6,10 @@ import {
   IsString,
   IsArray,
   ValidateNested,
+  IsInt,
+  IsNumber,
+  Min,
+  Max,
 } from 'class-validator';
 
 export class UpdateRecreationMapFeatureGeometryDto {
@@ -93,4 +97,62 @@ export class UpdateRecreationResourceGeospatialDto {
   @IsOptional()
   @IsString()
   submitted_by?: string | null;
+
+  @ApiProperty({
+    description:
+      'UTM zone for site point updates. Must be provided together with utm_easting and utm_northing.',
+    required: false,
+    nullable: true,
+    minimum: 1,
+    maximum: 60,
+    example: 10,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(60)
+  utm_zone?: number | null;
+
+  @ApiProperty({
+    description:
+      'UTM easting for site point updates. Must be provided together with utm_zone and utm_northing.',
+    required: false,
+    nullable: true,
+    minimum: 100000,
+    maximum: 999999,
+    example: 500000,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(100000)
+  @Max(999999)
+  utm_easting?: number | null;
+
+  @ApiProperty({
+    description:
+      'UTM northing for site point updates. Must be provided together with utm_zone and utm_easting.',
+    required: false,
+    nullable: true,
+    minimum: 0,
+    maximum: 9999999,
+    example: 5450000,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(9999999)
+  utm_northing?: number | null;
+
+  @ApiProperty({
+    description:
+      'Trail right-of-way width in metres. Used when calculating derived trail area.',
+    required: false,
+    nullable: true,
+    minimum: 0,
+    example: 15,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  right_of_way_m?: number | null;
 }
