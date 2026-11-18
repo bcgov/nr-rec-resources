@@ -1450,6 +1450,15 @@ describe('GeospatialService', () => {
       await expect(
         service.createMapFeaturesFromValidatedFile('REC123', payload),
       ).resolves.toBeUndefined();
+
+      expect(prismaMock.recreation_resource.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            rec_resource_id: 'REC123',
+            rec_status_code: 'PE',
+          }),
+        }),
+      );
     });
 
     it('persists MultiLineString upload as one LineString feature per section', async () => {

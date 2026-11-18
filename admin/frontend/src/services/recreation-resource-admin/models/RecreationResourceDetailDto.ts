@@ -89,6 +89,12 @@ export interface RecreationResourceDetailDto {
    */
   name: string;
   /**
+   * Timestamp of the most recent resource update
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
+   */
+  updated_at?: Date;
+  /**
    * Physical location of the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceDetailDto
@@ -348,6 +354,8 @@ export function RecreationResourceDetailDtoFromJSONTyped(
   return {
     rec_resource_id: json['rec_resource_id'],
     name: json['name'],
+    updated_at:
+      json['updated_at'] == null ? undefined : new Date(json['updated_at']),
     closest_community: json['closest_community'],
     recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
@@ -439,6 +447,10 @@ export function RecreationResourceDetailDtoToJSONTyped(
   return {
     rec_resource_id: value['rec_resource_id'],
     name: value['name'],
+    updated_at:
+      value['updated_at'] == null
+        ? undefined
+        : value['updated_at'].toISOString(),
     closest_community: value['closest_community'],
     recreation_activity: (value['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoToJSON,

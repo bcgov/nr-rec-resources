@@ -27,16 +27,22 @@ interface ExhibitADocRow {
   updated_at: Date | null;
 }
 
-// Explicit projection so runtime does not depend on stale generated Prisma model fields.
-const DOC_COLUMNS = Prisma.sql`
-  doc_id, rec_resource_id, application_guid, file_name, extension,
-  file_size, s3_key, generation_method, created_at, updated_at
+const DOC_COLUMNS_WITH_APP_GUID = Prisma.sql`
+  doc_id, rec_resource_id, application_guid::text AS application_guid,
+  file_name, extension, file_size, s3_key, generation_method, created_at, updated_at
+`;
+
+const DOC_COLUMNS_WITHOUT_APP_GUID = Prisma.sql`
+  doc_id, rec_resource_id, NULL::text AS application_guid,
+  file_name, extension, file_size, s3_key, generation_method, created_at, updated_at
 `;
 
 const PRESIGN_EXPIRY_SECONDS = 900;
 
 @Injectable()
 export class ExhibitADocsService extends BaseStorageFileService {
+  private hasExhibitAApplicationGuidColumn: boolean | null = null;
+
   constructor(
     prisma: PrismaService,
     appConfig: AppConfigService,
@@ -57,12 +63,22 @@ export class ExhibitADocsService extends BaseStorageFileService {
   }
 
   async getAll(rec_resource_id: string): Promise<ExhibitADocDto[]> {
-    const docs = await this.prisma.$queryRaw<ExhibitADocRow[]>`
-      SELECT ${DOC_COLUMNS}
-      FROM rst.recreation_exhibit_a_doc
-      WHERE rec_resource_id = ${rec_resource_id}
-      ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
-    `;
+    const includeApplicationGuid =
+      await this.supportsExhibitAApplicationGuidColumn();
+
+    const docs = includeApplicationGuid
+      ? await this.prisma.$queryRaw<ExhibitADocRow[]>`
+          SELECT ${DOC_COLUMNS_WITH_APP_GUID}
+          FROM rst.recreation_exhibit_a_doc
+          WHERE rec_resource_id = ${rec_resource_id}
+          ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+        `
+      : await this.prisma.$queryRaw<ExhibitADocRow[]>`
+          SELECT ${DOC_COLUMNS_WITHOUT_APP_GUID}
+          FROM rst.recreation_exhibit_a_doc
+          WHERE rec_resource_id = ${rec_resource_id}
+          ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+        `;
 
     return Promise.all(
       docs.map(async (doc) =>
@@ -106,7 +122,9 @@ export class ExhibitADocsService extends BaseStorageFileService {
     await this.validateResourceExists(rec_resource_id);
     this.validateEntityId(body.document_id, 'document_id');
 
-    const applicationGuid = this.resolveApplicationGuid(body);
+    const applicationGuid = await this.resolveApplicationGuid(body);
+    const includeApplicationGuid =
+      await this.supportsExhibitAApplicationGuidColumn();
     const s3_key = this.buildS3Key(
       rec_resource_id,
       applicationGuid,
@@ -115,24 +133,44 @@ export class ExhibitADocsService extends BaseStorageFileService {
 
     let doc: ExhibitADocRow | undefined;
     try {
-      [doc] = await this.prisma.$queryRaw<ExhibitADocRow[]>`
-      INSERT INTO rst.recreation_exhibit_a_doc (
-        doc_id, rec_resource_id, file_name, extension, file_size,
-        s3_key, application_guid, generation_method, created_at
-      )
-      VALUES (
-        ${body.document_id}::uuid,
-        ${rec_resource_id},
-        ${this.normalizeStem(body.file_name)},
-        ${this.normalizeExtension(body.extension)},
-        ${BigInt(body.file_size)},
-        ${s3_key},
-        ${applicationGuid}::uuid,
-        'upload',
-        CURRENT_TIMESTAMP
-      )
-      RETURNING ${DOC_COLUMNS}
-    `;
+      if (includeApplicationGuid) {
+        [doc] = await this.prisma.$queryRaw<ExhibitADocRow[]>`
+          INSERT INTO rst.recreation_exhibit_a_doc (
+            doc_id, rec_resource_id, file_name, extension, file_size,
+            s3_key, application_guid, generation_method, created_at
+          )
+          VALUES (
+            ${body.document_id}::uuid,
+            ${rec_resource_id},
+            ${this.normalizeStem(body.file_name)},
+            ${this.normalizeExtension(body.extension)},
+            ${BigInt(body.file_size)},
+            ${s3_key},
+            ${applicationGuid}::uuid,
+            'upload',
+            CURRENT_TIMESTAMP
+          )
+          RETURNING ${DOC_COLUMNS_WITH_APP_GUID}
+        `;
+      } else {
+        [doc] = await this.prisma.$queryRaw<ExhibitADocRow[]>`
+          INSERT INTO rst.recreation_exhibit_a_doc (
+            doc_id, rec_resource_id, file_name, extension, file_size,
+            s3_key, generation_method, created_at
+          )
+          VALUES (
+            ${body.document_id}::uuid,
+            ${rec_resource_id},
+            ${this.normalizeStem(body.file_name)},
+            ${this.normalizeExtension(body.extension)},
+            ${BigInt(body.file_size)},
+            ${s3_key},
+            'upload',
+            CURRENT_TIMESTAMP
+          )
+          RETURNING ${DOC_COLUMNS_WITHOUT_APP_GUID}
+        `;
+      }
     } catch (error) {
       this.handleError(
         error,
@@ -158,13 +196,23 @@ export class ExhibitADocsService extends BaseStorageFileService {
     rec_resource_id: string,
     document_id: string,
   ): Promise<ExhibitADocDto> {
+    const includeApplicationGuid =
+      await this.supportsExhibitAApplicationGuidColumn();
+
     // Scoping by both ids replaces the separate select + ownership check.
-    const [doc] = await this.prisma.$queryRaw<ExhibitADocRow[]>`
-      DELETE FROM rst.recreation_exhibit_a_doc
-      WHERE doc_id = ${document_id}::uuid
-        AND rec_resource_id = ${rec_resource_id}
-        RETURNING ${DOC_COLUMNS}
-    `;
+    const [doc] = includeApplicationGuid
+      ? await this.prisma.$queryRaw<ExhibitADocRow[]>`
+          DELETE FROM rst.recreation_exhibit_a_doc
+          WHERE doc_id = ${document_id}::uuid
+            AND rec_resource_id = ${rec_resource_id}
+          RETURNING ${DOC_COLUMNS_WITH_APP_GUID}
+        `
+      : await this.prisma.$queryRaw<ExhibitADocRow[]>`
+          DELETE FROM rst.recreation_exhibit_a_doc
+          WHERE doc_id = ${document_id}::uuid
+            AND rec_resource_id = ${rec_resource_id}
+          RETURNING ${DOC_COLUMNS_WITHOUT_APP_GUID}
+        `;
 
     if (!doc) {
       throw new HttpException('Exhibit A document not found', 404);
@@ -230,6 +278,25 @@ export class ExhibitADocsService extends BaseStorageFileService {
     if (!application_guid?.trim()) {
       throw new HttpException('application_guid is required', 400);
     }
+  }
+
+  private async supportsExhibitAApplicationGuidColumn(): Promise<boolean> {
+    if (this.hasExhibitAApplicationGuidColumn != null) {
+      return this.hasExhibitAApplicationGuidColumn;
+    }
+
+    const rows = await this.prisma.$queryRaw<Array<{ exists: boolean }>>`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'rst'
+          AND table_name = 'recreation_exhibit_a_doc'
+          AND column_name = 'application_guid'
+      ) AS exists
+    `;
+
+    this.hasExhibitAApplicationGuidColumn = Boolean(rows[0]?.exists);
+    return this.hasExhibitAApplicationGuidColumn;
   }
 
   private mapResponse(doc: ExhibitADocRow, url: string): ExhibitADocDto {

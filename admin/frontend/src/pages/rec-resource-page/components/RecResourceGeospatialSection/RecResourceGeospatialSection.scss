@@ -96,4 +96,10 @@
     color: $colorGreyLight;
     pointer-events: none;
   }
+
+  &__modal-map-preview {
+    border: 1px solid $colorGreyLight;
+    border-radius: 4px;
+    overflow: hidden;
+  }
 }

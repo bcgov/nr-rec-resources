@@ -17,7 +17,7 @@ export class SncscSpatialSubmissionStatusService {
     const existing = await this.prisma.recreation_spatial_submission.findUnique(
       {
         where: { application_guid: applicationGuid },
-        select: { application_guid: true },
+        select: { application_guid: true, tenure_id: true },
       },
     );
 
@@ -55,20 +55,29 @@ export class SncscSpatialSubmissionStatusService {
 
     const isAdjudicated = payload.status === 'APP' || payload.status === 'REJ';
 
-    await this.prisma.recreation_spatial_submission.update({
-      where: { application_guid: applicationGuid },
-      data: {
-        status: payload.status,
-        decision,
-        adjudication_ind: isAdjudicated,
-        adjudicated_by: isAdjudicated ? payload.userId : null,
-        adjudication_date: isAdjudicated ? statusDate : null,
-        adjudication_comment:
-          payload.status === 'CLR' ? null : normalizedComment,
-        adjudication_report_document_uri:
-          payload.status === 'CLR' ? null : normalizedReportUri,
-        updated_by: payload.userId,
-      },
+    await this.prisma.$transaction(async (tx) => {
+      await tx.recreation_spatial_submission.update({
+        where: { application_guid: applicationGuid },
+        data: {
+          status: payload.status,
+          decision,
+          adjudication_ind: isAdjudicated,
+          adjudicated_by: isAdjudicated ? payload.userId : null,
+          adjudication_date: isAdjudicated ? statusDate : null,
+          adjudication_comment:
+            payload.status === 'CLR' ? null : normalizedComment,
+          adjudication_report_document_uri:
+            payload.status === 'CLR' ? null : normalizedReportUri,
+          updated_by: payload.userId,
+        },
+      });
+
+      if (payload.status === 'APP' && existing.tenure_id?.trim()) {
+        await tx.recreation_resource.update({
+          where: { rec_resource_id: existing.tenure_id.trim() },
+          data: { rec_status_code: 'HI' },
+        });
+      }
     });
   }
 }

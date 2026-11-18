@@ -33,6 +33,7 @@ import { upsert } from './utils/upsertUtils';
 @Injectable()
 export class RecreationResourceRepository {
   private readonly logger = new Logger(RecreationResourceRepository.name);
+  private hasRecreationUserDaysCodeColumn: boolean | null = null;
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -170,10 +171,88 @@ export class RecreationResourceRepository {
   async findOneById(
     rec_resource_id: string,
   ): Promise<RecreationResourceGetPayload | null> {
-    return this.prisma.recreation_resource.findUnique({
-      where: { rec_resource_id },
-      select: recreationResourceSelect,
-    });
+    return this.findResourceByIdWithUserDaysFallback(rec_resource_id);
+  }
+
+  private async findResourceByIdWithUserDaysFallback(
+    rec_resource_id: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<RecreationResourceGetPayload | null> {
+    const client = tx ?? this.prisma;
+    const select = recreationResourceSelect as Record<string, unknown>;
+    const {
+      recreation_user_days_code_rel: _recreation_user_days_code_rel,
+      ...selectWithoutUserDays
+    } = select;
+
+    const includeUserDaysRelation =
+      await this.supportsRecreationUserDaysCodeColumn();
+
+    if (!includeUserDaysRelation) {
+      return await client.recreation_resource.findUnique({
+        where: { rec_resource_id },
+        select: selectWithoutUserDays as typeof recreationResourceSelect,
+      });
+    }
+
+    try {
+      return await client.recreation_resource.findUnique({
+        where: { rec_resource_id },
+        select: recreationResourceSelect,
+      });
+    } catch (error) {
+      if (!this.isMissingColumnError(error, 'recreation_user_days_code')) {
+        throw error;
+      }
+
+      this.logger.warn(
+        `Database is missing recreation_user_days_code for resource ${rec_resource_id}; retrying without the user-days relation.`,
+      );
+
+      this.hasRecreationUserDaysCodeColumn = false;
+
+      return await client.recreation_resource.findUnique({
+        where: { rec_resource_id },
+        select: selectWithoutUserDays as typeof recreationResourceSelect,
+      });
+    }
+  }
+
+  private async supportsRecreationUserDaysCodeColumn(): Promise<boolean> {
+    if (this.hasRecreationUserDaysCodeColumn != null) {
+      return this.hasRecreationUserDaysCodeColumn;
+    }
+
+    const rows = await this.prisma.$queryRaw<Array<{ exists: boolean }>>`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'rst'
+          AND table_name = 'recreation_resource'
+          AND column_name = 'recreation_user_days_code'
+      ) AS exists
+    `;
+
+    this.hasRecreationUserDaysCodeColumn = Boolean(rows[0]?.exists);
+    return this.hasRecreationUserDaysCodeColumn;
+  }
+
+  private isMissingColumnError(error: unknown, columnName: string): boolean {
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === 'string'
+          ? error
+          : '';
+
+    return (
+      message.includes(`column \`${columnName}\``) ||
+      message.includes(`column "${columnName}"`) ||
+      message.includes(`Column \`${columnName}\``) ||
+      message.includes(`Column "${columnName}"`) ||
+      (message.includes('does not exist in the current database') &&
+        message.includes(`recreation_resource.${columnName}`))
+    );
   }
 
   private parseIntegerCodes(values?: string[]): number[] {
@@ -439,6 +518,8 @@ export class RecreationResourceRepository {
           await tx.recreation_resource.update({
             where: { rec_resource_id },
             data: mainResourceUpdateData as Prisma.recreation_resourceUpdateInput,
+            // Avoid selecting all columns on update response in drifted DBs.
+            select: { rec_resource_id: true },
           });
         }
 
@@ -481,10 +562,10 @@ export class RecreationResourceRepository {
         }
 
         // Fetch the complete updated resource
-        const updatedResource = await tx.recreation_resource.findUnique({
-          where: { rec_resource_id },
-          select: recreationResourceSelect,
-        });
+        const updatedResource = await this.findResourceByIdWithUserDaysFallback(
+          rec_resource_id,
+          tx,
+        );
 
         if (!updatedResource) {
           throw new Error('Resource not found after update');

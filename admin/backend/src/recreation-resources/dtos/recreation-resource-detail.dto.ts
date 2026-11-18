@@ -337,6 +337,14 @@ export class RecreationControlAccessDto {
  */
 export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   @ApiProperty({
+    description: 'Timestamp of the most recent resource update',
+    example: '2026-11-09T20:13:42.000Z',
+    required: false,
+    type: Date,
+  })
+  updated_at?: Date;
+
+  @ApiProperty({
     description: 'Detailed description of the Recreation Resource',
     example: 'A scenic campground nestled in the heart of Evergreen Valley',
   })

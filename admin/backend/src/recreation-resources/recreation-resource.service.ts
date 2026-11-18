@@ -366,6 +366,8 @@ export class RecreationResourceService {
     await this.prisma.recreation_resource.update({
       where: { rec_resource_id },
       data: { rec_status_code: 'AR' },
+      // Avoid selecting all columns on update response in drifted DBs.
+      select: { rec_resource_id: true },
     });
   }
 

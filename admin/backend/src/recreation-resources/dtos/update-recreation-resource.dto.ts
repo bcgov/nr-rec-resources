@@ -4,6 +4,7 @@ import {
   IsArray,
   IsBoolean,
   IsDate,
+  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -105,6 +106,16 @@ export class UpdateRecreationResourceDto {
   @IsOptional()
   @IsNumber()
   status_code?: number;
+
+  @ApiPropertyOptional({
+    description: 'File status code (AR = Archived, HI = Issued)',
+    example: 'HI',
+    enum: ['AR', 'HI'],
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['AR', 'HI'])
+  rec_status_code?: 'AR' | 'HI';
 
   @ApiPropertyOptional({
     description: 'District code (recreation district)',

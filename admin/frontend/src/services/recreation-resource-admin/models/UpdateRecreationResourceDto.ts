@@ -64,6 +64,12 @@ export interface UpdateRecreationResourceDto {
    */
   status_code?: number;
   /**
+   * File status code (AR = Archived, HI = Issued)
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  rec_status_code?: 'AR' | 'HI';
+  /**
    * District code (recreation district)
    * @type {string}
    * @memberof UpdateRecreationResourceDto
@@ -163,6 +169,8 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
             UpdateRecreationAccessCodeDtoFromJSON,
           ),
     status_code: json['status_code'] == null ? undefined : json['status_code'],
+    rec_status_code:
+      json['rec_status_code'] == null ? undefined : json['rec_status_code'],
     district_code:
       json['district_code'] == null ? undefined : json['district_code'],
     closest_community:
@@ -219,6 +227,7 @@ export function UpdateRecreationResourceDtoToJSONTyped(
             UpdateRecreationAccessCodeDtoToJSON,
           ),
     status_code: value['status_code'],
+    rec_status_code: value['rec_status_code'],
     district_code: value['district_code'],
     closest_community: value['closest_community'],
     display_on_public_site: value['display_on_public_site'],

@@ -29,10 +29,10 @@ import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-reso
 import { GalleryFile } from '@/pages/rec-resource-page/types';
 import './ExhibitASection.scss';
 
-interface ExhibitASectionProps {
+type ExhibitASectionProps = Readonly<{
   recResourceId: string;
   applicationGuid?: string;
-}
+}>;
 
 interface PendingUpload {
   id: string;
@@ -163,7 +163,7 @@ export const ExhibitASection = ({
       });
 
       setPendingUploads((prev) => prev.filter((p) => p.id !== pendingId));
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.exhibitADocs(recResourceId),
       });
       addSuccessNotification(`File "${fileName}" uploaded successfully.`);
@@ -196,7 +196,7 @@ export const ExhibitASection = ({
         recResourceId,
         documentId: docToDelete.document_id,
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.exhibitADocs(recResourceId),
       });
       addSuccessNotification(`Document "${name}" deleted.`);

@@ -1,6 +1,23 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SpatialSubmissionMap } from '@/components/RecResourceSpatial/SpatialSubmissionMap';
+import { GeoJSON } from 'ol/format';
+
+const mockMapOn = vi.fn();
+const mockMapUn = vi.fn();
+const mockMapForEachFeatureAtPixel = vi.fn();
+const mockMapFit = vi.fn();
+const mockMapSetTarget = vi.fn();
+
+const mockOlMap = {
+  on: mockMapOn,
+  un: mockMapUn,
+  forEachFeatureAtPixel: mockMapForEachFeatureAtPixel,
+  getView: () => ({
+    fit: mockMapFit,
+  }),
+  setTarget: mockMapSetTarget,
+};
 
 // Mock the VectorFeatureMap component
 vi.mock('@bcgov/prp-map', async () => {
@@ -18,17 +35,8 @@ vi.mock('@bcgov/prp-map', async () => {
     ),
     VectorFeatureMap: vi.fn(
       ({ ref, style, defaultZoom, minZoom, maxZoom }: any) => {
-        // Create a mock map object
         const mockMap = {
-          getMap: () => ({
-            on: vi.fn(),
-            un: vi.fn(),
-            forEachFeatureAtPixel: vi.fn(),
-            getView: () => ({
-              fit: vi.fn(),
-            }),
-            setTarget: vi.fn(),
-          }),
+          getMap: () => mockOlMap,
         };
 
         // Attach to ref
@@ -55,6 +63,34 @@ vi.mock('@bcgov/prp-map', async () => {
     ),
   };
 });
+
+vi.mock(
+  '@shared/components/recreation-resource-map',
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import('@shared/components/recreation-resource-map')
+      >();
+    const TileLayer = (await import('ol/layer/Tile')).default;
+    const XYZ = (await import('ol/source/XYZ')).default;
+
+    const layer = () =>
+      new TileLayer({
+        source: new XYZ({
+          url: 'https://example.com/base/{z}/{x}/{y}.png',
+        }),
+      });
+
+    return {
+      ...actual,
+      useBaseMapStyledLayers: () => ({
+        prpBaseLayer: layer(),
+        canadaTopographicLayerBasic: layer(),
+        worldBasemapV2Layer: layer(),
+      }),
+    };
+  },
+);
 
 // Mock proj4
 vi.mock('proj4', () => ({
@@ -102,6 +138,121 @@ describe('SpatialSubmissionMap', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('applies compact style when compact mode is enabled', () => {
+    render(
+      <SpatialSubmissionMap
+        features={mockFeatures}
+        selectedFeatureIndex={null}
+        compact={true}
+      />,
+    );
+
+    const map = screen.getByTestId('vector-feature-map');
+    expect(map).toHaveStyle({
+      height: '320px',
+      minHeight: '320px',
+      maxHeight: '320px',
+    });
+  });
+
+  it('selects a feature on map single-click when submissionFeatureIndex is numeric', () => {
+    let singleClickHandler: ((event: any) => void) | undefined;
+    mockMapOn.mockImplementation(
+      (eventName: string, handler: (event: any) => void) => {
+        if (eventName === 'singleclick') {
+          singleClickHandler = handler;
+        }
+      },
+    );
+
+    const onFeatureSelect = vi.fn();
+    mockMapForEachFeatureAtPixel.mockReturnValue({
+      get: (key: string) => (key === 'submissionFeatureIndex' ? 1 : undefined),
+    });
+
+    render(
+      <SpatialSubmissionMap
+        features={mockFeatures}
+        selectedFeatureIndex={null}
+        onFeatureSelect={onFeatureSelect}
+      />,
+    );
+
+    expect(singleClickHandler).toBeTypeOf('function');
+    singleClickHandler?.({ pixel: [10, 20] });
+
+    expect(onFeatureSelect).toHaveBeenCalledWith(1);
+  });
+
+  it('retargets map to the scoped container after mount', async () => {
+    render(
+      <SpatialSubmissionMap
+        features={mockFeatures}
+        selectedFeatureIndex={null}
+        onFeatureSelect={mockOnFeatureSelect}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(mockMapSetTarget).toHaveBeenCalledWith(expect.any(HTMLElement));
+    });
+  });
+
+  it('logs a warning when GeoJSON reader returns zero features', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const readFeaturesSpy = vi
+      .spyOn(GeoJSON.prototype, 'readFeatures')
+      .mockReturnValueOnce([] as any);
+
+    render(
+      <SpatialSubmissionMap
+        features={mockFeatures}
+        selectedFeatureIndex={null}
+        onFeatureSelect={mockOnFeatureSelect}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(warnSpy).toHaveBeenCalledWith(
+        '[SPATIAL MAP] GeoJSON reader returned 0 features',
+        expect.objectContaining({ inputFeatures: mockFeatures.length }),
+      );
+    });
+
+    readFeaturesSpy.mockRestore();
+    warnSpy.mockRestore();
+  });
+
+  it('logs an error when GeoJSON parsing throws', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const readFeaturesSpy = vi
+      .spyOn(GeoJSON.prototype, 'readFeatures')
+      .mockImplementationOnce(() => {
+        throw new Error('bad feature');
+      });
+
+    render(
+      <SpatialSubmissionMap
+        features={mockFeatures}
+        selectedFeatureIndex={null}
+        onFeatureSelect={mockOnFeatureSelect}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(
+        '[SPATIAL MAP] Error reading GeoJSON features:',
+        expect.objectContaining({
+          featuresCount: mockFeatures.length,
+          firstFeature: mockFeatures[0],
+        }),
+      );
+    });
+
+    readFeaturesSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 
   it('renders the map container', () => {

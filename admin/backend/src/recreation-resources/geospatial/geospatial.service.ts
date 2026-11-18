@@ -577,31 +577,58 @@ export class GeospatialService {
 
     await this.updateMapFeaturesFromValidatedFile(rec_resource_id, updateDto);
 
-    const hasUtmZone = updateDto.utm_zone != null;
-    const hasUtmEasting = updateDto.utm_easting != null;
-    const hasUtmNorthing = updateDto.utm_northing != null;
-    const hasAnyUtm = hasUtmZone || hasUtmEasting || hasUtmNorthing;
-    const hasCompleteUtm = hasUtmZone && hasUtmEasting && hasUtmNorthing;
+    // Treat null UTM values as "not provided" so right-of-way-only edits are not blocked.
+    const hasUtmZoneInput =
+      updateDto.utm_zone !== undefined && updateDto.utm_zone !== null;
+    const hasUtmEastingInput =
+      updateDto.utm_easting !== undefined && updateDto.utm_easting !== null;
+    const hasUtmNorthingInput =
+      updateDto.utm_northing !== undefined && updateDto.utm_northing !== null;
+    const hasAnyUtmInput =
+      hasUtmZoneInput || hasUtmEastingInput || hasUtmNorthingInput;
 
-    if (hasAnyUtm && !hasCompleteUtm) {
-      throw new BadRequestException(
-        'utm_zone, utm_easting, and utm_northing must be provided together.',
-      );
-    }
+    let hasCompleteUtm = false;
+    if (hasAnyUtmInput) {
+      const existingGeospatial =
+        await this.findGeospatialDataById(rec_resource_id);
 
-    if (hasCompleteUtm) {
+      // Allow partial UTM edits by backfilling unspecified fields from the current values.
+      const utmZone = hasUtmZoneInput
+        ? (updateDto.utm_zone ?? null)
+        : (existingGeospatial?.utm_zone ?? null);
+      const utmEasting = hasUtmEastingInput
+        ? (updateDto.utm_easting ?? null)
+        : (existingGeospatial?.utm_easting ?? null);
+      const utmNorthing = hasUtmNorthingInput
+        ? (updateDto.utm_northing ?? null)
+        : (existingGeospatial?.utm_northing ?? null);
+
+      hasCompleteUtm =
+        utmZone !== null && utmEasting !== null && utmNorthing !== null;
+
+      if (!hasCompleteUtm) {
+        throw new BadRequestException(
+          'utm_zone, utm_easting, and utm_northing must be provided together, or left unchanged.',
+        );
+      }
+
+      // At this point all three values are guaranteed to be non-null.
+      const finalUtmZone = utmZone as number;
+      const finalUtmEasting = utmEasting as number;
+      const finalUtmNorthing = utmNorthing as number;
+
       await this.validateUtmAgainstFeatureGeometry(
         rec_resource_id,
-        updateDto.utm_zone!,
-        updateDto.utm_easting!,
-        updateDto.utm_northing!,
+        finalUtmZone,
+        finalUtmEasting,
+        finalUtmNorthing,
       );
 
       await this.upsertSitePointFromUtm(
         rec_resource_id,
-        updateDto.utm_zone!,
-        updateDto.utm_easting!,
-        updateDto.utm_northing!,
+        finalUtmZone,
+        finalUtmEasting,
+        finalUtmNorthing,
       );
     }
 
@@ -618,7 +645,7 @@ export class GeospatialService {
       `);
     }
 
-    if (!hasCompleteUtm && !hasRightOfWay) {
+    if (!hasAnyUtmInput && !hasRightOfWay) {
       this.logger.warn(
         `No UTM or right_of_way payload provided for rec_resource_id: ${rec_resource_id} - nothing updated.`,
       );
@@ -1603,6 +1630,7 @@ export class GeospatialService {
               rec_resource_id,
               name: payload.rec_resource_name || null,
               district_code: payload.recreation_district_code || null,
+              rec_status_code: 'PE',
               created_by: payload.submitted_by || null,
             },
           });
