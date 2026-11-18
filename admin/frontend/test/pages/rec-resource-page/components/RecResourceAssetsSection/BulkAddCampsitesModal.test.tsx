@@ -272,7 +272,7 @@ describe('BulkAddCampsitesModal', () => {
           expect.objectContaining({
             latitude: 49.5,
             longitude: -123.0,
-            geometry_type_code: 'PT',
+            geometry_type_code: { geometry_type_code: 'PT' },
           }),
         ]),
       }),

@@ -18,7 +18,7 @@ interface SearchViewControlsProps {
 }
 
 const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
-  const navigate = useNavigate({ from: '/search' });
+  const navigate = useNavigate({ from: '/search/' });
 
   const handleViewChange = (newView: string) => {
     navigate({

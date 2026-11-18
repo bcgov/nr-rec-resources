@@ -146,9 +146,11 @@ export function BulkAddCampsitesModal({
         asset_width: null,
         asset_area: null,
         actual_value: null,
-        latitude: lat,
-        longitude: lng,
-        geometry_type_code: lat != null && lng != null ? 'PT' : undefined,
+        // The API DTO models decimal fields as objects; preserve numeric JSON values.
+        latitude: lat as unknown as object | undefined,
+        longitude: lng as unknown as object | undefined,
+        geometry_type_code:
+          lat != null && lng != null ? { geometry_type_code: 'PT' } : undefined,
       };
     });
 

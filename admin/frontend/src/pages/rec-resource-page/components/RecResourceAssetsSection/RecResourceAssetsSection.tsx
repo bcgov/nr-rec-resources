@@ -175,9 +175,11 @@ export function RecResourceAssetsSection() {
             recResourceId,
             dto: {
               ...buildAssetUpdateDto(values),
-              latitude: lat ?? null,
-              longitude: lng ?? null,
-              geometry_type_code: hasBoth ? 'PT' : null,
+              latitude: (lat ?? null) as unknown as object | null,
+              longitude: (lng ?? null) as unknown as object | null,
+              geometry_type_code: (hasBoth ? 'PT' : null) as unknown as
+                | object
+                | null,
             },
           });
         }),

@@ -72,7 +72,7 @@ describe('useUpdateImageConsent', () => {
     expect(mockApi.updateImageConsent).toHaveBeenCalledWith({
       recResourceId: 'test-resource-id',
       imageId: 'test-image-id',
-      updateImageConsentDto: {
+      updateImageConsentPatchDto: {
         file_name: 'test.jpg',
         date_taken: '2024-06-15',
       },

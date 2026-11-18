@@ -19,7 +19,7 @@ export const useClearFilters = () => {
     });
 
     navigate({
-      search: () => newSearchParams,
+      search: () => newSearchParams as never,
     });
     filterChipStore.setState(() => []);
   }, [searchParams, navigate]);

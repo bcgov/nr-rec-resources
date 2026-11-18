@@ -72,24 +72,11 @@ describe('RecResourceReservation', () => {
     },
     recreation_resource_images: [
       {
-        caption: 'test image',
-        recreation_resource_image_variants: [
-          {
-            size_code: 'scr',
-            url: 'preview-url',
-            width: 10,
-            height: 10,
-            extension: 'jpg',
-          },
-          {
-            size_code: 'original',
-            url: 'full-url',
-            width: 0,
-            height: 0,
-            extension: '',
-          },
-        ],
         image_id: '',
+        url: {
+          scr: 'preview-url',
+          original: 'full-url',
+        },
       },
     ],
     recreation_resource_reservation_info: undefined,
@@ -108,7 +95,6 @@ describe('RecResourceReservation', () => {
 
   const recreation_resource_reservation_info: RecreationResourceReservationInfoDto =
     {
-      reservation_instructions: 'instructions',
       reservation_website: 'https://example.com',
       reservation_email: 'test@example.com',
       reservation_phone_number: '123-456-7890',

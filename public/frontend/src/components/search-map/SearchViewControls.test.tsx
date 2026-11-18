@@ -20,19 +20,19 @@ describe('SearchViewControls', () => {
   });
 
   it('renders "Show list" button correctly', () => {
-    render(<SearchViewControls variant="list" totalCount={0} ids={[]} />);
+    render(<SearchViewControls variant="list" />);
     const button = screen.getByRole('button', { name: /show list/i });
     expect(button).toBeInTheDocument();
   });
 
   it('renders "Show map" button correctly', () => {
-    render(<SearchViewControls variant="map" totalCount={0} ids={[]} />);
+    render(<SearchViewControls variant="map" />);
     const button = screen.getByRole('button', { name: /show map/i });
     expect(button).toBeInTheDocument();
   });
 
   it('clicking "Show list" button sets view=list in search params', () => {
-    render(<SearchViewControls variant="list" totalCount={0} ids={[]} />);
+    render(<SearchViewControls variant="list" />);
     const button = screen.getByRole('button', { name: /show list/i });
 
     fireEvent.click(button);
@@ -43,7 +43,7 @@ describe('SearchViewControls', () => {
   });
 
   it('clicking "Show map" button sets view=map in search params', () => {
-    render(<SearchViewControls variant="map" totalCount={0} ids={[]} />);
+    render(<SearchViewControls variant="map" />);
     const button = screen.getByRole('button', { name: /show map/i });
 
     fireEvent.click(button);

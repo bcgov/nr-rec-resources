@@ -50,7 +50,7 @@ describe('SuggestionMenu', () => {
   ];
 
   const mockMenuProps: RenderMenuProps = {
-    innerRef: vi.fn(),
+    innerRef: vi.fn((_instance: HTMLDivElement | null) => {}),
     style: {},
     className: 'custom-class',
     role: 'listbox',

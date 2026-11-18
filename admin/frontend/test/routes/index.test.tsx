@@ -35,6 +35,10 @@ describe('Landing Route', () => {
 
   it('renders the search page component for the route', () => {
     const Component = Route.options.component;
+    if (!Component) {
+      throw new Error('Route component is not defined');
+    }
+
     render(<Component />);
 
     expect(screen.getByText('Mock Search Page')).toBeInTheDocument();

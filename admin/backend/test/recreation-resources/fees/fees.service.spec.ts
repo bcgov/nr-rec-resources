@@ -320,6 +320,7 @@ describe('FeesService', () => {
         fee_start_date: '2024-06-01',
         fee_end_date: '2024-09-30',
         monday_ind: 'Y',
+        recreation_fee_sub_code: '',
       };
 
       vi.mocked(
@@ -454,6 +455,7 @@ describe('FeesService', () => {
       const recId = 'REC_NOT_FOUND';
       const input: CreateRecreationFeeDto = {
         recreation_fee_code: 'D',
+        recreation_fee_sub_code: '',
       };
 
       vi.mocked(
@@ -477,6 +479,7 @@ describe('FeesService', () => {
         recurring_end_mmdd: '08-31',
         monday_ind: 'Y',
         tuesday_ind: 'Y',
+        recreation_fee_sub_code: '',
       };
 
       vi.mocked(
@@ -530,6 +533,7 @@ describe('FeesService', () => {
         recurring_ind: false,
         recurring_start_mmdd: '06-01',
         recurring_end_mmdd: '08-31',
+        recreation_fee_sub_code: '',
       };
 
       vi.mocked(
@@ -581,6 +585,7 @@ describe('FeesService', () => {
         recreation_fee_code: 'P',
         fee_amount: 10,
         recurring_ind: true,
+        recreation_fee_sub_code: '',
       };
 
       vi.mocked(
@@ -1138,6 +1143,7 @@ describe('FeesService', () => {
         await service.create('REC_FDL', {
           recreation_fee_code: 'D',
           fee_amount: 15,
+          recreation_fee_sub_code: '',
         });
 
         expect(

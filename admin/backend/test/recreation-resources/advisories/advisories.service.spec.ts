@@ -106,9 +106,9 @@ describe('AdvisoriesService', () => {
         await service.findAdvisoriesByRecResourceId(REC_RESOURCE_ID);
 
       expect(result).toHaveLength(3);
-      expect(result[0].advisory_number).toBe(1001);
-      expect(result[1].advisory_number).toBe(1002);
-      expect(result[2].advisory_number).toBe(1003);
+      expect(result[0]!.advisory_number).toBe(1001);
+      expect(result[1]!.advisory_number).toBe(1002);
+      expect(result[2]!.advisory_number).toBe(1003);
     });
 
     it('queries prisma with the correct rec_resource_id filter', async () => {
@@ -184,9 +184,9 @@ describe('AdvisoriesService', () => {
       const result =
         await service.findAdvisoriesByRecResourceId(REC_RESOURCE_ID);
 
-      expect(result[0].end_date).toBeNull();
-      expect(result[0].expiry_date).toBeNull();
-      expect(result[0].published_at).toBeNull();
+      expect(result[0]!.end_date).toBeNull();
+      expect(result[0]!.expiry_date).toBeNull();
+      expect(result[0]!.published_at).toBeNull();
     });
 
     it('maps non-null optional date fields correctly', async () => {
@@ -203,9 +203,9 @@ describe('AdvisoriesService', () => {
       const result =
         await service.findAdvisoriesByRecResourceId(REC_RESOURCE_ID);
 
-      expect(result[0].end_date).toEqual(endDate);
-      expect(result[0].expiry_date).toEqual(expiryDate);
-      expect(result[0].published_at).toEqual(publishedAt);
+      expect(result[0]!.end_date).toEqual(endDate);
+      expect(result[0]!.expiry_date).toEqual(expiryDate);
+      expect(result[0]!.published_at).toEqual(publishedAt);
     });
 
     it('maps boolean display flags from prisma result', async () => {
@@ -220,10 +220,10 @@ describe('AdvisoriesService', () => {
       const result =
         await service.findAdvisoriesByRecResourceId(REC_RESOURCE_ID);
 
-      expect(result[0].is_advisory_date_displayed).toBe(false);
-      expect(result[0].is_effective_date_displayed).toBe(false);
-      expect(result[0].is_end_date_displayed).toBe(true);
-      expect(result[0].is_updated_date_displayed).toBe(false);
+      expect(result[0]!.is_advisory_date_displayed).toBe(false);
+      expect(result[0]!.is_effective_date_displayed).toBe(false);
+      expect(result[0]!.is_end_date_displayed).toBe(true);
+      expect(result[0]!.is_updated_date_displayed).toBe(false);
     });
 
     it('propagates prisma errors to the caller', async () => {

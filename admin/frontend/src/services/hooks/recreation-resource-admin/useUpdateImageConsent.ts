@@ -20,7 +20,7 @@ export function useUpdateImageConsent() {
       apiClient.updateImageConsent({
         recResourceId: params.recResourceId,
         imageId: params.imageId,
-        updateImageConsentDto: {
+        updateImageConsentPatchDto: {
           file_name: params.fileName,
           date_taken: params.dateTaken,
         },

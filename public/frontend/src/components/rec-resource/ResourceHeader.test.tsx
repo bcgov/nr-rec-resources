@@ -38,6 +38,11 @@ const mockRecreationResource: RecreationResourceDetailDto = {
   rec_resource_type: 'Campground',
   description: 'Test description',
   driving_directions: 'Test directions',
+  maintenance_standard_code: 'U',
+  recreation_fee: [],
+  recreation_access: [],
+  recreation_structure:
+    {} as RecreationResourceDetailDto['recreation_structure'],
 };
 
 const mockRecreationDistrict = {

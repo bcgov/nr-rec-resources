@@ -7,7 +7,7 @@ import {
  * Extended detail for a recreation resource with additional UI-specific properties.
  */
 export interface RecreationResourceDetailUIModel
-  extends RecreationResourceDetailDto {
+  extends Omit<RecreationResourceDetailDto, 'rec_resource_type_code'> {
   maintenance_standard_code?: string;
   maintenance_standard_description?: string;
   recreation_district_description?: string;

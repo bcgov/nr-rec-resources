@@ -106,7 +106,7 @@ describe('IsHtmlTextLength', () => {
 
   it('reports the range in the message', async () => {
     const [error] = await check('<p></p>');
-    expect(Object.values(error.constraints ?? {})[0]).toBe(
+    expect(Object.values(error?.constraints ?? {})[0]).toBe(
       'body must contain between 1 and 10 characters of text',
     );
   });

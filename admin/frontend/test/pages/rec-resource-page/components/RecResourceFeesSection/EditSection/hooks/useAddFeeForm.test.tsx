@@ -62,11 +62,11 @@ describe('useAddFeeForm', () => {
     } as any);
 
     vi.mocked(useForm).mockReturnValue(mockUseFormReturn as any);
-    vi.mocked(reactHookForm.useWatch).mockImplementation(({ name }: any) => {
+    vi.mocked(reactHookForm.useWatch).mockImplementation((({ name }: any) => {
       if (name === 'fee_applies') return FEE_APPLIES_OPTIONS.ALWAYS;
       if (name === 'day_preset') return DAY_PRESET_OPTIONS.ALL_DAYS;
       return undefined;
-    });
+    }) as any);
   });
 
   it('initializes form with correct default values', () => {
@@ -75,7 +75,7 @@ describe('useAddFeeForm', () => {
     expect(useForm).toHaveBeenCalledWith({
       resolver: 'mockResolver',
       defaultValues: {
-        recreation_fee_code: '',
+        fee_type_sub_type: '',
         fee_amount: undefined,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
         is_recurring: false,
@@ -100,12 +100,16 @@ describe('useAddFeeForm', () => {
     const { result } = renderHook(() => useAddFeeForm(mockRecResourceId));
 
     const formData = {
+      fee_type_sub_type: 'D',
       recreation_fee_code: 'D',
+      recreation_fee_sub_code: 'D',
       fee_amount: 15,
       fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
+      is_recurring: false,
       fee_start_date: '2024-05-15',
       fee_end_date: '2024-10-15',
       day_preset: DAY_PRESET_OPTIONS.WEEKENDS,
+      fee_determination_letter_confirmed: false,
       monday_ind: false,
       tuesday_ind: false,
       wednesday_ind: false,
@@ -122,6 +126,7 @@ describe('useAddFeeForm', () => {
     expect(mockMutateAsync).toHaveBeenCalledWith({
       recResourceId: mockRecResourceId,
       recreation_fee_code: 'D',
+      recreation_fee_sub_code: 'D',
       fee_amount: 15,
       fee_start_date: '2024-05-15',
       fee_end_date: '2024-10-15',
@@ -144,12 +149,15 @@ describe('useAddFeeForm', () => {
     const { result } = renderHook(() => useAddFeeForm(mockRecResourceId));
 
     const formData = {
+      fee_type_sub_type: 'D',
       recreation_fee_code: 'D',
       fee_amount: 15,
       fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+      is_recurring: false,
       fee_start_date: undefined,
       fee_end_date: undefined,
       day_preset: DAY_PRESET_OPTIONS.CUSTOM,
+      fee_determination_letter_confirmed: false,
       monday_ind: true,
       tuesday_ind: false,
       wednesday_ind: true,
@@ -177,10 +185,10 @@ describe('useAddFeeForm', () => {
   });
 
   it('updates day fields when day preset changes to all_days', () => {
-    vi.mocked(reactHookForm.useWatch).mockImplementation(({ name }: any) => {
+    vi.mocked(reactHookForm.useWatch).mockImplementation((({ name }: any) => {
       if (name === 'day_preset') return DAY_PRESET_OPTIONS.ALL_DAYS;
       return FEE_APPLIES_OPTIONS.ALWAYS;
-    });
+    }) as any);
 
     renderHook(() => useAddFeeForm(mockRecResourceId));
 
@@ -188,10 +196,10 @@ describe('useAddFeeForm', () => {
   });
 
   it('updates day fields when day preset changes to weekends', () => {
-    vi.mocked(reactHookForm.useWatch).mockImplementation(({ name }: any) => {
+    vi.mocked(reactHookForm.useWatch).mockImplementation((({ name }: any) => {
       if (name === 'day_preset') return DAY_PRESET_OPTIONS.WEEKENDS;
       return FEE_APPLIES_OPTIONS.ALWAYS;
-    });
+    }) as any);
 
     renderHook(() => useAddFeeForm(mockRecResourceId));
 
@@ -202,12 +210,15 @@ describe('useAddFeeForm', () => {
     const { result } = renderHook(() => useAddFeeForm(mockRecResourceId));
 
     const formData = {
+      fee_type_sub_type: 'D',
       recreation_fee_code: 'D',
       fee_amount: 15,
       fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
+      is_recurring: false,
       fee_start_date: '2024-05-15',
       fee_end_date: '2024-10-15',
       day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
+      fee_determination_letter_confirmed: false,
       monday_ind: true,
       tuesday_ind: true,
       wednesday_ind: true,

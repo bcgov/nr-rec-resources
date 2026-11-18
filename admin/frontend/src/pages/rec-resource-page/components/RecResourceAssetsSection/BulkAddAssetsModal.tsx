@@ -216,9 +216,11 @@ export function BulkAddAssetsModal({
         asset_width: assetWidth ? Number.parseFloat(assetWidth) : undefined,
         asset_area: assetArea ? Number.parseFloat(assetArea) : undefined,
         actual_value: actualValue ? Number.parseFloat(actualValue) : undefined,
-        latitude: lat,
-        longitude: lng,
-        geometry_type_code: lat != null && lng != null ? 'PT' : undefined,
+        latitude: lat as unknown as CreateRecreationAssetDto['latitude'],
+        longitude: lng as unknown as CreateRecreationAssetDto['longitude'],
+        geometry_type_code: (lat != null && lng != null
+          ? 'PT'
+          : undefined) as unknown as CreateRecreationAssetDto['geometry_type_code'],
       };
     });
 

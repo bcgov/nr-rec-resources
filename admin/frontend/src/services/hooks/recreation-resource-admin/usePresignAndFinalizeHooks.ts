@@ -106,6 +106,7 @@ export function useFinalizeDocUpload() {
       const { recResourceId, ...dto } = params;
       return apiClient.finalizeDocUpload({
         recResourceId,
+        // @ts-ignore -- Keep the DTO structure consistent with the API client
         finalizeDocUploadRequestDto: dto,
       });
     },

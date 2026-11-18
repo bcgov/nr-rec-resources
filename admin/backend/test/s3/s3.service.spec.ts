@@ -65,7 +65,7 @@ describe('S3Service', () => {
       ['whitespace only', '   '],
     ])('should throw error when bucket name is %s', async (_, bucketName) => {
       const module = await createAppConfigTestModule({
-        establishmentOrderDocsBucket: bucketName,
+        establishmentOrderDocsBucket: bucketName as any,
         awsRegion: region,
       });
       const appConfig = module.get<AppConfigService>(AppConfigService);

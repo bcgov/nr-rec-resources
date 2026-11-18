@@ -48,7 +48,7 @@ describe('SncscStatusRequestService', () => {
   });
 
   it('throws when SNCSC_BASE_URL is missing', async () => {
-    appConfigMock.sncscBaseUrl = '   ';
+    Object.assign(appConfigMock, { sncscBaseUrl: '   ' });
 
     await expect(service.createStatusRequest({})).rejects.toThrow(
       new InternalServerErrorException('SNCSC_BASE_URL is not configured.'),
@@ -56,7 +56,7 @@ describe('SncscStatusRequestService', () => {
   });
 
   it('throws when SNCSC integration client id is missing', async () => {
-    appConfigMock.sncscIntegrationClientId = ' ';
+    Object.assign(appConfigMock, { sncscIntegrationClientId: ' ' });
 
     await expect(service.createStatusRequest({})).rejects.toThrow(
       new InternalServerErrorException(
@@ -66,7 +66,7 @@ describe('SncscStatusRequestService', () => {
   });
 
   it('throws when SNCSC integration client secret is missing', async () => {
-    appConfigMock.sncscIntegrationClientSecret = ' ';
+    Object.assign(appConfigMock, { sncscIntegrationClientSecret: ' ' });
 
     await expect(service.createStatusRequest({})).rejects.toThrow(
       new InternalServerErrorException(
@@ -326,7 +326,7 @@ describe('SncscStatusRequestService', () => {
   });
 
   it('throws when DM config is missing', async () => {
-    appConfigMock.sncscDmClientSecret = ' ';
+    Object.assign(appConfigMock, { sncscDmClientSecret: ' ' });
 
     await expect(
       service.fetchAdjudicationReportContent(

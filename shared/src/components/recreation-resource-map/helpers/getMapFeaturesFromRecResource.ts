@@ -1,4 +1,4 @@
-import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
+import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
 import { GeoJSON } from 'ol/format';
 import {
   MAP_PROJECTION_BC_ALBERS,

@@ -159,7 +159,7 @@ describe('EstablishmentOrderDocsService', () => {
         ).mockResolvedValue(docs as any);
 
         vi.mocked(s3Service.getSignedUrl).mockResolvedValueOnce(
-          `https://s3.amazonaws.com/bucket/${docs[0].s3_key}?signature=xyz`,
+          `https://s3.amazonaws.com/bucket/${docs[0]?.s3_key}?signature=xyz`,
         );
 
         const result = await service.getAll('REC0002');

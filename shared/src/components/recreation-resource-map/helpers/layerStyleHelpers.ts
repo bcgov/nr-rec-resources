@@ -1,5 +1,5 @@
 import { Fill, Icon, Stroke, Text } from 'ol/style';
-import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
+import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
 import {
   ICON_SCALE,
   MAP_STYLES,

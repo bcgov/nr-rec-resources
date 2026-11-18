@@ -1,7 +1,7 @@
 import * as helpersModule from '@/services/hooks/recreation-resource-admin/helpers';
 import { useDeleteResourceDocument } from '@/services/hooks/recreation-resource-admin/useDeleteResourceDocument';
 import * as apiClientModule from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
-import { RecreationResourceApi } from '@/services/recreation-resource-admin/apis/RecreationResourceApi';
+import { RecreationResourcesApi } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 import { TestQueryClientProvider } from '@test/test-utils';
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -20,7 +20,7 @@ vi.mock('@/services/hooks/recreation-resource-admin/helpers', () => ({
 const mockDeleteDocumentResource = vi.fn();
 const mockRetryHandler = vi.fn();
 
-const mockApi: Partial<RecreationResourceApi> = {
+const mockApi: Partial<RecreationResourcesApi> = {
   deleteDocumentResource: mockDeleteDocumentResource,
 };
 

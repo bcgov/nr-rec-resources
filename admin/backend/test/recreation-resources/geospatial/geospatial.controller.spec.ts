@@ -66,9 +66,6 @@ describe('GeospatialController', () => {
   it('updateGeospatialData calls service.updateGeospatialData and returns updated payload', async () => {
     const updateDto: UpdateRecreationResourceGeospatialDto =
       new UpdateRecreationResourceGeospatialDto();
-    updateDto.utm_zone = 10;
-    updateDto.utm_easting = 500000;
-    updateDto.utm_northing = 5450000;
 
     (geospatialServiceMock.updateGeospatialData as any).mockResolvedValue(
       undefined,
@@ -104,9 +101,6 @@ describe('GeospatialController', () => {
   it('updateGeospatialData throws 404 HttpException when not found after update', async () => {
     const updateDto: UpdateRecreationResourceGeospatialDto =
       new UpdateRecreationResourceGeospatialDto();
-    updateDto.utm_zone = 11;
-    updateDto.utm_easting = 123456;
-    updateDto.utm_northing = 654321;
 
     (geospatialServiceMock.updateGeospatialData as any).mockResolvedValue(
       undefined,
@@ -194,9 +188,6 @@ describe('GeospatialController', () => {
   it('updateGeospatialData rethrows service errors', async () => {
     const updateDto: UpdateRecreationResourceGeospatialDto =
       new UpdateRecreationResourceGeospatialDto();
-    updateDto.utm_zone = 10;
-    updateDto.utm_easting = 500000;
-    updateDto.utm_northing = 5450000;
 
     const error = new Error('validation failed');
     (geospatialServiceMock.updateGeospatialData as any).mockRejectedValue(

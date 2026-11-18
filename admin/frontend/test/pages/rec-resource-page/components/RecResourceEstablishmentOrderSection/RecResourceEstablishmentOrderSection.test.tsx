@@ -122,6 +122,12 @@ describe('RecResourceEstablishmentOrderSection', () => {
     vi.mocked(useAuthorizations).mockReturnValue({
       canView: true,
       canEdit: true,
+      canDelete: false,
+      isSuperAdmin: false,
+      canViewSensitiveInfo: false,
+      canViewAdjudicationReports: false,
+      canViewPartnerSensitiveInfo: false,
+      canManagePartners: false,
     });
     setupMocks();
   });

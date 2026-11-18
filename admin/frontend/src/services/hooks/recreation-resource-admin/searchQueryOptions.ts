@@ -4,6 +4,7 @@ import type {
   RecreationResourcesApi,
   ResponseError,
   SearchRecreationResourcesRequest,
+  SearchRecreationResourcesEstablishedEnum,
   SearchRecreationResourcesSortEnum,
 } from '@/services/recreation-resource-admin';
 import { createRetryHandler } from '@/services/hooks/recreation-resource-admin/helpers';
@@ -33,7 +34,9 @@ export function buildAdminSearchRequest(
       : undefined,
     establishmentDateFrom: search.establishment_date_from,
     establishmentDateTo: search.establishment_date_to,
-    established: search.established,
+    established: search.established as
+      | SearchRecreationResourcesEstablishedEnum
+      | undefined,
     publicAccessStatus: search.publicAccessStatus.length
       ? search.publicAccessStatus
       : undefined,

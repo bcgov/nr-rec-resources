@@ -34,7 +34,7 @@ import {
 import DownloadKmlResultsModal from './DownloadKmlResultsModal';
 
 const SearchPage = () => {
-  const navigate = useNavigate({ from: '/search' });
+  const navigate = useNavigate({ from: '/search/' });
   const searchParams = useSearch({ from: '/search/' });
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -101,10 +101,11 @@ const SearchPage = () => {
     )?.lastElementChild;
 
     navigate({
-      search: (prev) => ({
-        ...prev,
-        page: Number(data?.currentPage || 1) + 1,
-      }),
+      search: (prev) =>
+        ({
+          ...(prev as Record<string, unknown>),
+          page: Number(data?.currentPage || 1) + 1,
+        }) as never,
       resetScroll: false,
     });
 

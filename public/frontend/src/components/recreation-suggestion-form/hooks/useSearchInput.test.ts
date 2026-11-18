@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { City } from '@/components/recreation-suggestion-form/types';
 import { OPTION_TYPE } from '@/components/recreation-suggestion-form/constants';
+// eslint-disable-next-line no-restricted-imports
 import React from 'react';
 
 const mockNavigate = vi.fn();
@@ -29,7 +30,12 @@ describe('useSearchInput', () => {
 
   it('should initialize with empty string when no filter or community param is provided', () => {
     vi.spyOn(TanStackRouter, 'useSearch').mockReturnValue({});
-    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({});
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
+      status: 'pending',
+      isLoading: false,
+      matches: [],
+      location: undefined,
+    } as never);
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -41,7 +47,7 @@ describe('useSearchInput', () => {
     vi.spyOn(TanStackRouter, 'useSearch').mockReturnValue({ filter: 'test' });
     vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
       filter: 'test',
-    });
+    } as never);
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -52,7 +58,7 @@ describe('useSearchInput', () => {
   it('should update searchInputValue when setSearchInputValue is called', () => {
     vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
       filter: 'test',
-    });
+    } as never);
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -66,7 +72,7 @@ describe('useSearchInput', () => {
   it('should clear searchInputValue and selectedCity when handleClearSearch is called', () => {
     vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
       filter: 'test',
-    });
+    } as never);
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -99,7 +105,12 @@ describe('useSearchInput', () => {
   });
 
   it('should trim input value and navigate with filter param when handleSearch is called', () => {
-    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({});
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
+      status: 'pending',
+      isLoading: false,
+      matches: [],
+      location: undefined,
+    } as never);
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -113,7 +124,13 @@ describe('useSearchInput', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith({
       to: ROUTE_PATHS.SEARCH,
-      search: { filter: 'test' },
+      search: {
+        filter: 'test',
+        isLoading: false,
+        location: undefined,
+        matches: [],
+        status: 'pending',
+      },
     });
   });
 
@@ -126,7 +143,12 @@ describe('useSearchInput', () => {
       option_type: OPTION_TYPE.CITY,
     };
 
-    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({});
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
+      status: 'pending',
+      isLoading: false,
+      matches: [],
+      location: undefined,
+    } as never);
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -158,7 +180,7 @@ describe('useSearchInput', () => {
       lat: '49.0',
       lon: '-123.0',
       community: 'Vancouver',
-    });
+    } as never);
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -195,7 +217,7 @@ describe('useSearchInput', () => {
     });
     vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
       community: 'Victoria',
-    });
+    } as never);
 
     const { result } = renderHook(() => useSearchInput());
 

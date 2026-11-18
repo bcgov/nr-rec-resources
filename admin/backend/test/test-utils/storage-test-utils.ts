@@ -2,9 +2,9 @@ import { AppConfigModule } from '@/app-config/app-config.module';
 import { AppConfigService } from '@/app-config/app-config.service';
 import { PrismaService } from '@/prisma.service';
 import { S3Service } from '@/s3/s3.service';
-import { HttpException, INestApplication } from '@nestjs/common';
+import { HttpException, INestApplication, Type } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Mocked, Type, expect, vi } from 'vitest';
+import { Mocked, expect, vi } from 'vitest';
 
 export interface StorageTestConfig {
   bucketName: string;

@@ -93,9 +93,11 @@ describe('recResourceLoader', () => {
     mockApi.getRecreationResourceById.mockResolvedValue(mockApiResponse);
     (mapRecreationResourceDetail as any).mockReturnValue(mockMappedResponse);
 
-    mockQueryClient.ensureQueryData.mockImplementation(async ({ queryFn }) => {
-      return await queryFn();
-    });
+    mockQueryClient.ensureQueryData.mockImplementation(
+      async ({ queryFn }: { queryFn: () => unknown }) => {
+        return await queryFn();
+      },
+    );
 
     await recResourceLoader({ context: mockContext, params });
 

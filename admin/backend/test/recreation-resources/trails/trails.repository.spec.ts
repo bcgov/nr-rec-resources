@@ -96,7 +96,7 @@ describe('TrailsRepository', () => {
 
       const result = await repository.findAllByResourceId('REC0001');
 
-      expect(result[0].trail_type).toBeNull();
+      expect(result[0]?.trail_type).toBeNull();
     });
 
     it('should map null description to undefined', async () => {
@@ -106,7 +106,7 @@ describe('TrailsRepository', () => {
 
       const result = await repository.findAllByResourceId('REC0001');
 
-      expect(result[0].description).toBeUndefined();
+      expect(result[0]?.description).toBeUndefined();
     });
   });
 
@@ -240,7 +240,7 @@ describe('TrailsRepository', () => {
 
       const callArgs =
         mockPrismaService.recreation_activity_code_trails.update.mock
-          .calls[0][0];
+          .calls[0]![0];
       expect(callArgs.data).toEqual({ name: 'Partial Update' });
       expect(callArgs.data).not.toHaveProperty('trail_type');
     });
@@ -255,7 +255,7 @@ describe('TrailsRepository', () => {
 
       const callArgs =
         mockPrismaService.recreation_activity_code_trails.update.mock
-          .calls[0][0];
+          .calls[0]![0];
       expect(callArgs.data).toHaveProperty('trail_type', null);
     });
 
@@ -269,7 +269,7 @@ describe('TrailsRepository', () => {
 
       const callArgs =
         mockPrismaService.recreation_activity_code_trails.update.mock
-          .calls[0][0];
+          .calls[0]![0];
       expect(callArgs.data).toEqual({ description: 'Updated desc' });
     });
 

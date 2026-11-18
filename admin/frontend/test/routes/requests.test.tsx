@@ -19,6 +19,7 @@ vi.mock('@/components/auth', () => ({
 }));
 
 import { Route } from '@/routes/requests';
+import { JSX } from 'react/jsx-runtime';
 
 describe('Requests Route', () => {
   it('exports a route with a component and beforeLoad handler', () => {

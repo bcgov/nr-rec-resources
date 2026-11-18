@@ -381,7 +381,7 @@ describe('useGlobalQueryErrorHandler', () => {
 
     // Check that both messages were called, regardless of order
     const calls = addErrorNotificationSpy.mock.calls;
-    const messages = calls.map((call) => call[0]);
+    const messages = calls.map((call: any) => call[0]);
     expect(messages).toContain('401 - Unauthorized');
     expect(messages).toContain('401 - Auth failed');
   });

@@ -684,10 +684,14 @@ describe('useFeeForm', () => {
       const useFormArg = vi
         .mocked(reactHookForm.useForm)
         .mock.calls.at(-1)?.[0];
-      expect(useFormArg?.defaultValues?.fee_type_sub_type).toBe('O|B');
-      expect(useFormArg?.defaultValues?.day_preset).toBe(
-        DAY_PRESET_OPTIONS.WEEKENDS,
-      );
+      expect(
+        (useFormArg?.defaultValues as Record<string, unknown> | undefined)
+          ?.fee_type_sub_type,
+      ).toBe('O|B');
+      expect(
+        (useFormArg?.defaultValues as Record<string, unknown> | undefined)
+          ?.day_preset,
+      ).toBe(DAY_PRESET_OPTIONS.WEEKENDS);
     });
 
     it('uses custom day preset when day pattern does not match predefined presets', () => {
@@ -712,9 +716,10 @@ describe('useFeeForm', () => {
       const useFormArg = vi
         .mocked(reactHookForm.useForm)
         .mock.calls.at(-1)?.[0];
-      expect(useFormArg?.defaultValues?.day_preset).toBe(
-        DAY_PRESET_OPTIONS.CUSTOM,
-      );
+      expect(
+        (useFormArg?.defaultValues as Record<string, unknown> | undefined)
+          ?.day_preset,
+      ).toBe(DAY_PRESET_OPTIONS.CUSTOM);
     });
 
     it('navigates to fees route when onDone is not provided', async () => {

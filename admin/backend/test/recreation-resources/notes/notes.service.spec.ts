@@ -123,7 +123,7 @@ describe('NotesService', () => {
 
       const [note] = await service.getAll(REC_RESOURCE_ID);
 
-      expect(note.is_editable).toBe(false);
+      expect(note?.is_editable).toBe(false);
     });
 
     it('reduces date_logged to a date, dropping the time', async () => {
@@ -133,7 +133,7 @@ describe('NotesService', () => {
 
       const [note] = await service.getAll(REC_RESOURCE_ID);
 
-      expect(note.date_logged).toBe('2026-12-31');
+      expect(note?.date_logged).toBe('2026-12-31');
     });
   });
 
@@ -328,7 +328,7 @@ describe('NotesService', () => {
 
       const [note] = await service.getAll(REC_RESOURCE_ID);
 
-      expect(note.is_editable).toBe(false);
+      expect(note?.is_editable).toBe(false);
     });
 
     it('marks every note editable for a super admin', async () => {
@@ -339,7 +339,7 @@ describe('NotesService', () => {
 
       const [note] = await service.getAll(REC_RESOURCE_ID);
 
-      expect(note.is_editable).toBe(true);
+      expect(note?.is_editable).toBe(true);
     });
 
     it('keeps FTA notes locked even for a super admin', async () => {
@@ -350,7 +350,7 @@ describe('NotesService', () => {
 
       const [note] = await service.getAll(REC_RESOURCE_ID);
 
-      expect(note.is_editable).toBe(false);
+      expect(note?.is_editable).toBe(false);
     });
 
     it('tolerates a token with no roles', async () => {
@@ -361,7 +361,7 @@ describe('NotesService', () => {
 
       const [note] = await service.getAll(REC_RESOURCE_ID);
 
-      expect(note.is_editable).toBe(false);
+      expect(note?.is_editable).toBe(false);
     });
 
     it("refuses to update another staff member's note", async () => {

@@ -170,7 +170,7 @@ describe('RecResourceLocationSection', () => {
   it('generates download styled features correctly', () => {
     const mockFeature = {
       setStyle: vi.fn(),
-    };
+    } as unknown as ReturnType<typeof getMapFeaturesFromRecResource>[number];
     vi.mocked(getMapFeaturesFromRecResource).mockReturnValue([mockFeature]);
     vi.mocked(getLayerStyleForRecResource).mockReturnValue(() => []);
 

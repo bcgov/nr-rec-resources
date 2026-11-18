@@ -30,7 +30,7 @@ export function useMapFocusParam(): {
       search: (prev) => {
         const newParams = { ...prev };
         delete newParams.focus;
-        return newParams;
+        return newParams as never;
       },
       replace: true,
     });

@@ -1,1 +1,1 @@
-export { FormErrorBanner } from './FormErrorBanner';
+export { FormErrorBanner } from '../../../../../rec-resource-page/components/shared/FormErrorBanner';

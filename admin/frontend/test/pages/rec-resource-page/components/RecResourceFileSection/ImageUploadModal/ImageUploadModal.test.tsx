@@ -29,7 +29,16 @@ const mockUseRecResourceFileTransferState = vi.mocked(
 );
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const form = useForm({
+  const form = useForm<{
+    displayName: string;
+    dateCreated: Date | null;
+    didYouTakePhoto: boolean | null;
+    containsIdentifiableInfo: boolean | null;
+    photographerType: string;
+    confirmationChecked: boolean;
+    photographerName?: string;
+    consentFormFile?: File | null;
+  }>({
     defaultValues: {
       displayName: 'test',
       dateCreated: null,
@@ -56,6 +65,9 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
     consentFormFile: null,
     handleConsentFileSelect: vi.fn(),
     handleConsentFileRemove: vi.fn(),
+    isFormDirty: false,
+    isStaff: false,
+    showNotAcceptedAlert: false,
   });
 
   return <TestQueryClientProvider>{children}</TestQueryClientProvider>;

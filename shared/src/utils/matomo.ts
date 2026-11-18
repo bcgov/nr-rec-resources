@@ -1,3 +1,10 @@
+declare global {
+  interface Window {
+    // Matomo's tracking queue typically holds arrays of mixed commands/arguments
+    _paq?: Array<any[]>;
+  }
+}
+
 type TrackEventParams = {
   action?: string;
   category: string;

@@ -2,6 +2,7 @@ import { AppConfigService } from '@/app-config/app-config.service';
 import { createS3ServiceProvider } from '@/common/providers/s3-service.provider';
 import { S3Service } from '@/s3/s3.service';
 import { S3ServiceFactory } from '@/s3/s3-service.factory';
+import { FactoryProvider } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('createS3ServiceProvider', () => {
@@ -28,7 +29,9 @@ describe('createS3ServiceProvider', () => {
   });
 
   it('should create a provider with correct structure', () => {
-    const provider = createS3ServiceProvider('recResourceImagesBucket');
+    const provider = createS3ServiceProvider(
+      'recResourceImagesBucket',
+    ) as FactoryProvider;
 
     expect(provider).toHaveProperty('provide', S3Service);
     expect(provider).toHaveProperty('useFactory');
@@ -40,7 +43,9 @@ describe('createS3ServiceProvider', () => {
   });
 
   it('should use correct bucket config key for images', () => {
-    const provider = createS3ServiceProvider('recResourceImagesBucket');
+    const provider = createS3ServiceProvider(
+      'recResourceImagesBucket',
+    ) as FactoryProvider;
     const factory = provider.useFactory(mockS3ServiceFactory, mockAppConfig);
 
     expect(mockS3ServiceFactory.createForBucket).toHaveBeenCalledWith(
@@ -50,7 +55,9 @@ describe('createS3ServiceProvider', () => {
   });
 
   it('should use correct bucket config key for docs', () => {
-    const provider = createS3ServiceProvider('recResourcePublicDocsBucket');
+    const provider = createS3ServiceProvider(
+      'recResourcePublicDocsBucket',
+    ) as FactoryProvider;
     const factory = provider.useFactory(mockS3ServiceFactory, mockAppConfig);
 
     expect(mockS3ServiceFactory.createForBucket).toHaveBeenCalledWith(
@@ -60,7 +67,9 @@ describe('createS3ServiceProvider', () => {
   });
 
   it('should use correct bucket config key for establishment orders', () => {
-    const provider = createS3ServiceProvider('establishmentOrderDocsBucket');
+    const provider = createS3ServiceProvider(
+      'establishmentOrderDocsBucket',
+    ) as FactoryProvider;
     const factory = provider.useFactory(mockS3ServiceFactory, mockAppConfig);
 
     expect(mockS3ServiceFactory.createForBucket).toHaveBeenCalledWith(
@@ -70,13 +79,17 @@ describe('createS3ServiceProvider', () => {
   });
 
   it('should inject S3ServiceFactory and AppConfigService', () => {
-    const provider = createS3ServiceProvider('recResourceImagesBucket');
+    const provider = createS3ServiceProvider(
+      'recResourceImagesBucket',
+    ) as FactoryProvider;
 
     expect(provider.inject).toEqual([S3ServiceFactory, AppConfigService]);
   });
 
   it('should return S3Service instance from factory', () => {
-    const provider = createS3ServiceProvider('recResourceImagesBucket');
+    const provider = createS3ServiceProvider(
+      'recResourceImagesBucket',
+    ) as FactoryProvider;
     const result = provider.useFactory(mockS3ServiceFactory, mockAppConfig);
 
     expect(result).toBe(mockS3Service);
@@ -87,7 +100,9 @@ describe('createS3ServiceProvider', () => {
     const customBucket = 'custom-bucket-name';
     mockAppConfig.customBucket = customBucket;
 
-    const provider = createS3ServiceProvider('customBucket' as any);
+    const provider = createS3ServiceProvider(
+      'customBucket' as any,
+    ) as FactoryProvider;
     provider.useFactory(mockS3ServiceFactory, mockAppConfig);
 
     expect(mockS3ServiceFactory.createForBucket).toHaveBeenCalledWith(

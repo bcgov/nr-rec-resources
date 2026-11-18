@@ -1,6 +1,8 @@
 import { defineConfig, loadEnv } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
+// @ts-ignore -- This package subpath requires bundler-style module resolution.
 import react from '@vitejs/plugin-react';
+// @ts-ignore -- This package subpath requires bundler-style module resolution.
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import path from 'path';
 

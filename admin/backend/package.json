@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "prisma-generate": "prisma generate",
-    "build": "prisma generate && nest build && tsc-alias",
+    "build": "prisma generate && tsc --noEmit && nest build && tsc-alias",
     "copy-prisma-generated-sql": "prisma generate --sql && cp src/generated/prisma/sql/*.ts src/prisma-generated-sql/ && npm run prettier-fix",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "deploy": "npm install --ignore-scripts --no-update-notifier && npm run build",

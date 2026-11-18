@@ -1,4 +1,4 @@
-import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
+import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
 import { StyleFunction } from 'ol/style/Style';
 import { FeatureLike } from 'ol/Feature';
 import { Style } from 'ol/style';
