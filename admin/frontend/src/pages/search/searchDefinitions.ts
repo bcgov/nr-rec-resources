@@ -15,8 +15,6 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'fee:desc',
   'community:asc',
   'community:desc',
-  'status:asc',
-  'status:desc',
   'campsites:asc',
   'campsites:desc',
   'district:asc',
@@ -108,12 +106,6 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
     sortKey: 'community',
   },
   {
-    id: 'status',
-    label: 'Status',
-    resultKey: 'status',
-    sortKey: 'status',
-  },
-  {
     id: 'defined_campsites',
     label: 'Defined campsites',
     resultKey: 'definedCampsites',
@@ -136,40 +128,6 @@ export const STICKY_COLUMN_IDS: AdminSearchColumnId[] = [
   'rec_resource_id',
   'name',
 ];
-
-// No ACT advisories in prod yet, so everything would read as Open. Hide it
-// there until the backfill lands, then empty this set.
-export const NON_PROD_ONLY_COLUMN_IDS = new Set<AdminSearchColumnId>([
-  'public_access_status',
-]);
-
-// Outside prod, public access status is the one users work with, so FTA status
-// is super admins only. In prod it's the other way round: FTA is all we have,
-// so everyone gets it.
-export const SUPER_ADMIN_ONLY_COLUMN_IDS = new Set<AdminSearchColumnId>([
-  'status',
-]);
-
-export interface SearchVisibilityContext {
-  isSuperAdmin: boolean;
-  isProduction: boolean;
-}
-
-// Shared by the results table and the column picker so they can't disagree.
-export function isColumnVisibleTo(
-  columnId: AdminSearchColumnId,
-  { isSuperAdmin, isProduction }: SearchVisibilityContext,
-): boolean {
-  if (NON_PROD_ONLY_COLUMN_IDS.has(columnId)) {
-    return !isProduction;
-  }
-
-  if (SUPER_ADMIN_ONLY_COLUMN_IDS.has(columnId)) {
-    return isProduction || isSuperAdmin;
-  }
-
-  return true;
-}
 
 export const ADMIN_SEARCH_COLUMN_LABELS = Object.fromEntries(
   ADMIN_SEARCH_COLUMN_DEFINITIONS.map(({ id, label }) => [id, label]),

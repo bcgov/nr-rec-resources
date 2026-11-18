@@ -6,7 +6,7 @@ import { FilterAccordion } from '@/pages/search/components/FilterAccordion';
 import { SearchResultsPagination } from '@/pages/search/components/SearchResultsPagination';
 import { SearchResultsSummary } from '@/pages/search/components/SearchResultsSummary';
 
-let isSuperAdmin = true;
+const isSuperAdmin = true;
 
 // Treat all tests in this file as super-admin so the implicit "Issued (HI)"
 // default is not injected, keeping assertions clean and focused.
@@ -129,7 +129,6 @@ describe('FilterAccordion', () => {
             { id: 'D1', label: 'District 1', is_archived: false },
           ],
           activityOptions: [{ id: '8', label: 'Camping', is_archived: false }],
-          statusOptions: [],
           accessOptions: [{ id: 'W', label: 'Walk-in', is_archived: false }],
           establishedOptions,
           publicAccessStatusOptions: [],
@@ -159,7 +158,6 @@ describe('FilterAccordion', () => {
       type: [],
       district: [],
       activities: [],
-      status: [],
       access: [],
       closestCommunity: [],
       establishment_date_from: '2020-01-01',
@@ -170,7 +168,7 @@ describe('FilterAccordion', () => {
     });
   });
 
-  it('hides the status filter for users who are not super admins', () => {
+  it('does not render an FTA status filter', () => {
     const controller = {
       isFilterPanelOpen: true,
       closeFilterPanel: vi.fn(),
@@ -179,7 +177,6 @@ describe('FilterAccordion', () => {
       closestCommunityOptions: [],
       districtOptions: [],
       activityOptions: [],
-      statusOptions: [{ id: '1', label: 'Open', is_archived: false }],
       accessOptions: [],
       establishedOptions,
       publicAccessStatusOptions: [],
@@ -188,7 +185,7 @@ describe('FilterAccordion', () => {
       resetFilters: vi.fn(),
     };
 
-    const { unmount } = render(
+    render(
       <FilterAccordion
         search={DEFAULT_ADMIN_SEARCH_STATE}
         controller={controller}
@@ -196,31 +193,12 @@ describe('FilterAccordion', () => {
       />,
     );
 
-    // Each filter renders as a dropdown toggle button rather than a labelled
-    // form control, so it is queried by accessible name like the others here.
-    expect(screen.getByRole('button', { name: 'Status' })).toBeInTheDocument();
-
-    unmount();
-    isSuperAdmin = false;
-
-    try {
-      render(
-        <FilterAccordion
-          search={DEFAULT_ADMIN_SEARCH_STATE}
-          controller={controller}
-          showTrigger={false}
-        />,
-      );
-
-      expect(
-        screen.queryByRole('button', { name: 'Status' }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Resource type' }),
-      ).toBeInTheDocument();
-    } finally {
-      isSuperAdmin = true;
-    }
+    expect(
+      screen.queryByRole('button', { name: 'Status' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Public access status' }),
+    ).toBeInTheDocument();
   });
 
   it('resets filters and restores the route state when canceling', async () => {
@@ -242,7 +220,6 @@ describe('FilterAccordion', () => {
           typeOptions: [{ id: 'RTR', label: 'Rustic', is_archived: false }],
           districtOptions: [],
           activityOptions: [],
-          statusOptions: [],
           accessOptions: [],
           establishedOptions,
           publicAccessStatusOptions: [],
@@ -299,7 +276,6 @@ describe('FilterAccordion', () => {
           ],
           districtOptions: [],
           activityOptions: [],
-          statusOptions: [],
           accessOptions: [],
           establishedOptions,
           publicAccessStatusOptions: [],
@@ -335,7 +311,6 @@ describe('FilterAccordion', () => {
           typeOptions: [],
           districtOptions: [],
           activityOptions: [],
-          statusOptions: [],
           accessOptions: [],
           establishedOptions,
           publicAccessStatusOptions: [],
@@ -360,7 +335,6 @@ describe('FilterAccordion', () => {
       type: [],
       district: [],
       activities: [],
-      status: [],
       access: [],
       closestCommunity: [],
       establishment_date_from: undefined,
@@ -388,7 +362,6 @@ describe('FilterAccordion', () => {
           typeOptions: [],
           districtOptions: [],
           activityOptions: [],
-          statusOptions: [],
           accessOptions: [],
           establishedOptions,
           publicAccessStatusOptions: [],
@@ -413,7 +386,6 @@ describe('FilterAccordion', () => {
       type: [],
       district: [],
       activities: [],
-      status: [],
       access: [],
       closestCommunity: [],
       establishment_date_from: undefined,
@@ -441,7 +413,6 @@ describe('FilterAccordion', () => {
           typeOptions: [],
           districtOptions: [],
           activityOptions: [],
-          statusOptions: [],
           accessOptions: [],
           establishedOptions,
           publicAccessStatusOptions: [],
@@ -478,7 +449,6 @@ describe('FilterAccordion', () => {
           typeOptions: [],
           districtOptions: [],
           activityOptions: [],
-          statusOptions: [],
           accessOptions: [],
           establishedOptions,
           publicAccessStatusOptions: [],
@@ -512,7 +482,6 @@ describe('FilterAccordion', () => {
           typeOptions: [],
           districtOptions: [],
           activityOptions: [],
-          statusOptions: [],
           accessOptions: [],
           establishedOptions,
           publicAccessStatusOptions: [{ id: 'Open', label: 'Open' }],

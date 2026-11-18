@@ -3,30 +3,56 @@ import Closures from '@/components/rec-resource/section/Closures';
 
 describe('the Closures component', () => {
   it('renders the site name', async () => {
-    render(<Closures comment="This site is closed" siteName="Site Name" />);
+    render(
+      <Closures
+        title="Wildfire closure"
+        grouplabel="Closed"
+        siteName="Site Name"
+      />,
+    );
     const siteNameElement = screen.getByText('Site Name');
 
     expect(siteNameElement).toBeInTheDocument();
   });
 
-  it('renders the closure comment', async () => {
-    render(<Closures comment="This site is closed" siteName="Site Name" />);
-    const commentElement = screen.getByText('This site is closed');
+  it('renders the advisory title', async () => {
+    render(
+      <Closures
+        title="Wildfire closure"
+        grouplabel="Closed"
+        siteName="Site Name"
+      />,
+    );
+    const titleElement = screen.getByText('Wildfire closure');
 
-    expect(commentElement).toBeInTheDocument();
+    expect(titleElement).toBeInTheDocument();
   });
 
-  it('does not render if there is no comment', async () => {
-    render(<Closures comment="" siteName="Site Name" />);
-    const commentElement = screen.queryByText('This site is closed');
+  it('describes the site with the advisory status', async () => {
+    render(
+      <Closures
+        title="Bridge out"
+        grouplabel="Restricted"
+        siteName="Site Name"
+      />,
+    );
 
-    expect(commentElement).not.toBeInTheDocument();
+    expect(screen.getByText(/is restricted/)).toBeInTheDocument();
   });
 
-  it('does not render if there is no site name', async () => {
-    render(<Closures comment="This site is closed" siteName="" />);
+  it('does not render if there is no title', async () => {
+    render(<Closures title="" grouplabel="Closed" siteName="Site Name" />);
     const siteNameElement = screen.queryByText('Site Name');
 
     expect(siteNameElement).not.toBeInTheDocument();
+  });
+
+  it('does not render if there is no site name', async () => {
+    render(
+      <Closures title="Wildfire closure" grouplabel="Closed" siteName="" />,
+    );
+    const titleElement = screen.queryByText('Wildfire closure');
+
+    expect(titleElement).not.toBeInTheDocument();
   });
 });

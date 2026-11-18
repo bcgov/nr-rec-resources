@@ -1,16 +1,16 @@
 import { forwardRef } from 'react';
-import { SafeHtml } from '@shared/components/safe-html';
 import alertIcon from '@/images/icons/red-alert.svg';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 
 interface ClosuresProps {
-  comment: string;
+  title: string;
+  grouplabel: string;
   siteName: string;
 }
 
 const Closures = forwardRef<HTMLElement, ClosuresProps>(
-  ({ comment, siteName }, ref) => {
-    if (!comment || !siteName) return null;
+  ({ title, grouplabel, siteName }, ref) => {
+    if (!title || !siteName) return null;
     return (
       <section id={SectionIds.CLOSURES} ref={ref}>
         <h2 className="section-heading">{SectionTitles.CLOSURES}</h2>
@@ -18,9 +18,9 @@ const Closures = forwardRef<HTMLElement, ClosuresProps>(
           <span className="icon-container fw-bold">
             <img alt={`Closure icon`} src={alertIcon} height={24} width={24} />
             <span className="capitalize">{siteName}</span>
-            &nbsp;is closed
+            &nbsp;is {grouplabel.toLowerCase()}
           </span>
-          <SafeHtml html={comment} className="rich-text" />
+          <p>{title}</p>
         </div>
       </section>
     );

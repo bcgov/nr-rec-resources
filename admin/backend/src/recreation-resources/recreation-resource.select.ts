@@ -84,7 +84,10 @@ const _baseRecreationResourceSelect = {
       recreation_defined_campsite: true,
     },
   },
+  // status only counts published advisories, like the public site; the
+  // advisories section still lists unpublished ones
   act_advisories_flat: {
+    where: { published_at: { not: null } },
     orderBy: [
       { listing_rank: 'desc' },
       { urgency_sequence: 'desc' },

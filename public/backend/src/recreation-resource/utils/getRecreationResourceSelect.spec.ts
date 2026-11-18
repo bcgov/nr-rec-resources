@@ -123,6 +123,7 @@ describe('getRecreationResourceSelect', () => {
         },
       },
       act_advisories_flat: {
+        where: { published_at: { not: null } },
         select: {
           advisory_number: true,
           title: true,

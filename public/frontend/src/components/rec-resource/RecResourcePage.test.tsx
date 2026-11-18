@@ -121,9 +121,7 @@ const createDefaultSectionState = () => ({
   photos: [],
   uniqueRecreationAccess: undefined,
   allActivities: [],
-  statusCode: undefined,
-  statusDescription: undefined,
-  statusComment: undefined,
+  closureAdvisory: undefined,
   isClosures: false,
   isSiteDescription: false,
   showCampingSection: false,
@@ -214,44 +212,22 @@ describe('RecResourcePage', () => {
 
   describe('Closures section', () => {
     it('shows closure information when closed', async () => {
-      await renderComponent(
-        {
-          ...mockResource,
-          recreation_status: {
-            status_code: 2,
-            description: 'Closed',
-            comment: 'This site is closed',
-          },
+      await renderComponent(mockResource, {
+        isClosures: true,
+        closureAdvisory: {
+          title: 'Wildfire closure',
+          access_status_grouplabel: 'Closed',
         },
-        {
-          isClosures: true,
-          statusCode: 2,
-          statusDescription: 'Closed',
-          statusComment: 'This site is closed',
-        },
-      );
+      });
 
       expect(
         screen.getByRole('heading', { name: /Closures/i }),
       ).toBeInTheDocument();
+      expect(screen.getByText('Wildfire closure')).toBeInTheDocument();
     });
 
     it('hides closure information when open', async () => {
-      await renderComponent(
-        {
-          ...mockResource,
-          recreation_status: {
-            status_code: 1,
-            description: 'Open',
-            comment: 'This site is open',
-          },
-        },
-        {
-          isClosures: false,
-          statusCode: 1,
-          statusDescription: 'Open',
-        },
-      );
+      await renderComponent(mockResource, { isClosures: false });
 
       expect(screen.queryByRole('heading', { name: /Closures/i })).toBeNull();
     });

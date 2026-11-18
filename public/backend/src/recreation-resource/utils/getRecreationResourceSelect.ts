@@ -143,6 +143,8 @@ export const getRecreationResourceSelect = () => {
       },
     },
     act_advisories_flat: {
+      // the public site only shows published advisories
+      where: { published_at: { not: null } },
       select: {
         advisory_number: true,
         title: true,

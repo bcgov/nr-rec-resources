@@ -13,7 +13,6 @@ export interface FilterOptions {
   lat?: number;
   lon?: number;
   radius?: number;
-  useAdvisoryStatus?: boolean;
 }
 
 export interface ExcludeOptions {
@@ -39,7 +38,6 @@ const buildFilterConditions = (
     fees,
     lat,
     lon,
-    useAdvisoryStatus,
   } = options;
 
   const activityFilter = activities?.split('_').map(Number) ?? [];
@@ -118,39 +116,27 @@ const buildFilterConditions = (
       ? Prisma.sql`(${Prisma.join(
           statusFilter.map((status) => {
             const lowerStatus = status.toLowerCase();
-            if (useAdvisoryStatus) {
-              if (lowerStatus === 'open') {
-                return Prisma.sql`(
-                  NOT EXISTS (
-                    SELECT 1 FROM rst.act_advisories_flat aaf
-                    WHERE aaf.rec_resource_id = rrsv.rec_resource_id
-                      AND aaf.published_at IS NOT NULL
-                  )
-                  OR (
-                    SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
-                    FROM rst.act_advisories_flat aaf
-                    WHERE aaf.rec_resource_id = rrsv.rec_resource_id
-                      AND aaf.published_at IS NOT NULL
-                  ) = ANY(ARRAY[${Prisma.join(OPEN_GROUPLABELS)}])
-                )`;
-              } else {
-                return Prisma.sql`(
+            if (lowerStatus === 'open') {
+              return Prisma.sql`(
+                NOT EXISTS (
+                  SELECT 1 FROM rst.act_advisories_flat aaf
+                  WHERE aaf.rec_resource_id = rrsv.rec_resource_id
+                    AND aaf.published_at IS NOT NULL
+                )
+                OR (
                   SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
                   FROM rst.act_advisories_flat aaf
                   WHERE aaf.rec_resource_id = rrsv.rec_resource_id
                     AND aaf.published_at IS NOT NULL
-                ) = ANY(ARRAY[${Prisma.join(CLOSED_GROUPLABELS)}])`;
-              }
+                ) = ANY(ARRAY[${Prisma.join(OPEN_GROUPLABELS)}])
+              )`;
             } else {
-              // Legacy: filter by recreation_status.status_code (status_code 2 = Closed)
-              if (lowerStatus === 'open') {
-                return Prisma.sql`(
-                  (recreation_status->>'status_code')::int != 2
-                  OR recreation_status IS NULL
-                )`;
-              } else {
-                return Prisma.sql`(recreation_status->>'status_code')::int = 2`;
-              }
+              return Prisma.sql`(
+                SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
+                FROM rst.act_advisories_flat aaf
+                WHERE aaf.rec_resource_id = rrsv.rec_resource_id
+                  AND aaf.published_at IS NOT NULL
+              ) = ANY(ARRAY[${Prisma.join(CLOSED_GROUPLABELS)}])`;
             }
           }),
           ' OR ',

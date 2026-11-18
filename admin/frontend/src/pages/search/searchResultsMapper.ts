@@ -21,8 +21,6 @@ export function mapAdminSearchResultRow(
     closestCommunity: row.closest_community
       ? capitalizeWords(row.closest_community)
       : '-',
-    status: row.status,
-    statusCode: row.status_code,
     recStatusCode: row.rec_status_code,
     recStatusDescription: row.rec_status_description,
     visible: row.display_on_public_site,

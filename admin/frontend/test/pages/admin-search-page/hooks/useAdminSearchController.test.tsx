@@ -84,10 +84,6 @@ describe('useAdminSearchController', () => {
       data: [
         { type: 'activities', options: [] },
         { type: 'resourceType', options: [] },
-        {
-          type: 'recreationStatus',
-          options: [{ id: '1', label: 'Open', is_archived: false }],
-        },
         { type: 'access', options: [] },
         { type: 'closestCommunity', options: [] },
         {
@@ -156,7 +152,6 @@ describe('useAdminSearchController', () => {
       type: ['RTR'],
       district: ['C'],
       activities: ['8'],
-      status: ['1'],
       access: ['W'],
       closestCommunity: ['WHISTLER'],
       establishment_date_from: '2020-01-01',
@@ -171,7 +166,6 @@ describe('useAdminSearchController', () => {
         'RTR',
         'C',
         '8',
-        'Open',
         'W',
         'Whistler',
         'Established from: 2020-01-01',
@@ -181,8 +175,8 @@ describe('useAdminSearchController', () => {
 
     result.current.appliedFilterChips[0].onClear();
     result.current.appliedFilterChips[1].onClear();
+    result.current.appliedFilterChips[4].onClear();
     result.current.appliedFilterChips[5].onClear();
-    result.current.appliedFilterChips[6].onClear();
 
     expect(mockNavigate).toHaveBeenNthCalledWith(1, {
       to: '/',
@@ -191,7 +185,6 @@ describe('useAdminSearchController', () => {
         district: 'C',
         activities: '8',
         closestCommunity: 'WHISTLER',
-        status: '1',
         access: 'W',
         establishment_date_from: '2020-01-01',
         establishment_date_to: '2021-01-01',
@@ -205,7 +198,6 @@ describe('useAdminSearchController', () => {
         type: 'RTR',
         activities: '8',
         closestCommunity: 'WHISTLER',
-        status: '1',
         access: 'W',
         establishment_date_from: '2020-01-01',
         establishment_date_to: '2021-01-01',
@@ -219,7 +211,6 @@ describe('useAdminSearchController', () => {
         type: 'RTR',
         district: 'C',
         activities: '8',
-        status: '1',
         access: 'W',
         establishment_date_from: '2020-01-01',
         establishment_date_to: '2021-01-01',
@@ -234,7 +225,6 @@ describe('useAdminSearchController', () => {
         district: 'C',
         activities: '8',
         closestCommunity: 'WHISTLER',
-        status: '1',
         access: 'W',
         establishment_date_to: '2021-01-01',
       },
@@ -411,7 +401,6 @@ describe('useAdminSearchController', () => {
         type: [],
         district: [],
         activities: [],
-        status: [],
         access: [],
         closestCommunity: [],
         establishment_date_from: undefined,
@@ -551,7 +540,6 @@ describe('useAdminSearchController', () => {
       data: [
         { type: 'activities', options: [] },
         { type: 'resourceType', options: [] },
-        { type: 'recreationStatus', options: [] },
         { type: 'access', options: [] },
         { type: 'district', options: [] },
         { type: 'closestCommunity', options: [] },
@@ -602,7 +590,6 @@ describe('useAdminSearchController', () => {
       data: [
         { type: 'activities', options: [] },
         { type: 'resourceType', options: [] },
-        { type: 'recreationStatus', options: [] },
         { type: 'access', options: [] },
         { type: 'district', options: [] },
         { type: 'closestCommunity', options: [] },

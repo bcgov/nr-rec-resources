@@ -1,5 +1,8 @@
 import { useMemo } from 'react';
-import { RecreationResourceImageDto } from '@/service/recreation-resource';
+import {
+  AdvisoryDto,
+  RecreationResourceImageDto,
+} from '@/service/recreation-resource';
 import { PhotoGalleryProps } from '@/components/rec-resource/PhotoGallery';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { PageSection } from '@/components/layout/PageWithScrollMenu';
@@ -8,6 +11,8 @@ import { capitalizeWords } from '@shared/utils/capitalizeWords';
 const RECREATION_SITE = 'Recreation site';
 const RECREATION_TRAIL = 'Recreation trail';
 const INTERPRETIVE_FOREST = 'Interpretive forest';
+// same grouping as the Closed option of the search status filter
+const CLOSED_GROUPLABELS = ['Closed', 'Restricted'];
 
 export function useRecResourceSections(recResource: any) {
   const formattedName = capitalizeWords(recResource?.name);
@@ -36,11 +41,8 @@ export function useRecResourceSections(recResource: any) {
     overnight_fees,
     trail_use_fees,
     recreation_structure,
-    recreation_status: {
-      status_code: statusCode,
-      description: statusDescription,
-      comment: statusComment,
-    } = {},
+    top_access_status_grouplabel: topAccessStatusGrouplabel,
+    advisories,
     site_point_geometry,
     recreation_resource_docs,
     spatial_feature_geometry,
@@ -98,9 +100,13 @@ export function useRecResourceSections(recResource: any) {
   const isRecreationSite = rec_resource_type === RECREATION_SITE;
   const isRecreationTrail = rec_resource_type === RECREATION_TRAIL;
   const isInterpretiveForest = rec_resource_type === INTERPRETIVE_FOREST;
-  const isClosures = Boolean(
-    statusComment && formattedName && statusCode === 2,
-  );
+  // advisories arrive ranked, so the first one is the one setting the status
+  const closureAdvisory: AdvisoryDto | undefined = CLOSED_GROUPLABELS.includes(
+    topAccessStatusGrouplabel,
+  )
+    ? advisories?.[0]
+    : undefined;
+  const isClosures = Boolean(closureAdvisory && formattedName);
 
   // Gallery
   const isPhotoGallery = photos.length > 0;
@@ -192,9 +198,7 @@ export function useRecResourceSections(recResource: any) {
     photos,
     uniqueRecreationAccess,
     allActivities,
-    statusCode,
-    statusDescription,
-    statusComment,
+    closureAdvisory,
     isClosures,
     isSiteDescription,
     showCampingSection,

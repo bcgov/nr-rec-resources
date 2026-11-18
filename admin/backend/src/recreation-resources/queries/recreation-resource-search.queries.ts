@@ -226,6 +226,7 @@ export function buildSearchWhereSql(
             SELECT af.access_status_grouplabel
             FROM rst.act_advisories_flat af
             WHERE af.rec_resource_id = rr.rec_resource_id
+              AND af.published_at IS NOT NULL
             ORDER BY ${ADVISORY_ORDER_SQL}
             LIMIT 1
           ),
@@ -404,6 +405,7 @@ export function buildDerivedSortQueryParts(
                 SELECT af.access_status_grouplabel
                 FROM rst.act_advisories_flat af
                 WHERE af.rec_resource_id = rr.rec_resource_id
+                  AND af.published_at IS NOT NULL
                 ORDER BY ${ADVISORY_ORDER_SQL}
                 LIMIT 1
               ),

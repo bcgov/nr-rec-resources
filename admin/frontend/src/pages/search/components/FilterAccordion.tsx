@@ -8,15 +8,12 @@ import { getPublicAccessStatusHelpText } from '@/utils/publicAccessStatusHelpTex
 import {
   ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS,
   EMPTY_ADMIN_SEARCH_FILTERS,
-  isFilterFieldVisibleTo,
   type EditableAdminSearchFilters,
 } from '@/pages/search/constants';
 import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchController';
 import { AdminSearchRouteState } from '@/pages/search/types';
 import './FilterAccordion.scss';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
-import { useAuthorizations } from '@/hooks/useAuthorizations';
-import { isProd } from '@/utils/environment';
 
 type FilterAccordionControllerProps = Pick<
   ReturnType<typeof useAdminSearchController>,
@@ -26,7 +23,6 @@ type FilterAccordionControllerProps = Pick<
   | 'typeOptions'
   | 'districtOptions'
   | 'activityOptions'
-  | 'statusOptions'
   | 'accessOptions'
   | 'closestCommunityOptions'
   | 'establishedOptions'
@@ -52,7 +48,6 @@ const getEditableFilters = (
   type: state.type,
   district: state.district,
   activities: state.activities,
-  status: state.status,
   access: state.access,
   closestCommunity: state.closestCommunity,
   establishment_date_from: state.establishment_date_from,
@@ -72,8 +67,6 @@ export function FilterAccordion({
   controller,
   showTrigger = true,
 }: Readonly<FilterAccordionProps>) {
-  const { isSuperAdmin } = useAuthorizations();
-  const filterVisibility = { isSuperAdmin, isProduction: isProd() };
   const {
     isFilterPanelOpen: isOpen,
     closeFilterPanel: onClose,
@@ -81,7 +74,6 @@ export function FilterAccordion({
     typeOptions,
     districtOptions,
     activityOptions,
-    statusOptions,
     accessOptions,
     closestCommunityOptions,
     establishedOptions,
@@ -95,7 +87,6 @@ export function FilterAccordion({
     typeOptions,
     districtOptions,
     activityOptions,
-    statusOptions,
     accessOptions,
     establishedOptions,
     closestCommunityOptions: (closestCommunityOptions ?? []).map((item) => ({
@@ -137,9 +128,6 @@ export function FilterAccordion({
         <div className="filters__panel mb-3">
           <Row className="g-3">
             {ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS.map((field) => {
-              if (!isFilterFieldVisibleTo(field, filterVisibility)) {
-                return null;
-              }
               const options =
                 filterOptionsByKey[
                   field.optionsKey as keyof typeof filterOptionsByKey
@@ -283,7 +271,6 @@ export function FilterAccordion({
                     type: draft.type,
                     district: draft.district,
                     activities: draft.activities,
-                    status: draft.status,
                     access: draft.access,
                     closestCommunity: draft.closestCommunity,
                     establishment_date_from: draft.establishment_date_from,

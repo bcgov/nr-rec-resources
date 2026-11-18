@@ -10,7 +10,6 @@ export interface BuildFilterOptionCountsQueryOptions {
   filterTypes?: FilterTypes;
   lat?: number;
   lon?: number;
-  useAdvisoryStatus?: boolean;
 }
 
 export function buildFilterOptionCountsQuery({
@@ -21,7 +20,6 @@ export function buildFilterOptionCountsQuery({
   filterTypes,
   lat,
   lon,
-  useAdvisoryStatus = false,
 }: BuildFilterOptionCountsQueryOptions): Prisma.Sql {
   const textSearchCondition = searchText
     ? Prisma.sql` AND (name ilike ${'%' + searchText + '%'} or closest_community ilike ${'%' + searchText + '%'})`
@@ -124,39 +122,31 @@ export function buildFilterOptionCountsQuery({
       CASE
         WHEN ${filterTypes?.isOnlyStatusFilter ?? false} THEN (
           SELECT COUNT(*) FROM recreation_resource_search_view rrsv
-          WHERE ${
-            useAdvisoryStatus
-              ? Prisma.sql`(
-                NOT EXISTS (
-                  SELECT 1 FROM rst.act_advisories_flat aaf
-                  WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
-                )
-                OR (
-                  SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
-                  FROM rst.act_advisories_flat aaf
-                  WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
-                ) = ANY(ARRAY['Open', 'Seasonal restrictions', 'Visit with caution', 'Limited access'])
-              )`
-              : Prisma.sql`((recreation_status->>'status_code')::int != 2 OR recreation_status IS NULL)`
-          } ${extraFilters}
+          WHERE (
+            NOT EXISTS (
+              SELECT 1 FROM rst.act_advisories_flat aaf
+              WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
+            )
+            OR (
+              SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
+              FROM rst.act_advisories_flat aaf
+              WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
+            ) = ANY(ARRAY['Open', 'Seasonal restrictions', 'Visit with caution', 'Limited access'])
+          ) ${extraFilters}
         )::INT
         ELSE (
           SELECT COUNT(*) FROM filtered_resources fr
-          WHERE ${
-            useAdvisoryStatus
-              ? Prisma.sql`(
-                NOT EXISTS (
-                  SELECT 1 FROM rst.act_advisories_flat aaf
-                  WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
-                )
-                OR (
-                  SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
-                  FROM rst.act_advisories_flat aaf
-                  WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
-                ) = ANY(ARRAY['Open', 'Seasonal restrictions', 'Visit with caution', 'Limited access'])
-              )`
-              : Prisma.sql`((fr.recreation_status->>'status_code')::int != 2 OR fr.recreation_status IS NULL)`
-          }
+          WHERE (
+            NOT EXISTS (
+              SELECT 1 FROM rst.act_advisories_flat aaf
+              WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
+            )
+            OR (
+              SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
+              FROM rst.act_advisories_flat aaf
+              WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
+            ) = ANY(ARRAY['Open', 'Seasonal restrictions', 'Visit with caution', 'Limited access'])
+          )
         )::INT
       END AS count
     UNION ALL
@@ -166,27 +156,19 @@ export function buildFilterOptionCountsQuery({
       CASE
         WHEN ${filterTypes?.isOnlyStatusFilter ?? false} THEN (
           SELECT COUNT(*) FROM recreation_resource_search_view rrsv
-          WHERE ${
-            useAdvisoryStatus
-              ? Prisma.sql`(
-                SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
-                FROM rst.act_advisories_flat aaf
-                WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
-              ) = ANY(ARRAY['Closed', 'Restricted'])`
-              : Prisma.sql`(recreation_status->>'status_code')::int = 2`
-          } ${extraFilters}
+          WHERE (
+            SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
+            FROM rst.act_advisories_flat aaf
+            WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
+          ) = ANY(ARRAY['Closed', 'Restricted']) ${extraFilters}
         )::INT
         ELSE (
           SELECT COUNT(*) FROM filtered_resources fr
-          WHERE ${
-            useAdvisoryStatus
-              ? Prisma.sql`(
-                SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
-                FROM rst.act_advisories_flat aaf
-                WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
-              ) = ANY(ARRAY['Closed', 'Restricted'])`
-              : Prisma.sql`(fr.recreation_status->>'status_code')::int = 2`
-          }
+          WHERE (
+            SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
+            FROM rst.act_advisories_flat aaf
+            WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
+          ) = ANY(ARRAY['Closed', 'Restricted'])
         )::INT
       END AS count
   ),

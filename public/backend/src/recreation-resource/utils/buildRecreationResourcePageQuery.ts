@@ -61,7 +61,7 @@ export function buildRecreationResourcePageQuery({
     left join lateral (
       select
         count(*)::int as advisory_count,
-        (array_agg(access_status_grouplabel order by access_status_precedence asc))[1] as top_access_status_grouplabel
+        (array_agg(access_status_grouplabel order by listing_rank desc, urgency_sequence desc, access_status_precedence asc, updated_date desc, advisory_date desc, event_type_precedence asc))[1] as top_access_status_grouplabel
       from rst.act_advisories_flat
       where rec_resource_id = rrsv.rec_resource_id
         and published_at is not null

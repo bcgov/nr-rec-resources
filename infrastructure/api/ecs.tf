@@ -252,10 +252,6 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = var.app == "admin" ? local.storage_consent_forms_bucket : ""
         },
         {
-          name  = "FEATURE_ADVISORY_STATUS"
-          value = var.app == "public" ? var.feature_advisory_status : ""
-        },
-        {
           name  = "BCGW_EXPORTS_BUCKET"
           value = var.app == "admin" ? local.bcgw_exports_bucket : ""
         },
