@@ -2,10 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from '@tanstack/react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  RecreationResourceGeospatialDto,
-  UpdateRecreationResourceGeospatialDto,
-} from '@/services/recreation-resource-admin';
+import { RecreationResourceGeospatialDto } from '@/services/recreation-resource-admin';
 import useUpdateRecreationResourceGeospatial from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceGeospatial';
 import {
   createEditResourceGeospatialSchema,
@@ -35,7 +32,10 @@ export const useEditGeospatialForm = (
   const navigate = useNavigate();
   const updateGeospatial = useUpdateRecreationResourceGeospatial();
 
-  type GeospatialEditUpdateDto = UpdateRecreationResourceGeospatialDto & {
+  type GeospatialEditUpdateDto = {
+    newFeatures: [];
+    amendedFeatures: [];
+    retiredFeatures: [];
     utm_zone?: number;
     utm_easting?: number;
     utm_northing?: number;
@@ -85,12 +85,6 @@ export const useEditGeospatialForm = (
       return undefined;
     }
 
-    const dto: GeospatialEditUpdateDto = {
-      newFeatures: [],
-      amendedFeatures: [],
-      retiredFeatures: [],
-    };
-
     const toNumberOrUndefined = (n?: number) =>
       typeof n === 'number' && !Number.isNaN(n) ? n : undefined;
 
@@ -99,12 +93,20 @@ export const useEditGeospatialForm = (
     const northing = toNumberOrUndefined(data.utm_northing);
     const rightOfWay = toNumberOrUndefined(data.right_of_way_m);
 
+    const finalZone = zone ?? geospatialData?.utm_zone ?? undefined;
+    const finalEasting = easting ?? geospatialData?.utm_easting ?? undefined;
+    const finalNorthing = northing ?? geospatialData?.utm_northing ?? undefined;
+
     // ── Front-end spatial validation ─────────────────────────────────────────
-    if (zone !== undefined && easting !== undefined && northing !== undefined) {
+    if (
+      finalZone !== undefined &&
+      finalEasting !== undefined &&
+      finalNorthing !== undefined
+    ) {
       const isValid = validateUtmAgainstSpatialFeatures(
-        zone,
-        easting,
-        northing,
+        finalZone,
+        finalEasting,
+        finalNorthing,
         geospatialData?.spatial_feature_geometry,
       );
 
@@ -119,15 +121,20 @@ export const useEditGeospatialForm = (
 
     clearErrors('root');
 
-    if (zone !== undefined) dto.utm_zone = zone;
-    if (easting !== undefined) dto.utm_easting = easting;
-    if (northing !== undefined) dto.utm_northing = northing;
-    if (rightOfWay !== undefined) dto.right_of_way_m = rightOfWay;
+    const dto: GeospatialEditUpdateDto = {
+      newFeatures: [],
+      amendedFeatures: [],
+      retiredFeatures: [],
+      ...(zone !== undefined ? { utm_zone: zone } : {}),
+      ...(easting !== undefined ? { utm_easting: easting } : {}),
+      ...(northing !== undefined ? { utm_northing: northing } : {}),
+      ...(rightOfWay !== undefined ? { right_of_way_m: rightOfWay } : {}),
+    };
 
     try {
       const returned = await updateGeospatial.mutateAsync({
         recResourceId,
-        updateRecreationResourceGeospatialDto: dto,
+        updateRecreationResourceGeospatialDto: dto as any,
       });
 
       addSuccessNotification('Geospatial data updated successfully.');

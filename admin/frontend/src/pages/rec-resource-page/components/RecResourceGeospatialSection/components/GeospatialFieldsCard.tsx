@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { EditableGuard } from '@/components/auth';
 import { CopyButton } from '@shared/components/copy-button';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import {
   GEOMETRY_NUMBER_FORMAT,
   SITE_TYPE_CODES,
@@ -27,6 +28,7 @@ export function GeospatialFieldsCard({
   isArchived,
   geospatialData,
 }: Props) {
+  const { isSuperAdmin } = useAuthorizations();
   const {
     latitude,
     longitude,
@@ -38,9 +40,15 @@ export function GeospatialFieldsCard({
     right_of_way_m,
   } = geospatialData || {};
 
-  const hasGeometryData = utm_zone && utm_easting && utm_northing;
   const isTrail = TRAIL_TYPE_CODES.includes(resourceTypeCode ?? '');
   const isSite = SITE_TYPE_CODES.includes(resourceTypeCode ?? '');
+  const hasGeospatialValues =
+    utm_zone != null ||
+    utm_easting != null ||
+    utm_northing != null ||
+    latitude != null ||
+    longitude != null;
+  const canShowEdit = isSuperAdmin && hasGeospatialValues;
 
   const items = [
     { key: 'utm-zone', label: 'UTM zone', value: utm_zone?.toString() },
@@ -93,8 +101,8 @@ export function GeospatialFieldsCard({
     <div className="geospatial-section__card">
       <div className="geospatial-section__card-header d-flex justify-content-between align-items-center">
         <h2 className="geospatial-section__card-title">Geospatial</h2>
-        <EditableGuard isArchived={isArchived}>
-          {hasGeometryData && (
+        {canShowEdit ? (
+          <EditableGuard isArchived={isArchived}>
             <Link
               to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
                 '$id',
@@ -104,8 +112,8 @@ export function GeospatialFieldsCard({
             >
               Edit
             </Link>
-          )}
-        </EditableGuard>
+          </EditableGuard>
+        ) : null}
       </div>
 
       <div className="geospatial-section__card-body">

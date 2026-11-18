@@ -3,7 +3,7 @@ import {
   EXHIBIT_A_SCALE_OPTIONS,
   EXHIBIT_A_SIZE_OPTIONS,
   resolveExhibitAUrl,
-} from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/utils/exhibitA';
+} from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/exhibitA';
 
 describe('EditSection exhibitA utils', () => {
   it('exposes expected regenerate options', () => {

@@ -13,7 +13,7 @@ export const createEditResourceGeospatialSchema = () =>
         .max(60, { message: 'UTM zone must be between 1 and 60' })
         .optional(),
 
-      // UTM easting: valid range for a UTM zone (100 000 – 999 999 m)
+      // UTM easting: valid range for a UTM zone (100 000 - 999 999 m)
       utm_easting: z
         .number()
         .refine((val) => Number.isFinite(val), {
@@ -24,7 +24,7 @@ export const createEditResourceGeospatialSchema = () =>
         })
         .optional(),
 
-      // UTM northing: valid range for northern hemisphere (0 – 9 999 999 m)
+      // UTM northing: valid range for northern hemisphere (0 - 9 999 999 m)
       utm_northing: z
         .number()
         .refine((val) => Number.isFinite(val), {
@@ -45,17 +45,22 @@ export const createEditResourceGeospatialSchema = () =>
         })
         .optional(),
     })
-    .refine(
-      (data) => {
-        const values = [data.utm_zone, data.utm_easting, data.utm_northing];
-        const providedCount = values.filter((v) => v != null).length;
-        return providedCount === 0 || providedCount === values.length;
-      },
-      {
-        message: 'UTM zone, easting, and northing must be provided together',
-        path: ['utm_zone'],
-      },
-    );
+    .superRefine((value, ctx) => {
+      const providedCount = [
+        value.utm_zone,
+        value.utm_easting,
+        value.utm_northing,
+      ].filter((item) => item !== undefined).length;
+
+      if (providedCount > 0 && providedCount < 3) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['utm_zone'],
+          message:
+            'utm_zone, utm_easting, and utm_northing must be provided together.',
+        });
+      }
+    });
 
 export type EditResourceGeospatialFormData = z.infer<
   ReturnType<typeof createEditResourceGeospatialSchema>

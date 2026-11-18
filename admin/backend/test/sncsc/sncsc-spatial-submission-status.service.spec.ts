@@ -7,16 +7,24 @@ import { SncscSpatialSubmissionStatusService } from '@/sncsc/sncsc-spatial-submi
 describe('SncscSpatialSubmissionStatusService', () => {
   let service: SncscSpatialSubmissionStatusService;
   let prisma: {
+    $transaction: ReturnType<typeof vi.fn>;
     recreation_spatial_submission: {
       findUnique: ReturnType<typeof vi.fn>;
+      update: ReturnType<typeof vi.fn>;
+    };
+    recreation_resource: {
       update: ReturnType<typeof vi.fn>;
     };
   };
 
   beforeEach(() => {
     prisma = {
+      $transaction: vi.fn(async (callback: any) => callback(prisma as any)),
       recreation_spatial_submission: {
         findUnique: vi.fn(),
+        update: vi.fn(),
+      },
+      recreation_resource: {
         update: vi.fn(),
       },
     };
@@ -29,6 +37,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
   it('updates APP status with APPROVE decision mapping', async () => {
     prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
       application_guid: '9b8ab705-5325-4f7a-aadc-51ef2d3a6d53',
+      tenure_id: 'REC0001',
     });
 
     await service.updateStatus('9b8ab705-5325-4f7a-aadc-51ef2d3a6d53', {
@@ -52,6 +61,10 @@ describe('SncscSpatialSubmissionStatusService', () => {
     expect(data.adjudication_report_document_uri).toBe(
       'dms://sncsc/reports/123',
     );
+    expect(prisma.recreation_resource.update).toHaveBeenCalledWith({
+      where: { rec_resource_id: 'REC0001' },
+      data: { rec_status_code: 'HI' },
+    });
   });
 
   it('throws NotFoundException when application_guid does not exist', async () => {
@@ -70,6 +83,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
   it('throws BadRequestException when APP is missing report URI', async () => {
     prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
       application_guid: 'app-guid',
+      tenure_id: 'REC0002',
     });
 
     await expect(
@@ -87,6 +101,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
   it('throws BadRequestException when REJ is missing comment', async () => {
     prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
       application_guid: 'rej-guid',
+      tenure_id: 'REC0003',
     });
 
     await expect(
@@ -104,6 +119,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
   it('throws BadRequestException when statusDate is not a valid epoch value', async () => {
     prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
       application_guid: 'date-guid',
+      tenure_id: 'REC0004',
     });
 
     await expect(
@@ -121,6 +137,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
   it('updates REJ status with REJECT decision mapping', async () => {
     prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
       application_guid: 'rej-ok-guid',
+      tenure_id: 'REC0005',
     });
 
     await service.updateStatus('rej-ok-guid', {
@@ -141,11 +158,13 @@ describe('SncscSpatialSubmissionStatusService', () => {
     expect(data.adjudication_report_document_uri).toBe(
       'dms://sncsc/reports/999',
     );
+    expect(prisma.recreation_resource.update).not.toHaveBeenCalled();
   });
 
   it('normalizes CLR payload to null decision/comment/report', async () => {
     prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
       application_guid: 'clr-guid',
+      tenure_id: 'REC0006',
     });
 
     await service.updateStatus('clr-guid', {
@@ -165,5 +184,24 @@ describe('SncscSpatialSubmissionStatusService', () => {
     expect(data.adjudication_date).toBeNull();
     expect(data.adjudication_comment).toBeNull();
     expect(data.adjudication_report_document_uri).toBeNull();
+    expect(prisma.recreation_resource.update).not.toHaveBeenCalled();
+  });
+
+  it('does not attempt resource status update when APP payload has no tenure id', async () => {
+    prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
+      application_guid: 'app-no-tenure',
+      tenure_id: '   ',
+    });
+
+    await service.updateStatus('app-no-tenure', {
+      '@type': SNCSC_STATUS_RESOURCE_TYPE,
+      status: 'APP',
+      statusDate: 1791436445000,
+      comment: 'Approved with no tenure id linkage',
+      adjudicationReportDocumentUri: 'dms://sncsc/reports/555',
+      userId: 'SNCSC_USER_01',
+    });
+
+    expect(prisma.recreation_resource.update).not.toHaveBeenCalled();
   });
 });

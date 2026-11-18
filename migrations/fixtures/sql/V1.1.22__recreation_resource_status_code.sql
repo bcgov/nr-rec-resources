@@ -15,7 +15,7 @@ VALUES
     ('HI', 'Issued',                        '1900-01-01', NULL, '2000-01-01'),
     ('HX', 'Cancelled',                     '1900-01-01', NULL, '2000-01-01'),
     ('NC', 'No Clearance or Designation',   '1900-01-01', NULL, '2000-01-01'),
-    ('PE', 'Pending Electronic',            '1900-01-01', NULL, '2000-01-01'),
+    ('PE', 'Pending',                       '1900-01-01', NULL, '2000-01-01'),
     ('PI', 'Pending Issuance',              '1900-01-01', NULL, '2000-01-01')
 ON CONFLICT (recreation_resource_status_code) DO UPDATE SET
     description      = excluded.description,

@@ -48,7 +48,7 @@ export class UpdateRecreationMapFeatureGeometryDto {
 
 /**
  * DTO used to update geospatial information for a recreation resource.
- * UTM fields (zone, easting, northing) are required together.
+ * UTM fields can be edited individually; missing values are resolved from existing data.
  */
 export class UpdateRecreationResourceGeospatialDto {
   @ApiProperty({
@@ -100,7 +100,7 @@ export class UpdateRecreationResourceGeospatialDto {
 
   @ApiProperty({
     description:
-      'UTM zone for site point updates. Must be provided together with utm_easting and utm_northing.',
+      'UTM zone for site point updates. Can be provided alone when other UTM values already exist for the resource.',
     required: false,
     nullable: true,
     minimum: 1,
@@ -115,7 +115,7 @@ export class UpdateRecreationResourceGeospatialDto {
 
   @ApiProperty({
     description:
-      'UTM easting for site point updates. Must be provided together with utm_zone and utm_northing.',
+      'UTM easting for site point updates. Can be provided alone when other UTM values already exist for the resource.',
     required: false,
     nullable: true,
     minimum: 100000,
@@ -130,7 +130,7 @@ export class UpdateRecreationResourceGeospatialDto {
 
   @ApiProperty({
     description:
-      'UTM northing for site point updates. Must be provided together with utm_zone and utm_easting.',
+      'UTM northing for site point updates. Can be provided alone when other UTM values already exist for the resource.',
     required: false,
     nullable: true,
     minimum: 0,

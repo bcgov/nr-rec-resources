@@ -45,7 +45,7 @@ export function SpatialSubmissionsTable({
   onUpload,
   onRegenerate,
 }: Props) {
-  const { isSuperAdmin } = useAuthorizations();
+  const { isSuperAdmin, canViewAdjudicationReports } = useAuthorizations();
   const downloadMutation = useFileDownload();
 
   return (
@@ -64,9 +64,9 @@ export function SpatialSubmissionsTable({
           header: 'Reference',
           render: (row) => {
             const sncscUrl = buildSncscSubmissionUrl(row.status_request_guid);
-            const canViewReport = Boolean(
-              row.adjudication_report && row.application_guid,
-            );
+            const canViewReport =
+              canViewAdjudicationReports &&
+              Boolean(row.adjudication_report && row.application_guid);
 
             if (!sncscUrl && !canViewReport) {
               return <span className="text-muted">-</span>;

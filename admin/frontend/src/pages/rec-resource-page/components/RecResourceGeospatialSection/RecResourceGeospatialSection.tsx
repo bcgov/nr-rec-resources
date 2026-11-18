@@ -21,11 +21,13 @@ import { GeospatialFieldsCard } from '@/pages/rec-resource-page/components/RecRe
 import { SpatialSubmissionsTable } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/components/SpatialSubmissionsTable';
 import { UnarchiveOptionsPanel } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/components/UnarchiveOptionsPanel';
 import { RegenerateExhibitAModal } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/components/RegenerateExhibitAModal';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 export function RecResourceGeospatialSection() {
   const params = Route.useParams();
   const recResourceId = params?.id;
   const { recResource } = useRecResource();
+  const { isSuperAdmin } = useAuthorizations();
   const isArchived = recResource?.rec_status_code === 'AR';
 
   const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
@@ -178,7 +180,9 @@ export function RecResourceGeospatialSection() {
           )}
 
           <EditableGuard isArchived={isArchived}>
-            {!isSpatialSubmissionOpen && !unarchive.showOptions ? (
+            {isSuperAdmin &&
+            !isSpatialSubmissionOpen &&
+            !unarchive.showOptions ? (
               <div className="mt-3">
                 <Button
                   size="sm"
