@@ -42,13 +42,18 @@ export function GeospatialFieldsCard({
 
   const isTrail = TRAIL_TYPE_CODES.includes(resourceTypeCode ?? '');
   const isSite = SITE_TYPE_CODES.includes(resourceTypeCode ?? '');
-  const hasGeospatialValues =
-    utm_zone != null ||
-    utm_easting != null ||
-    utm_northing != null ||
-    latitude != null ||
-    longitude != null;
-  const canShowEdit = isSuperAdmin && hasGeospatialValues;
+  const firstGeometryText = geospatialData?.spatial_feature_geometry?.[0];
+  const firstGeometryType = (() => {
+    if (!firstGeometryText) return null;
+    try {
+      return (JSON.parse(firstGeometryText) as { type?: string })?.type ?? null;
+    } catch {
+      return null;
+    }
+  })();
+  const showRightOfWay =
+    firstGeometryType === 'LineString' ||
+    firstGeometryType === 'MultiLineString';
 
   const items = [
     { key: 'utm-zone', label: 'UTM zone', value: utm_zone?.toString() },
@@ -88,6 +93,10 @@ export function GeospatialFieldsCard({
             label: 'Total length (km)',
             value: formatNumber(total_length_km),
           },
+        ]
+      : []),
+    ...(showRightOfWay
+      ? [
           {
             key: 'right-of-way',
             label: 'Right-of-way width (m)',
@@ -101,7 +110,7 @@ export function GeospatialFieldsCard({
     <div className="geospatial-section__card">
       <div className="geospatial-section__card-header d-flex justify-content-between align-items-center">
         <h2 className="geospatial-section__card-title">Geospatial</h2>
-        {canShowEdit ? (
+        {isSuperAdmin ? (
           <EditableGuard isArchived={isArchived}>
             <Link
               to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(

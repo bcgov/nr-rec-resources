@@ -356,6 +356,26 @@ export const SpatialSubmissionSection = ({
     validateFeatureCollection(nextFeatureCollection);
   };
 
+  const trimFeatureSectionIdForPayload = (
+    feature: any,
+    index: number,
+  ): { properties: Record<string, unknown>; sectionId: string | undefined } => {
+    const trimmedSectionId = requiresSectionIds
+      ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
+      : undefined;
+    const nextProperties = { ...(feature.properties ?? {}) };
+
+    if (requiresSectionIds) {
+      nextProperties[sectionIdFieldName || DEFAULT_SECTION_ID_FIELD_NAME] =
+        trimmedSectionId;
+    }
+
+    return {
+      properties: nextProperties,
+      sectionId: trimmedSectionId,
+    };
+  };
+
   const handleCreateRequest = async () => {
     setHasValidateAttempted(true);
     if (missingRequiredFields.length && !editMode) {
@@ -383,15 +403,20 @@ export const SpatialSubmissionSection = ({
 
       if (editMode) {
         const mappedFeatures = editableFeatureCollection.features.map(
-          (feature: any, index: number) => ({
-            geometry: feature.geometry,
-            properties: feature.properties ?? {},
-            sectionId: requiresSectionIds
-              ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
-              : undefined,
-            featureAreaHectares: getFeatureAreaHectares(feature),
-            editAction: featureSectionIds[index]?.editAction ?? 'NEW',
-          }),
+          (feature: any, index: number) => {
+            const trimmedFeatureSection = trimFeatureSectionIdForPayload(
+              feature,
+              index,
+            );
+
+            return {
+              geometry: feature.geometry,
+              properties: trimmedFeatureSection.properties,
+              sectionId: trimmedFeatureSection.sectionId,
+              featureAreaHectares: getFeatureAreaHectares(feature),
+              editAction: featureSectionIds[index]?.editAction ?? 'NEW',
+            };
+          },
         );
         const payload = {
           recResourceId,
@@ -428,14 +453,19 @@ export const SpatialSubmissionSection = ({
           recResourceId,
           recResourceName: recResourceName || undefined,
           features: editableFeatureCollection.features.map(
-            (feature: any, index: number) => ({
-              geometry: feature.geometry,
-              properties: feature.properties ?? {},
-              sectionId: requiresSectionIds
-                ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
-                : undefined,
-              featureAreaHectares: getFeatureAreaHectares(feature),
-            }),
+            (feature: any, index: number) => {
+              const trimmedFeatureSection = trimFeatureSectionIdForPayload(
+                feature,
+                index,
+              );
+
+              return {
+                geometry: feature.geometry,
+                properties: trimmedFeatureSection.properties,
+                sectionId: trimmedFeatureSection.sectionId,
+                featureAreaHectares: getFeatureAreaHectares(feature),
+              };
+            },
           ),
           recreationTypeCode: values.recreationType || undefined,
           naturalResourceDistrictCode:

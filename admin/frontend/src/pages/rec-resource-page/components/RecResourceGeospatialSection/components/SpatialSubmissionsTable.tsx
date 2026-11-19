@@ -45,7 +45,14 @@ export function SpatialSubmissionsTable({
   onUpload,
   onRegenerate,
 }: Props) {
-  const { isSuperAdmin, canViewAdjudicationReports } = useAuthorizations();
+  const authorizations = useAuthorizations();
+  const { isSuperAdmin } = authorizations;
+  const canViewAdjudicationReports =
+    (
+      authorizations as {
+        canViewAdjudicationReports?: boolean;
+      }
+    ).canViewAdjudicationReports ?? authorizations.canViewSensitiveInfo;
   const downloadMutation = useFileDownload();
 
   return (

@@ -357,7 +357,8 @@ describe('RecResourceGeospatialSection', () => {
 
     render(<RecResourceGeospatialSection />);
 
-    expect(screen.queryByText('Edit')).toBeNull();
+    expect(screen.getByText('Edit')).toBeInTheDocument();
+    expect(screen.getByText('Geospatial')).toBeInTheDocument();
   });
 
   it('renders section with empty fallback when geospatial data is undefined', () => {
@@ -367,8 +368,8 @@ describe('RecResourceGeospatialSection', () => {
 
     render(<RecResourceGeospatialSection />);
 
-    expect(screen.getByText('Geospatial')).toBeDefined();
-    expect(screen.queryByText('Edit')).toBeNull();
+    expect(screen.getByText('Geospatial')).toBeInTheDocument();
+    expect(screen.getByText('Edit')).toBeInTheDocument();
   });
 
   it('renders spatial submissions section', () => {
@@ -452,6 +453,15 @@ describe('RecResourceGeospatialSection', () => {
         longitude: -123.65,
         total_length_km: 41.103,
         right_of_way_m: 15,
+        spatial_feature_geometry: [
+          JSON.stringify({
+            type: 'LineString',
+            coordinates: [
+              [500000, 5480000],
+              [500100, 5480100],
+            ],
+          }),
+        ],
       },
     });
 

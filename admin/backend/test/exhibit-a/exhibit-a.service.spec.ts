@@ -629,6 +629,38 @@ describe('ExhibitAService', () => {
     );
   });
 
+  it('queries submission features for the selected submission id', async () => {
+    prisma.$queryRaw
+      .mockResolvedValueOnce([
+        {
+          submission_id: 'S1234567',
+          application_guid: 'guid-1',
+          tenure_id: 'REC0001',
+          title: 'Sample Resource',
+          forest_region: 'R01',
+          forest_district: 'D01',
+          district_name: 'District',
+          mgt_unit_type: 'REC',
+          mgt_unit_number: 'REC0001',
+          drawn_by: 'tester',
+          submission_date: new Date('2026-10-19T00:00:00.000Z'),
+        },
+      ])
+      .mockResolvedValueOnce([]);
+
+    await expect(service.generate('S1234567', {})).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+
+    const featureQuery = prisma.$queryRaw.mock.calls[1]?.[0] as {
+      raw?: string[];
+    };
+    const featureSql = featureQuery.raw?.join(' ') ?? '';
+    expect(featureSql).toContain('FROM rst.recreation_spatial_submission rss');
+    expect(featureSql).toContain('WHERE rss.submission_id =');
+    expect(featureSql).toContain('AND rmf.retirement_date IS NULL');
+  });
+
   it('throws BadGatewayException when feature geometry cannot be rendered', async () => {
     prisma.$queryRaw
       .mockResolvedValueOnce([
