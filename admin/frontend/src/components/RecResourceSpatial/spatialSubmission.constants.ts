@@ -21,6 +21,7 @@ export const SHAPEFILE_ALLOWED_EXTENSIONS = [
 ] as const;
 export const REQUIRED_SHAPEFILE_PART_EXTENSIONS = ['dbf', 'shx'] as const;
 export const DEFAULT_SECTION_ID_FIELD_NAME = 'section_id';
+export const MAX_SECTION_ID_LENGTH = 30;
 export const REQUIRED_SHP_FILE_MESSAGE = 'A .shp file is required.';
 export const SHAPEFILE_BASENAME_MISMATCH_MESSAGE =
   'The .dbf filename must match the uploaded .shp filename.';

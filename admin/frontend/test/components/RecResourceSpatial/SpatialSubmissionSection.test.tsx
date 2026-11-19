@@ -120,6 +120,7 @@ const {
     const featureSectionIds = features.map((feature: any, index: number) => ({
       featureIndex: index + 1,
       sectionId: feature.properties?.section_id?.trim() || null,
+      editAction: null,
     }));
 
     const sectionIds = featureSectionIds
@@ -131,19 +132,37 @@ const {
         sectionIds.indexOf(sectionId) !== index,
     );
 
+    const featuresWithLongSectionIds = featureSectionIds
+      .filter(
+        (featureSectionId: any) =>
+          featureSectionId.sectionId && featureSectionId.sectionId.length > 30,
+      )
+      .map((featureSectionId: any) => `#${featureSectionId.featureIndex}`);
+
+    const issues: Array<{ type: string; severity: string; message: string }> =
+      [];
+
+    if (featuresWithLongSectionIds.length) {
+      issues.push({
+        type: 'SECTION_ID',
+        severity: 'ERROR',
+        message: `${featuresWithLongSectionIds.length} feature(s) have a section_id longer than 30 characters: ${featuresWithLongSectionIds.join(', ')}.`,
+      });
+    }
+
+    if (duplicateIds.length) {
+      issues.push({
+        type: 'SECTION_ID',
+        severity: 'ERROR',
+        message: `Duplicate section IDs found: ${duplicateIds.join(', ')}`,
+      });
+    }
+
     return {
       fieldName: 'section_id',
       sectionIds,
       featureSectionIds,
-      issues: duplicateIds.length
-        ? [
-            {
-              type: 'SECTION_ID',
-              severity: 'ERROR',
-              message: `Duplicate section IDs found: ${duplicateIds.join(', ')}`,
-            },
-          ]
-        : [],
+      issues,
     };
   }),
   mockPrepareFeatureCollectionForSectionEditing: vi.fn(
@@ -497,7 +516,7 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByDisplayValue('North Loop 1')).toBeDefined();
 
     fireEvent.change(screen.getByLabelText('Section ID / name'), {
-      target: { value: 'North Loop Renamed' },
+      target: { value: '  North Loop Renamed  ' },
     });
 
     expect(screen.getByDisplayValue('North Loop Renamed')).toBeDefined();
@@ -563,6 +582,111 @@ describe('SpatialSubmissionSection', () => {
     expect(screen.getByText('Create request')).toBeDisabled();
 
     expect(screen.getByTestId('spatial-editor-map')).toBeDefined();
+  });
+
+  it('enforces the section id input max length of 30 characters', async () => {
+    mockReadSpatialFile.mockResolvedValueOnce({
+      type: 'FeatureCollection',
+      crs: { type: 'name', properties: { name: 'EPSG:3005' } },
+      features: [
+        {
+          type: 'Feature',
+          properties: {
+            OBJECTID: 1,
+            DISTRICT: 'DNC',
+            section_id: 'River Way South',
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [1210000, 475000],
+              [1215000, 480000],
+            ],
+          },
+        },
+      ],
+    } as any);
+
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode="SIT"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText('Feature type'), {
+      target: { value: 'LineString' },
+    });
+
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    fireEvent.change(fileInput, { target: { files: [shpFile] } });
+
+    fireEvent.click(screen.getByText('Validate'));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Spatial file validated successfully.'),
+      ).toBeDefined();
+    });
+
+    expect(screen.getByLabelText('Section ID / name')).toHaveAttribute(
+      'maxLength',
+      '30',
+    );
+  });
+
+  it('shows a validation error when a section id is longer than 30 characters', async () => {
+    mockReadSpatialFile.mockResolvedValueOnce({
+      type: 'FeatureCollection',
+      crs: { type: 'name', properties: { name: 'EPSG:3005' } },
+      features: [
+        {
+          type: 'Feature',
+          properties: {
+            OBJECTID: 1,
+            DISTRICT: 'DNC',
+            section_id: '1234567890123456789012345678901',
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [1210000, 475000],
+              [1215000, 480000],
+            ],
+          },
+        },
+      ],
+    } as any);
+
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        defaultRecreationTypeCode="SIT"
+        defaultNaturalResourceDistrict="DCC"
+        defaultRecreationDistrict="RDCC"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText('Feature type'), {
+      target: { value: 'LineString' },
+    });
+
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    fireEvent.change(fileInput, { target: { files: [shpFile] } });
+
+    fireEvent.click(screen.getByText('Validate'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/longer than 30 characters/i)).toBeDefined();
+    });
   });
 
   it('validates spatial file, and amends the sessions on edit mode', async () => {
