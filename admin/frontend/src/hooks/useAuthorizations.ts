@@ -44,6 +44,7 @@ export type AuthorizationKey =
   | 'canViewFeatureFlag'
   | 'canEditFeatureFlag'
   | 'canViewSensitiveInfo'
+  | 'canViewAdjudicationReports'
   | 'canViewPartners'
   | 'canViewPartnerSensitiveInfo'
   | 'canManagePartners';
@@ -91,6 +92,12 @@ export const useAuthorizations = () => {
       ROLES.ADMIN,
       ROLES.SUPER_ADMIN,
     ]);
+    // IDIR Read-Only only gets the SNCSC link, which handles its own permissions.
+    const canViewAdjudicationReports = hasAnyRole(roles, [
+      ROLES.VIEWER,
+      ROLES.ADMIN,
+      ROLES.SUPER_ADMIN,
+    ]);
 
     return {
       canView,
@@ -100,6 +107,7 @@ export const useAuthorizations = () => {
       canEditFeatureFlag: hasDeveloperAccess && canEdit,
       isSuperAdmin,
       canViewSensitiveInfo,
+      canViewAdjudicationReports,
       canViewPartners,
       canViewPartnerSensitiveInfo,
       canManagePartners,
