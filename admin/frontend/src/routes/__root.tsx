@@ -31,7 +31,11 @@ function RootComponent() {
         <NotificationBar />
         <div className="d-flex flex-grow-1 overflow-hidden">
           <Sidebar className="h-100" />
-          <main id="main-content" className="flex-grow-1 p-4 overflow-auto">
+          {/* position-relative keeps absolutely positioned descendants (e.g. visually-hidden labels) inside the scroll container */}
+          <main
+            id="main-content"
+            className="flex-grow-1 p-4 overflow-auto position-relative"
+          >
             <Outlet />
           </main>
         </div>
