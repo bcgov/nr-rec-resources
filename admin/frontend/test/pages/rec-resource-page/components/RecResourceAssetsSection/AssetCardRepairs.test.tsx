@@ -62,6 +62,8 @@ describe('AssetCardRepairs', () => {
     vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
       canView: true,
       canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
     });
@@ -373,6 +375,8 @@ describe('AssetCardRepairs', () => {
       vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
         canView: true,
         canEdit: true,
+        canViewFeatureFlag: true,
+        canEditFeatureFlag: true,
         isSuperAdmin: false,
         canViewSensitiveInfo: false,
       });

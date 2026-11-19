@@ -25,6 +25,7 @@ vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
   },
   useAuthorizations: () => mockUseAuthorizations(),
 }));
@@ -57,6 +58,8 @@ describe('RecResourceReservationSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
     });
     vi.mocked(Route.useParams).mockReturnValue({ id: 'REC123' });
     mockUseRecResource.mockReturnValue({

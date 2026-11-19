@@ -280,6 +280,7 @@ export class RecreationAssetController {
     [
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
+      RecreationResourceAuthRole.RST_DEVELOPER,
     ],
     ROLE_MODE.ANY,
   )
