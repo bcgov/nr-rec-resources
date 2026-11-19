@@ -33,6 +33,7 @@ describe('RecResource Partners Index Route', () => {
     ).toBeInTheDocument();
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
+        requireAll: ['rst-developer'],
         requireAny: [
           'rst-idir-viewer',
           'rst-viewer',

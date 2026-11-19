@@ -27,11 +27,14 @@ vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
   },
-  useUserRoles: () => ['rst-viewer', 'rst-admin'],
+  useUserRoles: () => ['rst-viewer', 'rst-admin', 'rst-developer'],
   useAuthorizations: () => ({
     canView: true,
     canEdit: true,
+    canViewFeatureFlag: true,
+    canEditFeatureFlag: true,
   }),
 }));
 

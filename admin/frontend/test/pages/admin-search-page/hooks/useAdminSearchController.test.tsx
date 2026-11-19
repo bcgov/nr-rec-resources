@@ -65,6 +65,7 @@ describe('useAdminSearchController', () => {
     mockUseGetRecreationResourceOptions.mockReset();
     mockUseAuthorizations.mockReset();
     mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
       isSuperAdmin: true,
     });
 
@@ -545,6 +546,7 @@ describe('useAdminSearchController', () => {
 
   it('applies the default issued recStatus for users who cannot edit archived resources and lets them suppress it', () => {
     mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
       isSuperAdmin: false,
     });
     mockUseGetRecreationResourceOptions.mockReturnValue({
@@ -596,6 +598,7 @@ describe('useAdminSearchController', () => {
 
   it('uses recStatus option labels and suppresses the default when the last explicit recStatus is cleared', () => {
     mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
       isSuperAdmin: false,
     });
     mockUseGetRecreationResourceOptions.mockReturnValue({

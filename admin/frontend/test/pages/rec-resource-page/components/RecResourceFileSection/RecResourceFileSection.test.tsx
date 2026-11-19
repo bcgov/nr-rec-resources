@@ -147,6 +147,8 @@ describe('RecResourceFileSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
     });
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
     mockResetRecResourceFileTransferStore.mockClear();
@@ -282,6 +284,8 @@ describe('RecResourceFileSection', () => {
       {
         canView: true,
         canEdit: true,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
       },
       false,
     ],
@@ -290,6 +294,8 @@ describe('RecResourceFileSection', () => {
       {
         canView: true,
         canEdit: false,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
       },
       true,
     ],
