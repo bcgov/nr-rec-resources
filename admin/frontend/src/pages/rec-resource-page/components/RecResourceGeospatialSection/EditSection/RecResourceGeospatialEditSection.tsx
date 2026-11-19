@@ -18,7 +18,6 @@ import {
   utmToSitePointGeometry,
   utmToWgs84,
 } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/utils/validateUtmAgainstSpatialFeatures';
-import { ExhibitASection } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/ExhibitASection/ExhibitASection';
 import { HelpIcon } from '@/components/help-icon';
 
 const onNumberChange = (onChange: (v?: number) => void) => {
@@ -44,10 +43,11 @@ export const RecResourceGeospatialEditSection = () => {
     useEditGeospatialForm(geospatialData ?? undefined, recResourceId);
 
   // ── Live UTM preview ──────────────────────────────────────────────────────
-  const [watchedZone, watchedEasting, watchedNorthing] = useWatch({
-    control,
-    name: ['utm_zone', 'utm_easting', 'utm_northing'],
-  });
+  const [watchedZone, watchedEasting, watchedNorthing, watchedRightOfWay] =
+    useWatch({
+      control,
+      name: ['utm_zone', 'utm_easting', 'utm_northing', 'right_of_way_m'],
+    });
 
   /** Lat/lon derived from the current UTM field values, or null when inputs are incomplete/invalid. */
   const previewLatLon = useMemo(() => {
@@ -112,11 +112,52 @@ export const RecResourceGeospatialEditSection = () => {
   const isSite = SITE_TYPE_CODES.includes(
     recResource?.rec_resource_type_code ?? '',
   );
+  const firstGeometryText =
+    geospatialData?.spatial_feature_geometry?.[0] ??
+    recResource?.spatial_feature_geometry?.[0];
+  const firstGeometryType = (() => {
+    if (!firstGeometryText) return null;
+    try {
+      return (JSON.parse(firstGeometryText) as { type?: string })?.type ?? null;
+    } catch {
+      return null;
+    }
+  })();
+  const showRightOfWay =
+    firstGeometryType === 'LineString' ||
+    firstGeometryType === 'MultiLineString';
+
+  const displayAreaHectares = useMemo(() => {
+    const baseArea = geospatialData?.total_area_hectares;
+    if (baseArea == null) return undefined;
+
+    const totalLengthKm = geospatialData?.total_length_km;
+    if (
+      typeof watchedRightOfWay !== 'number' ||
+      Number.isNaN(watchedRightOfWay) ||
+      totalLengthKm == null
+    ) {
+      return baseArea;
+    }
+
+    const savedRightOfWay =
+      typeof geospatialData?.right_of_way_m === 'number'
+        ? geospatialData.right_of_way_m
+        : 0;
+
+    // Keep area in sync with right-of-way edits: area += delta_row(m) * length(km) / 10.
+    const recalculatedArea =
+      baseArea + ((watchedRightOfWay - savedRightOfWay) * totalLengthKm) / 10;
+    return Number(recalculatedArea.toFixed(4));
+  }, [
+    geospatialData?.total_area_hectares,
+    geospatialData?.total_length_km,
+    geospatialData?.right_of_way_m,
+    watchedRightOfWay,
+  ]);
+
   const displayTotalArea =
-    geospatialData?.total_area_hectares?.toLocaleString(
-      'en-CA',
-      GEOMETRY_NUMBER_FORMAT,
-    ) ?? '';
+    displayAreaHectares?.toLocaleString('en-CA', GEOMETRY_NUMBER_FORMAT) ?? '';
 
   return (
     <Stack direction="vertical" gap={4}>
@@ -282,29 +323,31 @@ export const RecResourceGeospatialEditSection = () => {
             </Col>
           )}
 
-          <Col xs={12} md={6}>
-            <Form.Group controlId="right_of_way_m">
-              <Form.Label>Right-of-way width (m)</Form.Label>
-              <Controller
-                name="right_of_way_m"
-                control={control}
-                render={({ field }) => (
-                  <Form.Control
-                    {...field}
-                    type="number"
-                    placeholder="e.g. 15"
-                    value={field.value ?? ''}
-                    onChange={onNumberChange(field.onChange)}
-                    onBlur={field.onBlur}
-                    isInvalid={!!errors.right_of_way_m}
-                  />
-                )}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.right_of_way_m?.message as any}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
+          {showRightOfWay && (
+            <Col xs={12} md={6}>
+              <Form.Group controlId="right_of_way_m">
+                <Form.Label>Right-of-way width (m)</Form.Label>
+                <Controller
+                  name="right_of_way_m"
+                  control={control}
+                  render={({ field }) => (
+                    <Form.Control
+                      {...field}
+                      type="number"
+                      placeholder="e.g. 15"
+                      value={field.value ?? ''}
+                      onChange={onNumberChange(field.onChange)}
+                      onBlur={field.onBlur}
+                      isInvalid={!!errors.right_of_way_m}
+                    />
+                  )}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.right_of_way_m?.message as any}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          )}
         </Row>
       </Form>
 
@@ -312,11 +355,6 @@ export const RecResourceGeospatialEditSection = () => {
       {recResourceForMap && (
         <RecResourceLocationSection recResource={recResourceForMap} />
       )}
-
-      {/* ── Exhibit A ── */}
-      <div className="geospatial-section__card">
-        <ExhibitASection recResourceId={recResourceId} />
-      </div>
     </Stack>
   );
 };

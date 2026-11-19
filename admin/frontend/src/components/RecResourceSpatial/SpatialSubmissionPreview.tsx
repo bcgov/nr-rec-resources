@@ -2,6 +2,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faCircleInfo } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert, Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
+import { MAX_SECTION_ID_LENGTH } from './spatialSubmission.constants';
 import { SpatialSubmissionMap } from './SpatialSubmissionMap';
 import type { FeatureSectionId } from './spatialSubmissionUtils';
 import type { SpatialFeatureCollection } from './spatialSubmission.types';
@@ -148,6 +149,7 @@ export const SpatialSubmissionPreview = ({
                         onSectionIdChange(event.target.value)
                       }
                       placeholder="Enter a unique section name"
+                      maxLength={MAX_SECTION_ID_LENGTH}
                     />
                     {!checkNewFeature(selectedSectionFeature) && (
                       <>

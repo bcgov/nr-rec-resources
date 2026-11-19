@@ -1,6 +1,7 @@
 import {
   DEFAULT_SECTION_ID_FIELD_NAME,
   MAP_LABEL_FIELD_CANDIDATES,
+  MAX_SECTION_ID_LENGTH,
   SECTION_ID_FIELD_CANDIDATES,
 } from './spatialSubmission.constants';
 import type {
@@ -181,12 +182,13 @@ export const extractSectionIdDetails = (
     const rawValue = feature?.properties?.[fieldName as string];
     if (rawValue === null || rawValue === undefined) return null;
 
-    let value = String(rawValue).trim();
+    const value = String(rawValue);
     if (usedMapLabelFallback) {
-      value = value.split(/\s+/).at(-1) ?? '';
+      const fallbackValue = value.trim().split(/\s+/).at(-1) ?? '';
+      return fallbackValue || null;
     }
 
-    return value || null;
+    return value.trim() ? value : null;
   };
 
   const featureSectionIds: FeatureSectionId[] = features.map(
@@ -212,12 +214,34 @@ export const extractSectionIdDetails = (
     });
   }
 
+  const featuresWithLongSectionIds = featureSectionIds.filter((entry) => {
+    if (entry.sectionId === null) {
+      return false;
+    }
+
+    return entry.sectionId.trim().length > MAX_SECTION_ID_LENGTH;
+  });
+
+  if (featuresWithLongSectionIds.length > 0) {
+    const featureLabels = featuresWithLongSectionIds
+      .map((entry) => `#${entry.featureIndex}`)
+      .join(', ');
+    issues.push({
+      type: 'SECTION_ID',
+      severity: 'ERROR',
+      message: `${featuresWithLongSectionIds.length} feature(s) have a ${fieldName} longer than ${MAX_SECTION_ID_LENGTH} characters: ${featureLabels}.`,
+      code: 'SECTION_ID_TOO_LONG',
+    });
+  }
+
   const featureIndicesBySectionId = new Map<string, number[]>();
   featureSectionIds.forEach((entry) => {
     if (entry.sectionId === null) return;
-    const existing = featureIndicesBySectionId.get(entry.sectionId) ?? [];
+    const normalizedSectionId = entry.sectionId.trim();
+    if (!normalizedSectionId) return;
+    const existing = featureIndicesBySectionId.get(normalizedSectionId) ?? [];
     existing.push(entry.featureIndex);
-    featureIndicesBySectionId.set(entry.sectionId, existing);
+    featureIndicesBySectionId.set(normalizedSectionId, existing);
   });
 
   featureIndicesBySectionId.forEach((featureIndices, sectionId) => {
