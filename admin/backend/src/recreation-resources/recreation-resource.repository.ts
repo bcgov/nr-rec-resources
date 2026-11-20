@@ -19,10 +19,12 @@ import {
 import {
   adminSearchSelect,
   recreationResourceSelect,
+  recreationResourceSummarySelect,
 } from './recreation-resource.select';
 import {
   AdminSearchRecreationResourceGetPayload,
   RecreationResourceGetPayload,
+  RecreationResourceSummaryGetPayload,
 } from './recreation-resource.types';
 import { syncManyToManyComposite } from './utils/syncManyToManyUtils';
 import { upsert } from './utils/upsertUtils';
@@ -172,6 +174,15 @@ export class RecreationResourceRepository {
     rec_resource_id: string,
   ): Promise<RecreationResourceGetPayload | null> {
     return this.findResourceByIdWithUserDaysFallback(rec_resource_id);
+  }
+
+  async findSummaryById(
+    rec_resource_id: string,
+  ): Promise<RecreationResourceSummaryGetPayload | null> {
+    return await this.prisma.recreation_resource.findUnique({
+      where: { rec_resource_id },
+      select: recreationResourceSummarySelect,
+    });
   }
 
   private async findResourceByIdWithUserDaysFallback(

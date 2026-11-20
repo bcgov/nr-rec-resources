@@ -3,12 +3,12 @@ import { PageLayout } from '@/components';
 import { RecResourcePageLayout } from '@/pages/rec-resource-page/RecResourcePageLayout';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { recResourceLoader } from '@/services/loaders/recResourceLoader';
+import { recResourceSummaryLoader } from '@/services/loaders/recResourceSummaryLoader';
 import { capitalizeWords } from '@shared/utils/capitalizeWords';
 
 export const Route = createFileRoute('/rec-resource/$id')({
   component: RecResourceRoute,
-  loader: recResourceLoader,
+  loader: recResourceSummaryLoader,
   beforeLoad: ({ params }) => ({
     tab: RecResourceNavKey.FILES,
     breadcrumb: (loaderData?: any): BreadcrumbItem[] => {
