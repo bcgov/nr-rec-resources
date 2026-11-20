@@ -49,7 +49,8 @@ select
     rp.resource_feature_ind,
     rp.last_rec_inspection_date,
     rp.last_hzrd_tree_assess_date,
-    rp.recreation_user_days_code
+    rp.recreation_user_days_code,
+    xrmf.recreation_map_feature_code as recreation_resource_type
 from
     fta.recreation_project rp
 left join
@@ -68,6 +69,16 @@ left join
     fta.prov_forest_use ssc
 on
     rp.forest_file_id = ssc.forest_file_id
+left join
+	(
+		select distinct on (forest_file_id)
+            forest_file_id,
+            recreation_map_feature_code
+		from
+		    fta.recreation_map_feature rmf
+	) as xrmf
+on
+    xrmf.forest_file_id = rp.forest_file_id
 on conflict (rec_resource_id) do update
 set
     name = excluded.name,
@@ -89,4 +100,5 @@ set
     resource_feature_ind = excluded.resource_feature_ind,
     last_rec_inspection_date = excluded.last_rec_inspection_date,
     last_hzrd_tree_assess_date = excluded.last_hzrd_tree_assess_date,
-    recreation_user_days_code = excluded.recreation_user_days_code;
+    recreation_user_days_code = excluded.recreation_user_days_code,
+    recreation_resource_type = excluded.recreation_resource_type;

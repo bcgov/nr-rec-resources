@@ -1250,7 +1250,6 @@ describe('GeospatialService', () => {
       await (service as any).updateMapFeatureAndGeometry(
         77,
         2,
-        'RTE',
         'idir\\tester',
         'L',
         {
@@ -1516,7 +1515,7 @@ describe('GeospatialService', () => {
 
       expect(insertSpy).toHaveBeenCalledTimes(2);
       expect(insertSpy.mock.calls[0]?.[2]).toBe('Trail-A-1');
-      expect(insertSpy.mock.calls[0]?.[6]).toMatchObject({
+      expect(insertSpy.mock.calls[0]?.[5]).toMatchObject({
         type: 'LineString',
         coordinates: [
           [0, 0],
@@ -1524,7 +1523,7 @@ describe('GeospatialService', () => {
         ],
       });
       expect(insertSpy.mock.calls[1]?.[2]).toBe('Trail-A-2');
-      expect(insertSpy.mock.calls[1]?.[6]).toMatchObject({
+      expect(insertSpy.mock.calls[1]?.[5]).toMatchObject({
         type: 'LineString',
         coordinates: [
           [2, 2],
