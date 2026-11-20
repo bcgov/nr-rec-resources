@@ -249,6 +249,33 @@ describe('RecreationResourceController', () => {
       expect(result).toEqual(mockUpdatedResource);
     });
 
+    it('should remove name field for non-super-admin updates before calling service', async () => {
+      (repo.findOneById as any).mockResolvedValue({ rec_status_code: null });
+      (service.update as any).mockResolvedValue(mockUpdatedResource);
+
+      const nonSuperAdminUpdate = {
+        ...updateData,
+        name: 'Should be stripped',
+      } as UpdateRecreationResourceDto;
+
+      await controller.update('REC123', nonSuperAdminUpdate, false);
+
+      expect(service.update).toHaveBeenCalledWith('REC123', {
+        maintenance_standard_code: '1',
+        status_code: 1,
+      });
+    });
+
+    it('should allow non-super-admin update when resource lookup returns null', async () => {
+      (repo.findOneById as any).mockResolvedValue(null);
+      (service.update as any).mockResolvedValue(mockUpdatedResource);
+
+      const result = await controller.update('REC404', updateData, false);
+
+      expect(service.update).toHaveBeenCalledWith('REC404', updateData);
+      expect(result).toEqual(mockUpdatedResource);
+    });
+
     it('should allow super-admin to update an archived resource', async () => {
       (repo.findOneById as any).mockResolvedValue({
         rec_status_code: 'AR',
