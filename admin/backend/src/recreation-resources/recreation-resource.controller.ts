@@ -231,6 +231,51 @@ export class RecreationResourceController {
   }
 
   /**
+   * GET /recreation-resources/:rec_resource_id/summary
+   *
+   * Returns a lightweight recreation resource summary by ID.
+   */
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
+  @Get(':rec_resource_id/summary')
+  @ApiOperation({
+    summary: 'Find recreation resource summary by ID',
+    operationId: 'getRecreationResourceSummaryById',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    required: true,
+    description: 'Resource identifier',
+    type: 'string',
+    example: 'REC0002',
+  })
+  @ApiOkResponse({
+    description: 'Resource summary found',
+    type: RecreationResourceDetailDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request - invalid ID',
+    type: BadRequestResponseDto,
+  })
+  async findOneSummary(
+    @Param('rec_resource_id') rec_resource_id: string,
+  ): Promise<RecreationResourceDetailDto> {
+    const recResource =
+      await this.recreationResourceService.findOneSummary(rec_resource_id);
+    if (!recResource) {
+      throw new HttpException('Recreation Resource not found.', 404);
+    }
+    return recResource;
+  }
+
+  /**
    * GET /recreation-resources/:rec_resource_id
    *
    * Returns a recreation resource by its ID.
