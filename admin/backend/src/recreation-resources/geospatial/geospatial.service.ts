@@ -1025,7 +1025,7 @@ export class GeospatialService {
       SELECT
         rmf.section_id,
         rmf.recreation_map_feature_guid,
-        rmf.recreation_resource_type,
+        rr.recreation_resource_type,
         rrtc.description AS recreation_resource_type_description,
         rmfg.geometry_type_code,
         public.ST_AsGeoJSON(
@@ -1038,8 +1038,10 @@ export class GeospatialService {
       FROM rst.recreation_map_feature rmf
       INNER JOIN rst.recreation_map_feature_geom rmfg
         ON rmfg.rmf_skey = rmf.rmf_skey
+      INNER JOIN rst.recreation_resource rr
+        ON rr.rec_resource_id = rmf.rec_resource_id
       LEFT JOIN rst.recreation_resource_type_code rrtc
-        ON rrtc.rec_resource_type_code = rmf.recreation_resource_type
+        ON rrtc.rec_resource_type_code = rr.recreation_resource_type
       WHERE rmf.rec_resource_id = ${recResourceId}
         AND rmf.section_id IN (${Prisma.join(sectionIds)})
     `);
@@ -1368,6 +1370,12 @@ export class GeospatialService {
 
     await this.prisma.$transaction(
       async (tx) => {
+        await tx.recreation_resource.update({
+          where: { rec_resource_id },
+          data: {
+            recreation_resource_type: payload.recreation_type_code || null,
+          },
+        });
         await tx.$executeRawUnsafe(
           "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
         );
@@ -1435,7 +1443,6 @@ export class GeospatialService {
               await this.updateMapFeatureAndGeometry(
                 existingLinear.rmf_skey,
                 existingLinear.amendment_id,
-                payload.recreation_type_code || null,
                 payload.submitted_by || null,
                 entry.geometryTypeCode,
                 entry.geometry,
@@ -1450,7 +1457,6 @@ export class GeospatialService {
             nextRmfSkey,
             rec_resource_id,
             entry.sectionId,
-            payload.recreation_type_code || null,
             payload.submitted_by || null,
             entry.geometryTypeCode,
             entry.geometry,
@@ -1497,7 +1503,6 @@ export class GeospatialService {
             await this.updateMapFeatureAndGeometry(
               rmf_skey,
               amendment_id,
-              payload.recreation_type_code || null,
               payload.submitted_by || null,
               entry.geometryTypeCode,
               entry.geometry,
@@ -1624,6 +1629,7 @@ export class GeospatialService {
             data: {
               rec_resource_id,
               name: payload.rec_resource_name || null,
+              recreation_resource_type: payload.recreation_type_code || null,
               district_code: payload.recreation_district_code || null,
               rec_status_code: 'PE',
               created_by: payload.submitted_by || null,
@@ -1737,7 +1743,6 @@ export class GeospatialService {
             rmfSkey,
             rec_resource_id,
             entry.sectionId,
-            payload.recreation_type_code || null,
             payload.submitted_by || null,
             entry.geometryTypeCode,
             entry.geometry,

@@ -9,17 +9,17 @@ insert into rst.recreation_resource (
     rec_resource_id, name, description, closest_community,
     display_on_public_site, district_code, maintenance_standard_code,
     project_established_date, control_access_code, risk_rating_code,
-    right_of_way, rec_status_code
+    right_of_way, rec_status_code, recreation_resource_type
 )
 values
-    ('REC6759',   'LAC DU BOIS ORV',         'Off-road vehicle recreation area north of Kamloops.',                   'KAMLOOPS',      true, 'RDKA', 'M', '2005-01-01', 'R', 'M', null, 'HI'),
-    ('REC166399', 'EDITH LAKE',               'Recreation site at Edith Lake with angling and boating.',              'KAMLOOPS',      true, 'RDKA', 'M', '2010-06-01', 'R', 'L', null, 'HI'),
-    ('REC98308',  'HARPER MTN BIKE AREA',     'Hiking and mountain biking area on Harper Mountain east of Kamloops.', 'KAMLOOPS',      true, 'RDKA', 'M', '2008-03-15', 'R', 'L', null, 'HI'),
-    ('REC97932',  'EAGLE EYE LOOKOUT',        'Hiking trail with panoramic views south of Kamloops.',                 'KAMLOOPS',      true, 'RDKA', 'M', '2007-05-10', 'R', 'L', null, 'HI'),
-    ('REC240138', 'SCUITTO LAKE',             'Recreation site at Scuitto Lake for camping and angling.',             'KAMLOOPS',      true, 'RDKA', 'M', '2015-04-20', 'R', 'L', null, 'HI'),
-    ('REC98115',  'PIDHERNY',                 'Multi-use recreation site for hiking and mountain biking.',            'PRINCE GEORGE', true, 'RDPG', 'M', '2006-08-15', 'R', 'L', null, 'HI'),
-    ('REC33110',  'CHILAKO RIVER',            'Riverside recreation site with beach activities.',                     'PRINCE GEORGE', true, 'RDPG', 'M', '2005-07-01', 'R', 'L', null, 'HI'),
-    ('REC162814', 'TABOR MTN. TRAIL SYSTEM',  'Multi-use trail system on Tabor Mountain near Prince George.',         'PRINCE GEORGE', true, 'RDPG', 'M', '2011-05-15', 'R', 'L', null, 'HI');
+    ('REC6759',   'LAC DU BOIS ORV',         'Off-road vehicle recreation area north of Kamloops.',                   'KAMLOOPS',      true, 'RDKA', 'M', '2005-01-01', 'R', 'M', null, 'HI', 'SIT'),
+    ('REC166399', 'EDITH LAKE',               'Recreation site at Edith Lake with angling and boating.',              'KAMLOOPS',      true, 'RDKA', 'M', '2010-06-01', 'R', 'L', null, 'HI', 'SIT'),
+    ('REC98308',  'HARPER MTN BIKE AREA',     'Hiking and mountain biking area on Harper Mountain east of Kamloops.', 'KAMLOOPS',      true, 'RDKA', 'M', '2008-03-15', 'R', 'L', null, 'HI', 'SIT'),
+    ('REC97932',  'EAGLE EYE LOOKOUT',        'Hiking trail with panoramic views south of Kamloops.',                 'KAMLOOPS',      true, 'RDKA', 'M', '2007-05-10', 'R', 'L', null, 'HI', 'RTE'),
+    ('REC240138', 'SCUITTO LAKE',             'Recreation site at Scuitto Lake for camping and angling.',             'KAMLOOPS',      true, 'RDKA', 'M', '2015-04-20', 'R', 'L', null, 'HI', 'SIT'),
+    ('REC98115',  'PIDHERNY',                 'Multi-use recreation site for hiking and mountain biking.',            'PRINCE GEORGE', true, 'RDPG', 'M', '2006-08-15', 'R', 'L', null, 'HI', 'SIT'),
+    ('REC33110',  'CHILAKO RIVER',            'Riverside recreation site with beach activities.',                     'PRINCE GEORGE', true, 'RDPG', 'M', '2005-07-01', 'R', 'L', null, 'HI', 'SIT'),
+    ('REC162814', 'TABOR MTN. TRAIL SYSTEM',  'Multi-use trail system on Tabor Mountain near Prince George.',         'PRINCE GEORGE', true, 'RDPG', 'M', '2011-05-15', 'R', 'L', null, 'HI', 'RTE');
 
 -- ============================================================
 -- RECREATION_STATUS
@@ -86,18 +86,18 @@ values
 -- ============================================================
 insert into rst.recreation_map_feature (
     rmf_skey, rec_resource_id, section_id, amendment_id, amend_status_code,
-    recreation_resource_type, amend_status_date, retirement_date, revision_count,
-    recreation_map_feature_guid, updated_at, updated_by, created_at, created_by, sys_period
+    amend_status_date, retirement_date, revision_count, recreation_map_feature_guid, updated_at,
+    updated_by, created_at, created_by, sys_period
 )
 values
-    (900001, 'REC6759',   null, 1, 'APP', 'SIT', '2021-01-01', null, 1, 'fixture-rmf-6759',   '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
-    (900002, 'REC166399', null, 1, 'APP', 'SIT', '2021-01-01', null, 1, 'fixture-rmf-166399', '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
-    (900003, 'REC98308',  null, 1, 'APP', 'SIT', '2021-01-01', null, 1, 'fixture-rmf-98308',  '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
-    (900004, 'REC97932',  null, 1, 'APP', 'RTE', '2021-01-01', null, 1, 'fixture-rmf-97932',  '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
-    (900005, 'REC240138', null, 1, 'APP', 'SIT', '2021-01-01', null, 1, 'fixture-rmf-240138', '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
-    (900006, 'REC98115',  null, 1, 'APP', 'SIT', '2021-01-01', null, 1, 'fixture-rmf-98115',  '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
-    (900007, 'REC33110',  null, 1, 'APP', 'SIT', '2021-01-01', null, 1, 'fixture-rmf-33110',  '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
-    (900008, 'REC162814', null, 1, 'APP', 'RTE', '2021-01-01', null, 1, 'fixture-rmf-162814', '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)');
+    (900001, 'REC6759',   null, 1, 'APP', '2021-01-01', null, 1, 'fixture-rmf-6759',   '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
+    (900002, 'REC166399', null, 1, 'APP', '2021-01-01', null, 1, 'fixture-rmf-166399', '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
+    (900003, 'REC98308',  null, 1, 'APP', '2021-01-01', null, 1, 'fixture-rmf-98308',  '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
+    (900004, 'REC97932',  null, 1, 'APP', '2021-01-01', null, 1, 'fixture-rmf-97932',  '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
+    (900005, 'REC240138', null, 1, 'APP', '2021-01-01', null, 1, 'fixture-rmf-240138', '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
+    (900006, 'REC98115',  null, 1, 'APP', '2021-01-01', null, 1, 'fixture-rmf-98115',  '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
+    (900007, 'REC33110',  null, 1, 'APP', '2021-01-01', null, 1, 'fixture-rmf-33110',  '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)'),
+    (900008, 'REC162814', null, 1, 'APP', '2021-01-01', null, 1, 'fixture-rmf-162814', '2021-01-01 00:00:00', 'FIXTURE', '2021-01-01 00:00:00', 'FIXTURE', '["2025-03-25 00:51:09.255651+00",)');
 
 -- ============================================================
 -- RECREATION_MAP_FEATURE_GEOM
