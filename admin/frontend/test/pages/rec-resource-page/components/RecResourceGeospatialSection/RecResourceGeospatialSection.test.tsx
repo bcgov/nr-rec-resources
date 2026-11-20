@@ -672,6 +672,38 @@ describe('RecResourceGeospatialSection', () => {
     expect(screen.getByTestId('mock-spatial-submission')).toBeDefined();
   });
 
+  it('disables Create new when there is already a pending spatial submission', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-PENDING-ONLY',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+          },
+        ],
+        total: 1,
+      },
+      isLoading: false,
+      isFetching: false,
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const createButton = screen.getByRole('button', { name: 'Create new' });
+    expect(createButton).toBeDisabled();
+    expect(
+      screen.getByText(
+        /A pending spatial submission already exists\. Wait until it is processed before creating a new request\./i,
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.click(createButton);
+    expect(screen.queryByTestId('mock-spatial-submission')).toBeNull();
+  });
+
   it('closes compact create form when child calls onCancel', () => {
     render(<RecResourceGeospatialSection />);
 

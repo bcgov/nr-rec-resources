@@ -421,6 +421,30 @@ describe('RecreationResourceRepository', () => {
       );
     });
 
+    it('should not apply default archived exclusion when includeArchived is true', async () => {
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([2, []]);
+
+      await repo.searchResources(
+        {
+          q: 'lake',
+        },
+        { includeArchived: true },
+      );
+
+      const where = prisma.recreation_resource.count.mock.calls[0]?.[0]
+        ?.where as { AND?: Array<Record<string, unknown>> };
+      const hasDefaultArchivedExclusion =
+        where.AND?.some(
+          (condition) =>
+            Array.isArray((condition as { OR?: unknown[] }).OR) &&
+            JSON.stringify(condition).includes('rec_status_code'),
+        ) ?? false;
+
+      expect(hasDefaultArchivedExclusion).toBe(false);
+    });
+
     it('should replace single/multiple spaces with PostgreSQL ILIKE wildcard (%) in search clause', async () => {
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>

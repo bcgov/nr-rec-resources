@@ -299,6 +299,46 @@ describe('OptionsService', () => {
         { district_code: 'mountain_b', description: 'Mountain Bike District' },
       );
     });
+
+    it('should create recreation status without explicitly setting status_code id', async () => {
+      const mockCreatedStatus = { id: '3', label: 'Temporarily Closed' };
+
+      repository.create = vi.fn().mockResolvedValue(mockCreatedStatus);
+
+      const result = await service.create('recreationStatus', {
+        label: 'Temporarily Closed',
+      });
+
+      expect(result).toEqual(mockCreatedStatus);
+      expect(repository.create).toHaveBeenCalledWith(
+        {
+          idField: 'status_code',
+          labelField: 'description',
+          prismaModel: 'recreation_status_code',
+        },
+        { description: 'Temporarily Closed' },
+      );
+    });
+
+    it('should create structure option without explicitly setting structure_code id', async () => {
+      const mockCreatedStructure = { id: '12', label: 'Helipad' };
+
+      repository.create = vi.fn().mockResolvedValue(mockCreatedStructure);
+
+      const result = await service.create('structure', {
+        label: 'Helipad',
+      });
+
+      expect(result).toEqual(mockCreatedStructure);
+      expect(repository.create).toHaveBeenCalledWith(
+        {
+          idField: 'structure_code',
+          labelField: 'description',
+          prismaModel: 'recreation_structure_code',
+        },
+        { description: 'Helipad' },
+      );
+    });
   });
 
   describe('update', () => {
@@ -644,6 +684,11 @@ describe('OptionsService', () => {
     it('should return string ID for string fields', () => {
       const result = service['convertIdForSearch']('test', 'district_code');
       expect(result).toBe('test');
+    });
+
+    it('should convert string ID to number for structure_code field', () => {
+      const result = service['convertIdForSearch']('456', 'structure_code');
+      expect(result).toBe(456);
     });
 
     it('should throw BadRequestException for invalid number format', () => {

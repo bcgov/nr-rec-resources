@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -49,6 +49,7 @@ export const SpatialSubmissionSection = ({
   showCreateHeading = false,
   useGeospatialCompactForm = false,
   onCancel,
+  onSubmissionResult,
 }: SpatialSubmissionSectionProps) => {
   const { user, authService } = useAuthContext();
   const optionTypes = useMemo(
@@ -96,8 +97,9 @@ export const SpatialSubmissionSection = ({
   >(null);
   const { mutateAsync: createMapFeatures, isPending: isCreatingRequest } =
     useCreateRecreationResourceMapFeatures();
-  const { mutateAsync: updateMapFeatures } =
+  const { mutateAsync: updateMapFeatures, isPending: isUpdatingRequest } =
     useUpdateRecreationResourceMapFeatures();
+  const submissionInFlightRef = useRef(false);
   const requestCreated = createStatus?.variant === 'success';
   const [hasValidateAttempted, setHasValidateAttempted] = useState(false);
   const [showValidationSuccessNotice, setShowValidationSuccessNotice] =
@@ -376,7 +378,13 @@ export const SpatialSubmissionSection = ({
     };
   };
 
+  const isRequestSubmitting = isCreatingRequest || isUpdatingRequest;
+
   const handleCreateRequest = async () => {
+    if (submissionInFlightRef.current || isRequestSubmitting) {
+      return;
+    }
+
     setHasValidateAttempted(true);
     if (missingRequiredFields.length && !editMode) {
       setCreateStatus({
@@ -397,6 +405,7 @@ export const SpatialSubmissionSection = ({
     }
 
     try {
+      submissionInFlightRef.current = true;
       setCreateStatus(null);
       const recResourceName = values.recreationName.trim();
       const submittedBy = values.metadata.contactName || values.metadata.email;
@@ -476,9 +485,14 @@ export const SpatialSubmissionSection = ({
         });
       }
 
+      const successMessage = 'Map feature request created successfully.';
       setCreateStatus({
         variant: 'success',
-        message: <>Map feature request created successfully.</>,
+        message: successMessage,
+      });
+      onSubmissionResult?.({
+        variant: 'success',
+        message: successMessage,
       });
 
       if (onCancel) {
@@ -487,13 +501,20 @@ export const SpatialSubmissionSection = ({
         window.location.assign(ROUTE_PATHS.REQUESTS);
       }
     } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? `Unable to create request: ${error.message}`
+          : 'Unable to create request.';
       setCreateStatus({
         variant: 'danger',
-        message:
-          error instanceof Error
-            ? `Unable to create request: ${error.message}`
-            : 'Unable to create request.',
+        message: errorMessage,
       });
+      onSubmissionResult?.({
+        variant: 'danger',
+        message: errorMessage,
+      });
+    } finally {
+      submissionInFlightRef.current = false;
     }
   };
 
@@ -588,7 +609,7 @@ export const SpatialSubmissionSection = ({
               selectedSectionFeature={selectedSectionFeature}
               onSectionIdChange={handleSectionIdChange}
               canCreateRequest={canCreateRequest}
-              isCreatingRequest={isCreatingRequest}
+              isCreatingRequest={isRequestSubmitting}
               requestCreated={requestCreated}
               onCreateRequest={handleCreateRequest}
               onSectionActionChange={handleSectionActionChange}
