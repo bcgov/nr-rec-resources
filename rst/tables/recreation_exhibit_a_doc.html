@@ -491,16 +491,16 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td>chk_recreation_exhibit_a_doc_page_size</td>
-                                    <td>(((page_size)::text &#61; ANY ((ARRAY[&#39;A&#39;::character varying, &#39;B&#39;::character varying, &#39;C&#39;::character varying, &#39;D&#39;::character varying, &#39;E&#39;::character varying])::text[])) OR (page_size IS NULL))</td>
+                                    <td>chk_recreation_exhibit_a_doc_page_orientation</td>
+                                    <td>(((page_orientation)::text &#61; ANY ((ARRAY[&#39;Portrait&#39;::character varying, &#39;Landscape&#39;::character varying])::text[])) OR (page_orientation IS NULL))</td>
                                 </tr>
                                 <tr>
                                     <td>chk_recreation_exhibit_a_doc_generation_method</td>
                                     <td>(((generation_method)::text &#61; ANY ((ARRAY[&#39;upload&#39;::character varying, &#39;regenerate&#39;::character varying, &#39;migrated from FTA&#39;::character varying])::text[])) OR (generation_method IS NULL))</td>
                                 </tr>
                                 <tr>
-                                    <td>chk_recreation_exhibit_a_doc_page_orientation</td>
-                                    <td>(((page_orientation)::text &#61; ANY ((ARRAY[&#39;Portrait&#39;::character varying, &#39;Landscape&#39;::character varying])::text[])) OR (page_orientation IS NULL))</td>
+                                    <td>chk_recreation_exhibit_a_doc_page_size</td>
+                                    <td>(((page_size)::text &#61; ANY ((ARRAY[&#39;A&#39;::character varying, &#39;B&#39;::character varying, &#39;C&#39;::character varying, &#39;D&#39;::character varying, &#39;E&#39;::character varying])::text[])) OR (page_size IS NULL))</td>
                                 </tr>
                                 </tbody>
                             </table>

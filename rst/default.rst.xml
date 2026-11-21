@@ -839,8 +839,8 @@
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="9" name="saturday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="'N'::character varying" digits="0" id="10" name="sunday_ind" nullable="true" remarks="" size="1" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="recreation_fee_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12">
-            <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
             <parent column="recreation_fee_code" foreignKey="recreation_fee_recreation_fee_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_code"/>
+            <parent column="recreation_fee_code" foreignKey="recreation_fee_sub_code_fk" implied="false" onDeleteCascade="false" schema="rst" table="recreation_fee_sub_code"/>
          </column>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="12" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
@@ -1337,6 +1337,8 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="recreation_user_days_code" nullable="true" remarks="Code describing the Recreation User Days." size="3" type="varchar" typeCode="12">
             <parent column="recreation_resource_user_days_code" foreignKey="recreation_resource_recreation_user_days_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_user_days_code"/>
          </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="overflow_campsites" nullable="true" remarks="The number of overflow campsite spaces for this recreation resource. Sourced from fta.recreation_project.overflow_campsites." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="arch_impact_assess_date" nullable="true" remarks="Date of the archaeological impact assessment for this recreation resource. Sourced from fta.recreation_project.arch_impact_date." size="13" type="date" typeCode="91"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_resource_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
@@ -1472,6 +1474,8 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="last_rec_inspection_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="last_hzrd_tree_assess_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="recreation_user_days_code" nullable="true" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="overflow_campsites" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="arch_impact_assess_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
       </table>
       <table name="recreation_resource_image" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="gen_random_uuid()" digits="0" id="0" name="image_id" nullable="false" remarks="Unique UUID identifier for the image" size="2147483647" type="uuid" typeCode="1111">
