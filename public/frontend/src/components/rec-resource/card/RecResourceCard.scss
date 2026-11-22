@@ -170,11 +170,18 @@
   }
 }
 
-.carousel .carousel-indicators button {
-  border: none;
-  border-radius: 6px;
-  height: 6px;
-  width: 6px;
+.card-carousel .carousel-indicators {
+  flex-wrap: wrap;
+
+  button {
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    border: 9px solid transparent;
+    border-radius: 50%;
+    background-clip: padding-box;
+  }
 }
 
 .carousel-mobile-image {
