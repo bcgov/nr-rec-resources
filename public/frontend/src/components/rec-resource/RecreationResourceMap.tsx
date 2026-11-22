@@ -141,17 +141,14 @@ export const RecreationResourceMap = ({
           <Col xs={12} md="auto">
             <Link
               onClick={handleViewInMainMapClick}
-              aria-label={`View ${recResourceName} in main map`}
+              aria-label={`Full map for ${recResourceName}`}
               to={mainMapUrl.pathname}
               search={mainMapUrl.search}
+              data-testid="view-main-map-button"
+              className="btn btn-outline d-inline-flex align-items-center gap-2"
             >
-              <IconButton
-                data-testid="view-main-map-button"
-                variant="outline"
-                leftIcon={<FontAwesomeIcon icon={faMap} />}
-              >
-                Full map
-              </IconButton>
+              <FontAwesomeIcon icon={faMap} />
+              Full map
             </Link>
           </Col>
           {/* Hide temporaly google maps link until we come with a proper warning/disclaimer //NOSONAR

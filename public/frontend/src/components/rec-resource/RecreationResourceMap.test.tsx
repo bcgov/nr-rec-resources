@@ -53,12 +53,14 @@ describe('RecreationResourceMap', () => {
     // expect(screen.getByText('Google Maps')).toBeInTheDocument();
   });
 
-  it('renders Full map button', async () => {
+  it('includes the visible map label in the link name', async () => {
     await renderWithRouter(
       <RecreationResourceMap recResource={mockRecResource} />,
     );
 
-    expect(screen.getByText('Full map')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Full map for Test Recreation Site' }),
+    ).toBeInTheDocument();
   });
 
   it('applies custom className when provided', async () => {
