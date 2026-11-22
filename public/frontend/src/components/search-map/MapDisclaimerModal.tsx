@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import RSTLogo from '@/images/RST_nav_logo.svg';
 import '@/components/search-map/MapDisclaimerModal.scss';
@@ -9,6 +10,7 @@ interface MapDisclaimerModalProps {
 }
 
 const MapDisclaimerModal = ({ isOpen, setIsOpen }: MapDisclaimerModalProps) => {
+  const titleId = useId();
   const handleCookie = (checked: boolean) => {
     if (checked) {
       Cookies.set('hidemap-disclaimer-dialog', 'true', { expires: 180 }); // expires in 6 months
@@ -23,7 +25,7 @@ const MapDisclaimerModal = ({ isOpen, setIsOpen }: MapDisclaimerModalProps) => {
     <Modal
       show={isOpen}
       onHide={handleCloseModal}
-      aria-labelledby="map-disclaimer-modal"
+      aria-labelledby={titleId}
       className="map-disclaimer-modal d-block"
       scrollable
     >
@@ -40,7 +42,7 @@ const MapDisclaimerModal = ({ isOpen, setIsOpen }: MapDisclaimerModalProps) => {
           </nav>
         </div>
         <div className="content">
-          <h4>Welcome to the Recreation Sites and Trails Map</h4>
+          <h4 id={titleId}>Welcome to the Recreation Sites and Trails Map</h4>
           <p className="p-title">Disclaimer</p>
           <p>
             This map shows the locations and current closure notices for BC

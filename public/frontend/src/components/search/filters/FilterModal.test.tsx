@@ -17,6 +17,7 @@ describe('FilterModal', () => {
       </FilterModal>,
     );
 
+    expect(screen.getByRole('dialog', { name: 'Filter' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Filter' })).toBeInTheDocument();
     expect(screen.getByText('Body Content')).toBeVisible();
     expect(screen.getByText('Footer Content')).toBeVisible();
