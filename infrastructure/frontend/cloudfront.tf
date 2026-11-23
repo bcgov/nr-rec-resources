@@ -185,10 +185,10 @@ resource "aws_cloudfront_response_headers_policy" "csp_policy" {
         "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
         "style-src-attr 'self' 'unsafe-inline'",
         "font-src 'self' https://fonts.gstatic.com",
-        "img-src 'self' blob: data: https://fonts.googleapis.com https://*.arcgis.com https://www.w3.org https://services.arcgisonline.com ${local.storage_cloudfront_url} ${var.csp_urls.matomo_src}",
-        "connect-src 'self' ${local.api_url} ${local.establishment_order_docs_s3_url} ${local.storage_cloudfront_url} https://*.s3.ca-central-1.amazonaws.com https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca https://services6.arcgis.com https://www.arcgis.com https://services.arcgis.com https://tiles.arcgis.com https://maps.arcgis.com https://basemaps.arcgis.com ${var.csp_urls.connect_src} ${var.csp_urls.matomo_src}",
+        "img-src 'self' blob: data: https://fonts.googleapis.com https://*.arcgis.com https://www.w3.org https://services.arcgisonline.com https://staff.${var.app_env}.sitesandtrailsbc.ca ${local.storage_cloudfront_url} ${var.csp_urls.matomo_src}",
+        "connect-src 'self' ${local.api_url} ${local.establishment_order_docs_s3_url} ${local.storage_cloudfront_url} https://staff.${var.app_env}.sitesandtrailsbc.ca https://*.s3.ca-central-1.amazonaws.com https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca https://services6.arcgis.com https://www.arcgis.com https://services.arcgis.com https://tiles.arcgis.com https://maps.arcgis.com https://basemaps.arcgis.com ${var.csp_urls.connect_src} ${var.csp_urls.matomo_src}",
         "media-src 'self'",
-        "frame-src 'self' https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca",
+        "frame-src 'self' https://staff.${var.app_env}.sitesandtrailsbc.ca https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca",
         "worker-src 'self' blob: https://js.arcgis.com",
         "object-src 'none'",
         "base-uri 'self'",
@@ -226,4 +226,26 @@ resource "aws_cloudfront_response_headers_policy" "csp_policy" {
       value    = "camera=(), microphone=(), geolocation=(self), fullscreen=(self), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
     }
   }
+}
+
+resource "terraform_data" "invalidate_cloudfront_cache" {
+  triggers_replace = [
+    jsonencode(aws_cloudfront_response_headers_policy.csp_policy.security_headers_config)
+  ]
+
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = <<-EOF
+      set -euo pipefail
+      echo "Creating CloudFront invalidation for ${aws_cloudfront_distribution.s3_distribution.id}..."
+      aws cloudfront create-invalidation \
+        --distribution-id "${aws_cloudfront_distribution.s3_distribution.id}" \
+        --paths "/*"
+    EOF
+  }
+
+  depends_on = [
+    aws_cloudfront_distribution.s3_distribution,
+    aws_cloudfront_response_headers_policy.csp_policy
+  ]
 }
