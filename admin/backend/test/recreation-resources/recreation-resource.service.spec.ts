@@ -82,6 +82,14 @@ describe('RecreationResourceService', () => {
     expect(result.suggestions[0]?.rec_resource_id).toBe('REC123');
   });
 
+  it('should normalize suggestion search term before querying repository', async () => {
+    (repo.findSuggestions as any).mockResolvedValue({ total: 0, data: [] });
+
+    await service.getSuggestions('  TeSt Term  ');
+
+    expect(repo.findSuggestions).toHaveBeenCalledWith('test term');
+  });
+
   it('should filter out suggestions missing rec_resource_id', async () => {
     const mockData = [
       {
@@ -299,6 +307,33 @@ describe('RecreationResourceService', () => {
       adjudication_report:
         '/api/recreation-resources/pending-requests/app-guid-123/adjudication-report',
     });
+  });
+
+  it('should not include adjudication_report when exhibit url exists but application guid is null', async () => {
+    (repo.findPendingMapFeatureRequests as any).mockResolvedValue([
+      {
+        rec_resource_id: 'REC500003',
+        name: 'Pending Area',
+        district_description: 'Test District',
+        recreation_district: 'Test District',
+        natural_resource_district: 'Natural District',
+        recreation_type: 'Interpretive Forest',
+        amend_status_code: 'PND',
+        feature_count: 2,
+        requested_at: new Date('2026-09-24T12:00:00.000Z'),
+        geometry_types: ['Polygon'],
+        submission_id: '7654321',
+        application_guid: null,
+        status_request_guid: 'status-guid-123',
+        purpose_code: 'A',
+        exhibit_a_url: 'https://example.com/exhibit-a.pdf',
+      },
+    ]);
+
+    const result = await service.getPendingMapFeatureRequests();
+
+    expect(result.data[0]).toHaveProperty('exhibit_a_url');
+    expect(result.data[0]).not.toHaveProperty('adjudication_report');
   });
 
   it('should omit optional pending request identifiers when they are null', async () => {
@@ -1060,6 +1095,97 @@ describe('RecreationResourceService - findOne', () => {
     const result = await service.findOne('id2');
 
     expect(result?.licensee).toBeNull();
+  });
+
+  it('should return null licensee when approved submission org unit is blank', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id-blank-org-unit',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: '   ',
+    });
+    vi.stubGlobal('fetch', vi.fn());
+
+    const result = await service.findOne('id-blank-org-unit');
+
+    expect(result?.licensee).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it('should return null licensee when forest client lookup throws', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com/';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id-fetch-throws',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: 'dsi',
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(new Error('network error')),
+    );
+
+    const result = await service.findOne('id-fetch-throws');
+
+    expect(fetch).toHaveBeenCalledWith(
+      'https://forest-client.example.com/api/clients/findByAcronym?acronym=DSI',
+      expect.anything(),
+    );
+    expect(result?.licensee).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it('should return null licensee when forest client results do not match acronym', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id-acronym-miss',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: 'DSI',
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify([
+            {
+              acronym: 'ABC',
+              clientNumber: '123',
+              clientName: 'Wrong Client',
+            },
+          ]),
+        ),
+      }),
+    );
+
+    const result = await service.findOne('id-acronym-miss');
+
+    expect(result?.licensee).toBeNull();
+    vi.unstubAllGlobals();
   });
 
   it('should map numeric submission org unit values to org_unit_code before client lookup', async () => {
