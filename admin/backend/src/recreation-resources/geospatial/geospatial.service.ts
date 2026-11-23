@@ -20,6 +20,7 @@ type FlatGeometryEntry = {
   geometry: Record<string, unknown>;
   geometryTypeCode: 'P' | 'L';
   sectionId: string;
+  purposeCode?: SpatialSubmissionPurposeCode;
   sourceMetrics?: {
     areaHa?: number | null;
     lengthKm?: number | null;
@@ -77,6 +78,7 @@ type FeatureRequestElement = {
   featureBusinessIdentifier?: string | null;
   featurePurposeCode?: 'N' | 'A' | 'R' | null;
   sourceSectionId?: string;
+  sourcePurposeCode?: SpatialSubmissionPurposeCode;
 } & (
   | { featureGeometryTypeCode: 'polygon'; polygon: Record<string, unknown> }
   | { featureGeometryTypeCode: 'line'; line: Record<string, unknown> }
@@ -226,6 +228,30 @@ const deriveLinearLengthKm = (
   return rawLength > 1000 ? lengthMetersCandidate : lengthKmCandidate;
 };
 
+const deriveLinearRightOfWayM = (
+  rawRightOfWayM: number | null,
+  rawLength: number | null,
+): number | null => {
+  if (rawRightOfWayM === null) {
+    return null;
+  }
+
+  // FEATURE__1 is not consistently a width column; discard values that look like length-in-metres.
+  if (rawLength !== null && rawLength > 0) {
+    const normalizedLengthMeters =
+      rawLength > 1000 ? rawLength : rawLength * 1000;
+    const relativeDiff =
+      Math.abs(rawRightOfWayM - normalizedLengthMeters) /
+      Math.max(1, Math.abs(normalizedLengthMeters));
+
+    if (relativeDiff <= 0.02) {
+      return null;
+    }
+  }
+
+  return rawRightOfWayM;
+};
+
 const extractSourceMetrics = (
   geometryType: string,
   properties: Record<string, unknown> | null | undefined,
@@ -233,7 +259,8 @@ const extractSourceMetrics = (
   const areaHa = getNumericProperty(properties, ['FEATURE_AR']);
   const perimeterKm = getNumericProperty(properties, ['FEATURE_PE']);
   const rawLength = getNumericProperty(properties, ['FEATURE_LE']);
-  const rightOfWayM = getNumericProperty(properties, ['FEATURE__1']);
+  const rawRightOfWayM = getNumericProperty(properties, ['FEATURE__1']);
+  const rightOfWayM = deriveLinearRightOfWayM(rawRightOfWayM, rawLength);
 
   if (geometryType === 'L' || geometryType === 'LineString') {
     return {
@@ -842,6 +869,65 @@ export class GeospatialService {
     `);
   }
 
+  private async persistSpatialSubmissionMapFeatures(
+    tx: Prisma.TransactionClient,
+    input: {
+      applicationGuid: string;
+      recResourceId: string;
+      recreationTypeCode: string | null;
+      submittedBy: string | null;
+      entries: FlatGeometryEntry[];
+    },
+  ): Promise<void> {
+    if (!tx.$queryRaw || !tx.$executeRaw) {
+      this.logger.warn(
+        'Skipping submission map feature persistence because the transaction does not expose raw query methods.',
+      );
+      return;
+    }
+
+    for (const entry of input.entries) {
+      const purposeCode = entry.purposeCode ?? 'A';
+      const mapFeatureGuid = randomUUID();
+      const featureRecordGuid = randomUUID();
+      const featureBusinessIdentifier = entry.sectionId?.trim()
+        ? `${input.recResourceId} SEC ${entry.sectionId.trim()}`
+        : null;
+      await tx.$executeRaw(Prisma.sql`
+        INSERT INTO rst.recreation_spatial_submission_map_feature (
+          application_guid,
+          rec_resource_id,
+          section_id,
+          purpose_code,
+          amend_status_code,
+          amendment_id,
+          recreation_resource_type,
+          retirement_date,
+          map_feature_guid,
+          feature_record_guid,
+          feature_business_identifier,
+          created_by,
+          updated_by
+        )
+        VALUES (
+          ${input.applicationGuid}::uuid,
+          ${input.recResourceId},
+          ${entry.geometryTypeCode === 'P' ? null : entry.sectionId},
+          ${purposeCode},
+          ${'PND'},
+          ${0},
+          ${input.recreationTypeCode},
+          ${purposeCode === 'R' ? new Date() : null},
+          ${mapFeatureGuid},
+          ${featureRecordGuid},
+          ${featureBusinessIdentifier},
+          ${input.submittedBy},
+          ${input.submittedBy}
+        )
+      `);
+    }
+  }
+
   private flattenFeatures(
     features: Array<
       | UpdateRecreationMapFeatureGeometryDto
@@ -1111,6 +1197,7 @@ export class GeospatialService {
           featureName:
             row?.recreation_resource_type_description?.trim() || null,
           sourceSectionId: entry.sectionId,
+          sourcePurposeCode: entry.purposeCode,
           polygon: geometryPayload,
         });
       } else {
@@ -1131,6 +1218,7 @@ export class GeospatialService {
             featureName:
               row?.recreation_resource_type_description?.trim() || null,
             sourceSectionId: entry.sectionId,
+            sourcePurposeCode: entry.purposeCode,
             line: this.buildFeatureGeoJson(lineString),
           });
         });
@@ -1162,18 +1250,27 @@ export class GeospatialService {
       `Prepared ${featureRequests.length} SNCSC feature request element(s) for submission_id: ${submission.submission_id}`,
     );
 
-    const featureRequestsPayload = featureRequests.map((featureRequest) => {
-      const { sourceSectionId, ...baseElement } = featureRequest;
+    const purposeCode = ['N', 'A', 'R'].includes(submission.purpose_code)
+      ? (submission.purpose_code as SpatialSubmissionPurposeCode)
+      : null;
 
-      if (submission.purpose_code !== 'N') {
-        return baseElement;
-      }
+    const featureRequestsPayload = featureRequests.map((featureRequest) => {
+      const { sourceSectionId, sourcePurposeCode, ...baseElement } =
+        featureRequest;
+      const trimmedSectionId = sourceSectionId?.trim();
+      const featurePurposeCode =
+        sourcePurposeCode && ['N', 'A', 'R'].includes(sourcePurposeCode)
+          ? sourcePurposeCode
+          : purposeCode;
 
       return {
         ...baseElement,
-        featureBusinessIdentifier:
-          `${submission.tenure_id} SEC ${sourceSectionId?.trim() || ''}`.trim(),
-        featurePurposeCode: 'N' as const,
+        ...(trimmedSectionId
+          ? {
+              featureBusinessIdentifier: `${submission.tenure_id} SEC ${trimmedSectionId}`,
+            }
+          : {}),
+        ...(featurePurposeCode ? { featurePurposeCode } : {}),
       };
     });
 
@@ -1377,11 +1474,35 @@ export class GeospatialService {
           "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
         );
 
-        const flattenedNewEntries: FlatGeometryEntry[] =
+        let flattenedNewEntries: FlatGeometryEntry[] =
           this.flattenFeatures(newFeatures);
+        let flattenedAmendedEntries: FlatGeometryEntry[] =
+          this.flattenFeatures(amendedFeatures);
+        const flattenedRetiredEntries: FlatGeometryEntry[] =
+          this.flattenFeatures(retiredFeatures);
         this.logger.log(
           `Creating ${newFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
         );
+
+        const hasActiveMapFeature = await tx.recreation_map_feature.findFirst({
+          where: {
+            rec_resource_id,
+            retirement_date: null,
+          },
+          select: { rmf_skey: true },
+        });
+
+        if (
+          !hasActiveMapFeature &&
+          flattenedNewEntries.length === 0 &&
+          flattenedAmendedEntries.length > 0
+        ) {
+          this.logger.warn(
+            `No active map features found for rec_resource_id: ${rec_resource_id}; treating amended features as new inserts.`,
+          );
+          flattenedNewEntries = [...flattenedAmendedEntries];
+          flattenedAmendedEntries = [];
+        }
 
         const linearSectionIds = Array.from(
           new Set(
@@ -1465,8 +1586,6 @@ export class GeospatialService {
           nextRmfSkey++;
         }
 
-        const flattenedAmendedEntries: FlatGeometryEntry[] =
-          this.flattenFeatures(amendedFeatures);
         this.logger.log(
           `Updating ${amendedFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
         );
@@ -1512,8 +1631,6 @@ export class GeospatialService {
           }
         }
 
-        const flattenedRetiredEntries: FlatGeometryEntry[] =
-          this.flattenFeatures(retiredFeatures);
         this.logger.log(
           `Retiring ${retiredFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
         );
@@ -1555,9 +1672,18 @@ export class GeospatialService {
         }
 
         const allSubmissionEntries = [
-          ...flattenedNewEntries,
-          ...flattenedAmendedEntries,
-          ...flattenedRetiredEntries,
+          ...flattenedNewEntries.map((entry) => ({
+            ...entry,
+            purposeCode: 'N' as const,
+          })),
+          ...flattenedAmendedEntries.map((entry) => ({
+            ...entry,
+            purposeCode: 'A' as const,
+          })),
+          ...flattenedRetiredEntries.map((entry) => ({
+            ...entry,
+            purposeCode: 'R' as const,
+          })),
         ];
         const purposeCode = this.derivePurposeCodeForUpdate(
           flattenedNewEntries.length,
@@ -1576,6 +1702,14 @@ export class GeospatialService {
           });
 
           if (createdSubmission) {
+            await this.persistSpatialSubmissionMapFeatures(tx, {
+              applicationGuid: createdSubmission.application_guid,
+              recResourceId: rec_resource_id,
+              recreationTypeCode: payload.recreation_type_code || null,
+              submittedBy: payload.submitted_by || null,
+              entries: allSubmissionEntries,
+            });
+
             await this.dispatchSncscStatusRequest(
               tx,
               createdSubmission,
@@ -1762,10 +1896,23 @@ export class GeospatialService {
         });
 
         if (createdSubmission) {
+          const submissionEntries = flattenedEntries.map((entry) => ({
+            ...entry,
+            purposeCode: 'N' as const,
+          }));
+
+          await this.persistSpatialSubmissionMapFeatures(tx, {
+            applicationGuid: createdSubmission.application_guid,
+            recResourceId: rec_resource_id,
+            recreationTypeCode: payload.recreation_type_code || null,
+            submittedBy: payload.submitted_by || null,
+            entries: submissionEntries,
+          });
+
           await this.dispatchSncscStatusRequest(
             tx,
             createdSubmission,
-            flattenedEntries,
+            submissionEntries,
           );
         }
       },

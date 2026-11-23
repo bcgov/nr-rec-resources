@@ -658,7 +658,7 @@ describe('ExhibitAService', () => {
     const featureSql = featureQuery.raw?.join(' ') ?? '';
     expect(featureSql).toContain('FROM rst.recreation_spatial_submission rss');
     expect(featureSql).toContain('WHERE rss.submission_id =');
-    expect(featureSql).toContain('AND rmf.retirement_date IS NULL');
+    expect(featureSql).toContain("AND rssmf.purpose_code <> 'R'");
   });
 
   it('throws BadGatewayException when feature geometry cannot be rendered', async () => {

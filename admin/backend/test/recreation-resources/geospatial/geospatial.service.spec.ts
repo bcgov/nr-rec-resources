@@ -761,7 +761,7 @@ describe('GeospatialService', () => {
       });
     });
 
-    it('dispatches SNCSC status request without feature business identifier for non-new purpose', async () => {
+    it('dispatches SNCSC status request with feature business identifier for amend purpose', async () => {
       vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
         client_number: '00133887',
         client_name: 'District Manager',
@@ -798,8 +798,74 @@ describe('GeospatialService', () => {
         sncscStatusRequestServiceMock.createStatusRequest.mock.calls[0]?.[0];
       const firstElement = payloadArg?.featureRequests?.elements?.[0];
 
-      expect(firstElement).not.toHaveProperty('featureBusinessIdentifier');
-      expect(firstElement).not.toHaveProperty('featurePurposeCode');
+      expect(firstElement).toMatchObject({
+        featureBusinessIdentifier: 'REC123 SEC A',
+        featurePurposeCode: 'A',
+      });
+    });
+
+    it('dispatches SNCSC status request with per-feature purpose codes for mixed actions', async () => {
+      vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
+        client_number: '00133887',
+        client_name: 'District Manager',
+      });
+      vi.spyOn(service as any, 'buildFeatureRequestElements').mockResolvedValue(
+        [
+          {
+            '@type': 'FeatureRequestResource',
+            mapFeatureGuid: 'map-guid-1',
+            featureRecordGuid: 'feature-guid-1',
+            featureGeometryTypeCode: 'line',
+            mapFeatureTypeCode: 'RTR',
+            featureName: 'Recreation trail reserve',
+            sourceSectionId: '20566',
+            sourcePurposeCode: 'N',
+            line: { type: 'LineString', coordinates: [] },
+          },
+          {
+            '@type': 'FeatureRequestResource',
+            mapFeatureGuid: 'map-guid-2',
+            featureRecordGuid: 'feature-guid-2',
+            featureGeometryTypeCode: 'line',
+            mapFeatureTypeCode: 'RTR',
+            featureName: 'Recreation trail reserve',
+            sourceSectionId: '12',
+            sourcePurposeCode: 'R',
+            line: { type: 'LineString', coordinates: [] },
+          },
+        ],
+      );
+
+      await (service as any).dispatchSncscStatusRequest(
+        prismaMock,
+        {
+          application_guid: 'app-guid-1',
+          submission_id: '1234567',
+          tenure_id: 'REC123',
+          org_unit_code: 'DND',
+          status_request_type_code: 'RL',
+          purpose_code: 'A',
+        },
+        [
+          { sectionId: '20566', geometryTypeCode: 'L', geometry: {} },
+          { sectionId: '12', geometryTypeCode: 'L', geometry: {} },
+        ],
+      );
+
+      const payloadArg =
+        sncscStatusRequestServiceMock.createStatusRequest.mock.calls[0]?.[0];
+      expect(payloadArg?.featureRequests?.elements).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            featureBusinessIdentifier: 'REC123 SEC 20566',
+            featurePurposeCode: 'N',
+          }),
+          expect.objectContaining({
+            featureBusinessIdentifier: 'REC123 SEC 12',
+            featurePurposeCode: 'R',
+          }),
+        ]),
+      );
     });
 
     it('logs warning when SNCSC returns no status request guid', async () => {
@@ -1177,6 +1243,27 @@ describe('GeospatialService', () => {
       ]);
 
       expect(normalized[0]?.sourceMetrics?.lengthKm).toBe(2);
+    });
+
+    it('ignores FEATURE__1 when it mirrors line length in metres', () => {
+      const normalized = (service as any).flattenFeatures([
+        {
+          section_id: 'Linear-2',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [0, 0],
+              [1, 1],
+            ],
+          },
+          properties: {
+            FEATURE_LE: 1.3695,
+            FEATURE__1: 1369.5332,
+          },
+        },
+      ]);
+
+      expect(normalized[0]?.sourceMetrics?.rightOfWayM).toBeNull();
     });
 
     it('returns empty normalized entries when geometry type is missing', () => {
@@ -1715,6 +1802,37 @@ describe('GeospatialService', () => {
   });
 
   describe('updateMapFeaturesFromValidatedFile (missing feature handling)', () => {
+    it('treats amended features as new inserts when no active map features exist', async () => {
+      prismaMock.recreation_map_feature.findFirst.mockResolvedValueOnce(null);
+      prismaMock.$queryRawUnsafe.mockResolvedValueOnce([{ max_rmf_skey: 41 }]);
+
+      const insertSpy = vi.spyOn(service as any, 'insertMapFeatureAndGeometry');
+
+      await expect(
+        service.updateGeospatialData('REC123', {
+          newFeatures: [],
+          amendedFeatures: [
+            {
+              section_id: 'Trail-Amended',
+              geometry: {
+                type: 'LineString',
+                coordinates: [
+                  [0, 0],
+                  [1, 1],
+                ],
+              },
+            },
+          ],
+          retiredFeatures: [],
+          submitted_by: 'idir\\tester',
+        } as any),
+      ).resolves.toBeUndefined();
+
+      expect(insertSpy).toHaveBeenCalledTimes(1);
+      expect(insertSpy.mock.calls[0]?.[0]).toBe(42);
+      expect(insertSpy.mock.calls[0]?.[1]).toBe('REC123');
+    });
+
     it('logs error when amending or retiring a non-existent feature rmf_skey', async () => {
       prismaMock.$queryRawUnsafe.mockResolvedValueOnce([]); // empty rmfDataQuery result for amendment
       prismaMock.$queryRawUnsafe.mockResolvedValueOnce([]); // empty rmfDataQuery result for retirement
