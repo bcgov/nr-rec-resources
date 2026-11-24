@@ -28,11 +28,12 @@ const FilterGroupAccordion = ({
         className="filter-option-label pointer p-3"
         onClick={handleOpen}
         tabIndex={tabIndex}
-        onKeyDown={handleOpen}
+        type="button"
+        aria-expanded={isOpen}
       >
         <div>{label}</div>
         <FontAwesomeIcon
-          aria-label={isOpen ? 'Close filter group' : 'Open filter group'}
+          aria-hidden="true"
           data-testid={isOpen ? 'close-filter-group' : 'open-filter-group'}
           icon={isOpen ? faChevronUp : faChevronDown}
         />

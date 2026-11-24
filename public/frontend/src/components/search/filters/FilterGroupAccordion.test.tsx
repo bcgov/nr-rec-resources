@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import FilterGroupAccordion from '@/components/search/filters/FilterGroupAccordion';
 import FilterGroup from '@/components/search/filters/FilterGroup';
 import { activitiesOptions } from '@/components/search/test/mock-data';
@@ -75,9 +76,34 @@ describe('the FilterGroupAccordion component', () => {
     expect(onOpen).toHaveBeenCalledWith('activities');
   });
 
+  it('only toggles on keyboard activation', async () => {
+    const user = userEvent.setup();
+    const onOpen = vi.fn();
+    renderAccordion(false, onOpen);
+    const button = screen.getByRole('button', {
+      name: 'Activities',
+      expanded: false,
+    });
+
+    await user.tab();
+    expect(button).toHaveFocus();
+    await user.tab();
+    await user.tab({ shift: true });
+    expect(button).toHaveFocus();
+    expect(onOpen).not.toHaveBeenCalled();
+
+    await user.keyboard('{Enter}');
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    await user.keyboard(' ');
+    expect(onOpen).toHaveBeenCalledTimes(2);
+  });
+
   it('should show close icon when isOpen is true', () => {
     renderAccordion(true);
 
+    expect(
+      screen.getByRole('button', { name: 'Activities', expanded: true }),
+    ).toBeVisible();
     expect(screen.getByTestId('close-filter-group')).toBeVisible();
   });
 });
