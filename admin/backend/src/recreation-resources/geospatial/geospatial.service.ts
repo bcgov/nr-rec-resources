@@ -1397,18 +1397,17 @@ export class GeospatialService {
         sourcePurposeCode && ['N', 'A', 'R'].includes(sourcePurposeCode)
           ? sourcePurposeCode
           : purposeCode;
+      const featureBusinessIdentifier =
+        baseElement.featureGeometryTypeCode === 'polygon'
+          ? submission.tenure_id
+          : sourceFeatureBusinessIdentifier?.trim() ||
+            (trimmedSectionId
+              ? `${submission.tenure_id} SEC ${trimmedSectionId}`
+              : undefined);
 
       return {
         ...baseElement,
-        ...(sourceFeatureBusinessIdentifier?.trim()
-          ? {
-              featureBusinessIdentifier: sourceFeatureBusinessIdentifier.trim(),
-            }
-          : trimmedSectionId
-            ? {
-                featureBusinessIdentifier: `${submission.tenure_id} SEC ${trimmedSectionId}`,
-              }
-            : {}),
+        ...(featureBusinessIdentifier ? { featureBusinessIdentifier } : {}),
         ...(featurePurposeCode ? { featurePurposeCode } : {}),
       };
     });
