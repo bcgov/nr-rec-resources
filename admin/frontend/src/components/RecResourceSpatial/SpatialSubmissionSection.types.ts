@@ -11,6 +11,10 @@ export interface SpatialSubmissionSectionProps {
   showCreateHeading?: boolean;
   useGeospatialCompactForm?: boolean;
   onCancel?: () => void;
+  onSubmissionResult?: (status: {
+    variant: 'success' | 'danger';
+    message: string;
+  }) => void;
 }
 
 export interface WizardValues {

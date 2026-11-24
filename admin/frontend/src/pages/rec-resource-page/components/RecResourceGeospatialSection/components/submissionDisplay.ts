@@ -65,6 +65,13 @@ export const getStatusDisplay = (statusCode?: string | null): BadgeDisplay => {
       textColor: COLOR_RED,
     };
   }
+  if (normalized.startsWith('RET') || normalized.includes('RETIR')) {
+    return {
+      label: 'RETIRED',
+      bgColor: COLOR_RED_LIGHT,
+      textColor: COLOR_RED,
+    };
+  }
   if (normalized.startsWith('APP') || normalized.includes('APPROV')) {
     return {
       label: 'APPROVED',

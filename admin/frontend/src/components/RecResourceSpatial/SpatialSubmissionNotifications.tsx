@@ -37,6 +37,12 @@ export const SpatialSubmissionAlerts = (
     props.hasValidationSuccessNotice &&
     props.showValidationSuccessNotice;
 
+  const dismissCreateStatus =
+    props.kind === 'notifications' ? props.onDismissCreateStatus : undefined;
+
+  const shouldAutoDismissCreateStatus =
+    props.kind === 'notifications' && Boolean(props.createStatus);
+
   useEffect(() => {
     if (
       !shouldAutoDismissValidationSuccess ||
@@ -53,6 +59,20 @@ export const SpatialSubmissionAlerts = (
       window.clearTimeout(timeoutId);
     };
   }, [shouldAutoDismissValidationSuccess, dismissValidationSuccessNotice]);
+
+  useEffect(() => {
+    if (!shouldAutoDismissCreateStatus || !dismissCreateStatus) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      dismissCreateStatus();
+    }, 5000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [shouldAutoDismissCreateStatus, dismissCreateStatus]);
 
   if (props.kind === 'validation') {
     if (!props.issues.length) {

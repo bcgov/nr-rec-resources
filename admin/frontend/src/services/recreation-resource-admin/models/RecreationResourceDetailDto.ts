@@ -89,12 +89,6 @@ export interface RecreationResourceDetailDto {
    */
   name: string;
   /**
-   * Timestamp of the most recent resource update
-   * @type {Date}
-   * @memberof RecreationResourceDetailDto
-   */
-  updated_at?: Date;
-  /**
    * Physical location of the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceDetailDto
@@ -130,6 +124,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   recreation_user_days_code: RecreationUserDaysDto;
+  /**
+   * Timestamp of the most recent resource update
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
+   */
+  updated_at?: Date;
   /**
    * Detailed description of the Recreation Resource
    * @type {string}
@@ -354,8 +354,6 @@ export function RecreationResourceDetailDtoFromJSONTyped(
   return {
     rec_resource_id: json['rec_resource_id'],
     name: json['name'],
-    updated_at:
-      json['updated_at'] == null ? undefined : new Date(json['updated_at']),
     closest_community: json['closest_community'],
     recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
@@ -369,6 +367,8 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     recreation_user_days_code: RecreationUserDaysDtoFromJSON(
       json['recreation_user_days_code'],
     ),
+    updated_at:
+      json['updated_at'] == null ? undefined : new Date(json['updated_at']),
     description: json['description'],
     driving_directions: json['driving_directions'],
     maintenance_standard: json['maintenance_standard'],
@@ -447,10 +447,6 @@ export function RecreationResourceDetailDtoToJSONTyped(
   return {
     rec_resource_id: value['rec_resource_id'],
     name: value['name'],
-    updated_at:
-      value['updated_at'] == null
-        ? undefined
-        : value['updated_at'].toISOString(),
     closest_community: value['closest_community'],
     recreation_activity: (value['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoToJSON,
@@ -461,6 +457,10 @@ export function RecreationResourceDetailDtoToJSONTyped(
     recreation_user_days_code: RecreationUserDaysDtoToJSON(
       value['recreation_user_days_code'],
     ),
+    updated_at:
+      value['updated_at'] == null
+        ? undefined
+        : value['updated_at'].toISOString(),
     description: value['description'],
     driving_directions: value['driving_directions'],
     maintenance_standard: value['maintenance_standard'],
