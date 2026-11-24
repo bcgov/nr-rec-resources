@@ -481,7 +481,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
               variant={isFilterMenuOpen ? 'primary' : 'secondary'}
               className="filter-btn d-sm-none d-md-block"
               onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-              aria-label="Toggle filter menu desktop"
+              aria-expanded={isFilterMenuOpen}
             >
               <FilterButtonLabel selectedFilterCount={selectedFilterCount} />
             </Button>
@@ -491,7 +491,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
               variant={isFilterMenuOpen ? 'primary' : 'secondary'}
               className="search-chip d-sm-block d-md-none"
               onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-              aria-label="Toggle filter menu mobile"
+              aria-expanded={isFilterMenuOpen}
             >
               <FontAwesomeIcon icon={faSliders} className="me-2" />
               <FilterButtonLabel selectedFilterCount={selectedFilterCount} />

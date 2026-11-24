@@ -150,7 +150,7 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
                   href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning"
                   target="_blank"
                   rel="noreferer noreferrer"
-                  aria-label="Plan your visit (opens in new window)"
+                  aria-label="Planning your visit (opens in new window)"
                 >
                   planning your visit
                 </a>
@@ -483,7 +483,7 @@ const KnowBeforeYouGo = forwardRef<HTMLElement, KnowBeforeYouGoProps>(
                 href="https://www.camperscode.com/#9-rules"
                 target="_blank"
                 rel="noreferer noreferrer"
-                aria-label="The Campers Code (opens in new window)"
+                aria-label="The Camper's Code (opens in new window)"
               >
                 The Camper&apos;s Code
               </a>{' '}

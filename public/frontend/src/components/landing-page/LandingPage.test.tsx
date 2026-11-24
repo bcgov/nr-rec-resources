@@ -29,6 +29,14 @@ describe('LandingPage', () => {
     render(<LandingPage />);
 
     expect(screen.getByTestId('mock-search-banner')).toBeInTheDocument();
+    const partnerLinks = screen.getAllByText('Partnering and volunteering', {
+      selector: 'a',
+    });
+    for (const link of partnerLinks) {
+      expect(link).toHaveAccessibleName(
+        /Partnering and volunteering\s+\(opens in a new tab\)/,
+      );
+    }
     const contentSections = screen.getAllByTestId('mock-content-section');
     expect(contentSections).toHaveLength(3);
 

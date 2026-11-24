@@ -17,9 +17,9 @@ const LearnMore: FC = () => (
     href={EXTERNAL_LINKS.PARTNERING}
     rel="noopener noreferrer"
     target="_blank"
-    aria-label="Partnering and volunteering (opens in a new tab)"
   >
-    Learn More&nbsp;
+    Partnering and volunteering&nbsp;
+    <span className="visually-hidden">(opens in a new tab)</span>
     <FontAwesomeIcon icon={faExternalLink} />
   </Button>
 );
