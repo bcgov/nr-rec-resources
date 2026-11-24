@@ -26,7 +26,7 @@ public class ForestFileIdCheckJobRunner implements CommandLineRunner {
   private final Logger logger = LoggerFactory.getLogger(ForestFileIdCheckJobRunner.class);
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-  @Value("${job.forest-file-ids-to-check:REC277563,REC32883}")
+  @Value("${job.forest-file-ids-to-check:REC16070,REC16110,REC277563,REC32883,REC7616}")
   private String forestFileIdsToCheck;
 
   public ForestFileIdCheckJobRunner(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -36,10 +36,16 @@ public class ForestFileIdCheckJobRunner implements CommandLineRunner {
   @Override
   public void run(String... args) {
     logger.info("Running recreation project forest-file ID existence check");
+    logger.info("Input forest file IDs (job.forest-file-ids-to-check): {}", forestFileIdsToCheck);
 
     Set<String> requestedIds = new LinkedHashSet<>();
     for (var rawId : forestFileIdsToCheck.split(",")) {
-      var normalized = rawId == null ? "" : rawId.trim().toUpperCase();
+      var normalized = rawId == null ? "" : rawId
+        .replace("'", "")
+        .replace("(", "")
+        .replace(")", "")
+        .trim()
+        .toUpperCase();
       if (!normalized.isEmpty()) {
         requestedIds.add(normalized);
       }
@@ -50,11 +56,15 @@ public class ForestFileIdCheckJobRunner implements CommandLineRunner {
       return;
     }
 
+    logger.info("Parsed {} unique forest file IDs to check: {}", requestedIds.size(), requestedIds);
+
     var sql = """
       select trim(upper(forest_file_id))
       from THE.RECREATION_PROJECT
       where trim(upper(forest_file_id)) in (:ids)
       """;
+
+    logger.info("Querying THE.RECREATION_PROJECT for {} IDs", requestedIds.size());
 
     var foundIds = new LinkedHashSet<>(this.namedParameterJdbcTemplate.query(
       sql,
@@ -62,10 +72,24 @@ public class ForestFileIdCheckJobRunner implements CommandLineRunner {
       (rs, rowNum) -> rs.getString(1)
     ));
 
+    logger.info("THE.RECREATION_PROJECT query complete | FOUND_COUNT={} | REQUESTED_COUNT={}",
+      foundIds.size(), requestedIds.size());
+    if (!foundIds.isEmpty()) {
+      logger.info("Found IDs: {}", foundIds);
+    }
+
+    Set<String> missingIds = new LinkedHashSet<>();
+
     for (var id : requestedIds) {
       var status = foundIds.contains(id) ? "FOUND" : "MISSING";
+      if (!foundIds.contains(id)) {
+        missingIds.add(id);
+      }
       logger.info("THE.RECREATION_PROJECT check | FOREST_FILE_ID={} | STATUS={}", id, status);
     }
+
+    logger.info("THE.RECREATION_PROJECT check summary | REQUESTED={} | FOUND={} | MISSING={} | MISSING_IDS={}",
+      requestedIds.size(), foundIds.size(), missingIds.size(), missingIds);
   }
 }
 

@@ -36,4 +36,4 @@ scratch:
 checkIdsCronEnabled: true # render check-ids cronjob for manual trigger/debug
 checkIdsCronSuspend: true # keep suspended by default; run manually when needed
 checkIdsSchedule: '0 5 * * *' # placeholder schedule if unsuspended
-checkForestFileIds: 'REC277563,REC32883' # comma-separated IDs used by JOB_MODE=check-ids
+checkForestFileIds: 'REC16070,REC16110,REC277563,REC32883,REC7616' # comma-separated IDs used by JOB_MODE=check-ids
