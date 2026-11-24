@@ -1,3 +1,41 @@
+-- An amended feature comes back from FTA under a new rmf_skey, so clear out the
+-- row we were holding for that slot before loading the new one. A slot is
+-- (rec_resource_id, section_id), matched with `is not distinct from` because
+-- polygons have no section_id and plain `=` never matches on null.
+--
+-- Only slots FTA still fills get cleared, so anything it has stopped reporting
+-- stays where it is. Geometry goes in the same statement, its fk to
+-- recreation_map_feature would otherwise block the delete.
+with superseded as (
+    select existing.rmf_skey
+    from rst.recreation_map_feature existing
+    where exists (
+        select 1
+        from fta.recreation_map_feature f
+        where f.forest_file_id = existing.rec_resource_id
+          and f.section_id is not distinct from existing.section_id
+          and f.current_ind = 'Y'
+    )
+    and not exists (
+        select 1
+        from fta.recreation_map_feature f
+        where f.rmf_skey = existing.rmf_skey
+          and f.current_ind = 'Y'
+    )
+),
+deleted_geom as (
+    delete from rst.recreation_map_feature_geom
+    where rmf_skey in (select rmf_skey from superseded)
+    returning rmf_skey
+)
+delete from rst.recreation_map_feature
+where rmf_skey in (select rmf_skey from superseded);
+
+
+-- rmf_skey is the feature's identity in FTA, so the upsert keys on it and the
+-- update picks up anything FTA has changed since, retirement_date included.
+-- distinct on keeps the latest amendment per slot, in case FTA reports more
+-- than one current row for one.
 with map_feature as (
     select distinct on (rmf.forest_file_id, rmf.section_id)
         rmf.rmf_skey,
@@ -27,15 +65,9 @@ insert into rst.recreation_map_feature (
     created_by, created_at, updated_by, updated_at, recreation_map_feature_guid
 )
 select *
-from map_feature mf
-where not exists (
-    select 1
-    from rst.recreation_map_feature existing
-    where existing.rmf_skey = mf.rmf_skey
-)
-on conflict (rec_resource_id, section_id)
+from map_feature
+on conflict (rmf_skey)
 do update set
-    rmf_skey = excluded.rmf_skey,
     amendment_id = excluded.amendment_id,
     amend_status_code = excluded.amend_status_code,
     recreation_resource_type = excluded.recreation_resource_type,
