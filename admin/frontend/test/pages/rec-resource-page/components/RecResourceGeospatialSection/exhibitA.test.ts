@@ -12,24 +12,24 @@ describe('exhibitA helpers', () => {
     expect(isAbsoluteUrl(undefined)).toBe(false);
   });
 
-  it('prefers override URL over docs and row URL', () => {
+  it('prefers application-guid override URL over docs and row URL', () => {
     const row = {
       submission_id: 'SUB-1',
       application_guid: 'APP-1',
       exhibit_a_url: 'https://example.com/from-row.pdf',
     } as any;
     const docs = [
-      { submission_id: 'SUB-1', url: 'https://example.com/from-docs.pdf' },
+      { application_guid: 'APP-1', url: 'https://example.com/from-docs.pdf' },
     ] as any;
 
     const resolved = resolveExhibitAUrl(row, docs, {
-      'SUB-1': 'https://example.com/from-override.pdf',
+      'APP-1': 'https://example.com/from-override.pdf',
     });
 
     expect(resolved).toBe('https://example.com/from-override.pdf');
   });
 
-  it('falls back to application-guid document URL when submission document is missing', () => {
+  it('falls back to application-guid document URL when override is missing', () => {
     const row = {
       submission_id: 'SUB-2',
       application_guid: 'APP-2',

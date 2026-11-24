@@ -308,26 +308,28 @@ model recreation_sub_access_code {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_map_feature {
-  rmf_skey                      Int                            @id
-  rec_resource_id               String?                        @db.VarChar(10)
-  section_id                    String?                        @db.VarChar(30)
-  amendment_id                  Int?
-  amend_status_code             String?                        @db.VarChar(3)
-  recreation_resource_type      String?                        @db.VarChar(3)
-  amend_status_date             DateTime?                      @db.Date
-  retirement_date               DateTime?                      @db.Date
-  revision_count                Int?
-  recreation_map_feature_guid   String?                        @db.VarChar(36)
-  updated_at                    DateTime?                      @default(now()) @db.Timestamp(6)
-  updated_by                    String?
-  created_at                    DateTime?                      @default(now()) @db.Timestamp(6)
-  created_by                    String?
-  sys_period                    Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource           recreation_resource?           @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
-  recreation_resource_type_code recreation_resource_type_code? @relation(fields: [recreation_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_map_feature_geom   recreation_map_feature_geom?
+  rmf_skey                                  Int                                         @id
+  rec_resource_id                           String?                                     @db.VarChar(10)
+  section_id                                String?                                     @db.VarChar(30)
+  amendment_id                              Int?
+  amend_status_code                         String?                                     @db.VarChar(3)
+  recreation_resource_type                  String?                                     @db.VarChar(3)
+  amend_status_date                         DateTime?                                   @db.Date
+  retirement_date                           DateTime?                                   @db.Date
+  revision_count                            Int?
+  recreation_map_feature_guid               String?                                     @db.VarChar(36)
+  updated_at                                DateTime?                                   @default(now()) @db.Timestamp(6)
+  updated_by                                String?
+  created_at                                DateTime?                                   @default(now()) @db.Timestamp(6)
+  created_by                                String?
+  sys_period                                Unsupported("tstzrange")                    @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  current_ind                               String                                      @default("Y") @db.Char(1)
+  recreation_resource                       recreation_resource?                        @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource_type_code             recreation_resource_type_code?              @relation(fields: [recreation_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_map_feature_geom               recreation_map_feature_geom?
+  recreation_spatial_submission_map_feature recreation_spatial_submission_map_feature[]
 
-  @@unique([rec_resource_id, section_id])
+  @@unique([rec_resource_id, section_id], map: "uq_rmf_current_section", where: raw("((current_ind = 'Y'::bpchar) AND (section_id IS NOT NULL))"))
   @@index([rec_resource_id], map: "idx_recreation_map_feature_rec_resource_id")
   @@index([recreation_resource_type], map: "idx_recreation_map_feature_recreation_resource_type")
   @@index([rmf_skey], map: "idx_recreation_map_feature_rmf_skey")
@@ -1688,7 +1690,7 @@ model recreation_asset_code_history {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_spatial_submission {
   application_guid                          String                                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  submission_id                             String                                      @default(dbgenerated("(nextval('recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)")) @db.VarChar(50)
+  submission_id                             String                                      @unique(map: "uq_recreation_spatial_submission_submission_id") @default(dbgenerated("(nextval('recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)")) @db.VarChar(50)
   tenure_id                                 String                                      @db.VarChar(20)
   status_request_guid                       String?                                     @unique @db.VarChar(50)
   status_request_type_code                  String                                      @db.VarChar(3)
@@ -1855,14 +1857,17 @@ model recreation_spatial_submission_map_feature {
   created_at                    DateTime?                      @default(now()) @db.Timestamp(6)
   created_by                    String?
   sys_period                    Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  rmf_skey                      Int?
   recreation_spatial_submission recreation_spatial_submission  @relation(fields: [application_guid], references: [application_guid], onDelete: Cascade, onUpdate: NoAction)
   recreation_resource           recreation_resource            @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_map_feature        recreation_map_feature?        @relation(fields: [rmf_skey], references: [rmf_skey], onUpdate: NoAction)
   recreation_resource_type_code recreation_resource_type_code? @relation(fields: [recreation_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction, map: "recreation_spatial_submission_map_recreation_resource_type_fkey")
 
   @@unique([application_guid, map_feature_guid], map: "uq_spatial_submission_map_feature_guid")
   @@index([application_guid], map: "idx_spatial_submission_map_feature_application_guid")
   @@index([rec_resource_id], map: "idx_spatial_submission_map_feature_rec_resource_id")
   @@index([section_id], map: "idx_spatial_submission_map_feature_section_id")
+  @@index([rmf_skey], map: "idx_rssmf_rmf_skey")
   @@schema("rst")
 }
 

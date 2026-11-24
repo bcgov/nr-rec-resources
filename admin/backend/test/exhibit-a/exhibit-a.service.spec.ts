@@ -59,7 +59,19 @@ describe('ExhibitAService', () => {
     vi.restoreAllMocks();
   });
 
+  const mockPendingSubmissionLookup = () => {
+    prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        application_guid: 'guid-1',
+        submission_id: 'S1234567',
+        tenure_id: 'REC0001',
+        status: 'PND',
+      },
+    ]);
+  };
+
   it('generates pdf from ArcGIS execute response URL', async () => {
+    mockPendingSubmissionLookup();
     prisma.$queryRaw
       .mockResolvedValueOnce([
         {
@@ -125,7 +137,7 @@ describe('ExhibitAService', () => {
         }),
       );
 
-    const result = await service.generate('S1234567', {
+    const result = await service.generate('guid-1', {
       pageSize: ExhibitAPageSize.B,
       pageOrientation: ExhibitAPageOrientation.Landscape,
       scale: 30000,
@@ -159,6 +171,7 @@ describe('ExhibitAService', () => {
   });
 
   it('accepts ArcGIS execute responses with object-shaped results', async () => {
+    mockPendingSubmissionLookup();
     prisma.$queryRaw
       .mockResolvedValueOnce([
         {
@@ -229,7 +242,7 @@ describe('ExhibitAService', () => {
         }),
       );
 
-    const result = await service.generate('S1234567', {
+    const result = await service.generate('guid-1', {
       scale: 30000,
       pageSize: ExhibitAPageSize.A,
       pageOrientation: ExhibitAPageOrientation.Portrait,
@@ -243,6 +256,7 @@ describe('ExhibitAService', () => {
   });
 
   it('falls back to nearest available FTA map scale when requested scale is unavailable', async () => {
+    mockPendingSubmissionLookup();
     prisma.$queryRaw
       .mockResolvedValueOnce([
         {
@@ -312,7 +326,7 @@ describe('ExhibitAService', () => {
         }),
       );
 
-    const result = await service.generate('S1234567', {
+    const result = await service.generate('guid-1', {
       scale: 25000,
       pageSize: ExhibitAPageSize.A,
       pageOrientation: ExhibitAPageOrientation.Portrait,
@@ -339,6 +353,7 @@ describe('ExhibitAService', () => {
   });
 
   it('falls back to /layers metadata when root MapServer metadata has no layer ids', async () => {
+    mockPendingSubmissionLookup();
     prisma.$queryRaw
       .mockResolvedValueOnce([
         {
@@ -407,7 +422,7 @@ describe('ExhibitAService', () => {
         }),
       );
 
-    const result = await service.generate('S1234567', {
+    const result = await service.generate('guid-1', {
       scale: 30000,
       pageSize: ExhibitAPageSize.B,
       pageOrientation: ExhibitAPageOrientation.Landscape,
@@ -514,18 +529,21 @@ describe('ExhibitAService', () => {
       },
     );
 
-    expect(generateSpy).toHaveBeenCalledWith('S1234567', {
-      pageSize: ExhibitAPageSize.B,
-      pageOrientation: ExhibitAPageOrientation.Landscape,
-      scale: 30000,
-    });
+    expect(generateSpy).toHaveBeenCalledWith(
+      '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+      {
+        pageSize: ExhibitAPageSize.B,
+        pageOrientation: ExhibitAPageOrientation.Landscape,
+        scale: 30000,
+      },
+    );
     expect(prisma.$executeRaw).toHaveBeenCalledTimes(2);
     const metadataCall = prisma.$executeRaw.mock.calls[1]!;
     expect(metadataCall).toContain('Landscape');
     const metadataSqlFragments = metadataCall[0] as {
       raw?: string[];
     };
-    expect(metadataSqlFragments.raw?.join(' ')).toContain('regenerate');
+    expect(metadataSqlFragments.raw?.join(' ')).toContain('generation_method');
     expect(metadataSqlFragments.raw?.join(' ')).toContain('application_guid');
     expect(metadataSqlFragments.raw?.join(' ')).toContain(
       'DELETE FROM rst.recreation_exhibit_a_doc',
@@ -585,11 +603,14 @@ describe('ExhibitAService', () => {
       ),
     ).resolves.toMatchObject({ submissionId: 'S1234567' });
 
-    expect(generateSpy).toHaveBeenCalledWith('S1234567', {
-      pageSize: ExhibitAPageSize.B,
-      pageOrientation: ExhibitAPageOrientation.Landscape,
-      scale: 30000,
-    });
+    expect(generateSpy).toHaveBeenCalledWith(
+      '6444f5ab-cc12-4129-b66f-2deec3f26ec8',
+      {
+        pageSize: ExhibitAPageSize.B,
+        pageOrientation: ExhibitAPageOrientation.Landscape,
+        scale: 30000,
+      },
+    );
     expect(prisma.$executeRaw).toHaveBeenCalledTimes(3);
 
     const failedMetadataCall = prisma.$executeRaw.mock.calls[1]![0] as {
@@ -606,6 +627,7 @@ describe('ExhibitAService', () => {
   });
 
   it('throws NotFoundException when a submission has no map features', async () => {
+    mockPendingSubmissionLookup();
     prisma.$queryRaw
       .mockResolvedValueOnce([
         {
@@ -624,12 +646,13 @@ describe('ExhibitAService', () => {
       ])
       .mockResolvedValueOnce([]);
 
-    await expect(service.generate('S1234567', {})).rejects.toBeInstanceOf(
+    await expect(service.generate('guid-1', {})).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });
 
   it('queries submission features for the selected submission id', async () => {
+    mockPendingSubmissionLookup();
     prisma.$queryRaw
       .mockResolvedValueOnce([
         {
@@ -648,20 +671,148 @@ describe('ExhibitAService', () => {
       ])
       .mockResolvedValueOnce([]);
 
-    await expect(service.generate('S1234567', {})).rejects.toBeInstanceOf(
+    await expect(service.generate('guid-1', {})).rejects.toBeInstanceOf(
       NotFoundException,
     );
 
-    const featureQuery = prisma.$queryRaw.mock.calls[1]?.[0] as {
+    const featureQuery = prisma.$queryRaw.mock.calls[2]?.[0] as {
       raw?: string[];
     };
     const featureSql = featureQuery.raw?.join(' ') ?? '';
-    expect(featureSql).toContain('FROM rst.recreation_spatial_submission rss');
-    expect(featureSql).toContain('WHERE rss.submission_id =');
-    expect(featureSql).toContain("AND rssmf.purpose_code <> 'R'");
+    expect(featureSql).toContain(
+      'FROM rst.recreation_spatial_submission_map_feature rssmf',
+    );
+    expect(featureSql).toContain('WHERE rssmf.application_guid =');
+    expect(featureSql).toContain('INNER JOIN rst.recreation_map_feature rmf');
+    expect(featureSql).toContain(
+      'INNER JOIN rst.recreation_map_feature_geom rmfg',
+    );
+    expect(featureSql).not.toContain('OR NOT EXISTS');
+  });
+
+  it('returns submission-scoped feature counts for separate application snapshots', async () => {
+    prisma.$queryRaw
+      .mockResolvedValueOnce([
+        {
+          section_id: 'X',
+          purpose_code: 'N',
+          geojson: JSON.stringify({ type: 'LineString', coordinates: [] }),
+          label_geojson: JSON.stringify({ type: 'Point', coordinates: [0, 0] }),
+        },
+        {
+          section_id: 'Y',
+          purpose_code: 'N',
+          geojson: JSON.stringify({ type: 'LineString', coordinates: [] }),
+          label_geojson: JSON.stringify({ type: 'Point', coordinates: [1, 1] }),
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          section_id: 'P',
+          purpose_code: 'A',
+          geojson: JSON.stringify({ type: 'LineString', coordinates: [] }),
+          label_geojson: JSON.stringify({ type: 'Point', coordinates: [2, 2] }),
+        },
+        {
+          section_id: 'Q',
+          purpose_code: 'A',
+          geojson: JSON.stringify({ type: 'LineString', coordinates: [] }),
+          label_geojson: JSON.stringify({ type: 'Point', coordinates: [3, 3] }),
+        },
+        {
+          section_id: 'R',
+          purpose_code: 'A',
+          geojson: JSON.stringify({ type: 'LineString', coordinates: [] }),
+          label_geojson: JSON.stringify({ type: 'Point', coordinates: [4, 4] }),
+        },
+      ]);
+
+    const first = await (service as any).loadSubmissionFeatures('app-guid-1');
+    const second = await (service as any).loadSubmissionFeatures('app-guid-2');
+
+    expect(first).toHaveLength(2);
+    expect(second).toHaveLength(3);
+  });
+
+  it('keeps original submission geometry after live-table amendments happen later', async () => {
+    const originalXGeoJson = JSON.stringify({
+      type: 'LineString',
+      coordinates: [
+        [10, 10],
+        [11, 11],
+      ],
+    });
+
+    prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        section_id: 'X',
+        purpose_code: 'N',
+        geojson: originalXGeoJson,
+        label_geojson: JSON.stringify({ type: 'Point', coordinates: [10, 10] }),
+      },
+      {
+        section_id: 'Y',
+        purpose_code: 'N',
+        geojson: JSON.stringify({ type: 'LineString', coordinates: [] }),
+        label_geojson: JSON.stringify({ type: 'Point', coordinates: [12, 12] }),
+      },
+    ]);
+
+    const rows = await (service as any).loadSubmissionFeatures('app-guid-1');
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.geojson).toBe(originalXGeoJson);
+  });
+
+  it('throws when a submission has no snapshot rows and does not query live feature tables', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([]);
+
+    await expect(
+      (service as any).loadSubmissionFeatures('app-guid-missing'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+
+    const featureQuery = prisma.$queryRaw.mock.calls[0]?.[0] as {
+      raw?: string[];
+    };
+    const featureSql = featureQuery.raw?.join(' ') ?? '';
+    expect(featureSql).toContain(
+      'FROM rst.recreation_spatial_submission_map_feature rssmf',
+    );
+    expect(featureSql).not.toContain('FROM rst.recreation_map_feature rmf');
+    expect(featureSql).not.toContain(
+      'FROM rst.recreation_map_feature_geom rmfg',
+    );
+  });
+
+  it('returns polygon snapshot rows where section_id is null', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        section_id: null,
+        purpose_code: 'N',
+        geojson: JSON.stringify({
+          type: 'Polygon',
+          coordinates: [
+            [
+              [0, 0],
+              [0, 1],
+              [1, 1],
+              [0, 0],
+            ],
+          ],
+        }),
+        label_geojson: JSON.stringify({
+          type: 'Point',
+          coordinates: [0.5, 0.5],
+        }),
+      },
+    ]);
+
+    const rows = await (service as any).loadSubmissionFeatures('app-guid-poly');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.section_id).toBeNull();
   });
 
   it('throws BadGatewayException when feature geometry cannot be rendered', async () => {
+    mockPendingSubmissionLookup();
     prisma.$queryRaw
       .mockResolvedValueOnce([
         {
@@ -692,7 +843,7 @@ describe('ExhibitAService', () => {
         },
       ]);
 
-    await expect(service.generate('S1234567', {})).rejects.toBeInstanceOf(
+    await expect(service.generate('guid-1', {})).rejects.toBeInstanceOf(
       BadGatewayException,
     );
   });
@@ -753,6 +904,13 @@ describe('ExhibitAService', () => {
   });
 
   it('returns projection-only fields from getExhibitA', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        application_guid: 'guid-1',
+        submission_id: 'S1234567',
+        tenure_id: 'REC0001',
+      },
+    ]);
     vi.spyOn(service, 'generate').mockResolvedValue({
       submissionId: 'S1234567',
       pageSize: ExhibitAPageSize.A,
@@ -769,6 +927,7 @@ describe('ExhibitAService', () => {
       pageOrientation: ExhibitAPageOrientation.Portrait,
       scale: 15000,
     });
+    expect(service.generate).toHaveBeenCalledWith('guid-1', {});
   });
 
   it('normalizes and de-duplicates map sheet values from BCGS query payload', async () => {

@@ -8,6 +8,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
   let service: SncscSpatialSubmissionStatusService;
   let prisma: {
     $transaction: ReturnType<typeof vi.fn>;
+    $executeRaw: ReturnType<typeof vi.fn>;
     recreation_spatial_submission: {
       findUnique: ReturnType<typeof vi.fn>;
       update: ReturnType<typeof vi.fn>;
@@ -20,6 +21,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
   beforeEach(() => {
     prisma = {
       $transaction: vi.fn(async (callback: any) => callback(prisma as any)),
+      $executeRaw: vi.fn(),
       recreation_spatial_submission: {
         findUnique: vi.fn(),
         update: vi.fn(),
@@ -159,6 +161,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
       'dms://sncsc/reports/999',
     );
     expect(prisma.recreation_resource.update).not.toHaveBeenCalled();
+    expect(prisma.$executeRaw).toHaveBeenCalledTimes(2);
   });
 
   it('normalizes CLR payload to null decision/comment/report', async () => {
@@ -185,6 +188,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
     expect(data.adjudication_comment).toBeNull();
     expect(data.adjudication_report_document_uri).toBeNull();
     expect(prisma.recreation_resource.update).not.toHaveBeenCalled();
+    expect(prisma.$executeRaw).not.toHaveBeenCalled();
   });
 
   it('does not attempt resource status update when APP payload has no tenure id', async () => {
@@ -203,5 +207,6 @@ describe('SncscSpatialSubmissionStatusService', () => {
     });
 
     expect(prisma.recreation_resource.update).not.toHaveBeenCalled();
+    expect(prisma.$executeRaw).not.toHaveBeenCalled();
   });
 });

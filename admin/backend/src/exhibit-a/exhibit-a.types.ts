@@ -19,6 +19,7 @@ export type SubmissionLookupRow = {
   application_guid: string;
   submission_id: string;
   tenure_id: string;
+  status: string;
 };
 
 export type ExhibitADocLookupRow = {
@@ -42,6 +43,7 @@ export type HeaderRow = ExhibitAPdfHeader & {
 
 export type FeatureRow = {
   section_id: string | null;
+  purpose_code: string | null;
   geojson: string;
   label_geojson: string;
 };

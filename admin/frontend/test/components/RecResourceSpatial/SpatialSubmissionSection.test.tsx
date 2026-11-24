@@ -950,6 +950,124 @@ describe('SpatialSubmissionSection', () => {
     });
   });
 
+  it('keeps new feature geometry independent from retired feature geometries in edit payload', async () => {
+    const retiredSection13Geometry = {
+      type: 'LineString',
+      coordinates: [
+        [1210000, 475000],
+        [1211000, 475100],
+        [1212000, 475200],
+      ],
+    };
+    const retiredSection5Geometry = {
+      type: 'LineString',
+      coordinates: [
+        [1213000, 475300],
+        [1214000, 475400],
+        [1215000, 475500],
+      ],
+    };
+    const newCombinedGeometry = {
+      type: 'LineString',
+      coordinates: [
+        [1200000, 470000],
+        [1200500, 470300],
+        [1201000, 470700],
+        [1202000, 471100],
+        [1203000, 471400],
+        [1204000, 471800],
+      ],
+    };
+
+    mockReadSpatialFile.mockResolvedValueOnce({
+      type: 'FeatureCollection',
+      crs: { type: 'name', properties: { name: 'EPSG:3005' } },
+      features: [
+        {
+          type: 'Feature',
+          properties: { OBJECTID: 1, section_id: '13' },
+          geometry: retiredSection13Geometry,
+        },
+        {
+          type: 'Feature',
+          properties: { OBJECTID: 2, section_id: '5' },
+          geometry: retiredSection5Geometry,
+        },
+        {
+          type: 'Feature',
+          properties: { OBJECTID: 3, section_id: 'The Johnson' },
+          geometry: newCombinedGeometry,
+        },
+      ],
+    } as any);
+
+    render(
+      <SpatialSubmissionSection
+        recResourceId="REC123"
+        editMode={true}
+        existingSectionIds={['13', '5']}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText('Feature type'), {
+      target: { value: 'LineString' },
+    });
+
+    const fileInput = screen.getByLabelText('Spatial file') as HTMLInputElement;
+    const shpFile = new File(['shp-content'], 'submission.shp', {
+      type: 'application/octet-stream',
+    });
+    fireEvent.change(fileInput, { target: { files: [shpFile] } });
+
+    fireEvent.click(screen.getByText('Validate'));
+    await waitFor(() => {
+      expect(
+        screen.getByText('Spatial file validated successfully.'),
+      ).toBeDefined();
+    });
+
+    fireEvent.change(
+      screen.getByLabelText('Select action for the selected feature'),
+      {
+        target: { value: 'RETIRE' },
+      },
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Select feature 2 from map' }),
+    );
+    fireEvent.change(
+      screen.getByLabelText('Select action for the selected feature'),
+      {
+        target: { value: 'RETIRE' },
+      },
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /create request/i }));
+
+    await waitFor(() => {
+      expect(mockUpdateMapFeatures).toHaveBeenCalledTimes(1);
+    });
+
+    const updatePayload = mockUpdateMapFeatures.mock.calls[0]?.[0];
+    expect(updatePayload.newFeatures).toHaveLength(1);
+    expect(updatePayload.retiredFeatures).toHaveLength(2);
+
+    expect(updatePayload.newFeatures[0]).toEqual(
+      expect.objectContaining({
+        sectionId: 'The Johnson',
+        geometry: newCombinedGeometry,
+      }),
+    );
+    expect(updatePayload.newFeatures[0].geometry.coordinates).toHaveLength(6);
+    expect(updatePayload.newFeatures[0].geometry).not.toEqual(
+      updatePayload.retiredFeatures[0].geometry,
+    );
+    expect(updatePayload.newFeatures[0].geometry).not.toEqual(
+      updatePayload.retiredFeatures[1].geometry,
+    );
+  });
+
   it('shows feature-type validation message when geometry does not match selection', async () => {
     render(
       <SpatialSubmissionSection
