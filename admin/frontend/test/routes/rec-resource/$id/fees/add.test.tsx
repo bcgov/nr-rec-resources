@@ -101,7 +101,7 @@ describe('RecResource Fees Add Route', () => {
 
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        requireAll: ['rst-admin'],
+        requireAll: ['rst-developer', 'rst-admin'],
         redirectTo: '/rec-resource/REC123/fees',
         children: expect.anything(),
       }),

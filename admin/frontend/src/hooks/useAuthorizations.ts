@@ -11,6 +11,7 @@ export const ROLES = {
   VIEWER: 'rst-viewer',
   ADMIN: 'rst-admin',
   SUPER_ADMIN: 'rst-super-admin',
+  DEVELOPER: 'rst-developer',
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
@@ -40,8 +41,11 @@ export type AuthorizationKey =
   | 'canEdit'
   | 'canDelete'
   | 'isSuperAdmin'
+  | 'canViewFeatureFlag'
+  | 'canEditFeatureFlag'
   | 'canViewSensitiveInfo'
   | 'canViewAdjudicationReports'
+  | 'canViewPartners'
   | 'canViewPartnerSensitiveInfo'
   | 'canManagePartners';
 
@@ -50,6 +54,14 @@ export const useAuthorizations = () => {
 
   return useMemo(() => {
     const roles = getUserRoles(context);
+    const canViewPartners =
+      hasAnyRole(roles, [ROLES.DEVELOPER]) &&
+      hasAnyRole(roles, [
+        ROLES.IDIR_VIEWER,
+        ROLES.VIEWER,
+        ROLES.ADMIN,
+        ROLES.SUPER_ADMIN,
+      ]);
     const canViewPartnerSensitiveInfo = hasAnyRole(roles, [
       ROLES.VIEWER,
       ROLES.ADMIN,
@@ -63,7 +75,12 @@ export const useAuthorizations = () => {
       ROLES.SUPER_ADMIN,
     ]);
     const canEdit = hasAnyRole(roles, [ROLES.ADMIN, ROLES.SUPER_ADMIN]);
-    const canDelete = hasAnyRole(roles, [ROLES.ADMIN, ROLES.SUPER_ADMIN]);
+    const canDelete = hasAnyRole(roles, [
+      ROLES.ADMIN,
+      ROLES.SUPER_ADMIN,
+      ROLES.DEVELOPER,
+    ]);
+    const hasDeveloperAccess = hasAnyRole(roles, [ROLES.DEVELOPER]);
     const isSuperAdmin = hasAnyRole(roles, [ROLES.SUPER_ADMIN]);
     /**
      * True for Program Read-Only, Admin, and Super Admin roles.
@@ -86,9 +103,12 @@ export const useAuthorizations = () => {
       canView,
       canEdit,
       canDelete,
+      canViewFeatureFlag: hasDeveloperAccess && canView,
+      canEditFeatureFlag: hasDeveloperAccess && canEdit,
       isSuperAdmin,
       canViewSensitiveInfo,
       canViewAdjudicationReports,
+      canViewPartners,
       canViewPartnerSensitiveInfo,
       canManagePartners,
     };

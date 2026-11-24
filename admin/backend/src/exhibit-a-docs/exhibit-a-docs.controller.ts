@@ -40,13 +40,18 @@ import { ExhibitADocsService } from './exhibit-a-docs.service';
 })
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN], ROLE_MODE.ANY)
+@AuthRoles(
+  [
+    RecreationResourceAuthRole.RST_ADMIN,
+    RecreationResourceAuthRole.RST_SUPER_ADMIN,
+  ],
+  ROLE_MODE.ANY,
+)
 export class ExhibitADocsController {
   constructor(private readonly exhibitADocsService: ExhibitADocsService) {}
 
   @AuthRoles(
     [
-      RecreationResourceAuthRole.RST_IDIR_VIEWER,
       RecreationResourceAuthRole.RST_VIEWER,
       RecreationResourceAuthRole.RST_ADMIN,
       RecreationResourceAuthRole.RST_SUPER_ADMIN,
