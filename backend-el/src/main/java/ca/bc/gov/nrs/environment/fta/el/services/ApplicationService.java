@@ -1,4 +1,4 @@
-package ca.bc.gov.nrs.environment.fta.el.services;
+opackage ca.bc.gov.nrs.environment.fta.el.services;
 
 import ca.bc.gov.nrs.environment.fta.el.entities.*;
 import ca.bc.gov.nrs.environment.fta.el.repositories.*;

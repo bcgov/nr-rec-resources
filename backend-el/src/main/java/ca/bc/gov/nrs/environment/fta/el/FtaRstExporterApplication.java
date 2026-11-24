@@ -19,6 +19,7 @@ public class FtaRstExporterApplication implements CommandLineRunner {
   private static final String JOB_MODE_HOURLY = "hourly";
   private static final String JOB_MODE_DAILY = "daily";
   private static final String JOB_MODE_TENURE = "tenure";
+  private static final String JOB_MODE_CHECK_IDS = "check-ids";
 
   private final ApplicationService applicationService;
 
@@ -44,8 +45,10 @@ public class FtaRstExporterApplication implements CommandLineRunner {
     } else if (jobMode.equals(JOB_MODE_TENURE)) {
       logger.info("Running tenure-only CSV extraction and upload");
       this.applicationService.extractAndUploadTenureDataToS3();
+    } else if (jobMode.equals(JOB_MODE_CHECK_IDS)) {
+      logger.info("JOB_MODE=check-ids detected; ID check is handled by ForestFileIdCheckJobRunner");
     } else {
-        logger.info("Invalid job mode specified: {}. Expected {}, {}, or {}. Exiting...", jobMode, JOB_MODE_HOURLY, JOB_MODE_DAILY, JOB_MODE_TENURE);
+        logger.info("Invalid job mode specified: {}. Expected {}, {}, {}, or {}. Exiting...", jobMode, JOB_MODE_HOURLY, JOB_MODE_DAILY, JOB_MODE_TENURE, JOB_MODE_CHECK_IDS);
     }
   }
 }

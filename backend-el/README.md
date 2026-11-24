@@ -163,3 +163,17 @@ type: kubernetes.io/service-account-token
 - This Extract process relies on this IAM user creation and also associated
   roles and permission given to the user.
   https://developer.gov.bc.ca/docs/default/component/public-cloud-techdocs/aws/design-build-and-deploy-an-application/iam-user-service/
+
+### ID Check Mode
+
+- `backend-el` supports a dedicated check mode that does **not** alter existing daily/hourly/tenure export logic.
+- Set `JOB_MODE=check-ids` and optionally set `FOREST_FILE_IDS_TO_CHECK` (comma-separated list).
+- Results are logged as `FOUND`/`MISSING` for each requested ID.
+
+```bash
+# Use defaults: REC277563,REC32883
+export JOB_MODE=check-ids
+
+# Optional override
+export FOREST_FILE_IDS_TO_CHECK="REC277563,REC32883"
+```
