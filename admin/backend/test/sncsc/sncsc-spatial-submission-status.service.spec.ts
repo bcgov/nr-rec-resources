@@ -8,6 +8,8 @@ describe('SncscSpatialSubmissionStatusService', () => {
   let service: SncscSpatialSubmissionStatusService;
   let prisma: {
     $transaction: ReturnType<typeof vi.fn>;
+    $executeRaw: ReturnType<typeof vi.fn>;
+    $queryRaw: ReturnType<typeof vi.fn>;
     recreation_spatial_submission: {
       findUnique: ReturnType<typeof vi.fn>;
       update: ReturnType<typeof vi.fn>;
@@ -20,6 +22,8 @@ describe('SncscSpatialSubmissionStatusService', () => {
   beforeEach(() => {
     prisma = {
       $transaction: vi.fn(async (callback: any) => callback(prisma as any)),
+      $executeRaw: vi.fn(),
+      $queryRaw: vi.fn().mockResolvedValue([]),
       recreation_spatial_submission: {
         findUnique: vi.fn(),
         update: vi.fn(),
@@ -159,6 +163,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
       'dms://sncsc/reports/999',
     );
     expect(prisma.recreation_resource.update).not.toHaveBeenCalled();
+    expect(prisma.$executeRaw).toHaveBeenCalledTimes(2);
   });
 
   it('normalizes CLR payload to null decision/comment/report', async () => {
@@ -185,6 +190,7 @@ describe('SncscSpatialSubmissionStatusService', () => {
     expect(data.adjudication_comment).toBeNull();
     expect(data.adjudication_report_document_uri).toBeNull();
     expect(prisma.recreation_resource.update).not.toHaveBeenCalled();
+    expect(prisma.$executeRaw).not.toHaveBeenCalled();
   });
 
   it('does not attempt resource status update when APP payload has no tenure id', async () => {
@@ -203,5 +209,67 @@ describe('SncscSpatialSubmissionStatusService', () => {
     });
 
     expect(prisma.recreation_resource.update).not.toHaveBeenCalled();
+    expect(prisma.$executeRaw).not.toHaveBeenCalled();
+  });
+
+  it('updates current indicators for APP submission rows by section and skips already-approved rows', async () => {
+    prisma.recreation_spatial_submission.findUnique.mockResolvedValue({
+      application_guid: 'app-guid-with-rows',
+      tenure_id: 'REC0007',
+    });
+    prisma.$queryRaw.mockResolvedValue([
+      {
+        rssmf_skey: BigInt(1),
+        rec_resource_id: 'REC0007',
+        section_id: null,
+        rmf_skey: null,
+        rssmf_amend_status_code: 'PND',
+        rmf_current_ind: 'N',
+        rmf_amend_status_code: 'PND',
+      },
+      {
+        rssmf_skey: BigInt(2),
+        rec_resource_id: 'REC0007',
+        section_id: 'SEC-APP',
+        rmf_skey: 200,
+        rssmf_amend_status_code: 'APP',
+        rmf_current_ind: 'Y',
+        rmf_amend_status_code: 'APP',
+      },
+      {
+        rssmf_skey: BigInt(3),
+        rec_resource_id: 'REC0007',
+        section_id: null,
+        rmf_skey: 300,
+        rssmf_amend_status_code: 'PND',
+        rmf_current_ind: 'N',
+        rmf_amend_status_code: 'PND',
+      },
+      {
+        rssmf_skey: BigInt(4),
+        rec_resource_id: 'REC0007',
+        section_id: 'SEC-2',
+        rmf_skey: 400,
+        rssmf_amend_status_code: 'PND',
+        rmf_current_ind: 'N',
+        rmf_amend_status_code: 'PND',
+      },
+    ]);
+
+    await service.updateStatus('app-guid-with-rows', {
+      '@type': SNCSC_STATUS_RESOURCE_TYPE,
+      status: 'APP',
+      statusDate: 1791436445000,
+      comment: 'Approved and synchronized',
+      adjudicationReportDocumentUri: 'dms://sncsc/reports/321',
+      userId: 'SNCSC_USER_01',
+    });
+
+    expect(prisma.recreation_resource.update).toHaveBeenCalledWith({
+      where: { rec_resource_id: 'REC0007' },
+      data: { rec_status_code: 'HI' },
+    });
+    // two executable rows -> 3 SQL updates each (retire current + approve rmf + approve snapshot)
+    expect(prisma.$executeRaw).toHaveBeenCalledTimes(6);
   });
 });

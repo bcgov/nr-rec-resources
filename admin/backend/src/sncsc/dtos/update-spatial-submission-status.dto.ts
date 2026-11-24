@@ -21,12 +21,12 @@ export class UpdateSpatialSubmissionStatusDto {
 
   @ApiProperty({
     description: 'Submission status sent by SNCSC.',
-    enum: ['CLR', 'APP', 'REJ'],
+    enum: ['CLR', 'APP', 'REJ', 'FAI'],
     example: 'APP',
   })
   @IsString()
-  @IsIn(['CLR', 'APP', 'REJ'])
-  status: 'CLR' | 'APP' | 'REJ';
+  @IsIn(['CLR', 'APP', 'REJ', 'FAI'])
+  status: 'CLR' | 'APP' | 'REJ' | 'FAI';
 
   @ApiProperty({
     description: 'Decision/clearance time as epoch milliseconds.',

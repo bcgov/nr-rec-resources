@@ -38,7 +38,7 @@ const INITIAL_STATE: RegenerateModalState = {
 };
 
 interface Options {
-  onGenerated: (submissionId: string, url: string) => void;
+  onGenerated: (applicationGuid: string, url: string) => void;
 }
 
 export const useRegenerateExhibitA = ({ onGenerated }: Options) => {
@@ -91,7 +91,7 @@ export const useRegenerateExhibitA = ({ onGenerated }: Options) => {
         scale,
       });
 
-      onGenerated(row.submission_id, result.pdfUrl);
+      onGenerated(row.application_guid, result.pdfUrl);
 
       await queryClient.invalidateQueries({
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.pendingRequests(),
