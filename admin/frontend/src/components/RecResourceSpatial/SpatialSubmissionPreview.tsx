@@ -21,7 +21,7 @@ interface SpatialSubmissionPreviewProps {
   requestCreated: boolean;
   onCreateRequest: () => void;
   onSectionActionChange: (
-    sectionId: string,
+    featureIndex: number,
     action: 'NEW' | 'AMEND' | 'RETIRE',
   ) => void;
 }
@@ -96,8 +96,10 @@ export const SpatialSubmissionPreview = ({
                     className="list-group"
                     style={{ maxHeight: '280px', overflowY: 'auto' }}
                   >
-                    {featureSectionIds.map((featureSectionId, index) => {
-                      const isSelected = selectedFeatureIndex === index;
+                    {featureSectionIds.map((featureSectionId) => {
+                      const isSelected =
+                        selectedFeatureIndex ===
+                        featureSectionId.featureIndex - 1;
                       const sectionLabel =
                         featureSectionId.sectionId?.trim() ||
                         `Feature #${featureSectionId.featureIndex}`;
@@ -109,7 +111,11 @@ export const SpatialSubmissionPreview = ({
                           className={`list-group-item list-group-item-action${
                             isSelected ? ' active' : ''
                           }`}
-                          onClick={() => setSelectedFeatureIndex(index)}
+                          onClick={() =>
+                            setSelectedFeatureIndex(
+                              featureSectionId.featureIndex - 1,
+                            )
+                          }
                         >
                           <div className="fw-semibold">
                             {sectionLabel}
@@ -160,7 +166,7 @@ export const SpatialSubmissionPreview = ({
                           required
                           onChange={(event) =>
                             onSectionActionChange(
-                              selectedSectionFeature.sectionId ?? '',
+                              selectedSectionFeature.featureIndex,
                               event.target.value as 'NEW' | 'AMEND' | 'RETIRE',
                             )
                           }

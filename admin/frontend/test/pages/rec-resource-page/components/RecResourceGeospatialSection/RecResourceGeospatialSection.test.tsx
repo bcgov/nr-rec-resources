@@ -989,7 +989,7 @@ describe('RecResourceGeospatialSection', () => {
             submission_id: 'SUB-8',
             application_guid: 'app-guid-8',
             rec_resource_id: 'REC0001',
-            amend_status_code: 'APPROVED_NEW',
+            amend_status_code: 'APP',
             feature_count: 1,
             geometry_types: ['Polygon'],
             requested_at: '2026-11-01T12:00:00Z',

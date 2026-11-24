@@ -12,7 +12,7 @@ import { useExhibitAUploadModal } from './useExhibitAUploadModal';
 
 interface Options {
   recResourceId: string;
-  onUploaded: (submissionId: string, url: string) => void;
+  onUploaded: (applicationGuid: string, url: string) => void;
 }
 
 /** Upload an Exhibit A PDF for one row of the submissions table. */
@@ -72,7 +72,7 @@ export const useSubmissionExhibitAUpload = ({
         submissionId,
       });
 
-      onUploaded(submissionId, finalized.url);
+      onUploaded(selectedRow.application_guid, finalized.url);
 
       await queryClient.invalidateQueries({
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.pendingRequests(),

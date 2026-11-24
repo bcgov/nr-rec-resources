@@ -468,9 +468,6 @@ describe('SpatialSubmissionPreview', () => {
     expect(select).toBeDefined();
 
     fireEvent.change(select, { target: { value: 'RETIRE' } });
-    expect(mockOnSectionActionChange).toHaveBeenCalledWith(
-      'Existing Section',
-      'RETIRE',
-    );
+    expect(mockOnSectionActionChange).toHaveBeenCalledWith(1, 'RETIRE');
   });
 });

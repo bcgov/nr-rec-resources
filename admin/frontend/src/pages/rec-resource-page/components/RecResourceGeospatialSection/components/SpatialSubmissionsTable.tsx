@@ -148,6 +148,13 @@ export function SpatialSubmissionsTable({
         {
           header: 'Exhibit A',
           render: (row) => {
+            const normalizedStatus = row.amend_status_code
+              ?.toUpperCase()
+              .trim();
+            const canRegenerateForStatus =
+              normalizedStatus === 'PND' ||
+              normalizedStatus === 'APP' ||
+              normalizedStatus === 'CLR';
             const exhibitAUrl = resolveExhibitAUrl(
               row,
               exhibitADocs,
@@ -217,7 +224,15 @@ export function SpatialSubmissionsTable({
                   variant="link"
                   className="geospatial-submissions-action-button"
                   disabled={
-                    !isSuperAdmin || !row.application_guid || isRegenerating
+                    !isSuperAdmin ||
+                    !row.application_guid ||
+                    !canRegenerateForStatus ||
+                    isRegenerating
+                  }
+                  title={
+                    !canRegenerateForStatus
+                      ? 'Exhibit A can only be regenerated for pending, approved, or cleared submissions.'
+                      : undefined
                   }
                   onClick={() => onRegenerate(row)}
                 >
