@@ -11,6 +11,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -78,14 +79,51 @@ public class ForestFileIdCheckJobRunner implements CommandLineRunner {
       logger.info("Found IDs: {}", foundIds);
     }
 
+    // Diagnostic: also check PROV_FOREST_USE to help identify IDs that may exist
+    // as tenure files but not as recreation project records.
+    var provForestUseSql = """
+      select trim(upper(forest_file_id))
+      from THE.PROV_FOREST_USE
+      where trim(upper(forest_file_id)) in (:ids)
+      """;
+    var provForestUseFoundIds = new LinkedHashSet<>(this.namedParameterJdbcTemplate.query(
+      provForestUseSql,
+      new MapSqlParameterSource("ids", requestedIds),
+      (rs, rowNum) -> rs.getString(1)
+    ));
+    logger.info("THE.PROV_FOREST_USE diagnostic | FOUND_COUNT={} | REQUESTED_COUNT={}",
+      provForestUseFoundIds.size(), requestedIds.size());
+    if (!provForestUseFoundIds.isEmpty()) {
+      logger.info("Found IDs in THE.PROV_FOREST_USE: {}", provForestUseFoundIds);
+    }
+
     Set<String> missingIds = new LinkedHashSet<>();
+    Set<String> foundOnlyInProvForestUse = new LinkedHashSet<>();
 
     for (var id : requestedIds) {
       var status = foundIds.contains(id) ? "FOUND" : "MISSING";
       if (!foundIds.contains(id)) {
         missingIds.add(id);
+        if (provForestUseFoundIds.contains(id)) {
+          foundOnlyInProvForestUse.add(id);
+        }
       }
       logger.info("THE.RECREATION_PROJECT check | FOREST_FILE_ID={} | STATUS={}", id, status);
+    }
+
+    if (!foundOnlyInProvForestUse.isEmpty()) {
+      logger.warn("IDs missing in THE.RECREATION_PROJECT but present in THE.PROV_FOREST_USE: {}",
+        foundOnlyInProvForestUse);
+    }
+
+    var missingInBoth = new ArrayList<String>();
+    for (var id : missingIds) {
+      if (!provForestUseFoundIds.contains(id)) {
+        missingInBoth.add(id);
+      }
+    }
+    if (!missingInBoth.isEmpty()) {
+      logger.warn("IDs missing in both THE.RECREATION_PROJECT and THE.PROV_FOREST_USE: {}", missingInBoth);
     }
 
     logger.info("THE.RECREATION_PROJECT check summary | REQUESTED={} | FOUND={} | MISSING={} | MISSING_IDS={}",
