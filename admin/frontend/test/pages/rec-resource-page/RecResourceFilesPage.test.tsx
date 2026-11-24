@@ -8,6 +8,7 @@ vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
   },
   useAuthorizations: () => mockUseAuthorizations(),
   useUserRoles: () => mockUseUserRoles(),
@@ -86,6 +87,8 @@ describe('RecResourceFilesPage', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
     });
     mockUseUserRoles.mockReturnValue(['rst-admin']);
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
@@ -251,6 +254,8 @@ describe('RecResourceFilesPage', () => {
       {
         canView: true,
         canEdit: true,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
       },
       true,
     ],
@@ -259,6 +264,8 @@ describe('RecResourceFilesPage', () => {
       {
         canView: true,
         canEdit: false,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
       },
       false,
     ],
@@ -282,6 +289,8 @@ describe('RecResourceFilesPage', () => {
       {
         canView: true,
         canEdit: true,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
       },
       true,
     ],
@@ -290,6 +299,8 @@ describe('RecResourceFilesPage', () => {
       {
         canView: true,
         canEdit: false,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
       },
       false,
     ],
