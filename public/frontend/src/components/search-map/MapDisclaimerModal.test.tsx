@@ -16,6 +16,11 @@ describe('MapDisclaimerModal', () => {
   it('should render modal when isOpen is true', () => {
     setup(true);
     expect(
+      screen.getByRole('dialog', {
+        name: 'Welcome to the Recreation Sites and Trails Map',
+      }),
+    ).toBeVisible();
+    expect(
       screen.getByText(/Welcome to the Recreation Sites and Trails Map/i),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /OK/i })).toBeInTheDocument();

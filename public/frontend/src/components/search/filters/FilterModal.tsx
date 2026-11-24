@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useId, useState, ReactNode } from 'react';
 import { Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -30,6 +30,7 @@ const FilterModal = ({
   children,
   className = '',
 }: FilterModalProps) => {
+  const titleId = useId();
   const [expandAll, setExpandAll] = useState(false);
   const [toggledGroups, setToggledGroups] = useState<Record<string, boolean>>(
     {},
@@ -57,14 +58,16 @@ const FilterModal = ({
     <Modal
       show={isOpen}
       onHide={onClose}
-      aria-labelledby="filter-modal"
+      aria-labelledby={titleId}
       className={`filter-modal ${className}`}
       scrollable
     >
       <Modal.Body className="filter-modal-content">
         <div className="w-100">
           <div className="filter-modal-content--header">
-            <h2 className="fs-4 mb-4">{title}</h2>
+            <h2 className="fs-4 mb-4" id={titleId}>
+              {title}
+            </h2>
             <button
               aria-label="close"
               className="btn close-filter-btn"
