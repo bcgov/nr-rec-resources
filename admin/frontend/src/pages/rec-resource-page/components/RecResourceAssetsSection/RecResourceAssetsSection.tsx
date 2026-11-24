@@ -10,6 +10,8 @@ import {
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CustomButton } from '@/components';
+import { EditableGuard } from '@/components/auth';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import {
   useDeleteAsset,
   useGetAssetCodes,
@@ -63,6 +65,7 @@ type AssetGroupMode = 'type' | 'campsite';
 export function RecResourceAssetsSection() {
   const { id: recResourceId } = useParams({ from: '/rec-resource/$id' });
   const navigate = useNavigate();
+  const { canEdit } = useAuthorizations();
   const [groupMode, setGroupMode] = useState<AssetGroupMode>('type');
   const [isAddRepairModalOpen, setIsAddRepairModalOpen] = useState(false);
   const [isBulkAddModalOpen, setIsBulkAddModalOpen] = useState(false);
@@ -275,30 +278,34 @@ export function RecResourceAssetsSection() {
       <div className="d-flex justify-content-between align-items-center gap-3">
         <h2 className="mb-0">Assets</h2>
         <div className="d-flex align-items-center gap-2">
-          <Dropdown>
-            <Dropdown.Toggle variant="primary" id="assets-actions-dropdown">
-              Actions
-            </Dropdown.Toggle>
-            <Dropdown.Menu align="end">
-              <Dropdown.Item onClick={() => setIsBulkEditAssetModalOpen(true)}>
-                Update assets
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => setIsBulkAddModalOpen(true)}>
-                Add assets
-              </Dropdown.Item>
-              <Dropdown.Item
-                onClick={() => setIsBulkAddCampsitesModalOpen(true)}
-              >
-                Add campsites
-              </Dropdown.Item>
-              <Dropdown.Item
-                onClick={() => setIsInspectionEditOpen(true)}
-                disabled={isInspectionEditOpen}
-              >
-                Edit inspection dates
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+          <EditableGuard>
+            <Dropdown>
+              <Dropdown.Toggle variant="primary" id="assets-actions-dropdown">
+                Actions
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                <Dropdown.Item
+                  onClick={() => setIsBulkEditAssetModalOpen(true)}
+                >
+                  Update assets
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setIsBulkAddModalOpen(true)}>
+                  Add assets
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => setIsBulkAddCampsitesModalOpen(true)}
+                >
+                  Add campsites
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => setIsInspectionEditOpen(true)}
+                  disabled={isInspectionEditOpen}
+                >
+                  Edit inspection dates
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </EditableGuard>
         </div>
       </div>
 
@@ -406,12 +413,15 @@ export function RecResourceAssetsSection() {
                   count={group.count}
                   totalValue={group.totalValue}
                   activeRepairsCount={group.activeRepairsCount}
-                  onEdit={() =>
-                    void navigate({
-                      to: ROUTE_PATHS.REC_RESOURCE_ASSETS_EDIT,
-                      params: { id: recResourceId },
-                      search: { editGroup: String(group.structureCode) },
-                    })
+                  onEdit={
+                    canEdit
+                      ? () =>
+                          void navigate({
+                            to: ROUTE_PATHS.REC_RESOURCE_ASSETS_EDIT,
+                            params: { id: recResourceId },
+                            search: { editGroup: String(group.structureCode) },
+                          })
+                      : undefined
                   }
                 >
                   <Stack direction="vertical" gap={2}>
@@ -444,7 +454,11 @@ export function RecResourceAssetsSection() {
                     isEditing={isEditing}
                     isSaving={isSavingCampsite}
                     isDisabled={editingCampsiteId !== null && !isEditing}
-                    onEdit={() => setEditingCampsiteId(campsite.asset_id)}
+                    onEdit={
+                      canEdit
+                        ? () => setEditingCampsiteId(campsite.asset_id)
+                        : undefined
+                    }
                     onSave={() => void handleSaveCampsiteEdit()}
                     onCancel={handleCancelCampsiteEdit}
                   >

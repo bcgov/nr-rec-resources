@@ -106,17 +106,19 @@ export function AssetTypeCard({
               </CustomButton>
             </div>
           ) : (
-            <CustomButton
-              variant="secondary"
-              className="asset-summary-action-btn asset-type-card__bulk-update-btn"
-              disabled={isDisabled}
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit?.();
-              }}
-            >
-              Edit
-            </CustomButton>
+            onEdit && (
+              <CustomButton
+                variant="secondary"
+                className="asset-summary-action-btn asset-type-card__bulk-update-btn"
+                disabled={isDisabled}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+              >
+                Edit
+              </CustomButton>
+            )
           )}
         </>
       }
