@@ -582,3 +582,22 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_APP_IMAGE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.tenure_application_map_feature',
+  'map_feature_id,tenure_app_guid,submission_id,forest_file_id,revision_count,entry_userid,entry_timestamp,update_userid,update_timestamp',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        submission_id,
+        revision_count,
+        entry_userid,
+        entry_timestamp,
+        update_userid,
+        update_timestamp
+      )
+  )',
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_APP_MAP_FEATURE.csv', 'ca-central-1')
+);

@@ -31,7 +31,7 @@ export function RecResourceGeospatialSection() {
   const isArchived = recResource?.rec_status_code === 'AR';
 
   const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
-  // Keyed by submission_id, falling back to application_guid.
+  // Keyed by application_guid only.
   const [exhibitAUrlBySubmission, setExhibitAUrlBySubmission] = useState<
     Record<string, string>
   >({});
@@ -46,9 +46,15 @@ export function RecResourceGeospatialSection() {
   } = useGetMapFeatureRequestsByRecResourceId(recResourceId);
   const { data: exhibitADocs = [] } = useGetExhibitADocs(recResourceId);
 
-  const handleExhibitAUrl = useCallback((key: string, url: string) => {
-    setExhibitAUrlBySubmission((prev) => ({ ...prev, [key]: url }));
-  }, []);
+  const handleExhibitAUrl = useCallback(
+    (applicationGuid: string, url: string) => {
+      setExhibitAUrlBySubmission((prev) => ({
+        ...prev,
+        [applicationGuid]: url,
+      }));
+    },
+    [],
+  );
 
   const unarchive = useUnarchiveFlow({
     recResourceId,

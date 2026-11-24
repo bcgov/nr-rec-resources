@@ -637,7 +637,7 @@ export class RecreationResourceRepository {
           FILTER (WHERE rrtva.description IS NOT NULL) AS recreation_type,
         rss.purpose_code,
         rss.status AS amend_status_code,
-        COALESCE(COUNT(DISTINCT rmf.rmf_skey), 0)::bigint AS feature_count,
+        COALESCE(COUNT(DISTINCT rssmf.rssmf_skey), 0)::bigint AS feature_count,
         COALESCE(rss.created_at, rss.submission_date::timestamp) AS requested_at,
         COALESCE(
           ARRAY_AGG(
@@ -654,9 +654,10 @@ export class RecreationResourceRepository {
         ) AS geometry_types,
         MAX(rss.adjudication_report_document_uri) AS exhibit_a_url
       FROM rst.recreation_spatial_submission rss
+      LEFT JOIN rst.recreation_spatial_submission_map_feature rssmf
+        ON rssmf.application_guid = rss.application_guid
       LEFT JOIN rst.recreation_map_feature rmf
-        ON rmf.rec_resource_id = rss.tenure_id
-       AND rmf.retirement_date IS NULL
+        ON rmf.rmf_skey = rssmf.rmf_skey
       LEFT JOIN rst.recreation_map_feature_geom rmfg
         ON rmfg.rmf_skey = rmf.rmf_skey
       LEFT JOIN rst.recreation_resource rr

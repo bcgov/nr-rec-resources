@@ -24,6 +24,7 @@ feature_geom_normalized AS (
     FROM rst.recreation_map_feature rmf
     INNER JOIN rst.recreation_map_feature_geom rmfg USING (rmf_skey)
     WHERE rmf.rec_resource_id = $1
+        AND rmf.current_ind = 'Y'
         AND rmf.retirement_date IS NULL
 ),
 -- Single ST_GeometryType per row so we can branch on polygon vs line in aggregates.
