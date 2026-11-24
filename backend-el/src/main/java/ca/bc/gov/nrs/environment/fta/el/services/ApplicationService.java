@@ -1,5 +1,4 @@
 package ca.bc.gov.nrs.environment.fta.el.services;
-
 import ca.bc.gov.nrs.environment.fta.el.entities.*;
 import ca.bc.gov.nrs.environment.fta.el.repositories.*;
 import jakarta.persistence.Column;
