@@ -40,7 +40,7 @@ describe('RoleGuard', () => {
 
   it('requires all roles in requireAll', () => {
     render(
-      <RoleGuard requireAll={['rst-admin', 'rst-super-admin']}>
+      <RoleGuard requireAll={['rst-admin', 'rst-developer']}>
         <div>Protected Content</div>
       </RoleGuard>,
       { wrapper: createAuthWrapper(['rst-admin']) },
@@ -63,12 +63,12 @@ describe('RoleGuard', () => {
   it('requires both requireAll and requireAny conditions when both are provided', () => {
     render(
       <RoleGuard
-        requireAll={['rst-super-admin']}
+        requireAll={['rst-developer']}
         requireAny={['rst-viewer', 'rst-admin']}
       >
         <div>Protected Content</div>
       </RoleGuard>,
-      { wrapper: createAuthWrapper(['rst-super-admin']) },
+      { wrapper: createAuthWrapper(['rst-developer']) },
     );
 
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();

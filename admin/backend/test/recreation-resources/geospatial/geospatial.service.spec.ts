@@ -694,7 +694,7 @@ describe('GeospatialService', () => {
             elements: [
               expect.objectContaining({
                 featureName: 'Campsite',
-                featureBusinessIdentifier: 'REC123 SEC A',
+                featureBusinessIdentifier: 'REC123',
                 featurePurposeCode: 'N',
               }),
             ],
@@ -746,7 +746,7 @@ describe('GeospatialService', () => {
       const firstElement = payloadArg?.featureRequests?.elements?.[0];
 
       expect(firstElement).toMatchObject({
-        featureBusinessIdentifier: 'REC123 SEC A',
+        featureBusinessIdentifier: 'REC123',
         featurePurposeCode: 'A',
       });
     });

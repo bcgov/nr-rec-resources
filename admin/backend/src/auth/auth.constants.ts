@@ -30,6 +30,7 @@ export enum RecreationResourceAuthRole {
    */
   SNCSC_SERVICE = 'sncsc-int',
   RST_SUPER_ADMIN = 'rst-super-admin',
+  RST_DEVELOPER = 'rst-developer',
 }
 
 // Role validation modes

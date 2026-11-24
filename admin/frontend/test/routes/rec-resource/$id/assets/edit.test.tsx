@@ -134,6 +134,7 @@ describe('RecResourceAssetsEditRoute', () => {
         ROUTE_PATHS.REC_RESOURCE_ASSETS.replace('$id', '123'),
       );
       expect(JSON.parse(guard.getAttribute('data-roles') || '[]')).toEqual([
+        ROLES.DEVELOPER,
         ROLES.ADMIN,
       ]);
 

@@ -47,7 +47,7 @@ function RecResourceAssetsEditPageRoute() {
 
   return (
     <RoleRouteGuard
-      requireAll={[ROLES.ADMIN]}
+      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_ASSETS.replace('$id', id)}
     >
       <RecResourceAssetsEditPage />

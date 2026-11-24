@@ -164,15 +164,6 @@ export class RecreationResourceController {
     return await this.recreationResourceService.getNextRecResourceId();
   }
 
-  @AuthRoles(
-    [
-      RecreationResourceAuthRole.RST_IDIR_VIEWER,
-      RecreationResourceAuthRole.RST_VIEWER,
-      RecreationResourceAuthRole.RST_ADMIN,
-      RecreationResourceAuthRole.RST_SUPER_ADMIN,
-    ],
-    ROLE_MODE.ANY,
-  )
   @Get('pending-requests')
   @ApiOkResponse({
     type: PendingMapFeatureRequestsResponseDto,
@@ -186,15 +177,6 @@ export class RecreationResourceController {
     return await this.recreationResourceService.getPendingMapFeatureRequests();
   }
 
-  @AuthRoles(
-    [
-      RecreationResourceAuthRole.RST_IDIR_VIEWER,
-      RecreationResourceAuthRole.RST_VIEWER,
-      RecreationResourceAuthRole.RST_ADMIN,
-      RecreationResourceAuthRole.RST_SUPER_ADMIN,
-    ],
-    ROLE_MODE.ANY,
-  )
   @Get(':rec_resource_id/spatial-submissions')
   @ApiOkResponse({
     type: PendingMapFeatureRequestsResponseDto,
@@ -219,15 +201,6 @@ export class RecreationResourceController {
     );
   }
 
-  // IDIR viewers only get the SNCSC link, which handles its own permissions
-  @AuthRoles(
-    [
-      RecreationResourceAuthRole.RST_VIEWER,
-      RecreationResourceAuthRole.RST_ADMIN,
-      RecreationResourceAuthRole.RST_SUPER_ADMIN,
-    ],
-    ROLE_MODE.ANY,
-  )
   @Get('pending-requests/:application_guid/adjudication-report')
   @ApiOperation({
     operationId: 'getPendingRequestAdjudicationReport',

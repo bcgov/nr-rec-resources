@@ -63,14 +63,13 @@ model recreation_resource {
   recreation_structure                      recreation_structure[]
   recreation_resource_type_view_admin       recreation_resource_type_view_admin[]
   recreation_resource_type_view_public      recreation_resource_type_view_public[]
-// No FK backs rec_status_code in the database (V1.1.61 adds the column
+  // No FK backs rec_status_code in the database (V1.1.61 adds the column
   // only), so `prisma db pull` strips this relation. It is restored by hand
   // because the admin resource queries select through it.
-  recreation_resource_status_code_rel  recreation_resource_status_code?       @relation(fields: [rec_status_code], references: [recreation_resource_status_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource_status_code_rel       recreation_resource_status_code?            @relation(fields: [rec_status_code], references: [recreation_resource_status_code], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("rst")
 }
-
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_activity {
@@ -1690,7 +1689,7 @@ model recreation_asset_code_history {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_spatial_submission {
   application_guid                          String                                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  submission_id                             String                                      @unique(map: "uq_recreation_spatial_submission_submission_id") @default(dbgenerated("(nextval('recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)")) @db.VarChar(50)
+  submission_id                             String                                      @default(dbgenerated("(nextval('recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)")) @db.VarChar(50)
   tenure_id                                 String                                      @db.VarChar(20)
   status_request_guid                       String?                                     @unique @db.VarChar(50)
   status_request_type_code                  String                                      @db.VarChar(3)
