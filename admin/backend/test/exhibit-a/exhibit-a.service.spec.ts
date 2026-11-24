@@ -4,7 +4,11 @@ import {
   ExhibitAPageOrientation,
   ExhibitAPageSize,
 } from '@/exhibit-a/dto/generate-exhibit-a.dto';
-import { BadGatewayException, NotFoundException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@/prisma.service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -900,6 +904,77 @@ describe('ExhibitAService', () => {
           adjudicationComments: [],
         },
       ),
+    ).rejects.toBeInstanceOf(BadGatewayException);
+  });
+
+  it('throws BadRequestException when submission status is not eligible for Exhibit A generation', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        application_guid: 'guid-rej',
+        submission_id: 'S7654321',
+        tenure_id: 'REC0009',
+        status: 'REJ',
+      },
+    ]);
+
+    await expect(service.generate('guid-rej', {})).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+  });
+
+  it('auto-generates and persists metadata with generation_method=auto', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        application_guid: 'guid-auto-1',
+        submission_id: 'S1111111',
+        tenure_id: 'REC0010',
+        status: 'PND',
+      },
+    ]);
+    vi.spyOn(service, 'generate').mockResolvedValue({
+      submissionId: 'S1111111',
+      pageSize: ExhibitAPageSize.A,
+      pageOrientation: ExhibitAPageOrientation.Portrait,
+      scale: 15000,
+      mapImageUrl: 'https://example.com/map-auto.jpg',
+      pdfBuffer: Buffer.from('%PDF-1.4 auto', 'ascii'),
+      pdfKey: 'REC0010/exhibit-a-S1111111-auto.pdf',
+      pdfUrl: 'https://example.com/s3/exhibit-a-S1111111-auto.pdf',
+    });
+
+    await expect(
+      service.autoGenerateForApplicationGuid('guid-auto-1', 'AUTO_USER'),
+    ).resolves.toBeUndefined();
+
+    expect(prisma.$executeRaw).toHaveBeenCalledTimes(1);
+    const metadataSqlFragments = prisma.$executeRaw.mock.calls[0]?.[0] as {
+      raw?: string[];
+    };
+    expect(metadataSqlFragments.raw?.join(' ')).toContain('generation_method');
+  });
+
+  it('throws when auto-generated Exhibit A is missing storage details', async () => {
+    prisma.$queryRaw.mockResolvedValueOnce([
+      {
+        application_guid: 'guid-auto-2',
+        submission_id: 'S2222222',
+        tenure_id: 'REC0011',
+        status: 'PND',
+      },
+    ]);
+    vi.spyOn(service, 'generate').mockResolvedValue({
+      submissionId: 'S2222222',
+      pageSize: ExhibitAPageSize.B,
+      pageOrientation: ExhibitAPageOrientation.Landscape,
+      scale: 30000,
+      mapImageUrl: 'https://example.com/map-auto-missing.jpg',
+      pdfBuffer: undefined,
+      pdfKey: undefined,
+      pdfUrl: undefined,
+    });
+
+    await expect(
+      service.autoGenerateForApplicationGuid('guid-auto-2', 'AUTO_USER'),
     ).rejects.toBeInstanceOf(BadGatewayException);
   });
 
