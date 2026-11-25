@@ -14,24 +14,3 @@ ALTER TABLE rst.recreation_map_feature
 CREATE UNIQUE INDEX IF NOT EXISTS uq_rmf_current_section
   ON rst.recreation_map_feature (rec_resource_id, section_id)
   WHERE current_ind = 'Y' AND section_id IS NOT NULL;
-
-DO $$
-BEGIN
-  -- Check for duplicate submission_id values before creating unique index:
-  -- SELECT submission_id, COUNT(*)
-  -- FROM rst.recreation_spatial_submission
-  -- GROUP BY submission_id
-  -- HAVING COUNT(*) > 1;
-  IF EXISTS (
-    SELECT 1
-    FROM rst.recreation_spatial_submission
-    GROUP BY submission_id
-    HAVING COUNT(*) > 1
-  ) THEN
-    RAISE EXCEPTION
-      'Cannot create uq_recreation_spatial_submission_submission_id: duplicate submission_id values exist in rst.recreation_spatial_submission';
-  END IF;
-END $$;
-
-CREATE UNIQUE INDEX IF NOT EXISTS uq_recreation_spatial_submission_submission_id
-  ON rst.recreation_spatial_submission (submission_id);

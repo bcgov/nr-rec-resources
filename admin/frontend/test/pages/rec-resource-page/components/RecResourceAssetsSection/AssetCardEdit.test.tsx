@@ -102,6 +102,8 @@ describe('AssetCardEdit', () => {
       canView: true,
       canEdit: true,
       canDelete: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
       isSuperAdmin: true,
       canViewSensitiveInfo: true,
     });
@@ -373,11 +375,13 @@ describe('AssetCardEdit', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shows Delete when the user has delete access', () => {
+  it('shows Delete for developer role', () => {
     vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
       canView: true,
       canEdit: false,
       canDelete: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
     });
@@ -392,6 +396,8 @@ describe('AssetCardEdit', () => {
       canView: true,
       canEdit: false,
       canDelete: false,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
     });

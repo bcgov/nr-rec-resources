@@ -89,6 +89,7 @@ export class SncscSpatialSubmissionStatusService {
                 rec_resource_id: string;
                 section_id: string | null;
                 rmf_skey: number | null;
+                purpose_code: string | null;
                 rssmf_amend_status_code: string | null;
                 rmf_current_ind: string | null;
                 rmf_amend_status_code: string | null;
@@ -99,6 +100,7 @@ export class SncscSpatialSubmissionStatusService {
             rssmf.rec_resource_id,
             rssmf.section_id,
             rssmf.rmf_skey,
+            rssmf.purpose_code,
             rssmf.amend_status_code AS rssmf_amend_status_code,
             rmf.current_ind AS rmf_current_ind,
             rmf.amend_status_code AS rmf_amend_status_code
@@ -157,6 +159,11 @@ export class SncscSpatialSubmissionStatusService {
               current_ind = 'Y',
               amend_status_code = 'APP',
               amend_status_date = now(),
+              retirement_date = CASE
+                WHEN ${row.purpose_code} = 'R' AND retirement_date IS NULL
+                  THEN ${statusDate}::date
+                ELSE retirement_date
+              END,
               updated_by = ${payload.userId},
               updated_at = now()
             WHERE rmf_skey = ${row.rmf_skey}
@@ -167,6 +174,11 @@ export class SncscSpatialSubmissionStatusService {
             UPDATE rst.recreation_spatial_submission_map_feature
             SET
               amend_status_code = 'APP',
+              retirement_date = CASE
+                WHEN ${row.purpose_code} = 'R' AND retirement_date IS NULL
+                  THEN ${statusDate}::date
+                ELSE retirement_date
+              END,
               updated_by = ${payload.userId},
               updated_at = now()
             WHERE rssmf_skey = ${row.rssmf_skey}

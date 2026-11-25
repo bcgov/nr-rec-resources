@@ -1381,37 +1381,53 @@ export class GeospatialService {
       `Prepared ${featureRequests.length} SNCSC feature request element(s) for submission_id: ${submission.submission_id}`,
     );
 
-    const purposeCode = ['N', 'A', 'R'].includes(submission.purpose_code)
-      ? (submission.purpose_code as SpatialSubmissionPurposeCode)
-      : null;
+    // SNCSC amendment payloads only accept active purpose actions.
+    const outboundPurposeCode: 'N' | 'A' =
+      submission.purpose_code === 'N' ? 'N' : 'A';
 
-    const featureRequestsPayload = featureRequests.map((featureRequest) => {
-      const {
-        sourceSectionId,
-        sourcePurposeCode,
-        sourceFeatureBusinessIdentifier,
-        ...baseElement
-      } = featureRequest;
-      const trimmedSectionId = sourceSectionId?.trim();
-      const featurePurposeCode =
-        sourcePurposeCode && ['N', 'A', 'R'].includes(sourcePurposeCode)
-          ? sourcePurposeCode
-          : purposeCode;
+    const featureRequestsPayload = featureRequests
+      .map((featureRequest) => {
+        const {
+          sourceSectionId,
+          sourcePurposeCode,
+          sourceFeatureBusinessIdentifier,
+          ...baseElement
+        } = featureRequest;
+        const trimmedSectionId = sourceSectionId?.trim();
+        const normalizedSourcePurposeCode =
+          sourcePurposeCode && ['N', 'A', 'R'].includes(sourcePurposeCode)
+            ? sourcePurposeCode
+            : null;
 
-      return {
-        ...baseElement,
-        ...(sourceFeatureBusinessIdentifier?.trim()
-          ? {
-              featureBusinessIdentifier: sourceFeatureBusinessIdentifier.trim(),
-            }
-          : trimmedSectionId
-            ? {
-                featureBusinessIdentifier: `${submission.tenure_id} SEC ${trimmedSectionId}`,
-              }
-            : {}),
-        ...(featurePurposeCode ? { featurePurposeCode } : {}),
-      };
-    });
+        if (normalizedSourcePurposeCode === 'R') {
+          return null;
+        }
+
+        const featurePurposeCode =
+          normalizedSourcePurposeCode ?? outboundPurposeCode;
+        const featureBusinessIdentifier =
+          baseElement.featureGeometryTypeCode === 'polygon'
+            ? submission.tenure_id
+            : sourceFeatureBusinessIdentifier?.trim() ||
+              (trimmedSectionId
+                ? `${submission.tenure_id} SEC ${trimmedSectionId}`
+                : undefined);
+
+        return {
+          ...baseElement,
+          ...(featureBusinessIdentifier ? { featureBusinessIdentifier } : {}),
+          ...(featurePurposeCode ? { featurePurposeCode } : {}),
+        };
+      })
+      .filter((featureRequest) => featureRequest !== null);
+
+    const filteredRetiredCount =
+      featureRequests.length - featureRequestsPayload.length;
+    if (filteredRetiredCount > 0) {
+      this.logger.log(
+        `Filtered ${filteredRetiredCount} retired feature request(s) from SNCSC payload for submission_id: ${submission.submission_id}`,
+      );
+    }
 
     const payload: Record<string, unknown> = {
       '@type': 'StatusRequestResource',
@@ -1426,7 +1442,7 @@ export class GeospatialService {
       statusRequestTypeCode: submission.status_request_type_code,
       statusClearanceStatusCode: 'PENDING',
       orgUnitCode: submission.org_unit_code,
-      purposeCode: submission.purpose_code,
+      purposeCode: outboundPurposeCode,
       bctsSubmissionInd: 'N',
       featureRequests: {
         '@type': 'FeatureRequestResources',

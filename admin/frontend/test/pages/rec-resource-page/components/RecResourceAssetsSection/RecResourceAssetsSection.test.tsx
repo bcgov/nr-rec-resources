@@ -36,6 +36,8 @@ vi.mock('@/hooks/useAuthorizations', () => ({
     canView: true,
     canEdit: true,
     isSuperAdmin: true,
+    canViewFeatureFlag: false,
+    canEditFeatureFlag: false,
     canViewSensitiveInfo: true,
   }),
 }));
