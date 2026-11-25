@@ -14,4 +14,3 @@ begin
       unique (rec_resource_id, section_id);
   end if;
 end $$;
-
