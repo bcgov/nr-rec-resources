@@ -2,8 +2,8 @@
 with source as (
     select
         tamf.map_feature_id,
-        nullif(btrim(tamf.tenure_app_guid), '') as tenure_app_guid_norm,
-        nullif(btrim(tamf.submission_id), '') as submission_id_norm,
+        nullif(btrim(ta.tenure_app_guid), '') as tenure_app_guid_norm,
+        nullif(btrim(ta.submission_id), '') as submission_id_norm,
         nullif(btrim(tamf.forest_file_id), '') as rec_resource_id_norm,
         tamf.revision_count,
         tamf.entry_timestamp,
@@ -11,6 +11,8 @@ with source as (
         tamf.update_timestamp,
         nullif(btrim(tamf.update_userid), '') as update_userid_norm
     from fta.tenure_application_map_feature tamf
+    left join fta.tenure_application ta
+        on ta.tenure_app_id = tamf.tenure_app_id
     where tamf.map_feature_id is not null
 ),
 prepared as (
