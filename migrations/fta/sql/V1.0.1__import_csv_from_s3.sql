@@ -575,7 +575,8 @@ select aws_s3.table_import_from_s3(
     HEADER true,
     FORCE_NULL
       (
-        image_file_size,
+        image_file_size,' ||
+  '
         entry_timestamp,
         update_timestamp
       )
@@ -584,36 +585,19 @@ select aws_s3.table_import_from_s3(
 );
 
 select aws_s3.table_import_from_s3(
-  'fta.tenure_application_map_feature',
-  'map_feature_id,tenure_app_id,forest_file_id,permit_block_id,cutting_permit_id,cut_block_id,road_section_id,amendment_id,fsr_dedication_plan_id,fsr_gravel_pit_no,chart_area_id,map_block_id,prov_forest_conflict_code,tenure_app_purp_code,min_x,max_x,min_y,max_y,bcgs_map_sheet_reference,refer_to_file_number_desc,point_of_commencement,image_height,image_width,meters_per_pixel,object_area,chart_volume,image_scale,object_length,reference_name,feature_type_code,owned_by_file,owned_by_cp,managed_by_file,managed_by_cp,observation_date,data_source_code,data_quality_comment,capture_method_code,feature_class_skey,planned_net_block_area,image_mime_type_code,image_map_size_code,image_orientation_code,overlay_geo_district_code,bcgs_mapsheet_no,tsa_number,land_district,pulpwood_agreement,utm_zone,revision_count,update_userid,update_timestamp,entry_userid,entry_timestamp,map_feature_guid,feature_record_guid,business_feature_identifier,tenure_app_guid,submission_id',
-  '(
-    FORMAT csv,
-    HEADER true,
-    FORCE_NULL
-      (
-        tenure_app_id,
-        fsr_gravel_pit_no,
-        min_x,
-        max_x,
-        min_y,
-        max_y,
-        image_height,
-        image_width,
-        meters_per_pixel,
-        object_area,
-        chart_volume,
-        image_scale,
-        object_length,
-        observation_date,
-        feature_class_skey,
-        planned_net_block_area,
-        utm_zone,
-        revision_count,
-        update_timestamp,
-        entry_timestamp,
-        feature_record_guid,
-        submission_id
-      )
-  )',
-  aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_MAP_FEATURE.csv', 'ca-central-1')
-);
+               'fta.tenure_application_map_feature',
+               '',
+               '(
+                 FORMAT csv,
+                 HEADER true,
+                 FORCE_NULL
+                   (
+                     tenure_app_id, fsr_gravel_pit_no, min_x, max_x, min_y, max_y,
+                     image_height, image_width, meters_per_pixel, object_area, chart_volume,
+                     image_scale, object_length, observation_date, feature_class_skey,
+                     planned_net_block_area, utm_zone, revision_count,
+                     update_timestamp, entry_timestamp, feature_record_guid
+                   )
+               )',
+               aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_MAP_FEATURE.csv', 'ca-central-1')
+       );;

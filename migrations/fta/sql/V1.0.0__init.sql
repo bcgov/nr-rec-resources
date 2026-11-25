@@ -1385,92 +1385,78 @@ create index idx_fta_tenure_application_images_submission_id
 
 create index idx_fta_tenure_application_images_forest_file_id
     on fta.tenure_application_images (forest_file_id);
-
 create table fta.tenure_application_map_feature (
-    map_feature_id bigint primary key,
-    tenure_app_id bigint,
-    forest_file_id varchar(20),
-    permit_block_id varchar(4),
-    cutting_permit_id varchar(3),
-    cut_block_id varchar(10),
-    road_section_id varchar(30),
-    amendment_id varchar(5),
-    fsr_dedication_plan_id varchar(30),
-    fsr_gravel_pit_no integer,
-    chart_area_id varchar(3),
-    map_block_id varchar(10),
-    prov_forest_conflict_code varchar(3),
-    tenure_app_purp_code varchar(3),
-    min_x integer,
-    max_x integer,
-    min_y integer,
-    max_y integer,
-    bcgs_map_sheet_reference varchar(15),
-    refer_to_file_number_desc varchar(255),
-    point_of_commencement varchar(2000),
-    image_height integer,
-    image_width integer,
-    meters_per_pixel numeric(10,3),
-    object_area numeric(15,4),
-    chart_volume numeric(11,4),
-    image_scale integer,
-    object_length numeric(15,4),
-    reference_name varchar(50),
-    feature_type_code varchar(3),
-    owned_by_file varchar(10),
-    owned_by_cp varchar(3),
-    managed_by_file varchar(10),
-    managed_by_cp varchar(3),
-    observation_date timestamp,
-    data_source_code varchar(10),
-    data_quality_comment varchar(255),
-    capture_method_code varchar(30),
-    feature_class_skey bigint,
-    planned_net_block_area numeric(11,4),
-    image_mime_type_code varchar(3),
-    image_map_size_code varchar(1),
-    image_orientation_code varchar(1),
-    overlay_geo_district_code varchar(6),
-    bcgs_mapsheet_no varchar(32),
-    tsa_number varchar(2),
-    land_district varchar(50),
-    pulpwood_agreement varchar(20),
-    utm_zone integer,
-    revision_count integer,
-    entry_userid varchar(30),
-    entry_timestamp timestamp,
-    update_userid varchar(30),
-    update_timestamp timestamp,
-    map_feature_guid varchar(64),
-    feature_record_guid varchar(64),
-    business_feature_identifier varchar(100),
-    tenure_app_guid varchar(64) not null,
-    submission_id varchar(50),
-    constraint fk_fta_tenure_app_map_feature_app_guid
-        foreign key (tenure_app_guid)
-        references fta.tenure_application (tenure_app_guid)
-        on delete cascade
+                                                    map_feature_id bigint primary key,
+                                                    tenure_app_id bigint,
+                                                    forest_file_id varchar(20),
+                                                    permit_block_id varchar(4),
+                                                    cutting_permit_id varchar(3),
+                                                    cut_block_id varchar(10),
+                                                    road_section_id varchar(30),
+                                                    amendment_id varchar(5),
+                                                    fsr_dedication_plan_id varchar(30),
+                                                    fsr_gravel_pit_no integer,
+                                                    chart_area_id varchar(3),
+                                                    map_block_id varchar(10),
+                                                    prov_forest_conflict_code varchar(3),
+                                                    tenure_app_purp_code varchar(3),
+                                                    min_x integer,
+                                                    max_x integer,
+                                                    min_y integer,
+                                                    max_y integer,
+                                                    bcgs_map_sheet_reference varchar(15),
+                                                    refer_to_file_number_desc varchar(255),
+                                                    point_of_commencement varchar(2000),
+                                                    image_height integer,
+                                                    image_width integer,
+                                                    meters_per_pixel numeric(10,3),
+                                                    object_area numeric(15,4),
+                                                    chart_volume numeric(11,4),
+                                                    image_scale integer,
+                                                    object_length numeric(15,4),
+                                                    reference_name varchar(50),
+                                                    feature_type_code varchar(3),
+                                                    owned_by_file varchar(10),
+                                                    owned_by_cp varchar(3),
+                                                    managed_by_file varchar(10),
+                                                    managed_by_cp varchar(3),
+                                                    observation_date timestamp,
+                                                    data_source_code varchar(10),
+                                                    data_quality_comment varchar(255),
+                                                    capture_method_code varchar(30),
+                                                    feature_class_skey bigint,
+                                                    planned_net_block_area numeric(11,4),
+                                                    image_mime_type_code varchar(3),
+                                                    image_map_size_code varchar(1),
+                                                    image_orientation_code varchar(1),
+                                                    overlay_geo_district_code varchar(6),
+                                                    bcgs_mapsheet_no varchar(32),
+                                                    tsa_number varchar(2),
+                                                    land_district varchar(50),
+                                                    pulpwood_agreement varchar(20),
+                                                    utm_zone integer,
+                                                    revision_count integer,
+                                                    update_userid varchar(30),
+                                                    update_timestamp timestamp,
+                                                    entry_userid varchar(30),
+                                                    entry_timestamp timestamp,
+                                                    map_feature_guid varchar(64),
+                                                    feature_record_guid varchar(64),
+                                                    business_feature_identifier varchar(100)
 );
 
 comment on table fta.tenure_application_map_feature is
-    'FTA staging table for tenure application map features linked to fta.tenure_application.';
+    'FTA staging table for tenure application map features, loaded as-is from legacy TENURE_APPLICATION_MAP_FEATURE.';
 comment on column fta.tenure_application_map_feature.map_feature_id is
     'Unique map feature identifier from legacy TENURE_APPLICATION_MAP_FEATURE.';
-comment on column fta.tenure_application_map_feature.tenure_app_guid is
-    'Legacy tenure application identifier linked to fta.tenure_application.tenure_app_guid.';
-comment on column fta.tenure_application_map_feature.submission_id is
-    'Submission id associated with the tenure application map feature.';
 comment on column fta.tenure_application_map_feature.forest_file_id is
     'Forest file id associated with the map feature.';
 
-create index idx_fta_tamf_tenure_app_guid
-    on fta.tenure_application_map_feature (tenure_app_guid);
+create index idx_fta_tamf_tenure_app_id
+    on fta.tenure_application_map_feature (tenure_app_id);
 
 create index idx_fta_tamf_forest_file_id
     on fta.tenure_application_map_feature (forest_file_id);
-
-create index idx_fta_tamf_submission_id
-    on fta.tenure_application_map_feature (submission_id);
 
 create table fta.tenure_application_mf_images (
     tenure_app_mf_image_id bigserial primary key,
