@@ -10,7 +10,21 @@ import { OptionType } from './options.types';
 
 @Injectable()
 export class OptionsService {
+  private static readonly OPTIONS_CACHE_TTL_MS = 60_000;
+  private readonly optionsByTypesCache = new Map<
+    string,
+    { expiresAt: number; value: Record<string, OptionDto[]> }
+  >();
+
   constructor(private readonly optionsRepository: OptionsRepository) {}
+
+  private buildTypesCacheKey(types: string[]): string {
+    return JSON.stringify(types);
+  }
+
+  private clearTypesCache(): void {
+    this.optionsByTypesCache.clear();
+  }
 
   /**
    * Validates if the option type is supported
@@ -47,6 +61,12 @@ export class OptionsService {
    * Retrieve options for multiple types. Returns a mapping of type -> options array.
    */
   async findAllByTypes(types: string[]): Promise<Record<string, OptionDto[]>> {
+    const cacheKey = this.buildTypesCacheKey(types);
+    const cached = this.optionsByTypesCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.value;
+    }
+
     // Validate types and build mapping pairs preserving the original type string
     const mappingPairs = types.map((t) => {
       const validType = this.validateOptionType(t);
@@ -55,7 +75,13 @@ export class OptionsService {
     });
 
     // Let the repository execute all queries in a single transaction and return a map
-    return this.optionsRepository.findAllByTypes(mappingPairs);
+    const result = await this.optionsRepository.findAllByTypes(mappingPairs);
+    this.optionsByTypesCache.set(cacheKey, {
+      expiresAt: Date.now() + OptionsService.OPTIONS_CACHE_TTL_MS,
+      value: result,
+    });
+
+    return result;
   }
 
   /**
@@ -110,7 +136,9 @@ export class OptionsService {
       data[mapping.idField] = this.generateIdFromLabel(createOptionDto.label);
     }
 
-    return this.optionsRepository.create(mapping, data);
+    const result = await this.optionsRepository.create(mapping, data);
+    this.clearTypesCache();
+    return result;
   }
 
   /**
@@ -134,7 +162,9 @@ export class OptionsService {
       [mapping.labelField]: updateOptionDto.label,
     };
 
-    return this.optionsRepository.update(mapping, searchId, data);
+    const result = await this.optionsRepository.update(mapping, searchId, data);
+    this.clearTypesCache();
+    return result;
   }
 
   /**
@@ -151,6 +181,7 @@ export class OptionsService {
     await this.findOneByTypeAndId(type, id);
 
     await this.optionsRepository.remove(mapping, searchId);
+    this.clearTypesCache();
   }
 
   /**
@@ -243,10 +274,12 @@ export class OptionsService {
       );
     }
 
-    return this.optionsRepository.createSubAccess(
+    const result = await this.optionsRepository.createSubAccess(
       subAccessCode,
       createOptionDto.label,
     );
+    this.clearTypesCache();
+    return result;
   }
 
   /**
@@ -260,10 +293,12 @@ export class OptionsService {
     // First check if the sub-access exists for this access code
     await this.findSubAccessByAccessAndSubAccessCode(accessCode, subAccessCode);
 
-    return this.optionsRepository.updateSubAccess(
+    const result = await this.optionsRepository.updateSubAccess(
       subAccessCode,
       updateOptionDto.label,
     );
+    this.clearTypesCache();
+    return result;
   }
 
   /**
@@ -277,6 +312,7 @@ export class OptionsService {
     await this.findSubAccessByAccessAndSubAccessCode(accessCode, subAccessCode);
 
     await this.optionsRepository.removeSubAccess(subAccessCode);
+    this.clearTypesCache();
   }
 
   /**

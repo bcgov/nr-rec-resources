@@ -21,6 +21,7 @@ describe('submissionDisplay helpers', () => {
   it('maps status codes to normalized labels', () => {
     expect(getStatusDisplay('PND').label).toBe('PENDING');
     expect(getStatusDisplay('rejected_retire').label).toBe('REJECTED');
+    expect(getStatusDisplay('RET').label).toBe('RETIRED');
     expect(getStatusDisplay('approved_new').label).toBe('APPROVED');
     expect(getStatusDisplay(null).label).toBe('-');
   });

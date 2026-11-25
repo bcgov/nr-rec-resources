@@ -36,6 +36,18 @@ import { formatRecreationResourceDetailResults } from './utils';
 
 @Injectable()
 export class RecreationResourceService {
+  private static readonly SUMMARY_CACHE_TTL_MS = 30_000;
+  private static readonly SEARCH_CACHE_TTL_MS = 15_000;
+
+  private readonly summaryCache = new Map<
+    string,
+    { expiresAt: number; value: RecreationResourceDetailDto }
+  >();
+  private readonly searchCache = new Map<
+    string,
+    { expiresAt: number; value: AdminSearchResponseDto }
+  >();
+
   constructor(
     private readonly recreationResourceRepository: RecreationResourceRepository,
     private readonly prisma: PrismaService,
@@ -118,6 +130,16 @@ export class RecreationResourceService {
       page_size: query.page_size ?? defaultPageSize,
       sort: query.sort ?? 'name:asc',
     };
+    const includeArchived = options?.includeArchived ?? false;
+    const searchCacheKey = JSON.stringify({
+      query: normalizedQuery,
+      includeArchived,
+    });
+    const cachedSearch = this.searchCache.get(searchCacheKey);
+    if (cachedSearch && cachedSearch.expiresAt > Date.now()) {
+      return cachedSearch.value;
+    }
+
     const { total, data } =
       await this.recreationResourceRepository.searchResources(
         normalizedQuery,
@@ -171,12 +193,19 @@ export class RecreationResourceService {
       }),
     );
 
-    return {
+    const response = {
       data: mappedRows,
       total,
       page: normalizedQuery.page,
       page_size: normalizedQuery.page_size,
     };
+
+    this.searchCache.set(searchCacheKey, {
+      expiresAt: Date.now() + RecreationResourceService.SEARCH_CACHE_TTL_MS,
+      value: response,
+    });
+
+    return response;
   }
 
   /**
@@ -214,6 +243,69 @@ export class RecreationResourceService {
       naturalresource,
       licensee,
     );
+  }
+
+  async findOneSummary(
+    rec_resource_id: string,
+  ): Promise<RecreationResourceDetailDto | null> {
+    const cachedSummary = this.summaryCache.get(rec_resource_id);
+    if (cachedSummary && cachedSummary.expiresAt > Date.now()) {
+      return cachedSummary.value;
+    }
+
+    const resource =
+      await this.recreationResourceRepository.findSummaryById(rec_resource_id);
+    if (!resource) return null;
+
+    const naturalresource: RecreationNaturalResourceDto | null =
+      await this.prisma.natural_resource_org_unit.findUnique({
+        where: { rec_resource_id },
+        select: {
+          org_unit_code: true,
+          org_unit_name: true,
+        },
+      });
+
+    const summary = {
+      rec_resource_id: resource.rec_resource_id,
+      name: resource.name ?? '',
+      updated_at: resource.updated_at ?? undefined,
+      closest_community: resource.closest_community ?? '',
+      rec_resource_type:
+        resource.recreation_resource_type_view_admin?.[0]?.description ?? '',
+      rec_resource_type_code:
+        resource.recreation_resource_type_view_admin?.[0]
+          ?.rec_resource_type_code ?? null,
+      display_on_public_site: resource.display_on_public_site ?? undefined,
+      recreation_status: {
+        description:
+          resource.recreation_status?.recreation_status_code?.description ??
+          OPEN_STATUS.DESCRIPTION,
+        comment: resource.recreation_status?.comment ?? '',
+        status_code:
+          resource.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
+      },
+      recreation_district: resource.recreation_district_code
+        ? {
+            description: resource.recreation_district_code.description,
+            district_code: resource.recreation_district_code.district_code,
+          }
+        : undefined,
+      rec_status_code: resource.rec_status_code,
+      rec_status_description:
+        resource.recreation_resource_status_code_rel?.description ?? null,
+      natural_resource_org_unit_name:
+        naturalresource?.org_unit_name ?? undefined,
+      access_status_grouplabel:
+        resource.act_advisories_flat?.[0]?.access_status_grouplabel,
+    } as RecreationResourceDetailDto;
+
+    this.summaryCache.set(rec_resource_id, {
+      expiresAt: Date.now() + RecreationResourceService.SUMMARY_CACHE_TTL_MS,
+      value: summary,
+    });
+
+    return summary;
   }
 
   private async resolveLicenseeForResource(
@@ -347,10 +439,15 @@ export class RecreationResourceService {
         getRecreationResourceSpatialFeatureGeometry(rec_resource_id),
       );
 
-    return formatRecreationResourceDetailResults(
+    const result = formatRecreationResourceDetailResults(
       updatedResource,
       recResourceSpatialGeometryResult,
     );
+
+    this.summaryCache.delete(rec_resource_id);
+    this.searchCache.clear();
+
+    return result;
   }
 
   /**
@@ -369,6 +466,10 @@ export class RecreationResourceService {
       // Avoid selecting all columns on update response in drifted DBs.
       select: { rec_resource_id: true },
     });
+
+    // Keep cached reads fresh after writes.
+    this.summaryCache.delete(rec_resource_id);
+    this.searchCache.clear();
   }
 
   /**

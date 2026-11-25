@@ -13,6 +13,7 @@ locals {
   cors_allowed_origins = [
     "https://${local.frontend_url}",
     # prod
+    "https://status.bcparks.ca",
     "https://sitesandtrailsbc.ca",
     "https://www.sitesandtrailsbc.ca",
     "https://staff.sitesandtrailsbc.ca",
@@ -20,6 +21,7 @@ locals {
     "https://dev.sitesandtrailsbc.ca",
     "https://staff.dev.sitesandtrailsbc.ca",
     # test
+    "https://test-status.bcparks.ca",
     "https://test.sitesandtrailsbc.ca",
     "https://staff.test.sitesandtrailsbc.ca"
   ]
