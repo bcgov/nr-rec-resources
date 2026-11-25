@@ -37,7 +37,6 @@ function RecResourceAssetsPageRoute() {
 
   return (
     <RoleRouteGuard
-      requireAll={[ROLES.DEVELOPER]}
       requireAny={[ROLES.IDIR_VIEWER, ROLES.VIEWER, ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_FILES.replace('$id', id)}
     >
