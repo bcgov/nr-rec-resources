@@ -24,7 +24,6 @@ with map_feature as (
 ), updated as (
     update rst.recreation_map_feature existing
     set
-        rmf_skey = mf.rmf_skey,
         amendment_id = mf.amendment_id,
         amend_status_code = mf.amend_status_code,
         recreation_resource_type = mf.recreation_resource_type,
