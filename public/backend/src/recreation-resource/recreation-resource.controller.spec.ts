@@ -207,20 +207,15 @@ describe('RecreationResourceController', () => {
       expect(findByClientNumber).not.toHaveBeenCalled();
     });
 
-    it('should return an error if the api call fails', async () => {
+    it('should return null if the api call fails', async () => {
       vi.spyOn(recService, 'findSiteOperatorClientNumber').mockResolvedValue(
         '01',
       );
       vi.spyOn(resourceService, 'findByClientNumber').mockRejectedValue(
         new HttpException('error', 500),
       );
-      try {
-        await controller.findSiteOperator('REC0001');
-        expect.unreachable('findSiteOperator should have thrown');
-      } catch (error) {
-        expect(error).toBeInstanceOf(HttpException);
-        expect((error as HttpException).getStatus()).toBe(500);
-      }
+
+      await expect(controller.findSiteOperator('REC0001')).resolves.toBeNull();
     });
   });
 
