@@ -1,11 +1,7 @@
--- An amended feature comes back from FTA under a new rmf_skey, so clear out the
--- row we were holding for that slot before loading the new one. A slot is
--- (rec_resource_id, section_id), matched with `is not distinct from` because
--- polygons have no section_id and plain `=` never matches on null.
---
--- Only slots FTA still fills get cleared, so anything it has stopped reporting
--- stays where it is. Geometry goes in the same statement, its fk to
--- recreation_map_feature would otherwise block the delete.
+-- An amended feature comes back under a new rmf_skey, so drop whatever we held
+-- for that slot first. Only slots FTA still fills, so anything it has stopped
+-- reporting stays put. `is not distinct from` because polygons have a null
+-- section_id, and geometry goes along since its fk would block the delete.
 with superseded as (
     select existing.rmf_skey
     from rst.recreation_map_feature existing
@@ -32,10 +28,27 @@ delete from rst.recreation_map_feature
 where rmf_skey in (select rmf_skey from superseded);
 
 
--- rmf_skey is the feature's identity in FTA, so the upsert keys on it and the
--- update picks up anything FTA has changed since, retirement_date included.
--- distinct on keeps the latest amendment per slot, in case FTA reports more
--- than one current row for one.
+-- REC4735 kept 8 features under section ids FTA has since renamed, so the
+-- delete above has no slot to match them on. Listed by skey because it is the
+-- only resource like this. Anything still current gets reloaded by the upsert.
+with orphaned as (
+    select rmf_skey
+    from rst.recreation_map_feature
+    where rec_resource_id = 'REC4735'
+      and rmf_skey between 261861 and 261868
+),
+deleted_orphan_geom as (
+    delete from rst.recreation_map_feature_geom
+    where rmf_skey in (select rmf_skey from orphaned)
+    returning rmf_skey
+)
+delete from rst.recreation_map_feature
+where rmf_skey in (select rmf_skey from orphaned);
+
+
+-- Keyed on rmf_skey, the feature's identity in FTA, so in place edits like
+-- retirement_date land. distinct on covers FTA reporting more than one current
+-- row for a slot.
 with map_feature as (
     select distinct on (rmf.forest_file_id, rmf.section_id)
         rmf.rmf_skey,
