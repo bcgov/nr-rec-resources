@@ -199,6 +199,20 @@ describe('OptionsService', () => {
       await expect(service.findAllByTypes(['activities'])).rejects.toBe(err);
       expect(repository.findAllByTypes).toHaveBeenCalled();
     });
+
+    it('should return cached results for repeated type requests', async () => {
+      const mockMap = {
+        activities: [{ id: '1', label: 'Hiking' }],
+      };
+      repository.findAllByTypes = vi.fn().mockResolvedValue(mockMap);
+
+      const first = await service.findAllByTypes(['activities']);
+      const second = await service.findAllByTypes(['activities']);
+
+      expect(repository.findAllByTypes).toHaveBeenCalledTimes(1);
+      expect(first).toEqual(mockMap);
+      expect(second).toEqual(mockMap);
+    });
   });
 
   describe('findOneByTypeAndId', () => {

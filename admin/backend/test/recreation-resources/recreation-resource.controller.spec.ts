@@ -28,6 +28,7 @@ describe('RecreationResourceController', () => {
             getMapFeatureRequestsByRecResourceId: vi.fn(),
             getPendingRequestAdjudicationReport: vi.fn(),
             findOne: vi.fn(),
+            findOneSummary: vi.fn(),
             update: vi.fn(),
             archive: vi.fn(),
           },
@@ -201,6 +202,33 @@ describe('RecreationResourceController', () => {
   it('should throw 404 if resource not found', async () => {
     (service.findOne as any) = vi.fn().mockResolvedValue(null);
     await expect(controller.findOne('NOT_FOUND')).rejects.toThrowError(
+      'Recreation Resource not found.',
+    );
+  });
+
+  it('should call service.findOneSummary and return its result', async () => {
+    const mockSummary = {
+      rec_resource_id: 'REC999',
+      name: 'Summary Resource',
+      closest_community: 'Hope',
+      rec_resource_type: 'Trail',
+      recreation_status: { description: 'Open', comment: '', status_code: 1 },
+      campsite_count: 0,
+      recreation_structure: { has_toilet: false, has_table: false },
+    } as any;
+
+    (service.findOneSummary as any).mockResolvedValue(mockSummary);
+
+    const result = await controller.findOneSummary('REC999');
+
+    expect(service.findOneSummary).toHaveBeenCalledWith('REC999');
+    expect(result).toEqual(mockSummary);
+  });
+
+  it('should throw 404 if summary resource is not found', async () => {
+    (service.findOneSummary as any).mockResolvedValue(null);
+
+    await expect(controller.findOneSummary('NOT_FOUND')).rejects.toThrowError(
       'Recreation Resource not found.',
     );
   });

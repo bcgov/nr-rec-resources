@@ -4,10 +4,10 @@ import {
   RecreationResourcesApi,
 } from '@/services/recreation-resource-admin';
 import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
-import { recResourceLoader } from './recResourceLoader';
+import { recResourceSummaryLoader } from './recResourceSummaryLoader';
 
 export async function recResourceGeospatialLoader(args: any) {
-  const parentData = await recResourceLoader(args);
+  const parentData = await recResourceSummaryLoader(args);
 
   const authService = AuthService.getInstance();
   const basePath = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';

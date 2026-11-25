@@ -16,6 +16,7 @@ export function useGetRecreationResourceGeospatial(recResourceId?: string) {
   return useQuery<RecreationResourceGeospatialDto | null>({
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.geospatial(id),
     enabled: !!recResourceId,
+    staleTime: 60_000,
     retry: createRetryHandler(),
     queryFn: async () => {
       try {

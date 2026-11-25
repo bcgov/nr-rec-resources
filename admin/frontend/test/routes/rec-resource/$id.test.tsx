@@ -1,5 +1,5 @@
 import { Route } from '@/routes/rec-resource/$id';
-import { recResourceLoader } from '@/services/loaders/recResourceLoader';
+import { recResourceSummaryLoader } from '@/services/loaders/recResourceSummaryLoader';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { describe, expect, it } from 'vitest';
 
@@ -9,8 +9,8 @@ describe('RecResource $id Route', () => {
     expect(Route.options.component).toBeDefined();
   });
 
-  it('should have loader set to recResourceLoader', () => {
-    expect(Route.options.loader).toBe(recResourceLoader);
+  it('should have loader set to recResourceSummaryLoader', () => {
+    expect(Route.options.loader).toBe(recResourceSummaryLoader);
   });
 
   it('should have beforeLoad function', () => {

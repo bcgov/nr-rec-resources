@@ -599,5 +599,5 @@ select aws_s3.table_import_from_s3(
         update_timestamp
       )
   )',
-  aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_APP_MAP_FEATURE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_MAP_FEATURE.csv', 'ca-central-1')
 );

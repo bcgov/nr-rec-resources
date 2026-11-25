@@ -155,6 +155,23 @@ describe('RecreationResourceRepository', () => {
     });
   });
 
+  describe('findSummaryById', () => {
+    it('should query summary select by rec_resource_id', async () => {
+      const mockSummary = { rec_resource_id: 'REC123', name: 'Summary Name' };
+      prisma.recreation_resource.findUnique.mockResolvedValue(
+        mockSummary as any,
+      );
+
+      const result = await repo.findSummaryById('REC123');
+
+      expect(prisma.recreation_resource.findUnique).toHaveBeenCalledWith({
+        where: { rec_resource_id: 'REC123' },
+        select: expect.anything(),
+      });
+      expect(result).toEqual(mockSummary);
+    });
+  });
+
   describe('isMissingColumnError', () => {
     it.each([
       'column `recreation_user_days_code`',
