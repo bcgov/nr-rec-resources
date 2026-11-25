@@ -50,7 +50,22 @@ where not exists (
     from rst.recreation_map_feature existing
     where existing.rec_resource_id = mf.rec_resource_id
       and existing.section_id is not distinct from mf.section_id
-);
+)
+on conflict (rmf_skey)
+do update
+set
+    rec_resource_id = excluded.rec_resource_id,
+    section_id = excluded.section_id,
+    amendment_id = excluded.amendment_id,
+    amend_status_code = excluded.amend_status_code,
+    recreation_resource_type = excluded.recreation_resource_type,
+    current_ind = excluded.current_ind,
+    amend_status_date = excluded.amend_status_date,
+    retirement_date = excluded.retirement_date,
+    revision_count = excluded.revision_count,
+    updated_by = excluded.updated_by,
+    updated_at = excluded.updated_at,
+    recreation_map_feature_guid = excluded.recreation_map_feature_guid;
 
 
 insert into rst.recreation_map_feature_geom (
