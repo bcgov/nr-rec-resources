@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { mapAdminSearchResultRow } from '@/pages/search/searchResultsMapper';
 import { AdminSearchResultRowDto } from '@/services/recreation-resource-admin';
 
-const baseRow: AdminSearchResultRowDto & { status?: string } = {
+const baseRow: AdminSearchResultRowDto = {
   rec_resource_id: 'REC001',
   name: 'BLUE LAKE',
   recreation_resource_type: 'Recreation site',
@@ -24,8 +24,6 @@ describe('mapAdminSearchResultRow', () => {
     expect(mapAdminSearchResultRow(baseRow)).toMatchObject({
       projectName: 'Blue Lake',
       closestCommunity: 'Hope',
-      status: 'Open',
-      statusCode: 1,
     });
   });
 
@@ -38,19 +36,6 @@ describe('mapAdminSearchResultRow', () => {
     ).toMatchObject({
       projectName: 'Blue Lake',
       closestCommunity: '-',
-    });
-  });
-
-  it('keeps the backend-provided open fallback status', () => {
-    expect(
-      mapAdminSearchResultRow({
-        ...baseRow,
-        status: 'Open',
-        status_code: 1,
-      }),
-    ).toMatchObject({
-      status: 'Open',
-      statusCode: 1,
     });
   });
 

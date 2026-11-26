@@ -197,7 +197,7 @@ describe('FilterAccordion', () => {
       screen.queryByRole('button', { name: 'Status' }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Public access status' }),
+      screen.getByRole('button', { name: 'Select public access status' }),
     ).toBeInTheDocument();
   });
 
