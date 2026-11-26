@@ -8,6 +8,7 @@ import { createHash, randomInt, randomUUID } from 'node:crypto';
 import { Prisma } from '@generated/prisma';
 import { PrismaService } from '@/prisma.service';
 import { SncscStatusRequestService } from '@/sncsc/sncsc-status-request.service';
+import { ExhibitAService } from '@/exhibit-a/exhibit-a.service';
 import { getRecreationResourceGeospatialData } from '@prisma-generated-sql/getRecreationResourceGeospatialData';
 import { RecreationResourceGeospatialDto } from './dto/recreation-resource-geospatial.dto';
 import { CreateRecreationMapFeaturesDto } from './dto/create-recreation-map-features.dto';
@@ -20,6 +21,7 @@ type FlatGeometryEntry = {
   geometry: Record<string, unknown>;
   geometryTypeCode: 'P' | 'L';
   sectionId: string;
+  purposeCode?: SpatialSubmissionPurposeCode;
   sourceMetrics?: {
     areaHa?: number | null;
     lengthKm?: number | null;
@@ -28,9 +30,12 @@ type FlatGeometryEntry = {
   };
 };
 
-type RmfData = {
-  rmf_skey: number | null;
-  amendment_id: number | null;
+type SubmissionMapFeaturePersistEntry = FlatGeometryEntry & {
+  purposeCode: SpatialSubmissionPurposeCode;
+  rmfSkey: number;
+  amendmentId: number;
+  mapFeatureGuid: string;
+  featureRecordGuid: string;
 };
 
 type SpatialSubmissionTypeCode = 'RL' | 'RPO';
@@ -77,10 +82,24 @@ type FeatureRequestElement = {
   featureBusinessIdentifier?: string | null;
   featurePurposeCode?: 'N' | 'A' | 'R' | null;
   sourceSectionId?: string;
+  sourcePurposeCode?: SpatialSubmissionPurposeCode;
+  sourceFeatureBusinessIdentifier?: string | null;
 } & (
   | { featureGeometryTypeCode: 'polygon'; polygon: Record<string, unknown> }
   | { featureGeometryTypeCode: 'line'; line: Record<string, unknown> }
 );
+
+type SubmissionSnapshotFeatureRow = {
+  section_id: string | null;
+  purpose_code: SpatialSubmissionPurposeCode;
+  map_feature_guid: string;
+  feature_record_guid: string;
+  feature_business_identifier: string | null;
+  recreation_resource_type: string | null;
+  recreation_resource_type_description: string | null;
+  geometry_type_code: string | null;
+  geometry_json: string | null;
+};
 
 const DETERMINISTIC_GUID_NAMESPACE = 'rst-sncsc';
 const BCGS_MAP_SHEET_LAYER_URL =
@@ -226,6 +245,30 @@ const deriveLinearLengthKm = (
   return rawLength > 1000 ? lengthMetersCandidate : lengthKmCandidate;
 };
 
+const deriveLinearRightOfWayM = (
+  rawRightOfWayM: number | null,
+  rawLength: number | null,
+): number | null => {
+  if (rawRightOfWayM === null) {
+    return null;
+  }
+
+  // FEATURE__1 is not consistently a width column; discard values that look like length-in-metres.
+  if (rawLength !== null && rawLength > 0) {
+    const normalizedLengthMeters =
+      rawLength > 1000 ? rawLength : rawLength * 1000;
+    const relativeDiff =
+      Math.abs(rawRightOfWayM - normalizedLengthMeters) /
+      Math.max(1, Math.abs(normalizedLengthMeters));
+
+    if (relativeDiff <= 0.02) {
+      return null;
+    }
+  }
+
+  return rawRightOfWayM;
+};
+
 const extractSourceMetrics = (
   geometryType: string,
   properties: Record<string, unknown> | null | undefined,
@@ -233,7 +276,8 @@ const extractSourceMetrics = (
   const areaHa = getNumericProperty(properties, ['FEATURE_AR']);
   const perimeterKm = getNumericProperty(properties, ['FEATURE_PE']);
   const rawLength = getNumericProperty(properties, ['FEATURE_LE']);
-  const rightOfWayM = getNumericProperty(properties, ['FEATURE__1']);
+  const rawRightOfWayM = getNumericProperty(properties, ['FEATURE__1']);
+  const rightOfWayM = deriveLinearRightOfWayM(rawRightOfWayM, rawLength);
 
   if (geometryType === 'L' || geometryType === 'LineString') {
     return {
@@ -335,6 +379,7 @@ export class GeospatialService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly sncscStatusRequestService: SncscStatusRequestService,
+    private readonly exhibitAService: ExhibitAService,
   ) {}
 
   private get forestClientBaseUrl(): string {
@@ -488,6 +533,7 @@ export class GeospatialService {
         INNER JOIN rst.recreation_map_feature_geom rmfg
           ON rmfg.rmf_skey = rmf.rmf_skey
         WHERE rmf.rec_resource_id = ${rec_resource_id}
+          AND rmf.current_ind = 'Y'
           AND rmf.retirement_date IS NULL
       `,
     );
@@ -537,12 +583,14 @@ export class GeospatialService {
       return null;
     }
 
-    const sessions = await this.prisma.recreation_map_feature.findMany({
-      where: {
-        rec_resource_id,
-      },
-      select: { section_id: true },
-    });
+    const sessions =
+      (await this.prisma.$queryRaw<{ section_id: string | null }[]>(Prisma.sql`
+        SELECT section_id
+        FROM rst.recreation_map_feature
+        WHERE rec_resource_id = ${rec_resource_id}
+          AND current_ind = 'Y'
+          AND retirement_date IS NULL
+      `)) ?? [];
 
     const data = result[0];
     if (!data) return null;
@@ -662,7 +710,23 @@ export class GeospatialService {
     geometryEntry: Record<string, unknown>,
     sourceMetrics: FlatGeometryEntry['sourceMetrics'] | undefined,
     tx: Prisma.TransactionClient,
-  ): Promise<void> {
+    options?: {
+      amendmentId?: number;
+      currentInd?: 'Y' | 'N';
+      retirementDate?: Date | null;
+      mapFeatureGuid?: string;
+      featureRecordGuid?: string;
+      copyGeometryFromRmfSkey?: number;
+    },
+  ): Promise<{
+    rmfSkey: number;
+    amendmentId: number;
+    mapFeatureGuid: string;
+    featureRecordGuid: string;
+  }> {
+    const amendmentId = options?.amendmentId ?? 0;
+    const mapFeatureGuid = options?.mapFeatureGuid ?? randomUUID();
+    const featureRecordGuid = options?.featureRecordGuid ?? randomUUID();
     const geometry = Prisma.sql`
             public.ST_SetSRID(
               public.ST_GeomFromGeoJSON(${JSON.stringify(geometryEntry)}),
@@ -676,23 +740,239 @@ export class GeospatialService {
         rec_resource_id,
         section_id,
         amendment_id,
+        current_ind,
         recreation_resource_type,
         recreation_map_feature_guid,
+        retirement_date,
         created_by,
+        updated_by,
         amend_status_code
       )
       VALUES (
         ${rmfSkey},
         ${rec_resource_id},
         ${geometryTypeCode === 'P' ? null : sectionId},
-        ${0},
+        ${amendmentId},
+        ${options?.currentInd ?? 'N'},
         ${recreation_type_code || null},
-        ${randomUUID()},
+        ${mapFeatureGuid},
+        ${options?.retirementDate ?? null},
+        ${submitted_by || null},
         ${submitted_by || null},
         ${'PND'}
       )
     `);
 
+    if (options?.copyGeometryFromRmfSkey) {
+      await this.copyExistingGeometryToNewMapFeature(
+        tx,
+        options.copyGeometryFromRmfSkey,
+        rmfSkey,
+      );
+    } else {
+      await tx.$executeRaw(Prisma.sql`
+        INSERT INTO rst.recreation_map_feature_geom (
+          rmf_skey,
+          geometry_type_code,
+          geometry,
+          feature_area,
+          feature_length,
+          feature_perimeter
+        )
+        SELECT
+          ${rmfSkey},
+          normalized.geometry_type_code,
+          normalized.geom_3005,
+          ${this.buildFeatureMetricColumnsSql()}
+        FROM (
+          SELECT
+            CAST(${geometryTypeCode} AS varchar(1)) AS geometry_type_code,
+            ${geometry} AS geom_3005,
+            CAST(${sourceMetrics?.areaHa ?? null} AS numeric) AS source_area_ha,
+            CAST(${sourceMetrics?.lengthKm ?? null} AS numeric) AS length_km,
+            CAST(${sourceMetrics?.perimeterKm ?? null} AS numeric) AS source_perimeter_km,
+            CAST(${sourceMetrics?.rightOfWayM ?? null} AS numeric) AS source_right_of_way_m
+        ) AS normalized
+      `);
+    }
+
+    return {
+      rmfSkey,
+      amendmentId,
+      mapFeatureGuid,
+      featureRecordGuid,
+    };
+  }
+
+  private buildFeatureMetricColumnsSql(): Prisma.Sql {
+    return Prisma.sql`
+      CASE
+        WHEN normalized.geometry_type_code = 'P'
+          THEN COALESCE(
+            normalized.source_area_ha,
+            ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
+          )
+        WHEN normalized.geometry_type_code = 'L'
+          THEN CASE
+                 WHEN normalized.source_right_of_way_m IS NOT NULL AND normalized.length_km IS NOT NULL
+                   THEN ROUND((normalized.length_km * normalized.source_right_of_way_m / 10)::numeric, 4)
+                 ELSE NULL
+               END
+        ELSE NULL
+      END,
+      COALESCE(
+        normalized.length_km,
+        CASE
+          WHEN normalized.geometry_type_code = 'L'
+            THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
+          ELSE NULL
+        END
+      ),
+      CASE
+        WHEN normalized.geometry_type_code = 'P'
+          THEN COALESCE(
+            normalized.source_perimeter_km,
+            ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
+          )
+        ELSE NULL
+      END
+    `;
+  }
+
+  private async persistSpatialSubmissionMapFeatures(
+    tx: Prisma.TransactionClient,
+    input: {
+      applicationGuid: string;
+      recResourceId: string;
+      recreationTypeCode: string | null;
+      submittedBy: string | null;
+      entries: SubmissionMapFeaturePersistEntry[];
+    },
+  ): Promise<void> {
+    if (!tx.$queryRaw || !tx.$executeRaw) {
+      this.logger.warn(
+        'Skipping submission map feature persistence because the transaction does not expose raw query methods.',
+      );
+      return;
+    }
+
+    for (const entry of input.entries) {
+      const purposeCode = entry.purposeCode ?? 'A';
+      const featureBusinessIdentifier = entry.sectionId?.trim()
+        ? `${input.recResourceId} SEC ${entry.sectionId.trim()}`
+        : null;
+      await tx.$executeRaw(Prisma.sql`
+        INSERT INTO rst.recreation_spatial_submission_map_feature (
+          application_guid,
+          rec_resource_id,
+          section_id,
+          purpose_code,
+          amend_status_code,
+          amendment_id,
+          recreation_resource_type,
+          retirement_date,
+          map_feature_guid,
+          feature_record_guid,
+          feature_business_identifier,
+          rmf_skey,
+          created_by,
+          updated_by
+        )
+        VALUES (
+          ${input.applicationGuid}::uuid,
+          ${input.recResourceId},
+          ${entry.geometryTypeCode === 'P' ? null : entry.sectionId},
+          ${purposeCode},
+          ${'PND'},
+          ${entry.amendmentId},
+          ${input.recreationTypeCode},
+          ${purposeCode === 'R' ? new Date() : null},
+          ${entry.mapFeatureGuid},
+          ${entry.featureRecordGuid},
+          ${featureBusinessIdentifier},
+          ${entry.rmfSkey},
+          ${input.submittedBy},
+          ${input.submittedBy}
+        )
+      `);
+    }
+  }
+
+  private async getNextRmfSkey(tx: Prisma.TransactionClient): Promise<number> {
+    const rows = await tx.$queryRaw<{ max_rmf_skey: number | bigint }[]>(
+      Prisma.sql`
+        SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey
+        FROM rst.recreation_map_feature
+      `,
+    );
+
+    return Number((rows ?? [])[0]?.max_rmf_skey ?? 0) + 1;
+  }
+
+  private async resolveCurrentMapFeatureForEntry(
+    tx: Prisma.TransactionClient,
+    recResourceId: string,
+    entry: FlatGeometryEntry,
+  ): Promise<{ rmf_skey: number; amendment_id: number | null } | null> {
+    if (entry.geometryTypeCode === 'P') {
+      // TODO: confirm polygon matching rule with tenure team.
+      const rows =
+        (await tx.$queryRaw<
+          { rmf_skey: number; amendment_id: number | null }[]
+        >(Prisma.sql`
+        SELECT rmf.rmf_skey, rmf.amendment_id
+        FROM rst.recreation_map_feature rmf
+        WHERE rmf.rec_resource_id = ${recResourceId}
+          AND rmf.current_ind = 'Y'
+          AND rmf.section_id IS NULL
+          AND rmf.retirement_date IS NULL
+      `)) ?? [];
+
+      if (rows.length > 1) {
+        throw new BadRequestException(
+          `Multiple current polygon rows exist for rec_resource_id ${recResourceId}; unable to resolve a single row for amendment/retire.`,
+        );
+      }
+
+      return rows[0] ?? null;
+    }
+
+    const rows =
+      (await tx.$queryRaw<
+        { rmf_skey: number; amendment_id: number | null }[]
+      >(Prisma.sql`
+      SELECT rmf.rmf_skey, rmf.amendment_id
+      FROM rst.recreation_map_feature rmf
+      WHERE rmf.rec_resource_id = ${recResourceId}
+        AND rmf.section_id = ${entry.sectionId}
+        AND rmf.current_ind = 'Y'
+        AND rmf.retirement_date IS NULL
+      LIMIT 1
+    `)) ?? [];
+
+    return rows[0] ?? null;
+  }
+
+  private async getNextSubmissionAmendmentId(
+    tx: Prisma.TransactionClient,
+    recResourceId: string,
+  ): Promise<number> {
+    const rows = await tx.$queryRaw<{ next: number | bigint | null }[]>(
+      Prisma.sql`
+        SELECT COALESCE(MAX(amendment_id), -1) + 1 AS next
+        FROM rst.recreation_map_feature
+        WHERE rec_resource_id = ${recResourceId}
+      `,
+    );
+
+    return Number(rows?.[0]?.next ?? 0);
+  }
+
+  private async copyExistingGeometryToNewMapFeature(
+    tx: Prisma.TransactionClient,
+    sourceRmfSkey: number,
+    targetRmfSkey: number,
+  ): Promise<void> {
     await tx.$executeRaw(Prisma.sql`
       INSERT INTO rst.recreation_map_feature_geom (
         rmf_skey,
@@ -703,142 +983,14 @@ export class GeospatialService {
         feature_perimeter
       )
       SELECT
-        ${rmfSkey},
-        normalized.geometry_type_code,
-        normalized.geom_3005,
-        CASE
-          WHEN normalized.geometry_type_code = 'P'
-            THEN COALESCE(
-              normalized.source_area_ha,
-              ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
-            )
-          WHEN normalized.geometry_type_code = 'L'
-            THEN CASE
-                   WHEN normalized.source_right_of_way_m IS NOT NULL AND normalized.length_km IS NOT NULL
-                     THEN ROUND((normalized.length_km * normalized.source_right_of_way_m / 10)::numeric, 4)
-                   ELSE NULL
-                 END
-          ELSE NULL
-        END,
-        COALESCE(
-          normalized.length_km,
-          CASE
-            WHEN normalized.geometry_type_code = 'L'
-              THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
-            ELSE NULL
-          END
-        ),
-        CASE
-          WHEN normalized.geometry_type_code = 'P'
-            THEN COALESCE(
-              normalized.source_perimeter_km,
-              ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
-            )
-          ELSE NULL
-        END
-      FROM (
-        SELECT
-          CAST(${geometryTypeCode} AS varchar(1)) AS geometry_type_code,
-          ${geometry} AS geom_3005,
-          CAST(${sourceMetrics?.areaHa ?? null} AS numeric) AS source_area_ha,
-          CAST(${sourceMetrics?.lengthKm ?? null} AS numeric) AS length_km,
-          CAST(${sourceMetrics?.perimeterKm ?? null} AS numeric) AS source_perimeter_km,
-          CAST(${sourceMetrics?.rightOfWayM ?? null} AS numeric) AS source_right_of_way_m
-      ) AS normalized
-    `);
-  }
-
-  private async updateMapFeatureAndGeometry(
-    rmfSkey: number,
-    amendment_id: number | null,
-    recreation_type_code: string | null,
-    submitted_by: string | null,
-    geometryTypeCode: 'P' | 'L',
-    geometryEntry: Record<string, unknown>,
-    sourceMetrics: FlatGeometryEntry['sourceMetrics'] | undefined,
-    tx: Prisma.TransactionClient,
-  ): Promise<void> {
-    await tx.$executeRaw(Prisma.sql`
-      UPDATE rst.recreation_map_feature
-      SET
-        amendment_id =  ${(amendment_id ?? 0) + 1},
-        amend_status_date = now(),
-        recreation_resource_type = ${recreation_type_code || null},
-        recreation_map_feature_guid = ${randomUUID()},
-        retirement_date = null,
-        updated_by = ${submitted_by || null},
-        amend_status_code = ${'PND'}
-      WHERE rmf_skey = ${rmfSkey}
-    `);
-
-    const geometry = Prisma.sql`
-      public.ST_SetSRID(
-        public.ST_GeomFromGeoJSON(${JSON.stringify(geometryEntry)}),
-        3005
-      )
-    `;
-
-    await tx.$executeRaw(Prisma.sql`
-        UPDATE rst.recreation_map_feature_geom
-        SET
-          geometry_type_code = normalized.geometry_type_code,
-          geometry           = normalized.geom_3005,
-          feature_area       = CASE
-                                WHEN normalized.geometry_type_code = 'P'
-                                  THEN COALESCE(
-                                    normalized.source_area_ha,
-                                    ROUND((public.ST_Area(normalized.geom_3005) / 10000)::numeric, 4)
-                                  )
-                                WHEN normalized.geometry_type_code = 'L'
-                                  THEN CASE
-                                         WHEN normalized.source_right_of_way_m IS NOT NULL AND normalized.length_km IS NOT NULL
-                                           THEN ROUND((normalized.length_km * normalized.source_right_of_way_m / 10)::numeric, 4)
-                                         ELSE NULL
-                                       END
-                                ELSE NULL
-                              END,
-          feature_length     = COALESCE(
-                                normalized.length_km,
-                                CASE
-                                  WHEN normalized.geometry_type_code = 'L'
-                                    THEN ROUND((public.ST_Length(normalized.geom_3005) / 1000)::numeric, 4)
-                                  ELSE NULL
-                                END
-                              ),
-          feature_perimeter  = CASE
-                                WHEN normalized.geometry_type_code = 'P'
-                                  THEN COALESCE(
-                                    normalized.source_perimeter_km,
-                                    ROUND((public.ST_Perimeter(normalized.geom_3005) / 1000)::numeric, 4)
-                                  )
-                                ELSE NULL
-                              END
-        FROM (
-          SELECT
-            CAST(${geometryTypeCode} AS varchar(1)) AS geometry_type_code,
-            ${geometry} AS geom_3005,
-            CAST(${sourceMetrics?.areaHa ?? null} AS numeric) AS source_area_ha,
-            CAST(${sourceMetrics?.lengthKm ?? null} AS numeric) AS length_km,
-            CAST(${sourceMetrics?.perimeterKm ?? null} AS numeric) AS source_perimeter_km,
-            CAST(${sourceMetrics?.rightOfWayM ?? null} AS numeric) AS source_right_of_way_m
-        ) AS normalized
-        WHERE rmf_skey = ${rmfSkey}
-      `);
-  }
-
-  private async retireFeature(
-    rmfSkey: number,
-    submitted_by: string | null,
-    tx: Prisma.TransactionClient,
-  ): Promise<void> {
-    await tx.$executeRaw(Prisma.sql`
-      UPDATE rst.recreation_map_feature
-      SET
-        retirement_date = now(),
-        recreation_map_feature_guid = ${randomUUID()},
-        updated_by = ${submitted_by || null},
-        amend_status_code = ${'PND'}
-      WHERE rmf_skey = ${rmfSkey}
+        ${targetRmfSkey},
+        rmfg.geometry_type_code,
+        rmfg.geometry,
+        rmfg.feature_area,
+        rmfg.feature_length,
+        rmfg.feature_perimeter
+      FROM rst.recreation_map_feature_geom rmfg
+      WHERE rmfg.rmf_skey = ${sourceRmfSkey}
     `);
   }
 
@@ -860,6 +1012,81 @@ export class GeospatialService {
         feature.properties ?? null,
       ),
     );
+  }
+
+  private countGeometryVertices(coordinates: unknown): number {
+    if (
+      Array.isArray(coordinates) &&
+      coordinates.length >= 2 &&
+      typeof coordinates[0] === 'number' &&
+      typeof coordinates[1] === 'number'
+    ) {
+      return 1;
+    }
+
+    if (!Array.isArray(coordinates)) {
+      return 0;
+    }
+
+    return coordinates.reduce(
+      (vertexCount, entry) => vertexCount + this.countGeometryVertices(entry),
+      0,
+    );
+  }
+
+  private logFlattenedFeatures(
+    recResourceId: string,
+    label: 'new' | 'amended',
+    entries: FlatGeometryEntry[],
+  ): void {
+    for (const entry of entries) {
+      const geometryType = entry.geometry?.['type'];
+      const geometryCoordinates = entry.geometry?.['coordinates'];
+      this.logger.log(
+        `Flattened ${label} feature for rec_resource_id=${recResourceId}: section_id="${entry.sectionId}", geometry_type=${String(geometryType ?? 'UNKNOWN')}, vertex_count=${this.countGeometryVertices(geometryCoordinates)}`,
+      );
+    }
+  }
+
+  private ensureNewGeometriesDifferFromRetired(
+    newEntries: FlatGeometryEntry[],
+    retiredEntries: FlatGeometryEntry[],
+  ): void {
+    const retiredSectionIdsByGeometryHash = new Map<string, Set<string>>();
+
+    for (const retiredEntry of retiredEntries) {
+      const geometryHash = createHash('sha256')
+        .update(JSON.stringify(retiredEntry.geometry))
+        .digest('hex');
+      const retiredSectionId = retiredEntry.sectionId.trim();
+      const sectionIdsForGeometry =
+        retiredSectionIdsByGeometryHash.get(geometryHash) ?? new Set<string>();
+      sectionIdsForGeometry.add(retiredSectionId);
+      retiredSectionIdsByGeometryHash.set(geometryHash, sectionIdsForGeometry);
+    }
+
+    for (const newEntry of newEntries) {
+      const geometryHash = createHash('sha256')
+        .update(JSON.stringify(newEntry.geometry))
+        .digest('hex');
+      const retiredSectionIds =
+        retiredSectionIdsByGeometryHash.get(geometryHash);
+
+      if (!retiredSectionIds || retiredSectionIds.size === 0) {
+        continue;
+      }
+
+      // Allow explicit retire-and-reinsert for the same section_id.
+      if (retiredSectionIds.has(newEntry.sectionId.trim())) {
+        continue;
+      }
+
+      throw new BadRequestException(
+        `New feature section_id "${newEntry.sectionId}" has geometry identical to retired feature section_id(s): ${Array.from(
+          retiredSectionIds,
+        ).join(', ')}.`,
+      );
+    }
   }
 
   private deriveStatusRequestTypeCode(
@@ -1006,31 +1233,19 @@ export class GeospatialService {
 
   private async buildFeatureRequestElements(
     queryClient: Pick<Prisma.TransactionClient, '$queryRaw'>,
-    recResourceId: string,
-    entries: FlatGeometryEntry[],
+    applicationGuid: string,
   ): Promise<FeatureRequestElement[]> {
-    const sectionIds = Array.from(
-      new Set(entries.map((entry) => entry.sectionId)),
-    );
-
-    if (!sectionIds.length) {
-      return [];
-    }
-
     const featureRows = await queryClient.$queryRaw<
-      {
-        section_id: string | null;
-        recreation_map_feature_guid: string | null;
-        recreation_resource_type: string | null;
-        recreation_resource_type_description: string | null;
-        geometry_type_code: string | null;
-        geometry_json: string | null;
-      }[]
-    >(Prisma.sql`
+      SubmissionSnapshotFeatureRow[]
+    >(
+      Prisma.sql`
       SELECT
-        rmf.section_id,
-        rmf.recreation_map_feature_guid,
-        rmf.recreation_resource_type,
+        rssmf.section_id,
+        rssmf.purpose_code,
+        rssmf.map_feature_guid,
+        rssmf.feature_record_guid,
+        rssmf.feature_business_identifier,
+        rssmf.recreation_resource_type,
         rrtc.description AS recreation_resource_type_description,
         rmfg.geometry_type_code,
         public.ST_AsGeoJSON(
@@ -1040,27 +1255,21 @@ export class GeospatialService {
             ELSE rmfg.geometry
           END
         ) AS geometry_json
-      FROM rst.recreation_map_feature rmf
+      FROM rst.recreation_spatial_submission_map_feature rssmf
+      INNER JOIN rst.recreation_map_feature rmf
+        ON rmf.rmf_skey = rssmf.rmf_skey
       INNER JOIN rst.recreation_map_feature_geom rmfg
         ON rmfg.rmf_skey = rmf.rmf_skey
       LEFT JOIN rst.recreation_resource_type_code rrtc
-        ON rrtc.rec_resource_type_code = rmf.recreation_resource_type
-      WHERE rmf.rec_resource_id = ${recResourceId}
-        AND rmf.section_id IN (${Prisma.join(sectionIds)})
-    `);
+        ON rrtc.rec_resource_type_code = rssmf.recreation_resource_type
+      WHERE rssmf.application_guid = ${applicationGuid}::uuid
+      ORDER BY rssmf.rssmf_skey
+    `,
+    );
 
-    const featureRowsBySectionId = new Map<
-      string,
-      Array<(typeof featureRows)[number]>
-    >();
-    featureRows
-      .filter((row) => row.section_id)
-      .forEach((row) => {
-        const sectionId = row.section_id!;
-        const sectionRows = featureRowsBySectionId.get(sectionId) ?? [];
-        sectionRows.push(row);
-        featureRowsBySectionId.set(sectionId, sectionRows);
-      });
+    if (!featureRows.length) {
+      return [];
+    }
 
     const elements: FeatureRequestElement[] = [];
     const usedMapFeatureGuids = new Set<string>();
@@ -1080,19 +1289,27 @@ export class GeospatialService {
       return candidate;
     };
 
-    for (const entry of entries) {
-      const matchingRows = featureRowsBySectionId.get(entry.sectionId) ?? [];
-      const row = matchingRows.shift();
-      const mapFeatureGuid =
-        row?.recreation_map_feature_guid?.trim() || randomUUID();
-      const featureRecordGuid = randomUUID();
+    for (const row of featureRows) {
+      const mapFeatureGuid = row.map_feature_guid?.trim() || randomUUID();
+      const featureRecordGuid = row.feature_record_guid?.trim() || randomUUID();
 
-      const parsedGeometry = row?.geometry_json
+      const parsedGeometry = row.geometry_json
         ? (JSON.parse(row.geometry_json) as Record<string, unknown>)
-        : entry.geometry;
+        : null;
+      if (!parsedGeometry) {
+        continue;
+      }
       const normalizedGeometryTypeCode = (
-        row?.geometry_type_code ||
-        entry.geometryTypeCode ||
+        row.geometry_type_code ||
+        (typeof parsedGeometry.type === 'string'
+          ? parsedGeometry.type.startsWith('MultiPolygon') ||
+            parsedGeometry.type === 'Polygon'
+            ? 'P'
+            : parsedGeometry.type.startsWith('MultiLineString') ||
+                parsedGeometry.type === 'LineString'
+              ? 'L'
+              : ''
+          : '') ||
         ''
       ).toUpperCase();
       const isPolygon = normalizedGeometryTypeCode === 'P';
@@ -1107,10 +1324,11 @@ export class GeospatialService {
           mapFeatureGuid: uniqueMapFeatureGuid,
           featureRecordGuid,
           featureGeometryTypeCode: 'polygon',
-          mapFeatureTypeCode: row?.recreation_resource_type || '',
-          featureName:
-            row?.recreation_resource_type_description?.trim() || null,
-          sourceSectionId: entry.sectionId,
+          mapFeatureTypeCode: row.recreation_resource_type || '',
+          featureName: row.recreation_resource_type_description?.trim() || null,
+          sourceSectionId: row.section_id?.trim() || undefined,
+          sourcePurposeCode: row.purpose_code,
+          sourceFeatureBusinessIdentifier: row.feature_business_identifier,
           polygon: geometryPayload,
         });
       } else {
@@ -1125,12 +1343,15 @@ export class GeospatialService {
           elements.push({
             '@type': 'FeatureRequestResource',
             mapFeatureGuid: uniqueMapFeatureGuid,
-            featureRecordGuid: randomUUID(),
+            featureRecordGuid:
+              lineIndex === 0 ? featureRecordGuid : randomUUID(),
             featureGeometryTypeCode: 'line',
-            mapFeatureTypeCode: row?.recreation_resource_type || '',
+            mapFeatureTypeCode: row.recreation_resource_type || '',
             featureName:
-              row?.recreation_resource_type_description?.trim() || null,
-            sourceSectionId: entry.sectionId,
+              row.recreation_resource_type_description?.trim() || null,
+            sourceSectionId: row.section_id?.trim() || undefined,
+            sourcePurposeCode: row.purpose_code,
+            sourceFeatureBusinessIdentifier: row.feature_business_identifier,
             line: this.buildFeatureGeoJson(lineString),
           });
         });
@@ -1143,7 +1364,6 @@ export class GeospatialService {
   private async dispatchSncscStatusRequest(
     tx: Prisma.TransactionClient,
     submission: CreatedSpatialSubmission,
-    entries: FlatGeometryEntry[],
   ): Promise<void> {
     this.logger.log(
       `Dispatching SNCSC status request for submission_id: ${submission.submission_id}, tenure_id: ${submission.tenure_id}, type: ${submission.status_request_type_code}`,
@@ -1154,28 +1374,60 @@ export class GeospatialService {
     );
     const featureRequests = await this.buildFeatureRequestElements(
       tx,
-      submission.tenure_id,
-      entries,
+      submission.application_guid,
     );
 
     this.logger.log(
       `Prepared ${featureRequests.length} SNCSC feature request element(s) for submission_id: ${submission.submission_id}`,
     );
 
-    const featureRequestsPayload = featureRequests.map((featureRequest) => {
-      const { sourceSectionId, ...baseElement } = featureRequest;
+    // SNCSC amendment payloads only accept active purpose actions.
+    const outboundPurposeCode: 'N' | 'A' =
+      submission.purpose_code === 'N' ? 'N' : 'A';
 
-      if (submission.purpose_code !== 'N') {
-        return baseElement;
-      }
+    const featureRequestsPayload = featureRequests
+      .map((featureRequest) => {
+        const {
+          sourceSectionId,
+          sourcePurposeCode,
+          sourceFeatureBusinessIdentifier,
+          ...baseElement
+        } = featureRequest;
+        const trimmedSectionId = sourceSectionId?.trim();
+        const normalizedSourcePurposeCode =
+          sourcePurposeCode && ['N', 'A', 'R'].includes(sourcePurposeCode)
+            ? sourcePurposeCode
+            : null;
 
-      return {
-        ...baseElement,
-        featureBusinessIdentifier:
-          `${submission.tenure_id} SEC ${sourceSectionId?.trim() || ''}`.trim(),
-        featurePurposeCode: 'N' as const,
-      };
-    });
+        if (normalizedSourcePurposeCode === 'R') {
+          return null;
+        }
+
+        const featurePurposeCode =
+          normalizedSourcePurposeCode ?? outboundPurposeCode;
+        const featureBusinessIdentifier =
+          baseElement.featureGeometryTypeCode === 'polygon'
+            ? submission.tenure_id
+            : sourceFeatureBusinessIdentifier?.trim() ||
+              (trimmedSectionId
+                ? `${submission.tenure_id} SEC ${trimmedSectionId}`
+                : undefined);
+
+        return {
+          ...baseElement,
+          ...(featureBusinessIdentifier ? { featureBusinessIdentifier } : {}),
+          ...(featurePurposeCode ? { featurePurposeCode } : {}),
+        };
+      })
+      .filter((featureRequest) => featureRequest !== null);
+
+    const filteredRetiredCount =
+      featureRequests.length - featureRequestsPayload.length;
+    if (filteredRetiredCount > 0) {
+      this.logger.log(
+        `Filtered ${filteredRetiredCount} retired feature request(s) from SNCSC payload for submission_id: ${submission.submission_id}`,
+      );
+    }
 
     const payload: Record<string, unknown> = {
       '@type': 'StatusRequestResource',
@@ -1190,7 +1442,7 @@ export class GeospatialService {
       statusRequestTypeCode: submission.status_request_type_code,
       statusClearanceStatusCode: 'PENDING',
       orgUnitCode: submission.org_unit_code,
-      purposeCode: submission.purpose_code,
+      purposeCode: outboundPurposeCode,
       bctsSubmissionInd: 'N',
       featureRequests: {
         '@type': 'FeatureRequestResources',
@@ -1371,88 +1623,82 @@ export class GeospatialService {
     const amendedFeatures = payload.amendedFeatures ?? [];
     const retiredFeatures = payload.retiredFeatures ?? [];
 
+    let autoGenerateApplicationGuid: string | null = null;
+
     await this.prisma.$transaction(
       async (tx) => {
         await tx.$executeRawUnsafe(
           "SELECT pg_advisory_xact_lock(hashtext('rst.recreation_map_feature'))",
         );
 
-        const flattenedNewEntries: FlatGeometryEntry[] =
+        let flattenedNewEntries: FlatGeometryEntry[] =
           this.flattenFeatures(newFeatures);
+        let flattenedAmendedEntries: FlatGeometryEntry[] =
+          this.flattenFeatures(amendedFeatures);
+        const flattenedRetiredEntries: FlatGeometryEntry[] =
+          this.flattenFeatures(retiredFeatures);
+        this.logFlattenedFeatures(rec_resource_id, 'new', flattenedNewEntries);
+        this.logFlattenedFeatures(
+          rec_resource_id,
+          'amended',
+          flattenedAmendedEntries,
+        );
+        this.ensureNewGeometriesDifferFromRetired(
+          flattenedNewEntries,
+          flattenedRetiredEntries,
+        );
         this.logger.log(
           `Creating ${newFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
         );
 
-        const linearSectionIds = Array.from(
-          new Set(
-            flattenedNewEntries
-              .filter((entry) => entry.geometryTypeCode === 'L')
-              .map((entry) => entry.sectionId),
-          ),
+        const hasActiveMapFeatureRows =
+          (await tx.$queryRaw<{ rmf_skey: number }[]>(Prisma.sql`
+            SELECT rmf_skey
+            FROM rst.recreation_map_feature
+            WHERE rec_resource_id = ${rec_resource_id}
+              AND retirement_date IS NULL
+              AND current_ind = 'Y'
+            LIMIT 1
+          `)) ?? [];
+
+        if (
+          hasActiveMapFeatureRows.length === 0 &&
+          flattenedNewEntries.length === 0 &&
+          flattenedAmendedEntries.length > 0 &&
+          flattenedRetiredEntries.length === 0
+        ) {
+          this.logger.warn(
+            `No active map features found for rec_resource_id: ${rec_resource_id}; treating amended features as new inserts.`,
+          );
+          flattenedNewEntries = [...flattenedAmendedEntries];
+          flattenedAmendedEntries = [];
+        }
+
+        let nextRmfSkey = await this.getNextRmfSkey(tx);
+        const submissionAmendmentId = await this.getNextSubmissionAmendmentId(
+          tx,
+          rec_resource_id,
         );
-        const existingLinearsBySection = new Map<
-          string,
-          { rmf_skey: number; amendment_id: number | null }
-        >();
-        if (linearSectionIds.length) {
-          const existingLinears = await tx.recreation_map_feature.findMany({
-            where: {
-              rec_resource_id,
-              section_id: { in: linearSectionIds },
-            },
-            select: {
-              section_id: true,
-              rmf_skey: true,
-              amendment_id: true,
-            },
-          });
+        const nextSkey = () => {
+          const value = nextRmfSkey;
+          nextRmfSkey += 1;
+          return value;
+        };
 
-          existingLinears
-            .filter((row) => row.section_id)
-            .forEach((row) => {
-              existingLinearsBySection.set(row.section_id!, {
-                rmf_skey: row.rmf_skey,
-                amendment_id: row.amendment_id,
-              });
-            });
-        }
+        const persistedSubmissionEntries: SubmissionMapFeaturePersistEntry[] =
+          [];
 
-        let nextRmfSkey = 0;
-        // Only generate a new rmf_skey if there are new features
-        if (newFeatures.length > 0) {
-          const maxRmfSkeyQuery = [
-            'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
-            'FROM rst.recreation_map_feature',
-          ].join(' ');
+        const hasCurrentRows = hasActiveMapFeatureRows.length > 0;
 
-          const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
-            max_rmf_skey: number | bigint;
-          }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
-
-          nextRmfSkey = Number(max_rmf_skey) + 1;
-        }
         for (const entry of flattenedNewEntries) {
-          if (entry.geometryTypeCode === 'L') {
-            const existingLinear = existingLinearsBySection.get(
-              entry.sectionId,
-            );
-            if (existingLinear) {
-              await this.updateMapFeatureAndGeometry(
-                existingLinear.rmf_skey,
-                existingLinear.amendment_id,
-                payload.recreation_type_code || null,
-                payload.submitted_by || null,
-                entry.geometryTypeCode,
-                entry.geometry,
-                entry.sourceMetrics,
-                tx,
-              );
-              continue;
-            }
-          }
+          await this.resolveCurrentMapFeatureForEntry(
+            tx,
+            rec_resource_id,
+            entry,
+          );
 
-          await this.insertMapFeatureAndGeometry(
-            nextRmfSkey,
+          const inserted = await this.insertMapFeatureAndGeometry(
+            nextSkey(),
             rec_resource_id,
             entry.sectionId,
             payload.recreation_type_code || null,
@@ -1461,104 +1707,100 @@ export class GeospatialService {
             entry.geometry,
             entry.sourceMetrics,
             tx,
+            {
+              amendmentId: hasCurrentRows ? submissionAmendmentId : 0,
+              currentInd: 'N',
+            },
           );
-          nextRmfSkey++;
+
+          persistedSubmissionEntries.push({
+            ...entry,
+            purposeCode: 'N',
+            ...inserted,
+          });
         }
 
-        const flattenedAmendedEntries: FlatGeometryEntry[] =
-          this.flattenFeatures(amendedFeatures);
         this.logger.log(
           `Updating ${amendedFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
         );
         for (const entry of flattenedAmendedEntries) {
-          if (entry.geometryTypeCode === 'P') {
-            this.logger.warn(
-              `Skipping polygon amendment lookup by section_id for rec_resource_id: ${rec_resource_id}; polygons do not persist section_id.`,
-            );
-            continue;
-          }
+          const currentRow = await this.resolveCurrentMapFeatureForEntry(
+            tx,
+            rec_resource_id,
+            entry,
+          );
 
-          const rmfDataQuery = [
-            'SELECT rmf_skey, amendment_id',
-            'FROM rst.recreation_map_feature',
-            `WHERE rec_resource_id = '${rec_resource_id}' AND section_id = '${entry.sectionId}'`,
-          ].join(' ');
-
-          const [
-            { rmf_skey = null, amendment_id = null } = {
-              rmf_skey: null,
-              amendment_id: null,
-            } as RmfData,
-          ]: Array<{
-            rmf_skey: number | null;
-            amendment_id: number | null;
-          }> = await tx.$queryRawUnsafe(rmfDataQuery);
-
-          if (rmf_skey === null) {
-            this.logger.error(
-              `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
+          if (!currentRow?.rmf_skey) {
+            throw new BadRequestException(
+              `No current map feature found for amendment on rec_resource_id ${rec_resource_id}, section_id ${entry.sectionId}.`,
             );
           } else {
-            await this.updateMapFeatureAndGeometry(
-              rmf_skey,
-              amendment_id,
+            const inserted = await this.insertMapFeatureAndGeometry(
+              nextSkey(),
+              rec_resource_id,
+              entry.sectionId,
               payload.recreation_type_code || null,
               payload.submitted_by || null,
               entry.geometryTypeCode,
               entry.geometry,
               entry.sourceMetrics,
               tx,
+              {
+                amendmentId: submissionAmendmentId,
+                currentInd: 'N',
+              },
             );
+
+            persistedSubmissionEntries.push({
+              ...entry,
+              purposeCode: 'A',
+              ...inserted,
+            });
           }
         }
 
-        const flattenedRetiredEntries: FlatGeometryEntry[] =
-          this.flattenFeatures(retiredFeatures);
         this.logger.log(
           `Retiring ${retiredFeatures.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
         );
         for (const entry of flattenedRetiredEntries) {
-          if (entry.geometryTypeCode === 'P') {
-            this.logger.warn(
-              `Skipping polygon retirement lookup by section_id for rec_resource_id: ${rec_resource_id}; polygons do not persist section_id.`,
-            );
-            continue;
-          }
+          const currentRow = await this.resolveCurrentMapFeatureForEntry(
+            tx,
+            rec_resource_id,
+            entry,
+          );
 
-          const rmfDataQuery = [
-            'SELECT rmf_skey, amendment_id',
-            'FROM rst.recreation_map_feature',
-            `WHERE rec_resource_id = '${rec_resource_id}' AND section_id = '${entry.sectionId}'`,
-          ].join(' ');
-
-          const [
-            { rmf_skey = null } = {
-              rmf_skey: null,
-              amendment_id: null,
-            } as RmfData,
-          ]: Array<{
-            rmf_skey: number | null;
-            amendment_id: number | null;
-          }> = await tx.$queryRawUnsafe(rmfDataQuery);
-
-          if (rmf_skey === null) {
-            this.logger.error(
-              `No existing map feature found for rec_resource_id: ${rec_resource_id}, section_id: ${entry.sectionId}`,
+          if (!currentRow?.rmf_skey) {
+            throw new BadRequestException(
+              `No current map feature found for retirement on rec_resource_id ${rec_resource_id}, section_id ${entry.sectionId}.`,
             );
           } else {
-            await this.retireFeature(
-              rmf_skey,
+            const retired = await this.insertMapFeatureAndGeometry(
+              nextSkey(),
+              rec_resource_id,
+              entry.sectionId,
+              payload.recreation_type_code || null,
               payload.submitted_by || null,
+              entry.geometryTypeCode,
+              entry.geometry,
+              entry.sourceMetrics,
               tx,
+              {
+                amendmentId: submissionAmendmentId,
+                currentInd: 'N',
+                retirementDate: new Date(),
+                copyGeometryFromRmfSkey: currentRow.rmf_skey,
+              },
             );
+
+            persistedSubmissionEntries.push({
+              ...entry,
+              purposeCode: 'R',
+              ...retired,
+            });
           }
         }
 
-        const allSubmissionEntries = [
-          ...flattenedNewEntries,
-          ...flattenedAmendedEntries,
-          ...flattenedRetiredEntries,
-        ];
+        const allSubmissionEntries = persistedSubmissionEntries;
         const purposeCode = this.derivePurposeCodeForUpdate(
           flattenedNewEntries.length,
           flattenedAmendedEntries.length,
@@ -1576,11 +1818,16 @@ export class GeospatialService {
           });
 
           if (createdSubmission) {
-            await this.dispatchSncscStatusRequest(
-              tx,
-              createdSubmission,
-              allSubmissionEntries,
-            );
+            autoGenerateApplicationGuid = createdSubmission.application_guid;
+            await this.persistSpatialSubmissionMapFeatures(tx, {
+              applicationGuid: createdSubmission.application_guid,
+              recResourceId: rec_resource_id,
+              recreationTypeCode: payload.recreation_type_code || null,
+              submittedBy: payload.submitted_by || null,
+              entries: allSubmissionEntries,
+            });
+
+            await this.dispatchSncscStatusRequest(tx, createdSubmission);
           }
         }
       },
@@ -1589,6 +1836,19 @@ export class GeospatialService {
         maxWait: INTERACTIVE_TRANSACTION_MAX_WAIT_MS,
       },
     );
+
+    if (autoGenerateApplicationGuid) {
+      void this.exhibitAService
+        .autoGenerateForApplicationGuid(
+          autoGenerateApplicationGuid,
+          payload.submitted_by?.trim() || 'system',
+        )
+        .catch((error) => {
+          this.logger.warn(
+            `Automatic Exhibit A generation failed for application_guid=${autoGenerateApplicationGuid}: ${error instanceof Error ? error.message : 'unknown error'}`,
+          );
+        });
+    }
   }
 
   /**
@@ -1608,6 +1868,8 @@ export class GeospatialService {
     this.logger.log(
       `Creating ${payload.features.length} map feature(s) for rec_resource_id: ${rec_resource_id}`,
     );
+
+    let autoGenerateApplicationGuid: string | null = null;
 
     await this.prisma.$transaction(
       async (tx) => {
@@ -1723,22 +1985,16 @@ export class GeospatialService {
           throw new BadRequestException('No supported geometries were found.');
         }
 
-        const maxRmfSkeyQuery = [
-          'SELECT COALESCE(MAX(rmf_skey), 0) AS max_rmf_skey',
-          'FROM rst.recreation_map_feature',
-        ].join(' ');
+        let nextRmfSkey = await this.getNextRmfSkey(tx);
 
-        const [{ max_rmf_skey } = { max_rmf_skey: 0 }]: Array<{
-          max_rmf_skey: number | bigint;
-        }> = await tx.$queryRawUnsafe(maxRmfSkeyQuery);
-
-        let nextRmfSkey = Number(max_rmf_skey) + 1;
+        const persistedSubmissionEntries: SubmissionMapFeaturePersistEntry[] =
+          [];
 
         for (const entry of flattenedEntries) {
           const rmfSkey = nextRmfSkey;
           nextRmfSkey += 1;
 
-          await this.insertMapFeatureAndGeometry(
+          const inserted = await this.insertMapFeatureAndGeometry(
             rmfSkey,
             rec_resource_id,
             entry.sectionId,
@@ -1748,7 +2004,17 @@ export class GeospatialService {
             entry.geometry,
             entry.sourceMetrics,
             tx,
+            {
+              amendmentId: 0,
+              currentInd: 'Y',
+            },
           );
+
+          persistedSubmissionEntries.push({
+            ...entry,
+            purposeCode: 'N',
+            ...inserted,
+          });
         }
 
         const createdSubmission = await this.createSpatialSubmission(tx, {
@@ -1762,11 +2028,16 @@ export class GeospatialService {
         });
 
         if (createdSubmission) {
-          await this.dispatchSncscStatusRequest(
-            tx,
-            createdSubmission,
-            flattenedEntries,
-          );
+          autoGenerateApplicationGuid = createdSubmission.application_guid;
+          await this.persistSpatialSubmissionMapFeatures(tx, {
+            applicationGuid: createdSubmission.application_guid,
+            recResourceId: rec_resource_id,
+            recreationTypeCode: payload.recreation_type_code || null,
+            submittedBy: payload.submitted_by || null,
+            entries: persistedSubmissionEntries,
+          });
+
+          await this.dispatchSncscStatusRequest(tx, createdSubmission);
         }
       },
       {
@@ -1774,6 +2045,19 @@ export class GeospatialService {
         maxWait: INTERACTIVE_TRANSACTION_MAX_WAIT_MS,
       },
     );
+
+    if (autoGenerateApplicationGuid) {
+      void this.exhibitAService
+        .autoGenerateForApplicationGuid(
+          autoGenerateApplicationGuid,
+          payload.submitted_by?.trim() || 'system',
+        )
+        .catch((error) => {
+          this.logger.warn(
+            `Automatic Exhibit A generation failed for application_guid=${autoGenerateApplicationGuid}: ${error instanceof Error ? error.message : 'unknown error'}`,
+          );
+        });
+    }
   }
 
   /**
@@ -1819,6 +2103,7 @@ export class GeospatialService {
           ) AS utm_pt
       ) coords
       WHERE rmf.rec_resource_id = ${rec_resource_id}
+        AND rmf.current_ind = 'Y'
         AND rmf.retirement_date IS NULL
     `);
 

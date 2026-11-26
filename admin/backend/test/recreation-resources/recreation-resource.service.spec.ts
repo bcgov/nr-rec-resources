@@ -22,6 +22,7 @@ describe('RecreationResourceService', () => {
       searchResources: vi.fn(),
       findSuggestions: vi.fn(),
       getNextRecResourceId: vi.fn(),
+      findSummaryById: vi.fn(),
       findPendingMapFeatureRequests: vi.fn(),
       findMapFeatureRequestsByRecResourceId: vi.fn(),
     } as unknown as RecreationResourceRepository;
@@ -31,6 +32,9 @@ describe('RecreationResourceService', () => {
       },
       $queryRawTyped: vi.fn(),
       recreation_spatial_submission: {
+        findUnique: vi.fn(),
+      },
+      natural_resource_org_unit: {
         findUnique: vi.fn(),
       },
     } as unknown as PrismaService;
@@ -80,6 +84,14 @@ describe('RecreationResourceService', () => {
     expect(result.total).toBe(1);
     expect(result.suggestions[0]?.name).toBe('Test Resource');
     expect(result.suggestions[0]?.rec_resource_id).toBe('REC123');
+  });
+
+  it('should normalize suggestion search term before querying repository', async () => {
+    (repo.findSuggestions as any).mockResolvedValue({ total: 0, data: [] });
+
+    await service.getSuggestions('  TeSt Term  ');
+
+    expect(repo.findSuggestions).toHaveBeenCalledWith('test term');
   });
 
   it('should filter out suggestions missing rec_resource_id', async () => {
@@ -299,6 +311,33 @@ describe('RecreationResourceService', () => {
       adjudication_report:
         '/api/recreation-resources/pending-requests/app-guid-123/adjudication-report',
     });
+  });
+
+  it('should not include adjudication_report when exhibit url exists but application guid is null', async () => {
+    (repo.findPendingMapFeatureRequests as any).mockResolvedValue([
+      {
+        rec_resource_id: 'REC500003',
+        name: 'Pending Area',
+        district_description: 'Test District',
+        recreation_district: 'Test District',
+        natural_resource_district: 'Natural District',
+        recreation_type: 'Interpretive Forest',
+        amend_status_code: 'PND',
+        feature_count: 2,
+        requested_at: new Date('2026-09-24T12:00:00.000Z'),
+        geometry_types: ['Polygon'],
+        submission_id: '7654321',
+        application_guid: null,
+        status_request_guid: 'status-guid-123',
+        purpose_code: 'A',
+        exhibit_a_url: 'https://example.com/exhibit-a.pdf',
+      },
+    ]);
+
+    const result = await service.getPendingMapFeatureRequests();
+
+    expect(result.data[0]).toHaveProperty('exhibit_a_url');
+    expect(result.data[0]).not.toHaveProperty('adjudication_report');
   });
 
   it('should omit optional pending request identifiers when they are null', async () => {
@@ -844,6 +883,102 @@ describe('RecreationResourceService', () => {
     expect(result.data[0]?.access_status_grouplabel).toBeNull();
   });
 
+  it('should return cached search results when the same query/options are repeated', async () => {
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC-CACHE-1',
+          name: 'Cached Lake',
+          closest_community: 'Hope',
+          project_established_date: null,
+          display_on_public_site: true,
+          rec_status_code: null,
+          recreation_activity: [],
+          recreation_access: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          recreation_status: null,
+          _count: { recreation_defined_campsite: 0 },
+        },
+      ],
+    });
+
+    const query: AdminSearchQueryDto = {
+      q: 'cache-me',
+      page: 1,
+      page_size: 25,
+    };
+
+    const first = await service.searchResources(query, {
+      includeArchived: true,
+    });
+    const second = await service.searchResources(query, {
+      includeArchived: true,
+    });
+
+    expect(repo.searchResources).toHaveBeenCalledTimes(1);
+    expect(second).toEqual(first);
+  });
+
+  it('should build and cache summary response from repository data', async () => {
+    (repo.findSummaryById as any).mockResolvedValue({
+      rec_resource_id: 'REC-SUM-1',
+      name: 'Summary Lake',
+      updated_at: new Date('2026-01-01T00:00:00.000Z'),
+      closest_community: 'Hope',
+      recreation_resource_type_view_admin: [
+        { description: 'Trail', rec_resource_type_code: 'TRL' },
+      ],
+      display_on_public_site: true,
+      recreation_status: {
+        recreation_status_code: { description: 'Open' },
+        comment: 'ok',
+        status_code: 1,
+      },
+      recreation_district_code: {
+        description: 'District 1',
+        district_code: 'D1',
+      },
+      rec_status_code: null,
+      recreation_resource_status_code_rel: { description: 'Active' },
+      act_advisories_flat: [{ access_status_grouplabel: 'Open' }],
+    });
+    (prisma.natural_resource_org_unit.findUnique as any).mockResolvedValue({
+      org_unit_code: 'DCC',
+      org_unit_name: 'Chilliwack Natural Resource District',
+    });
+
+    const first = await service.findOneSummary('REC-SUM-1');
+    const second = await service.findOneSummary('REC-SUM-1');
+
+    expect(repo.findSummaryById).toHaveBeenCalledTimes(1);
+    expect(prisma.natural_resource_org_unit.findUnique).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(first).toMatchObject({
+      rec_resource_id: 'REC-SUM-1',
+      name: 'Summary Lake',
+      rec_resource_type: 'Trail',
+      rec_resource_type_code: 'TRL',
+      rec_status_description: 'Active',
+      natural_resource_org_unit_name: 'Chilliwack Natural Resource District',
+      access_status_grouplabel: 'Open',
+    });
+    expect(second).toEqual(first);
+  });
+
+  it('should return null when summary resource is not found', async () => {
+    (repo.findSummaryById as any).mockResolvedValue(null);
+
+    const result = await service.findOneSummary('REC-MISSING');
+
+    expect(result).toBeNull();
+    expect(prisma.natural_resource_org_unit.findUnique).not.toHaveBeenCalled();
+  });
+
   it('should use only the first advisory for access_status_grouplabel', async () => {
     (repo.searchResources as any).mockResolvedValue({
       total: 1,
@@ -1060,6 +1195,97 @@ describe('RecreationResourceService - findOne', () => {
     const result = await service.findOne('id2');
 
     expect(result?.licensee).toBeNull();
+  });
+
+  it('should return null licensee when approved submission org unit is blank', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id-blank-org-unit',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: '   ',
+    });
+    vi.stubGlobal('fetch', vi.fn());
+
+    const result = await service.findOne('id-blank-org-unit');
+
+    expect(result?.licensee).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it('should return null licensee when forest client lookup throws', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com/';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id-fetch-throws',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: 'dsi',
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(new Error('network error')),
+    );
+
+    const result = await service.findOne('id-fetch-throws');
+
+    expect(fetch).toHaveBeenCalledWith(
+      'https://forest-client.example.com/api/clients/findByAcronym?acronym=DSI',
+      expect.anything(),
+    );
+    expect(result?.licensee).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it('should return null licensee when forest client results do not match acronym', async () => {
+    process.env.FOREST_CLIENT_API_URL = 'https://forest-client.example.com';
+    process.env.FOREST_CLIENT_API_KEY = 'test-key';
+
+    (prisma as any).natural_resource_org_unit = {
+      findUnique: vi.fn().mockResolvedValue(null),
+    };
+    (repo.findOneById as any).mockResolvedValue({
+      ...baseFindOneResource,
+      rec_resource_id: 'id-acronym-miss',
+    });
+    (prisma.$queryRawTyped as any).mockResolvedValue(baseGeometryData);
+    (prisma as any).recreation_spatial_submission.findFirst.mockResolvedValue({
+      org_unit_code: 'DSI',
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify([
+            {
+              acronym: 'ABC',
+              clientNumber: '123',
+              clientName: 'Wrong Client',
+            },
+          ]),
+        ),
+      }),
+    );
+
+    const result = await service.findOne('id-acronym-miss');
+
+    expect(result?.licensee).toBeNull();
+    vi.unstubAllGlobals();
   });
 
   it('should map numeric submission org unit values to org_unit_code before client lookup', async () => {

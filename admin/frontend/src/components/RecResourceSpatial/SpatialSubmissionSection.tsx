@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -49,6 +49,7 @@ export const SpatialSubmissionSection = ({
   showCreateHeading = false,
   useGeospatialCompactForm = false,
   onCancel,
+  onSubmissionResult,
 }: SpatialSubmissionSectionProps) => {
   const { user, authService } = useAuthContext();
   const optionTypes = useMemo(
@@ -96,8 +97,9 @@ export const SpatialSubmissionSection = ({
   >(null);
   const { mutateAsync: createMapFeatures, isPending: isCreatingRequest } =
     useCreateRecreationResourceMapFeatures();
-  const { mutateAsync: updateMapFeatures } =
+  const { mutateAsync: updateMapFeatures, isPending: isUpdatingRequest } =
     useUpdateRecreationResourceMapFeatures();
+  const submissionInFlightRef = useRef(false);
   const requestCreated = createStatus?.variant === 'success';
   const [hasValidateAttempted, setHasValidateAttempted] = useState(false);
   const [showValidationSuccessNotice, setShowValidationSuccessNotice] =
@@ -188,11 +190,11 @@ export const SpatialSubmissionSection = ({
   };
 
   const handleSectionActionChange = (
-    sectionId: string,
+    featureIndex: number,
     nextAction: 'NEW' | 'AMEND' | 'RETIRE',
   ) => {
     const nextFeatureSectionIds = featureSectionIds.map((featureSection) => {
-      if (featureSection.sectionId === sectionId) {
+      if (featureSection.featureIndex === featureIndex) {
         return { ...featureSection, editAction: nextAction };
       }
       return featureSection;
@@ -250,27 +252,28 @@ export const SpatialSubmissionSection = ({
     ];
 
     setEditableFeatureCollection(featureCollection);
-    setFeatureSectionIds(
-      sectionIdDetails.featureSectionIds
-        .map((f) => {
-          f.editAction = existingSectionIds.includes(f.sectionId ?? '')
-            ? 'AMEND'
-            : 'NEW';
-          return f;
-        })
-        .sort((a, b) => (b.editAction ?? '').localeCompare(a.editAction ?? '')),
+    const nextFeatureSectionIds = sectionIdDetails.featureSectionIds.map(
+      (f) => ({
+        ...f,
+        editAction: existingSectionIds.includes(f.sectionId ?? '')
+          ? 'AMEND'
+          : 'NEW',
+      }),
     );
+    setFeatureSectionIds(nextFeatureSectionIds);
     setSectionIdFieldName(sectionIdDetails.fieldName);
     setSelectedFeatureIndex((current) => {
-      if (!sectionIdDetails.featureSectionIds.length) {
+      if (!nextFeatureSectionIds.length) {
         return null;
       }
 
       if (
         current === null ||
-        current >= sectionIdDetails.featureSectionIds.length
+        !nextFeatureSectionIds.some(
+          (entry) => entry.featureIndex === current + 1,
+        )
       ) {
-        return 0;
+        return nextFeatureSectionIds[0].featureIndex - 1;
       }
 
       return current;
@@ -360,8 +363,11 @@ export const SpatialSubmissionSection = ({
     feature: any,
     index: number,
   ): { properties: Record<string, unknown>; sectionId: string | undefined } => {
+    const featureSection = featureSectionIds.find(
+      (entry) => entry.featureIndex === index + 1,
+    );
     const trimmedSectionId = requiresSectionIds
-      ? (featureSectionIds[index]?.sectionId?.trim() ?? undefined)
+      ? (featureSection?.sectionId?.trim() ?? undefined)
       : undefined;
     const nextProperties = { ...(feature.properties ?? {}) };
 
@@ -376,7 +382,13 @@ export const SpatialSubmissionSection = ({
     };
   };
 
+  const isRequestSubmitting = isCreatingRequest || isUpdatingRequest;
+
   const handleCreateRequest = async () => {
+    if (submissionInFlightRef.current || isRequestSubmitting) {
+      return;
+    }
+
     setHasValidateAttempted(true);
     if (missingRequiredFields.length && !editMode) {
       setCreateStatus({
@@ -397,16 +409,23 @@ export const SpatialSubmissionSection = ({
     }
 
     try {
+      submissionInFlightRef.current = true;
       setCreateStatus(null);
       const recResourceName = values.recreationName.trim();
       const submittedBy = values.metadata.contactName || values.metadata.email;
 
       if (editMode) {
-        const mappedFeatures = editableFeatureCollection.features.map(
-          (feature: any, index: number) => {
+        const mappedFeatures = featureSectionIds
+          .map((featureSection) => {
+            const featureIndex = featureSection.featureIndex - 1;
+            const feature = editableFeatureCollection.features[featureIndex];
+            if (!feature) {
+              return null;
+            }
+
             const trimmedFeatureSection = trimFeatureSectionIdForPayload(
               feature,
-              index,
+              featureIndex,
             );
 
             return {
@@ -414,10 +433,12 @@ export const SpatialSubmissionSection = ({
               properties: trimmedFeatureSection.properties,
               sectionId: trimmedFeatureSection.sectionId,
               featureAreaHectares: getFeatureAreaHectares(feature),
-              editAction: featureSectionIds[index]?.editAction ?? 'NEW',
+              editAction: featureSection.editAction ?? 'NEW',
             };
-          },
-        );
+          })
+          .filter(
+            (entry): entry is NonNullable<typeof entry> => entry !== null,
+          );
         const payload = {
           recResourceId,
           newFeatures: mappedFeatures
@@ -476,9 +497,14 @@ export const SpatialSubmissionSection = ({
         });
       }
 
+      const successMessage = 'Map feature request created successfully.';
       setCreateStatus({
         variant: 'success',
-        message: <>Map feature request created successfully.</>,
+        message: successMessage,
+      });
+      onSubmissionResult?.({
+        variant: 'success',
+        message: successMessage,
       });
 
       if (onCancel) {
@@ -487,13 +513,20 @@ export const SpatialSubmissionSection = ({
         window.location.assign(ROUTE_PATHS.REQUESTS);
       }
     } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? `Unable to create request: ${error.message}`
+          : 'Unable to create request.';
       setCreateStatus({
         variant: 'danger',
-        message:
-          error instanceof Error
-            ? `Unable to create request: ${error.message}`
-            : 'Unable to create request.',
+        message: errorMessage,
       });
+      onSubmissionResult?.({
+        variant: 'danger',
+        message: errorMessage,
+      });
+    } finally {
+      submissionInFlightRef.current = false;
     }
   };
 
@@ -508,7 +541,12 @@ export const SpatialSubmissionSection = ({
       return null;
     }
 
-    return featureSectionIds.at(selectedFeatureIndex) ?? null;
+    return (
+      featureSectionIds.find(
+        (featureSection) =>
+          featureSection.featureIndex === selectedFeatureIndex + 1,
+      ) ?? null
+    );
   };
   const selectedSectionFeature = getSelectedSectionFeature();
   const hasValidationErrors = issues.some(
@@ -588,7 +626,7 @@ export const SpatialSubmissionSection = ({
               selectedSectionFeature={selectedSectionFeature}
               onSectionIdChange={handleSectionIdChange}
               canCreateRequest={canCreateRequest}
-              isCreatingRequest={isCreatingRequest}
+              isCreatingRequest={isRequestSubmitting}
               requestCreated={requestCreated}
               onCreateRequest={handleCreateRequest}
               onSectionActionChange={handleSectionActionChange}

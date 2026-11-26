@@ -177,7 +177,6 @@ export function buildWebMapJson(input: {
         .filter((f) => f.geometryType === geometryType)
         .map(({ geometry, attributes }) => ({ geometry, attributes }));
       if (features.length === 0) return [];
-
       return [
         {
           layerDefinition: {

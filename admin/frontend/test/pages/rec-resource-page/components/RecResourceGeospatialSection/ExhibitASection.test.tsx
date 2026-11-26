@@ -110,7 +110,9 @@ describe('ExhibitASection', () => {
     mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
     mockUseGetExhibitADocs.mockReturnValue({ data: [], isFetching: false });
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true } as Response);
-    vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue('pending-uuid');
+    vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(
+      '00000000-0000-4000-8000-000000000001',
+    );
   });
 
   it('renders the Exhibit A heading', () => {
@@ -268,7 +270,12 @@ describe('ExhibitASection', () => {
 
   it('triggers hidden file input click when Upload button is clicked', () => {
     const clickSpy = vi.spyOn(HTMLInputElement.prototype, 'click');
-    render(<ExhibitASection recResourceId="REC123" />);
+    render(
+      <ExhibitASection
+        recResourceId="REC123"
+        applicationGuid="6444f5ab-cc12-4129-b66f-2deec3f26ec8"
+      />,
+    );
 
     fireEvent.click(screen.getByText('Upload'));
 
@@ -375,74 +382,17 @@ describe('ExhibitASection', () => {
     );
   });
 
-  it('shows an error and blocks upload when no application guid can be resolved', async () => {
+  it('disables upload and shows guidance when no application guid is provided', async () => {
     render(<ExhibitASection recResourceId="REC123" />);
 
-    const fileInput = screen.getByLabelText(
-      'Upload Exhibit A document',
-    ) as HTMLInputElement;
-
-    const file = new File(['content'], 'no-guid.pdf', {
-      type: 'application/pdf',
-    });
-    Object.defineProperty(fileInput, 'files', { value: [file] });
-    fireEvent.change(fileInput);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('upload-modal')).toBeDefined();
-    });
-
-    fireEvent.click(screen.getByText('Confirm Upload'));
-
-    await waitFor(() => {
-      expect(mockAddErrorNotification).toHaveBeenCalledWith(
-        'Cannot upload Exhibit A without an application GUID.',
-      );
-    });
+    expect(screen.getByText('Upload')).toBeDisabled();
+    expect(
+      screen.getByText(
+        'Select a submission to upload Exhibit A for a specific application.',
+      ),
+    ).toBeDefined();
     expect(mockPresignMutateAsync).not.toHaveBeenCalled();
     expect(mockFinalizeMutateAsync).not.toHaveBeenCalled();
-  });
-
-  it('uses application guid from existing docs when prop is not provided', async () => {
-    mockUseGetExhibitADocs.mockReturnValue({
-      data: [
-        {
-          ...mockDoc,
-          application_guid: 'doc-guid-123',
-        },
-      ],
-      isFetching: false,
-    });
-    mockPresignMutateAsync.mockResolvedValue({
-      url: 'https://upload.example.com/signed-url',
-      document_id: 'doc-upload-from-doc-guid',
-    });
-    mockFinalizeMutateAsync.mockResolvedValue(undefined);
-
-    render(<ExhibitASection recResourceId="REC123" />);
-
-    const fileInput = screen.getByLabelText(
-      'Upload Exhibit A document',
-    ) as HTMLInputElement;
-    const file = new File(['content'], 'from-doc-guid.pdf', {
-      type: 'application/pdf',
-    });
-    Object.defineProperty(fileInput, 'files', { value: [file] });
-    fireEvent.change(fileInput);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('upload-modal')).toBeDefined();
-    });
-    fireEvent.click(screen.getByText('Confirm Upload'));
-
-    await waitFor(() => {
-      expect(mockPresignMutateAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ applicationGuid: 'doc-guid-123' }),
-      );
-    });
-    expect(mockFinalizeMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ application_guid: 'doc-guid-123' }),
-    );
   });
 
   it('shows pending upload failure state and error notification when upload fails', async () => {

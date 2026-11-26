@@ -575,10 +575,29 @@ select aws_s3.table_import_from_s3(
     HEADER true,
     FORCE_NULL
       (
-        image_file_size,
+        image_file_size,' ||
+  '
         entry_timestamp,
         update_timestamp
       )
   )',
   aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_APP_IMAGE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+               'fta.tenure_application_map_feature',
+               '',
+               '(
+                 FORMAT csv,
+                 HEADER true,
+                 FORCE_NULL
+                   (
+                     tenure_app_id, fsr_gravel_pit_no, min_x, max_x, min_y, max_y,
+                     image_height, image_width, meters_per_pixel, object_area, chart_volume,
+                     image_scale, object_length, observation_date, feature_class_skey,
+                     planned_net_block_area, utm_zone, revision_count,
+                     update_timestamp, entry_timestamp, feature_record_guid
+                   )
+               )',
+               aws_commons.create_s3_uri('${S3_BUCKET}', 'REC_TENURE_MAP_FEATURE.csv', 'ca-central-1')
+       );;

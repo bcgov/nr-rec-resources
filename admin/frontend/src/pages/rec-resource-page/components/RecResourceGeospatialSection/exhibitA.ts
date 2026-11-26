@@ -33,29 +33,28 @@ export const isAbsoluteUrl = (value?: string | null): value is string =>
 
 /**
  * Finds the Exhibit A URL for a submission row.
- * Priority: freshly uploaded/generated URL, then an exact submission match,
- * then an application-guid match, then the URL stored on the row.
+ * Priority: freshly uploaded/generated URL by application_guid,
+ * then application-guid match from docs, then the URL stored on the row.
  */
 export const resolveExhibitAUrl = (
   row: PendingMapFeatureRequestRowDto,
   exhibitADocs: ExhibitADocDto[],
   urlOverrides: Record<string, string>,
 ): string | null => {
-  const fromState = row.submission_id ? urlOverrides[row.submission_id] : null;
+  const fromState = row.application_guid
+    ? urlOverrides[row.application_guid]
+    : null;
 
-  const fromDocs =
-    exhibitADocs.find((d) => {
-      const submissionId =
-        typeof d.submission_id === 'string' ? d.submission_id : null;
-      return row.submission_id != null && submissionId === row.submission_id;
-    })?.url ??
-    exhibitADocs.find((d) => {
-      const applicationGuid =
-        typeof d.application_guid === 'string' ? d.application_guid : null;
-      return (
-        row.application_guid != null && applicationGuid === row.application_guid
-      );
-    })?.url;
+  const fromDocs = exhibitADocs.find((d) => {
+    const rawApplicationGuid = (d as { application_guid?: unknown })
+      .application_guid;
+    const applicationGuid =
+      typeof rawApplicationGuid === 'string' ? rawApplicationGuid : null;
+
+    return (
+      row.application_guid != null && applicationGuid === row.application_guid
+    );
+  })?.url;
 
   return (
     [fromState, fromDocs, row.exhibit_a_url?.trim()].find(isAbsoluteUrl) ?? null

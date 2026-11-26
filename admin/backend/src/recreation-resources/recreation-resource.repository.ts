@@ -19,10 +19,12 @@ import {
 import {
   adminSearchSelect,
   recreationResourceSelect,
+  recreationResourceSummarySelect,
 } from './recreation-resource.select';
 import {
   AdminSearchRecreationResourceGetPayload,
   RecreationResourceGetPayload,
+  RecreationResourceSummaryGetPayload,
 } from './recreation-resource.types';
 import { syncManyToManyComposite } from './utils/syncManyToManyUtils';
 import { upsert } from './utils/upsertUtils';
@@ -172,6 +174,15 @@ export class RecreationResourceRepository {
     rec_resource_id: string,
   ): Promise<RecreationResourceGetPayload | null> {
     return this.findResourceByIdWithUserDaysFallback(rec_resource_id);
+  }
+
+  async findSummaryById(
+    rec_resource_id: string,
+  ): Promise<RecreationResourceSummaryGetPayload | null> {
+    return await this.prisma.recreation_resource.findUnique({
+      where: { rec_resource_id },
+      select: recreationResourceSummarySelect,
+    });
   }
 
   private async findResourceByIdWithUserDaysFallback(
@@ -637,7 +648,7 @@ export class RecreationResourceRepository {
           FILTER (WHERE rrtva.description IS NOT NULL) AS recreation_type,
         rss.purpose_code,
         rss.status AS amend_status_code,
-        COALESCE(COUNT(DISTINCT rmf.rmf_skey), 0)::bigint AS feature_count,
+        COALESCE(COUNT(DISTINCT rssmf.rssmf_skey), 0)::bigint AS feature_count,
         COALESCE(rss.created_at, rss.submission_date::timestamp) AS requested_at,
         COALESCE(
           ARRAY_AGG(
@@ -654,9 +665,10 @@ export class RecreationResourceRepository {
         ) AS geometry_types,
         MAX(rss.adjudication_report_document_uri) AS exhibit_a_url
       FROM rst.recreation_spatial_submission rss
+      LEFT JOIN rst.recreation_spatial_submission_map_feature rssmf
+        ON rssmf.application_guid = rss.application_guid
       LEFT JOIN rst.recreation_map_feature rmf
-        ON rmf.rec_resource_id = rss.tenure_id
-       AND rmf.retirement_date IS NULL
+        ON rmf.rmf_skey = rssmf.rmf_skey
       LEFT JOIN rst.recreation_map_feature_geom rmfg
         ON rmfg.rmf_skey = rmf.rmf_skey
       LEFT JOIN rst.recreation_resource rr

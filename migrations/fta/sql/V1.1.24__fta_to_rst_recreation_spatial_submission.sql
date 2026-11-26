@@ -26,6 +26,7 @@ with mapped as (
             when upper(btrim(ta.tenure_application_state_code)) in ('CLR', 'CLEAR', 'CLEARED') then 'CLR'
             when upper(btrim(ta.tenure_application_state_code)) in ('APP', 'APPR', 'APPROVED') then 'APP'
             when upper(btrim(ta.tenure_application_state_code)) in ('REJ', 'REJECTED', 'DISALLOWED') then 'REJ'
+            when upper(btrim(ta.tenure_application_state_code)) in ('RET', 'RETIRED', 'RETIREMENT') then 'RET'
             when upper(btrim(ta.tenure_application_state_code)) in ('FAI', 'FAILED', 'FAIL') then 'FAI'
             else 'PND'
         end as source_status,
@@ -43,15 +44,8 @@ normalized as (
     select
         m.*,
         case
-            when m.source_status = 'APP'
-                 and m.report_uri is not null
-                 and nullif(btrim(m.adjudicated_by), '') is not null
-                 and m.adjudication_date_mapped is not null then 'APP'
-            when m.source_status = 'REJ'
-                 and m.rejection_comment is not null
-                 and nullif(btrim(m.adjudicated_by), '') is not null
-                 and m.adjudication_date_mapped is not null then 'REJ'
-            when m.source_status in ('CLR', 'FAI') then m.source_status
+            -- Preserve source status for historical load; missing adjudication data remains NULL.
+            when m.source_status in ('APP', 'REJ', 'CLR', 'FAI','RET') then m.source_status
             else 'PND'
         end as final_status
     from mapped m

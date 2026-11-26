@@ -58,19 +58,19 @@ export interface UpdateRecreationResourceGeospatialDto {
    */
   submitted_by?: object | null;
   /**
-   * UTM zone for site point updates. Must be provided together with utm_easting and utm_northing.
+   * UTM zone for site point updates. Can be provided alone when other UTM values already exist for the resource.
    * @type {object}
    * @memberof UpdateRecreationResourceGeospatialDto
    */
   utm_zone?: object | null;
   /**
-   * UTM easting for site point updates. Must be provided together with utm_zone and utm_northing.
+   * UTM easting for site point updates. Can be provided alone when other UTM values already exist for the resource.
    * @type {object}
    * @memberof UpdateRecreationResourceGeospatialDto
    */
   utm_easting?: object | null;
   /**
-   * UTM northing for site point updates. Must be provided together with utm_zone and utm_easting.
+   * UTM northing for site point updates. Can be provided alone when other UTM values already exist for the resource.
    * @type {object}
    * @memberof UpdateRecreationResourceGeospatialDto
    */

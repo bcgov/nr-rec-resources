@@ -1,13 +1,13 @@
 import { AuthService } from '@/services/auth';
 import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
 import { recResourceGeospatialLoader } from '@/services/loaders/recResourceGeospatialLoader';
-import { recResourceLoader } from '@/services/loaders/recResourceLoader';
+import { recResourceSummaryLoader } from '@/services/loaders/recResourceSummaryLoader';
 import { RecreationResourcesApi } from '@/services/recreation-resource-admin';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/services/auth');
 vi.mock('@/services/recreation-resource-admin');
-vi.mock('@/services/loaders/recResourceLoader');
+vi.mock('@/services/loaders/recResourceSummaryLoader');
 
 const MOCK_PARENT_DATA = {
   recResource: {
@@ -56,16 +56,16 @@ describe('recResourceGeospatialLoader', () => {
   });
 
   it('should call parent loader to get recResource data', async () => {
-    (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
+    (recResourceSummaryLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
     mockQueryClient.ensureQueryData.mockResolvedValue(null);
 
     await recResourceGeospatialLoader(mockArgs);
 
-    expect(recResourceLoader).toHaveBeenCalledWith(mockArgs);
+    expect(recResourceSummaryLoader).toHaveBeenCalledWith(mockArgs);
   });
 
   it('should create RecreationResourcesApi instance and get auth token', async () => {
-    (recResourceLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
+    (recResourceSummaryLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
     mockQueryClient.ensureQueryData.mockResolvedValue(null);
 
     await recResourceGeospatialLoader(mockArgs);
@@ -75,7 +75,7 @@ describe('recResourceGeospatialLoader', () => {
   });
 
   it('should call ensureQueryData with correct query key', async () => {
-    (recResourceLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
+    (recResourceSummaryLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
     mockQueryClient.ensureQueryData.mockResolvedValue(null);
 
     await recResourceGeospatialLoader(mockArgs);
@@ -97,7 +97,7 @@ describe('recResourceGeospatialLoader', () => {
       longitude: -123.654321,
     };
 
-    (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
+    (recResourceSummaryLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
     mockApi.getRecreationResourceGeospatial.mockResolvedValue(
       mockGeospatialData,
     );
@@ -123,7 +123,7 @@ describe('recResourceGeospatialLoader', () => {
       utm_northing: 5480000,
     };
 
-    (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
+    (recResourceSummaryLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
     mockQueryClient.ensureQueryData.mockResolvedValue(mockGeospatialData);
 
     const result = await recResourceGeospatialLoader(mockArgs);
@@ -140,7 +140,7 @@ describe('recResourceGeospatialLoader', () => {
       response: { status: 404 },
     };
 
-    (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
+    (recResourceSummaryLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
     mockQueryClient.ensureQueryData.mockRejectedValue(error404);
 
     const result = await recResourceGeospatialLoader(mockArgs);
@@ -154,7 +154,7 @@ describe('recResourceGeospatialLoader', () => {
   it('should handle missing VITE_API_BASE_URL', async () => {
     vi.stubEnv('VITE_API_BASE_URL', '');
 
-    (recResourceLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
+    (recResourceSummaryLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
     mockQueryClient.ensureQueryData.mockResolvedValue(null);
 
     const result = await recResourceGeospatialLoader(mockArgs);

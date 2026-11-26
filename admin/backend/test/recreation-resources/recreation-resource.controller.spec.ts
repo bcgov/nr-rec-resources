@@ -28,6 +28,7 @@ describe('RecreationResourceController', () => {
             getMapFeatureRequestsByRecResourceId: vi.fn(),
             getPendingRequestAdjudicationReport: vi.fn(),
             findOne: vi.fn(),
+            findOneSummary: vi.fn(),
             update: vi.fn(),
             archive: vi.fn(),
           },
@@ -205,6 +206,33 @@ describe('RecreationResourceController', () => {
     );
   });
 
+  it('should call service.findOneSummary and return its result', async () => {
+    const mockSummary = {
+      rec_resource_id: 'REC999',
+      name: 'Summary Resource',
+      closest_community: 'Hope',
+      rec_resource_type: 'Trail',
+      recreation_status: { description: 'Open', comment: '', status_code: 1 },
+      campsite_count: 0,
+      recreation_structure: { has_toilet: false, has_table: false },
+    } as any;
+
+    (service.findOneSummary as any).mockResolvedValue(mockSummary);
+
+    const result = await controller.findOneSummary('REC999');
+
+    expect(service.findOneSummary).toHaveBeenCalledWith('REC999');
+    expect(result).toEqual(mockSummary);
+  });
+
+  it('should throw 404 if summary resource is not found', async () => {
+    (service.findOneSummary as any).mockResolvedValue(null);
+
+    await expect(controller.findOneSummary('NOT_FOUND')).rejects.toThrowError(
+      'Recreation Resource not found.',
+    );
+  });
+
   describe('update', () => {
     const updateData: UpdateRecreationResourceDto = {
       maintenance_standard_code: '1',
@@ -246,6 +274,33 @@ describe('RecreationResourceController', () => {
       const result = await controller.update('REC123', updateData, false);
 
       expect(service.update).toHaveBeenCalledWith('REC123', updateData);
+      expect(result).toEqual(mockUpdatedResource);
+    });
+
+    it('should remove name field for non-super-admin updates before calling service', async () => {
+      (repo.findOneById as any).mockResolvedValue({ rec_status_code: null });
+      (service.update as any).mockResolvedValue(mockUpdatedResource);
+
+      const nonSuperAdminUpdate = {
+        ...updateData,
+        name: 'Should be stripped',
+      } as UpdateRecreationResourceDto;
+
+      await controller.update('REC123', nonSuperAdminUpdate, false);
+
+      expect(service.update).toHaveBeenCalledWith('REC123', {
+        maintenance_standard_code: '1',
+        status_code: 1,
+      });
+    });
+
+    it('should allow non-super-admin update when resource lookup returns null', async () => {
+      (repo.findOneById as any).mockResolvedValue(null);
+      (service.update as any).mockResolvedValue(mockUpdatedResource);
+
+      const result = await controller.update('REC404', updateData, false);
+
+      expect(service.update).toHaveBeenCalledWith('REC404', updateData);
       expect(result).toEqual(mockUpdatedResource);
     });
 

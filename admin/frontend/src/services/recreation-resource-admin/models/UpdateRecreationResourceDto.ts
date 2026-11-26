@@ -68,7 +68,7 @@ export interface UpdateRecreationResourceDto {
    * @type {string}
    * @memberof UpdateRecreationResourceDto
    */
-  rec_status_code?: 'AR' | 'HI';
+  rec_status_code?: UpdateRecreationResourceDtoRecStatusCodeEnum;
   /**
    * District code (recreation district)
    * @type {string}
@@ -124,6 +124,16 @@ export interface UpdateRecreationResourceDto {
    */
   recreation_user_days_code?: string | null;
 }
+
+/**
+ * @export
+ */
+export const UpdateRecreationResourceDtoRecStatusCodeEnum = {
+  Ar: 'AR',
+  Hi: 'HI',
+} as const;
+export type UpdateRecreationResourceDtoRecStatusCodeEnum =
+  (typeof UpdateRecreationResourceDtoRecStatusCodeEnum)[keyof typeof UpdateRecreationResourceDtoRecStatusCodeEnum];
 
 /**
  * Check if a given object implements the UpdateRecreationResourceDto interface.

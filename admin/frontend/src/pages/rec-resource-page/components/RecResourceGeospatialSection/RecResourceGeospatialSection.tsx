@@ -31,7 +31,7 @@ export function RecResourceGeospatialSection() {
   const isArchived = recResource?.rec_status_code === 'AR';
 
   const [isSpatialSubmissionOpen, setIsSpatialSubmissionOpen] = useState(false);
-  // Keyed by submission_id, falling back to application_guid.
+  // Keyed by application_guid only.
   const [exhibitAUrlBySubmission, setExhibitAUrlBySubmission] = useState<
     Record<string, string>
   >({});
@@ -42,12 +42,19 @@ export function RecResourceGeospatialSection() {
     data: mapFeatureRequests,
     isLoading: isRequestsLoading,
     isFetching: isRequestsFetching,
+    refetch: refetchSpatialSubmissions,
   } = useGetMapFeatureRequestsByRecResourceId(recResourceId);
   const { data: exhibitADocs = [] } = useGetExhibitADocs(recResourceId);
 
-  const handleExhibitAUrl = useCallback((key: string, url: string) => {
-    setExhibitAUrlBySubmission((prev) => ({ ...prev, [key]: url }));
-  }, []);
+  const handleExhibitAUrl = useCallback(
+    (applicationGuid: string, url: string) => {
+      setExhibitAUrlBySubmission((prev) => ({
+        ...prev,
+        [applicationGuid]: url,
+      }));
+    },
+    [],
+  );
 
   const unarchive = useUnarchiveFlow({
     recResourceId,
@@ -113,7 +120,22 @@ export function RecResourceGeospatialSection() {
       }),
     [mapFeatureRequests?.data],
   );
+  const hasPendingSubmission = useMemo(
+    () =>
+      submissionRows.some((row) => {
+        const normalized = row.amend_status_code?.toUpperCase().trim() ?? '';
+        return (
+          normalized.startsWith('PND') ||
+          normalized.includes('PEND') ||
+          normalized === 'PE' ||
+          normalized.startsWith('PE-')
+        );
+      }),
+    [submissionRows],
+  );
   const isRequestsBusy = isRequestsLoading || isRequestsFetching;
+  const disableCreateAction =
+    isRequestsBusy || (!isArchived && hasPendingSubmission);
 
   const handleStartUnarchive = () => {
     setIsSpatialSubmissionOpen(false);
@@ -123,7 +145,12 @@ export function RecResourceGeospatialSection() {
   const createButtonLabel = isArchived ? 'Unarchive' : 'Create new';
   const handleCreateOrUnarchive = isArchived
     ? handleStartUnarchive
-    : () => setIsSpatialSubmissionOpen(true);
+    : () => {
+        if (hasPendingSubmission) {
+          return;
+        }
+        setIsSpatialSubmissionOpen(true);
+      };
 
   return (
     <Stack className="geospatial-section" direction="vertical" gap={4}>
@@ -188,10 +215,16 @@ export function RecResourceGeospatialSection() {
                   size="sm"
                   variant="primary"
                   onClick={handleCreateOrUnarchive}
-                  disabled={isRequestsBusy}
+                  disabled={disableCreateAction}
                 >
                   {createButtonLabel}
                 </Button>
+                {!isArchived && hasPendingSubmission ? (
+                  <p className="text-muted mt-2 mb-0">
+                    A pending spatial submission already exists. Wait until it
+                    is processed before creating a new request.
+                  </p>
+                ) : null}
               </div>
             ) : null}
           </EditableGuard>
@@ -232,6 +265,12 @@ export function RecResourceGeospatialSection() {
                 existingSectionIds={geospatialData?.section_ids ?? undefined}
                 showCreateHeading={true}
                 onCancel={() => setIsSpatialSubmissionOpen(false)}
+                onSubmissionResult={(status) => {
+                  if (status.variant === 'success') {
+                    setIsSpatialSubmissionOpen(false);
+                    void refetchSpatialSubmissions();
+                  }
+                }}
               />
             </div>
           ) : null}

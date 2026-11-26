@@ -2,18 +2,18 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // 1. Hoist mock functions so they exist before module evaluation
 const {
-  mockRecResourceLoader,
+  mockRecResourceSummaryLoader,
   mockGetPartnersByRecreationResourceId,
   mockGetToken,
 } = vi.hoisted(() => ({
-  mockRecResourceLoader: vi.fn(),
+  mockRecResourceSummaryLoader: vi.fn(),
   mockGetPartnersByRecreationResourceId: vi.fn(),
   mockGetToken: vi.fn(),
 }));
 
 // 2. Mock parent loader with path alias
-vi.mock('@/services/loaders/recResourceLoader', () => ({
-  recResourceLoader: mockRecResourceLoader,
+vi.mock('@/services/loaders/recResourceSummaryLoader', () => ({
+  recResourceSummaryLoader: mockRecResourceSummaryLoader,
 }));
 
 // 3. Mock AuthService
@@ -75,7 +75,7 @@ describe('recResourcePartnersLoader', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockRecResourceLoader.mockResolvedValue({
+    mockRecResourceSummaryLoader.mockResolvedValue({
       parentKey: 'parentValue',
     });
 
@@ -99,7 +99,7 @@ describe('recResourcePartnersLoader', () => {
     const result = await recResourcePartnersLoader(mockArgs);
 
     // Verify parent loader call
-    expect(mockRecResourceLoader).toHaveBeenCalledWith(mockArgs);
+    expect(mockRecResourceSummaryLoader).toHaveBeenCalledWith(mockArgs);
 
     // Verify Configuration constructor call
     expect(Configuration).toHaveBeenCalledWith({
