@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiModule, ClientAPIService } from 'src/service/fsa-resources';
 import { AppConfigService } from 'src/app-config/app-config.service';
 import { FsaResourceService } from './fsa-resource.service';
+import { HttpException } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
 describe('FsaResourceService', () => {
   let service: FsaResourceService;
@@ -61,6 +62,23 @@ describe('FsaResourceService', () => {
         await service.findByClientNumber('0001');
       } catch (err) {
         expect(err).toBeDefined();
+      }
+    });
+
+    it('should timeout when the api never responds', async () => {
+      vi.useFakeTimers();
+      try {
+        vi.spyOn(httpClient, 'get').mockImplementationOnce(() => NEVER as any);
+
+        const pending = service.findByClientNumber('0001');
+        const handled = pending.catch((e) => e);
+        await vi.advanceTimersByTimeAsync(5000);
+        const err = await handled;
+
+        expect(err).toBeInstanceOf(HttpException);
+        expect((err as HttpException).getStatus()).toBe(504);
+      } finally {
+        vi.useRealTimers();
       }
     });
   });

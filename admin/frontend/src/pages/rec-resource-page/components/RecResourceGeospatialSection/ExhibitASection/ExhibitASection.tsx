@@ -75,12 +75,8 @@ export const ExhibitASection = ({
     exhibitADocs.length + pendingUploads.length >= MAX_EXHIBIT_A_FILES;
   const toOptionalString = (value: unknown): string | undefined =>
     typeof value === 'string' && value.trim().length > 0 ? value : undefined;
-  const resolvedApplicationGuid =
-    toOptionalString(applicationGuid) ??
-    toOptionalString(
-      exhibitADocs.find((doc) => typeof doc.application_guid === 'string')
-        ?.application_guid,
-    );
+  const resolvedApplicationGuid = toOptionalString(applicationGuid);
+  const canUploadWithApplicationGuid = Boolean(resolvedApplicationGuid);
 
   const handleFileSelected = useCallback((file: File) => {
     const tempId = crypto.randomUUID();
@@ -227,7 +223,11 @@ export const ExhibitASection = ({
               variant="outline-primary"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
-              disabled={presignMutation.isPending || finalizeMutation.isPending}
+              disabled={
+                !canUploadWithApplicationGuid ||
+                presignMutation.isPending ||
+                finalizeMutation.isPending
+              }
             >
               <FontAwesomeIcon icon={faUpload} className="me-2" />
               Upload
@@ -243,6 +243,12 @@ export const ExhibitASection = ({
           </>
         )}
       </div>
+
+      {isSuperAdmin && !canUploadWithApplicationGuid ? (
+        <p className="text-muted mb-3">
+          Select a submission to upload Exhibit A for a specific application.
+        </p>
+      ) : null}
 
       {isFetching ? (
         <div className="d-flex justify-content-center p-4">

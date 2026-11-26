@@ -9,7 +9,7 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 vi.mock('@/hooks/useAuthorizations', () => ({
-  useAuthorizations: () => ({ isSuperAdmin: true }),
+  useAuthorizations: () => ({ canViewFeatureFlag: false, isSuperAdmin: true }),
 }));
 
 function createPagination() {

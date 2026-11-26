@@ -348,8 +348,16 @@ export class RecreationResourceController {
       return null;
     }
 
-    const operator =
-      await this.fsaResourceService.findByClientNumber(clientNumber);
+    let operator: Awaited<ReturnType<FsaResourceService['findByClientNumber']>>;
+    try {
+      operator = await this.fsaResourceService.findByClientNumber(clientNumber);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown error';
+      console.warn(
+        `Failed to resolve site operator for resource ${id} and client ${clientNumber}: ${message}`,
+      );
+      return null;
+    }
 
     return {
       clientName: operator.clientName,

@@ -25,10 +25,10 @@ describe('spatialSubmission.sectionIds', () => {
         prepareFeatureCollectionForSectionEditing(featureCollection);
 
       expect(result.fieldName).toBe('section_id');
-      expect(result.featureCollection.features[0].properties.section_id).toBe(
+      expect(result.featureCollection.features[0]?.properties?.section_id).toBe(
         'Section 1',
       );
-      expect(result.featureCollection.features[1].properties.section_id).toBe(
+      expect(result.featureCollection.features[1]?.properties?.section_id).toBe(
         'Section 2',
       );
     });
@@ -118,7 +118,7 @@ describe('spatialSubmission.sectionIds', () => {
         prepareFeatureCollectionForSectionEditing(featureCollection);
 
       expect(result.fieldName).toBe('section_id');
-      expect(result.featureCollection.features[0].properties.section_id).toBe(
+      expect(result.featureCollection.features[0]?.properties?.section_id).toBe(
         '',
       );
     });
@@ -136,11 +136,13 @@ describe('spatialSubmission.sectionIds', () => {
       const result =
         prepareFeatureCollectionForSectionEditing(featureCollection);
 
-      expect(result.featureCollection.features[0].properties.name).toBe(
+      expect(result.featureCollection.features[0]?.properties?.name).toBe(
         'Feature 1',
       );
-      expect(result.featureCollection.features[0].properties.type).toBe('test');
-      expect(result.featureCollection.features[0].properties.section_id).toBe(
+      expect(result.featureCollection.features[0]?.properties?.type).toBe(
+        'test',
+      );
+      expect(result.featureCollection.features[0]?.properties?.section_id).toBe(
         '',
       );
     });
@@ -158,7 +160,7 @@ describe('spatialSubmission.sectionIds', () => {
       const result =
         prepareFeatureCollectionForSectionEditing(featureCollection);
 
-      expect(result.featureCollection.features[0].properties.section_id).toBe(
+      expect(result.featureCollection.features[0]?.properties?.section_id).toBe(
         'Section 1',
       );
     });
@@ -192,7 +194,7 @@ describe('spatialSubmission.sectionIds', () => {
       const result =
         prepareFeatureCollectionForSectionEditing(featureCollection);
 
-      expect(result.featureCollection.features[0].properties.section_id).toBe(
+      expect(result.featureCollection.features[0]?.properties?.section_id).toBe(
         'Section',
       );
     });
@@ -214,10 +216,10 @@ describe('spatialSubmission.sectionIds', () => {
       const result =
         prepareFeatureCollectionForSectionEditing(featureCollection);
 
-      expect(result.featureCollection.features[0].properties.section_id).toBe(
+      expect(result.featureCollection.features[0]?.properties?.section_id).toBe(
         '',
       );
-      expect(result.featureCollection.features[1].properties.section_id).toBe(
+      expect(result.featureCollection.features[1]?.properties?.section_id).toBe(
         '',
       );
     });
@@ -495,19 +497,19 @@ describe('spatialSubmission.sectionIds', () => {
       expect(result.issues.length).toBeGreaterThan(0);
     });
 
-    it('trims whitespace from section IDs', () => {
+    it('preserves user-entered spacing in section IDs', () => {
       const featureCollection = {
         features: [
           { properties: { section_id: '  Section 1  ' }, geometry: {} },
-          { properties: { section_id: '\tSection 2\n' }, geometry: {} },
+          { properties: { section_id: 'North Loop 2' }, geometry: {} },
         ],
       };
 
       const result = extractSectionIdDetails(featureCollection);
 
       expect(result.featureSectionIds.map((entry) => entry.sectionId)).toEqual([
-        'Section 1',
-        'Section 2',
+        '  Section 1  ',
+        'North Loop 2',
       ]);
     });
 

@@ -229,12 +229,39 @@ describe('RecResourceGeospatialEditSection', () => {
   });
 
   it('renders right-of-way input for trail resource types', () => {
-    mockRecResource = { rec_resource_type_code: 'RTE' };
+    mockRecResource = {
+      rec_resource_type_code: 'RTE',
+      spatial_feature_geometry: [
+        JSON.stringify({
+          type: 'LineString',
+          coordinates: [
+            [1, 2],
+            [3, 4],
+          ],
+        }),
+      ],
+    };
     mockUseGetRecreationResourceGeospatial.mockReturnValue({ data: {} });
 
     render(<RecResourceGeospatialEditSection />);
 
     expect(screen.getByText('Right-of-way width (m)')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('e.g. 15')).toBeInTheDocument();
+  });
+
+  it('recalculates total area when right-of-way changes', () => {
+    mockUseWatch.mockReturnValue([undefined, undefined, undefined, 7]);
+    mockUseGetRecreationResourceGeospatial.mockReturnValue({
+      data: {
+        total_area_hectares: 10,
+        total_length_km: 2,
+        right_of_way_m: 5,
+      },
+    });
+
+    render(<RecResourceGeospatialEditSection />);
+
+    // 10 + ((7 - 5) * 2) / 10 = 10.4
+    expect(screen.getByDisplayValue('10.40')).toBeInTheDocument();
   });
 });

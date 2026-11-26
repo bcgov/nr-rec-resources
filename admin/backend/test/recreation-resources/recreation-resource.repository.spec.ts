@@ -155,6 +155,23 @@ describe('RecreationResourceRepository', () => {
     });
   });
 
+  describe('findSummaryById', () => {
+    it('should query summary select by rec_resource_id', async () => {
+      const mockSummary = { rec_resource_id: 'REC123', name: 'Summary Name' };
+      prisma.recreation_resource.findUnique.mockResolvedValue(
+        mockSummary as any,
+      );
+
+      const result = await repo.findSummaryById('REC123');
+
+      expect(prisma.recreation_resource.findUnique).toHaveBeenCalledWith({
+        where: { rec_resource_id: 'REC123' },
+        select: expect.anything(),
+      });
+      expect(result).toEqual(mockSummary);
+    });
+  });
+
   describe('isMissingColumnError', () => {
     it.each([
       'column `recreation_user_days_code`',
@@ -419,6 +436,30 @@ describe('RecreationResourceRepository', () => {
           }),
         }),
       );
+    });
+
+    it('should not apply default archived exclusion when includeArchived is true', async () => {
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([2, []]);
+
+      await repo.searchResources(
+        {
+          q: 'lake',
+        },
+        { includeArchived: true },
+      );
+
+      const where = prisma.recreation_resource.count.mock.calls[0]?.[0]
+        ?.where as { AND?: Array<Record<string, unknown>> };
+      const hasDefaultArchivedExclusion =
+        where.AND?.some(
+          (condition) =>
+            Array.isArray((condition as { OR?: unknown[] }).OR) &&
+            JSON.stringify(condition).includes('rec_status_code'),
+        ) ?? false;
+
+      expect(hasDefaultArchivedExclusion).toBe(false);
     });
 
     it('should replace single/multiple spaces with PostgreSQL ILIKE wildcard (%) in search clause', async () => {

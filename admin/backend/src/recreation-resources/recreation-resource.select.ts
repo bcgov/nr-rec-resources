@@ -106,6 +106,60 @@ export const adminSearchSelect =
     typeof _baseRecreationResourceSelect
   >;
 
+const _recreationResourceSummarySelect = {
+  rec_resource_id: true,
+  name: true,
+  closest_community: true,
+  display_on_public_site: true,
+  updated_at: true,
+  rec_status_code: true,
+  recreation_resource_status_code_rel: {
+    select: {
+      description: true,
+    },
+  },
+  recreation_resource_type_view_admin: {
+    select: {
+      rec_resource_type_code: true,
+      description: true,
+    },
+  },
+  recreation_district_code: {
+    select: {
+      district_code: true,
+      description: true,
+    },
+  },
+  recreation_status: {
+    select: {
+      recreation_status_code: {
+        select: {
+          description: true,
+        },
+      },
+      comment: true,
+      status_code: true,
+    },
+  },
+  act_advisories_flat: {
+    orderBy: [
+      { listing_rank: 'desc' },
+      { urgency_sequence: 'desc' },
+      { access_status_precedence: 'asc' },
+      { updated_date: 'desc' },
+      { advisory_date: 'desc' },
+      { event_type_precedence: 'asc' },
+    ],
+    take: 1,
+    select: { access_status_grouplabel: true },
+  },
+} as const;
+
+export const recreationResourceSummarySelect =
+  _recreationResourceSummarySelect as unknown as DeepWritable<
+    typeof _recreationResourceSummarySelect
+  >;
+
 const _recreationResourceSelect = {
   ..._baseRecreationResourceSelect,
   maintenance_standard_code: true,

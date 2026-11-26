@@ -63,6 +63,11 @@ export function useCreateRecreationResourceMapFeatures() {
         () => data,
       );
       void queryClient.invalidateQueries({
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.spatialSubmissions(
+          variables.recResourceId,
+        ),
+      });
+      void queryClient.invalidateQueries({
         queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail(
           variables.recResourceId,
         ),

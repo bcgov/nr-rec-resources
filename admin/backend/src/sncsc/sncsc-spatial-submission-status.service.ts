@@ -1,4 +1,5 @@
 import { PrismaService } from '@/prisma.service';
+import { Prisma } from '@generated/prisma';
 import {
   BadRequestException,
   Injectable,
@@ -49,11 +50,14 @@ export class SncscSpatialSubmissionStatusService {
     const decision =
       payload.status === 'APP'
         ? 'APPROVE'
-        : payload.status === 'REJ'
+        : payload.status === 'REJ' || payload.status === 'FAI'
           ? 'REJECT'
           : null;
 
-    const isAdjudicated = payload.status === 'APP' || payload.status === 'REJ';
+    const isAdjudicated =
+      payload.status === 'APP' ||
+      payload.status === 'REJ' ||
+      payload.status === 'FAI';
 
     await this.prisma.$transaction(async (tx) => {
       await tx.recreation_spatial_submission.update({
@@ -77,6 +81,137 @@ export class SncscSpatialSubmissionStatusService {
           where: { rec_resource_id: existing.tenure_id.trim() },
           data: { rec_status_code: 'HI' },
         });
+
+        const submissionRows = tx.$queryRaw
+          ? await tx.$queryRaw<
+              {
+                rssmf_skey: bigint;
+                rec_resource_id: string;
+                section_id: string | null;
+                rmf_skey: number | null;
+                purpose_code: string | null;
+                rssmf_amend_status_code: string | null;
+                rmf_current_ind: string | null;
+                rmf_amend_status_code: string | null;
+              }[]
+            >(Prisma.sql`
+          SELECT
+            rssmf.rssmf_skey,
+            rssmf.rec_resource_id,
+            rssmf.section_id,
+            rssmf.rmf_skey,
+            rssmf.purpose_code,
+            rssmf.amend_status_code AS rssmf_amend_status_code,
+            rmf.current_ind AS rmf_current_ind,
+            rmf.amend_status_code AS rmf_amend_status_code
+          FROM rst.recreation_spatial_submission_map_feature rssmf
+          LEFT JOIN rst.recreation_map_feature rmf
+            ON rmf.rmf_skey = rssmf.rmf_skey
+          WHERE rssmf.application_guid = ${applicationGuid}::uuid
+            AND rssmf.rmf_skey IS NOT NULL
+        `)
+          : [];
+
+        for (const row of submissionRows) {
+          if (!row.rmf_skey) {
+            continue;
+          }
+
+          const alreadyApproved =
+            row.rssmf_amend_status_code === 'APP' &&
+            row.rmf_current_ind === 'Y' &&
+            row.rmf_amend_status_code === 'APP';
+          if (alreadyApproved) {
+            continue;
+          }
+
+          if (row.section_id === null) {
+            await tx.$executeRaw(Prisma.sql`
+              UPDATE rst.recreation_map_feature
+              SET
+                current_ind = 'N',
+                revision_count = COALESCE(revision_count, 0) + 1,
+                updated_by = ${payload.userId},
+                updated_at = now()
+              WHERE rec_resource_id = ${row.rec_resource_id}
+                AND current_ind = 'Y'
+                AND section_id IS NULL
+                AND rmf_skey <> ${row.rmf_skey}
+            `);
+          } else {
+            await tx.$executeRaw(Prisma.sql`
+              UPDATE rst.recreation_map_feature
+              SET
+                current_ind = 'N',
+                revision_count = COALESCE(revision_count, 0) + 1,
+                updated_by = ${payload.userId},
+                updated_at = now()
+              WHERE rec_resource_id = ${row.rec_resource_id}
+                AND section_id = ${row.section_id}
+                AND current_ind = 'Y'
+                AND rmf_skey <> ${row.rmf_skey}
+            `);
+          }
+
+          await tx.$executeRaw(Prisma.sql`
+            UPDATE rst.recreation_map_feature
+            SET
+              current_ind = 'Y',
+              amend_status_code = 'APP',
+              amend_status_date = now(),
+              retirement_date = CASE
+                WHEN ${row.purpose_code} = 'R' AND retirement_date IS NULL
+                  THEN ${statusDate}::date
+                ELSE retirement_date
+              END,
+              updated_by = ${payload.userId},
+              updated_at = now()
+            WHERE rmf_skey = ${row.rmf_skey}
+              AND amend_status_code IS DISTINCT FROM 'APP'
+          `);
+
+          await tx.$executeRaw(Prisma.sql`
+            UPDATE rst.recreation_spatial_submission_map_feature
+            SET
+              amend_status_code = 'APP',
+              retirement_date = CASE
+                WHEN ${row.purpose_code} = 'R' AND retirement_date IS NULL
+                  THEN ${statusDate}::date
+                ELSE retirement_date
+              END,
+              updated_by = ${payload.userId},
+              updated_at = now()
+            WHERE rssmf_skey = ${row.rssmf_skey}
+              AND amend_status_code IS DISTINCT FROM 'APP'
+          `);
+        }
+      }
+
+      if (payload.status === 'REJ' || payload.status === 'FAI') {
+        await tx.$executeRaw(Prisma.sql`
+          WITH pending AS (
+            SELECT rmf_skey
+            FROM rst.recreation_spatial_submission_map_feature
+            WHERE application_guid = ${applicationGuid}::uuid
+              AND rmf_skey IS NOT NULL
+              AND amend_status_code = 'PND'
+          ), deleted_geom AS (
+            DELETE FROM rst.recreation_map_feature_geom
+            WHERE rmf_skey IN (SELECT rmf_skey FROM pending)
+          )
+          DELETE FROM rst.recreation_map_feature
+          WHERE rmf_skey IN (SELECT rmf_skey FROM pending)
+        `);
+
+        await tx.$executeRaw(Prisma.sql`
+          UPDATE rst.recreation_spatial_submission_map_feature
+          SET
+            amend_status_code = 'REJ',
+            updated_by = ${payload.userId},
+            updated_at = now()
+          WHERE application_guid = ${applicationGuid}::uuid
+            AND amend_status_code IS DISTINCT FROM 'APP'
+        `);
       }
     });
   }
