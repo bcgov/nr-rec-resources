@@ -57,3 +57,9 @@ variable "fta_dataload_bucket" {
   type        = string
   default     = "rst-fta-lza-dataload-oracle"
 }
+
+variable "fta_to_rst_enabled" {
+  description = "Run FTA-to-RST transform migrations after importing FTA CSV data"
+  type        = bool
+  default     = false
+}

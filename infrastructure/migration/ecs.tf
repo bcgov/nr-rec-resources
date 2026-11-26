@@ -80,6 +80,10 @@ module "flyway_fta_migration_task" {
         name = "FLYWAY_PLACEHOLDERS_S3_BUCKET"
         value = "${var.fta_dataload_bucket}"
       },
+      {
+        name  = "FTA_TO_RST_ENABLED"
+        value = tostring(var.fta_to_rst_enabled)
+      },
   ]
   aws_region      = var.aws_region
   cluster_id      = data.aws_ecs_cluster.ecs_cluster.id
