@@ -1,5 +1,5 @@
 /**
- * Script to export all Rec Resources with a status of Closed as a JSON array,
+ * Script to export all Rec Resources with a status of Closed as JSON or CSV,
  * for import into ACT (advisory generation).
  *
  * Data source:
@@ -15,7 +15,8 @@
  *   npx tsx src/closures/export-closed-resources.ts [options]
  *
  * Options:
- *   --output <path>   Output file path (default: closed-rec-resources-<date>.json)
+ *   --output <path>   Output file path (default depends on --format)
+ *   --format <type>   Output format: json | csv (default: json)
  *   --pretty          Pretty-print the JSON output (default: true)
  *
  * Environment variables:
@@ -45,6 +46,8 @@ interface ClosedResourceExport {
   update_timestamp: string | null;
 }
 
+type ExportFormat = 'json' | 'csv';
+
 const EXPORT_QUERY = `
   select
     rs.rec_resource_id,
@@ -67,10 +70,44 @@ function toIsoOrNull(value: Date | string | null): string | null {
   return new Date(value).toISOString();
 }
 
+function toCsvValue(value: string | null): string {
+  if (value === null) return '';
+  // Escape quotes and wrap in quotes for safe CSV output.
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
+function buildCsv(records: ClosedResourceExport[]): string {
+  const headers: Array<keyof ClosedResourceExport> = [
+    'rec_resource_id',
+    'rec_resource_type_code',
+    'closure_comment',
+    'comment_date',
+    'entry_userid',
+    'entry_timestamp',
+    'update_userid',
+    'update_timestamp',
+  ];
+
+  const lines = [
+    headers.join(','),
+    ...records.map((record) =>
+      headers.map((header) => toCsvValue(record[header])).join(','),
+    ),
+  ];
+
+  return `${lines.join('\n')}\n`;
+}
+
 async function main(): Promise<void> {
   const logger = createLogger(SCRIPT_NAME);
 
   const argv = await yargs(hideBin(process.argv))
+    .option('format', {
+      type: 'string',
+      choices: ['json', 'csv'] as const,
+      default: 'json',
+      description: 'Output format',
+    })
     .option('output', {
       type: 'string',
       description: 'Output file path for the JSON export',
@@ -89,9 +126,10 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
+  const format = argv.format as ExportFormat;
   const outputPath =
     argv.output ??
-    `closed-rec-resources-${new Date().toISOString().slice(0, 10)}.json`;
+    `closed-rec-resources-${new Date().toISOString().slice(0, 10)}.${format}`;
 
   const pool = new Pool({ connectionString: databaseUrl });
 
@@ -121,14 +159,18 @@ async function main(): Promise<void> {
       );
     }
 
-    const json = argv.pretty
-      ? JSON.stringify(records, null, 2)
-      : JSON.stringify(records);
-
-    writeFileSync(outputPath, json + '\n', 'utf-8');
+    if (format === 'csv') {
+      writeFileSync(outputPath, buildCsv(records), 'utf-8');
+    } else {
+      const json = argv.pretty
+        ? JSON.stringify(records, null, 2)
+        : JSON.stringify(records);
+      writeFileSync(outputPath, json + '\n', 'utf-8');
+    }
 
     logger.info('Export complete', {
       totalRecords: records.length,
+      format,
       outputPath,
     });
   } catch (error) {
