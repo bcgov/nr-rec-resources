@@ -50,7 +50,7 @@ function RecResourceActivitiesFeaturesEditRoute() {
 
   return (
     <RoleRouteGuard
-      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
+      requireAll={[ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES.replace(
         '$id',
         id,

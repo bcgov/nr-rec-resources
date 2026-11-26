@@ -95,8 +95,6 @@ describe('PhotoDetailsModal', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: false,
-      canEditFeatureFlag: false,
     });
     resetStore();
   });
@@ -215,8 +213,6 @@ describe('PhotoDetailsModal', () => {
       {
         canView: true,
         canEdit: true,
-        canViewFeatureFlag: false,
-        canEditFeatureFlag: false,
       },
       false,
     ],
@@ -225,8 +221,6 @@ describe('PhotoDetailsModal', () => {
       {
         canView: true,
         canEdit: false,
-        canViewFeatureFlag: false,
-        canEditFeatureFlag: false,
       },
       true,
     ],

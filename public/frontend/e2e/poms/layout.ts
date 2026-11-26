@@ -10,6 +10,9 @@ const MD_BREAKPOINT = 768;
 // matches twice there
 const SITE_HEADER = 'header:not(main header)';
 
+// the test env can be slow to render on CI, especially in Firefox
+const PAGE_READY_TIMEOUT = 30_000;
+
 export class LayoutPOM {
   readonly page: Page;
 
@@ -19,7 +22,7 @@ export class LayoutPOM {
 
   async verifyHeaderContent() {
     const header = this.page.locator(SITE_HEADER);
-    await expect(header).toHaveCount(1);
+    await expect(header).toHaveCount(1, { timeout: PAGE_READY_TIMEOUT });
 
     if ((this.page.viewportSize()?.width ?? MD_BREAKPOINT) < MD_BREAKPOINT) {
       await this.verifyMobileHeaderContent(header);
@@ -49,7 +52,7 @@ export class LayoutPOM {
 
   async verifyFooterContent() {
     const footer = this.page.locator('footer');
-    [
+    const links = [
       'Disclaimer',
       'Privacy',
       'Accessibility',
@@ -61,13 +64,17 @@ export class LayoutPOM {
       'Research opportunities',
       'ORV Trail Fund',
       'Contact us',
-    ].forEach((link) => {
-      expect(footer.getByRole('link', { name: link })).toBeVisible();
-    });
+    ];
+
+    // for...of so each assertion is actually awaited (forEach drops the promises)
+    for (const link of links) {
+      await expect(footer.getByRole('link', { name: link })).toBeVisible();
+    }
   }
 
   async clickFindARecreationSiteOrTrail() {
     await this.page.click('header a[href="/search"]');
-    expect(this.page.url()).toBe(`${BASE_URL}/search`);
+    // web-first assertion retries until navigation completes
+    await expect(this.page).toHaveURL(`${BASE_URL}/search`);
   }
 }

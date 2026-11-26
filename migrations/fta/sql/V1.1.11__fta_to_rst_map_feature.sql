@@ -1,36 +1,7 @@
--- An amended feature comes back under a new rmf_skey, so drop whatever we held
--- for that slot first. Only slots FTA still fills, so anything it has stopped
--- reporting stays put. `is not distinct from` because polygons have a null
--- section_id, and geometry goes along since its fk would block the delete.
-with superseded as (
-    select existing.rmf_skey
-    from rst.recreation_map_feature existing
-    where exists (
-        select 1
-        from fta.recreation_map_feature f
-        where f.forest_file_id = existing.rec_resource_id
-          and f.section_id is not distinct from existing.section_id
-          and f.current_ind = 'Y'
-    )
-    and not exists (
-        select 1
-        from fta.recreation_map_feature f
-        where f.rmf_skey = existing.rmf_skey
-          and f.current_ind = 'Y'
-    )
-),
-deleted_geom as (
-    delete from rst.recreation_map_feature_geom
-    where rmf_skey in (select rmf_skey from superseded)
-    returning rmf_skey
-)
-delete from rst.recreation_map_feature
-where rmf_skey in (select rmf_skey from superseded);
-
-
--- REC4735 kept 8 features under section ids FTA has since renamed, so the
--- delete above has no slot to match them on. Listed by skey because it is the
--- only resource like this. Anything still current gets reloaded by the upsert.
+-- REC4735 kept 8 features under section ids FTA has since renamed, so nothing
+-- below matches their slot and they never get refreshed. Listed by skey because
+-- it is the only resource like this. Geometry goes first since its fk would
+-- block the delete.
 with orphaned as (
     select rmf_skey
     from rst.recreation_map_feature
@@ -46,9 +17,6 @@ delete from rst.recreation_map_feature
 where rmf_skey in (select rmf_skey from orphaned);
 
 
--- Keyed on rmf_skey, the feature's identity in FTA, so in place edits like
--- retirement_date land. distinct on covers FTA reporting more than one current
--- row for a slot.
 with map_feature as (
     select distinct on (rmf.forest_file_id, rmf.section_id)
         rmf.rmf_skey,
@@ -72,6 +40,21 @@ with map_feature as (
     )
     and rmf.current_ind = 'Y'
     order by rmf.forest_file_id, rmf.section_id, rmf.amend_status_date desc
+), updated as (
+    update rst.recreation_map_feature existing
+    set
+        amendment_id = mf.amendment_id,
+        amend_status_code = mf.amend_status_code,
+        recreation_resource_type = mf.recreation_resource_type,
+        current_ind = mf.current_ind,
+        amend_status_date = mf.amend_status_date,
+        retirement_date = mf.retirement_date,
+        revision_count = mf.revision_count,
+        updated_by = mf.updated_by,
+        updated_at = mf.updated_at
+    from map_feature mf
+    where existing.rec_resource_id = mf.rec_resource_id
+      and existing.section_id is not distinct from mf.section_id
 )
 insert into rst.recreation_map_feature (
     rmf_skey, rec_resource_id, section_id, amendment_id, amend_status_code,
@@ -79,9 +62,18 @@ insert into rst.recreation_map_feature (
     created_by, created_at, updated_by, updated_at, recreation_map_feature_guid
 )
 select *
-from map_feature
+from map_feature mf
+where not exists (
+    select 1
+    from rst.recreation_map_feature existing
+    where existing.rec_resource_id = mf.rec_resource_id
+      and existing.section_id is not distinct from mf.section_id
+)
 on conflict (rmf_skey)
-do update set
+do update
+set
+    rec_resource_id = excluded.rec_resource_id,
+    section_id = excluded.section_id,
     amendment_id = excluded.amendment_id,
     amend_status_code = excluded.amend_status_code,
     recreation_resource_type = excluded.recreation_resource_type,
@@ -90,7 +82,8 @@ do update set
     retirement_date = excluded.retirement_date,
     revision_count = excluded.revision_count,
     updated_by = excluded.updated_by,
-    updated_at = excluded.updated_at;
+    updated_at = excluded.updated_at,
+    recreation_map_feature_guid = excluded.recreation_map_feature_guid;
 
 
 insert into rst.recreation_map_feature_geom (

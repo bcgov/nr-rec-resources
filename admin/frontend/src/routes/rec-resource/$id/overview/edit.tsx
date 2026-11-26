@@ -41,7 +41,7 @@ function RecResourceOverviewEditRoute() {
 
   return (
     <RoleRouteGuard
-      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
+      requireAll={[ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_OVERVIEW.replace('$id', id)}
     >
       <RecResourceOverviewEditSection />

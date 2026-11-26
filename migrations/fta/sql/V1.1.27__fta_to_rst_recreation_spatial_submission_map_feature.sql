@@ -5,7 +5,6 @@ with source as (
         nullif(btrim(ta.tenure_app_guid), '') as tenure_app_guid_norm,
         nullif(btrim(ta.submission_id), '') as submission_id_norm,
         nullif(btrim(tamf.forest_file_id), '') as rec_resource_id_norm,
-        tamf.revision_count,
         tamf.entry_timestamp,
         nullif(btrim(tamf.entry_userid), '') as entry_userid_norm,
         tamf.update_timestamp,
@@ -47,7 +46,6 @@ prepared as (
             coalesce(s.submission_id_norm, rss.submission_id) || ' MF ' || s.map_feature_id::text,
             100
         ) as feature_business_identifier,
-        s.revision_count,
         s.entry_timestamp as created_at,
         s.entry_userid_norm as created_by,
         s.update_timestamp as updated_at,
@@ -71,7 +69,6 @@ insert into rst.recreation_spatial_submission_map_feature (
     map_feature_guid,
     feature_record_guid,
     feature_business_identifier,
-    revision_count,
     created_at,
     created_by,
     updated_at,
@@ -89,7 +86,6 @@ select
     p.map_feature_guid,
     p.feature_record_guid,
     p.feature_business_identifier,
-    p.revision_count,
     p.created_at,
     p.created_by,
     p.updated_at,
@@ -106,6 +102,5 @@ set
     retirement_date = excluded.retirement_date,
     feature_record_guid = excluded.feature_record_guid,
     feature_business_identifier = excluded.feature_business_identifier,
-    revision_count = excluded.revision_count,
     updated_at = excluded.updated_at,
     updated_by = excluded.updated_by;

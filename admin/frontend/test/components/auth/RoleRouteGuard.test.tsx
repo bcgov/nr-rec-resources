@@ -43,13 +43,13 @@ describe('RoleRouteGuard', () => {
   it('supports combined requireAll and requireAny checks', () => {
     render(
       <RoleRouteGuard
-        requireAll={['rst-developer']}
+        requireAll={['rst-super-admin']}
         requireAny={['rst-viewer', 'rst-admin']}
         redirectTo="/home"
       >
         <div>Protected Route</div>
       </RoleRouteGuard>,
-      { wrapper: createAuthWrapper(['rst-viewer', 'rst-developer']) },
+      { wrapper: createAuthWrapper(['rst-viewer', 'rst-super-admin']) },
     );
 
     expect(screen.getByText('Protected Route')).toBeInTheDocument();

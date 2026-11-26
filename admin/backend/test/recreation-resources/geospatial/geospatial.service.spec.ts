@@ -751,7 +751,7 @@ describe('GeospatialService', () => {
       });
     });
 
-    it('dispatches SNCSC status request with per-feature purpose codes for mixed actions', async () => {
+    it('dispatches SNCSC status request with only active per-feature purpose codes for mixed actions', async () => {
       vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
         client_number: '00133887',
         client_name: 'District Manager',
@@ -794,18 +794,50 @@ describe('GeospatialService', () => {
 
       const payloadArg =
         sncscStatusRequestServiceMock.createStatusRequest.mock.calls[0]?.[0];
-      expect(payloadArg?.featureRequests?.elements).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            featureBusinessIdentifier: 'REC123 SEC 20566',
-            featurePurposeCode: 'N',
-          }),
-          expect.objectContaining({
-            featureBusinessIdentifier: 'REC123 SEC 12',
-            featurePurposeCode: 'R',
-          }),
-        ]),
+      expect(payloadArg?.featureRequests?.elements).toEqual([
+        expect.objectContaining({
+          featureBusinessIdentifier: 'REC123 SEC 20566',
+          featurePurposeCode: 'N',
+        }),
+      ]);
+    });
+
+    it('coerces submission purpose to A and omits retired-only features from SNCSC payload', async () => {
+      vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
+        client_number: '00133887',
+        client_name: 'District Manager',
+      });
+      vi.spyOn(service as any, 'buildFeatureRequestElements').mockResolvedValue(
+        [
+          {
+            '@type': 'FeatureRequestResource',
+            mapFeatureGuid: 'map-guid-retired',
+            featureRecordGuid: 'feature-guid-retired',
+            featureGeometryTypeCode: 'line',
+            mapFeatureTypeCode: 'RTR',
+            featureName: 'Recreation trail reserve',
+            sourceSectionId: '12',
+            sourcePurposeCode: 'R',
+            line: { type: 'LineString', coordinates: [] },
+          },
+        ],
       );
+
+      await (service as any).dispatchSncscStatusRequest(prismaMock, {
+        application_guid: 'app-guid-r-only',
+        submission_id: '7654321',
+        tenure_id: 'REC123',
+        org_unit_code: 'DND',
+        status_request_type_code: 'RL',
+        purpose_code: 'R',
+      });
+
+      const payloadArg =
+        sncscStatusRequestServiceMock.createStatusRequest.mock.calls.at(
+          -1,
+        )?.[0];
+      expect(payloadArg?.purposeCode).toBe('A');
+      expect(payloadArg?.featureRequests?.elements).toEqual([]);
     });
 
     it('logs warning when SNCSC returns no status request guid', async () => {
