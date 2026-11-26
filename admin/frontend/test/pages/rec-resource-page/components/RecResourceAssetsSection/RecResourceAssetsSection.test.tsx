@@ -721,6 +721,12 @@ describe('RecResourceAssetsSection', () => {
       expect(screen.queryByRole('button', { name: /Actions/ })).toBeNull();
     });
 
+    it('hides the Add repair button', () => {
+      render(<RecResourceAssetsSection />);
+
+      expect(screen.queryByRole('button', { name: /Add repair/ })).toBeNull();
+    });
+
     it('hides the Edit button on asset type cards', () => {
       vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
         data: [buildAsset()],

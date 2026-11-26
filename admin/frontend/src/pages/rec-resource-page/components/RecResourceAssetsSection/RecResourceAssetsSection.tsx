@@ -386,14 +386,16 @@ export function RecResourceAssetsSection() {
             </div>
 
             <div className="d-flex align-items-center gap-2 asset-summary-action-buttons">
-              <CustomButton
-                variant="secondary"
-                className="asset-summary-action-btn"
-                leftIcon={<FontAwesomeIcon icon={faPlus as any} />}
-                onClick={() => setIsAddRepairModalOpen(true)}
-              >
-                Add repair
-              </CustomButton>
+              <EditableGuard>
+                <CustomButton
+                  variant="secondary"
+                  className="asset-summary-action-btn"
+                  leftIcon={<FontAwesomeIcon icon={faPlus as any} />}
+                  onClick={() => setIsAddRepairModalOpen(true)}
+                >
+                  Add repair
+                </CustomButton>
+              </EditableGuard>
             </div>
           </div>
 
