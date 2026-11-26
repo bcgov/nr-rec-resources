@@ -53,7 +53,12 @@ vi.mock('@/components/layout/PageWithScrollMenu', () => ({
 }));
 
 vi.mock('@/components/rec-resource/section', () => ({
-  Closures: () => <h2 className="section-heading">Closures</h2>,
+  Closures: ({ title }: { title: string }) => (
+    <>
+      <h2 className="section-heading">Closures</h2>
+      <p>{title}</p>
+    </>
+  ),
   SiteDescription: () => <h2 className="section-heading">Description</h2>,
   Contact: () => null,
   Facilities: ({ recreation_structure }: any) =>
