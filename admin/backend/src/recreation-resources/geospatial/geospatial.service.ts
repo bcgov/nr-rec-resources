@@ -586,10 +586,23 @@ export class GeospatialService {
     const sessions =
       (await this.prisma.$queryRaw<{ section_id: string | null }[]>(Prisma.sql`
         SELECT section_id
-        FROM rst.recreation_map_feature
+        FROM rst.recreation_map_feature rmf
         WHERE rec_resource_id = ${rec_resource_id}
-          AND current_ind = 'Y'
           AND retirement_date IS NULL
+          AND (
+            rmf.current_ind = 'Y'
+            OR (
+              rmf.current_ind = 'N'
+              AND rmf.amend_status_code = 'PND'
+              AND NOT EXISTS (
+                SELECT 1
+                FROM rst.recreation_map_feature active_rmf
+                WHERE active_rmf.rec_resource_id = rmf.rec_resource_id
+                  AND active_rmf.current_ind = 'Y'
+                  AND active_rmf.retirement_date IS NULL
+              )
+            )
+          )
       `)) ?? [];
 
     const data = result[0];

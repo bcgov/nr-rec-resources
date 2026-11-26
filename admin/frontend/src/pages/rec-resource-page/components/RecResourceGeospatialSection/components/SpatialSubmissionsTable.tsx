@@ -151,10 +151,11 @@ export function SpatialSubmissionsTable({
             const normalizedStatus = row.amend_status_code
               ?.toUpperCase()
               .trim();
-            const canRegenerateForStatus =
+            const canManageExhibitAForStatus =
               normalizedStatus === 'PND' ||
               normalizedStatus === 'APP' ||
               normalizedStatus === 'CLR';
+            const canRegenerateForStatus = canManageExhibitAForStatus;
             const exhibitAUrl = resolveExhibitAUrl(
               row,
               exhibitADocs,
@@ -212,7 +213,17 @@ export function SpatialSubmissionsTable({
                   size="sm"
                   variant="link"
                   className="geospatial-submissions-action-button"
-                  disabled={!isSuperAdmin || !row.submission_id || isUploading}
+                  disabled={
+                    !isSuperAdmin ||
+                    !row.submission_id ||
+                    !canManageExhibitAForStatus ||
+                    isUploading
+                  }
+                  title={
+                    !canManageExhibitAForStatus
+                      ? 'Exhibit A can only be uploaded for pending, approved, or cleared submissions.'
+                      : undefined
+                  }
                   onClick={() => onUpload(row)}
                   aria-label="Upload Exhibit A"
                 >

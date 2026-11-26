@@ -11,7 +11,8 @@
 --           FULL OUTER JOIN feature + site so we get a row even with only features or only site point.
 
 WITH
--- Feature geometry: map features (polygons or lines) for this resource. Normalize SRID for area/length math.
+-- Feature geometry: prefer active/current rows. For a new resource with no approved
+-- baseline, expose PND rows so a newly submitted baseline can be returned immediately.
 feature_geom_normalized AS (
     SELECT
         rmf.rec_resource_id,
@@ -24,8 +25,21 @@ feature_geom_normalized AS (
     FROM rst.recreation_map_feature rmf
     INNER JOIN rst.recreation_map_feature_geom rmfg USING (rmf_skey)
     WHERE rmf.rec_resource_id = $1
-        AND rmf.current_ind = 'Y'
         AND rmf.retirement_date IS NULL
+        AND (
+            rmf.current_ind = 'Y'
+            OR (
+                rmf.current_ind = 'N'
+                AND rmf.amend_status_code = 'PND'
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM rst.recreation_map_feature active_rmf
+                    WHERE active_rmf.rec_resource_id = rmf.rec_resource_id
+                      AND active_rmf.current_ind = 'Y'
+                      AND active_rmf.retirement_date IS NULL
+                )
+            )
+        )
 ),
 -- Single ST_GeometryType per row so we can branch on polygon vs line in aggregates.
 feature_geom_typed AS (
