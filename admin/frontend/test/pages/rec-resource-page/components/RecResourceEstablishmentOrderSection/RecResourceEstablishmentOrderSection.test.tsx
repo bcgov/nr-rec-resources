@@ -122,8 +122,6 @@ describe('RecResourceEstablishmentOrderSection', () => {
     vi.mocked(useAuthorizations).mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
     });
     setupMocks();
   });

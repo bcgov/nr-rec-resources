@@ -9,7 +9,7 @@ import * as $runtime from '@prisma/client/runtime/client';
  */
 export const getRecreationResourceSpatialFeatureGeometry =
   $runtime.makeTypedQueryFactory(
-    'select array_agg(public.st_asgeojson(rmfg.geometry)) as spatial_feature_geometry,\npublic.st_asgeojson(rsp.geometry)             as site_point_geometry\nfrom rst.recreation_map_feature rmf\ninner join rst.recreation_map_feature_geom rmfg using (rmf_skey)\nleft join rst.recreation_site_point rsp on rmf.rec_resource_id = rsp.rec_resource_id\nwhere rmf.rec_resource_id = $1\nand rmf.retirement_date is null\ngroup by rsp.geometry;',
+    "select array_agg(public.st_asgeojson(rmfg.geometry)) as spatial_feature_geometry,\npublic.st_asgeojson(rsp.geometry)             as site_point_geometry\nfrom rst.recreation_map_feature rmf\ninner join rst.recreation_map_feature_geom rmfg using (rmf_skey)\nleft join rst.recreation_site_point rsp on rmf.rec_resource_id = rsp.rec_resource_id\nwhere rmf.rec_resource_id = $1\nand rmf.current_ind = 'Y'\nand rmf.retirement_date is null\ngroup by rsp.geometry;",
   ) as (
     text: string,
   ) => $runtime.TypedSql<

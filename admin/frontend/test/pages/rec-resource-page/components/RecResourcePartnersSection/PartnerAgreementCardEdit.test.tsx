@@ -17,7 +17,6 @@ vi.mock('@/hooks/useAuthorizations', () => ({
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
     SUPER_ADMIN: 'rst-super-admin',
-    DEVELOPER: 'rst-developer',
   },
   useAuthorizations: () => mockUseAuthorizations(),
 }));

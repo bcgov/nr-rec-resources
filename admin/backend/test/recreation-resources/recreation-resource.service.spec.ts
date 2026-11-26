@@ -22,6 +22,7 @@ describe('RecreationResourceService', () => {
       searchResources: vi.fn(),
       findSuggestions: vi.fn(),
       getNextRecResourceId: vi.fn(),
+      findSummaryById: vi.fn(),
       findPendingMapFeatureRequests: vi.fn(),
       findMapFeatureRequestsByRecResourceId: vi.fn(),
     } as unknown as RecreationResourceRepository;
@@ -31,6 +32,9 @@ describe('RecreationResourceService', () => {
       },
       $queryRawTyped: vi.fn(),
       recreation_spatial_submission: {
+        findUnique: vi.fn(),
+      },
+      natural_resource_org_unit: {
         findUnique: vi.fn(),
       },
     } as unknown as PrismaService;
@@ -877,6 +881,102 @@ describe('RecreationResourceService', () => {
     const result = await service.searchResources({});
 
     expect(result.data[0]?.access_status_grouplabel).toBeNull();
+  });
+
+  it('should return cached search results when the same query/options are repeated', async () => {
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC-CACHE-1',
+          name: 'Cached Lake',
+          closest_community: 'Hope',
+          project_established_date: null,
+          display_on_public_site: true,
+          rec_status_code: null,
+          recreation_activity: [],
+          recreation_access: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          recreation_status: null,
+          _count: { recreation_defined_campsite: 0 },
+        },
+      ],
+    });
+
+    const query: AdminSearchQueryDto = {
+      q: 'cache-me',
+      page: 1,
+      page_size: 25,
+    };
+
+    const first = await service.searchResources(query, {
+      includeArchived: true,
+    });
+    const second = await service.searchResources(query, {
+      includeArchived: true,
+    });
+
+    expect(repo.searchResources).toHaveBeenCalledTimes(1);
+    expect(second).toEqual(first);
+  });
+
+  it('should build and cache summary response from repository data', async () => {
+    (repo.findSummaryById as any).mockResolvedValue({
+      rec_resource_id: 'REC-SUM-1',
+      name: 'Summary Lake',
+      updated_at: new Date('2026-01-01T00:00:00.000Z'),
+      closest_community: 'Hope',
+      recreation_resource_type_view_admin: [
+        { description: 'Trail', rec_resource_type_code: 'TRL' },
+      ],
+      display_on_public_site: true,
+      recreation_status: {
+        recreation_status_code: { description: 'Open' },
+        comment: 'ok',
+        status_code: 1,
+      },
+      recreation_district_code: {
+        description: 'District 1',
+        district_code: 'D1',
+      },
+      rec_status_code: null,
+      recreation_resource_status_code_rel: { description: 'Active' },
+      act_advisories_flat: [{ access_status_grouplabel: 'Open' }],
+    });
+    (prisma.natural_resource_org_unit.findUnique as any).mockResolvedValue({
+      org_unit_code: 'DCC',
+      org_unit_name: 'Chilliwack Natural Resource District',
+    });
+
+    const first = await service.findOneSummary('REC-SUM-1');
+    const second = await service.findOneSummary('REC-SUM-1');
+
+    expect(repo.findSummaryById).toHaveBeenCalledTimes(1);
+    expect(prisma.natural_resource_org_unit.findUnique).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(first).toMatchObject({
+      rec_resource_id: 'REC-SUM-1',
+      name: 'Summary Lake',
+      rec_resource_type: 'Trail',
+      rec_resource_type_code: 'TRL',
+      rec_status_description: 'Active',
+      natural_resource_org_unit_name: 'Chilliwack Natural Resource District',
+      access_status_grouplabel: 'Open',
+    });
+    expect(second).toEqual(first);
+  });
+
+  it('should return null when summary resource is not found', async () => {
+    (repo.findSummaryById as any).mockResolvedValue(null);
+
+    const result = await service.findOneSummary('REC-MISSING');
+
+    expect(result).toBeNull();
+    expect(prisma.natural_resource_org_unit.findUnique).not.toHaveBeenCalled();
   });
 
   it('should use only the first advisory for access_status_grouplabel', async () => {

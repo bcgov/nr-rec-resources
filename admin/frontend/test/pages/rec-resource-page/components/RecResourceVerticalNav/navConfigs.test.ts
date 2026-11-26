@@ -40,7 +40,6 @@ describe('rec-resource-page navigation', () => {
       const assetsTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.ASSETS];
       expect(assetsTab.title).toBe('Assets');
-      expect(assetsTab.isFeatureFlagged).toBe(true);
       expect(assetsTab.getNavigateOptions('123')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_ASSETS,
         params: { id: '123' },
@@ -66,7 +65,6 @@ describe('rec-resource-page navigation', () => {
       const advisoriesTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.ADVISORIES];
       expect(advisoriesTab.title).toBe('Advisories and closures');
-      expect(advisoriesTab.isFeatureFlagged).toBe(true);
       expect(advisoriesTab.getNavigateOptions('123')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_ADVISORIES,
         params: { id: '123' },

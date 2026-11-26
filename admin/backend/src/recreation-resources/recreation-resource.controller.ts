@@ -164,6 +164,15 @@ export class RecreationResourceController {
     return await this.recreationResourceService.getNextRecResourceId();
   }
 
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get('pending-requests')
   @ApiOkResponse({
     type: PendingMapFeatureRequestsResponseDto,
@@ -177,6 +186,15 @@ export class RecreationResourceController {
     return await this.recreationResourceService.getPendingMapFeatureRequests();
   }
 
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get(':rec_resource_id/spatial-submissions')
   @ApiOkResponse({
     type: PendingMapFeatureRequestsResponseDto,
@@ -201,6 +219,15 @@ export class RecreationResourceController {
     );
   }
 
+  // IDIR viewers only get the SNCSC link, which handles its own permissions
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get('pending-requests/:application_guid/adjudication-report')
   @ApiOperation({
     operationId: 'getPendingRequestAdjudicationReport',
@@ -228,6 +255,51 @@ export class RecreationResourceController {
       'inline; filename="adjudication-report.pdf"',
     );
     res.send(content);
+  }
+
+  /**
+   * GET /recreation-resources/:rec_resource_id/summary
+   *
+   * Returns a lightweight recreation resource summary by ID.
+   */
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_IDIR_VIEWER,
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+      RecreationResourceAuthRole.RST_SUPER_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
+  @Get(':rec_resource_id/summary')
+  @ApiOperation({
+    summary: 'Find recreation resource summary by ID',
+    operationId: 'getRecreationResourceSummaryById',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    required: true,
+    description: 'Resource identifier',
+    type: 'string',
+    example: 'REC0002',
+  })
+  @ApiOkResponse({
+    description: 'Resource summary found',
+    type: RecreationResourceDetailDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request - invalid ID',
+    type: BadRequestResponseDto,
+  })
+  async findOneSummary(
+    @Param('rec_resource_id') rec_resource_id: string,
+  ): Promise<RecreationResourceDetailDto> {
+    const recResource =
+      await this.recreationResourceService.findOneSummary(rec_resource_id);
+    if (!recResource) {
+      throw new HttpException('Recreation Resource not found.', 404);
+    }
+    return recResource;
   }
 
   /**

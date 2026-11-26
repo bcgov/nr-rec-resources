@@ -11,6 +11,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   return {
     ...actual,
     useParams: vi.fn(),
+    useLocation: vi.fn(),
   };
 });
 
@@ -18,6 +19,13 @@ vi.mock(
   '@/services/hooks/recreation-resource-admin/useGetRecreationResourceById',
   () => ({
     useGetRecreationResourceById: vi.fn(),
+  }),
+);
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSummaryById',
+  () => ({
+    useGetRecreationResourceSummaryById: vi.fn(),
   }),
 );
 
@@ -29,7 +37,8 @@ vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: vi.fn(),
 }));
 
-import { useParams } from '@tanstack/react-router';
+import { useLocation, useParams } from '@tanstack/react-router';
+import { useGetRecreationResourceSummaryById } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSummaryById';
 
 const mockRecResource = {
   rec_resource_id: 'test-resource-123',
@@ -52,6 +61,15 @@ describe('useRecResource', () => {
 
     // Mock useParams to return a test ID
     vi.mocked(useParams).mockReturnValue({ id: 'test-resource-123' });
+    vi.mocked(useLocation).mockReturnValue({
+      pathname: '/rec-resource/test-resource-123/files',
+    } as any);
+
+    vi.mocked(useGetRecreationResourceSummaryById).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+    } as any);
 
     // Mock handleApiError to return expected error format
     vi.mocked(handleApiError).mockResolvedValue({
@@ -125,7 +143,9 @@ describe('useRecResource', () => {
     const { result } = renderHook(() => useRecResource());
 
     expect(result.current.rec_resource_id).toBeUndefined();
-    expect(useGetRecreationResourceById).toHaveBeenCalledWith(undefined);
+    expect(useGetRecreationResourceById).toHaveBeenCalledWith(undefined, {
+      enabled: true,
+    });
   });
 
   it('calls useGetRecreationResourceById with the correct resource ID', () => {
@@ -139,7 +159,37 @@ describe('useRecResource', () => {
 
     expect(useGetRecreationResourceById).toHaveBeenCalledWith(
       'test-resource-123',
+      { enabled: true },
     );
+  });
+
+  it('uses summary query on geospatial routes', () => {
+    vi.mocked(useLocation).mockReturnValue({
+      pathname: '/rec-resource/test-resource-123/geospatial',
+    } as any);
+
+    vi.mocked(useGetRecreationResourceSummaryById).mockReturnValue({
+      data: mockRecResource,
+      isLoading: false,
+      error: null,
+    } as any);
+    vi.mocked(useGetRecreationResourceById).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+    } as any);
+
+    const { result } = renderHook(() => useRecResource());
+
+    expect(useGetRecreationResourceSummaryById).toHaveBeenCalledWith(
+      'test-resource-123',
+      { enabled: true },
+    );
+    expect(useGetRecreationResourceById).toHaveBeenCalledWith(
+      'test-resource-123',
+      { enabled: false },
+    );
+    expect(result.current.recResource).toEqual(mockRecResource);
   });
 
   describe('error handling', () => {

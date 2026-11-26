@@ -9,7 +9,7 @@ export const ROLE_ACCESS_CASES = [
   ['rst-admin', [ROLES.ADMIN], true],
   ['rst-super-admin', [ROLES.SUPER_ADMIN], true],
   ['rst-viewer', [ROLES.VIEWER], false],
-  ['rst-developer', [ROLES.DEVELOPER], false],
+  ['rst-idir-viewer', [ROLES.IDIR_VIEWER], false],
   ['no roles', [], false],
 ] as const;
 
