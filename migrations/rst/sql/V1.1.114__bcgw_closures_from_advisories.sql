@@ -41,6 +41,8 @@ map_feature_agg AS (
   FROM rst.recreation_map_feature rmf
   LEFT JOIN rst.recreation_map_feature_geom rmfg
     ON rmf.rmf_skey = rmfg.rmf_skey
+  -- current rows only, same check as bcgw.recreation_map_features (V1.1.111)
+  WHERE COALESCE(NULLIF(UPPER(BTRIM(rmf.current_ind::text)), ''), 'Y') IN ('Y', 'TRUE', 'T', '1')
   GROUP BY rmf.rec_resource_id
 ),
 campsite_counts AS (
