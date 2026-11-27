@@ -6,6 +6,7 @@
   }
 
   &__header-row {
+    position: relative;
     display: flex;
     align-items: center;
   }
@@ -13,11 +14,36 @@
   &__header {
     flex: 1 1 auto;
     min-width: 0;
+    position: static; // Allows .accordion-button::before to cover __header-row
 
     .accordion-button {
+      position: static;
       box-shadow: unset;
       background-color: unset;
+
+      // Expands the clickable hit area across the entire header row
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+      }
+
+      // Keeps Bootstrap's toggle indicator above the full-row hit target
+      &::after {
+        position: relative;
+        z-index: 2;
+      }
     }
+  }
+
+  &__header-end {
+    position: relative;
+    z-index: 2; // Sits above the hit target so Edit / total value keep their own click handlers
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   &__title {
