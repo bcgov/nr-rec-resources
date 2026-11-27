@@ -1,22 +1,3 @@
--- REC4735 kept 8 features under section ids FTA has since renamed, so nothing
--- below matches their slot and they never get refreshed. Listed by skey because
--- it is the only resource like this. Geometry goes first since its fk would
--- block the delete.
-with orphaned as (
-    select rmf_skey
-    from rst.recreation_map_feature
-    where rec_resource_id = 'REC4735'
-      and rmf_skey between 261861 and 261868
-),
-deleted_orphan_geom as (
-    delete from rst.recreation_map_feature_geom
-    where rmf_skey in (select rmf_skey from orphaned)
-    returning rmf_skey
-)
-delete from rst.recreation_map_feature
-where rmf_skey in (select rmf_skey from orphaned);
-
-
 with map_feature as (
     select distinct on (rmf.forest_file_id, rmf.section_id)
         rmf.rmf_skey,
