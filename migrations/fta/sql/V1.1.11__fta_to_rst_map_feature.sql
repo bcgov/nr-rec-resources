@@ -6,6 +6,7 @@ with map_feature as (
         rmf.amendment_id,
         rmf.amend_status_code,
         rmf.recreation_map_feature_code as recreation_resource_type,
+        rmf.current_ind,
         rmf.amend_status_date,
         rmf.retirement_date,
         rmf.revision_count,
@@ -20,10 +21,25 @@ with map_feature as (
     )
     and rmf.current_ind = 'Y'
     order by rmf.forest_file_id, rmf.section_id, rmf.amend_status_date desc
+), updated as (
+    update rst.recreation_map_feature existing
+    set
+        amendment_id = mf.amendment_id,
+        amend_status_code = mf.amend_status_code,
+        recreation_resource_type = mf.recreation_resource_type,
+        current_ind = mf.current_ind,
+        amend_status_date = mf.amend_status_date,
+        retirement_date = mf.retirement_date,
+        revision_count = mf.revision_count,
+        updated_by = mf.updated_by,
+        updated_at = mf.updated_at
+    from map_feature mf
+    where existing.rec_resource_id = mf.rec_resource_id
+      and existing.section_id is not distinct from mf.section_id
 )
 insert into rst.recreation_map_feature (
     rmf_skey, rec_resource_id, section_id, amendment_id, amend_status_code,
-    recreation_resource_type, amend_status_date, retirement_date, revision_count,
+    recreation_resource_type, current_ind, amend_status_date, retirement_date, revision_count,
     created_by, created_at, updated_by, updated_at, recreation_map_feature_guid
 )
 select *
@@ -31,19 +47,24 @@ from map_feature mf
 where not exists (
     select 1
     from rst.recreation_map_feature existing
-    where existing.rmf_skey = mf.rmf_skey
+    where existing.rec_resource_id = mf.rec_resource_id
+      and existing.section_id is not distinct from mf.section_id
 )
-on conflict (rec_resource_id, section_id)
-do update set
-    rmf_skey = excluded.rmf_skey,
+on conflict (rmf_skey)
+do update
+set
+    rec_resource_id = excluded.rec_resource_id,
+    section_id = excluded.section_id,
     amendment_id = excluded.amendment_id,
     amend_status_code = excluded.amend_status_code,
     recreation_resource_type = excluded.recreation_resource_type,
+    current_ind = excluded.current_ind,
     amend_status_date = excluded.amend_status_date,
     retirement_date = excluded.retirement_date,
     revision_count = excluded.revision_count,
     updated_by = excluded.updated_by,
-    updated_at = excluded.updated_at;
+    updated_at = excluded.updated_at,
+    recreation_map_feature_guid = excluded.recreation_map_feature_guid;
 
 
 insert into rst.recreation_map_feature_geom (

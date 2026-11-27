@@ -4,7 +4,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
+  Matches,
 } from 'class-validator';
 
 export class ExhibitADocDto {
@@ -88,7 +88,10 @@ export class FinalizeExhibitAUploadRequestDto {
     nullable: true,
   })
   @IsOptional()
-  @IsUUID()
+  @IsString()
+  @Matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, {
+    message: 'application_guid must be a GUID',
+  })
   application_guid?: string;
 
   @ApiProperty({

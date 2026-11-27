@@ -2,6 +2,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faCircleInfo } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert, Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
+import { MAX_SECTION_ID_LENGTH } from './spatialSubmission.constants';
 import { SpatialSubmissionMap } from './SpatialSubmissionMap';
 import type { FeatureSectionId } from './spatialSubmissionUtils';
 import type { SpatialFeatureCollection } from './spatialSubmission.types';
@@ -20,7 +21,7 @@ interface SpatialSubmissionPreviewProps {
   requestCreated: boolean;
   onCreateRequest: () => void;
   onSectionActionChange: (
-    sectionId: string,
+    featureIndex: number,
     action: 'NEW' | 'AMEND' | 'RETIRE',
   ) => void;
 }
@@ -95,8 +96,10 @@ export const SpatialSubmissionPreview = ({
                     className="list-group"
                     style={{ maxHeight: '280px', overflowY: 'auto' }}
                   >
-                    {featureSectionIds.map((featureSectionId, index) => {
-                      const isSelected = selectedFeatureIndex === index;
+                    {featureSectionIds.map((featureSectionId) => {
+                      const isSelected =
+                        selectedFeatureIndex ===
+                        featureSectionId.featureIndex - 1;
                       const sectionLabel =
                         featureSectionId.sectionId?.trim() ||
                         `Feature #${featureSectionId.featureIndex}`;
@@ -108,7 +111,11 @@ export const SpatialSubmissionPreview = ({
                           className={`list-group-item list-group-item-action${
                             isSelected ? ' active' : ''
                           }`}
-                          onClick={() => setSelectedFeatureIndex(index)}
+                          onClick={() =>
+                            setSelectedFeatureIndex(
+                              featureSectionId.featureIndex - 1,
+                            )
+                          }
                         >
                           <div className="fw-semibold">
                             {sectionLabel}
@@ -148,6 +155,7 @@ export const SpatialSubmissionPreview = ({
                         onSectionIdChange(event.target.value)
                       }
                       placeholder="Enter a unique section name"
+                      maxLength={MAX_SECTION_ID_LENGTH}
                     />
                     {!checkNewFeature(selectedSectionFeature) && (
                       <>
@@ -158,7 +166,7 @@ export const SpatialSubmissionPreview = ({
                           required
                           onChange={(event) =>
                             onSectionActionChange(
-                              selectedSectionFeature.sectionId ?? '',
+                              selectedSectionFeature.featureIndex,
                               event.target.value as 'NEW' | 'AMEND' | 'RETIRE',
                             )
                           }

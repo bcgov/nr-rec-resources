@@ -3,6 +3,7 @@ import { AppConfigService } from '@/app-config/app-config.service';
 import { PrismaService } from '@/prisma.service';
 import { S3Service } from '@/s3/s3.service';
 import {
+  BadRequestException,
   BadGatewayException,
   Injectable,
   NotFoundException,
@@ -126,17 +127,28 @@ export class ExhibitAService {
   ) {}
 
   async generate(
-    submissionId: string,
+    applicationGuid: string,
     options: GenerateExhibitARequestDto,
   ): Promise<ExhibitAResult> {
+    const submission =
+      await this.loadSubmissionByApplicationGuid(applicationGuid);
+    const allowedStatuses = new Set(['PND', 'APP', 'CLR']);
+    if (!allowedStatuses.has(submission.status)) {
+      throw new BadRequestException(
+        `Exhibit A is only available for pending or approved submissions (current status: ${submission.status}).`,
+      );
+    }
+
     const [header, featureRows] = await Promise.all([
-      this.loadSubmissionHeader(submissionId),
-      this.loadSubmissionFeatures(submissionId),
+      this.loadSubmissionHeader(applicationGuid),
+      this.loadSubmissionFeatures(applicationGuid),
     ]);
+
+    const submissionId = header.submission_id;
 
     if (featureRows.length === 0) {
       throw new NotFoundException(
-        `No map features found for submission_id: ${submissionId}`,
+        `No geometry snapshot exists for application_guid: ${applicationGuid}`,
       );
     }
 
@@ -146,7 +158,7 @@ export class ExhibitAService {
 
     if (geometryFeatures.length === 0) {
       throw new BadGatewayException(
-        `No renderable geometry found for submission_id: ${submissionId}`,
+        `No renderable geometry found for application_guid: ${applicationGuid}`,
       );
     }
 
@@ -289,7 +301,7 @@ export class ExhibitAService {
       };
     }
 
-    const generated = await this.generate(submission.submission_id, {
+    const generated = await this.generate(submission.application_guid, {
       pageSize: payload.size,
       pageOrientation: payload.orientation,
       scale: payload.scale,
@@ -308,6 +320,7 @@ export class ExhibitAService {
       size: generated.pageSize,
       orientation: this.toDbOrientation(generated.pageOrientation),
       scale: generated.scale,
+      generationMethod: 'regenerate',
       userId,
       fileSize: generated.pdfBuffer.length,
     });
@@ -321,6 +334,33 @@ export class ExhibitAService {
     };
   }
 
+  async autoGenerateForApplicationGuid(
+    applicationGuid: string,
+    userId: string,
+  ): Promise<void> {
+    const submission =
+      await this.loadSubmissionByApplicationGuid(applicationGuid);
+    const generated = await this.generate(submission.application_guid, {});
+
+    if (!generated.pdfKey || !generated.pdfBuffer) {
+      throw new BadGatewayException(
+        `Generated Exhibit A is missing storage details for submission_id: ${submission.submission_id}`,
+      );
+    }
+
+    await this.saveGeneratedExhibitAMetadata({
+      recResourceId: submission.tenure_id,
+      applicationGuid: submission.application_guid,
+      s3Key: generated.pdfKey,
+      size: generated.pageSize,
+      orientation: this.toDbOrientation(generated.pageOrientation),
+      scale: generated.scale,
+      generationMethod: 'regenerate',
+      userId,
+      fileSize: generated.pdfBuffer.length,
+    });
+  }
+
   async getExhibitA(
     submissionId: string,
   ): Promise<
@@ -329,7 +369,8 @@ export class ExhibitAService {
       'submissionId' | 'pdfUrl' | 'pageSize' | 'pageOrientation' | 'scale'
     >
   > {
-    const r = await this.generate(submissionId, {});
+    const submission = await this.loadSubmissionBySubmissionId(submissionId);
+    const r = await this.generate(submission.application_guid, {});
     return {
       submissionId: r.submissionId,
       pdfUrl: r.pdfUrl,
@@ -348,6 +389,9 @@ export class ExhibitAService {
     const labelFeatures: LabelGraphic[] = [];
 
     featureRows.forEach((row, index) => {
+      if (row.purpose_code === 'R') {
+        // TODO: render retired features with a distinct map style when design is finalized.
+      }
       const geometry = parseGeoJsonGeometry(row.geojson, 'geojson');
       sourceGeometries.push(geometry);
 
@@ -491,7 +535,9 @@ export class ExhibitAService {
 
   /* ------------------------------ database ------------------------------ */
 
-  private async loadSubmissionHeader(submissionId: string): Promise<HeaderRow> {
+  private async loadSubmissionHeader(
+    applicationGuid: string,
+  ): Promise<HeaderRow> {
     const rows = await this.prisma.$queryRaw<HeaderRow[]>`
       SELECT
         rss.submission_id,
@@ -551,11 +597,13 @@ export class ExhibitAService {
                 THEN public.ST_SetSRID(rmfg.geometry, 3005)
               ELSE rmfg.geometry
             END AS geom_3005
-          FROM rst.recreation_map_feature rmf
+          FROM rst.recreation_spatial_submission_map_feature rssmf
+          INNER JOIN rst.recreation_map_feature rmf
+            ON rmf.rmf_skey = rssmf.rmf_skey
           INNER JOIN rst.recreation_map_feature_geom rmfg
             ON rmfg.rmf_skey = rmf.rmf_skey
-          WHERE rmf.rec_resource_id = rss.tenure_id
-            AND rmf.retirement_date IS NULL
+          WHERE rssmf.application_guid = rss.application_guid
+            AND rmfg.geometry IS NOT NULL
         ) g
       ) metrics ON TRUE
       LEFT JOIN LATERAL (
@@ -591,9 +639,25 @@ export class ExhibitAService {
         ORDER BY rrtv.rec_resource_type_code
         LIMIT 1
       ) rrtype ON TRUE
-      WHERE rss.submission_id = ${submissionId}
+      WHERE rss.application_guid = ${applicationGuid}::uuid
       LIMIT 1
     `;
+    return firstOrThrow(
+      rows,
+      `Spatial submission not found for application_guid: ${applicationGuid}`,
+    );
+  }
+
+  private async loadSubmissionBySubmissionId(
+    submissionId: string,
+  ): Promise<SubmissionLookupRow> {
+    const rows = await this.prisma.$queryRaw<SubmissionLookupRow[]>`
+      SELECT application_guid::text AS application_guid, submission_id, tenure_id, status
+      FROM rst.recreation_spatial_submission
+      WHERE submission_id = ${submissionId}
+      LIMIT 1
+    `;
+
     return firstOrThrow(
       rows,
       `Spatial submission not found for submission_id: ${submissionId}`,
@@ -604,7 +668,7 @@ export class ExhibitAService {
     applicationGuid: string,
   ): Promise<SubmissionLookupRow> {
     const rows = await this.prisma.$queryRaw<SubmissionLookupRow[]>`
-      SELECT application_guid::text AS application_guid, submission_id, tenure_id
+      SELECT application_guid::text AS application_guid, submission_id, tenure_id, status
       FROM rst.recreation_spatial_submission
       WHERE application_guid = ${applicationGuid}::uuid
       LIMIT 1
@@ -635,6 +699,7 @@ export class ExhibitAService {
     size: ExhibitAPageSize;
     orientation: string;
     scale: number;
+    generationMethod: 'regenerate';
     userId: string;
     fileSize: number;
   }): Promise<void> {
@@ -672,7 +737,7 @@ export class ExhibitAService {
           ${input.size},
           ${input.orientation},
           ${input.scale},
-          'regenerate',
+          ${input.generationMethod},
           ${input.userId},
           ${input.userId}
         )
@@ -727,21 +792,21 @@ export class ExhibitAService {
     return message.includes('generation_method');
   }
 
-  /** The SRID fix-up is computed once per row (LATERAL) instead of twice. */
   private async loadSubmissionFeatures(
-    submissionId: string,
+    applicationGuid: string,
   ): Promise<FeatureRow[]> {
-    return this.prisma.$queryRaw<FeatureRow[]>`
+    const rows = await this.prisma.$queryRaw<FeatureRow[]>`
       SELECT
-        rmf.section_id,
+        rssmf.section_id,
+        rssmf.purpose_code,
         public.ST_AsGeoJSON(public.ST_Transform(g.geom, 4326), 7) AS geojson,
         public.ST_AsGeoJSON(
           public.ST_Transform(public.ST_PointOnSurface(g.geom), 4326),
           7
         ) AS label_geojson
-      FROM rst.recreation_spatial_submission rss
+      FROM rst.recreation_spatial_submission_map_feature rssmf
       INNER JOIN rst.recreation_map_feature rmf
-        ON rmf.rec_resource_id = rss.tenure_id
+        ON rmf.rmf_skey = rssmf.rmf_skey
       INNER JOIN rst.recreation_map_feature_geom rmfg
         ON rmfg.rmf_skey = rmf.rmf_skey
       CROSS JOIN LATERAL (
@@ -751,10 +816,17 @@ export class ExhibitAService {
           ELSE rmfg.geometry
         END AS geom
       ) g
-      WHERE rss.submission_id = ${submissionId}
-        AND rmf.retirement_date IS NULL
-      ORDER BY rmf.rmf_skey
+      WHERE rssmf.application_guid = ${applicationGuid}::uuid
+      ORDER BY rssmf.rssmf_skey
     `;
+
+    if (!rows.length) {
+      throw new NotFoundException(
+        `No geometry snapshot exists for application_guid: ${applicationGuid}`,
+      );
+    }
+
+    return rows;
   }
 
   /* --------------------------- scale / page size ------------------------- */

@@ -80,6 +80,30 @@ export interface BcgwRecreationLinesDto {
    */
   rec_status_code: string | null;
   /**
+   * The code of the recreation district the feature belongs to, e.g., RDCO.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
+   */
+  recreation_district_code: string | null;
+  /**
+   * The name of the recreation district the feature belongs to. Corresponds to recreation_district_code.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
+   */
+  recreation_district_name: string | null;
+  /**
+   * The code of the natural resource district associated with this feature.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
+   */
+  district_code: string | null;
+  /**
+   * The name of the natural resource district associated with this feature. Corresponds to district_code.
+   * @type {string}
+   * @memberof BcgwRecreationLinesDto
+   */
+  district_name: string | null;
+  /**
    * The unique identifier (SKEY) for the Recreation Map Feature.
    * @type {number}
    * @memberof BcgwRecreationLinesDto
@@ -139,24 +163,6 @@ export interface BcgwRecreationLinesDto {
    * @memberof BcgwRecreationLinesDto
    */
   right_of_way: number | null;
-  /**
-   * A comma-separated list of codes relating to the recreation districts that the feature is within, e.g., RDCO,RDKB,RDOS.
-   * @type {string}
-   * @memberof BcgwRecreationLinesDto
-   */
-  recreation_district_code: string | null;
-  /**
-   * The code of the natural resource district associated with this feature.
-   * @type {string}
-   * @memberof BcgwRecreationLinesDto
-   */
-  district_code: string | null;
-  /**
-   * The code of the natural resource district associated with this feature (VARCHAR2(6) in BCGW; holds the district code, not the full name).
-   * @type {string}
-   * @memberof BcgwRecreationLinesDto
-   */
-  district_name: string | null;
   /**
    * Spatial length in kilometres. Calculated in the source system.
    * @type {number}
@@ -259,6 +265,20 @@ export function instanceOfBcgwRecreationLinesDto(
     return false;
   if (!('rec_status_code' in value) || value['rec_status_code'] === undefined)
     return false;
+  if (
+    !('recreation_district_code' in value) ||
+    value['recreation_district_code'] === undefined
+  )
+    return false;
+  if (
+    !('recreation_district_name' in value) ||
+    value['recreation_district_name'] === undefined
+  )
+    return false;
+  if (!('district_code' in value) || value['district_code'] === undefined)
+    return false;
+  if (!('district_name' in value) || value['district_name'] === undefined)
+    return false;
   if (!('rmf_skey' in value) || value['rmf_skey'] === undefined) return false;
   if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
@@ -291,15 +311,6 @@ export function instanceOfBcgwRecreationLinesDto(
   )
     return false;
   if (!('right_of_way' in value) || value['right_of_way'] === undefined)
-    return false;
-  if (
-    !('recreation_district_code' in value) ||
-    value['recreation_district_code'] === undefined
-  )
-    return false;
-  if (!('district_code' in value) || value['district_code'] === undefined)
-    return false;
-  if (!('district_name' in value) || value['district_name'] === undefined)
     return false;
   if (!('feature_length' in value) || value['feature_length'] === undefined)
     return false;
@@ -338,6 +349,10 @@ export function BcgwRecreationLinesDtoFromJSONTyped(
     defined_campsites: json['defined_campsites'],
     life_cycle_status_code: json['life_cycle_status_code'],
     rec_status_code: json['rec_status_code'],
+    recreation_district_code: json['recreation_district_code'],
+    recreation_district_name: json['recreation_district_name'],
+    district_code: json['district_code'],
+    district_name: json['district_name'],
     rmf_skey: json['rmf_skey'],
     rec_resource_id: json['rec_resource_id'],
     section_id: json['section_id'],
@@ -348,9 +363,6 @@ export function BcgwRecreationLinesDtoFromJSONTyped(
     recreation_feature_code: json['recreation_feature_code'],
     recreation_feature_description: json['recreation_feature_description'],
     right_of_way: json['right_of_way'],
-    recreation_district_code: json['recreation_district_code'],
-    district_code: json['district_code'],
-    district_name: json['district_name'],
     feature_length: json['feature_length'],
     feature_length_m: json['feature_length_m'],
   };
@@ -385,6 +397,10 @@ export function BcgwRecreationLinesDtoToJSONTyped(
     defined_campsites: value['defined_campsites'],
     life_cycle_status_code: value['life_cycle_status_code'],
     rec_status_code: value['rec_status_code'],
+    recreation_district_code: value['recreation_district_code'],
+    recreation_district_name: value['recreation_district_name'],
+    district_code: value['district_code'],
+    district_name: value['district_name'],
     rmf_skey: value['rmf_skey'],
     rec_resource_id: value['rec_resource_id'],
     section_id: value['section_id'],
@@ -395,9 +411,6 @@ export function BcgwRecreationLinesDtoToJSONTyped(
     recreation_feature_code: value['recreation_feature_code'],
     recreation_feature_description: value['recreation_feature_description'],
     right_of_way: value['right_of_way'],
-    recreation_district_code: value['recreation_district_code'],
-    district_code: value['district_code'],
-    district_name: value['district_name'],
     feature_length: value['feature_length'],
     feature_length_m: value['feature_length_m'],
   };

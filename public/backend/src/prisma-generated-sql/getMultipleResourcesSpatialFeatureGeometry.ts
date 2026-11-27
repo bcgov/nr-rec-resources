@@ -9,7 +9,7 @@ import * as $runtime from '@prisma/client/runtime/client';
  */
 export const getMultipleResourcesSpatialFeatureGeometry =
   $runtime.makeTypedQueryFactory(
-    'select\nrmf.rec_resource_id,\narray_agg(public.st_asgeojson(rmfg.geometry)) as spatial_feature_geometry,\npublic.st_asgeojson(rsp.geometry)             as site_point_geometry\nfrom\nrst.recreation_map_feature rmf\ninner join rst.recreation_map_feature_geom rmfg using (rmf_skey)\nleft join rst.recreation_site_point rsp on rmf.rec_resource_id = rsp.rec_resource_id\nwhere rmf.rec_resource_id = any ($1::text[])\nand rmf.retirement_date is null\ngroup by rmf.rec_resource_id, rsp.geometry;',
+    "select\nrmf.rec_resource_id,\narray_agg(public.st_asgeojson(rmfg.geometry)) as spatial_feature_geometry,\npublic.st_asgeojson(rsp.geometry)             as site_point_geometry\nfrom\nrst.recreation_map_feature rmf\ninner join rst.recreation_map_feature_geom rmfg using (rmf_skey)\nleft join rst.recreation_site_point rsp on rmf.rec_resource_id = rsp.rec_resource_id\nwhere rmf.rec_resource_id = any ($1::text[])\nand rmf.current_ind = 'Y'\nand rmf.retirement_date is null\ngroup by rmf.rec_resource_id, rsp.geometry;",
   ) as (
     _text: string[],
   ) => $runtime.TypedSql<

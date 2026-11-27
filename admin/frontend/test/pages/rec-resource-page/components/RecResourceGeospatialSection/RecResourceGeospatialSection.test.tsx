@@ -357,7 +357,8 @@ describe('RecResourceGeospatialSection', () => {
 
     render(<RecResourceGeospatialSection />);
 
-    expect(screen.queryByText('Edit')).toBeNull();
+    expect(screen.getByText('Edit')).toBeInTheDocument();
+    expect(screen.getByText('Geospatial')).toBeInTheDocument();
   });
 
   it('renders section with empty fallback when geospatial data is undefined', () => {
@@ -367,8 +368,8 @@ describe('RecResourceGeospatialSection', () => {
 
     render(<RecResourceGeospatialSection />);
 
-    expect(screen.getByText('Geospatial')).toBeDefined();
-    expect(screen.queryByText('Edit')).toBeNull();
+    expect(screen.getByText('Geospatial')).toBeInTheDocument();
+    expect(screen.getByText('Edit')).toBeInTheDocument();
   });
 
   it('renders spatial submissions section', () => {
@@ -452,6 +453,15 @@ describe('RecResourceGeospatialSection', () => {
         longitude: -123.65,
         total_length_km: 41.103,
         right_of_way_m: 15,
+        spatial_feature_geometry: [
+          JSON.stringify({
+            type: 'LineString',
+            coordinates: [
+              [500000, 5480000],
+              [500100, 5480100],
+            ],
+          }),
+        ],
       },
     });
 
@@ -662,6 +672,38 @@ describe('RecResourceGeospatialSection', () => {
     expect(screen.getByTestId('mock-spatial-submission')).toBeDefined();
   });
 
+  it('disables Create new when there is already a pending spatial submission', () => {
+    mockUseGetPendingMapFeatureRequests.mockReturnValueOnce({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-PENDING-ONLY',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'PND',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+          },
+        ],
+        total: 1,
+      },
+      isLoading: false,
+      isFetching: false,
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    const createButton = screen.getByRole('button', { name: 'Create new' });
+    expect(createButton).toBeDisabled();
+    expect(
+      screen.getByText(
+        /A pending spatial submission already exists\. Wait until it is processed before creating a new request\./i,
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.click(createButton);
+    expect(screen.queryByTestId('mock-spatial-submission')).toBeNull();
+  });
+
   it('closes compact create form when child calls onCancel', () => {
     render(<RecResourceGeospatialSection />);
 
@@ -699,6 +741,37 @@ describe('RecResourceGeospatialSection', () => {
     render(<RecResourceGeospatialSection />);
 
     expect(screen.getByRole('button', { name: /Upload/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Regenerate/i })).toBeDisabled();
+  });
+
+  it('disables Exhibit A upload and regenerate for rejected submissions', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      isSuperAdmin: true,
+      canViewSensitiveInfo: true,
+    });
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-REJECTED',
+            application_guid: 'app-guid-rejected',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'REJ',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(
+      screen.getByRole('button', { name: /Upload Exhibit A/i }),
+    ).toBeDisabled();
     expect(screen.getByRole('button', { name: /Regenerate/i })).toBeDisabled();
   });
 
@@ -947,7 +1020,7 @@ describe('RecResourceGeospatialSection', () => {
             submission_id: 'SUB-8',
             application_guid: 'app-guid-8',
             rec_resource_id: 'REC0001',
-            amend_status_code: 'APPROVED_NEW',
+            amend_status_code: 'APP',
             feature_count: 1,
             geometry_types: ['Polygon'],
             requested_at: '2026-11-01T12:00:00Z',

@@ -45,7 +45,14 @@ export function SpatialSubmissionsTable({
   onUpload,
   onRegenerate,
 }: Props) {
-  const { isSuperAdmin, canViewAdjudicationReports } = useAuthorizations();
+  const authorizations = useAuthorizations();
+  const { isSuperAdmin } = authorizations;
+  const canViewAdjudicationReports =
+    (
+      authorizations as {
+        canViewAdjudicationReports?: boolean;
+      }
+    ).canViewAdjudicationReports ?? authorizations.canViewSensitiveInfo;
   const downloadMutation = useFileDownload();
 
   return (
@@ -141,6 +148,14 @@ export function SpatialSubmissionsTable({
         {
           header: 'Exhibit A',
           render: (row) => {
+            const normalizedStatus = row.amend_status_code
+              ?.toUpperCase()
+              .trim();
+            const canManageExhibitAForStatus =
+              normalizedStatus === 'PND' ||
+              normalizedStatus === 'APP' ||
+              normalizedStatus === 'CLR';
+            const canRegenerateForStatus = canManageExhibitAForStatus;
             const exhibitAUrl = resolveExhibitAUrl(
               row,
               exhibitADocs,
@@ -198,7 +213,17 @@ export function SpatialSubmissionsTable({
                   size="sm"
                   variant="link"
                   className="geospatial-submissions-action-button"
-                  disabled={!isSuperAdmin || !row.submission_id || isUploading}
+                  disabled={
+                    !isSuperAdmin ||
+                    !row.submission_id ||
+                    !canManageExhibitAForStatus ||
+                    isUploading
+                  }
+                  title={
+                    !canManageExhibitAForStatus
+                      ? 'Exhibit A can only be uploaded for pending, approved, or cleared submissions.'
+                      : undefined
+                  }
                   onClick={() => onUpload(row)}
                   aria-label="Upload Exhibit A"
                 >
@@ -210,7 +235,15 @@ export function SpatialSubmissionsTable({
                   variant="link"
                   className="geospatial-submissions-action-button"
                   disabled={
-                    !isSuperAdmin || !row.application_guid || isRegenerating
+                    !isSuperAdmin ||
+                    !row.application_guid ||
+                    !canRegenerateForStatus ||
+                    isRegenerating
+                  }
+                  title={
+                    !canRegenerateForStatus
+                      ? 'Exhibit A can only be regenerated for pending, approved, or cleared submissions.'
+                      : undefined
                   }
                   onClick={() => onRegenerate(row)}
                 >
