@@ -22,9 +22,6 @@ const SYNC_SOURCE = 'import-fta-notes';
 /** Marks imported rows, which are read-only in the admin app. */
 const SOURCE_SYSTEM = 'FTA';
 
-/** The 2005 data migration account. Its rows are generated summaries, not real notes. */
-const CONVERSION_USER = 'RECREATION_CONVERSION';
-
 /** Only recreation files reach rst. */
 const REC_FILE_PREFIX = 'REC';
 
@@ -53,13 +50,11 @@ interface NoteRow {
 
 interface SkipCounts {
   notRecFile: number;
-  conversionAccount: number;
   noMatchingResource: number;
 }
 
 const emptySkips = (): SkipCounts => ({
   notRecFile: 0,
-  conversionAccount: 0,
   noMatchingResource: 0,
 });
 
@@ -105,13 +100,6 @@ class FtaNoteImporter {
   private isExcluded(row: CsvRow, skips: SkipCounts): boolean {
     if (!row.FOREST_FILE_ID?.startsWith(REC_FILE_PREFIX)) {
       skips.notRecFile++;
-      return true;
-    }
-    if (
-      row.ENTRY_USERID === CONVERSION_USER ||
-      row.UPDATE_USERID === CONVERSION_USER
-    ) {
-      skips.conversionAccount++;
       return true;
     }
     return false;
@@ -271,13 +259,11 @@ class FtaNoteImporter {
     this.logger.info('PROVFOREST_NOTE after filtering', {
       eligible: notes.length,
       skippedNotRecFile: noteSkips.notRecFile,
-      skippedConversionAccount: noteSkips.conversionAccount,
       skippedNoMatchingResource: noteSkips.noMatchingResource,
     });
     this.logger.info('ASSOCIATED_USE after filtering', {
       eligible: associations.length,
       skippedNotRecFile: assocSkips.notRecFile,
-      skippedConversionAccount: assocSkips.conversionAccount,
       skippedNoMatchingResource: assocSkips.noMatchingResource,
     });
 
