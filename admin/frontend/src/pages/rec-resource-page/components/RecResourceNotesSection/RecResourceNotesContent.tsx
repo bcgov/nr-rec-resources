@@ -38,7 +38,9 @@ export const RecResourceNotesContent = ({
               >
                 Add note
               </Button>
-              {notes.length > 0 ? (
+              {/* Imported notes are read-only, so a page of only those has
+                  nothing to edit */}
+              {notes.some((note) => note.is_editable) ? (
                 <Link
                   to={ROUTE_PATHS.REC_RESOURCE_NOTES_EDIT.replace(
                     '$id',

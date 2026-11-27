@@ -118,6 +118,20 @@ describe('RecResourceNotesContent', () => {
     expect(screen.getByRole('button', { name: 'Add note' })).toBeEnabled();
   });
 
+  it('disables Edit when every note is read-only', () => {
+    const imported = { ...makeNote('n1'), is_editable: false };
+
+    render(
+      <RecResourceNotesContent notes={[imported]} recResourceId="REC0019" />,
+    );
+
+    expect(
+      screen.queryByRole('link', { name: 'Edit' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add note' })).toBeEnabled();
+  });
+
   it('hides the actions when the user cannot edit', () => {
     mockUseAuthorizations.mockReturnValue({
       canEdit: false,
