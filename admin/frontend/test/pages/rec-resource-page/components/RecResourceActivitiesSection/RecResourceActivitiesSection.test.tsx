@@ -33,7 +33,6 @@ vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
-    DEVELOPER: 'rst-developer',
   },
   useAuthorizations: () => mockUseAuthorizations(),
 }));
@@ -50,8 +49,6 @@ describe('RecResourceActivitiesSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
     });
 
     vi.mocked(useParams).mockReturnValue({

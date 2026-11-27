@@ -39,7 +39,7 @@ import { GeospatialService } from './geospatial.service';
 })
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
+@AuthRoles([RecreationResourceAuthRole.RST_SUPER_ADMIN], ROLE_MODE.ALL)
 export class GeospatialController {
   constructor(private readonly geospatialService: GeospatialService) {}
 

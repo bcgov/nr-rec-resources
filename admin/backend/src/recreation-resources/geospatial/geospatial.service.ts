@@ -586,10 +586,23 @@ export class GeospatialService {
     const sessions =
       (await this.prisma.$queryRaw<{ section_id: string | null }[]>(Prisma.sql`
         SELECT section_id
-        FROM rst.recreation_map_feature
+        FROM rst.recreation_map_feature rmf
         WHERE rec_resource_id = ${rec_resource_id}
-          AND current_ind = 'Y'
           AND retirement_date IS NULL
+          AND (
+            rmf.current_ind = 'Y'
+            OR (
+              rmf.current_ind = 'N'
+              AND rmf.amend_status_code = 'PND'
+              AND NOT EXISTS (
+                SELECT 1
+                FROM rst.recreation_map_feature active_rmf
+                WHERE active_rmf.rec_resource_id = rmf.rec_resource_id
+                  AND active_rmf.current_ind = 'Y'
+                  AND active_rmf.retirement_date IS NULL
+              )
+            )
+          )
       `)) ?? [];
 
     const data = result[0];
@@ -1101,10 +1114,16 @@ export class GeospatialService {
     newCount: number,
     amendedCount: number,
     retiredCount: number,
+    hasApprovedBaseline: boolean,
   ): SpatialSubmissionPurposeCode | null {
     if (newCount === 0 && amendedCount === 0 && retiredCount === 0) {
       return null;
     }
+
+    if (!hasApprovedBaseline) {
+      return 'N';
+    }
+
     return 'A';
   }
 
@@ -1801,10 +1820,33 @@ export class GeospatialService {
         }
 
         const allSubmissionEntries = persistedSubmissionEntries;
+        const hasApprovedBaseline = Boolean(
+          await tx.recreation_spatial_submission.findFirst({
+            where: {
+              tenure_id: rec_resource_id,
+              status: 'APP',
+            },
+            select: {
+              application_guid: true,
+            },
+          }),
+        );
+
+        if (
+          !hasApprovedBaseline &&
+          (flattenedAmendedEntries.length > 0 ||
+            flattenedRetiredEntries.length > 0)
+        ) {
+          throw new BadRequestException(
+            `Cannot submit amended or retired map features for rec_resource_id ${rec_resource_id} without an approved baseline submission. Submit as NEW first.`,
+          );
+        }
+
         const purposeCode = this.derivePurposeCodeForUpdate(
           flattenedNewEntries.length,
           flattenedAmendedEntries.length,
           flattenedRetiredEntries.length,
+          hasApprovedBaseline,
         );
 
         if (allSubmissionEntries.length > 0 && purposeCode) {

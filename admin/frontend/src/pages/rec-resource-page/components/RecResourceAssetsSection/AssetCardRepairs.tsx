@@ -249,7 +249,7 @@ export function AssetCardRepairs({
   isAddRepairDisabled = false,
 }: AssetCardRepairsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { canViewSensitiveInfo } = useAuthorizations();
+  const { canEdit, canViewSensitiveInfo } = useAuthorizations();
   const [showAddForm, setShowAddForm] = useState(false);
   const [form, setForm] = useState(EMPTY_REPAIR_FORM);
 
@@ -379,7 +379,7 @@ export function AssetCardRepairs({
             />
           )}
 
-          {!showAddForm && (
+          {canEdit && !showAddForm && (
             <CustomButton
               variant="secondary"
               className="asset-summary-action-btn asset-card-repairs__add-btn"

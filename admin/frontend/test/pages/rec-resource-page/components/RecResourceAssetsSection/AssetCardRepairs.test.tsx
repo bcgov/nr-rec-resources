@@ -62,8 +62,6 @@ describe('AssetCardRepairs', () => {
     vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
       isSuperAdmin: false,
       canViewSensitiveInfo: true,
     });
@@ -169,6 +167,23 @@ describe('AssetCardRepairs', () => {
     expect(
       screen.getByRole('button', { name: /Add repair/ }),
     ).toBeInTheDocument();
+  });
+
+  it('hides the Add repair button without edit access', async () => {
+    vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: false,
+      isSuperAdmin: false,
+      canViewSensitiveInfo: true,
+    } as any);
+    const user = userEvent.setup();
+    render(
+      <AssetCardRepairs repairs={[]} repairCodes={[]} recResourceId="REC001" />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Show repairs' }));
+
+    expect(screen.queryByRole('button', { name: /Add repair/ })).toBeNull();
   });
 
   describe('editing mode (RepairEditRow)', () => {
@@ -375,8 +390,6 @@ describe('AssetCardRepairs', () => {
       vi.mocked(useAuthorizationsModule.useAuthorizations).mockReturnValue({
         canView: true,
         canEdit: true,
-        canViewFeatureFlag: true,
-        canEditFeatureFlag: true,
         isSuperAdmin: false,
         canViewSensitiveInfo: false,
       });

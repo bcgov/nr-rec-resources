@@ -26,7 +26,6 @@ vi.mock('@/hooks/useAuthorizations', () => ({
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
-    DEVELOPER: 'rst-developer',
   },
 }));
 
@@ -131,8 +130,6 @@ describe('RecResourceFeesSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: true,
     });
     vi.mocked(Route.useLoaderData).mockReturnValue({
       fees: mockFees,
@@ -321,8 +318,6 @@ describe('RecResourceFeesSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: false,
-      canViewFeatureFlag: true,
-      canEditFeatureFlag: false,
     });
 
     render(<RecResourceFeesSection />);
