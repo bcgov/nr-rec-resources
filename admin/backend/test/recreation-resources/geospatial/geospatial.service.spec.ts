@@ -36,6 +36,7 @@ describe('GeospatialService', () => {
         create: vi.fn(),
       },
       recreation_spatial_submission: {
+        findFirst: vi.fn(),
         update: vi.fn(),
       },
     };
@@ -1368,6 +1369,7 @@ describe('GeospatialService', () => {
           status_request_type_code: 'RL',
           purpose_code: 'A',
         }),
+        findFirst: vi.fn().mockResolvedValue({ application_guid: 'baseline' }),
         update: vi.fn(),
       };
 
@@ -1442,6 +1444,10 @@ describe('GeospatialService', () => {
 
   describe('updateGeospatialData', () => {
     it('executes updateMapFeaturesFromValidatedFile successfully', async () => {
+      prismaMock.recreation_spatial_submission.findFirst.mockResolvedValueOnce({
+        application_guid: 'approved-baseline-guid',
+      });
+
       prismaMock.$queryRaw
         .mockResolvedValueOnce([{ rmf_skey: 1 }])
         .mockResolvedValueOnce([{ max_rmf_skey: 10 }])
@@ -1634,6 +1640,7 @@ describe('GeospatialService', () => {
           status_request_type_code: 'RL',
           purpose_code: 'N',
         }),
+        findFirst: vi.fn(),
         update: vi.fn(),
       };
       vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({
@@ -1868,6 +1875,7 @@ describe('GeospatialService', () => {
           status_request_type_code: 'RPO',
           purpose_code: 'N',
         }),
+        findFirst: vi.fn(),
         update: vi.fn(),
       };
       vi.spyOn(service as any, 'resolveOrgUnitClientInfo').mockResolvedValue({

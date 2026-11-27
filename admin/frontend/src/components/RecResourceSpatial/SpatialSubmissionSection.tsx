@@ -245,6 +245,7 @@ export const SpatialSubmissionSection = ({
       ...validateGeometry(featureCollection, {
         expectedSrsName: 'EPSG:3005',
         enforceExpectedSrsName: true,
+        enforceLineDuplicateValidation: !editMode,
         expectedGeometryType: values.featureType as
           | 'Point'
           | 'LineString'
