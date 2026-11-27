@@ -20,6 +20,7 @@ import {
   adminSearchSelect,
   recreationResourceSelect,
   recreationResourceSummarySelect,
+  withActiveAdvisories,
 } from './recreation-resource.select';
 import {
   AdminSearchRecreationResourceGetPayload,
@@ -96,7 +97,7 @@ export class RecreationResourceRepository {
       this.prisma.recreation_resource.count({ where }),
       this.prisma.recreation_resource.findMany({
         where,
-        select: adminSearchSelect,
+        select: withActiveAdvisories(adminSearchSelect),
         orderBy: SORT_FIELD_MAP[sort],
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -147,7 +148,7 @@ export class RecreationResourceRepository {
           in: ids,
         },
       },
-      select: adminSearchSelect,
+      select: withActiveAdvisories(adminSearchSelect),
     });
 
     const dataById = new Map(
@@ -181,7 +182,7 @@ export class RecreationResourceRepository {
   ): Promise<RecreationResourceSummaryGetPayload | null> {
     return await this.prisma.recreation_resource.findUnique({
       where: { rec_resource_id },
-      select: recreationResourceSummarySelect,
+      select: withActiveAdvisories(recreationResourceSummarySelect),
     });
   }
 
@@ -190,7 +191,8 @@ export class RecreationResourceRepository {
     tx?: Prisma.TransactionClient,
   ): Promise<RecreationResourceGetPayload | null> {
     const client = tx ?? this.prisma;
-    const select = recreationResourceSelect as Record<string, unknown>;
+    const fullSelect = withActiveAdvisories(recreationResourceSelect);
+    const select = fullSelect as Record<string, unknown>;
     const {
       recreation_user_days_code_rel: _recreation_user_days_code_rel,
       ...selectWithoutUserDays
@@ -209,7 +211,7 @@ export class RecreationResourceRepository {
     try {
       return await client.recreation_resource.findUnique({
         where: { rec_resource_id },
-        select: recreationResourceSelect,
+        select: fullSelect,
       });
     } catch (error) {
       if (!this.isMissingColumnError(error, 'recreation_user_days_code')) {

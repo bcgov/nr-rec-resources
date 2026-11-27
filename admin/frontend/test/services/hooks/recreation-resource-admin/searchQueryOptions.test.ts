@@ -12,7 +12,6 @@ describe('buildAdminSearchRequest', () => {
     expect(result.type).toBeUndefined();
     expect(result.district).toBeUndefined();
     expect(result.activities).toBeUndefined();
-    expect(result.status).toBeUndefined();
     expect(result.access).toBeUndefined();
     expect(result.closestCommunity).toBeUndefined();
     expect(result.publicAccessStatus).toBeUndefined();
@@ -70,13 +69,12 @@ describe('buildAdminSearchRequest', () => {
     expect(result.q).toBeUndefined();
   });
 
-  it('passes non-empty type, district, activities, status, access, closestCommunity', () => {
+  it('passes non-empty type, district, activities, access, closestCommunity', () => {
     const result = buildAdminSearchRequest({
       ...DEFAULT_ADMIN_SEARCH_STATE,
       type: ['RTR'],
       district: ['D1'],
       activities: ['8'],
-      status: ['1'],
       access: ['W'],
       closestCommunity: ['WHISTLER'],
     });
@@ -84,7 +82,6 @@ describe('buildAdminSearchRequest', () => {
     expect(result.type).toEqual(['RTR']);
     expect(result.district).toEqual(['D1']);
     expect(result.activities).toEqual(['8']);
-    expect(result.status).toEqual(['1']);
     expect(result.access).toEqual(['W']);
     expect(result.closestCommunity).toEqual(['WHISTLER']);
   });
@@ -128,7 +125,6 @@ describe('buildAdminSearchRequest', () => {
         type: undefined,
         district: undefined,
         activities: undefined,
-        status: undefined,
         access: undefined,
         closestCommunity: undefined,
         establishmentDateFrom: undefined,
@@ -146,7 +142,6 @@ describe('buildAdminSearchRequest', () => {
       type: undefined,
       district: undefined,
       activities: undefined,
-      status: undefined,
       access: undefined,
       closestCommunity: undefined,
       establishmentDateFrom: undefined,

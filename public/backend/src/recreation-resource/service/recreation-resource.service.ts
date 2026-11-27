@@ -53,7 +53,6 @@ export class RecreationResourceService {
       spatialFeatureGeometry: recResourceSpatialGeometryResult,
       rstStorageCloudfrontUrl: this.appConfig.rstStorageCloudfrontUrl,
       imageSizeCodes,
-      useAdvisoryStatus: this.appConfig.advisoryStatusEnabled,
     });
   }
 
@@ -87,7 +86,6 @@ export class RecreationResourceService {
           },
           rstStorageCloudfrontUrl: this.appConfig.rstStorageCloudfrontUrl,
           imageSizeCodes,
-          useAdvisoryStatus: this.appConfig.advisoryStatusEnabled,
         });
       }
     });

@@ -17,11 +17,8 @@ describe('useRecResourceSections', () => {
       has_toilet: false,
       has_table: false,
     },
-    recreation_status: {
-      status_code: 1,
-      description: 'Open',
-      comment: '',
-    },
+    top_access_status_grouplabel: null,
+    advisories: [],
     ...overrides,
   });
 
@@ -35,9 +32,7 @@ describe('useRecResourceSections', () => {
       expect(result.current).toHaveProperty('photos');
       expect(result.current).toHaveProperty('uniqueRecreationAccess');
       expect(result.current).toHaveProperty('allActivities');
-      expect(result.current).toHaveProperty('statusCode');
-      expect(result.current).toHaveProperty('statusDescription');
-      expect(result.current).toHaveProperty('statusComment');
+      expect(result.current).toHaveProperty('closureAdvisory');
       expect(result.current).toHaveProperty('isClosures');
       expect(result.current).toHaveProperty('isSiteDescription');
       expect(result.current).toHaveProperty('showCampingSection');
@@ -54,6 +49,92 @@ describe('useRecResourceSections', () => {
       expect(result.current).toHaveProperty('pageSections');
     });
   });
+  describe('closures section', () => {
+    const closedAdvisory = {
+      title: 'Wildfire closure',
+      access_status_grouplabel: 'Closed',
+    };
+
+    it('uses the top advisory when it is Closed or Restricted', () => {
+      const { result } = renderHook(() =>
+        useRecResourceSections(
+          createMockRecResource({
+            top_access_status_grouplabel: 'Closed',
+            advisories: [
+              closedAdvisory,
+              { title: 'Other', access_status_grouplabel: 'Open' },
+            ],
+          }),
+        ),
+      );
+
+      expect(result.current.isClosures).toBe(true);
+      expect(result.current.closureAdvisory).toEqual(closedAdvisory);
+    });
+
+    it('treats Restricted as a closure', () => {
+      const { result } = renderHook(() =>
+        useRecResourceSections(
+          createMockRecResource({
+            top_access_status_grouplabel: 'Restricted',
+            advisories: [
+              { title: 'Bridge out', access_status_grouplabel: 'Restricted' },
+            ],
+          }),
+        ),
+      );
+
+      expect(result.current.isClosures).toBe(true);
+    });
+
+    it('is hidden when the top advisory is not a closure', () => {
+      const { result } = renderHook(() =>
+        useRecResourceSections(
+          createMockRecResource({
+            top_access_status_grouplabel: 'Visit with caution',
+            advisories: [
+              {
+                title: 'Trail washout',
+                access_status_grouplabel: 'Visit with caution',
+              },
+            ],
+          }),
+        ),
+      );
+
+      expect(result.current.isClosures).toBe(false);
+      expect(result.current.closureAdvisory).toBeUndefined();
+    });
+
+    it('skips advisories that are not in effect yet', () => {
+      const { result } = renderHook(() =>
+        useRecResourceSections(
+          createMockRecResource({
+            top_access_status_grouplabel: 'Closed',
+            advisories: [
+              {
+                title: 'Upcoming closure',
+                access_status_grouplabel: 'Closed',
+                effective_date: new Date('2999-01-01T00:00:00Z'),
+              },
+              closedAdvisory,
+            ],
+          }),
+        ),
+      );
+
+      expect(result.current.closureAdvisory).toEqual(closedAdvisory);
+    });
+
+    it('is hidden when there are no advisories', () => {
+      const { result } = renderHook(() =>
+        useRecResourceSections(createMockRecResource()),
+      );
+
+      expect(result.current.isClosures).toBe(false);
+    });
+  });
+
   describe('camping section', () => {
     it('should show camping section when campsites exist and no camping fee', () => {
       const { result } = renderHook(() =>

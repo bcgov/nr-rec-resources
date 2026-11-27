@@ -9,7 +9,6 @@ type SerializedListFilterFields =
   | 'type'
   | 'district'
   | 'activities'
-  | 'status'
   | 'access'
   | 'closestCommunity'
   | 'publicAccessStatus'
@@ -62,10 +61,6 @@ export const serializeAdminSearchRouteState = (
 
   if (state.activities.length > 0) {
     search.activities = serializeListFilter(state.activities);
-  }
-
-  if (state.status.length > 0) {
-    search.status = serializeListFilter(state.status);
   }
 
   if (state.closestCommunity.length > 0) {
@@ -161,11 +156,6 @@ export const setAdminSearchAccessFilter = (
   state: AdminSearchRouteState,
   access: string[],
 ): AdminSearchRouteState => setFilterState(state, { access });
-
-export const setAdminSearchStatusFilter = (
-  state: AdminSearchRouteState,
-  status: string[],
-): AdminSearchRouteState => setFilterState(state, { status });
 
 export const setAdminSearchClosestCommunityFilter = (
   state: AdminSearchRouteState,

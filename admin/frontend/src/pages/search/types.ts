@@ -9,7 +9,6 @@ export interface AdminSearchFilters {
   type: string[];
   district: string[];
   activities: string[];
-  status: string[];
   closestCommunity: string[];
   establishment_date_from?: string;
   establishment_date_to?: string;
@@ -44,8 +43,6 @@ export interface AdminSearchResultRow {
   feeType: string;
   definedCampsites: string;
   closestCommunity: string;
-  status: string;
-  statusCode: number;
   recStatusCode?: string | null;
   recStatusDescription?: string | null;
   visible: boolean;

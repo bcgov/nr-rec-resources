@@ -57,12 +57,4 @@ export class AppConfigService {
   get port(): number {
     return this.configService.get('PORT', 8000, { infer: true })!;
   }
-
-  // Feature Flags
-  get advisoryStatusEnabled(): boolean {
-    return (
-      this.configService.get('FEATURE_ADVISORY_STATUS', { infer: true }) ===
-      'true'
-    );
-  }
 }

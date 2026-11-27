@@ -39,7 +39,7 @@ const RecResourcePage = () => {
     photos,
     uniqueRecreationAccess,
     allActivities,
-    statusComment,
+    closureAdvisory,
     isClosures,
     isSiteDescription,
     showCampingSection,
@@ -111,9 +111,10 @@ const RecResourcePage = () => {
             let refIndex = 0;
             return (
               <div className="rec-content-container">
-                {isClosures && (
+                {isClosures && closureAdvisory && (
                   <Closures
-                    comment={statusComment}
+                    title={closureAdvisory.title}
+                    grouplabel={closureAdvisory.access_status_grouplabel}
                     siteName={formattedName}
                     ref={sectionRefs[refIndex++]}
                   />

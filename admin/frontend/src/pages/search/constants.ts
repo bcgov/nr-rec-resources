@@ -2,7 +2,6 @@ import {
   ADMIN_SEARCH_COLUMN_IDS,
   type AdminSearchColumnId,
   type AdminSearchSort,
-  type SearchVisibilityContext,
 } from '@/pages/search/searchDefinitions';
 import type { AdminSearchRouteState } from '@/pages/search/types';
 
@@ -14,7 +13,6 @@ export type EditableAdminSearchFilters = Pick<
   | 'type'
   | 'district'
   | 'activities'
-  | 'status'
   | 'access'
   | 'closestCommunity'
   | 'establishment_date_from'
@@ -32,7 +30,6 @@ export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
   type: [],
   district: [],
   activities: [],
-  status: [],
   establishment_date_from: undefined,
   establishment_date_to: undefined,
   access: [],
@@ -51,7 +48,6 @@ export const EMPTY_ADMIN_SEARCH_FILTERS: EditableAdminSearchFilters = {
   type: [],
   district: [],
   activities: [],
-  status: [],
   access: [],
   closestCommunity: [],
   establishment_date_from: undefined,
@@ -82,13 +78,6 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     isSelect: true,
   },
   {
-    key: 'status',
-    label: 'Status',
-    controlId: 'admin-search-filter-status',
-    optionsKey: 'statusOptions',
-    isSuperAdminOnly: true,
-  },
-  {
     key: 'activities',
     label: 'Activities',
     controlId: 'admin-search-filter-activities',
@@ -112,7 +101,6 @@ export const ADMIN_SEARCH_MULTISELECT_FILTER_FIELDS = [
     label: 'Public access status',
     controlId: 'admin-search-filter-public-access-status',
     optionsKey: 'publicAccessStatusOptions',
-    isNonProdOnly: true,
   },
   {
     key: 'recStatus',
@@ -135,25 +123,6 @@ export const PUBLIC_ACCESS_STATUS_OPTIONS = [
   { id: 'Restricted', label: 'Restricted' },
   { id: 'Closed', label: 'Closed' },
 ] as const;
-
-// Filter-panel version of isColumnVisibleTo. Keep them in step, or you get a
-// filter with no matching column.
-export function isFilterFieldVisibleTo(
-  // key is only here so TS doesn't call this a weak type and reject the fields
-  // that have neither flag.
-  field: { key: string; isNonProdOnly?: boolean; isSuperAdminOnly?: boolean },
-  { isSuperAdmin, isProduction }: SearchVisibilityContext,
-): boolean {
-  if (field.isNonProdOnly) {
-    return !isProduction;
-  }
-
-  if (field.isSuperAdminOnly) {
-    return isProduction || isSuperAdmin;
-  }
-
-  return true;
-}
 
 export const ADMIN_SEARCH_STORAGE_KEYS = {
   columnVisibility: 'admin-search-visible-columns',

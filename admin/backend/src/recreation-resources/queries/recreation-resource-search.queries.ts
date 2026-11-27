@@ -14,6 +14,13 @@ const ADVISORY_ORDER_SQL = Prisma.sql`
   af.event_type_precedence ASC
 `;
 
+// same rule as activeAdvisoryWhere: published, not expired, already in effect
+const ACTIVE_ADVISORY_SQL = Prisma.sql`
+  af.published_at IS NOT NULL
+  AND (af.expiry_date IS NULL OR af.expiry_date > now())
+  AND (af.effective_date IS NULL OR af.effective_date <= now())
+`;
+
 export const SORT_FIELD_MAP: Record<
   AdminSearchSort,
   Prisma.recreation_resourceOrderByWithRelationInput
@@ -226,6 +233,7 @@ export function buildSearchWhereSql(
             SELECT af.access_status_grouplabel
             FROM rst.act_advisories_flat af
             WHERE af.rec_resource_id = rr.rec_resource_id
+              AND ${ACTIVE_ADVISORY_SQL}
             ORDER BY ${ADVISORY_ORDER_SQL}
             LIMIT 1
           ),
@@ -404,6 +412,7 @@ export function buildDerivedSortQueryParts(
                 SELECT af.access_status_grouplabel
                 FROM rst.act_advisories_flat af
                 WHERE af.rec_resource_id = rr.rec_resource_id
+                  AND ${ACTIVE_ADVISORY_SQL}
                 ORDER BY ${ADVISORY_ORDER_SQL}
                 LIMIT 1
               ),

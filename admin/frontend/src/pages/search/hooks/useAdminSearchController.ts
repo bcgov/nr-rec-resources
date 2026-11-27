@@ -27,7 +27,6 @@ import {
   setAdminSearchEstablishedFilter,
   setAdminSearchPage,
   setAdminSearchPageSize,
-  setAdminSearchStatusFilter,
   setAdminSearchSort,
   setAdminSearchTypeFilter,
   submitAdminSearchQuery,
@@ -49,7 +48,6 @@ const hasActiveEditableFilters = (search: AdminSearchRouteState) =>
   search.type.length > 0 ||
   search.district.length > 0 ||
   search.activities.length > 0 ||
-  search.status.length > 0 ||
   search.access.length > 0 ||
   search.closestCommunity.length > 0 ||
   search.publicAccessStatus.length > 0 ||
@@ -112,7 +110,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     useGetRecreationResourceOptions([
       GetOptionsByTypesTypesEnum.Activities,
       GetOptionsByTypesTypesEnum.ResourceType,
-      GetOptionsByTypesTypesEnum.RecreationStatus,
       GetOptionsByTypesTypesEnum.Access,
       GetOptionsByTypesTypesEnum.District,
       GetOptionsByTypesTypesEnum.ClosestCommunity,
@@ -121,7 +118,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
   const [
     activityOptionsByType,
     typeOptionsByType,
-    statusOptionsByType,
     accessOptionsByType,
     districtOptionsByType,
     closestCommunityOptionsByType,
@@ -153,10 +149,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
   const accessOptions = useMemo(
     () => sortOptionsByLabel(accessOptionsByType?.options ?? []),
     [accessOptionsByType],
-  );
-  const statusOptions = useMemo(
-    () => sortOptionsByLabel(statusOptionsByType?.options ?? []),
-    [statusOptionsByType],
   );
   const districtOptions = useMemo(
     () =>
@@ -242,13 +234,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         search.activities.filter((entry) => entry !== value),
       ),
     );
-  const clearStatus = (value: string) =>
-    updateSearch(
-      setAdminSearchStatusFilter(
-        search,
-        search.status.filter((entry) => entry !== value),
-      ),
-    );
   const clearAccess = (value: string) =>
     updateSearch(
       setAdminSearchAccessFilter(
@@ -321,11 +306,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       label: getOptionLabel(activity, activityOptions),
       onClear: () => clearActivity(activity),
     })),
-    ...search.status.map((status) => ({
-      key: `status:${status}`,
-      label: getOptionLabel(status, statusOptions),
-      onClear: () => clearStatus(status),
-    })),
     ...search.access.map((access) => ({
       key: `access:${access}`,
       label: getOptionLabel(access, accessOptions),
@@ -381,7 +361,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
         type: search.type,
         district: search.district,
         activities: search.activities,
-        status: search.status,
         access: search.access,
         closestCommunity: search.closestCommunity,
         establishment_date_from: search.establishment_date_from,
@@ -394,7 +373,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
       search.type,
       search.district,
       search.activities,
-      search.status,
       search.access,
       search.closestCommunity,
       search.establishment_date_from,
@@ -436,7 +414,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     isFilterOptionsLoading,
     activityOptions,
     typeOptions,
-    statusOptions,
     districtOptions,
     accessOptions,
     closestCommunityOptions,
@@ -474,7 +451,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
     clearType,
     clearDistrict,
     clearActivity,
-    clearStatus,
     clearAccess,
     addClosestCommunity,
     clearClosestCommunity,

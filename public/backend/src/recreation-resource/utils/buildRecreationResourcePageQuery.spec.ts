@@ -31,6 +31,23 @@ describe('buildRecreationResourcePageQuery', () => {
       expect(query.values).toEqual([type, take, skip]);
     });
 
+    it('picks the top advisory with the same ranking as the detail page', () => {
+      const query = buildRecreationResourcePageQuery({
+        whereClause: baseWhereClause,
+        take: 10,
+        skip: 0,
+      });
+
+      expect(query.sql).toContain(
+        'order by listing_rank desc, urgency_sequence desc, access_status_precedence asc, updated_date desc, advisory_date desc, event_type_precedence asc',
+      );
+      expect(query.sql).toContain('published_at is not null');
+      expect(query.sql).toContain('expiry_date > now()');
+      expect(query.sql).toContain(
+        'filter (where effective_date is null or effective_date <= now())',
+      );
+    });
+
     it('ignores incomplete location parameters', () => {
       const take = 10;
       const skip = 0;

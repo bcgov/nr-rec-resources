@@ -143,6 +143,12 @@ export const getRecreationResourceSelect = () => {
       },
     },
     act_advisories_flat: {
+      // published and not expired; upcoming ones are listed but only set the
+      // status once they take effect (see formatRecreationResourceDetailResults)
+      where: {
+        published_at: { not: null },
+        OR: [{ expiry_date: null }, { expiry_date: { gt: new Date() } }],
+      },
       select: {
         advisory_number: true,
         title: true,

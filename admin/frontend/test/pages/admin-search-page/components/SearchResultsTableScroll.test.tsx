@@ -38,8 +38,6 @@ const ROWS: AdminSearchResultRow[] = [
     feeType: 'Reservable',
     definedCampsites: '3',
     closestCommunity: 'Hope',
-    status: 'Open',
-    statusCode: 1,
     visible: true,
     publicAccessStatus: null,
   },

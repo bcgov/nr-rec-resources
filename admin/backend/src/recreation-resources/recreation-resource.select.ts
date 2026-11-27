@@ -1,3 +1,5 @@
+import { Prisma } from '@generated/prisma';
+
 // Prisma 7 rejects readonly arrays in orderBy, but `as const` makes them readonly.
 // This strips readonly recursively so the selects stay compatible with Prisma query types.
 type DeepWritable<T> =
@@ -84,6 +86,7 @@ const _baseRecreationResourceSelect = {
       recreation_defined_campsite: true,
     },
   },
+  // filtered to active advisories per query, see withActiveAdvisories
   act_advisories_flat: {
     orderBy: [
       { listing_rank: 'desc' },
@@ -245,3 +248,28 @@ export const recreationResourceSelect =
   _recreationResourceSelect as unknown as DeepWritable<
     typeof _recreationResourceSelect
   >;
+
+/**
+ * Advisories that count toward a resource's status: published, not expired and
+ * already in effect. Built per query since it compares against the current time.
+ * The advisories section still lists every advisory.
+ */
+export const activeAdvisoryWhere = (
+  now = new Date(),
+): Prisma.act_advisories_flatWhereInput => ({
+  published_at: { not: null },
+  AND: [
+    { OR: [{ expiry_date: null }, { expiry_date: { gt: now } }] },
+    { OR: [{ effective_date: null }, { effective_date: { lte: now } }] },
+  ],
+});
+
+export const withActiveAdvisories = <T extends { act_advisories_flat: object }>(
+  select: T,
+): T => ({
+  ...select,
+  act_advisories_flat: {
+    ...select.act_advisories_flat,
+    where: activeAdvisoryWhere(),
+  },
+});

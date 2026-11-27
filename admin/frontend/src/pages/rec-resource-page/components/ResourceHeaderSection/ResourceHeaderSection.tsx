@@ -1,12 +1,9 @@
 import {
-  AdminStatusBadge,
   CustomBadge,
   FileStatusBadge,
   PUBLIC_ACCESS_STATUS_OPEN,
   PublicAccessStatusBadge,
 } from '@/components';
-import { useAuthorizations } from '@/hooks/useAuthorizations';
-import { isProd } from '@/utils/environment';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { COLOR_BLUE, COLOR_BLUE_LIGHT } from '@/styles/colors';
 import { FC } from 'react';
@@ -21,25 +18,9 @@ interface ResourceHeaderSectionProps {
 export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
-  const { isSuperAdmin } = useAuthorizations();
-  const isProduction = isProd();
-
-  // Prod has no ACT advisories yet, so FTA status stands in for everyone.
-  // Elsewhere public access leads and FTA is a super admin cross-check.
-  const isAdminStatusBadgeVisible = Boolean(
-    (isProduction || isSuperAdmin) && recResource.recreation_status_description,
-  );
-
   // No advisory means open, same as the search results table.
   const publicAccessStatus =
     recResource.access_status_grouplabel ?? PUBLIC_ACCESS_STATUS_OPEN;
-
-  // Only dedupe against a pill they can actually see, or they'd end up with no
-  // status at all.
-  const showPublicAccessStatus =
-    !isProduction &&
-    (!isAdminStatusBadgeVisible ||
-      publicAccessStatus !== recResource.recreation_status_description);
 
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
@@ -61,12 +42,6 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
             bgColor={COLOR_BLUE_LIGHT}
             textColor={COLOR_BLUE}
           />
-          {isAdminStatusBadgeVisible && (
-            <AdminStatusBadge
-              label={recResource.recreation_status_description!}
-              statusCode={recResource.recreation_status_code ?? 1}
-            />
-          )}
           {recResource.rec_status_code && (
             <FileStatusBadge
               code={recResource.rec_status_code}
@@ -76,9 +51,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
               }
             />
           )}
-          {showPublicAccessStatus && (
-            <PublicAccessStatusBadge label={publicAccessStatus} />
-          )}
+          <PublicAccessStatusBadge label={publicAccessStatus} />
         </Stack>
       </Stack>
       <span className="fw-bold">{recResource.rec_resource_type}</span>
