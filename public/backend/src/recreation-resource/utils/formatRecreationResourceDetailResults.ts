@@ -198,7 +198,12 @@ export const formatRecreationResourceDetailResults = ({
     recreation_resource_reservation_info:
       result.recreation_resource_reservation_info,
     advisories: result.act_advisories_flat?.map((advisory) => advisory),
+    // advisories arrive ranked; the first one already in effect sets the status
     top_access_status_grouplabel:
-      result.act_advisories_flat?.[0]?.access_status_grouplabel ?? null,
+      result.act_advisories_flat?.find(
+        (advisory) =>
+          !advisory.effective_date ||
+          new Date(advisory.effective_date) <= new Date(),
+      )?.access_status_grouplabel ?? null,
   };
 };

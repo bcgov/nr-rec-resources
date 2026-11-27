@@ -42,6 +42,10 @@ describe('buildRecreationResourcePageQuery', () => {
         'order by listing_rank desc, urgency_sequence desc, access_status_precedence asc, updated_date desc, advisory_date desc, event_type_precedence asc',
       );
       expect(query.sql).toContain('published_at is not null');
+      expect(query.sql).toContain('expiry_date > now()');
+      expect(query.sql).toContain(
+        'filter (where effective_date is null or effective_date <= now())',
+      );
     });
 
     it('ignores incomplete location parameters', () => {

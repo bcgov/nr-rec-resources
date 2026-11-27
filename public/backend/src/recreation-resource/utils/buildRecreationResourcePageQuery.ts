@@ -61,10 +61,13 @@ export function buildRecreationResourcePageQuery({
     left join lateral (
       select
         count(*)::int as advisory_count,
-        (array_agg(access_status_grouplabel order by listing_rank desc, urgency_sequence desc, access_status_precedence asc, updated_date desc, advisory_date desc, event_type_precedence asc))[1] as top_access_status_grouplabel
+        -- upcoming advisories are counted but don't set the status until they take effect
+        (array_agg(access_status_grouplabel order by listing_rank desc, urgency_sequence desc, access_status_precedence asc, updated_date desc, advisory_date desc, event_type_precedence asc)
+          filter (where effective_date is null or effective_date <= now()))[1] as top_access_status_grouplabel
       from rst.act_advisories_flat
       where rec_resource_id = rrsv.rec_resource_id
         and published_at is not null
+        and (expiry_date is null or expiry_date > now())
     ) adv on true
     ${whereClause} ${orderBySql}
     limit ${take}

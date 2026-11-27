@@ -1,4 +1,5 @@
 import { Prisma } from '@generated/prisma';
+import { ACTIVE_ADVISORY_SQL } from './activeAdvisorySql';
 import { FilterTypes } from '../service/types';
 import { EXCLUDED_ACTIVITY_CODES } from '../constants/service.constants';
 
@@ -125,12 +126,12 @@ export function buildFilterOptionCountsQuery({
           WHERE (
             NOT EXISTS (
               SELECT 1 FROM rst.act_advisories_flat aaf
-              WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
+              WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND ${ACTIVE_ADVISORY_SQL}
             )
             OR (
               SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
               FROM rst.act_advisories_flat aaf
-              WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
+              WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND ${ACTIVE_ADVISORY_SQL}
             ) = ANY(ARRAY['Open', 'Seasonal restrictions', 'Visit with caution', 'Limited access'])
           ) ${extraFilters}
         )::INT
@@ -139,12 +140,12 @@ export function buildFilterOptionCountsQuery({
           WHERE (
             NOT EXISTS (
               SELECT 1 FROM rst.act_advisories_flat aaf
-              WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
+              WHERE aaf.rec_resource_id = fr.rec_resource_id AND ${ACTIVE_ADVISORY_SQL}
             )
             OR (
               SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
               FROM rst.act_advisories_flat aaf
-              WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
+              WHERE aaf.rec_resource_id = fr.rec_resource_id AND ${ACTIVE_ADVISORY_SQL}
             ) = ANY(ARRAY['Open', 'Seasonal restrictions', 'Visit with caution', 'Limited access'])
           )
         )::INT
@@ -159,7 +160,7 @@ export function buildFilterOptionCountsQuery({
           WHERE (
             SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
             FROM rst.act_advisories_flat aaf
-            WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND aaf.published_at IS NOT NULL
+            WHERE aaf.rec_resource_id = rrsv.rec_resource_id AND ${ACTIVE_ADVISORY_SQL}
           ) = ANY(ARRAY['Closed', 'Restricted']) ${extraFilters}
         )::INT
         ELSE (
@@ -167,7 +168,7 @@ export function buildFilterOptionCountsQuery({
           WHERE (
             SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
             FROM rst.act_advisories_flat aaf
-            WHERE aaf.rec_resource_id = fr.rec_resource_id AND aaf.published_at IS NOT NULL
+            WHERE aaf.rec_resource_id = fr.rec_resource_id AND ${ACTIVE_ADVISORY_SQL}
           ) = ANY(ARRAY['Closed', 'Restricted'])
         )::INT
       END AS count

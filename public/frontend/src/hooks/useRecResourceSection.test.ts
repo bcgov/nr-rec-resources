@@ -106,6 +106,26 @@ describe('useRecResourceSections', () => {
       expect(result.current.closureAdvisory).toBeUndefined();
     });
 
+    it('skips advisories that are not in effect yet', () => {
+      const { result } = renderHook(() =>
+        useRecResourceSections(
+          createMockRecResource({
+            top_access_status_grouplabel: 'Closed',
+            advisories: [
+              {
+                title: 'Upcoming closure',
+                access_status_grouplabel: 'Closed',
+                effective_date: new Date('2999-01-01T00:00:00Z'),
+              },
+              closedAdvisory,
+            ],
+          }),
+        ),
+      );
+
+      expect(result.current.closureAdvisory).toEqual(closedAdvisory);
+    });
+
     it('is hidden when there are no advisories', () => {
       const { result } = renderHook(() =>
         useRecResourceSections(createMockRecResource()),

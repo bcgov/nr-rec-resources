@@ -100,11 +100,16 @@ export function useRecResourceSections(recResource: any) {
   const isRecreationSite = rec_resource_type === RECREATION_SITE;
   const isRecreationTrail = rec_resource_type === RECREATION_TRAIL;
   const isInterpretiveForest = rec_resource_type === INTERPRETIVE_FOREST;
-  // advisories arrive ranked, so the first one is the one setting the status
+  // advisories arrive ranked; the first one already in effect sets the status
+  // (same rule as the backend's top_access_status_grouplabel)
   const closureAdvisory: AdvisoryDto | undefined = CLOSED_GROUPLABELS.includes(
     topAccessStatusGrouplabel,
   )
-    ? advisories?.[0]
+    ? advisories?.find(
+        (advisory: AdvisoryDto) =>
+          !advisory.effective_date ||
+          new Date(advisory.effective_date) <= new Date(),
+      )
     : undefined;
   const isClosures = Boolean(closureAdvisory && formattedName);
 

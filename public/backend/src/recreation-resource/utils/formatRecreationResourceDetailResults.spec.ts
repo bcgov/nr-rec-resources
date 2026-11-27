@@ -553,6 +553,37 @@ describe('formatRecreationResourceDetailResults function', () => {
     expect(results.top_access_status_grouplabel).toBe('Restricted');
   });
 
+  it('skips advisories that are not in effect yet when picking the status', () => {
+    const [first, ...rest] = mockResponse.act_advisories_flat;
+    const upcoming = {
+      ...first,
+      access_status_grouplabel: 'Closed',
+      effective_date: '2999-01-01T00:00:00.000Z',
+    };
+    const results = formatRecreationResourceDetailResults({
+      recResource: {
+        ...mockResponse,
+        act_advisories_flat: [upcoming, first, ...rest],
+      } as any,
+      spatialFeatureGeometry: mockSpatialResponse,
+    });
+    expect(results.top_access_status_grouplabel).toBe('Restricted');
+    // still listed so visitors see the upcoming closure
+    expect(results.advisories).toHaveLength(rest.length + 2);
+  });
+
+  it('counts advisories with no effective date toward the status', () => {
+    const [first] = mockResponse.act_advisories_flat;
+    const results = formatRecreationResourceDetailResults({
+      recResource: {
+        ...mockResponse,
+        act_advisories_flat: [{ ...first, effective_date: null }],
+      } as any,
+      spatialFeatureGeometry: mockSpatialResponse,
+    });
+    expect(results.top_access_status_grouplabel).toBe('Restricted');
+  });
+
   it('should return null for top_access_status_grouplabel when there are no advisories', () => {
     const results = formatRecreationResourceDetailResults({
       recResource: { ...mockResponse, act_advisories_flat: [] },

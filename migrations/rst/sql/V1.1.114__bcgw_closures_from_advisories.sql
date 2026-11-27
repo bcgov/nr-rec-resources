@@ -63,7 +63,11 @@ top_advisory AS (
     af.updated_date,
     af.effective_date
   FROM rst.act_advisories_flat af
+  -- active advisories only: published, not expired, already in effect. now() is
+  -- read on each refresh, which the BCGW export does every run
   WHERE af.published_at IS NOT NULL
+    AND (af.expiry_date IS NULL OR af.expiry_date > now())
+    AND (af.effective_date IS NULL OR af.effective_date <= now())
   ORDER BY
     af.rec_resource_id,
     af.listing_rank DESC,

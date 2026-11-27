@@ -1,4 +1,5 @@
 import { Prisma } from '@generated/prisma';
+import { ACTIVE_ADVISORY_SQL } from './activeAdvisorySql';
 import { buildFuzzySearchConditions } from './fuzzySearchUtils';
 
 export interface FilterOptions {
@@ -121,13 +122,13 @@ const buildFilterConditions = (
                 NOT EXISTS (
                   SELECT 1 FROM rst.act_advisories_flat aaf
                   WHERE aaf.rec_resource_id = rrsv.rec_resource_id
-                    AND aaf.published_at IS NOT NULL
+                    AND ${ACTIVE_ADVISORY_SQL}
                 )
                 OR (
                   SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
                   FROM rst.act_advisories_flat aaf
                   WHERE aaf.rec_resource_id = rrsv.rec_resource_id
-                    AND aaf.published_at IS NOT NULL
+                    AND ${ACTIVE_ADVISORY_SQL}
                 ) = ANY(ARRAY[${Prisma.join(OPEN_GROUPLABELS)}])
               )`;
             } else {
@@ -135,7 +136,7 @@ const buildFilterConditions = (
                 SELECT (array_agg(aaf.access_status_grouplabel ORDER BY aaf.listing_rank DESC, aaf.urgency_sequence DESC, aaf.access_status_precedence ASC, aaf.updated_date DESC, aaf.advisory_date DESC, aaf.event_type_precedence ASC))[1]
                 FROM rst.act_advisories_flat aaf
                 WHERE aaf.rec_resource_id = rrsv.rec_resource_id
-                  AND aaf.published_at IS NOT NULL
+                  AND ${ACTIVE_ADVISORY_SQL}
               ) = ANY(ARRAY[${Prisma.join(CLOSED_GROUPLABELS)}])`;
             }
           }),
