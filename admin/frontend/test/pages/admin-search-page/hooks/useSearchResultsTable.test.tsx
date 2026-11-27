@@ -5,14 +5,9 @@ import { useSearchResultsTable } from '@/pages/search/hooks/useSearchResultsTabl
 import type { AdminSearchResultRow } from '@/pages/search/types';
 
 const mockNavigate = vi.fn();
-const mockUseAuthorizations = vi.fn();
 
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
-}));
-
-vi.mock('@/hooks/useAuthorizations', () => ({
-  useAuthorizations: () => mockUseAuthorizations(),
 }));
 
 function createPagination(pageIndex = 0) {
@@ -41,8 +36,6 @@ const rows: AdminSearchResultRow[] = [
     feeType: 'Reservable, Has fees',
     definedCampsites: '3',
     closestCommunity: 'Hope',
-    status: 'Open',
-    statusCode: 1,
     visible: true,
     publicAccessStatus: 'Restricted',
     recStatusCode: 'AR',
@@ -53,7 +46,6 @@ const rows: AdminSearchResultRow[] = [
 describe('useSearchResultsTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
   });
 
   it('returns the visible columns and loading or empty status message', () => {
@@ -159,45 +151,7 @@ describe('useSearchResultsTable', () => {
     });
   });
 
-  it('hides the status column for non-super-admins outside production', () => {
-    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
-
-    const { result } = renderHook(() =>
-      useSearchResultsTable({
-        rows,
-        visibleColumns: ['rec_resource_id', 'status'],
-        sort: 'name:asc',
-        pagination: createPagination(),
-        isLoading: false,
-        onSortChange: vi.fn(),
-      }),
-    );
-
-    expect(
-      result.current.visibleLeafColumns.map((column) => column.id),
-    ).not.toContain('status');
-  });
-
-  it('shows the status column for super admins', () => {
-    const { result } = renderHook(() =>
-      useSearchResultsTable({
-        rows,
-        visibleColumns: ['rec_resource_id', 'status'],
-        sort: 'name:asc',
-        pagination: createPagination(),
-        isLoading: false,
-        onSortChange: vi.fn(),
-      }),
-    );
-
-    expect(
-      result.current.visibleLeafColumns.map((column) => column.id),
-    ).toContain('status');
-  });
-
-  it('shows the public access column outside production and renders the badge cell', () => {
-    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
-
+  it('shows the public access column and renders the badge cell', () => {
     const { result } = renderHook(() =>
       useSearchResultsTable({
         rows,
@@ -220,7 +174,6 @@ describe('useSearchResultsTable', () => {
     );
     const nameHeader = columnsById.name.header as () => ReactNode;
     const nameCell = columnsById.name.cell as (props: unknown) => ReactNode;
-    const statusCell = columnsById.status.cell as (props: unknown) => ReactNode;
     const fileStatusCell = columnsById.file_status.cell as (
       props: unknown,
     ) => ReactNode;
@@ -241,7 +194,6 @@ describe('useSearchResultsTable', () => {
         <tbody>
           <tr>
             <td>{nameCell({ row: { original: rows[0] } })}</td>
-            <td>{statusCell({ row: { original: rows[0] } })}</td>
             <td>{fileStatusCell({ row: { original: rows[0] } })}</td>
             <td>{visibleCell({ row: { original: rows[0] } })}</td>
             <td>{publicAccessCell({ row: { original: rows[0] } })}</td>
@@ -254,7 +206,6 @@ describe('useSearchResultsTable', () => {
       screen.getByRole('button', { name: 'Sort by Name (ascending)' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Blue Lake')).toBeInTheDocument();
-    expect(screen.getByText('Open')).toBeInTheDocument();
     expect(screen.getByText('Archived')).toBeInTheDocument();
     expect(screen.getByText('Visible')).toBeInTheDocument();
     expect(screen.getByText('Restricted')).toBeInTheDocument();

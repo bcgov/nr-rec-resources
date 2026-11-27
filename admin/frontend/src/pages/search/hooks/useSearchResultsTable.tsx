@@ -9,7 +9,6 @@ import {
 import type { KeyboardEvent } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
-  AdminStatusBadge,
   FileStatusBadge,
   PublicAccessStatusBadge,
   VisibleOnWebsite,
@@ -21,17 +20,11 @@ import {
 } from '@/pages/search/constants';
 import { SearchResultsTableSortableHeader } from '@/pages/search/components/SearchResultsTableSortableHeader';
 import type { SearchResultsPaginationModel } from '@/pages/search/hooks/useAdminSearchController';
-import {
-  ADMIN_SEARCH_COLUMN_DEFINITIONS,
-  isColumnVisibleTo,
-  type SearchVisibilityContext,
-} from '@/pages/search/searchDefinitions';
+import { ADMIN_SEARCH_COLUMN_DEFINITIONS } from '@/pages/search/searchDefinitions';
 import type {
   AdminSearchResultRow,
   AdminSearchRouteState,
 } from '@/pages/search/types';
-import { useAuthorizations } from '@/hooks/useAuthorizations';
-import { isProd } from '@/utils/environment';
 
 interface UseSearchResultsTableParams {
   rows: AdminSearchResultRow[];
@@ -44,15 +37,11 @@ interface UseSearchResultsTableParams {
 
 const getSortParts = (sort: AdminSearchRouteState['sort']) => sort.split(':');
 
-const buildColumnVisibility = (
-  visibleColumns: AdminSearchColumnId[],
-  visibility: SearchVisibilityContext,
-) =>
+const buildColumnVisibility = (visibleColumns: AdminSearchColumnId[]) =>
   Object.fromEntries(
     ADMIN_SEARCH_COLUMN_IDS.map((columnId) => [
       columnId,
-      isColumnVisibleTo(columnId, visibility) &&
-        visibleColumns.includes(columnId),
+      visibleColumns.includes(columnId),
     ]),
   ) as Record<AdminSearchColumnId, boolean>;
 
@@ -76,15 +65,6 @@ const buildColumns = (
       cell: ({ row }: { row: Row<AdminSearchResultRow> }) =>
         String(row.original[resultKey] ?? ''),
     };
-
-    if (id === 'status') {
-      column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => (
-        <AdminStatusBadge
-          label={row.original.status}
-          statusCode={row.original.statusCode}
-        />
-      );
-    }
 
     if (id === 'file_status') {
       column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => (
@@ -119,7 +99,6 @@ export function useSearchResultsTable({
   onSortChange,
 }: UseSearchResultsTableParams) {
   const navigate = useNavigate();
-  const { isSuperAdmin } = useAuthorizations();
   const [sortField, sortDirection] = getSortParts(sort);
 
   const navigateToResource = (recResourceId: string) =>
@@ -146,10 +125,7 @@ export function useSearchResultsTable({
     pageCount: pagination.pageCount,
     rowCount: pagination.rowCount,
     state: {
-      columnVisibility: buildColumnVisibility(visibleColumns, {
-        isSuperAdmin,
-        isProduction: isProd(),
-      }),
+      columnVisibility: buildColumnVisibility(visibleColumns),
       pagination: pagination.state,
     },
     getRowId: (row) => row.recResourceId,

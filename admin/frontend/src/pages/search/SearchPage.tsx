@@ -23,7 +23,6 @@ export function SearchPage() {
     type: search.type,
     district: search.district,
     activities: search.activities,
-    status: search.status,
     access: search.access,
     closestCommunity: search.closestCommunity,
     establishment_date_from: search.establishment_date_from,

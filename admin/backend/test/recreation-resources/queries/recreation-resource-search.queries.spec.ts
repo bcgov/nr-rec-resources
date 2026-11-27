@@ -223,6 +223,9 @@ describe('recreation-resource-search.queries', () => {
     expect(normalized).toContain('af.access_status_grouplabel');
     expect(normalized).toContain('rst.act_advisories_flat af');
     expect(normalized).toContain('af.rec_resource_id = rr.rec_resource_id');
+    expect(normalized).toContain('af.published_at IS NOT NULL');
+    expect(normalized).toContain('af.expiry_date > now()');
+    expect(normalized).toContain('af.effective_date <= now()');
     expect(normalized).toContain('LIMIT 1');
     expect(normalized).toContain("'Open'");
     expect(normalized).toContain('IN (?,?)');
@@ -259,6 +262,9 @@ describe('recreation-resource-search.queries', () => {
     expect(normalizedJoin).toContain('LEFT JOIN LATERAL');
     expect(normalizedJoin).toContain('rst.act_advisories_flat af');
     expect(normalizedJoin).toContain('af.rec_resource_id = rr.rec_resource_id');
+    expect(normalizedJoin).toContain('af.published_at IS NOT NULL');
+    expect(normalizedJoin).toContain('af.expiry_date > now()');
+    expect(normalizedJoin).toContain('af.effective_date <= now()');
     expect(normalizedJoin).toContain('af.listing_rank DESC');
     expect(normalizedJoin).toContain('LIMIT 1');
     expect(normalizedJoin).toContain("'Open'");

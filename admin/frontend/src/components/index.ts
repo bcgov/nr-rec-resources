@@ -1,4 +1,3 @@
-export * from './admin-status-badge';
 export * from './file-status-badge';
 export * from './public-access-status-badge';
 export * from './auth';

@@ -123,6 +123,13 @@ describe('getRecreationResourceSelect', () => {
         },
       },
       act_advisories_flat: {
+        where: {
+          published_at: { not: null },
+          OR: [
+            { expiry_date: null },
+            { expiry_date: { gt: expect.any(Date) } },
+          ],
+        },
         select: {
           advisory_number: true,
           title: true,

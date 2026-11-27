@@ -1,20 +1,11 @@
 import { ResourceHeaderSection } from '@/pages/rec-resource-page/components/ResourceHeaderSection';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-const mockUseAuthorizations = vi.fn();
-
-vi.mock('@/hooks/useAuthorizations', () => ({
-  useAuthorizations: () => mockUseAuthorizations(),
-}));
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/components', () => ({
   CustomBadge: ({ label }: any) => (
     <span data-testid="custom-badge">{label}</span>
-  ),
-  AdminStatusBadge: ({ label }: any) => (
-    <span data-testid="admin-status-badge">{label}</span>
   ),
   FileStatusBadge: ({ code, label }: any) => {
     if (!code) return null;
@@ -48,14 +39,6 @@ const baseResource = {
 } as unknown as RecreationResourceDetailUIModel;
 
 describe('ResourceHeaderSection', () => {
-  beforeEach(() => {
-    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: true });
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
   it('renders resource name, id, and type', () => {
     render(<ResourceHeaderSection recResource={baseResource} />);
     expect(screen.getByText('Test Resource')).toBeInTheDocument();
@@ -79,31 +62,20 @@ describe('ResourceHeaderSection', () => {
     );
   });
 
-  it('renders admin status badge when recreation_status_description is provided', () => {
-    const resourceWithAdminStatus = {
+  it('never renders the FTA recreation status', () => {
+    const resource = {
       ...baseResource,
-      recreation_status_description: 'Currently Open',
-      recreation_status_code: 1,
+      recreation_status_description: 'Closed',
+      recreation_status_code: 2,
+      access_status_grouplabel: 'Limited access',
     } as unknown as RecreationResourceDetailUIModel;
 
-    render(<ResourceHeaderSection recResource={resourceWithAdminStatus} />);
+    render(<ResourceHeaderSection recResource={resource} />);
 
-    expect(screen.getByTestId('admin-status-badge')).toHaveTextContent(
-      'Currently Open',
+    expect(screen.queryByText('Closed')).not.toBeInTheDocument();
+    expect(screen.getByTestId('public-access-status-badge')).toHaveTextContent(
+      'Limited access',
     );
-  });
-
-  it('hides the admin status badge for users who are not super admins', () => {
-    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
-    const resourceWithAdminStatus = {
-      ...baseResource,
-      recreation_status_description: 'Currently Open',
-      recreation_status_code: 1,
-    } as unknown as RecreationResourceDetailUIModel;
-
-    render(<ResourceHeaderSection recResource={resourceWithAdminStatus} />);
-
-    expect(screen.queryByTestId('admin-status-badge')).not.toBeInTheDocument();
   });
 
   it('falls back to status code when description is not provided', () => {
@@ -144,70 +116,6 @@ describe('ResourceHeaderSection', () => {
     );
   });
 
-  it('shows the Open fallback pill to users who are not super admins', () => {
-    mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
-    const resource = {
-      ...baseResource,
-      recreation_status_description: 'Open',
-      recreation_status_code: 1,
-    } as unknown as RecreationResourceDetailUIModel;
-
-    render(<ResourceHeaderSection recResource={resource} />);
-
-    expect(screen.queryByTestId('admin-status-badge')).not.toBeInTheDocument();
-    expect(screen.getByTestId('public-access-status-badge')).toHaveTextContent(
-      'Open',
-    );
-  });
-
-  it('hides the public access pill when it would duplicate a visible admin status badge', () => {
-    const resource = {
-      ...baseResource,
-      recreation_status_description: 'Open',
-      recreation_status_code: 1,
-      access_status_grouplabel: 'Open',
-    } as unknown as RecreationResourceDetailUIModel;
-
-    render(<ResourceHeaderSection recResource={resource} />);
-
-    expect(screen.getByTestId('admin-status-badge')).toHaveTextContent('Open');
-    expect(
-      screen.queryByTestId('public-access-status-badge'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('hides the public access pill when the Open fallback duplicates the admin status badge', () => {
-    const resource = {
-      ...baseResource,
-      recreation_status_description: 'Open',
-      recreation_status_code: 1,
-      access_status_grouplabel: null,
-    } as unknown as RecreationResourceDetailUIModel;
-
-    render(<ResourceHeaderSection recResource={resource} />);
-
-    expect(screen.getByTestId('admin-status-badge')).toHaveTextContent('Open');
-    expect(
-      screen.queryByTestId('public-access-status-badge'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders both pills when the advisory label differs from the admin status', () => {
-    const resource = {
-      ...baseResource,
-      recreation_status_description: 'Open',
-      recreation_status_code: 1,
-      access_status_grouplabel: 'Closed',
-    } as unknown as RecreationResourceDetailUIModel;
-
-    render(<ResourceHeaderSection recResource={resource} />);
-
-    expect(screen.getByTestId('admin-status-badge')).toHaveTextContent('Open');
-    expect(screen.getByTestId('public-access-status-badge')).toHaveTextContent(
-      'Closed',
-    );
-  });
-
   it('does not render status badge when rec status code is missing', () => {
     const resourceWithoutCode = {
       ...baseResource,
@@ -219,62 +127,5 @@ describe('ResourceHeaderSection', () => {
     expect(screen.queryByTestId('file-status-badge')).not.toBeInTheDocument();
     const badges = screen.getAllByTestId('custom-badge');
     expect(badges).toHaveLength(1);
-  });
-
-  describe('in production', () => {
-    // No ACT advisories in prod yet, so FTA status is all we have, and
-    // everyone gets it, not just super admins.
-    beforeEach(() => {
-      vi.stubEnv('VITE_DEPLOYMENT_ENV', 'prod');
-    });
-
-    it('hides the public access pill even when an advisory label exists', () => {
-      const resource = {
-        ...baseResource,
-        access_status_grouplabel: 'Closed',
-      } as unknown as RecreationResourceDetailUIModel;
-
-      render(<ResourceHeaderSection recResource={resource} />);
-
-      expect(
-        screen.queryByTestId('public-access-status-badge'),
-      ).not.toBeInTheDocument();
-    });
-
-    it('shows the admin status badge to users who are not super admins', () => {
-      mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
-      const resource = {
-        ...baseResource,
-        recreation_status_description: 'Open',
-        recreation_status_code: 1,
-        access_status_grouplabel: 'Closed',
-      } as unknown as RecreationResourceDetailUIModel;
-
-      render(<ResourceHeaderSection recResource={resource} />);
-
-      expect(screen.getByTestId('admin-status-badge')).toHaveTextContent(
-        'Open',
-      );
-      expect(
-        screen.queryByTestId('public-access-status-badge'),
-      ).not.toBeInTheDocument();
-    });
-
-    it('treats an unrecognised deployment env as production', () => {
-      vi.stubEnv('VITE_DEPLOYMENT_ENV', 'staging');
-      mockUseAuthorizations.mockReturnValue({ isSuperAdmin: false });
-      const resource = {
-        ...baseResource,
-        recreation_status_description: 'Open',
-        recreation_status_code: 1,
-      } as unknown as RecreationResourceDetailUIModel;
-
-      render(<ResourceHeaderSection recResource={resource} />);
-
-      expect(screen.getByTestId('admin-status-badge')).toBeInTheDocument();
-      expect(
-        screen.queryByTestId('public-access-status-badge'),
-      ).not.toBeInTheDocument();
-    });
   });
 });

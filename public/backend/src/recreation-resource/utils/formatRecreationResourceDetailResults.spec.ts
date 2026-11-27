@@ -350,7 +350,7 @@ export const mockResults = {
   },
   site_point_geometry: 'Point',
   spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
-  top_access_status_grouplabel: 'Closed',
+  top_access_status_grouplabel: 'Restricted',
   recreation_district: {
     description: 'Merritt',
     district_code: 'MERRITT',
@@ -544,37 +544,50 @@ describe('formatRecreationResourceDetailResults function', () => {
     expect(results.recreation_district).toBeUndefined();
   });
 
-  it('should return Open for top_access_status_grouplabel when useAdvisoryStatus is false and status_code is 1', () => {
-    const results = formatRecreationResourceDetailResults({
-      recResource: {
-        ...mockResponse,
-        recreation_status: {
-          recreation_status_code: { description: 'Open' },
-          comment: null,
-          status_code: 1,
-        },
-      },
-      spatialFeatureGeometry: mockSpatialResponse,
-      useAdvisoryStatus: false,
-    });
-    expect(results.top_access_status_grouplabel).toBe('Open');
-  });
-
-  it('should return the first advisory grouplabel when useAdvisoryStatus is true', () => {
+  it('should return the first advisory grouplabel', () => {
     // mockResponse.act_advisories_flat[0] has access_status_grouplabel 'Restricted'
     const results = formatRecreationResourceDetailResults({
       recResource: mockResponse,
       spatialFeatureGeometry: mockSpatialResponse,
-      useAdvisoryStatus: true,
     });
     expect(results.top_access_status_grouplabel).toBe('Restricted');
   });
 
-  it('should return null for top_access_status_grouplabel when useAdvisoryStatus is true and no advisories', () => {
+  it('skips advisories that are not in effect yet when picking the status', () => {
+    const [first, ...rest] = mockResponse.act_advisories_flat;
+    const upcoming = {
+      ...first,
+      access_status_grouplabel: 'Closed',
+      effective_date: '2999-01-01T00:00:00.000Z',
+    };
+    const results = formatRecreationResourceDetailResults({
+      recResource: {
+        ...mockResponse,
+        act_advisories_flat: [upcoming, first, ...rest],
+      } as any,
+      spatialFeatureGeometry: mockSpatialResponse,
+    });
+    expect(results.top_access_status_grouplabel).toBe('Restricted');
+    // still listed so visitors see the upcoming closure
+    expect(results.advisories).toHaveLength(rest.length + 2);
+  });
+
+  it('counts advisories with no effective date toward the status', () => {
+    const [first] = mockResponse.act_advisories_flat;
+    const results = formatRecreationResourceDetailResults({
+      recResource: {
+        ...mockResponse,
+        act_advisories_flat: [{ ...first, effective_date: null }],
+      } as any,
+      spatialFeatureGeometry: mockSpatialResponse,
+    });
+    expect(results.top_access_status_grouplabel).toBe('Restricted');
+  });
+
+  it('should return null for top_access_status_grouplabel when there are no advisories', () => {
     const results = formatRecreationResourceDetailResults({
       recResource: { ...mockResponse, act_advisories_flat: [] },
       spatialFeatureGeometry: mockSpatialResponse,
-      useAdvisoryStatus: true,
     });
     expect(results.top_access_status_grouplabel).toBeNull();
   });
