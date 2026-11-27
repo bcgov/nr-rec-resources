@@ -16,11 +16,12 @@ import {
   useUpdateAssetRepair,
   useUpdateRecreationResource,
 } from '@/services/hooks/recreation-resource-admin';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import * as notificationStore from '@/store/notificationStore';
 import { useParams } from '@tanstack/react-router';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual =
@@ -683,6 +684,84 @@ describe('RecResourceAssetsSection', () => {
     expect(mockDeleteAsset).toHaveBeenCalledWith({
       recResourceId: 'REC123',
       assetId: 10,
+    });
+  });
+
+  it('shows the Edit button on asset type cards for editors', () => {
+    vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+      data: [buildAsset()],
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<RecResourceAssetsSection />);
+
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+  });
+
+  describe('without edit access', () => {
+    const editorAuth = vi.mocked(useAuthorizations)();
+
+    beforeEach(() => {
+      vi.mocked(useAuthorizations).mockReturnValue({
+        canView: true,
+        canEdit: false,
+        isSuperAdmin: false,
+        canViewSensitiveInfo: true,
+      } as any);
+    });
+
+    afterEach(() => {
+      vi.mocked(useAuthorizations).mockReturnValue(editorAuth);
+    });
+
+    it('hides the Actions dropdown', () => {
+      render(<RecResourceAssetsSection />);
+
+      expect(screen.queryByRole('button', { name: /Actions/ })).toBeNull();
+    });
+
+    it('hides the Add repair button', () => {
+      render(<RecResourceAssetsSection />);
+
+      expect(screen.queryByRole('button', { name: /Add repair/ })).toBeNull();
+    });
+
+    it('hides the Edit button on asset type cards', () => {
+      vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+        data: [buildAsset()],
+        isLoading: false,
+        isError: false,
+      } as any);
+
+      render(<RecResourceAssetsSection />);
+
+      expect(screen.getByText('Bridge')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
+    });
+
+    it('hides the Edit button on campsite cards', async () => {
+      const user = userEvent.setup();
+      vi.mocked(useGetAssetsByRecResourceId).mockReturnValue({
+        data: [
+          buildAsset({
+            asset_id: 10,
+            asset_code: 227,
+            asset_name: 'Campsite A',
+          }),
+        ],
+        isLoading: false,
+        isError: false,
+      } as any);
+
+      render(<RecResourceAssetsSection />);
+
+      await user.click(screen.getByText('By campsite'));
+
+      expect(
+        screen.getByRole('button', { name: /Campsite A/ }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
     });
   });
 });

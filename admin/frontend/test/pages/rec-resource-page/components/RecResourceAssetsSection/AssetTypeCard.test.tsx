@@ -75,7 +75,22 @@ describe('AssetTypeCard', () => {
     expect(screen.queryByText(/repairs$/)).not.toBeInTheDocument();
   });
 
-  it('renders an Edit button', () => {
+  it('renders an Edit button when onEdit is provided', () => {
+    render(
+      <AssetTypeCard
+        eventKey="1"
+        description="Bridge"
+        count={5}
+        totalValue={1000}
+        activeRepairsCount={0}
+        onEdit={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+  });
+
+  it('hides the Edit button when onEdit is not provided', () => {
     render(
       <AssetTypeCard
         eventKey="1"
@@ -86,7 +101,7 @@ describe('AssetTypeCard', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
   });
 
   it('renders children content', () => {
@@ -150,6 +165,7 @@ describe('AssetTypeCard', () => {
         totalValue={1000}
         activeRepairsCount={0}
         isDisabled
+        onEdit={vi.fn()}
       />,
     );
 
