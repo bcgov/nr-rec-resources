@@ -59,14 +59,18 @@ Options:
 
 Reported separately per source.
 
-| Reason                      | Why                                                                                                                                     |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `skippedNotRecFile`         | `FOREST_FILE_ID` is not a `REC%` id                                                                                                     |
-| `skippedConversionAccount`  | Created or last updated by `RECREATION_CONVERSION`, the 2005 data migration. Its rows are generated summaries, not notes a person wrote |
-| `skippedNoMatchingResource` | No row in `rst.recreation_resource` with that id                                                                                        |
+| Reason                      | Why                                              |
+| --------------------------- | ------------------------------------------------ |
+| `skippedNotRecFile`         | `FOREST_FILE_ID` is not a `REC%` id              |
+| `skippedNoMatchingResource` | No row in `rst.recreation_resource` with that id |
 
 Rows are dropped rather than failing the run, since the target database may only
 be partly populated.
+
+Notes from the 2005 `RECREATION_CONVERSION` data migration are imported as well.
+They are machine-written summaries rather than staff observations, and land with
+`created_by = RECREATION_CONVERSION`, which is what tells them apart in the
+admin app.
 
 ### Data Mapping
 
