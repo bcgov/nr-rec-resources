@@ -38,7 +38,15 @@ export const StyledAccordion = ({
           <Accordion.Header className="styled-accordion__header">
             <span className="styled-accordion__title">{title}</span>
           </Accordion.Header>
-          {headerEnd}
+
+          {headerEnd && (
+            <div
+              className="styled-accordion__header-end"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {headerEnd}
+            </div>
+          )}
         </div>
         <Accordion.Body>{children}</Accordion.Body>
       </Accordion.Item>
