@@ -12,6 +12,7 @@ import type { ValidationIssue } from './spatialSubmission.types';
 interface GeometryValidationOptions {
   expectedSrsName: string;
   enforceExpectedSrsName: boolean;
+  enforceLineDuplicateValidation?: boolean;
   expectedGeometryType?: 'Point' | 'LineString' | 'Polygon';
 }
 
@@ -732,9 +733,10 @@ function validatePolygonRelationships(
 
 function validateLineRelationships(
   lineParts: LinePartReference[],
+  enforceLineDuplicateValidation: boolean,
   issues: ValidationIssue[],
 ) {
-  if (lineParts.length <= 1) {
+  if (!enforceLineDuplicateValidation || lineParts.length <= 1) {
     return;
   }
 
@@ -811,6 +813,8 @@ export function validateGeometry(
   options: GeometryValidationOptions,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
+  const enforceLineDuplicateValidation =
+    options.enforceLineDuplicateValidation ?? true;
   const features: any[] = featureCollection?.features ?? [];
   const sourceCrs = detectSourceCrs(featureCollection, options.expectedSrsName);
   let totalVertices = 0;
@@ -902,7 +906,7 @@ export function validateGeometry(
   }
 
   validatePolygonRelationships(polygonParts, hasMultiplePolygonRecords, issues);
-  validateLineRelationships(lineParts, issues);
+  validateLineRelationships(lineParts, enforceLineDuplicateValidation, issues);
   validateOverlappingNodes(pointReferences, issues);
 
   if (totalVertices > MAX_TOTAL_VERTEX_COUNT) {

@@ -7,6 +7,7 @@ export interface SpatialSubmissionSectionProps {
   defaultNaturalResourceDistrict?: string;
   defaultRecreationDistrict?: string;
   editMode?: boolean;
+  forceNewRequest?: boolean;
   existingSectionIds?: string[];
   showCreateHeading?: boolean;
   useGeospatialCompactForm?: boolean;

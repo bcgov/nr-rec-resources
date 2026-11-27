@@ -744,6 +744,37 @@ describe('RecResourceGeospatialSection', () => {
     expect(screen.getByRole('button', { name: /Regenerate/i })).toBeDisabled();
   });
 
+  it('disables Exhibit A upload and regenerate for rejected submissions', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      isSuperAdmin: true,
+      canViewSensitiveInfo: true,
+    });
+    mockUseGetPendingMapFeatureRequests.mockReturnValue({
+      data: {
+        data: [
+          {
+            submission_id: 'SUB-REJECTED',
+            application_guid: 'app-guid-rejected',
+            rec_resource_id: 'REC0001',
+            amend_status_code: 'REJ',
+            feature_count: 1,
+            geometry_types: ['Polygon'],
+          },
+        ],
+        total: 1,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(
+      screen.getByRole('button', { name: /Upload Exhibit A/i }),
+    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Regenerate/i })).toBeDisabled();
+  });
+
   it('opens the upload modal and uploads exhibit A successfully', async () => {
     const presignMutate = vi.fn().mockResolvedValue({
       url: 'https://example.com/presign',

@@ -45,6 +45,7 @@ export const SpatialSubmissionSection = ({
   defaultNaturalResourceDistrict = '',
   defaultRecreationDistrict = '',
   editMode = false,
+  forceNewRequest = false,
   existingSectionIds = [],
   showCreateHeading = false,
   useGeospatialCompactForm = false,
@@ -244,6 +245,7 @@ export const SpatialSubmissionSection = ({
       ...validateGeometry(featureCollection, {
         expectedSrsName: 'EPSG:3005',
         enforceExpectedSrsName: true,
+        enforceLineDuplicateValidation: !editMode,
         expectedGeometryType: values.featureType as
           | 'Point'
           | 'LineString'
@@ -253,13 +255,19 @@ export const SpatialSubmissionSection = ({
 
     setEditableFeatureCollection(featureCollection);
     const nextFeatureSectionIds = sectionIdDetails.featureSectionIds.map(
-      (f) => ({
-        ...f,
-        editAction: existingSectionIds.includes(f.sectionId ?? '')
-          ? 'AMEND'
-          : 'NEW',
-      }),
-    );
+      (f) => {
+        const editAction =
+          forceNewRequest || !existingSectionIds.includes(f.sectionId ?? '')
+            ? ('NEW' as const)
+            : ('AMEND' as const);
+
+        return {
+          featureIndex: f.featureIndex,
+          sectionId: f.sectionId,
+          editAction,
+        };
+      },
+    ) as FeatureSectionId[];
     setFeatureSectionIds(nextFeatureSectionIds);
     setSectionIdFieldName(sectionIdDetails.fieldName);
     setSelectedFeatureIndex((current) => {
@@ -415,30 +423,50 @@ export const SpatialSubmissionSection = ({
       const submittedBy = values.metadata.contactName || values.metadata.email;
 
       if (editMode) {
-        const mappedFeatures = featureSectionIds
-          .map((featureSection) => {
-            const featureIndex = featureSection.featureIndex - 1;
-            const feature = editableFeatureCollection.features[featureIndex];
-            if (!feature) {
-              return null;
-            }
+        const mappedFeatures = requiresSectionIds
+          ? featureSectionIds
+              .map((featureSection) => {
+                const featureIndex = featureSection.featureIndex - 1;
+                const feature =
+                  editableFeatureCollection.features[featureIndex];
+                if (!feature) {
+                  return null;
+                }
 
-            const trimmedFeatureSection = trimFeatureSectionIdForPayload(
-              feature,
-              featureIndex,
+                const trimmedFeatureSection = trimFeatureSectionIdForPayload(
+                  feature,
+                  featureIndex,
+                );
+
+                return {
+                  geometry: feature.geometry,
+                  properties: trimmedFeatureSection.properties,
+                  sectionId: trimmedFeatureSection.sectionId,
+                  featureAreaHectares: getFeatureAreaHectares(feature),
+                  editAction: forceNewRequest
+                    ? ('NEW' as const)
+                    : (featureSection.editAction ?? 'NEW'),
+                };
+              })
+              .filter(
+                (entry): entry is NonNullable<typeof entry> => entry !== null,
+              )
+          : editableFeatureCollection.features.map(
+              (feature: any, index: number) => {
+                const trimmedFeatureSection = trimFeatureSectionIdForPayload(
+                  feature,
+                  index,
+                );
+
+                return {
+                  geometry: feature.geometry,
+                  properties: trimmedFeatureSection.properties,
+                  sectionId: trimmedFeatureSection.sectionId,
+                  featureAreaHectares: getFeatureAreaHectares(feature),
+                  editAction: 'NEW' as const,
+                };
+              },
             );
-
-            return {
-              geometry: feature.geometry,
-              properties: trimmedFeatureSection.properties,
-              sectionId: trimmedFeatureSection.sectionId,
-              featureAreaHectares: getFeatureAreaHectares(feature),
-              editAction: featureSection.editAction ?? 'NEW',
-            };
-          })
-          .filter(
-            (entry): entry is NonNullable<typeof entry> => entry !== null,
-          );
         const payload = {
           recResourceId,
           newFeatures: mappedFeatures

@@ -355,7 +355,7 @@ export class ExhibitAService {
       size: generated.pageSize,
       orientation: this.toDbOrientation(generated.pageOrientation),
       scale: generated.scale,
-      generationMethod: 'auto',
+      generationMethod: 'regenerate',
       userId,
       fileSize: generated.pdfBuffer.length,
     });
@@ -699,7 +699,7 @@ export class ExhibitAService {
     size: ExhibitAPageSize;
     orientation: string;
     scale: number;
-    generationMethod: 'auto' | 'regenerate';
+    generationMethod: 'regenerate';
     userId: string;
     fileSize: number;
   }): Promise<void> {
