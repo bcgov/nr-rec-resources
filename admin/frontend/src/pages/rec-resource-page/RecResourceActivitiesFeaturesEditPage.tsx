@@ -99,6 +99,8 @@ export const RecResourceActivitiesFeaturesEditPage = () => {
 
   return (
     <Form
+      // extra room so the last dropdown's menu isn't cramped against the bottom
+      className="pb-5"
       onSubmit={(e) => {
         e.preventDefault();
         void onSave();
