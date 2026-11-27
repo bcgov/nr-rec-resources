@@ -133,6 +133,14 @@ export function RecResourceGeospatialSection() {
       }),
     [submissionRows],
   );
+  const hasApprovedSubmission = useMemo(
+    () =>
+      submissionRows.some(
+        (row) => (row.amend_status_code?.toUpperCase().trim() ?? '') === 'APP',
+      ),
+    [submissionRows],
+  );
+  const forceNewRequest = !hasApprovedSubmission;
   const isRequestsBusy = isRequestsLoading || isRequestsFetching;
   const disableCreateAction =
     isRequestsBusy || (!isArchived && hasPendingSubmission);
@@ -261,6 +269,7 @@ export function RecResourceGeospatialSection() {
                   recResource?.recreation_district?.district_code
                 }
                 editMode={true}
+                forceNewRequest={forceNewRequest}
                 useGeospatialCompactForm={true}
                 existingSectionIds={geospatialData?.section_ids ?? undefined}
                 showCreateHeading={true}
