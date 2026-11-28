@@ -5,6 +5,7 @@
       <sequence increment="1" name="recreation_activity_code_trails_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_asset_code_asset_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_fee_fdl_log_id_seq" startValue="1"/>
+      <sequence increment="1" name="recreation_spatial_submission_map_feature_rssmf_skey_seq" startValue="1"/>
       <sequence increment="1" name="recreation_spatial_submission_submission_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_status_code_status_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_structure_code_structure_code_seq" startValue="1"/>
@@ -142,6 +143,8 @@
             <child column="map_feature_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_map_feature_geom"/>
             <child column="map_feature_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_map_feature_geom_history"/>
             <child column="amendment_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_map_feature_history"/>
+            <child column="amendment_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_map_feature"/>
+            <child column="amendment_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_map_feature_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="false" remarks="Identification manually assigned to a Recreation Resource" size="20" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="recreation_access_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
@@ -1074,6 +1077,7 @@
       <table name="recreation_map_feature" remarks="Captures both current and historical attributes for Recreation Map Features." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rmf_skey" nullable="false" remarks="The SKEY for the RECREATION MAP FEATURE." size="10" type="int4" typeCode="4">
             <child column="rmf_skey" foreignKey="recreation_map_feature_geom_rmf_skey_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_map_feature_geom"/>
+            <child column="rmf_skey" foreignKey="recreation_spatial_submission_map_feature_rmf_skey_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_map_feature"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="true" remarks="File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number." size="10" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="recreation_map_feature_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
@@ -1095,6 +1099,7 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="12" name="created_at" nullable="true" remarks="Contains the system timestamp when data in a table was inserted." size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="created_by" nullable="true" remarks="The userid responsible for inserting data into a table." size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="14" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="'Y'::bpchar" digits="0" id="15" name="current_ind" nullable="false" remarks="" size="1" type="bpchar" typeCode="1"/>
          <primaryKey column="rmf_skey" sequenceNumberInPK="1"/>
          <index name="recreation_map_feature_pkey" unique="true">
             <column ascending="true" name="rmf_skey"/>
@@ -1108,7 +1113,11 @@
          <index name="idx_recreation_map_feature_rmf_skey" unique="false">
             <column ascending="true" name="rmf_skey"/>
          </index>
-         <index name="recreation_map_feature_rec_resource_id_section_id_key" unique="true">
+         <index name="idx_rmf_rec_resource_section" unique="false">
+            <column ascending="true" name="rec_resource_id"/>
+            <column ascending="true" name="section_id"/>
+         </index>
+         <index name="uq_rmf_current_section" unique="true">
             <column ascending="true" name="rec_resource_id"/>
             <column ascending="true" name="section_id"/>
          </index>
@@ -1302,6 +1311,8 @@
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_type_view_public"/>
             <child column="rec_resource_id" foreignKey="recreation_site_description_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_site_description"/>
             <child column="tenure_id" foreignKey="recreation_spatial_submission_tenure_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
+            <child column="rec_resource_id" foreignKey="recreation_spatial_submission_map_feature_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_map_feature"/>
+            <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_map_feature_history"/>
             <child column="rec_resource_id" foreignKey="recreation_status_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_status"/>
             <child column="rec_resource_id" foreignKey="recreation_structure_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_structure"/>
             <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_structure_history"/>
@@ -1678,6 +1689,7 @@
             <child column="recreation_resource_type" foreignKey="recreation_map_feature_recreation_resource_type_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_map_feature"/>
             <child column="rec_resource_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_type_code_history"/>
             <child column="recreation_resource_type" foreignKey="recreation_spatial_submission_recreation_resource_type_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
+            <child column="recreation_resource_type" foreignKey="recreation_spatial_submission_map_recreation_resource_type_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_map_feature"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="Description of the code value" size="200" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
@@ -1803,6 +1815,8 @@
             <child column="application_guid" foreignKey="fk_recreation_exhibit_a_doc_application_guid" implied="false" onDeleteCascade="false" schema="rst" table="recreation_exhibit_a_doc"/>
             <child column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_exhibit_a_doc_history"/>
             <child column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_history"/>
+            <child column="application_guid" foreignKey="recreation_spatial_submission_map_feature_application_guid_fkey" implied="false" onDeleteCascade="true" schema="rst" table="recreation_spatial_submission_map_feature"/>
+            <child column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_map_feature_history"/>
          </column>
          <column autoUpdated="true" defaultValue="(nextval('rst.recreation_spatial_submission_submission_id_seq'::regclass))::character varying(50)" digits="0" id="1" name="submission_id" nullable="false" remarks="Client-facing submission identifier (auto-generated incremental value when omitted)." size="50" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="tenure_id" nullable="false" remarks="Tenure identifier (FK to rst.recreation_resource.rec_resource_id)." size="20" type="varchar" typeCode="12">
@@ -1850,11 +1864,11 @@
          <index name="recreation_spatial_submission_status_request_guid_key" unique="true">
             <column ascending="true" name="status_request_guid"/>
          </index>
-         <checkConstraint constraint="(((adjudication_ind = true) AND ((status)::text = ANY ((ARRAY['APP'::character varying, 'REJ'::character varying])::text[])) AND (adjudicated_by IS NOT NULL) AND (adjudication_date IS NOT NULL)) OR ((adjudication_ind = false) AND ((status)::text = ANY ((ARRAY['PND'::character varying, 'CLR'::character varying, 'FAI'::character varying])::text[])) AND (adjudicated_by IS NULL) AND (adjudication_date IS NULL)))" name="chk_spatial_submission_adjudication"/>
+         <checkConstraint constraint="(((adjudication_ind = true) AND ((status)::text = ANY ((ARRAY['APP'::character varying, 'REJ'::character varying])::text[]))) OR ((adjudication_ind = false) AND ((status)::text = ANY ((ARRAY['RET'::character varying, 'PND'::character varying, 'CLR'::character varying, 'FAI'::character varying])::text[])) AND (adjudicated_by IS NULL) AND (adjudication_date IS NULL)))" name="chk_spatial_submission_adjudication"/>
          <checkConstraint constraint="(((decision)::text = ANY ((ARRAY['APPROVE'::character varying, 'REJECT'::character varying])::text[])) OR (decision IS NULL))" name="chk_spatial_submission_decision"/>
          <checkConstraint constraint="((purpose_code)::text = ANY ((ARRAY['N'::character varying, 'A'::character varying, 'R'::character varying])::text[]))" name="chk_spatial_submission_purpose"/>
-         <checkConstraint constraint="((status)::text = ANY ((ARRAY['CLR'::character varying, 'APP'::character varying, 'REJ'::character varying, 'PND'::character varying, 'FAI'::character varying])::text[]))" name="chk_spatial_submission_status"/>
-         <checkConstraint constraint="((((status)::text = 'CLR'::text) AND (decision IS NULL) AND (adjudication_comment IS NULL) AND (adjudication_report_document_uri IS NULL)) OR (((status)::text = 'APP'::text) AND ((decision)::text = 'APPROVE'::text) AND (adjudication_report_document_uri IS NOT NULL)) OR (((status)::text = 'REJ'::text) AND ((decision)::text = 'REJECT'::text) AND (adjudication_comment IS NOT NULL)) OR ((status)::text = ANY ((ARRAY['PND'::character varying, 'FAI'::character varying])::text[])))" name="chk_spatial_submission_status_business_rules"/>
+         <checkConstraint constraint="((status)::text = ANY ((ARRAY['CLR'::character varying, 'APP'::character varying, 'REJ'::character varying, 'RET'::character varying, 'PND'::character varying, 'FAI'::character varying])::text[]))" name="chk_spatial_submission_status"/>
+         <checkConstraint constraint="((((status)::text = 'CLR'::text) AND (decision IS NULL) AND (adjudication_comment IS NULL) AND (adjudication_report_document_uri IS NULL)) OR (((status)::text = 'APP'::text) AND ((decision)::text = 'APPROVE'::text)) OR (((status)::text = 'REJ'::text) AND ((decision)::text = 'REJECT'::text)) OR ((status)::text = ANY ((ARRAY['RET'::character varying, 'PND'::character varying, 'FAI'::character varying])::text[])))" name="chk_spatial_submission_status_business_rules"/>
          <checkConstraint constraint="((status_request_type_code)::text = ANY ((ARRAY['RL'::character varying, 'RPO'::character varying])::text[]))" name="chk_spatial_submission_status_request_type"/>
       </table>
       <table name="recreation_spatial_submission_history" remarks="" schema="rst" type="TABLE">
@@ -1881,6 +1895,87 @@
          <column autoUpdated="false" defaultValue="null" digits="6" id="18" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
+      <table name="recreation_spatial_submission_map_feature" remarks="Submission-scoped map features captured at geospatial request time before adjudication promotion to recreation_map_feature." schema="rst" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('rst.recreation_spatial_submission_map_feature_rssmf_skey_seq'::regclass)" digits="0" id="0" name="rssmf_skey" nullable="false" remarks="" size="19" type="bigserial" typeCode="-5">
+            <child column="rssmf_skey" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_map_feature_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="application_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="application_guid" foreignKey="recreation_spatial_submission_map_feature_application_guid_fkey" implied="false" onDeleteCascade="true" schema="rst" table="recreation_spatial_submission"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="rec_resource_id" nullable="false" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="recreation_spatial_submission_map_feature_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="section_id" nullable="true" remarks="" size="30" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="purpose_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="'PND'::character varying" digits="0" id="5" name="amend_status_code" nullable="false" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="amendment_id" nullable="true" remarks="" size="10" type="int4" typeCode="4">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_access"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="recreation_resource_type" nullable="true" remarks="" size="3" type="varchar" typeCode="12">
+            <parent column="rec_resource_type_code" foreignKey="recreation_spatial_submission_map_recreation_resource_type_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_type_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="retirement_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="map_feature_guid" nullable="false" remarks="" size="36" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="feature_record_guid" nullable="false" remarks="" size="36" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="feature_business_identifier" nullable="true" remarks="" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="12" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="14" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="16" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="rmf_skey" nullable="true" remarks="" size="10" type="int4" typeCode="4">
+            <parent column="rmf_skey" foreignKey="recreation_spatial_submission_map_feature_rmf_skey_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_map_feature"/>
+         </column>
+         <primaryKey column="rssmf_skey" sequenceNumberInPK="1"/>
+         <index name="recreation_spatial_submission_map_feature_pkey" unique="true">
+            <column ascending="true" name="rssmf_skey"/>
+         </index>
+         <index name="idx_rssmf_rmf_skey" unique="false">
+            <column ascending="true" name="rmf_skey"/>
+         </index>
+         <index name="idx_spatial_submission_map_feature_application_guid" unique="false">
+            <column ascending="true" name="application_guid"/>
+         </index>
+         <index name="idx_spatial_submission_map_feature_rec_resource_id" unique="false">
+            <column ascending="true" name="rec_resource_id"/>
+         </index>
+         <index name="idx_spatial_submission_map_feature_section_id" unique="false">
+            <column ascending="true" name="section_id"/>
+         </index>
+         <index name="uq_spatial_submission_map_feature_guid" unique="true">
+            <column ascending="true" name="application_guid"/>
+            <column ascending="true" name="map_feature_guid"/>
+         </index>
+         <checkConstraint constraint="((purpose_code)::text = ANY ((ARRAY['N'::character varying, 'A'::character varying, 'R'::character varying])::text[]))" name="chk_spatial_submission_map_feature_purpose"/>
+         <checkConstraint constraint="((amend_status_code)::text = ANY ((ARRAY['PND'::character varying, 'APP'::character varying, 'REJ'::character varying])::text[]))" name="chk_spatial_submission_map_feature_status"/>
+      </table>
+      <table name="recreation_spatial_submission_map_feature_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rssmf_skey" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="rssmf_skey" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission_map_feature"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="application_guid" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+            <parent column="application_guid" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_spatial_submission"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="rec_resource_id" nullable="false" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="section_id" nullable="true" remarks="" size="30" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="purpose_code" nullable="false" remarks="" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="amend_status_code" nullable="false" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="amendment_id" nullable="true" remarks="" size="10" type="int4" typeCode="4">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_access"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="recreation_resource_type" nullable="true" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="retirement_date" nullable="true" remarks="" size="13" type="date" typeCode="91"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="map_feature_guid" nullable="false" remarks="" size="36" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="feature_record_guid" nullable="false" remarks="" size="36" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="feature_business_identifier" nullable="true" remarks="" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="12" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="14" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_status" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="" size="200" type="varchar" typeCode="12">
